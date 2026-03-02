@@ -1,0 +1,28 @@
+const en = {
+  app_name: 'Super Customer App',
+  greeting: 'Good Morning 👋',
+  home_question: 'What are you looking for Today?',
+  home_title: 'Home',
+  home_subtitle: 'How can I help you today?',
+  special_offer_label: '10% off',
+  special_title: "Today's Special",
+  special_description: 'Get a discount for every service order!',
+  special_percent: '30%',
+  services_title: 'Our Services',
+  open_button: 'Open',
+  service_type_title: 'Service Type',
+  recommended_title: 'Recommended For You',
+  recommended_name: 'Premium Cleaning',
+  recommended_rating: '4.8 | 1,500+ reviews',
+  service_deliveries: 'Deliveries',
+  service_home_visit: 'Home-Visit Appointment',
+  service_general_appointment: 'General Appointment',
+  service_ride_sharing: 'Ride Sharing',
+  recommended_price: '{{price}}/hr',
+  recommended_reviews: '{{count}} reviews',
+  splash_title: 'Food Delivery',
+  loading: 'Loading...',
+  splash_progress: '{{value}}%',
+};
+
+export default en;

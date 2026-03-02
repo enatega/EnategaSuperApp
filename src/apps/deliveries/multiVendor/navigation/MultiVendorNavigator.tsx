@@ -1,0 +1,25 @@
+import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import MultiVendorHomeScreen from '../screens/HomeScreen';
+import MultiVendorDeliveryDetails from '../screens/DeliveryDetails';
+import { useTranslation } from 'react-i18next';
+
+const Stack = createNativeStackNavigator();
+
+export default function MultiVendorNavigator() {
+  const { t } = useTranslation('deliveries');
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="MultiVendorHome"
+        component={MultiVendorHomeScreen}
+        options={{ title: t('multi_vendor_title') }}
+      />
+      <Stack.Screen
+        name="MultiVendorDetails"
+        component={MultiVendorDeliveryDetails}
+        options={{ title: t('details_title') }}
+      />
+    </Stack.Navigator>
+  );
+}

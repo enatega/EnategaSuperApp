@@ -1,0 +1,28 @@
+const en = {
+  label: 'Deliveries',
+  description: 'Order from stores or vendors.',
+  header_title: 'Deliveries',
+  header_subtitle: 'Choose a delivery type',
+  single_vendor_title: 'Single Vendor',
+  single_vendor_desc: 'Order from your preferred store.',
+  multi_vendor_title: 'Multi Vendor',
+  multi_vendor_desc: 'Browse and order from multiple stores.',
+  chain_title: 'Chain',
+  chain_desc: 'Order from your favorite chains.',
+  explore_button: 'Explore',
+  details_title: 'Delivery Details',
+  single_vendor_home_subtitle: 'Your preferred store',
+  single_vendor_home_body: 'Explore vendors and services here.',
+  multi_vendor_home_subtitle: 'Browse multiple stores',
+  multi_vendor_home_body: 'Discover and order from multiple vendors.',
+  chain_home_subtitle: 'Favorite chains',
+  chain_home_body: 'Order from your favorite chain stores.',
+  type_single_vendor_title: 'Single Vendor Store',
+  type_single_vendor_desc: 'Hand-picked premium vendors only',
+  type_marketplace_title: 'Marketplace',
+  type_marketplace_desc: 'Vast Local Community providers',
+  type_chain_title: 'Chain Stores',
+  type_chain_desc: 'Shop your favorite chains',
+};
+
+export default en;

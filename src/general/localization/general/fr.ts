@@ -1,0 +1,28 @@
+const fr = {
+  app_name: 'Application Super Client',
+  greeting: 'Bonjour 👋',
+  home_question: 'Que recherchez-vous aujourd’hui ?',
+  home_title: 'Accueil',
+  home_subtitle: 'Comment puis-je vous aider aujourd\'hui ?',
+  special_offer_label: '10% de réduction',
+  special_title: 'Offre du jour',
+  special_description: 'Obtenez une réduction pour chaque commande de service !',
+  special_percent: '30%',
+  services_title: 'Nos Services',
+  open_button: 'Ouvrir',
+  service_type_title: 'Type de Service',
+  recommended_title: 'Recommandé Pour Vous',
+  recommended_name: 'Nettoyage Premium',
+  recommended_rating: '4,8 | 1 500+ avis',
+  service_deliveries: 'Livraisons',
+  service_home_visit: 'Rendez-vous à Domicile',
+  service_general_appointment: 'Rendez-vous Général',
+  service_ride_sharing: 'Covoiturage',
+  recommended_price: '{{price}}/h',
+  recommended_reviews: '{{count}} avis',
+  splash_title: 'Livraison de Nourriture',
+  loading: 'Chargement...',
+  splash_progress: '{{value}}%',
+};
+
+export default fr;

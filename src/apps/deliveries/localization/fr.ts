@@ -1,0 +1,28 @@
+const fr = {
+  label: 'Livraisons',
+  description: 'Commandez auprès de magasins ou de vendeurs.',
+  header_title: 'Livraisons',
+  header_subtitle: 'Choisissez un type de livraison',
+  single_vendor_title: 'Vendeur Unique',
+  single_vendor_desc: 'Commandez auprès de votre magasin préféré.',
+  multi_vendor_title: 'Multi Vendeurs',
+  multi_vendor_desc: 'Parcourez et commandez auprès de plusieurs magasins.',
+  chain_title: 'Chaîne',
+  chain_desc: 'Commandez auprès de vos chaînes préférées.',
+  explore_button: 'Explorer',
+  details_title: 'Détails de Livraison',
+  single_vendor_home_subtitle: 'Votre magasin préféré',
+  single_vendor_home_body: 'Explorez les vendeurs et services ici.',
+  multi_vendor_home_subtitle: 'Parcourez plusieurs magasins',
+  multi_vendor_home_body: 'Découvrez et commandez auprès de plusieurs vendeurs.',
+  chain_home_subtitle: 'Chaînes favorites',
+  chain_home_body: 'Commandez auprès de vos chaînes préférées.',
+  type_single_vendor_title: 'Magasin Vendeur Unique',
+  type_single_vendor_desc: 'Uniquement des vendeurs premium sélectionnés',
+  type_marketplace_title: 'Marketplace',
+  type_marketplace_desc: 'Nombreux prestataires locaux',
+  type_chain_title: 'Magasins de Chaîne',
+  type_chain_desc: 'Achetez vos chaînes préférées',
+};
+
+export default fr;
