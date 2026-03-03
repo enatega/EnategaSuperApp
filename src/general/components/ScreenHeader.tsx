@@ -2,13 +2,13 @@ import React from 'react';
 import {
   Pressable,
   StyleSheet,
-  Text as RNText,
   View,
   ViewStyle,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/theme';
+import Text from './Text';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -75,7 +75,7 @@ export default function ScreenHeader({
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <View style={[styles.backButton, { backgroundColor: colors.background }]}>
-              <RNText style={[styles.backArrow, { color: colors.text }]}>←</RNText>
+              <Text style={[styles.backArrow, { color: colors.text }]}>←</Text>
             </View>
           </Pressable>
         )}
@@ -83,19 +83,14 @@ export default function ScreenHeader({
 
       {/* ── Centre: Title (optional) ── */}
       {title ? (
-        <RNText
+        <Text
           numberOfLines={1}
-          style={[
-            styles.title,
-            {
-              color: colors.text,
-              fontWeight: '600',
-              fontSize: 16,
-            },
-          ]}
+          weight="semiBold"
+          color={colors.text}
+          style={styles.title}
         >
           {title}
-        </RNText>
+        </Text>
       ) : (
         <View style={styles.title} />
       )}
