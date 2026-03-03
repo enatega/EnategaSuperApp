@@ -1,6 +1,5 @@
 import React from 'react';
-import { Image, View } from 'react-native';
-import Text from '../../../../general/components/Text';
+import { Image, View, Text as RNText } from 'react-native';
 
 type Props = {
   uri: string;
@@ -27,9 +26,15 @@ function AvatarFallback({ name, size }: { name: string; size: number }) {
         justifyContent: 'center',
       }}
     >
-      <Text style={{ fontSize: size * 0.38, fontWeight: '600', color: '#2346E8' }}>
+      <RNText
+        style={{
+          fontSize: size * 0.38,
+          fontWeight: '600',
+          color: '#2346E8',
+        }}
+      >
         {initials}
-      </Text>
+      </RNText>
     </View>
   );
 }
