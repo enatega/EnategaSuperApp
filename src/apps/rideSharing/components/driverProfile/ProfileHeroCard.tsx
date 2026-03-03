@@ -45,7 +45,7 @@ export default function ProfileHeroCard({ data }: Props) {
       </Text>
 
       {/* Vehicle pill */}
-      <View style={[styles.vehiclePill, { backgroundColor: colors.cardSoft }]}>
+      {/* <View style={[styles.vehiclePill, { backgroundColor: colors.cardSoft }]}>
         <Text variant="caption" weight="medium" color={colors.primary}>
           🚗  {data.vehicle.vehicleName}
         </Text>
@@ -53,7 +53,7 @@ export default function ProfileHeroCard({ data }: Props) {
         <Text variant="caption" weight="medium" color={colors.mutedText}>
           {data.vehicle.vehicleNo}  ·  {data.vehicle.vehicleColor}
         </Text>
-      </View>
+      </View> */}
 
       {/* Stats row */}
       <View style={styles.statsRow}>
