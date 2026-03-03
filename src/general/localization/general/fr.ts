@@ -23,6 +23,8 @@ const fr = {
   splash_title: 'Livraison de Nourriture',
   loading: 'Chargement...',
   splash_progress: '{{value}}%',
+  developer_mode: 'Dev Mode',
+  driver_profile_button: "Driver profile"
 };
 
 export default fr;

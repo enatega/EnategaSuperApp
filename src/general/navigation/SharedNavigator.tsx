@@ -5,6 +5,7 @@ import DeliveriesNavigator from '../../apps/deliveries/navigation/DeliveriesNavi
 import RideSharingNavigator from '../../apps/rideSharing/navigation/RideSharingNavigator';
 import HomeVisitsNavigator from '../../apps/homeVisits/navigation/HomeVisitsNavigator';
 import AppointmentsNavigator from '../../apps/appointments/navigation/AppointmentsNavigator';
+import DeveloperModeNavigator from '../../apps/developerMode/navigation/DeveloperModeNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +21,7 @@ export default function SharedNavigator() {
               if (id === 'rideSharing') props.navigation.navigate('RideSharing');
               if (id === 'homeVisits') props.navigation.navigate('HomeVisits');
               if (id === 'appointments') props.navigation.navigate('Appointments');
+              if (id === 'developerMode') props.navigation.navigate('DeveloperMode');
             }}
           />
         )}
@@ -28,6 +30,7 @@ export default function SharedNavigator() {
       <Stack.Screen name="RideSharing" component={RideSharingNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="HomeVisits" component={HomeVisitsNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="Appointments" component={AppointmentsNavigator} options={{ headerShown: false }} />
+      <Stack.Screen name="DeveloperMode" component={DeveloperModeNavigator} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }

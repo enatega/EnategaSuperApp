@@ -23,6 +23,8 @@ const en = {
   splash_title: 'Food Delivery',
   loading: 'Loading...',
   splash_progress: '{{value}}%',
+  developer_mode: 'Dev Mode',
+  driver_profile_button: "Driver profile"
 };
 
 export default en;

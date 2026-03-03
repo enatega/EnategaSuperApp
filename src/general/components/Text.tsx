@@ -8,6 +8,7 @@ type Props = {
   variant?: "title" | "subtitle" | "body" | "caption";
   weight?: "regular" | "medium" | "semiBold" | "bold" | "extraBold";
   color?: string;
+  numberOfLines?: number;
 };
 
 export default function Text({
@@ -16,6 +17,7 @@ export default function Text({
   variant = "body",
   weight = "regular",
   color,
+  numberOfLines,
 }: Props) {
   const { colors, typography } = useTheme();
 
@@ -50,12 +52,13 @@ export default function Text({
         {
           color: color ?? colors.text,
           fontFamily: typography.fontFamily.regular,
-          fontWeight: typography.fontWeight[weight],
+          fontWeight: typography.fontWeight[weight] as any,
         },
         
         variantStyle,
         style,
       ]}
+      numberOfLines={numberOfLines}
     >
       {children}
     </RNText>

@@ -6,6 +6,9 @@ const fr = {
   home_body: 'Réservez un trajet et suivez-le en temps réel.',
   details_title: 'Détails du Trajet',
   details_body: 'Détails du trajet et informations sur le conducteur.',
+  driver_profile_title: 'Profil du Conducteur',
+  driver_profile_button: 'Profil du Conducteur',
 };
 
 export default fr;
+

@@ -1,17 +1,17 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Header from '../../../general/components/Header';
-import Text from '../../../general/components/Text';
-import { useTheme } from '../../../general/theme/theme';
+import Header from '../../../../general/components/Header';
+import Text from '../../../../general/components/Text';
+import { useTheme } from '../../../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
 
-export default function RideSharingHomeScreen() {
+export default function RideDetails() {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}> 
-      <Header title={t('header_title')} subtitle={t('header_subtitle')} />
-      <Text>{t('home_body')}</Text>
+      <Header title={t('details_title')} />
+      <Text>{t('details_body')}</Text>
     </View>
   );
 }

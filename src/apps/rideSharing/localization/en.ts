@@ -6,6 +6,9 @@ const en = {
   home_body: 'Book a ride and track it in real time.',
   details_title: 'Ride Details',
   details_body: 'Ride details and driver information.',
+  driver_profile_title: 'Driver Profile',
+  driver_profile_button: 'Driver Profile',
 };
 
 export default en;
+
