@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { useTheme } from '../../../../general/theme/theme';
@@ -8,10 +8,22 @@ import { DRIVER_DATA } from '../../components/driverProfile/mockData';
 import ProfileHeroCard from '../../components/driverProfile/ProfileHeroCard';
 import RatingSummary from '../../components/driverProfile/RatingSummary';
 import ReviewCard from '../../components/driverProfile/ReviewCard';
+import DriverProfileSkeleton from '../../components/driverProfile/DriverProfileSkeleton';
 
 export default function DriverProfileScreen() {
   const { colors } = useTheme();
+  const [isLoading, setIsLoading] = useState(true);
   const data = DRIVER_DATA;
+
+  useEffect(() => {
+    // Simulate network delay to see the skeleton
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <DriverProfileSkeleton />;
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
