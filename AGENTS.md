@@ -35,7 +35,6 @@ This project ships reusable Codex skills in `.codex/skills/`. Each skill is a fo
 | `expo-cicd-workflows` | Writing EAS workflow YAML files for CI/CD and deployment automation |
 | `expo-deployment` | Deploying to iOS App Store, Android Play Store, and web hosting |
 | `expo-dev-client` | Building and distributing Expo development clients locally or via TestFlight |
-| `expo-tailwind-setup` | Setting up Tailwind CSS v4 in Expo with react-native-css and NativeWind v5 |
 | `native-data-fetching` | Network requests, API calls, React Query, SWR, error handling, caching, offline support |
 | `upgrading-expo` | Upgrading Expo SDK versions and fixing dependency issues |
 | `use-dom` | Using Expo DOM components to run web code in a webview on native |
