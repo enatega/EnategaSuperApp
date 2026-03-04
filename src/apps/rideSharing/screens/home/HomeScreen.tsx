@@ -1,19 +1,32 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
 import HomeHeader from '../../../../screens/home/HomeHeader';
 import RideOptionsSection from '../../components/RideOptionsSection';
 import DeliveryServicesSection from '../../components/DeliveryServicesSection';
 import RecommendedSection from '../../../../screens/home/RecommendedSection';
+import HamburgerMenu from '../../components/HamburgerMenu';
+import Sidebar, { type UserProfile } from '../../components/Sidebar';
+import { useSidebarMenu } from '../../hooks/useSidebarMenu';
 
 const recommendationImageOne = 'https://www.figma.com/api/mcp/asset/651c88ad-0287-4bc1-8f06-492da512be4b';
 const recommendationImageTwo = 'https://www.figma.com/api/mcp/asset/498bbad1-818d-450a-ae02-e885a587ded5';
 
 export default function RideSharingHomeScreen() {
   const { colors } = useTheme();
-  const { t } = useTranslation('general');
+  const { t } = useTranslation('rideSharing');
+  const { sidebarVisible, openSidebar, closeSidebar, menuItems, handleLogout } = useSidebarMenu();
+  const insets = useSafeAreaInsets();
+
+  // User profile data (will be replaced with actual user data later)
+  const userProfile: UserProfile = {
+    name: 'Robert Watson',
+    email: 'robert.watson141@test.com',
+    rating: 4.89,
+    reviewCount: 502,
+  };
 
   const recommendations = [
     {
@@ -36,7 +49,12 @@ export default function RideSharingHomeScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <HomeHeader  />
+      {/* Header */}
+      <View style={styles.headerContainer}>
+        <HamburgerMenu onPress={openSidebar} style={styles.hamburger} />
+          <HomeHeader />
+     
+      </View>
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
@@ -48,6 +66,15 @@ export default function RideSharingHomeScreen() {
           <RecommendedSection items={recommendations} />
         </ScrollView>
       </SafeAreaView>
+
+      {/* Sidebar */}
+      <Sidebar
+        visible={sidebarVisible}
+        onClose={closeSidebar}
+        userProfile={userProfile}
+        menuItems={menuItems}
+        onLogout={handleLogout}
+      />
     </View>
   );
 }
@@ -58,6 +85,15 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  headerContainer: {
+    position: 'relative',
+  },
+  hamburger: {
+    position: 'absolute',
+    left: 16,
+    top: 40,
+    zIndex: 10,
   },
   scrollContent: {
     paddingHorizontal: 16,
