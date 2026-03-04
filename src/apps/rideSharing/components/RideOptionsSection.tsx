@@ -1,12 +1,14 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import Text from '../../../general/components/Text';
 import Image from '../../../general/components/Image';
 import { useTheme } from '../../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { RideIntent } from '../utils/rideOptions';
 
 type RideOption = {
-  id: string;
+  id: RideIntent;
   title: string;
   icon: string;
 };
@@ -19,6 +21,7 @@ const courierIcon = 'https://www.figma.com/api/mcp/asset/513bf805-51ec-4377-acbb
 export default function RideOptionsSection() {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('rideSharing');
+  const navigation = useNavigation();
 
   const items: RideOption[] = [
     {
@@ -56,7 +59,11 @@ export default function RideOptionsSection() {
       </Text>
       <View style={styles.grid}>
         {items.map((item) => (
-          <View key={item.id} style={styles.item}>
+          <Pressable
+            key={item.id}
+            style={styles.item}
+            onPress={() => navigation.navigate('RideOptions' as never, { rideType: item.id } as never)}
+          >
             <View style={[styles.iconWrap, { backgroundColor: colors.blue50 }]}>
               <Image source={{ uri: item.icon }} style={styles.icon} />
             </View>
@@ -70,7 +77,7 @@ export default function RideOptionsSection() {
             >
               {item.title}
             </Text>
-          </View>
+          </Pressable>
         ))}
       </View>
     </View>
