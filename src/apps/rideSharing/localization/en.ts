@@ -13,6 +13,12 @@ const en = {
   ride_option_rental_desc: 'Keep a car for hours',
   ride_option_courier_title: 'Courier',
   ride_option_courier_desc: 'Send parcels quickly',
+  ride_option_women_title: 'Women Ride',
+  ride_option_ac_title: 'Ride A/C',
+  ride_option_premium_title: 'Premium',
+  ride_search_placeholder: 'Where to & for how much?',
+  ride_pickup_point_label: 'Pickup point',
+  ride_pickup_point_value: 'New Jersey',
   delivery_services_title: 'Get anything delivered',
   delivery_service_food_title: 'Food Delivery',
   delivery_service_food_desc: 'Meals at your doorstep',
@@ -31,4 +37,3 @@ const en = {
 };
 
 export default en;
-

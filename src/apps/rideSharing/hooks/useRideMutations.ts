@@ -10,7 +10,7 @@ import type {
     RideDetails,
     UpdateRidePayload,
 } from '../api/types';
-import { ApiError } from '../api/apiClient';
+import { ApiError } from '../../../general/api/apiClient';
 
 // ---------------------------------------------------------------------------
 // useCreateRide – request a new ride

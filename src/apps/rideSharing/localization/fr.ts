@@ -13,6 +13,12 @@ const fr = {
   ride_option_rental_desc: 'Gardez une voiture plusieurs heures',
   ride_option_courier_title: 'Coursier',
   ride_option_courier_desc: 'Envoyez vos colis rapidement',
+  ride_option_women_title: 'Trajet Femmes',
+  ride_option_ac_title: 'Trajet A/C',
+  ride_option_premium_title: 'Premium',
+  ride_search_placeholder: 'Où aller & pour combien ?',
+  ride_pickup_point_label: 'Point de départ',
+  ride_pickup_point_value: 'New Jersey',
   delivery_services_title: 'Faites tout livrer',
   delivery_service_food_title: 'Livraison de repas',
   delivery_service_food_desc: 'Des plats à votre porte',
@@ -31,4 +37,3 @@ const fr = {
 };
 
 export default fr;
-
