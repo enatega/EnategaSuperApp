@@ -58,8 +58,16 @@ export default function Sidebar({
   const insets = useSafeAreaInsets();
   const slideAnim = React.useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
   const overlayAnim = React.useRef(new Animated.Value(0)).current;
+  const visibleRef = React.useRef(visible);
 
   React.useEffect(() => {
+    // If opening and was previously closed, reset position first
+    if (visible && !visibleRef.current) {
+      slideAnim.setValue(-SIDEBAR_WIDTH);
+      overlayAnim.setValue(0);
+    }
+    visibleRef.current = visible;
+
     if (visible) {
       Animated.parallel([
         Animated.timing(slideAnim, {
@@ -110,7 +118,7 @@ export default function Sidebar({
           style={[
             styles.overlay,
             {
-              backgroundColor: colors.background,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
               opacity: overlayAnim,
             },
           ]}
