@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   title: {
-    maxWidth: 100,
+    maxWidth: 90,
   },
   iconWrap: {
     width: 46,

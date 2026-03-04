@@ -8,6 +8,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/theme';
+import Icon from './Icon';
 import Text from './Text';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -75,7 +76,7 @@ export default function ScreenHeader({
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <View style={[styles.backButton, { backgroundColor: colors.background }]}>
-              <Text style={[styles.backArrow, { color: colors.text }]}>←</Text>
+            <Icon type="AntDesign" name="arrow-left" size={20} color={colors.iconColor} />
             </View>
           </Pressable>
         )}

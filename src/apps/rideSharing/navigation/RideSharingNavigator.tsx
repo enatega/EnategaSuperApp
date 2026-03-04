@@ -13,7 +13,7 @@ export default function RideSharingNavigator() {
   return (
     <QueryProvider>
       <Stack.Navigator>
-        <Stack.Screen name="RideSharingHome" component={RideSharingHomeScreen} options={{ title: t('header_title') }} />
+        <Stack.Screen name="RideSharingHome" component={RideSharingHomeScreen} options={{ headerShown:false, title: t('header_title') }} />
         <Stack.Screen name="RideDetails" component={RideDetails} options={{ title: t('details_title') }} />
         <Stack.Screen
           name="DriverProfile"
