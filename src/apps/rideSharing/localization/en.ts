@@ -47,6 +47,27 @@ const en = {
   sidebar_security_subtitle: 'Update your password and change app preferences.',
   sidebar_notifications: 'Notifications',
   sidebar_notifications_subtitle: 'Stay updated with important alerts, ride updates, offers, and account activity.',
+  // Profile
+  personal_info_title: 'Personal info',
+  personal_info_subtitle: 'Update your personal and contact details.',
+  profile_photo_title: 'Profile photo',
+  profile_photo_description: 'This is the photo you would like others to see.',
+  update_photo_button: 'Update photo',
+  cancel_button: 'Cancel',
+  label_name: 'Name',
+  label_phone: 'Phone number',
+  label_email: 'Email',
+  label_first_name: 'First name',
+  label_last_name: 'Last name',
+  label_country_code: 'Country code',
+  label_phone_number: 'Phone number',
+  name_screen_title: 'Name',
+  name_screen_description: 'This is the name you would like other people to use when referring you you.',
+  phone_screen_title: 'Phone number',
+  phone_screen_description: 'You\'ll use this number to get notifications, sign in, and recover your account.',
+  phone_screen_subtitle: 'A verification code will be sent to this number',
+  update_button: 'Update',
+  back_button: 'Back',
 };
 
 export default en;

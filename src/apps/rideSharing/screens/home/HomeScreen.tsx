@@ -17,7 +17,7 @@ const recommendationImageTwo = 'https://www.figma.com/api/mcp/asset/498bbad1-818
 export default function RideSharingHomeScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
-  const { sidebarVisible, openSidebar, closeSidebar, menuItems, handleLogout } = useSidebarMenu();
+  const { sidebarVisible, openSidebar, closeSidebar, menuItems, handleLogout, handleProfilePress } = useSidebarMenu();
   const insets = useSafeAreaInsets();
 
   // User profile data (will be replaced with actual user data later)
@@ -74,6 +74,7 @@ export default function RideSharingHomeScreen() {
         userProfile={userProfile}
         menuItems={menuItems}
         onLogout={handleLogout}
+        onProfilePress={handleProfilePress}
       />
     </View>
   );

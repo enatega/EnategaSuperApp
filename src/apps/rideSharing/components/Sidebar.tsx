@@ -41,6 +41,7 @@ type Props = {
   userProfile?: UserProfile;
   menuItems?: MenuItem[];
   onLogout?: () => void;
+  onProfilePress?: () => void;
 };
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -52,6 +53,7 @@ export default function Sidebar({
   userProfile,
   menuItems = [],
   onLogout,
+  onProfilePress,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
@@ -146,7 +148,13 @@ export default function Sidebar({
           >
             {/* User Profile Header */}
             {userProfile ? (
-              <View style={styles.profileHeader}>
+              <TouchableOpacity
+                onPress={() => {
+                  onProfilePress?.();
+                  handleClose();
+                }}
+                style={styles.profileHeader}
+              >
                 <View style={[styles.avatarContainer, { backgroundColor: colors.cardSoft }]}>
                   {userProfile.avatarUri ? (
                     <View style={styles.avatarPlaceholder}>
@@ -184,15 +192,13 @@ export default function Sidebar({
                     </View>
                   ) : null}
                 </View>
-                <TouchableOpacity onPress={handleClose}>
-                  <Icon
-                    type="Ionicons"
-                    name="chevron-forward"
-                    size={24}
-                    color={colors.mutedText}
-                  />
-                </TouchableOpacity>
-              </View>
+                <Icon
+                  type="Ionicons"
+                  name="chevron-forward"
+                  size={24}
+                  color={colors.mutedText}
+                />
+              </TouchableOpacity>
             ) : null}
 
             {/* Menu Items */}

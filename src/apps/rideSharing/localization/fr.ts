@@ -47,6 +47,27 @@ const fr = {
   sidebar_security_subtitle: 'Mettez à jour votre mot de passe et modifiez les préférences de l\'application.',
   sidebar_notifications: 'Notifications',
   sidebar_notifications_subtitle: 'Restez informé des alertes importantes, mises à jour des trajets, offres et activité du compte.',
+  // Profile
+  personal_info_title: 'Informations personnelles',
+  personal_info_subtitle: 'Mettez à jour vos coordonnées personnelles et de contact.',
+  profile_photo_title: 'Photo de profil',
+  profile_photo_description: 'Ceci est la photo que vous souhaitez que les autres voient.',
+  update_photo_button: 'Mettre à jour la photo',
+  cancel_button: 'Annuler',
+  label_name: 'Nom',
+  label_phone: 'Numéro de téléphone',
+  label_email: 'Email',
+  label_first_name: 'Prénom',
+  label_last_name: 'Nom',
+  label_country_code: 'Indicatif pays',
+  label_phone_number: 'Numéro de téléphone',
+  name_screen_title: 'Nom',
+  name_screen_description: 'Ceci est le nom que vous souhaitez que les autres personnes utilisent pour vous désigner.',
+  phone_screen_title: 'Numéro de téléphone',
+  phone_screen_description: 'Vous utiliserez ce numéro pour recevoir des notifications, vous connecter et récupérer votre compte.',
+  phone_screen_subtitle: 'Un code de vérification sera envoyé à ce numéro',
+  update_button: 'Mettre à jour',
+  back_button: 'Retour',
 };
 
 export default fr;

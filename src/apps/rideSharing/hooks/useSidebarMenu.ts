@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type MenuItem = {
   id: string;
@@ -19,9 +20,16 @@ type UserProfile = {
   avatarUri?: string;
 };
 
+export type ProfileStackParamList = {
+  PersonalInfo: undefined;
+  EditName: undefined;
+  EditPhone: undefined;
+  EditEmail: undefined;
+};
+
 export function useSidebarMenu() {
   const [sidebarVisible, setSidebarVisible] = useState(false);
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
 
   const openSidebar = useCallback(() => {
     setSidebarVisible(true);
@@ -98,7 +106,7 @@ export function useSidebarMenu() {
       titleKey: 'sidebar_security',
       subtitleKey: 'sidebar_security_subtitle',
       showChevron: true,
-      onPress: () => console.log('Security pressed'),
+      onPress: () => navigation.navigate('PersonalInfo'),
     },
     {
       id: 'notifications',
@@ -117,6 +125,10 @@ export function useSidebarMenu() {
     // TODO: Implement logout logic
   }, [closeSidebar]);
 
+  const handleProfilePress = useCallback(() => {
+    navigation.navigate('PersonalInfo');
+  }, [navigation]);
+
   return {
     sidebarVisible,
     openSidebar,
@@ -124,6 +136,7 @@ export function useSidebarMenu() {
     toggleSidebar,
     menuItems,
     handleLogout,
+    handleProfilePress,
   };
 }
 

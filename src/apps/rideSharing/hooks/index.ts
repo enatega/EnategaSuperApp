@@ -18,3 +18,8 @@ export {
     useCancelRide,
     useRateRide,
 } from './useRideMutations';
+
+// Profile
+export { useProfile } from './useProfile';
+export { useSidebarMenu } from './useSidebarMenu';
+export type { ProfileStackParamList } from './useSidebarMenu';
