@@ -1,16 +1,19 @@
-import React from 'react';
-import { Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
+import React, { ReactNode } from 'react';
+import { Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import Text from './Text';
 import { useTheme } from '../theme/theme';
+import Svg from './Svg';
 
 type Props = {
   label: string;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
   variant?: 'primary' | 'secondary' | 'ghost';
+  icon?: ReactNode
+  disabled?: boolean
 };
 
-export default function Button({ label, onPress, style, variant = 'primary' }: Props) {
+export default function Button({ label, onPress, style, variant = 'primary', icon, disabled }: Props) {
   const { colors } = useTheme();
   const isGhost = variant === 'ghost';
   const isSecondary = variant === 'secondary';
@@ -18,20 +21,23 @@ export default function Button({ label, onPress, style, variant = 'primary' }: P
   return (
     <Pressable
       onPress={onPress}
+      disabled={disabled}
       style={({ pressed }) => [
         styles.base,
         {
-          backgroundColor: isGhost
+          backgroundColor: disabled ? colors.backgroundTertiary : isGhost
             ? 'transparent'
             : isSecondary
               ? colors.surface
               : colors.primary,
           borderColor: isGhost ? 'transparent' : colors.border,
-          opacity: pressed ? 0.85 : 1,
+          opacity: disabled ? 0.5 : pressed ? 0.85 : 1,
         },
         style,
       ]}
     >
+      <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8}}>
+        {icon && icon}
       <Text
         variant="body"
         weight="semiBold"
@@ -39,6 +45,7 @@ export default function Button({ label, onPress, style, variant = 'primary' }: P
       >
         {label}
       </Text>
+      </View>
     </Pressable>
   );
 }

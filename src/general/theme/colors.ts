@@ -6,7 +6,7 @@ export const lightColors = {
   secondary: '#6B5BFF',
   text: '#111827',
   mutedText: '#6B7280',
-  border: '#E5E7EB',
+  border: '#E4E4E7',
   success: '#10B981',
   warning: '#F59E0B',
   danger: '#EF4444',
@@ -31,6 +31,9 @@ export const lightColors = {
   overlayDark20: 'rgba(0, 0, 0, 0.2)',
   shadowColor: '#000000',
   white: '#FFFFFF',
+  iconColor: '#27272A',
+  backgroundTertiary: '#F4F4F5',
+  gray100: '#F3F4F6',
 };
 
 export const darkColors: typeof lightColors = {
@@ -41,7 +44,7 @@ export const darkColors: typeof lightColors = {
   secondary: '#8B7BFF',
   text: '#F9FAFB',
   mutedText: '#9CA3AF',
-  border: '#2A2F3A',
+  border: '#E4E4E7',
   success: '#34D399',
   warning: '#FBBF24',
   danger: '#F87171',
@@ -66,6 +69,9 @@ export const darkColors: typeof lightColors = {
   overlayDark20: 'rgba(0, 0, 0, 0.2)',
   shadowColor: '#000000',
   white: '#FFFFFF',
+  iconColor: '#27272A',
+  backgroundTertiary: '#F4F4F5',
+  gray100: '#F3F4F6'
 };
 
 export type ThemeColors = typeof lightColors;

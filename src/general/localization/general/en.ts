@@ -26,7 +26,27 @@ const en = {
   loading: 'Loading...',
   splash_progress: '{{value}}%',
   developer_mode: 'Dev Mode',
-  driver_profile_button: "Driver profile"
+  driver_profile_button: "Driver profile",
+  login_to_continue: 'Login to Continue',
+  login_to_continue_desc: 'Please log in to save your delivery details and ensure a smooth, secure checkout experience.',
+  continue_with_phone: 'Continue with Phone',
+  continue_with_google: 'Continue with Google',
+  continue_with_email: 'Continue with Email',
+  or: 'or',
+  dont_have_an_account: 'Don’t have an account?',
+  signup: 'Sign Up',
+  continue: 'Continue',
+  enter_your_phone: 'Log in easily by entering your phone!',
+  enter_phone_desc: 'We’ll check if you have an account',
+  verify_your_phone_number: 'Verify Your Phone Number',
+  verify_otp: 'Verify OTP',
+  enter_otp_sent_to: 'Enter OTP sent to',
+  didnt_receive_the_code: 'Didn’t receive the code?',
+  resend_in: 'Resend in',
+  try_another_way: 'Try another way',
+  resend: 'Resend',
+  incorrect_code: 'The code you entered is incorrect.',
+  
 };
 
 export default en;

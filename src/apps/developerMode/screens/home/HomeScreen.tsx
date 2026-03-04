@@ -34,6 +34,11 @@ export default function DeveloperModeHomeScreen() {
            label={t('driver_profile_button')}
            onPress={() => navigation.navigate('DriverProfile')}
            style={styles.button}
+      />
+        <Button
+           label={t('Auth flow')}
+           onPress={() => navigation.navigate('Auth')}
+           style={styles.button}
          />
     </View>
   );

@@ -6,6 +6,7 @@ import RideSharingNavigator from '../../apps/rideSharing/navigation/RideSharingN
 import HomeVisitsNavigator from '../../apps/homeVisits/navigation/HomeVisitsNavigator';
 import AppointmentsNavigator from '../../apps/appointments/navigation/AppointmentsNavigator';
 import DeveloperModeNavigator from '../../apps/developerMode/navigation/DeveloperModeNavigator';
+import AuthNavigator from './AuthNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +32,7 @@ export default function SharedNavigator() {
       <Stack.Screen name="HomeVisits" component={HomeVisitsNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="Appointments" component={AppointmentsNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="DeveloperMode" component={DeveloperModeNavigator} options={{ headerShown: false }} />
+      <Stack.Screen name="Auth" component={AuthNavigator} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
