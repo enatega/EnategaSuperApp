@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import Text from './Text';
 import { useTheme } from '../theme/theme';
 import Svg from './Svg';
@@ -11,17 +11,29 @@ type Props = {
   variant?: 'primary' | 'secondary' | 'ghost';
   icon?: ReactNode
   disabled?: boolean
+  isLoading?: boolean;
 };
 
-export default function Button({ label, onPress, style, variant = 'primary', icon, disabled }: Props) {
+export default function Button({
+  label,
+  onPress,
+  style,
+  variant = 'primary',
+  icon,
+  isLoading = false,
+  disabled = false,
+}: Props) {
   const { colors } = useTheme();
   const isGhost = variant === 'ghost';
   const isSecondary = variant === 'secondary';
+  const isDisabled = disabled || isLoading;
 
   return (
     <Pressable
       onPress={onPress}
-      disabled={disabled}
+      disabled={isDisabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: isDisabled, busy: isLoading }}
       style={({ pressed }) => [
         styles.base,
         {
@@ -31,20 +43,25 @@ export default function Button({ label, onPress, style, variant = 'primary', ico
               ? colors.surface
               : colors.primary,
           borderColor: isGhost ? 'transparent' : colors.border,
-          opacity: disabled ? 0.5 : pressed ? 0.85 : 1,
+          opacity: isDisabled ? 0.6 : pressed ? 0.85 : 1,
         },
         style,
       ]}
     >
-      <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8}}>
-        {icon && icon}
-      <Text
-        variant="body"
-        weight="semiBold"
-        color={isGhost ? colors.primary : isSecondary ? colors.text : '#FFFFFF'}
-      >
-        {label}
-      </Text>
+      <View style={styles.content}>
+        {isLoading ? (
+          <ActivityIndicator
+            size="small"
+            color={isGhost || isSecondary ? colors.primary : '#FFFFFF'}
+          />
+        ) : null}
+        <Text
+          variant="body"
+          weight="semiBold"
+          color={isGhost ? colors.primary : isSecondary ? colors.text : '#FFFFFF'}
+        >
+          {label}
+        </Text>
       </View>
     </Pressable>
   );
@@ -58,5 +75,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
 });
