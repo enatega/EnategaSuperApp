@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 // API client & error
-export { default as apiClient, ApiError, tokenManager } from './apiClient';
+export { default as apiClient, ApiError, tokenManager } from '../../../general/api/apiClient';
 
 // Types
 export type {

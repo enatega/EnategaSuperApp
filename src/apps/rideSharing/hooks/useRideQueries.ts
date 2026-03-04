@@ -9,7 +9,7 @@ import type {
     RideEstimatePayload,
     RideFilters,
 } from '../api/types';
-import { ApiError } from '../api/apiClient';
+import { ApiError } from '../../../general/api/apiClient';
 
 // ---------------------------------------------------------------------------
 // useRides – paginated ride list

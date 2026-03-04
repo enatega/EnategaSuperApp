@@ -7,6 +7,7 @@ These rules define the recommended approaches for clean, reusable, and maintaina
 - Put shared, cross-app code in `src/general/` only if used by more than one mini-app.
 - Do not reference another mini-app’s internal components directly. Share through `src/general/`.
 - Keep feature-level screens thin; prefer extracting view logic into reusable components or hooks.
+- Screen-level UI components must live under `src/apps/<appName>/components/` (use a feature subfolder like `components/rideOptions/`), not inside `screens/`.
 
 ## 2. Reusability First
 - Always check if a component is truly app-specific before creating it in a mini-app.
