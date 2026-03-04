@@ -10,3 +10,8 @@ export const serviceTypeIcons = {
   multiStore: require('./multiStore.png'),
   chainStore: require('./chainStore.png'),
 } as const;
+
+export const homePatterns = {
+  banner: require('./bannerPattern.png'),
+  header: require('./headerPattern.png'),
+} as const;
