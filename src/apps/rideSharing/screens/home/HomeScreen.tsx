@@ -91,8 +91,8 @@ const styles = StyleSheet.create({
   },
   hamburger: {
     position: 'absolute',
-    left: 16,
-    top: 40,
+    right: 16,
+    top: 65,
     zIndex: 10,
   },
   scrollContent: {
