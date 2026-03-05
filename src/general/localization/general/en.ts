@@ -77,6 +77,8 @@ const en = {
   try_another_way: 'Try another way',
   resend: 'Resend',
   incorrect_code: 'The code you entered is incorrect.',
+  get_started: 'Let’s get you started',
+  get_started_desc: 'First, let create your account'
 };
 
 export default en;

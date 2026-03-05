@@ -12,7 +12,7 @@ import {
 } from "@expo/vector-icons";
 import { StyleProp, TextStyle } from "react-native";
 
-type IconType =
+export type IconType =
   | "Ionicons"
   | "MaterialIcons"
   | "MaterialCommunityIcons"

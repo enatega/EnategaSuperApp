@@ -55,6 +55,7 @@ export default function Button({
             color={isGhost || isSecondary ? colors.primary : '#FFFFFF'}
           />
         ) : null}
+        {icon && icon}
         <Text
           variant="body"
           weight="semiBold"

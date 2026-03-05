@@ -6,13 +6,11 @@ import { useTranslation } from "react-i18next";
 import { useNavigation } from "@react-navigation/native";
 
 interface LoginFooterContentProps {
-  onSignUpPress?: () => void;
   leftText?: string;
   rightText?: string;
 }
 
 const LoginFooterContent: React.FC<LoginFooterContentProps> = ({
-  onSignUpPress,
   leftText = "dont_have_an_account",
   rightText = "signup",
 }) => {
@@ -21,11 +19,7 @@ const LoginFooterContent: React.FC<LoginFooterContentProps> = ({
   const navigation = useNavigation();
 
   const handleSignUpPress = () => {
-    if (onSignUpPress) {
-      onSignUpPress();
-    } else {
-      navigation.navigate("SignUp");
-    }
+    navigation.navigate("signup");
   };
 
   return (

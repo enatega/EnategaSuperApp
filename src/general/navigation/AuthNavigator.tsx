@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Login from "../screens/auth/login/Login";
 import EnterPhoneNumber from "../screens/auth/enterPhoneNumber/EnterPhoneNumber";
 import EnterPhoneOtp from "../screens/auth/enterPhoneOtp/EnterPhoneOtp";
+import Signup from "../screens/auth/signup/Signup";
 
 const Stack = createNativeStackNavigator();
 
@@ -22,6 +23,11 @@ export default function AuthNavigator() {
       <Stack.Screen
         name="enterPhoneOtp"
         component={EnterPhoneOtp}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="signup"
+        component={Signup}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

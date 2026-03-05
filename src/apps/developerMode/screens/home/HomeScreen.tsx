@@ -314,6 +314,11 @@ export default function DeveloperModeHomeScreen() {
         onPress={() => navigation.navigate('DriverProfile')}
         style={styles.button}
       />
+        <Button
+        label={t('Auth flow')}
+        onPress={() => navigation.navigate('Auth')}
+        style={styles.button}
+      />
     </ScrollView>
   );
 }
