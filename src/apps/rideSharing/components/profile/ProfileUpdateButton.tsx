@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
@@ -40,13 +40,17 @@ export default function ProfileUpdateButton({
           },
         ]}
       >
-        <Text
-          variant="subtitle"
-          weight="semiBold"
-          color={disabled || isLoading ? colors.mutedText : '#FFFFFF'}
-        >
-          {label}
-        </Text>
+        {isLoading ? (
+          <ActivityIndicator color="#FFFFFF" />
+        ) : (
+          <Text
+            variant="subtitle"
+            weight="semiBold"
+            color={disabled || isLoading ? colors.mutedText : '#FFFFFF'}
+          >
+            {label}
+          </Text>
+        )}
       </TouchableOpacity>
     </View>
   );
