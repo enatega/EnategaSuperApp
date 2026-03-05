@@ -1,5 +1,6 @@
 export const lightColors = {
   background: '#FFFFFF',
+  backgroundTertiary: '#F4F4F5',
   surface: '#FFFFFF',
   primary: '#2346E8',
   primaryDark: '#1C2FA6',
@@ -35,6 +36,7 @@ export const lightColors = {
 
 export const darkColors: typeof lightColors = {
   background: '#0F1117',
+  backgroundTertiary: '#161A23',
   surface: '#161A23',
   primary: '#4C7DFF',
   primaryDark: '#2E4BC8',
