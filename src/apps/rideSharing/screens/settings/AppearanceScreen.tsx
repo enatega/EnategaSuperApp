@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 16,
     overflow: 'hidden',
-    // paddingHorizontal: 16,
+    paddingHorizontal: 16,
   },
   divider: {
     height: 1,

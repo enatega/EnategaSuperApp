@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 16,
-    // paddingHorizontal: 12,
+    paddingHorizontal: 12,
   },
   divider: {
     height: 1,

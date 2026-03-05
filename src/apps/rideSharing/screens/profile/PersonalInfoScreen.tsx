@@ -38,7 +38,7 @@ export default function PersonalInfoScreen() {
   // ── Loading ───────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <View style={[styles.container, { backgroundColor: '#FFFFFF' }]}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <ScreenHeader />
         <View style={styles.centered}>
           <ActivityIndicator size="large" color={colors.primary} />
@@ -50,7 +50,7 @@ export default function PersonalInfoScreen() {
   // ── Error ─────────────────────────────────────────────────────────────────
   if (isError || !userProfile) {
     return (
-      <View style={[styles.container, { backgroundColor: '#FFFFFF' }]}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <ScreenHeader />
         <View style={styles.centered}>
           <Text variant="subtitle" weight="bold" style={styles.errorTitle}>
@@ -83,7 +83,7 @@ export default function PersonalInfoScreen() {
     [userProfile.countryCode, userProfile.phone].filter(Boolean).join(' ') || '—';
 
   return (
-    <View style={[styles.container, { backgroundColor: '#FFFFFF' }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
@@ -109,7 +109,7 @@ export default function PersonalInfoScreen() {
         />
 
         {/* Profile Info Items */}
-        <View style={styles.infoContainer}>
+        <View style={[styles.infoContainer, { backgroundColor: colors.surface }]}>
           <ProfileInfoItem
             label={t('label_name')}
             value={fullName}
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     marginTop: 16,
-    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
     borderRadius: 16,
     overflow: 'hidden',
   },

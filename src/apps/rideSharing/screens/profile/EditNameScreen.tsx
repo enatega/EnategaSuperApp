@@ -50,7 +50,7 @@ export default function EditNameScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: '#FFFFFF' }]}
+      style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScreenHeader />
