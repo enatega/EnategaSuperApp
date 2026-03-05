@@ -8,20 +8,24 @@ import type { RideFilters } from './types';
 // ---------------------------------------------------------------------------
 
 export const rideKeys = {
-    /** Root key – invalidating this clears ALL ride-related caches. */
-    all: ['rides'] as const,
+  /** Root key – invalidating this clears ALL ride-related caches. */
+  all: ['rides'] as const,
 
-    // ── Lists ───────────────────────────────────────────────────────────
-    lists: () => [...rideKeys.all, 'list'] as const,
-    list: (filters?: RideFilters) => [...rideKeys.lists(), filters] as const,
+  // ── Lists ───────────────────────────────────────────────────────────
+  lists: () => [...rideKeys.all, 'list'] as const,
+  list: (filters?: RideFilters) => [...rideKeys.lists(), filters] as const,
 
-    // ── Details ─────────────────────────────────────────────────────────
-    details: () => [...rideKeys.all, 'detail'] as const,
-    detail: (id: string) => [...rideKeys.details(), id] as const,
+  // ── Details ─────────────────────────────────────────────────────────
+  details: () => [...rideKeys.all, 'detail'] as const,
+  detail: (id: string) => [...rideKeys.details(), id] as const,
 
-    // ── Sub-resources ───────────────────────────────────────────────────
-    estimates: () => [...rideKeys.all, 'estimates'] as const,
-    activeRide: () => [...rideKeys.all, 'active'] as const,
+  // ── Sub-resources ───────────────────────────────────────────────────
+  estimates: () => [...rideKeys.all, 'estimates'] as const,
+  activeRide: () => [...rideKeys.all, 'active'] as const,
+
+  // ── Profile / Stats ─────────────────────────────────────────────────
+  stats: () => [...rideKeys.all, 'stats'] as const,
+  stat: (userId: string) => [...rideKeys.stats(), userId] as const,
 };
 
 /*

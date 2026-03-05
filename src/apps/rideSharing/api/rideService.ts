@@ -2,6 +2,7 @@ import apiClient from '../../../general/api/apiClient';
 import type {
     ApiResponse,
     CreateRidePayload,
+    DriverProfileStats,
     PaginatedResponse,
     Ride,
     RideDetails,
@@ -83,4 +84,8 @@ export const rideService = {
         feedback?: string,
     ): Promise<void> =>
         apiClient.post(`/rides/${rideId}/rate`, { rating, feedback }),
+
+    /** Fetch profile stats for a driver/rider by userId. */
+    getDriverStats: (userId: string): Promise<DriverProfileStats> =>
+        apiClient.get<DriverProfileStats>(`api/v1/rides/get-stats/${userId}`),
 };

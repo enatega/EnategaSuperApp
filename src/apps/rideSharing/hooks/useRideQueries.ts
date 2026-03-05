@@ -2,6 +2,7 @@ import { useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query
 import { rideKeys } from '../api/queryKeys';
 import { rideService } from '../api/rideService';
 import type {
+    DriverProfileStats,
     PaginatedResponse,
     Ride,
     RideDetails,
@@ -113,4 +114,28 @@ export function usePrefetchRideDetails() {
             staleTime: 30 * 1000,
         });
     };
+}
+
+// ---------------------------------------------------------------------------
+// useDriverStats – profile stats for a driver/rider
+//  • staleTime 5 min (ratings/reviews don't refresh that often)
+//  • enabled only when userId is provided
+// ---------------------------------------------------------------------------
+
+type UseDriverStatsOptions = Omit<
+    UseQueryOptions<DriverProfileStats, ApiError>,
+    'queryKey' | 'queryFn'
+>;
+
+export function useDriverStats(
+    userId: string | undefined,
+    options?: UseDriverStatsOptions,
+) {
+    return useQuery<DriverProfileStats, ApiError>({
+        queryKey: rideKeys.stat(userId!),
+        queryFn: () => rideService.getDriverStats(userId!),
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        enabled: !!userId,
+        ...options,
+    });
 }

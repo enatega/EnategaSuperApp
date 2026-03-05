@@ -9,6 +9,7 @@ export {
     useActiveRide,
     useRideEstimates,
     usePrefetchRideDetails,
+    useDriverStats,
 } from './useRideQueries';
 
 // Mutations

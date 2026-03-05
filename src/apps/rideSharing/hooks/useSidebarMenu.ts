@@ -92,7 +92,7 @@ export function useSidebarMenu() {
     },
     {
       id: 'support',
-      icon: 'life-buoy-outline',
+      icon: 'help-buoy-outline',
       iconLibrary: 'Ionicons',
       titleKey: 'sidebar_support',
       subtitleKey: 'sidebar_support_subtitle',
