@@ -45,7 +45,7 @@ export default function SettingsScreen() {
           </Text>
         </View>
 
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        <View style={[styles.card, { backgroundColor: colors.backgroundTertiary }]}>
           <SettingsItem
             icon="key-outline"
             title={t('settings_update_password')}
@@ -69,7 +69,7 @@ export default function SettingsScreen() {
 
         <View style={{ height: 8 }} />
 
-        <View style={[styles.card, { backgroundColor: colors.surface, marginBottom: 0 }]}>
+        <View style={[styles.card, { backgroundColor: colors.backgroundTertiary, marginBottom: 0 }]}>
           <SettingsItem
             icon="document-text-outline"
             title={t('settings_terms')}

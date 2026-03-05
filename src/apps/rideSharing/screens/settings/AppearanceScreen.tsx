@@ -26,7 +26,7 @@ export default function AppearanceScreen() {
           </Text>
         </View>
 
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        <View style={[styles.card, { backgroundColor: colors.backgroundTertiary }]}>
           <SettingsItem
             title={t('settings_theme_system')}
             isSelected={themeMode === 'system'}

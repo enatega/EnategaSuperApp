@@ -28,9 +28,12 @@ export default function RulesAndTermsScreen() {
           <Text variant="title" weight="bold" color={colors.text}>
             {t('settings_terms')}
           </Text>
+          <Text variant="body" color={colors.mutedText}>
+            {t('settings_terms_conditions_subtitle')}
+          </Text>
         </View>
 
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        <View style={[styles.card, { backgroundColor: colors.backgroundTertiary }]}>
           <SettingsItem
             title={t('settings_terms_conditions')}
             onPress={() => navigation.navigate('TermsAndConditions')}

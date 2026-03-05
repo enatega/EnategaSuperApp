@@ -23,7 +23,7 @@ export default function TermsAndConditionsScreen() {
           </Text>
         </View>
 
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        <View style={[styles.card, { backgroundColor: colors.backgroundTertiary }]}>
           <Text variant="title" weight="bold" color={colors.text} style={styles.sectionTitle}>
             Terms of use
           </Text>

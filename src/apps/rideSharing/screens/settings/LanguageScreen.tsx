@@ -27,7 +27,7 @@ export default function LanguageScreen() {
           </Text>
         </View>
 
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        <View style={[styles.card, { backgroundColor: colors.backgroundTertiary }]}>
           <SettingsItem
             title={t('settings_language_en')}
             isSelected={language === 'en'}
