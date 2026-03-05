@@ -91,6 +91,8 @@ const fr = {
   settings_theme_system: 'Utiliser les paramètres de l\'appareil',
   settings_theme_light: 'Mode clair',
   settings_theme_dark: 'Mode sombre',
+  settings_terms: 'Règles et conditions',
+  settings_privacy: 'Politique de confidentialité',
 };
 
 export default fr;

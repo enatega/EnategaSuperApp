@@ -91,6 +91,8 @@ const en = {
   settings_theme_system: 'Use device settings',
   settings_theme_light: 'Light mode',
   settings_theme_dark: 'Dark mode',
+  settings_terms: 'Rules and terms',
+  settings_privacy: 'Privacy policy',
 };
 
 export default en;

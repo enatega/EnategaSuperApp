@@ -51,21 +51,35 @@ export default function SettingsScreen() {
             title={t('settings_update_password')}
             onPress={() => navigation.navigate('UpdatePassword')}
           />
-        </View>
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <SettingsItem
             icon="globe-outline"
             title={t('settings_language')}
             value={languageLabel}
             onPress={() => navigation.navigate('Language')}
           />
-        </View>
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <SettingsItem
             icon="moon-outline"
             title={t('settings_theme')}
             value={modeLabel}
             onPress={() => navigation.navigate('Appearance')}
+          />
+        </View>
+
+        <View style={{ height: 8 }} />
+
+        <View style={[styles.card, { backgroundColor: colors.surface, marginBottom: 0 }]}>
+          <SettingsItem
+            icon="document-text-outline"
+            title={t('settings_terms')}
+            onPress={() => console.log('Terms pressed')}
+          />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+          <SettingsItem
+            icon="shield-checkmark-outline"
+            title={t('settings_privacy')}
+            onPress={() => console.log('Privacy pressed')}
           />
         </View>
       </ScrollView>
@@ -95,5 +109,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 16,
     paddingHorizontal: 12,
+  },
+  divider: {
+    height: 1,
   },
 });
