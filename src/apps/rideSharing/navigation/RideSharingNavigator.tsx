@@ -11,6 +11,10 @@ import SettingsScreen from '../screens/settings/SettingsScreen';
 import UpdatePasswordScreen from '../screens/settings/UpdatePasswordScreen';
 import LanguageScreen from '../screens/settings/LanguageScreen';
 import AppearanceScreen from '../screens/settings/AppearanceScreen';
+import RulesAndTermsScreen from '../screens/settings/RulesAndTermsScreen';
+import PrivacyPolicyScreen from '../screens/settings/PrivacyPolicyScreen';
+import TermsAndConditionsScreen from '../screens/settings/TermsAndConditionsScreen';
+import LicencesScreen from '../screens/settings/LicencesScreen';
 import { useTranslation } from 'react-i18next';
 import QueryProvider from '../../../general/providers/QueryProvider';
 
@@ -26,6 +30,10 @@ export type RideSharingStackParamList = {
   UpdatePassword: undefined;
   Language: undefined;
   Appearance: undefined;
+  RulesAndTerms: undefined;
+  PrivacyPolicy: undefined;
+  TermsAndConditions: undefined;
+  Licences: undefined;
 };
 
 const Stack = createNativeStackNavigator();
@@ -78,6 +86,26 @@ export default function RideSharingNavigator() {
         <Stack.Screen
           name="Appearance"
           component={AppearanceScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="RulesAndTerms"
+          component={RulesAndTermsScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="PrivacyPolicy"
+          component={PrivacyPolicyScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="TermsAndConditions"
+          component={TermsAndConditionsScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Licences"
+          component={LicencesScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

@@ -73,14 +73,23 @@ export default function SettingsScreen() {
           <SettingsItem
             icon="document-text-outline"
             title={t('settings_terms')}
-            onPress={() => console.log('Terms pressed')}
+            onPress={() => navigation.navigate('RulesAndTerms')}
           />
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <SettingsItem
             icon="shield-checkmark-outline"
             title={t('settings_privacy')}
-            onPress={() => console.log('Privacy pressed')}
+            onPress={() => navigation.navigate('PrivacyPolicy')}
           />
+        </View>
+        
+        <View style={styles.versionContainer}>
+          <Text variant="caption" color={colors.mutedText} style={styles.versionText}>
+            App version
+          </Text>
+          <Text variant="caption" color={colors.mutedText} style={styles.versionText}>
+            2.234.5.3 (3214)
+          </Text>
         </View>
       </ScrollView>
     </View>
@@ -98,11 +107,11 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   header: {
-    marginBottom: 32,
+    marginBottom: 24,
     gap: 4,
   },
   description: {
-    marginBottom: 24,
+    opacity: 0.7,
   },
   card: {
     borderRadius: 16,
@@ -112,5 +121,13 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
+  },
+  versionContainer: {
+    marginTop: 24,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  versionText: {
+    textAlign: 'center',
   },
 });
