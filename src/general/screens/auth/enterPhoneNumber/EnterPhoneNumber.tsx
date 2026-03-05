@@ -28,7 +28,7 @@ const EnterPhoneNumber = () => {
         <SvgAndTextWrapper
           svgName="login"
           heading="enter_your_phone"
-          description="enter_phone_desc"
+          description="login_desc"
         />
         <PhoneNumberInput
           value={phoneNumber}
@@ -44,7 +44,7 @@ const EnterPhoneNumber = () => {
         <Button
           variant={isValidPhone ? "primary" : "secondary"}
           label={t("continue")}
-          onPress={() => navigation.navigate("enterPhoneOtp")}
+          onPress={() => navigation.navigate("enterPhoneOtp", {source : 'phone'})}
           disabled={!hasPhoneInput}
         />
       </Footer>

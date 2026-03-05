@@ -33,6 +33,7 @@ const ButtonsWrapper = () => {
           }
           label={t("continue_with_email")}
           style={{ backgroundColor: colors.backgroundTertiary }}
+          onPress={() => navigation.navigate("enterEmail")}
         />
       </View>
 
@@ -41,7 +42,7 @@ const ButtonsWrapper = () => {
       <Button
         variant="primary"
         label={t("continue_with_phone")}
-        onPress={() => navigation.navigate('enterPhoneNumber')}
+        onPress={() => navigation.navigate("enterPhoneNumber")}
       />
     </View>
   );

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import useStyles from "./styles";
 import OtpVerificationComponent from "../../../components/auth/OtpVerificationComponent";
 
-const EnterPhoneOtp = () => {
+const EnterEmailOtp = () => {
   const { colors } = useTheme();
   const navigation = useNavigation();
   const styles = useStyles(colors);
@@ -16,38 +16,38 @@ const EnterPhoneOtp = () => {
       id: "sms",
       icon: "message-square",
       title: t("sms_verification"),
-      onSelect: () => console.log("SMS selected"),
+      onSelect: () => navigation.navigate("enterPhoneOtp" as never),
     },
     {
       id: "call",
       icon: "phone",
       title: t("call_verification"),
-      onSelect: () => console.log("Call selected"),
+      onSelect: () => navigation.navigate("enterPhoneOtp" as never),
     },
     {
       id: "email",
       icon: "mail",
       title: t("email_verification"),
-      onSelect: () => navigation.navigate("enterEmailOtp" as never),
+      onSelect: () => console.log("Email selected"),
     },
   ];
 
   return (
     <OtpVerificationComponent
-      heading="verify_your_phone_number"
+      heading="verify_your_email"
       description={t("enter_otp_sent_to", { phoneNumber: "+01 123213123" })}
       showTryAnotherWay={true}
       verificationOptions={verificationOptions}
       onVerify={(otp) => {
-        console.log("Phone OTP:", otp);
+        console.log("Email OTP:", otp);
         navigation.navigate("login" as never);
       }}
       onResend={() => {
-        console.log("Resend phone OTP");
+        console.log("Resend email OTP");
       }}
       styles={styles}
     />
   );
 };
 
-export default EnterPhoneOtp;
+export default EnterEmailOtp;

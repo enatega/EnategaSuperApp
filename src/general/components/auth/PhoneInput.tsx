@@ -10,6 +10,8 @@ type Props = {
   onChangeFormattedText?: (text: string) => void;
   onChangeCountry?: (country: any) => void;
   isActive?: boolean;
+  onFocus?: () => void;
+  onBlur?: () => void;
 };
 
 export default function PhoneNumberInput({
@@ -18,6 +20,8 @@ export default function PhoneNumberInput({
   onChangeFormattedText,
   onChangeCountry,
   isActive = false,
+  onFocus,
+  onBlur,
 }: Props) {
   const { colors } = useTheme();
   const phoneInput = useRef<PhoneInput>(null);
@@ -49,6 +53,10 @@ export default function PhoneNumberInput({
         flagButtonStyle={styles.flagButton}
         countryPickerButtonStyle={styles.countryPickerButton}
         placeholder="(000) 000-0000"
+        textInputProps={{
+          onFocus,
+          onBlur,
+        }}
         countryPickerProps={{
           renderFlagButton: false,
           withModal: true,
@@ -69,8 +77,8 @@ const styles = StyleSheet.create({
   },
   phoneContainer: {
     width: "100%",
-    height: 56,
-    borderRadius: 12,
+    height: 48,
+    borderRadius: 6,
     borderWidth: 1,
   },
   textContainer: {

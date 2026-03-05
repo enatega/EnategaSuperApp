@@ -9,8 +9,7 @@ const useStyles = (colors: any) =>
     centerContent: {
       flex: 1,
       paddingHorizontal: 16,
-      gap: 18,
-      alignItems: 'center'
+      gap: 18
     }
   });
 

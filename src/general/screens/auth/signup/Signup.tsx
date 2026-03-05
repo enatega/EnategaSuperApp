@@ -45,8 +45,8 @@ const Signup = () => {
       <Footer>
         <Button
           variant={isDetailsFilled ? "primary" : "secondary"}
-          label={t("continue")}
-          onPress={() => navigation.navigate("enterPhoneOtp" as never)}
+          label={t("create_account")}
+          onPress={() => navigation.navigate("enterPhoneOtp", {source : 'phone'})}
           disabled={!isDetailsFilled}
         />
       </Footer>
