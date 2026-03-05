@@ -120,7 +120,8 @@ export default function PersonalInfoScreen() {
             label={t('label_phone')}
             value={fullPhone}
             verified={userProfile.phoneVerified}
-            onPress={() => navigation.navigate('EditPhone')}
+            // onPress={() => navigation.navigate('EditPhone')}
+            showChevron={false}
           />
 
           <ProfileInfoItem
