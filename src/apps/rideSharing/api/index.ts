@@ -24,12 +24,17 @@ export type {
     RideFilters,
     RideStatus,
     UpdateRidePayload,
+    UserApiData,
+    UserApiResponse,
     Vehicle,
     VehicleType,
 } from './types';
 
-// Query keys
-export { rideKeys } from './queryKeys';
+// Query keys (single source of truth)
+export { rideKeys, userKeys } from './queryKeys';
 
-// Service
+// Ride service
 export { rideService } from './rideService';
+
+// User service
+export { userService } from './userService';

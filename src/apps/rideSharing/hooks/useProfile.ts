@@ -1,51 +1,90 @@
-import { useState, useCallback } from 'react';
-import type { UserProfile, NameFormData, PhoneFormData } from '../types/profile';
-import { mockUserProfile } from '../data/profileMockData';
+import { useState, useCallback, useEffect } from 'react';
+import { useUser } from './useUserQueries';
+import type { UserApiData } from '../api/types';
+import type { PhoneFormData } from '../types/profile';
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Splits a phone string like "+923331593578" into { countryCode, phone }.
+ * Falls back to the full string as the phone number if no match.
+ */
+function splitPhone(raw: string | null): { countryCode: string; phone: string } {
+  if (!raw) return { countryCode: '', phone: '' };
+  const match = raw.match(/^(\+\d{1,3})(.*)$/);
+  if (match) {
+    return { countryCode: match[1], phone: match[2].trim() };
+  }
+  return { countryCode: '', phone: raw };
+}
+
+// ---------------------------------------------------------------------------
+// Adapter: UserApiData → shape the screen uses
+// ---------------------------------------------------------------------------
+
+export type MappedUserProfile = {
+  id: string;
+  name: string;
+  email: string;
+  emailVerified: boolean;
+  phone: string;
+  countryCode: string;
+  phoneVerified: boolean;
+  profilePhotoUri: string | undefined;
+};
+
+function toMappedProfile(user: UserApiData): MappedUserProfile {
+  const { countryCode, phone } = splitPhone(user.phone);
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email ?? '',
+    emailVerified: user.email_is_verified,
+    phone,
+    countryCode,
+    phoneVerified: user.phone_is_verified,
+    profilePhotoUri: user.profile ?? undefined,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
 
 export function useProfile() {
-  const [userProfile, setUserProfile] = useState<UserProfile>(mockUserProfile);
+  const { data: apiUser, isLoading, isError, error, refetch } = useUser();
+
   const [isEditingPhoto, setIsEditingPhoto] = useState(false);
 
-  const updateProfilePhoto = useCallback((photoUri: string) => {
-    setUserProfile((prev) => ({
-      ...prev,
-      profilePhotoUri: photoUri,
-    }));
-    setIsEditingPhoto(false);
+  const userProfile = apiUser ? toMappedProfile(apiUser) : null;
+
+  // 🔍 Debug: log raw API response and mapped profile (remove before production)
+  useEffect(() => {
+    if (apiUser) {
+      console.log('[useProfile] Raw API response:', apiUser);
+      console.log('[useProfile] Mapped profile:', toMappedProfile(apiUser));
+    }
+  }, [apiUser]);
+
+  const updatePhone = useCallback((_data: PhoneFormData) => {
+    // TODO: wire to a PATCH /api/v1/users mutation and invalidate userKeys.profile()
   }, []);
 
-  const updateName = useCallback((data: NameFormData) => {
-    setUserProfile((prev) => ({
-      ...prev,
-      firstName: data.firstName,
-      lastName: data.lastName,
-    }));
-  }, []);
-
-  const updatePhone = useCallback((data: PhoneFormData) => {
-    setUserProfile((prev) => ({
-      ...prev,
-      phone: data.phoneNumber,
-      countryCode: data.countryCode,
-      phoneVerified: false, // Reset verification when phone changes
-    }));
-  }, []);
-
-  const openPhotoEdit = useCallback(() => {
-    setIsEditingPhoto(true);
-  }, []);
-
-  const closePhotoEdit = useCallback(() => {
-    setIsEditingPhoto(false);
-  }, []);
+  const openPhotoEdit = useCallback(() => setIsEditingPhoto(true), []);
+  const closePhotoEdit = useCallback(() => setIsEditingPhoto(false), []);
 
   return {
     userProfile,
+    isLoading,
+    isError,
+    error,
+    refetch,
     isEditingPhoto,
-    updateProfilePhoto,
-    updateName,
     updatePhone,
     openPhotoEdit,
     closePhotoEdit,
   };
 }
+

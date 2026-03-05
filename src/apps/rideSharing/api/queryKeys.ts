@@ -3,29 +3,42 @@ import type { RideFilters } from './types';
 // ---------------------------------------------------------------------------
 // Query Key Factory  (qk-factory-pattern + qk-hierarchical-organization)
 //
-// All query keys live here → single source of truth.
+// ALL query keys (rides + user + any future domain) live here.
+// This is the single source of truth — do not create separate key files.
 // Hierarchy: entity → scope → id / filters
 // ---------------------------------------------------------------------------
+
+// ── Rides ────────────────────────────────────────────────────────────────────
 
 export const rideKeys = {
   /** Root key – invalidating this clears ALL ride-related caches. */
   all: ['rides'] as const,
 
-  // ── Lists ───────────────────────────────────────────────────────────
+  // Lists
   lists: () => [...rideKeys.all, 'list'] as const,
   list: (filters?: RideFilters) => [...rideKeys.lists(), filters] as const,
 
-  // ── Details ─────────────────────────────────────────────────────────
+  // Details
   details: () => [...rideKeys.all, 'detail'] as const,
   detail: (id: string) => [...rideKeys.details(), id] as const,
 
-  // ── Sub-resources ───────────────────────────────────────────────────
+  // Sub-resources
   estimates: () => [...rideKeys.all, 'estimates'] as const,
   activeRide: () => [...rideKeys.all, 'active'] as const,
 
-  // ── Profile / Stats ─────────────────────────────────────────────────
+  // Profile / Stats
   stats: () => [...rideKeys.all, 'stats'] as const,
   stat: (userId: string) => [...rideKeys.stats(), userId] as const,
+};
+
+// ── User ─────────────────────────────────────────────────────────────────────
+
+export const userKeys = {
+  /** Root key – invalidating this clears ALL user-related caches. */
+  all: ['user'] as const,
+
+  /** Current authenticated user profile. */
+  profile: () => [...userKeys.all, 'profile'] as const,
 };
 
 /*
@@ -38,10 +51,16 @@ export const rideKeys = {
   rideKeys.detail('abc-123')            → ['rides', 'detail', 'abc-123']
   rideKeys.estimates()                  → ['rides', 'estimates']
   rideKeys.activeRide()                 → ['rides', 'active']
+  rideKeys.stat('user-id')             → ['rides', 'stats', 'user-id']
+
+  userKeys.all                          → ['user']
+  userKeys.profile()                    → ['user', 'profile']
 
   Invalidation examples:
   ──────────────────────
-  queryClient.invalidateQueries({ queryKey: rideKeys.all })            // everything
-  queryClient.invalidateQueries({ queryKey: rideKeys.lists() })        // all lists
+  queryClient.invalidateQueries({ queryKey: rideKeys.all })            // all rides
+  queryClient.invalidateQueries({ queryKey: rideKeys.lists() })        // all ride lists
   queryClient.invalidateQueries({ queryKey: rideKeys.detail('123') })  // single ride
+  queryClient.invalidateQueries({ queryKey: userKeys.profile() })      // user profile
 */
+

@@ -5,20 +5,23 @@ import {
   TouchableOpacity,
   Modal,
   Pressable,
-  Animated,
+  ActivityIndicator,
+  Alert,
+  Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
 import Text from '../../../../general/components/Text';
 import Icon from '../../../../general/components/Icon';
 import { useTheme } from '../../../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
+import { useUpdateProfileImage } from '../../hooks/useUserMutations';
 
 type Props = {
   profilePhotoUri?: string;
   onEditPress?: () => void;
   visible?: boolean;
   onClose?: () => void;
-  onUpdatePhoto?: () => void;
 };
 
 export default function ProfilePhoto({
@@ -26,31 +29,79 @@ export default function ProfilePhoto({
   onEditPress,
   visible = false,
   onClose,
-  onUpdatePhoto,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
   const insets = useSafeAreaInsets();
 
+  const { mutate: uploadImage, isPending } = useUpdateProfileImage();
+
+  // ── Image picker ──────────────────────────────────────────────────────────
+
+  const handlePickImage = async (source: 'camera' | 'gallery') => {
+    // Request permission
+    if (source === 'camera') {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission required', 'Camera access is needed to take a photo.');
+        return;
+      }
+    } else {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission required', 'Gallery access is needed to pick a photo.');
+        return;
+      }
+    }
+
+    const result = await (source === 'camera'
+      ? ImagePicker.launchCameraAsync({
+          mediaTypes: ['images'],
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        })
+      : ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ['images'],
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        }));
+
+    if (result.canceled) return;
+
+    const asset = result.assets[0];
+    onClose?.();
+
+    uploadImage(
+      {
+        uri: asset.uri,
+        mimeType: asset.mimeType ?? 'image/jpeg',
+        fileName: asset.fileName ?? 'profile.jpg',
+      },
+      {
+        onError: (error) => {
+          Alert.alert('Upload Failed', error.message ?? 'Could not update profile photo.');
+        },
+      },
+    );
+  };
+
+  // ── Avatar ────────────────────────────────────────────────────────────────
+
   const renderAvatar = () => {
     if (profilePhotoUri) {
       return (
-        <View style={[styles.avatarContainer, { backgroundColor: colors.cardSoft }]}>
-          <Text variant="title" weight="bold">
-            {profilePhotoUri.charAt(0).toUpperCase()}
-          </Text>
-        </View>
+        <Image
+          source={{ uri: profilePhotoUri }}
+          style={styles.avatarContainer}
+          resizeMode="cover"
+        />
       );
     }
-
     return (
       <View style={[styles.avatarContainer, { backgroundColor: colors.cardSoft }]}>
-        <Icon
-          type="Ionicons"
-          name="person"
-          size={40}
-          color={colors.mutedText}
-        />
+        <Icon type="Ionicons" name="person" size={40} color={colors.mutedText} />
       </View>
     );
   };
@@ -59,21 +110,24 @@ export default function ProfilePhoto({
     <>
       {/* Profile Photo with Edit Button */}
       <View style={styles.profilePhotoContainer}>
-        {renderAvatar()}
+        {isPending ? (
+          <View style={[styles.avatarContainer, styles.loadingOverlay, { backgroundColor: colors.cardSoft }]}>
+            <ActivityIndicator color={colors.primary} />
+          </View>
+        ) : (
+          renderAvatar()
+        )}
         <TouchableOpacity
           onPress={onEditPress}
           style={[styles.editButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          disabled={isPending}
+          accessibilityLabel="Edit profile photo"
         >
-          <Icon
-            type="Ionicons"
-            name="pencil"
-            size={16}
-            color={colors.text}
-          />
+          <Icon type="Ionicons" name="pencil" size={16} color={colors.text} />
         </TouchableOpacity>
       </View>
 
-      {/* Photo Update Modal */}
+      {/* Photo Options Modal */}
       <Modal
         visible={visible}
         transparent
@@ -112,28 +166,33 @@ export default function ProfilePhoto({
                 {t('profile_photo_description')}
               </Text>
 
+              {/* Camera */}
               <TouchableOpacity
-                onPress={onUpdatePhoto}
-                style={[styles.updateButton, { backgroundColor: colors.primary }]}
+                onPress={() => handlePickImage('camera')}
+                style={[styles.optionButton, { backgroundColor: colors.primary }]}
+                accessibilityLabel="Take a photo"
               >
-                <Text
-                  variant="subtitle"
-                  weight="semiBold"
-                  color="#FFFFFF"
-                >
-                  {t('update_photo_button')}
+                <Icon type="Ionicons" name="camera-outline" size={20} color="#fff" />
+                <Text variant="subtitle" weight="semiBold" color="#FFFFFF">
+                  Take Photo
                 </Text>
               </TouchableOpacity>
 
+              {/* Gallery */}
               <TouchableOpacity
-                onPress={onClose}
-                style={styles.cancelButton}
+                onPress={() => handlePickImage('gallery')}
+                style={[styles.optionButton, { backgroundColor: colors.cardSoft }]}
+                accessibilityLabel="Choose from gallery"
               >
-                <Text
-                  variant="subtitle"
-                  weight="semiBold"
-                  color={colors.text}
-                >
+                <Icon type="Ionicons" name="image-outline" size={20} color={colors.text} />
+                <Text variant="subtitle" weight="semiBold" color={colors.text}>
+                  Choose from Gallery
+                </Text>
+              </TouchableOpacity>
+
+              {/* Cancel */}
+              <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
+                <Text variant="subtitle" weight="semiBold" color={colors.text}>
                   {t('cancel_button')}
                 </Text>
               </TouchableOpacity>
@@ -158,6 +217,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+  },
+  loadingOverlay: {
+    opacity: 0.6,
   },
   editButton: {
     position: 'absolute',
@@ -203,10 +265,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     paddingHorizontal: 16,
   },
-  updateButton: {
+  optionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
     paddingVertical: 16,
     borderRadius: 12,
-    alignItems: 'center',
     marginBottom: 12,
   },
   cancelButton: {

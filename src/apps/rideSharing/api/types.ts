@@ -169,3 +169,37 @@ export interface DriverProfileStats {
     ratingBreakdown: DriverRatingBreakdown[];
     reviews: DriverReview[];
 }
+
+// ---------------------------------------------------------------------------
+// User  (/api/v1/users)
+// ---------------------------------------------------------------------------
+
+export interface UserApiData {
+    id: string;
+    email: string | null;
+    phone: string | null;
+    password: string | null;
+    name: string;
+    email_is_verified: boolean;
+    phone_is_verified: boolean;
+    fcm_token: string | null;
+    profile: string | null;
+    active_status: boolean;
+    block_status: boolean;
+    google_id: string | null;
+    current_location: string | null;
+    last_login: string | null;
+    tokenVersion: number;
+    role_id: string | null;
+    two_factor_enabled: boolean;
+    internal_notes: string;
+    must_change_pass: boolean;
+    termsAccepted: boolean;
+    soft_delete: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface UserApiResponse {
+    user: UserApiData;
+}

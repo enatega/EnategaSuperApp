@@ -1,27 +1,52 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  StyleSheet,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import { useProfile } from '../../hooks/useProfile';
+import { useUpdateUser } from '../../hooks/useUserMutations';
 import { ProfileInputField, ProfileUpdateButton } from '../../components/profile';
 
 export default function EditNameScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
-  const insets = useSafeAreaInsets();
-  const { userProfile, updateName } = useProfile();
+  const navigation = useNavigation();
+  const { userProfile } = useProfile();
 
-  const [firstName, setFirstName] = useState(userProfile.firstName);
-  const [lastName, setLastName] = useState(userProfile.lastName);
+  const [name, setName] = useState(userProfile?.name ?? '');
+
+  const { mutate: updateUser, isPending } = useUpdateUser();
 
   const handleUpdate = () => {
-    updateName({ firstName, lastName });
+    const trimmed = name.trim();
+    if (!trimmed) return;
+
+    updateUser(
+      { name: trimmed },
+      {
+        onSuccess: () => {
+          navigation.goBack();
+        },
+        onError: (error) => {
+          Alert.alert(
+            'Update Failed',
+            error.message ?? 'Something went wrong. Please try again.',
+          );
+        },
+      },
+    );
   };
 
-  const isFormValid = firstName.trim().length > 0 && lastName.trim().length > 0;
+  const isFormValid = name.trim().length > 0;
 
   return (
     <KeyboardAvoidingView
@@ -47,18 +72,10 @@ export default function EditNameScreen() {
         {/* Form */}
         <View style={styles.form}>
           <ProfileInputField
-            label={t('label_first_name')}
-            value={firstName}
-            onChangeText={setFirstName}
-            placeholder="First name"
-            autoCapitalize="words"
-          />
-
-          <ProfileInputField
-            label={t('label_last_name')}
-            value={lastName}
-            onChangeText={setLastName}
-            placeholder="Last name"
+            label={t('label_name')}
+            value={name}
+            onChangeText={setName}
+            placeholder="Full name"
             autoCapitalize="words"
           />
         </View>
@@ -66,9 +83,9 @@ export default function EditNameScreen() {
 
       {/* Update Button */}
       <ProfileUpdateButton
-        label={t('update_button')}
+        label={isPending ? 'Updating…' : t('update_button')}
         onPress={handleUpdate}
-        disabled={!isFormValid}
+        disabled={!isFormValid || isPending}
       />
     </KeyboardAvoidingView>
   );
