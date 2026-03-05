@@ -2,21 +2,35 @@ import { useState, useCallback, useEffect } from 'react';
 import { useUser } from './useUserQueries';
 import type { UserApiData } from '../api/types';
 import type { PhoneFormData } from '../types/profile';
+import { countryCodes } from '../data/profileMockData';
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
+// Sort by length descending, so `+1809` matches before `+1`
+const sortedCountryCodes = [...countryCodes].sort((a, b) => b.code.length - a.code.length);
+
 /**
- * Splits a phone string like "+923331593578" into { countryCode, phone }.
+ * Splits a phone string like "+923331593578" into { countryCode: "+92", phone: "3331593578" }.
  * Falls back to the full string as the phone number if no match.
  */
 function splitPhone(raw: string | null): { countryCode: string; phone: string } {
   if (!raw) return { countryCode: '', phone: '' };
+
+  // 1. Precise match against known country dialling codes
+  for (const c of sortedCountryCodes) {
+    if (raw.startsWith(c.code)) {
+      return { countryCode: c.code, phone: raw.slice(c.code.length).trim() };
+    }
+  }
+
+  // 2. Generic fallback if not in the list (but starts with '+')
   const match = raw.match(/^(\+\d{1,3})(.*)$/);
   if (match) {
     return { countryCode: match[1], phone: match[2].trim() };
   }
+
   return { countryCode: '', phone: raw };
 }
 
