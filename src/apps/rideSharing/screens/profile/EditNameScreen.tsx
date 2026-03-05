@@ -84,10 +84,9 @@ export default function EditNameScreen() {
 
       {/* Update Button */}
       <ProfileUpdateButton
-        label={t('update_button')}
+        label={isPending ? 'Updating…' : t('update_button')}
         onPress={handleUpdate}
         disabled={!isFormValid || isPending}
-        isLoading={isPending}
       />
     </KeyboardAvoidingView>
   );

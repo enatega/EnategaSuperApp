@@ -26,7 +26,7 @@ export default function ProfileUpdateButton({
         styles.footer,
         {
           paddingBottom: Math.max(insets.bottom, 20),
-          backgroundColor: '#FFFFFF',
+          backgroundColor: colors.background,
         },
       ]}
     >

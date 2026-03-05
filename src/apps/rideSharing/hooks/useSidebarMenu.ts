@@ -26,6 +26,10 @@ export type ProfileStackParamList = {
   EditName: undefined;
   EditPhone: undefined;
   EditEmail: undefined;
+  Settings: undefined;
+  UpdatePassword: undefined;
+  Language: undefined;
+  Appearance: undefined;
 };
 
 export function useSidebarMenu() {
@@ -108,7 +112,10 @@ export function useSidebarMenu() {
       titleKey: 'sidebar_security',
       subtitleKey: 'sidebar_security_subtitle',
       showChevron: true,
-      onPress: () => navigation.navigate('PersonalInfo'),
+      onPress: () => {
+        closeSidebar();
+        navigation.navigate('Settings');
+      },
     },
     {
       id: 'notifications',

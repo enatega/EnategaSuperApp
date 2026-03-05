@@ -10,6 +10,7 @@ type Props = {
   placeholder?: string;
   keyboardType?: 'default' | 'phone-pad' | 'email-address' | 'numeric';
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  secureTextEntry?: boolean;
   style?: ViewStyle;
   inputStyle?: TextStyle;
 };
@@ -21,6 +22,7 @@ export default function ProfileInputField({
   placeholder,
   keyboardType = 'default',
   autoCapitalize = 'none',
+  secureTextEntry = false,
   style,
   inputStyle,
 }: Props) {
@@ -47,6 +49,7 @@ export default function ProfileInputField({
           placeholderTextColor={colors.mutedText}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
+          secureTextEntry={secureTextEntry}
         />
       </View>
     </View>

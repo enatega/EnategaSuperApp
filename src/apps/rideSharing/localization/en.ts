@@ -74,6 +74,23 @@ const en = {
   phone_screen_subtitle: 'A verification code will be sent to this number',
   update_button: 'Update',
   back_button: 'Back',
+  // Settings
+  settings_title: 'Security and settings',
+  settings_subtitle: 'Update your password and change app preferences.',
+  settings_update_password: 'Update Password',
+  settings_current_password_label: 'Current password',
+  settings_current_password_placeholder: 'Enter current password',
+  settings_new_password_label: 'New password',
+  settings_new_password_placeholder: 'Enter new password',
+  settings_confirm_password_label: 'Confirm password',
+  settings_confirm_password_placeholder: 'Re-enter new password',
+  settings_language: 'Language',
+  settings_language_en: 'English (US)',
+  settings_language_fr: 'French',
+  settings_theme: 'Appearance',
+  settings_theme_system: 'Use device settings',
+  settings_theme_light: 'Light mode',
+  settings_theme_dark: 'Dark mode',
 };
 
 export default en;

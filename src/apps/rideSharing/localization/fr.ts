@@ -74,6 +74,23 @@ const fr = {
   phone_screen_subtitle: 'Un code de vérification sera envoyé à ce numéro',
   update_button: 'Mettre à jour',
   back_button: 'Retour',
+  // Settings
+  settings_title: 'Sécurité et paramètres',
+  settings_subtitle: 'Mettez à jour votre mot de passe et modifiez les préférences.',
+  settings_update_password: 'Mettre à jour le mot de passe',
+  settings_current_password_label: 'Mot de passe actuel',
+  settings_current_password_placeholder: 'Entrez le mot de passe actuel',
+  settings_new_password_label: 'Nouveau mot de passe',
+  settings_new_password_placeholder: 'Entrez le nouveau mot de passe',
+  settings_confirm_password_label: 'Confirmer le mot de passe',
+  settings_confirm_password_placeholder: 'Ressaisissez le nouveau mot de passe',
+  settings_language: 'Langue',
+  settings_language_en: 'Anglais (US)',
+  settings_language_fr: 'Français',
+  settings_theme: 'Apparence',
+  settings_theme_system: 'Utiliser les paramètres de l\'appareil',
+  settings_theme_light: 'Mode clair',
+  settings_theme_dark: 'Mode sombre',
 };
 
 export default fr;
