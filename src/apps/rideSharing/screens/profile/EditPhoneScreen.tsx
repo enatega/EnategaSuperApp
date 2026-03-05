@@ -16,8 +16,8 @@ export default function EditPhoneScreen() {
   const insets = useSafeAreaInsets();
   const { userProfile, updatePhone } = useProfile();
 
-  const [selectedCountryCode, setSelectedCountryCode] = useState(userProfile.countryCode);
-  const [phoneNumber, setPhoneNumber] = useState(userProfile.phone);
+  const [selectedCountryCode, setSelectedCountryCode] = useState(userProfile?.countryCode ?? '');
+  const [phoneNumber, setPhoneNumber] = useState(userProfile?.phone ?? '');
   const [isCountryCodeModalVisible, setIsCountryCodeModalVisible] = useState(false);
 
   const handleUpdate = () => {
@@ -119,6 +119,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 20,
+    paddingTop: 24,
     paddingBottom: 20,
   },
   header: {

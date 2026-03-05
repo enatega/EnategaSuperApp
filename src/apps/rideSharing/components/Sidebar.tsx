@@ -8,6 +8,7 @@ import {
   Animated,
   Pressable,
   ScrollView,
+  Image,
   ViewStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -157,6 +158,11 @@ export default function Sidebar({
               >
                 <View style={[styles.avatarContainer, { backgroundColor: colors.cardSoft }]}>
                   {userProfile.avatarUri ? (
+                    <Image
+                      source={{ uri: userProfile.avatarUri }}
+                      style={styles.avatarImage}
+                    />
+                  ) : userProfile.name ? (
                     <View style={styles.avatarPlaceholder}>
                       <Text variant="title" weight="bold">
                         {userProfile.name.charAt(0).toUpperCase()}
@@ -279,6 +285,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
+  },
+  avatarImage: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
   },
   avatarPlaceholder: {
     width: 56,
