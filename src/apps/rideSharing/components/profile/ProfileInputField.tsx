@@ -64,10 +64,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    height: 54,
+    justifyContent: 'center',
   },
   input: {
     fontSize: 16,
     lineHeight: 24,
+    paddingVertical: 0, 
+    flex: 1,
   },
 });

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
@@ -7,7 +7,7 @@ import Text from '../../../../general/components/Text';
 import Icon from '../../../../general/components/Icon';
 import { useTheme } from '../../../../general/theme/theme';
 import { useProfile } from '../../hooks/useProfile';
-import { ProfileInputField, ProfileUpdateButton, CountryCodeModal } from '../../components/profile';
+import { ProfileUpdateButton, CountryCodeModal } from '../../components/profile';
 import { countryCodes } from '../../data/profileMockData';
 
 export default function EditPhoneScreen() {
@@ -33,6 +33,7 @@ export default function EditPhoneScreen() {
     >
       <ScreenHeader />
       <ScrollView
+        style={{ flex: 1 }}
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -80,13 +81,13 @@ export default function EditPhoneScreen() {
 
               <View style={styles.divider} />
 
-              <ProfileInputField
+              <TextInput
+                style={[styles.phoneInput, { color: colors.text }]}
                 value={phoneNumber}
                 onChangeText={setPhoneNumber}
                 placeholder="00 00 00 00 00"
+                placeholderTextColor={colors.mutedText}
                 keyboardType="phone-pad"
-                style={styles.phoneInput}
-                inputStyle={{ flex: 1 }}
               />
             </View>
           </View>
@@ -144,14 +145,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 4,
+    height: 54,
   },
   countryCodeButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
     paddingRight: 12,
-    paddingVertical: 10,
   },
   divider: {
     width: 1,
@@ -161,5 +161,8 @@ const styles = StyleSheet.create({
   },
   phoneInput: {
     flex: 1,
+    fontSize: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 0,
   },
 });

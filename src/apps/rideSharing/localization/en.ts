@@ -60,7 +60,7 @@ const en = {
   profile_photo_description: 'This is the photo you would like others to see.',
   update_photo_button: 'Update photo',
   cancel_button: 'Cancel',
-  label_name: 'Name',
+  label_name: 'Full Name',
   label_phone: 'Phone number',
   label_email: 'Email',
   label_first_name: 'First name',

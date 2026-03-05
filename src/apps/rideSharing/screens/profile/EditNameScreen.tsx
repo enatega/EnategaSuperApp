@@ -55,6 +55,7 @@ export default function EditNameScreen() {
     >
       <ScreenHeader />
       <ScrollView
+        style={{ flex: 1 }}
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
