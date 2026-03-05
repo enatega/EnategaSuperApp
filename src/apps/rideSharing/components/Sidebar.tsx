@@ -274,8 +274,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingBottom: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#E5E7EB',
     marginBottom: 16,
   },
   avatarContainer: {
@@ -314,8 +314,8 @@ const styles = StyleSheet.create({
   },
   logoutContainer: {
     marginTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    // borderTopWidth: 1,
+    // borderTopColor: '#E5E7EB',
     paddingTop: 16,
     paddingHorizontal: 8,
     alignItems: 'center',
