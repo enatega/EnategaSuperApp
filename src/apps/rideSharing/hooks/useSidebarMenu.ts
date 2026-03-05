@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useLogout } from '../../../general/hooks/useAuthMutations';
 
 type MenuItem = {
   id: string;
@@ -30,6 +31,7 @@ export type ProfileStackParamList = {
 export function useSidebarMenu() {
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
+  const { mutate: logout } = useLogout();
 
   const openSidebar = useCallback(() => {
     setSidebarVisible(true);
@@ -120,10 +122,17 @@ export function useSidebarMenu() {
   ];
 
   const handleLogout = useCallback(() => {
-    console.log('Logout pressed');
     closeSidebar();
-    // TODO: Implement logout logic
-  }, [closeSidebar]);
+    logout(undefined, {
+      onSuccess: () => {
+        // Force the navigation stack back to the root home screen
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'RideSharingHome' as any }],
+        });
+      },
+    });
+  }, [closeSidebar, logout, navigation]);
 
   const handleProfilePress = useCallback(() => {
     navigation.navigate('PersonalInfo');
