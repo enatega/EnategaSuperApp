@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { userKeys } from '../api/queryKeys';
 import { userService } from '../api/userService';
-import type { UpdateUserPayload, UpdateProfileImagePayload } from '../api/userService';
+import type { UpdateUserPayload, UpdateProfileImagePayload, UpdatePasswordPayload } from '../api/userService';
 import type { UserApiData } from '../api/types';
 import { ApiError } from '../../../general/api/apiClient';
 
@@ -38,6 +38,19 @@ export function useUpdateProfileImage() {
         },
         onError: (error) => {
             console.error('[useUpdateProfileImage] Failed:', error.message);
+        },
+    });
+}
+
+// ---------------------------------------------------------------------------
+// useUpdatePassword – PATCH /api/v1/users/password
+// ---------------------------------------------------------------------------
+
+export function useUpdatePassword() {
+    return useMutation<{ message: string }, ApiError, UpdatePasswordPayload>({
+        mutationFn: (payload) => userService.updatePassword(payload),
+        onError: (error) => {
+            console.error('[useUpdatePassword] Failed:', error.message);
         },
     });
 }

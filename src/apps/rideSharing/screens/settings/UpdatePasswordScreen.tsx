@@ -1,32 +1,71 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
-import { ProfileInputField, ProfileUpdateButton } from '../../components/profile';
+import { useUpdatePassword } from '../../hooks/useUserMutations';
+import { ProfileUpdateButton, PasswordForm } from '../../components/profile';
+import { usePasswordValidation } from '../../utils/passwordValidation';
 
 export default function UpdatePasswordScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
+  const navigation = useNavigation();
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isPending, setIsPending] = useState(false);
 
-  // Note: Only the UI layout is fleshed out right now (per user request).
+  const { mutate: updatePassword, isPending } = useUpdatePassword();
+  const { validatePassword } = usePasswordValidation();
+
+  const passwordError = newPassword ? validatePassword(newPassword) : null;
+
   const handleUpdate = () => {
-    setIsPending(true);
-    setTimeout(() => {
-      setIsPending(false);
-      // navigation.goBack();
-    }, 1000);
+    const trimmedCurrent = currentPassword.trim();
+    const trimmedNew = newPassword.trim();
+
+    if (!trimmedCurrent || !trimmedNew) return;
+    
+    const error = validatePassword(trimmedNew);
+    if (error) {
+      Alert.alert(t('invalid_password', 'Invalid Password'), error);
+      return;
+    }
+
+    updatePassword(
+      { previous_password: trimmedCurrent, new_password: trimmedNew },
+      {
+        onSuccess: (data) => {
+          console.log('Password updated successfully:', data);
+          Alert.alert(
+            t('success'),
+            t('settings_password_update_success'),
+            [{ text: t('ok'), onPress: () => navigation.goBack() }],
+          );
+        },
+        onError: (error) => {
+          Alert.alert(
+            t('error'),
+            error.message ?? t('settings_password_update_error'),
+          );
+        },
+      },
+    );
   };
 
   const isFormValid =
     currentPassword.length > 0 &&
-    newPassword.length >= 6 &&
+    !passwordError &&
     newPassword === confirmPassword;
 
   return (
@@ -47,32 +86,21 @@ export default function UpdatePasswordScreen() {
           </Text>
         </View>
 
-        <View style={styles.form}>
-          <ProfileInputField
-            label={t('settings_current_password_label')}
-            value={currentPassword}
-            onChangeText={setCurrentPassword}
-            placeholder={t('settings_current_password_placeholder')}
-            autoCapitalize="none"
-            secureTextEntry
-          />
-          <ProfileInputField
-            label={t('settings_new_password_label')}
-            value={newPassword}
-            onChangeText={setNewPassword}
-            placeholder={t('settings_new_password_placeholder')}
-            autoCapitalize="none"
-            secureTextEntry
-          />
-          <ProfileInputField
-            label={t('settings_confirm_password_label')}
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            placeholder={t('settings_confirm_password_placeholder')}
-            autoCapitalize="none"
-            secureTextEntry
-          />
-        </View>
+        <PasswordForm
+          currentPassword={{
+            value: currentPassword,
+            onChange: setCurrentPassword,
+          }}
+          newPassword={{
+            value: newPassword,
+            onChange: setNewPassword,
+            error: passwordError,
+          }}
+          confirmPassword={{
+            value: confirmPassword,
+            onChange: setConfirmPassword,
+          }}
+        />
       </ScrollView>
 
       <ProfileUpdateButton
@@ -98,8 +126,5 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 32,
     gap: 4,
-  },
-  form: {
-    gap: 20,
   },
 });

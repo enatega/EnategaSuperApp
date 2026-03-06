@@ -24,7 +24,7 @@ export {
 export { useUser } from './useUserQueries';
 
 // User Mutations
-export { useUpdateUser, useUpdateProfileImage } from './useUserMutations';
+export { useUpdateUser, useUpdateProfileImage, useUpdatePassword } from './useUserMutations';
 
 
 // Profile & Sidebar

@@ -1,6 +1,7 @@
-import React from 'react';
-import { StyleSheet, View, TextInput, ViewStyle, TextStyle } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, TextInput, ViewStyle, TextStyle, TouchableOpacity } from 'react-native';
 import Text from '../../../../general/components/Text';
+import Icon from '../../../../general/components/Icon';
 import { useTheme } from '../../../../general/theme/theme';
 
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
   secureTextEntry?: boolean;
   style?: ViewStyle;
   inputStyle?: TextStyle;
+  isPassword?: boolean;
 };
 
 export default function ProfileInputField({
@@ -25,8 +27,20 @@ export default function ProfileInputField({
   secureTextEntry = false,
   style,
   inputStyle,
+  isPassword = false,
 }: Props) {
   const { colors } = useTheme();
+  const [isSecure, setIsSecure] = useState(secureTextEntry);
+
+  const toggleSecureEntry = () => {
+    setIsSecure(!isSecure);
+  };
+
+  // Sync isSecure with secureTextEntry prop initially, but user can toggle it
+  // Actually, we should just respect isPassword to enable the toggle functionality
+  // and use local state for the actual visibility.
+  
+  const actualSecureTextEntry = isPassword ? isSecure : secureTextEntry;
 
   return (
     <View style={[styles.field, style]}>
@@ -49,8 +63,18 @@ export default function ProfileInputField({
           placeholderTextColor={colors.mutedText}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
-          secureTextEntry={secureTextEntry}
+          secureTextEntry={actualSecureTextEntry}
         />
+        {isPassword && (
+          <TouchableOpacity onPress={toggleSecureEntry} style={styles.iconContainer}>
+            <Icon
+              type="Ionicons"
+              name={isSecure ? 'eye-off-outline' : 'eye-outline'}
+              size={20}
+              color={colors.mutedText}
+            />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -68,12 +92,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     height: 54,
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   input: {
     fontSize: 16,
     lineHeight: 24,
     paddingVertical: 0, 
     flex: 1,
+  },
+  iconContainer: {
+    marginLeft: 8,
+    padding: 4,
   },
 });

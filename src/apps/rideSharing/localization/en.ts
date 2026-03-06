@@ -97,6 +97,17 @@ const en = {
   settings_licences: 'Licences',
   settings_lorem_ipsum: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
   settings_terms_conditions_subtitle: 'Please review and accept our legal terms.',
+  password_min_length: 'Password must be at least 8 characters',
+  password_uppercase: 'Password must contain at least one uppercase letter',
+  password_lowercase: 'Password must contain at least one lowercase letter',
+  password_number: 'Password must contain at least one number',
+  password_special: 'Password must contain at least one special character',
+  invalid_password: 'Invalid Password',
+  settings_password_update_success: 'Password updated successfully',
+  settings_password_update_error: 'Failed to update password. Please try again.',
+  success: 'Success',
+  error: 'Error',
+  ok: 'OK',
 };
 
 export default en;
