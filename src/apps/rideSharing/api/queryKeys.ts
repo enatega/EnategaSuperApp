@@ -25,6 +25,9 @@ export const rideKeys = {
   // Sub-resources
   estimates: () => [...rideKeys.all, 'estimates'] as const,
   activeRide: () => [...rideKeys.all, 'active'] as const,
+  rideTypes: () => [...rideKeys.all, 'types'] as const,
+  rideTypeFares: (params?: Record<string, unknown>) =>
+      [...rideKeys.rideTypes(), params] as const,
 
   // Profile / Stats
   stats: () => [...rideKeys.all, 'stats'] as const,
@@ -39,9 +42,7 @@ export const userKeys = {
 
   /** Current authenticated user profile. */
   profile: () => [...userKeys.all, 'profile'] as const,
-    rideTypes: () => [...rideKeys.all, 'types'] as const,
-    rideTypeFares: (params?: Record<string, unknown>) =>
-      [...rideKeys.rideTypes(), params] as const,
+
 };
 
 /*

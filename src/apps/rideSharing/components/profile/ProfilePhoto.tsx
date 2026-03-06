@@ -93,7 +93,10 @@ export default function ProfilePhoto({
     if (profilePhotoUri) {
       return (
         <Image
-          source={{ uri: profilePhotoUri }}
+          source={{
+            uri: profilePhotoUri,
+            cache: 'force-cache',
+          }}
           style={styles.avatarContainer}
           resizeMode="cover"
         />
