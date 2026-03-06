@@ -7,8 +7,8 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/theme';
-import Image from './Image';
 import Text from './Text';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -64,7 +64,7 @@ export default function ScreenHeader({
       style={[
         styles.container,
         {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.background,
           paddingTop: insets.top + 8,
         },
         style,
@@ -82,13 +82,8 @@ export default function ScreenHeader({
               accessibilityLabel="Go back"
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <View style={[styles.backButton, { backgroundColor: colors.background }]}>
-                <Image
-                  source={require('../assets/images/backButton.png')}
-                  style={styles.backIcon}
-                  resizeMode="contain"
-                  accessibilityIgnoresInvertColors
-                />
+              <View style={[styles.backButton, { backgroundColor: colors.backgroundTertiary }]}>
+                <Ionicons name="arrow-back" size={24} color={colors.text} />
               </View>
             </Pressable>
           )}
@@ -140,10 +135,6 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  backIcon: {
-    width: 20,
-    height: 20,
   },
   title: {
     flex: 1,

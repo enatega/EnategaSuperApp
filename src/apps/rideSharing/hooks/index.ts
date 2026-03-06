@@ -2,19 +2,33 @@
 // Barrel exports for rideSharing hooks
 // ---------------------------------------------------------------------------
 
-// Queries
+// Ride Queries
 export {
     useRides,
     useRideDetails,
     useActiveRide,
     useRideEstimates,
     usePrefetchRideDetails,
+    useDriverStats,
 } from './useRideQueries';
 
-// Mutations
+// Ride Mutations
 export {
     useCreateRide,
     useUpdateRide,
     useCancelRide,
     useRateRide,
 } from './useRideMutations';
+
+// User Queries
+export { useUser } from './useUserQueries';
+
+// User Mutations
+export { useUpdateUser, useUpdateProfileImage, useUpdatePassword } from './useUserMutations';
+
+
+// Profile & Sidebar
+export { useProfile } from './useProfile';
+export { useSidebarMenu } from './useSidebarMenu';
+export type { ProfileStackParamList } from './useSidebarMenu';
+
