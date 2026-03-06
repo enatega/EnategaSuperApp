@@ -75,9 +75,10 @@ export default function OtpVerificationComponent({
         {showTryAnotherWay && (
           <TryAnotherWay onPress={() => setModalVisible(true)} />
         )}
-        <TouchableOpacity onPress={() => setRateLimitingModal(true)}>
+        {/* Todo show too many request modal using it. */}
+        {/* <TouchableOpacity onPress={() => setRateLimitingModal(true)}>
           <Text>too many requests model</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       <Footer>
