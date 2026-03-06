@@ -34,6 +34,11 @@ const en = {
   details_body: 'Ride details and driver information.',
   driver_profile_title: 'Driver Profile',
   driver_profile_button: 'Driver Profile',
+  ride_address_title: 'Your Route',
+  ride_address_close: 'Close',
+  ride_address_from_placeholder: 'From',
+  ride_address_to_placeholder: 'To',
+  ride_address_choose_on_map: 'Choose on map',
 };
 
 export default en;

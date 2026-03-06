@@ -8,8 +8,12 @@ export type RideOptionItem = {
   showSnowflake?: boolean;
 };
 
-export type RecentLocation = {
-  id: string;
-  title: string;
-  subtitle: string;
+export type CachedAddress = {
+  placeId: string;
+  description: string;
+  structuredFormatting: {
+    mainText: string;
+    secondaryText?: string;
+  };
+  types?: string[];
 };

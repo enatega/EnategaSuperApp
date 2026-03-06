@@ -22,6 +22,9 @@ export const rideKeys = {
     // ── Sub-resources ───────────────────────────────────────────────────
     estimates: () => [...rideKeys.all, 'estimates'] as const,
     activeRide: () => [...rideKeys.all, 'active'] as const,
+    rideTypes: () => [...rideKeys.all, 'types'] as const,
+    rideTypeFares: (params?: Record<string, unknown>) =>
+      [...rideKeys.rideTypes(), params] as const,
 };
 
 /*
