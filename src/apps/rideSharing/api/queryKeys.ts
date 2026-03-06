@@ -39,6 +39,9 @@ export const userKeys = {
 
   /** Current authenticated user profile. */
   profile: () => [...userKeys.all, 'profile'] as const,
+    rideTypes: () => [...rideKeys.all, 'types'] as const,
+    rideTypeFares: (params?: Record<string, unknown>) =>
+      [...rideKeys.rideTypes(), params] as const,
 };
 
 /*

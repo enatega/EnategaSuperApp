@@ -15,6 +15,7 @@ import RulesAndTermsScreen from '../screens/settings/RulesAndTermsScreen';
 import PrivacyPolicyScreen from '../screens/settings/PrivacyPolicyScreen';
 import TermsAndConditionsScreen from '../screens/settings/TermsAndConditionsScreen';
 import LicencesScreen from '../screens/settings/LicencesScreen';
+import RideAddressSearchScreen from '../screens/rideSearch/RideAddressSearchScreen';
 import { useTranslation } from 'react-i18next';
 import QueryProvider from '../../../general/providers/QueryProvider';
 
@@ -45,6 +46,7 @@ export default function RideSharingNavigator() {
       <Stack.Navigator>
         <Stack.Screen name="RideSharingHome" component={RideSharingHomeScreen} options={{ headerShown:false, title: t('header_title') }} />
         <Stack.Screen name="RideOptions" component={RideOptionsScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="RideAddressSearch" component={RideAddressSearchScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RideDetails" component={RideDetails} options={{ title: t('details_title') }} />
         <Stack.Screen
           name="DriverProfile"

@@ -9,6 +9,8 @@ import type {
     RideEstimate,
     RideEstimatePayload,
     RideFilters,
+    RideTypeFare,
+    RideTypeFareParams,
 } from '../api/types';
 import { ApiError } from '../../../general/api/apiClient';
 
@@ -96,6 +98,29 @@ export function useRideEstimates(
         queryFn: () => rideService.getEstimates(payload!),
         staleTime: 5 * 60 * 1000, // 5 minutes
         enabled: !!payload?.pickup && !!payload?.dropoff,
+        ...options,
+    });
+}
+
+// ---------------------------------------------------------------------------
+// useRideTypeFares – available ride types (based on fare endpoint)
+//  • staleTime 5 min (slow-changing catalog)
+// ---------------------------------------------------------------------------
+
+type UseRideTypeFaresOptions = Omit<
+    UseQueryOptions<RideTypeFare[], ApiError>,
+    'queryKey' | 'queryFn'
+>;
+
+export function useRideTypeFares(
+    params: RideTypeFareParams | undefined,
+    options?: UseRideTypeFaresOptions,
+) {
+    return useQuery<RideTypeFare[], ApiError>({
+        queryKey: rideKeys.rideTypeFares(params as Record<string, unknown> | undefined),
+        queryFn: () => rideService.getRideTypeFares(params!),
+        staleTime: 5 * 60 * 1000,
+        enabled: !!params,
         ...options,
     });
 }

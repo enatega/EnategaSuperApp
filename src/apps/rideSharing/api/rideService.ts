@@ -10,6 +10,9 @@ import type {
     RideEstimatePayload,
     RideFilters,
     UpdateRidePayload,
+    RideFareResponse,
+    RideTypeFare,
+    RideTypeFareParams,
 } from './types';
 
 // ---------------------------------------------------------------------------
@@ -40,6 +43,17 @@ export const rideService = {
             payload,
         );
         return response.data;
+    },
+
+    /** Fetch ride type fares (used to render available ride types). */
+    getRideTypeFares: async (
+        params: RideTypeFareParams,
+    ): Promise<RideTypeFare[]> => {
+        const response = await apiClient.get<RideFareResponse>(
+            '/api/v1/rides/fare/all',
+            params as Record<string, unknown>,
+        );
+        return response.rideTypeFares ?? [];
     },
 
     /** Fetch active (in-progress / accepted) ride, if any. */

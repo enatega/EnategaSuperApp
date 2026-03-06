@@ -1,88 +1,69 @@
 # EnategaSuperApp — Codex Agent Guide
 
-## Project Overview
+This guide aligns with `guide/DEVELOPMENT_RULES.md`. When in doubt, follow those rules first.
 
-**EnategaSuperApp** is an Expo (React Native) super-app built with Expo Router. It targets iOS, Android, and Web from a single TypeScript codebase.
+## Structure and Ownership
+- Keep each mini-app isolated under `src/apps/<appName>/` with its own `screens`, `navigation`, and `components`.
+- Shared, cross-app code goes in `src/general/` only when used by more than one mini-app.
+- Do not reference another mini-app’s internal components directly; share via `src/general/`.
+- Screen-level UI components must live under `src/apps/<appName>/components/` (feature subfolders like `components/rideOptions/`), not inside `screens/`.
+- Keep screens thin; push view logic into components or hooks.
 
-- **Framework**: Expo SDK with Expo Router (file-based routing)
-- **Language**: TypeScript
-- **Package manager**: npm
-- **Bundle ID (iOS)**: `com.enategasuper.app`
-- **Package (Android)**: `com.enategasuper.app`
-- **EAS Project ID**: `4c12b75d-6b64-4ea6-a4a7-83e366964b04`
-- **New Architecture**: Enabled (`newArchEnabled: true`)
+## Reusability
+- Prefer composition over duplication.
+- Use shared primitives from `src/general/components/` (`Text`, `Button`, `Header`, `ScreenHeader`) for consistency.
 
-## Repository Layout
+## Theming and Tokens
+- All colors must come from `src/general/theme/colors.ts`.
+- Typography sizes and fonts must come from `src/general/theme/typography.ts`.
+- Access theme values via `useTheme()`; no hardcoded values unless justified.
 
-```
-app/           Expo Router routes and layouts
-assets/        Images, fonts, and static files
-components/    Shared React Native components
-.eas/          EAS workflow YAML files (CI/CD)
-.codex/skills/ Codex agent skills (see below)
-eas.json       EAS build/submit profiles
-app.json       Expo app configuration
-```
+## Localization (No Hardcoded Strings)
+- All user-facing strings must be in localization files (English + French).
+- Each app owns its translations under `src/apps/<appName>/localization/`.
+- Shared screens and global labels belong in `src/general/localization/`.
 
-## Skills
+## Navigation
+- Navigators live under each app’s `navigation/` folder.
+- Top-level routing changes go through `src/general/navigation/SharedNavigator.tsx` and `src/navigation/RootNavigator.tsx`.
+- Avoid passing navigation logic deep into components; use screen-level handlers.
 
-This project ships reusable Codex skills in `.codex/skills/`. Each skill is a folder containing a `SKILL.md` with detailed instructions, plus optional `references/` and `scripts/` subdirectories.
+## Type Safety
+- Use explicit `Props` types in every component and screen.
+- Prefer literal union types for routing decisions.
+- Avoid `any` (document if unavoidable).
 
-| Skill | Description |
-|---|---|
-| `building-native-ui` | Complete guide for building beautiful apps with Expo Router — styling, components, navigation, animations, native tabs |
-| `expo-api-routes` | Creating API routes in Expo Router with EAS Hosting |
-| `expo-cicd-workflows` | Writing EAS workflow YAML files for CI/CD and deployment automation |
-| `expo-deployment` | Deploying to iOS App Store, Android Play Store, and web hosting |
-| `expo-dev-client` | Building and distributing Expo development clients locally or via TestFlight |
-| `native-data-fetching` | Network requests, API calls, React Query, SWR, error handling, caching, offline support |
-| `upgrading-expo` | Upgrading Expo SDK versions and fixing dependency issues |
-| `use-dom` | Using Expo DOM components to run web code in a webview on native |
+## Naming and Consistency
+- Filenames should match component names (PascalCase for components and screens).
+- Use consistent screen naming (`HomeScreen`, `DetailsScreen`, etc.).
+- Boolean props should use `is`/`has` prefixes.
 
-You can invoke a skill explicitly with `$.skill-name` or Codex will activate the relevant skill automatically based on the task.
+## UI Layout and Styling
+- Prefer `StyleSheet.create` over inline styles except for small dynamic values.
+- Keep component trees shallow; extract complex layouts into smaller components.
+- Use `ScreenHeader` for screen-level headers unless a screen requires a unique layout.
 
-## Development Commands
+## Assets
+- App-specific assets: `src/apps/<appName>/assets/`.
+- Shared assets: `src/general/assets/`.
+- Expo app-level assets (icons/splash): `assets/`.
 
-```bash
-# Start development server (try Expo Go first)
-npx expo start
+## Data, Helpers, and Utils
+- Shared helpers go in `src/general/utils/`.
+- Avoid embedding mock data directly in screens; use mock constants.
 
-# Run on iOS simulator
-npx expo run:ios
+## Performance
+- Memoize expensive components to avoid unnecessary re-renders.
+- Use `FlatList` for large data sets.
 
-# Run on Android emulator
-npx expo run:android
+## File Hygiene
+- Keep files small and focused; split > ~200 lines.
+- Remove dead code and unused imports promptly.
 
-# EAS build (cloud)
-eas build -p ios --profile development
-eas build -p android --profile development
+## Accessibility
+- Add accessibility labels to actionable elements when possible.
+- Ensure readable contrast.
 
-# EAS deploy (web)
-eas deploy
-```
-
-## Code Conventions
-
-- **File naming**: Use kebab-case for all file names (e.g., `comment-card.tsx`)
-- **Imports**: Use path aliases (`@/`) over deep relative imports
-- **Routing**: Routes live in `app/`. Never co-locate components or utilities in `app/`
-- **Styling**: Inline styles (no StyleSheet.create unless reusing styles). No CSS/Tailwind unless the tailwind skill is active.
-- **Images/Icons**: Use `expo-image` with `source="sf:name"` for SF Symbols
-- **Platform check**: Use `process.env.EXPO_OS` not `Platform.OS`
-- **Context**: Use `React.use` not `React.useContext`
-- **Shadows**: Use CSS `boxShadow` — never legacy React Native shadow styles
-- **Safe Area**: Use `contentInsetAdjustmentBehavior="automatic"` on ScrollView/FlatList
-
-## Testing
-
-Run expo-doctor to check for issues:
-
-```bash
-npx expo-doctor
-```
-
-## Security
-
-- Never expose API keys in client code — use `EXPO_PUBLIC_` prefix only for truly public values
-- Store auth tokens in `expo-secure-store`, not AsyncStorage
-- Server-side secrets go in API routes only (EAS Hosting / Cloudflare Workers)
+## Testing and Quality
+- Prefer unit tests for helpers and UI snapshot tests for stable UI blocks.
+- Keep dependencies minimal and intentional.

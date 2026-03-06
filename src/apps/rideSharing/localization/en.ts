@@ -108,6 +108,11 @@ const en = {
   success: 'Success',
   error: 'Error',
   ok: 'OK',
+  ride_address_title: 'Your Route',
+  ride_address_close: 'Close',
+  ride_address_from_placeholder: 'From',
+  ride_address_to_placeholder: 'To',
+  ride_address_choose_on_map: 'Choose on map',
 };
 
 export default en;

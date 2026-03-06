@@ -118,6 +118,34 @@ export interface RideEstimate {
 }
 
 // ---------------------------------------------------------------------------
+// Ride Types / Fares
+// ---------------------------------------------------------------------------
+
+export type RideTypeFare = {
+    ride_type_id?: string;
+    name: string;
+    imageUrl?: string | null;
+    capacity?: number;
+    fare?: number;
+    recommendedFare?: number;
+};
+
+export type RideFareResponse = {
+    rideTypeFares: RideTypeFare[];
+    [key: string]: unknown;
+};
+
+export type RideTypeFareParams = {
+    distanceKm: number;
+    durationMin: number;
+    isHourly: boolean;
+    pickup_lat?: number;
+    pickup_lng?: number;
+    dropoff_lat?: number;
+    dropoff_lng?: number;
+};
+
+// ---------------------------------------------------------------------------
 // Filters
 // ---------------------------------------------------------------------------
 

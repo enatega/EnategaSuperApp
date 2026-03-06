@@ -17,6 +17,10 @@ type Props = {
   /** Screen title shown in the centre — optional, omit to show back button only */
   title?: string;
   /**
+   * Custom left slot. If provided, replaces the default back button.
+   */
+  leftSlot?: React.ReactNode;
+  /**
    * Anything rendered in the right slot — an icon button, avatar, menu, etc.
    * If omitted a transparent placeholder keeps the title centred.
    */
@@ -35,6 +39,7 @@ type Props = {
 
 export default function ScreenHeader({
   title,
+  leftSlot,
   rightSlot,
   showBack,
   onBack,
@@ -67,24 +72,26 @@ export default function ScreenHeader({
     >
       {/* ── Left: Back Button ── */}
       <View style={styles.side}>
-        {canGoBack && (
-          <Pressable
-            onPress={handleBack}
-            style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <View style={[styles.backButton, { backgroundColor: colors.backgroundTertiary }]}>
-              <Image
-                source={require('../assets/images/backButton.png')}
-                style={styles.backIcon}
-                resizeMode="contain"
-                accessibilityIgnoresInvertColors
-              />
-            </View>
-          </Pressable>
-        )}
+        {leftSlot
+          ? leftSlot
+          : canGoBack && (
+            <Pressable
+              onPress={handleBack}
+              style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <View style={[styles.backButton, { backgroundColor: colors.background }]}>
+                <Image
+                  source={require('../assets/images/backButton.png')}
+                  style={styles.backIcon}
+                  resizeMode="contain"
+                  accessibilityIgnoresInvertColors
+                />
+              </View>
+            </Pressable>
+          )}
       </View>
 
       {/* ── Centre: Title (optional) ── */}

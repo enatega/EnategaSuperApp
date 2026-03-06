@@ -97,6 +97,11 @@ const fr = {
   settings_licences: 'Licences',
   settings_lorem_ipsum: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
   settings_terms_conditions_subtitle: 'Veuillez consulter et accepter nos termes et conditions légaux.',
+  ride_address_title: 'Votre trajet',
+  ride_address_close: 'Fermer',
+  ride_address_from_placeholder: 'De',
+  ride_address_to_placeholder: 'À',
+  ride_address_choose_on_map: 'Choisir sur la carte',
 };
 
 export default fr;
