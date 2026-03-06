@@ -1,15 +1,16 @@
-import React, { memo, useCallback } from 'react';
-import { FlatList, ListRenderItemInfo, StyleSheet, View } from 'react-native';
+import React, { memo } from 'react';
+import { Dimensions, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../../../general/theme/theme';
+import SwipeableBottomSheet from '../../../../general/components/SwipeableBottomSheet';
 import { RideCategory } from '../../utils/rideOptions';
-import { RecentLocation, RideOptionItem } from './types';
+import { CachedAddress, RideOptionItem } from './types';
 import RideOptionsHeader from './RideOptionsHeader';
-import RecentLocationRow from './RecentLocationRow';
+import CachedAddressList from './CachedAddressList';
 
 type Props = {
   rideOptions: RideOptionItem[];
-  recentLocations: RecentLocation[];
+  cachedAddresses: CachedAddress[];
   selectedCategory: RideCategory;
   onSelectCategory: (category: RideCategory) => void;
   onSearchPress: () => void;
@@ -17,23 +18,21 @@ type Props = {
 
 function RideOptionsBottomSheet({
   rideOptions,
-  recentLocations,
+  cachedAddresses,
   selectedCategory,
   onSelectCategory,
   onSearchPress,
 }: Props) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-
-  const renderLocation = useCallback(
-    ({ item }: ListRenderItemInfo<RecentLocation>) => (
-      <RecentLocationRow item={item} />
-    ),
-    [],
-  );
+  const screenHeight = Dimensions.get('window').height;
+  const expandedHeight = Math.min(screenHeight * 0.6, 520);
+  const collapsedHeight = 120;
 
   return (
-    <View
+    <SwipeableBottomSheet
+      expandedHeight={expandedHeight}
+      collapsedHeight={collapsedHeight + insets.bottom}
       style={[
         styles.sheet,
         {
@@ -42,14 +41,11 @@ function RideOptionsBottomSheet({
           shadowColor: colors.shadowColor,
         },
       ]}
+      handle={<View style={[styles.sheetHandle, { backgroundColor: colors.border }]} />}
+      handleContainerStyle={styles.handleContainer}
     >
-      <View style={[styles.sheetHandle, { backgroundColor: colors.border }]} />
-
-      <FlatList
-        data={recentLocations}
-        keyExtractor={(item) => item.id}
-        renderItem={renderLocation}
-        showsVerticalScrollIndicator={false}
+      <CachedAddressList
+        data={cachedAddresses}
         contentContainerStyle={styles.sheetContent}
         ListHeaderComponent={(
           <RideOptionsHeader
@@ -60,7 +56,7 @@ function RideOptionsBottomSheet({
           />
         )}
       />
-    </View>
+    </SwipeableBottomSheet>
   );
 }
 
@@ -68,10 +64,6 @@ export default memo(RideOptionsBottomSheet);
 
 const styles = StyleSheet.create({
   sheet: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
     paddingTop: 16,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
@@ -80,12 +72,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -2 },
     elevation: 8,
   },
+  handleContainer: {
+    alignItems: 'center',
+    paddingBottom: 12,
+  },
   sheetHandle: {
-    alignSelf: 'center',
     width: 40,
     height: 4,
     borderRadius: 999,
-    marginBottom: 12,
   },
   sheetContent: {
     paddingBottom: 12,

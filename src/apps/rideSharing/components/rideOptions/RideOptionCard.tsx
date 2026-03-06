@@ -35,11 +35,7 @@ function RideOptionCard({ item, isActive, onPress }: Props) {
     >
       <View style={styles.optionIconWrap}>
         <Image source={{ uri: item.icon }} style={styles.optionIcon} />
-        {item.showSnowflake && (
-          <View style={styles.optionBadge}>
-            <Image source={{ uri: snowflakeIcon }} style={styles.optionBadgeIcon} />
-          </View>
-        )}
+      
       </View>
       <View style={styles.optionMeta}>
         <Text

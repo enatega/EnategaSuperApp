@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -6,12 +6,18 @@ import { useTheme } from '../../../../general/theme/theme';
 import Text from '../../../../general/components/Text';
 import Image from '../../../../general/components/Image';
 import Icon from '../../../../general/components/Icon';
+import Map, { MapMarker } from '../../../../general/components/Map';
 
-const mapImage = 'https://www.figma.com/api/mcp/asset/ab9e442d-958a-4c29-971c-78fa74c7c7ec';
 const mapMarkerIcon = 'https://www.figma.com/api/mcp/asset/ceda917e-cfee-4f0b-84bc-2fcb6e8865b5';
 const pickupMarkerIcon = 'https://www.figma.com/api/mcp/asset/e71a825a-9a77-4f55-9458-a571fb6334e0';
 
 const LOCATE_BUTTON_OFFSET = 300;
+const INITIAL_REGION = {
+  latitude: 24.8607,
+  longitude: 67.0011,
+  latitudeDelta: 0.08,
+  longitudeDelta: 0.08,
+};
 
 type Props = {
   onBackPress: () => void;
@@ -22,9 +28,37 @@ function RideOptionsMapLayer({ onBackPress }: Props) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('rideSharing');
 
+  const markers = useMemo<MapMarker[]>(
+    () => [
+      {
+        id: 'dropoff',
+        coordinate: { latitude: 24.8683, longitude: 67.0032 },
+        active: true,
+        tracksViewChanges: true,
+        render: <Image source={{ uri: mapMarkerIcon }} style={styles.markerIcon} />,
+      },
+      {
+        id: 'pickup',
+        coordinate: { latitude: 24.8642, longitude: 66.9989 },
+        active: true,
+        tracksViewChanges: true,
+        render: <Image source={{ uri: pickupMarkerIcon }} style={styles.pickupMarkerIcon} />,
+      },
+    ],
+    []
+  );
+
   return (
     <>
-      <Image source={{ uri: mapImage }} style={styles.mapImage} resizeMode="cover" />
+      <Map
+        initialRegion={INITIAL_REGION}
+        showsUserLocation={true}
+        showsMyLocationButton={true}
+        showsCompass={false}
+        toolbarEnabled={false}
+        markers={markers}
+        
+      />
 
       <View style={[styles.header, { top: insets.top + 8 }]}>
         <Pressable
@@ -38,39 +72,8 @@ function RideOptionsMapLayer({ onBackPress }: Props) {
         </Pressable>
       </View>
 
-      <View
-        style={[
-          styles.pickupBubble,
-          { shadowColor: colors.shadowColor, backgroundColor: colors.surface },
-        ]}
-      >
-        <View style={styles.pickupText}>
-          <Text weight="medium" style={{ color: colors.mutedText, fontSize: typography.size.xxs }}>
-            {t('ride_pickup_point_label')}
-          </Text>
-          <Text weight="semiBold" style={{ color: colors.text, fontSize: typography.size.xs2 }}>
-            {t('ride_pickup_point_value')}
-          </Text>
-        </View>
-        <Icon type="Feather" name="chevron-right" size={16} color={colors.mutedText} />
-      </View>
-
-      <View style={styles.markerWrap}>
-        <Image source={{ uri: mapMarkerIcon }} style={styles.markerIcon} />
-      </View>
-
-      <View style={styles.pickupMarkerWrap}>
-        <Image source={{ uri: pickupMarkerIcon }} style={styles.pickupMarkerIcon} />
-      </View>
-
-      <Pressable
-        style={[
-          styles.locateButton,
-          { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.shadowColor },
-        ]}
-      >
-        <Icon type="Feather" name="crosshair" size={18} color={colors.text} />
-      </Pressable>
+     
+     
     </>
   );
 }
@@ -78,9 +81,6 @@ function RideOptionsMapLayer({ onBackPress }: Props) {
 export default memo(RideOptionsMapLayer);
 
 const styles = StyleSheet.create({
-  mapImage: {
-    ...StyleSheet.absoluteFillObject,
-  },
   header: {
     position: 'absolute',
     left: 16,
@@ -115,19 +115,9 @@ const styles = StyleSheet.create({
   pickupText: {
     gap: 2,
   },
-  markerWrap: {
-    position: 'absolute',
-    left: '45%',
-    top: 290,
-  },
   markerIcon: {
     width: 20,
     height: 20,
-  },
-  pickupMarkerWrap: {
-    position: 'absolute',
-    left: '48%',
-    top: 245,
   },
   pickupMarkerIcon: {
     width: 36,

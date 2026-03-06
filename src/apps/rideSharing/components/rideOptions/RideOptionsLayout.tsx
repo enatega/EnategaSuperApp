@@ -3,11 +3,11 @@ import { StyleSheet, View } from 'react-native';
 import { RideCategory } from '../../utils/rideOptions';
 import RideOptionsBottomSheet from './RideOptionsBottomSheet';
 import RideOptionsMapLayer from './RideOptionsMapLayer';
-import { RecentLocation, RideOptionItem } from './types';
+import { CachedAddress, RideOptionItem } from './types';
 
 type Props = {
   rideOptions: RideOptionItem[];
-  recentLocations: RecentLocation[];
+  cachedAddresses: CachedAddress[];
   selectedCategory: RideCategory;
   onSelectCategory: (category: RideCategory) => void;
   onSearchPress: () => void;
@@ -16,7 +16,7 @@ type Props = {
 
 function RideOptionsLayout({
   rideOptions,
-  recentLocations,
+  cachedAddresses,
   selectedCategory,
   onSelectCategory,
   onSearchPress,
@@ -27,7 +27,7 @@ function RideOptionsLayout({
       <RideOptionsMapLayer onBackPress={onBackPress} />
       <RideOptionsBottomSheet
         rideOptions={rideOptions}
-        recentLocations={recentLocations}
+        cachedAddresses={cachedAddresses}
         selectedCategory={selectedCategory}
         onSelectCategory={onSelectCategory}
         onSearchPress={onSearchPress}

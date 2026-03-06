@@ -34,6 +34,11 @@ const fr = {
   details_body: 'Détails du trajet et informations sur le conducteur.',
   driver_profile_title: 'Profil du Conducteur',
   driver_profile_button: 'Profil du Conducteur',
+  ride_address_title: 'Votre trajet',
+  ride_address_close: 'Fermer',
+  ride_address_from_placeholder: 'De',
+  ride_address_to_placeholder: 'À',
+  ride_address_choose_on_map: 'Choisir sur la carte',
 };
 
 export default fr;
