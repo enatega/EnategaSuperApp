@@ -63,7 +63,7 @@ export const userService = {
 
     /** Update the current authenticated user's password. */
     updatePassword: async (payload: UpdatePasswordPayload): Promise<{ message: string }> => {
-        const response = await apiClient.patch<{ message: string }>('api/v1/users/password', payload);
+        const response = await apiClient.patch<{ message: string }>('/api/v1/ride-hailing/users/password', payload);
         console.log('Update password response:', JSON.stringify(response, null, 2));
         return response;
     },
