@@ -39,11 +39,17 @@ export default function RulesAndTermsScreen() {
             onPress={() => navigation.navigate('TermsAndConditions')}
           />
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
+           <SettingsItem
+            title={t('settings_privacy')}
+            onPress={() => navigation.navigate('PrivacyPolicy')}
+          />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <SettingsItem
             title={t('settings_licences')}
             onPress={() => navigation.navigate('Licences')}
-          />
+          /> 
         </View>
+        
       </ScrollView>
     </View>
   );
