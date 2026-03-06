@@ -7,12 +7,14 @@ import { SvgProps } from "react-native-svg";
  * Make sure the file exists inside assets/svgs
  */
 import Login from "../assets/svgs/login.svg";
+import Google from "../assets/svgs/google.svg";
+import Otp from "../assets/svgs/otp.svg";
 
 /**
  * 2️⃣ Add the SVG file name here.
  * The name must match the key used in `svgIcons` below.
  */
-type SvgName = "login";
+export type SvgName = "login" | "google" | "otp";
 
 interface AppSvgProps extends SvgProps {
   name: SvgName;
@@ -28,6 +30,8 @@ interface AppSvgProps extends SvgProps {
  */
 const svgIcons: Record<SvgName, React.FC<SvgProps>> = {
   login: Login,
+  google: Google,
+  otp: Otp
 };
 
 const Svg: React.FC<AppSvgProps> = ({
