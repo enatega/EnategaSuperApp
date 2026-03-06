@@ -33,7 +33,6 @@ export const lightColors = {
   shadowColor: '#000000',
   white: '#FFFFFF',
   iconColor: '#27272A',
-  backgroundTertiary: '#F4F4F5',
   gray100: '#F3F4F6',
 };
 
@@ -72,7 +71,6 @@ export const darkColors: typeof lightColors = {
   shadowColor: '#000000',
   white: '#FFFFFF',
   iconColor: '#27272A',
-  backgroundTertiary: '#F4F4F5',
   gray100: '#F3F4F6'
 };
 
