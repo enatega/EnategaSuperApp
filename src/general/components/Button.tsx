@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import Text from './Text';
 import { useTheme } from '../theme/theme';
+import Svg from './Svg';
 
 type Props = {
   label: string;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
   variant?: 'primary' | 'secondary' | 'ghost';
+  icon?: ReactNode
+  disabled?: boolean
   isLoading?: boolean;
-  disabled?: boolean;
 };
 
 export default function Button({
@@ -17,6 +19,7 @@ export default function Button({
   onPress,
   style,
   variant = 'primary',
+  icon,
   isLoading = false,
   disabled = false,
 }: Props) {
@@ -34,7 +37,7 @@ export default function Button({
       style={({ pressed }) => [
         styles.base,
         {
-          backgroundColor: isGhost
+          backgroundColor: disabled ? colors.backgroundTertiary : isGhost
             ? 'transparent'
             : isSecondary
               ? colors.surface
@@ -52,6 +55,7 @@ export default function Button({
             color={isGhost || isSecondary ? colors.primary : '#FFFFFF'}
           />
         ) : null}
+        {icon && icon}
         <Text
           variant="body"
           weight="semiBold"

@@ -10,6 +10,8 @@ import OurServicesSection from './home/OurServicesSection';
 import ServiceTypeSection from './home/ServiceTypeSection';
 import RecommendedSection from './home/RecommendedSection';
 import { MiniAppId } from '../general/utils/constants';
+import { useNavigation } from '@react-navigation/native';
+import Button from '../general/components/Button';
 
 type Props = {
   onSelectMiniApp?: (id: MiniAppId) => void;
