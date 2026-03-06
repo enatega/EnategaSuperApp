@@ -82,7 +82,7 @@ export default function ScreenHeader({
               accessibilityLabel="Go back"
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <View style={[styles.backButton, { backgroundColor: colors.background }]}>
+              <View style={[styles.backButton, { backgroundColor: colors.backgroundTertiary }]}>
                 <Image
                   source={require('../assets/images/backButton.png')}
                   style={styles.backIcon}
