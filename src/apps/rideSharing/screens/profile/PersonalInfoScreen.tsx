@@ -1,11 +1,12 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
+import Skeleton from '../../../../general/components/Skeleton';
 import ProfilePhoto from '../../components/profile/ProfilePhoto';
 import ProfileInfoItem from '../../components/profile/ProfileInfoItem';
 import { useProfile } from '../../hooks/useProfile';
@@ -40,9 +41,32 @@ export default function PersonalInfoScreen() {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <ScreenHeader />
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
+        <ScrollView
+          contentInsetAdjustmentBehavior="automatic"
+          contentContainerStyle={[styles.scrollContent, { paddingTop: 20 }]}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header Skeleton */}
+          <View style={styles.header}>
+            <Skeleton width={150} height={32} style={{ marginBottom: 8 }} />
+            <Skeleton width={200} height={20} />
+          </View>
+
+          {/* Profile Photo Skeleton */}
+          <View style={{ alignItems: 'center', marginBottom: 24 }}>
+            <Skeleton width={100} height={100} borderRadius={50} />
+          </View>
+
+          {/* Profile Info Items Skeleton */}
+          <View style={[styles.infoContainer, { backgroundColor: colors.surface }]}>
+            {[1, 2, 3].map((i) => (
+              <View key={i} style={{ paddingVertical: 16, paddingHorizontal: 12 }}>
+                <Skeleton width={80} height={20} style={{ marginBottom: 8 }} />
+                <Skeleton width={160} height={16} />
+              </View>
+            ))}
+          </View>
+        </ScrollView>
       </View>
     );
   }
