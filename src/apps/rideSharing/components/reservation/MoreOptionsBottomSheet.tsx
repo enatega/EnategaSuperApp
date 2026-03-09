@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import SwipeableBottomSheet from '../../../../general/components/SwipeableBottomSheet';
