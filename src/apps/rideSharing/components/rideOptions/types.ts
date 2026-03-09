@@ -16,4 +16,8 @@ export type CachedAddress = {
     secondaryText?: string;
   };
   types?: string[];
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
 };

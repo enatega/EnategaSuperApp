@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useTheme } from '../../../../../general/theme/theme';
 import Text from '../../../../../general/components/Text';
 import Icon from '../../../../../general/components/Icon';
@@ -12,6 +12,9 @@ type Props = {
   fromPlaceholder: string;
   toPlaceholder: string;
   chooseOnMapLabel: string;
+  onFocusFrom?: () => void;
+  onFocusTo?: () => void;
+  loadingField?: 'from' | 'to' | null;
   onChooseOnMap?: () => void;
 };
 
@@ -23,6 +26,9 @@ function RideAddressSearchHeader({
   fromPlaceholder,
   toPlaceholder,
   chooseOnMapLabel,
+  onFocusFrom,
+  onFocusTo,
+  loadingField = null,
   onChooseOnMap,
 }: Props) {
   const { colors, typography } = useTheme();
@@ -49,10 +55,14 @@ function RideAddressSearchHeader({
             value={fromValue}
             onChangeText={onChangeFrom}
             autoFocus
-            onFocus={() => setFocusedField('from')}
+            onFocus={() => {
+              setFocusedField('from');
+              onFocusFrom?.();
+            }}
             onBlur={() => setFocusedField(null)}
             selectionColor={colors.primary}
           />
+          {loadingField === 'from' ? <ActivityIndicator size="small" color={colors.primary} /> : null}
         </View>
         <View
           style={[
@@ -71,10 +81,14 @@ function RideAddressSearchHeader({
             placeholderTextColor={colors.mutedText}
             value={toValue}
             onChangeText={onChangeTo}
-            onFocus={() => setFocusedField('to')}
+            onFocus={() => {
+              setFocusedField('to');
+              onFocusTo?.();
+            }}
             onBlur={() => setFocusedField(null)}
             selectionColor={colors.primary}
           />
+          {loadingField === 'to' ? <ActivityIndicator size="small" color={colors.primary} /> : null}
         </View>
       </View>
 

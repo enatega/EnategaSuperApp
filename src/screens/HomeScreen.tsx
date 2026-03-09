@@ -1,17 +1,24 @@
-import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { AppState, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../general/theme/theme';
 import { mockImages } from '../general/utils/mockImages';
 import { serviceTypeIcons } from '../general/assets/images';
 import HomeHeader from './home/HomeHeader';
+import HomeLocationPermissionPopup, {
+  LocationPopupMode,
+} from './home/HomeLocationPermissionPopup';
 import OurServicesSection from './home/OurServicesSection';
 import ServiceTypeSection from './home/ServiceTypeSection';
 import RecommendedSection from './home/RecommendedSection';
 import { MiniAppId } from '../general/utils/constants';
-import { useNavigation } from '@react-navigation/native';
-import Button from '../general/components/Button';
+import { useIsFocused } from '@react-navigation/native';
+import {
+  getLocationPermissionState,
+  openAppLocationSettings,
+  requestLocationPermission,
+} from '../general/utils/locationPermission';
 
 type Props = {
   onSelectMiniApp?: (id: MiniAppId) => void;
@@ -21,6 +28,10 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('general');
   const { t: tDeliveries } = useTranslation('deliveries');
+  const isFocused = useIsFocused();
+  const [isLocationPopupVisible, setIsLocationPopupVisible] = useState(false);
+  const [locationPopupMode, setLocationPopupMode] = useState<LocationPopupMode>('request');
+  const [isRequestingLocation, setIsRequestingLocation] = useState(false);
 
   const serviceTypes = [
     {
@@ -62,6 +73,83 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
     },
   ];
 
+  useEffect(() => {
+    if (!isFocused) {
+      return;
+    }
+
+    void syncLocationPermission();
+  }, [isFocused]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active' && isFocused) {
+        void syncLocationPermission();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [isFocused]);
+
+  async function syncLocationPermission() {
+    try {
+      const permission = await getLocationPermissionState();
+
+      if (permission.granted) {
+        setIsLocationPopupVisible(false);
+        setLocationPopupMode('request');
+        return;
+      }
+
+      if (permission.blocked) {
+        setLocationPopupMode('blocked');
+      } else if (permission.undetermined) {
+        setLocationPopupMode('request');
+      } else {
+        setLocationPopupMode('denied');
+      }
+
+      setIsLocationPopupVisible(true);
+    } catch (error) {
+      console.warn('Unable to read location permission state', error);
+    }
+  }
+
+  async function handleRequestLocation() {
+    setIsRequestingLocation(true);
+
+    try {
+      const permission = await requestLocationPermission();
+
+      if (permission.granted) {
+        setIsLocationPopupVisible(false);
+        setLocationPopupMode('request');
+        return;
+      }
+
+      setLocationPopupMode(permission.blocked ? 'blocked' : 'denied');
+      setIsLocationPopupVisible(true);
+    } catch (error) {
+      console.warn('Unable to request location permission', error);
+    } finally {
+      setIsRequestingLocation(false);
+    }
+  }
+
+  function handleDismissLocationPopup() {
+    setIsLocationPopupVisible(false);
+  }
+
+  async function handleOpenLocationSettings() {
+    try {
+      await openAppLocationSettings();
+    } catch (error) {
+      console.warn('Unable to open app settings', error);
+    }
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <HomeHeader backgroundVariant="solid" />
@@ -72,6 +160,15 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
           <RecommendedSection items={recommendations} />
         </ScrollView>
       </SafeAreaView>
+
+      <HomeLocationPermissionPopup
+        visible={isLocationPopupVisible}
+        mode={locationPopupMode}
+        isLoading={isRequestingLocation}
+        onRequestLocation={handleRequestLocation}
+        onOpenSettings={handleOpenLocationSettings}
+        onDismiss={handleDismissLocationPopup}
+      />
     </View>
   );
 }

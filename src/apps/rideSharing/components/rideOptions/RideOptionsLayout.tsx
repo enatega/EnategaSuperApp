@@ -4,6 +4,7 @@ import { RideCategory } from '../../utils/rideOptions';
 import RideOptionsBottomSheet from './RideOptionsBottomSheet';
 import RideOptionsMapLayer from './RideOptionsMapLayer';
 import { CachedAddress, RideOptionItem } from './types';
+import useCurrentLocation from '../../../../general/hooks/useCurrentLocation';
 
 type Props = {
   rideOptions: RideOptionItem[];
@@ -22,15 +23,27 @@ function RideOptionsLayout({
   onSearchPress,
   onBackPress,
 }: Props) {
+  const {
+    currentCoordinates,
+    isLoadingCurrentLocation,
+    refreshCurrentLocation,
+  } = useCurrentLocation();
+
   return (
     <View style={styles.container}>
-      <RideOptionsMapLayer onBackPress={onBackPress} />
+      <RideOptionsMapLayer
+        onBackPress={onBackPress}
+        currentCoordinates={currentCoordinates}
+        cachedAddresses={cachedAddresses}
+      />
       <RideOptionsBottomSheet
         rideOptions={rideOptions}
         cachedAddresses={cachedAddresses}
         selectedCategory={selectedCategory}
         onSelectCategory={onSelectCategory}
         onSearchPress={onSearchPress}
+        onLocatePress={refreshCurrentLocation}
+        isLocating={isLoadingCurrentLocation}
       />
     </View>
   );

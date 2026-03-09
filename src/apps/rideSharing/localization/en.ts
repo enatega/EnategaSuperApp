@@ -17,6 +17,7 @@ const en = {
   ride_option_ac_title: 'Ride A/C',
   ride_option_premium_title: 'Premium',
   ride_search_placeholder: 'Where to & for how much?',
+  ride_current_location: 'Current location',
   ride_pickup_point_label: 'Pickup point',
   ride_pickup_point_value: 'New Jersey',
   delivery_services_title: 'Get anything delivered',
@@ -113,6 +114,13 @@ const en = {
   ride_address_from_placeholder: 'From',
   ride_address_to_placeholder: 'To',
   ride_address_choose_on_map: 'Choose on map',
+  ride_address_no_results_title: 'No addresses found',
+  ride_address_no_results_description: 'Try a different street, building, or landmark name.',
+  ride_address_recent_empty_title: 'No recent addresses yet',
+  ride_address_recent_empty_description: 'Your recent pickup and drop-off selections will appear here.',
+  ride_schedule_label: 'Schedule ride',
+  ride_payment_cash: 'Cash',
+  ride_find_button: 'Find a ride',
 };
 
 export default en;
