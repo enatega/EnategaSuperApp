@@ -17,6 +17,8 @@ import TermsAndConditionsScreen from '../screens/settings/TermsAndConditionsScre
 import LicencesScreen from '../screens/settings/LicencesScreen';
 import RideAddressSearchScreen from '../screens/rideSearch/RideAddressSearchScreen';
 import RideEstimateScreen from '../screens/rideEstimate/RideEstimateScreen';
+import ReservationsListScreen from '../screens/reservations/ReservationsListScreen';
+import ReservationDetailScreen from '../screens/reservations/ReservationDetailScreen';
 import { useTranslation } from 'react-i18next';
 import QueryProvider from '../../../general/providers/QueryProvider';
 import type { RideAddressSelection } from '../api/types';
@@ -48,6 +50,10 @@ export type RideSharingStackParamList = {
   PrivacyPolicy: undefined;
   TermsAndConditions: undefined;
   Licences: undefined;
+  ReservationsList: undefined;
+  ReservationDetail: {
+    reservationId: string;
+  };
 };
 
 const Stack = createNativeStackNavigator();
@@ -122,6 +128,17 @@ export default function RideSharingNavigator() {
         <Stack.Screen
           name="Licences"
           component={LicencesScreen}
+          options={{ headerShown: false }}
+        />
+        {/* Reservation Screens */}
+        <Stack.Screen
+          name="ReservationsList"
+          component={ReservationsListScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ReservationDetail"
+          component={ReservationDetailScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

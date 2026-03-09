@@ -93,7 +93,7 @@ export default function ScreenHeader({
       {title ? (
         <Text
           numberOfLines={1}
-          weight="semiBold"
+          weight="bold"
           color={colors.text}
           style={styles.title}
         >

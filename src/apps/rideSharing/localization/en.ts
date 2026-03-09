@@ -121,6 +121,26 @@ const en = {
   ride_schedule_label: 'Schedule ride',
   ride_payment_cash: 'Cash',
   ride_find_button: 'Find a ride',
+  // Reservations
+  reservations_title: 'Reservations',
+  reservations_empty: 'No reservations yet',
+  reservation_detail_title: 'Reservation detail',
+  reservation_scheduled_for: 'Scheduled for',
+  reservation_payment: 'Payment',
+  reservation_route: 'Your ride route',
+  reservation_status: 'Ride status',
+  reservation_things_to_mind: 'Things to keep in mind',
+  reservation_wait_time: 'Wait time',
+  reservation_cancellation_policy: 'Cancellation policy',
+  reservation_cancel_ride: 'Cancel the ride',
+  reservation_confirm_cancel_title: 'Are you sure?',
+  reservation_confirm_cancel_yes: 'Yes, cancel the ride',
+  reservation_confirm_cancel_no: 'No, Continue the ride',
+  reservation_status_scheduled: 'Scheduled',
+  reservation_status_completed: 'Completed',
+  reservation_status_cancelled: 'Cancelled by you',
+  reservation_status_in_progress: 'In progress',
+  reservation_more_options: 'More options',
 };
 
 export default en;
