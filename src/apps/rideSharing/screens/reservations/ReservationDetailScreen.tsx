@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
@@ -10,6 +11,7 @@ import { getReservationById } from '../../data/reservationMockData';
 import CancelRideBottomSheet from '../../components/reservation/CancelRideBottomSheet';
 import MoreOptionsBottomSheet from '../../components/reservation/MoreOptionsBottomSheet';
 import ReservationRideInfo from '../../components/reservation/ReservationRideInfo';
+import ReservationDriverInfo from '../../components/reservation/ReservationDriverInfo';
 import ReservationSchedule from '../../components/reservation/ReservationSchedule';
 import ReservationPayment from '../../components/reservation/ReservationPayment';
 import ReservationRoute from '../../components/reservation/ReservationRoute';
@@ -18,9 +20,10 @@ import ReservationInfoSection from '../../components/reservation/ReservationInfo
 import type { RideSharingStackParamList } from '../../navigation/RideSharingNavigator';
 
 type RoutePropType = RouteProp<RideSharingStackParamList, 'ReservationDetail'>;
+type NavigationProp = NativeStackNavigationProp<RideSharingStackParamList>;
 
 export default function ReservationDetailScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   const route = useRoute<RoutePropType>();
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
@@ -101,10 +104,22 @@ export default function ReservationDetailScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <ReservationRideInfo
           rideTitle={reservation.rideTitle}
-          vehicleModel={reservation.vehicleInfo?.model}
-          vehicleColor={reservation.vehicleInfo?.color}
-          licensePlate={reservation.licensePlate}
+          price={reservation.price}
+          currency={reservation.currency}
         />
+
+        {reservation.driver && (
+          <ReservationDriverInfo
+            driver={reservation.driver}
+            vehicleInfo={reservation.vehicleInfo}
+            licensePlate={reservation.licensePlate}
+            onPress={() => {
+              // Temporary fallback user ID as requested
+              const FALLBACK_USER_ID = 'f6280bea-39a4-4616-b462-59381289402e';
+              navigation.navigate('DriverProfile', { userId: FALLBACK_USER_ID });
+            }}
+          />
+        )}
 
         <ReservationSchedule
           label={t('reservation_scheduled_for')}
@@ -112,8 +127,6 @@ export default function ReservationDetailScreen() {
         />
 
         <ReservationPayment
-          amount={reservation.price}
-          currency={reservation.currency}
           paymentMethod={reservation.paymentMethod}
         />
 

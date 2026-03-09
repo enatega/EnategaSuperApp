@@ -11,6 +11,12 @@ export interface Reservation {
     color: string;
   };
   licensePlate?: string;
+  driver?: {
+    name: string;
+    rating: number;
+    rideCount: number;
+    image?: string; // URL or local asset
+  };
   dateTime: string;
   price: number;
   currency: string;

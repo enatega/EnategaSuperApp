@@ -133,6 +133,8 @@ const fr = {
   reservation_not_found: 'Réservation non trouvée',
   reservation_cash: 'Espèces',
   reservation_card: 'Carte',
+  reservation_driver_details: 'Détails du conducteur',
+  reservation_rides: 'trajets',
 };
 
 export default fr;

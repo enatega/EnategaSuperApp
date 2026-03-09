@@ -6,12 +6,10 @@ import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 
 type Props = {
-  amount: number;
-  currency: string;
   paymentMethod: 'cash' | 'card';
 };
 
-export default function ReservationPayment({ amount, currency, paymentMethod }: Props) {
+export default function ReservationPayment({ paymentMethod }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
 
@@ -24,10 +22,7 @@ export default function ReservationPayment({ amount, currency, paymentMethod }: 
         <View style={[styles.iconContainer, { backgroundColor: colors.cardMint }]}>
           <Ionicons name="cash-outline" size={24} color={colors.success} />
         </View>
-        <Text weight="semiBold" variant="subtitle">
-          {currency} {amount.toFixed(2)}
-        </Text>
-        <Text variant="caption" color={colors.mutedText} style={styles.method}>
+        <Text weight="semiBold" variant="subtitle" style={styles.method}>
           {paymentMethod === 'cash' ? t('reservation_cash') : t('reservation_card')}
         </Text>
       </View>

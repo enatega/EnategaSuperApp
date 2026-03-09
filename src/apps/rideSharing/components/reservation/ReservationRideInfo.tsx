@@ -1,39 +1,34 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Image } from 'react-native';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
+import { serviceIcons } from '../../../../general/assets/images';
 
 type Props = {
   rideTitle: string;
-  vehicleModel?: string;
-  vehicleColor?: string;
-  licensePlate?: string;
+  price: number;
+  currency: string;
 };
 
 export default function ReservationRideInfo({
   rideTitle,
-  vehicleModel,
-  vehicleColor,
-  licensePlate,
+  price,
+  currency,
 }: Props) {
   const { colors } = useTheme();
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
-      <View style={styles.header}>
-        <View>
-          <Text weight="semiBold" variant="subtitle" style={styles.title}>
+      <View style={styles.content}>
+        <View style={styles.leftContent}>
+          <Image source={serviceIcons.rideSharing} style={styles.carImage} resizeMode="contain" />
+          <Text weight="bold" variant="title" style={styles.title}>
             {rideTitle}
           </Text>
-          {vehicleModel && vehicleColor && (
-            <Text variant="caption" color={colors.mutedText}>
-              {vehicleModel}, {vehicleColor}
-            </Text>
-          )}
         </View>
-        {licensePlate && (
-          <Text weight="semiBold">{licensePlate}</Text>
-        )}
+        <Text weight="bold" variant="title">
+          {currency} {price.toFixed(2)}
+        </Text>
       </View>
     </View>
   );
@@ -41,15 +36,25 @@ export default function ReservationRideInfo({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 12,
-    borderRadius: 12,
+    padding: 0,
+    backgroundColor: 'transparent',
+    marginBottom: 12,
   },
-  header: {
+  content: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  leftContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  carImage: {
+    width: 60,
+    height: 30,
+  },
   title: {
-    marginBottom: 4,
+    marginLeft: 4,
   },
 });

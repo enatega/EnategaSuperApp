@@ -38,7 +38,9 @@ export type RideSharingStackParamList = {
     toAddress: RideAddressSelection;
   };
   RideDetails: undefined;
-  DriverProfile: undefined;
+  DriverProfile: {
+    userId?: string;
+  };
   PersonalInfo: undefined;
   EditName: undefined;
   EditPhone: undefined;

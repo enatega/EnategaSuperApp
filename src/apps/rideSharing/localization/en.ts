@@ -144,6 +144,8 @@ const en = {
   reservation_not_found: 'Reservation not found',
   reservation_cash: 'Cash',
   reservation_card: 'Card',
+  reservation_driver_details: 'Driver details',
+  reservation_rides: 'rides',
 };
 
 export default en;

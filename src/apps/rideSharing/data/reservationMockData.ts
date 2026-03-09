@@ -10,6 +10,12 @@ export const MOCK_RESERVATIONS: Reservation[] = [
       color: 'Red',
     },
     licensePlate: 'NJ - K47 MPL',
+    driver: {
+      name: 'Jhon Smith',
+      rating: 4.89,
+      rideCount: 502,
+      image: 'https://randomuser.me/api/portraits/men/32.jpg',
+    },
     dateTime: '2024-10-05T16:12:00Z',
     price: 48.75,
     currency: 'QAR',
