@@ -11,6 +11,7 @@ import type {
     RideFilters,
     RideTypeFare,
     RideTypeFareParams,
+    CustomerRidesResponse,
 } from '../api/types';
 import { ApiError } from '../../../general/api/apiClient';
 
@@ -98,6 +99,27 @@ export function useRideEstimates(
         queryFn: () => rideService.getEstimates(payload!),
         staleTime: 5 * 60 * 1000, // 5 minutes
         enabled: !!payload?.pickup && !!payload?.dropoff,
+        ...options,
+    });
+}
+
+// ---------------------------------------------------------------------------
+// useCustomerRides – fetch customer ride history
+// ---------------------------------------------------------------------------
+
+type UseCustomerRidesOptions = Omit<
+    UseQueryOptions<CustomerRidesResponse, ApiError>,
+    'queryKey' | 'queryFn'
+>;
+
+export function useCustomerRides(
+    offset: number = 0,
+    options?: UseCustomerRidesOptions,
+) {
+    return useQuery<CustomerRidesResponse, ApiError>({
+        queryKey: rideKeys.customerRideList(offset),
+        queryFn: () => rideService.getCustomerRides(offset),
+        staleTime: 1 * 60 * 1000, // 1 minute
         ...options,
     });
 }

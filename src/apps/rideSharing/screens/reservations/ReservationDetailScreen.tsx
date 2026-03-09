@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
+import { StyleSheet, View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -7,7 +7,8 @@ import { useTranslation } from 'react-i18next';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
-import { getReservationById } from '../../data/reservationMockData';
+import { useCustomerRides } from '../../hooks/useRideQueries';
+import { mapCustomerRideToReservation } from '../../utils/rideMapper';
 import CancelRideBottomSheet from '../../components/reservation/CancelRideBottomSheet';
 import MoreOptionsBottomSheet from '../../components/reservation/MoreOptionsBottomSheet';
 import ReservationRideInfo from '../../components/reservation/ReservationRideInfo';
@@ -30,8 +31,11 @@ export default function ReservationDetailScreen() {
   const [isCancelBottomSheetVisible, setIsCancelBottomSheetVisible] = useState(false);
   const [isMoreOptionsVisible, setIsMoreOptionsVisible] = useState(false);
 
+  const { data, isLoading, error } = useCustomerRides();
+  const reservations = data?.data.map(mapCustomerRideToReservation) || [];
+
   const reservationId = route.params?.reservationId;
-  const reservation = reservationId ? getReservationById(reservationId) : null;
+  const reservation = reservationId ? reservations.find(r => r.id === reservationId) : null;
 
   const formatDate = (dateTime: string) => {
     const date = new Date(dateTime);
@@ -67,6 +71,24 @@ export default function ReservationDetailScreen() {
     // TODO: Integrate with API to cancel reservation
     console.log('Ride cancelled');
   }, []);
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
+        <Text variant="subtitle" color={colors.danger} style={{ textAlign: 'center' }}>
+          {error.message || 'Failed to load reservation details'}
+        </Text>
+      </View>
+    );
+  }
 
   if (!reservation) {
     return (
