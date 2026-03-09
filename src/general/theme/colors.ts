@@ -45,7 +45,7 @@ export const darkColors: typeof lightColors = {
   secondary: '#8B7BFF',
   text: '#F9FAFB',
   mutedText: '#9CA3AF',
-  border: '#E4E4E7',
+  border: '#424244',
   success: '#34D399',
   warning: '#FBBF24',
   danger: '#F87171',

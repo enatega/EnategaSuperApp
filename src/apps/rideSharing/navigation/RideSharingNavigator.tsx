@@ -16,12 +16,25 @@ import PrivacyPolicyScreen from '../screens/settings/PrivacyPolicyScreen';
 import TermsAndConditionsScreen from '../screens/settings/TermsAndConditionsScreen';
 import LicencesScreen from '../screens/settings/LicencesScreen';
 import RideAddressSearchScreen from '../screens/rideSearch/RideAddressSearchScreen';
+import RideEstimateScreen from '../screens/rideEstimate/RideEstimateScreen';
 import { useTranslation } from 'react-i18next';
 import QueryProvider from '../../../general/providers/QueryProvider';
+import type { RideAddressSelection } from '../api/types';
+import type { RideCategory, RideIntent } from '../utils/rideOptions';
 
 export type RideSharingStackParamList = {
   RideSharingHome: undefined;
   RideOptions: undefined;
+  RideAddressSearch: {
+    rideType?: RideIntent;
+    rideCategory?: RideCategory;
+  } | undefined;
+  RideEstimate: {
+    rideType?: RideIntent;
+    rideCategory?: RideCategory;
+    fromAddress: RideAddressSelection;
+    toAddress: RideAddressSelection;
+  };
   RideDetails: undefined;
   DriverProfile: undefined;
   PersonalInfo: undefined;
@@ -47,6 +60,7 @@ export default function RideSharingNavigator() {
         <Stack.Screen name="RideSharingHome" component={RideSharingHomeScreen} options={{ headerShown:false, title: t('header_title') }} />
         <Stack.Screen name="RideOptions" component={RideOptionsScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RideAddressSearch" component={RideAddressSearchScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="RideEstimate" component={RideEstimateScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RideDetails" component={RideDetails} options={{ title: t('details_title') }} />
         <Stack.Screen
           name="DriverProfile"

@@ -12,6 +12,7 @@ This guide aligns with `guide/DEVELOPMENT_RULES.md`. When in doubt, follow those
 ## Reusability
 - Prefer composition over duplication.
 - Use shared primitives from `src/general/components/` (`Text`, `Button`, `Header`, `ScreenHeader`) for consistency.
+- For loading placeholders, reuse the generic `src/general/components/Skeleton.tsx` primitive and build screen-specific skeleton layouts on top of it instead of creating separate animation implementations.
 
 ## Theming and Tokens
 - All colors must come from `src/general/theme/colors.ts`.
@@ -51,6 +52,7 @@ This guide aligns with `guide/DEVELOPMENT_RULES.md`. When in doubt, follow those
 ## Data, Helpers, and Utils
 - Shared helpers go in `src/general/utils/`.
 - Avoid embedding mock data directly in screens; use mock constants.
+- Secure storage keys must not start with `@`; use plain namespaced keys instead because `@`-prefixed keys have caused runtime issues in this project.
 
 ## Performance
 - Memoize expensive components to avoid unnecessary re-renders.
@@ -58,6 +60,7 @@ This guide aligns with `guide/DEVELOPMENT_RULES.md`. When in doubt, follow those
 
 ## File Hygiene
 - Keep files small and focused; split > ~200 lines.
+- A component file must export only its primary component. Do not define additional component functions or other UI-returning helper methods in the same file; extract them into separate files.
 - Remove dead code and unused imports promptly.
 
 ## Accessibility

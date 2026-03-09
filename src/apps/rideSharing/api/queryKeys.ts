@@ -28,6 +28,10 @@ export const rideKeys = {
   rideTypes: () => [...rideKeys.all, 'types'] as const,
   rideTypeFares: (params?: Record<string, unknown>) =>
       [...rideKeys.rideTypes(), params] as const,
+  places: () => [...rideKeys.all, 'places'] as const,
+  placeSuggestions: (input: string) => [...rideKeys.places(), 'suggestions', input] as const,
+  placeDetails: (placeId: string) => [...rideKeys.places(), 'details', placeId] as const,
+  route: (fromPlaceId: string, toPlaceId: string) => [...rideKeys.all, 'route', fromPlaceId, toPlaceId] as const,
 
   // Profile / Stats
   stats: () => [...rideKeys.all, 'stats'] as const,
@@ -67,4 +71,3 @@ export const userKeys = {
   queryClient.invalidateQueries({ queryKey: rideKeys.detail('123') })  // single ride
   queryClient.invalidateQueries({ queryKey: userKeys.profile() })      // user profile
 */
-

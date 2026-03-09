@@ -17,6 +17,7 @@ const fr = {
   ride_option_ac_title: 'Trajet A/C',
   ride_option_premium_title: 'Premium',
   ride_search_placeholder: 'Où aller & pour combien ?',
+  ride_current_location: 'Position actuelle',
   ride_pickup_point_label: 'Point de départ',
   ride_pickup_point_value: 'New Jersey',
   delivery_services_title: 'Faites tout livrer',
@@ -102,6 +103,13 @@ const fr = {
   ride_address_from_placeholder: 'De',
   ride_address_to_placeholder: 'À',
   ride_address_choose_on_map: 'Choisir sur la carte',
+  ride_address_no_results_title: 'Aucune adresse trouvée',
+  ride_address_no_results_description: 'Essayez un autre nom de rue, d’immeuble ou de lieu.',
+  ride_address_recent_empty_title: 'Aucune adresse récente',
+  ride_address_recent_empty_description: 'Vos derniers points de départ et destinations apparaîtront ici.',
+  ride_schedule_label: 'Programmer le trajet',
+  ride_payment_cash: 'Espèces',
+  ride_find_button: 'Trouver un trajet',
 };
 
 export default fr;

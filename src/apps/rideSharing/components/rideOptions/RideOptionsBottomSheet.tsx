@@ -1,8 +1,10 @@
 import React, { memo } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
 import SwipeableBottomSheet from '../../../../general/components/SwipeableBottomSheet';
+import MapCurrentLocationButton from '../../../../general/components/MapCurrentLocationButton';
 import { RideCategory } from '../../utils/rideOptions';
 import { CachedAddress, RideOptionItem } from './types';
 import RideOptionsHeader from './RideOptionsHeader';
@@ -14,6 +16,8 @@ type Props = {
   selectedCategory: RideCategory;
   onSelectCategory: (category: RideCategory) => void;
   onSearchPress: () => void;
+  onLocatePress: () => void;
+  isLocating?: boolean;
 };
 
 function RideOptionsBottomSheet({
@@ -22,8 +26,11 @@ function RideOptionsBottomSheet({
   selectedCategory,
   onSelectCategory,
   onSearchPress,
+  onLocatePress,
+  isLocating = false,
 }: Props) {
   const { colors } = useTheme();
+  const { t } = useTranslation('rideSharing');
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const expandedHeight = Math.min(screenHeight * 0.6, 520);
@@ -33,6 +40,14 @@ function RideOptionsBottomSheet({
     <SwipeableBottomSheet
       expandedHeight={expandedHeight}
       collapsedHeight={collapsedHeight + insets.bottom}
+      floatingAccessory={(
+        <MapCurrentLocationButton
+          label={t('ride_current_location')}
+          onPress={onLocatePress}
+          isLoading={isLocating}
+        />
+      )}
+      floatingAccessoryStyle={styles.locateFloatingButton}
       style={[
         styles.sheet,
         {
@@ -83,5 +98,9 @@ const styles = StyleSheet.create({
   },
   sheetContent: {
     paddingBottom: 12,
+  },
+  locateFloatingButton: {
+    right: 16,
+    top: -54,
   },
 });

@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { mapIntentToCategory, RideCategory, RideIntent } from '../../utils/rideOptions';
 import RideOptionsLayout from '../../components/rideOptions/RideOptionsLayout';
 import { CachedAddress, RideOptionItem } from '../../components/rideOptions/types';
-import { cachedAddresses as cachedAddressesFixture } from '../../components/rideOptions/cachedAddresses';
 import { useRideTypeFares } from '../../hooks/useRideQueries';
 import type { RideTypeFare, RideTypeFareParams } from '../../api/types';
+import useRecentRideAddresses from '../../hooks/useRecentRideAddresses';
+import { toCachedAddress } from '../../utils/rideAddress';
 
 const rideIcon = 'https://www.figma.com/api/mcp/asset/06c62618-d47d-4594-aa0c-3e1886f000ba';
 const womenRideIcon = 'https://www.figma.com/api/mcp/asset/3a734633-3d43-45c8-ae5c-b469d8a82f2f';
@@ -109,18 +110,13 @@ export default function RideOptionsScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const rideType = (route.params as RouteParams | undefined)?.rideType;
+  const { recentAddresses } = useRecentRideAddresses();
   const [selectedCategory, setSelectedCategory] = useState<RideCategory>(
     mapIntentToCategory(rideType),
   );
 
   const rideTypeQuery = useRideTypeFares(defaultRideTypeParams, {
     gcTime: 5 * 60 * 1000,
-  });
-
-  console.log('Ride type fares query:', {
-    data: rideTypeQuery.data,
-    error: rideTypeQuery.error,
-    isLoading: rideTypeQuery.isLoading,
   });
 
   const rideOptions = useMemo<RideOptionItem[]>(() => {
@@ -143,8 +139,8 @@ export default function RideOptionsScreen() {
   }, [rideOptions, selectedCategory]);
 
   const cachedAddresses = useMemo<CachedAddress[]>(
-    () => cachedAddressesFixture,
-    [],
+    () => recentAddresses.map(toCachedAddress),
+    [recentAddresses],
   );
 
   const handleSearchPress = useCallback(() => {

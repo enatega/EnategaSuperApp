@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback } from "react";
 import {
   Modal,
   StyleSheet,
@@ -10,13 +10,13 @@ import {
   ScrollView,
   Image,
   ViewStyle,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Text from '../../../general/components/Text';
-import SidebarItem from './SidebarItem';
-import Icon from '../../../general/components/Icon';
-import { useTheme } from '../../../general/theme/theme';
-import { useTranslation } from 'react-i18next';
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Text from "../../../general/components/Text";
+import SidebarItem from "./SidebarItem";
+import Icon from "../../../general/components/Icon";
+import { useTheme } from "../../../general/theme/theme";
+import { useTranslation } from "react-i18next";
 
 export type UserProfile = {
   name: string;
@@ -29,7 +29,12 @@ export type UserProfile = {
 export type MenuItem = {
   id: string;
   icon: string;
-  iconLibrary?: 'Ionicons' | 'MaterialIcons' | 'MaterialCommunityIcons' | 'Feather' | 'AntDesign';
+  iconLibrary?:
+    | "Ionicons"
+    | "MaterialIcons"
+    | "MaterialCommunityIcons"
+    | "Feather"
+    | "AntDesign";
   titleKey: string;
   subtitleKey?: string;
   showChevron?: boolean;
@@ -45,7 +50,7 @@ type Props = {
   onProfilePress?: () => void;
 };
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const SIDEBAR_WIDTH = SCREEN_WIDTH * 0.85;
 
 export default function Sidebar({
@@ -57,7 +62,7 @@ export default function Sidebar({
   onProfilePress,
 }: Props) {
   const { colors } = useTheme();
-  const { t } = useTranslation('rideSharing');
+  const { t } = useTranslation("rideSharing");
   const insets = useSafeAreaInsets();
   const slideAnim = React.useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
   const overlayAnim = React.useRef(new Animated.Value(0)).current;
@@ -121,12 +126,15 @@ export default function Sidebar({
           style={[
             styles.overlay,
             {
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
               opacity: overlayAnim,
             },
           ]}
         >
-          <Pressable style={styles.overlayPressable} onPress={handleOverlayPress} />
+          <Pressable
+            style={styles.overlayPressable}
+            onPress={handleOverlayPress}
+          />
         </Animated.View>
 
         {/* Sidebar */}
@@ -156,7 +164,12 @@ export default function Sidebar({
                 }}
                 style={styles.profileHeader}
               >
-                <View style={[styles.avatarContainer, { backgroundColor: colors.cardSoft }]}>
+                <View
+                  style={[
+                    styles.avatarContainer,
+                    { backgroundColor: colors.cardSoft },
+                  ]}
+                >
                   {userProfile.avatarUri ? (
                     <Image
                       source={{ uri: userProfile.avatarUri }}
@@ -181,9 +194,11 @@ export default function Sidebar({
                   <Text variant="title" weight="bold" color={colors.text}>
                     {userProfile.name}
                   </Text>
-                  <Text variant="caption" color={colors.mutedText}>
-                    {userProfile.email}
-                  </Text>
+                  {userProfile.email && (
+                    <Text variant="caption" color={colors.mutedText}>
+                      {userProfile.email}
+                    </Text>
+                  )}
                   {userProfile.rating ? (
                     <View style={styles.ratingContainer}>
                       <Icon
@@ -192,8 +207,13 @@ export default function Sidebar({
                         size={16}
                         color="#FFC107"
                       />
-                      <Text variant="caption" weight="semiBold" color={colors.text}>
-                        {userProfile.rating.toFixed(2)} ({userProfile.reviewCount || 0})
+                      <Text
+                        variant="caption"
+                        weight="semiBold"
+                        color={colors.text}
+                      >
+                        {userProfile.rating.toFixed(2)} (
+                        {userProfile.reviewCount || 0})
                       </Text>
                     </View>
                   ) : null}
@@ -232,8 +252,12 @@ export default function Sidebar({
                   onPress={onLogout}
                   style={[styles.logoutButton, { borderColor: colors.danger }]}
                 >
-                  <Text variant="subtitle" weight="semiBold" color={colors.danger}>
-                    {t('logout')}
+                  <Text
+                    variant="subtitle"
+                    weight="semiBold"
+                    color={colors.danger}
+                  >
+                    {t("logout")}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -248,7 +272,7 @@ export default function Sidebar({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   overlay: {
     flex: 1,
@@ -257,7 +281,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sidebar: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     top: 0,
     bottom: 0,
@@ -270,8 +294,8 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   profileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingBottom: 24,
     // borderBottomWidth: 1,
@@ -282,8 +306,8 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 12,
   },
   avatarImage: {
@@ -295,17 +319,17 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#E5E7EB',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#E5E7EB",
   },
   profileInfo: {
     flex: 1,
     gap: 4,
   },
   ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   menuContainer: {
@@ -318,15 +342,15 @@ const styles = StyleSheet.create({
     // borderTopColor: '#E5E7EB',
     paddingTop: 16,
     paddingHorizontal: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   logoutButton: {
     paddingVertical: 14,
     paddingHorizontal: 48,
     borderRadius: 12,
     borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     minWidth: 320,
   },
 });

@@ -18,6 +18,8 @@ type Props = {
   onStateChange?: (state: 'expanded' | 'collapsed') => void;
   handle?: ReactNode;
   handleContainerStyle?: StyleProp<ViewStyle>;
+  floatingAccessory?: ReactNode;
+  floatingAccessoryStyle?: StyleProp<ViewStyle>;
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -33,6 +35,8 @@ export default function SwipeableBottomSheet({
   onStateChange,
   handle,
   handleContainerStyle,
+  floatingAccessory,
+  floatingAccessoryStyle,
 }: Props) {
   const collapsedOffset = useMemo(
     () => Math.max(expandedHeight - collapsedHeight, 0),
@@ -117,6 +121,11 @@ export default function SwipeableBottomSheet({
         style,
       ]}
     >
+      {floatingAccessory ? (
+        <View style={[styles.floatingAccessory, floatingAccessoryStyle]}>
+          {floatingAccessory}
+        </View>
+      ) : null}
       {handle ? (
         <View style={handleContainerStyle} {...panResponder.panHandlers}>
           {handle}
@@ -133,5 +142,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+  },
+  floatingAccessory: {
+    position: 'absolute',
   },
 });

@@ -145,6 +145,34 @@ export type RideTypeFareParams = {
     dropoff_lng?: number;
 };
 
+export type RidePlacePrediction = {
+    description: string;
+    place_id: string;
+};
+
+export type RidePlaceCoordinates = {
+    lat: string;
+    lng: string;
+};
+
+export type RideAddressSelection = {
+    placeId: string;
+    description: string;
+    structuredFormatting: {
+        mainText: string;
+        secondaryText?: string;
+    };
+    coordinates: {
+        latitude: number;
+        longitude: number;
+    };
+};
+
+export type DistanceMatrixResponse = {
+    distanceKm: number;
+    durationMin: number;
+};
+
 // ---------------------------------------------------------------------------
 // Filters
 // ---------------------------------------------------------------------------
