@@ -52,14 +52,14 @@ export default function Button({
         {isLoading ? (
           <ActivityIndicator
             size="small"
-            color={isGhost || isSecondary ? colors.primary : '#FFFFFF'}
+            color={isGhost || isSecondary ? colors.primary : isDisabled ? colors.mutedText : '#FFFFFF'}
           />
         ) : null}
         {icon && icon}
         <Text
           variant="body"
           weight="semiBold"
-          color={isGhost ? colors.primary : isSecondary ? colors.text : '#FFFFFF'}
+          color={isGhost ? colors.primary : isSecondary ? colors.text : isDisabled ? colors.mutedText : '#FFFFFF'}
         >
           {label}
         </Text>

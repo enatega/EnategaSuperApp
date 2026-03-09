@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 
@@ -8,10 +8,10 @@ import SvgAndTextWrapper from "./general/SvgAndTextWrapper";
 import Footer from "../Footer";
 import Button from "../Button";
 import OtpCodeInput from "./OtpInput";
-import Text from "../Text";
-import TryAnotherWay from "./enterPhoneOtp/TryAnotherWay";
-import VerificationMethodModal from "./enterPhoneOtp/VerificationMethodModal";
-import TooManyRequestsModal from "./enterPhoneOtp/TooManyRequestsModal";
+import TryAnotherWay from "./TryAnotherWay";
+import VerificationMethodModal from "./VerificationMethodModal";
+import TooManyRequestsModal from "./TooManyRequestsModal";
+import { useTheme } from "../../theme/theme";
 
 type VerificationOption = {
   id: string;
@@ -27,8 +27,12 @@ type Props = {
   showTryAnotherWay?: boolean;
   verificationOptions?: VerificationOption[];
   onVerify: (otp: string) => void;
-  onResend?: () => void;
-  styles: any;
+  onResend?: (otp: string) => void;
+  defaultSelectedMethod?: string;
+  errorMessage?: string;
+  isLoading?: boolean;
+  hasError: boolean;
+  setHasError: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export default function OtpVerificationComponent({
@@ -39,22 +43,26 @@ export default function OtpVerificationComponent({
   verificationOptions = [],
   onVerify,
   onResend,
-  styles,
+  defaultSelectedMethod = "sms",
+  errorMessage,
+  isLoading,
+  hasError,
+  setHasError,
 }: Props) {
   const navigation = useNavigation();
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   const [otp, setOtp] = useState("");
-  const [hasError, setHasError] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedMethod, setSelectedMethod] = useState("sms");
+  const [selectedMethod, setSelectedMethod] = useState(defaultSelectedMethod);
   const [rateLimitingModal, setRateLimitingModal] = useState(false);
 
   return (
-    <View style={styles.container}>
+    <View style={useStyles(colors).container}>
       <ScreenHeader onBack={() => navigation.goBack()} />
 
-      <View style={styles.centerContent}>
+      <View style={useStyles(colors).centerContent}>
         <SvgAndTextWrapper
           svgName="otp"
           heading={heading}
@@ -66,30 +74,27 @@ export default function OtpVerificationComponent({
             setHasError(false);
           }}
           onResend={() => {
+            setOtp("");
             setHasError(false);
-            onResend?.();
+            onResend?.(otp);
           }}
           hasError={hasError}
-          errorMessage={t("incorrect_code")}
+          errorMessage={t(errorMessage || "something_went_wrong")}
         />
         {showTryAnotherWay && (
           <TryAnotherWay onPress={() => setModalVisible(true)} />
         )}
-        {/* Todo show too many request modal using it. */}
-        {/* <TouchableOpacity onPress={() => setRateLimitingModal(true)}>
-          <Text>too many requests model</Text>
-        </TouchableOpacity> */}
       </View>
 
       <Footer>
         <Button
-          variant={otp.length === 6 ? "primary" : "secondary"}
+          variant={otp.length === 4 ? "primary" : "secondary"}
           label={t(buttonLabel)}
           onPress={() => {
-            setHasError(true);
             onVerify(otp);
           }}
-          disabled={otp.length !== 6}
+          disabled={otp.length !== 4 || isLoading}
+          isLoading={isLoading}
         />
       </Footer>
 
@@ -100,7 +105,7 @@ export default function OtpVerificationComponent({
           options={verificationOptions}
           selectedOption={selectedMethod}
           onSelectOption={(id) => {
-            const option = verificationOptions.find(opt => opt.id === id);
+            const option = verificationOptions.find((opt) => opt.id === id);
             option?.onSelect?.();
             setSelectedMethod(id);
             setModalVisible(false);
@@ -108,7 +113,7 @@ export default function OtpVerificationComponent({
           title={t("try_another_way")}
         />
       )}
-      
+
       <TooManyRequestsModal
         visible={rateLimitingModal}
         onClose={() => setRateLimitingModal(false)}
@@ -120,3 +125,17 @@ export default function OtpVerificationComponent({
     </View>
   );
 }
+
+const useStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.surface,
+    },
+    centerContent: {
+      flex: 1,
+      paddingHorizontal: 16,
+      gap: 18,
+      alignItems: "center",
+    },
+  });

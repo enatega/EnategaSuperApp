@@ -52,7 +52,7 @@ export default function OtpCodeInput({
   return (
     <View style={styles.container}>
       <OtpInput
-        numberOfDigits={6}
+        numberOfDigits={4}
         onFilled={onCodeFilled}
         theme={{
           containerStyle: styles.otpContainer,

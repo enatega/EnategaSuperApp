@@ -11,18 +11,44 @@ import { useTranslation } from "react-i18next";
 import TextInputField from "../../../components/auth/TextInputField";
 import Text from "../../../components/Text";
 import Icon from "../../../components/Icon";
+import { useEmailLogin } from "../../../hooks/useAuthMutations";
+import { showToast } from "../../../components/AppToast";
+import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal";
 
-const EnterPassword = () => {
+const EnterPassword = ({ route }) => {
+  const { emailId } = route.params;
   const { colors } = useTheme();
   const navigation = useNavigation();
   const styles = useStyles(colors);
   const { t } = useTranslation();
-  const [password, setPassword] = useState("oinofihoehio");
+  const [password, setPassword] = useState("Qwerty123$");
   const [focusedField, setFocusedField] = useState<string | null>(null);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const [hasError, setHasError] = useState<boolean>(false);
+  const [errorMessage, seterrorMessage] = useState<string>("");
 
   const isFormValid = password.trim().length > 0;
+  const rateLimitModal = useTooManyRequestsModal();
+
+  const mutateEmailLogin = useEmailLogin({
+    onSuccess: () => {
+      showToast.success("Success!", "Welcome back.");
+      navigation.navigate("Home" as never);
+    },
+    onError: (error) => {
+      setHasError(true);
+      if (error.status == 429) {
+        rateLimitModal.show();
+      } else {
+        showToast.error("Error!", error?.message);
+        seterrorMessage(error?.message);
+      }
+    },
+  });
+
+  const handleContinue = () => {
+    mutateEmailLogin.mutate({ email: emailId, password: password });
+  };
 
   return (
     <View style={[styles.container]}>
@@ -54,7 +80,7 @@ const EnterPassword = () => {
           <View style={rowStyles.errorContainer}>
             <Icon type="Feather" name="info" size={15} color={colors.danger} />
             <Text style={[rowStyles.errorText, { color: colors.danger }]}>
-              {t("enter_correct_password")}
+              {t(errorMessage)}
             </Text>
           </View>
         )}
@@ -93,12 +119,9 @@ const EnterPassword = () => {
         <Button
           variant={isFormValid ? "primary" : "secondary"}
           label={t("continue")}
-          onPress={() => {
-            // Todo : need to add login here
-            // setHasError(true);
-            navigation.navigate("login" as never)
-          }}
-          disabled={!isFormValid}
+          onPress={() => handleContinue()}
+          disabled={!isFormValid || mutateEmailLogin.isPending}
+          isLoading={mutateEmailLogin.isPending}
         />
       </Footer>
     </View>

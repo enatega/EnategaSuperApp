@@ -1,0 +1,131 @@
+import React, { useState, useEffect } from "react";
+import { useNavigation } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
+import OtpVerificationComponent from "../../../components/auth/OtpVerificationComponent";
+import {
+  useSignupVerifyOtp,
+  useSignupSendOtp,
+} from "../../../hooks/useAuthMutations";
+import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal";
+import TooManyRequestsModal from "../../../components/auth/TooManyRequestsModal";
+import { showToast } from "../../../components/AppToast";
+import { useAuthStore } from "../../../stores/useAuthStore";
+
+const EnterPhoneOtpSignup = () => {
+  const navigation = useNavigation();
+  const { t } = useTranslation();
+
+  const { formData, setOtpType, otpType, setOtpSent } = useAuthStore();
+  const rateLimitModal = useTooManyRequestsModal();
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [hasError, sethasError] = useState<boolean>(false);
+
+  const sendOtpMutation = useSignupSendOtp({
+    onSuccess: (data) => {
+      setOtpSent(true);
+      showToast.success("Success!", data?.message);
+    },
+    onError: (error) => {
+      if (error.status === 429) {
+        rateLimitModal.show();
+      } else {
+        showToast.error("Error!", error?.message);
+      }
+    },
+  });
+
+  useEffect(() => {
+    sendOtpMutation.mutate({
+      phone: formData.phone,
+      otp_type: otpType,
+    });
+  }, []);
+
+  const verifyOtpMutation = useSignupVerifyOtp({
+    onSuccess: () => {
+      showToast.success("Success!", "Account created successfully.");
+      navigation.navigate("Main" as never);
+    },
+    onError: (error) => {
+      sethasError(true);
+      if (error.status === 429) {
+        rateLimitModal.show();
+      } else {
+        setErrorMessage(error?.message);
+        showToast.error("Error!", error?.message);
+      }
+    },
+  });
+
+  const handleVerifyOtp = (otp: string) => {
+    verifyOtpMutation.mutate({
+      phone: formData.phone,
+      email: formData.email,
+      otp,
+      otp_type: otpType,
+      name: formData.name,
+      password: formData.password,
+    });
+  };
+
+  const handleResendOtp = () => {
+    sendOtpMutation.mutate({
+      phone: formData.phone,
+      otp_type: otpType,
+    });
+  };
+
+  const verificationOptions = [
+    {
+      id: "sms",
+      icon: "message-square",
+      title: t("sms_verification"),
+      onSelect: () => setOtpType("sms"),
+    },
+    {
+      id: "call",
+      icon: "phone",
+      title: t("call_verification"),
+      onSelect: () => setOtpType("call"),
+    },
+    {
+      id: "email",
+      icon: "mail",
+      title: t("email_verification"),
+      onSelect: () => {
+        setOtpType("email");
+        navigation.navigate("enterEmailOtpSignup" as never);
+      },
+    },
+  ];
+
+  return (
+    <>
+      <OtpVerificationComponent
+        heading="verify_your_phone_number"
+        description={t("enter_otp_sent_to", { phoneNumber: formData.phone })}
+        showTryAnotherWay={true}
+        verificationOptions={verificationOptions}
+        defaultSelectedMethod={otpType}
+        onVerify={(otp) => {
+          handleVerifyOtp(otp);
+        }}
+        onResend={handleResendOtp}
+        errorMessage={errorMessage}
+        isLoading={verifyOtpMutation.isPending}
+        hasError={hasError}
+        setHasError={sethasError}
+      />
+      <TooManyRequestsModal
+        visible={rateLimitModal.visible}
+        onClose={rateLimitModal.hide}
+        onPrimaryAction={rateLimitModal.hide}
+        title="too_many_attempts"
+        description="too_many_attempts_desc"
+        primaryButtonText="ok"
+      />
+    </>
+  );
+};
+
+export default EnterPhoneOtpSignup;

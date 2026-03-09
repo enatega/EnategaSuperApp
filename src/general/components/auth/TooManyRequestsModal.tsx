@@ -1,10 +1,10 @@
 import React from "react";
 import { Modal, View, StyleSheet, TouchableOpacity } from "react-native";
-import { useTheme } from "../../../theme/theme";
-import Text from "../../Text";
-import Icon from "../../Icon";
-import Button from "../../Button";
+import Text from "../Text";
+import Icon from "../Icon";
+import Button from "../Button";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "@react-navigation/native";
 
 type Props = {
   visible: boolean;
@@ -81,7 +81,7 @@ export default function TooManyRequestsModal({
               variant="primary"
               label={primaryButtonText}
               onPress={onPrimaryAction}
-              style={[styles.button, {backgroundColor:colors.danger}]}
+              style={[styles.button, { backgroundColor: colors.danger }]}
             />
           </View>
         </View>

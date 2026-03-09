@@ -103,7 +103,8 @@ const en = {
   set_new_password: 'Set new password',
   verify_your_email: 'Verify Your Email',
   enter_strong_password: 'Please enter strong password.',
-  password_not_matched: 'Make sure your passwords match'
+  password_not_matched: 'Make sure your passwords match',
+  something_went_wrong: 'Something went wrong.'
 };
 
 export default en;

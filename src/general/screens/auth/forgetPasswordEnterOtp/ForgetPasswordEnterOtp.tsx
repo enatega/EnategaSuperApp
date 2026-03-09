@@ -1,15 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTheme } from "../../../theme/theme";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
-import useStyles from "./styles";
 import OtpVerificationComponent from "../../../components/auth/OtpVerificationComponent";
 
 const ForgetPasswordEnterOtp = () => {
   const { colors } = useTheme();
   const navigation = useNavigation();
-  const styles = useStyles(colors);
   const { t } = useTranslation();
+  const [hasError, sethasError] = useState<boolean>(false);
 
   return (
     <OtpVerificationComponent
@@ -23,7 +22,8 @@ const ForgetPasswordEnterOtp = () => {
       onResend={() => {
         console.log("Resend forgot password OTP");
       }}
-      styles={styles}
+      hasError={hasError}
+      setHasError={sethasError}
     />
   );
 };
