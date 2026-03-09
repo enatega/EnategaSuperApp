@@ -12,7 +12,7 @@ type Props = {
   expandedHeight?: number;
 };
 
-const DEFAULT_EXPANDED_HEIGHT = 280;
+const DEFAULT_EXPANDED_HEIGHT = 220;
 
 export default function MoreOptionsBottomSheet({
   isVisible,
@@ -26,15 +26,6 @@ export default function MoreOptionsBottomSheet({
     onCancelPress();
     onClose();
   }, [onCancelPress, onClose]);
-
-  const renderHandle = useCallback(
-    () => (
-      <View style={[styles.handleContainer, { backgroundColor: colors.backgroundTertiary }]}>
-        <View style={[styles.handleBar, { backgroundColor: colors.iconDisabled }]} />
-      </View>
-    ),
-    [colors],
-  );
 
   if (!isVisible) {
     return null;
@@ -50,33 +41,37 @@ export default function MoreOptionsBottomSheet({
           onClose();
         }
       }}
-      handle={renderHandle()}
+      handle={<View style={[styles.sheetHandle, { backgroundColor: colors.border }]} />}
+      handleContainerStyle={styles.handleContainer}
+      style={[
+        styles.sheet,
+        {
+          backgroundColor: colors.background,
+          shadowColor: colors.shadowColor,
+        },
+      ]}
     >
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={styles.container}>
         <View style={styles.header}>
           <Text weight="bold" variant="title" style={styles.title}>
             More options
           </Text>
-          <Pressable
-            onPress={onClose}
-            style={[styles.closeButton, { backgroundColor: colors.gray100 }]}
-          >
-            <Ionicons name="close" size={20} color={colors.mutedText} />
-          </Pressable>
         </View>
 
-        <Pressable
-          onPress={handleCancelPress}
-          style={({ pressed }) => [
-            styles.cancelButton,
-            pressed && styles.cancelButtonPressed,
-          ]}
-          hitSlop={{ top: 4, bottom: 4, left: 8, right: 8 }}
-        >
-          <Text weight="semiBold" color={colors.danger} style={styles.cancelButtonText}>
-            Cancel the ride
-          </Text>
-        </Pressable>
+        <View style={styles.contentContainer}>
+          <Pressable
+            onPress={handleCancelPress}
+            style={({ pressed }) => [
+              styles.cancelButton,
+              pressed && styles.cancelButtonPressed,
+            ]}
+            hitSlop={{ top: 4, bottom: 4, left: 8, right: 8 }}
+          >
+            <Text weight="semiBold" color={colors.danger} style={styles.cancelButtonText}>
+              Cancel the ride
+            </Text>
+          </Pressable>
+        </View>
       </View>
     </SwipeableBottomSheet>
   );
@@ -88,16 +83,23 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 32,
   },
+  sheet: {
+    paddingTop: 16,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    shadowOpacity: 0.16,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: -2 },
+    elevation: 8,
+  },
   handleContainer: {
-    width: '100%',
     alignItems: 'center',
-    paddingTop: 12,
     paddingBottom: 12,
   },
-  handleBar: {
+  sheetHandle: {
     width: 40,
     height: 4,
-    borderRadius: 2,
+    borderRadius: 999,
   },
   header: {
     flexDirection: 'row',
@@ -132,5 +134,9 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     fontSize: 16,
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
   },
 });
