@@ -8,24 +8,24 @@ import SwipeableBottomSheet from '../../../../general/components/SwipeableBottom
 type Props = {
   isVisible: boolean;
   onClose: () => void;
-  onConfirmCancel: () => void;
+  onCancelPress: () => void;
   expandedHeight?: number;
 };
 
 const DEFAULT_EXPANDED_HEIGHT = 280;
 
-export default function CancelRideBottomSheet({
+export default function MoreOptionsBottomSheet({
   isVisible,
   onClose,
-  onConfirmCancel,
+  onCancelPress,
   expandedHeight = DEFAULT_EXPANDED_HEIGHT,
 }: Props) {
   const { colors } = useTheme();
 
-  const handleConfirmCancel = useCallback(() => {
-    onConfirmCancel();
+  const handleCancelPress = useCallback(() => {
+    onCancelPress();
     onClose();
-  }, [onConfirmCancel, onClose]);
+  }, [onCancelPress, onClose]);
 
   const renderHandle = useCallback(
     () => (
@@ -53,7 +53,10 @@ export default function CancelRideBottomSheet({
       handle={renderHandle()}
     >
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.closeButtonContainer}>
+        <View style={styles.header}>
+          <Text weight="bold" variant="title" style={styles.title}>
+            More options
+          </Text>
           <Pressable
             onPress={onClose}
             style={[styles.closeButton, { backgroundColor: colors.gray100 }]}
@@ -62,39 +65,18 @@ export default function CancelRideBottomSheet({
           </Pressable>
         </View>
 
-        <View style={styles.content}>
-          <Text weight="bold" variant="title" style={styles.title}>
-            Are you sure?
+        <Pressable
+          onPress={handleCancelPress}
+          style={({ pressed }) => [
+            styles.cancelButton,
+            pressed && styles.cancelButtonPressed,
+          ]}
+          hitSlop={{ top: 4, bottom: 4, left: 8, right: 8 }}
+        >
+          <Text weight="semiBold" color={colors.danger} style={styles.cancelButtonText}>
+            Cancel the ride
           </Text>
-
-          <Pressable
-            onPress={handleConfirmCancel}
-            style={({ pressed }) => [
-              styles.cancelButton,
-              { backgroundColor: colors.danger },
-              pressed && styles.cancelButtonPressed,
-            ]}
-            hitSlop={{ top: 4, bottom: 4, left: 8, right: 8 }}
-          >
-            <Text weight="semiBold" style={styles.cancelButtonText}>
-              Yes, cancel the ride
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={onClose}
-            style={({ pressed }) => [
-              styles.continueButton,
-              { backgroundColor: colors.gray100 },
-              pressed && styles.continueButtonPressed,
-            ]}
-            hitSlop={{ top: 4, bottom: 4, left: 8, right: 8 }}
-          >
-            <Text weight="semiBold" color={colors.text}>
-              No, Continue the ride
-            </Text>
-          </Pressable>
-        </View>
+        </Pressable>
       </View>
     </SwipeableBottomSheet>
   );
@@ -117,10 +99,17 @@ const styles = StyleSheet.create({
     height: 4,
     borderRadius: 2,
   },
-  closeButtonContainer: {
-    alignItems: 'flex-end',
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 20,
-    marginBottom: 4,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 20,
+    flex: 1,
+    textAlign: 'center',
   },
   closeButton: {
     width: 32,
@@ -129,36 +118,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    gap: 16,
-  },
-  title: {
-    textAlign: 'center',
-    fontSize: 20,
-    marginBottom: 8,
-  },
   cancelButton: {
-    paddingVertical: 18,
+    borderWidth: 2,
+    borderColor: '#EF4444',
     borderRadius: 14,
+    paddingVertical: 18,
     alignItems: 'center',
     justifyContent: 'center',
+    marginHorizontal: 20,
   },
   cancelButtonPressed: {
-    opacity: 0.85,
+    backgroundColor: '#FEF2F2',
   },
   cancelButtonText: {
-    color: '#FFFFFF',
     fontSize: 16,
-  },
-  continueButton: {
-    paddingVertical: 18,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  continueButtonPressed: {
-    opacity: 0.7,
   },
 });
