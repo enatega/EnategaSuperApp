@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 
@@ -10,11 +11,12 @@ type Props = {
 
 export default function ReservationRoute({ pickupAddress, dropoffAddress }: Props) {
   const { colors } = useTheme();
+  const { t } = useTranslation('rideSharing');
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <Text variant="caption" color={colors.mutedText} style={styles.label}>
-        Your ride route
+        {t('reservation_route')}
       </Text>
       <View style={styles.content}>
         <View style={styles.routePoint}>
@@ -33,7 +35,7 @@ export default function ReservationRoute({ pickupAddress, dropoffAddress }: Prop
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: 12,
     borderRadius: 12,
   },
   label: {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 
@@ -12,11 +13,12 @@ type Props = {
 
 export default function ReservationPayment({ amount, currency, paymentMethod }: Props) {
   const { colors } = useTheme();
+  const { t } = useTranslation('rideSharing');
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <Text variant="caption" color={colors.mutedText} style={styles.label}>
-        Payment
+        {t('reservation_payment')}
       </Text>
       <View style={styles.content}>
         <View style={[styles.iconContainer, { backgroundColor: colors.cardMint }]}>
@@ -26,7 +28,7 @@ export default function ReservationPayment({ amount, currency, paymentMethod }: 
           {currency} {amount.toFixed(2)}
         </Text>
         <Text variant="caption" color={colors.mutedText} style={styles.method}>
-          {paymentMethod === 'cash' ? 'Cash' : 'Card'}
+          {paymentMethod === 'cash' ? t('reservation_cash') : t('reservation_card')}
         </Text>
       </View>
     </View>
@@ -35,7 +37,7 @@ export default function ReservationPayment({ amount, currency, paymentMethod }: 
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: 12,
     borderRadius: 12,
   },
   label: {

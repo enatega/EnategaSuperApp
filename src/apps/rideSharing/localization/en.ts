@@ -141,6 +141,9 @@ const en = {
   reservation_status_cancelled: 'Cancelled by you',
   reservation_status_in_progress: 'In progress',
   reservation_more_options: 'More options',
+  reservation_not_found: 'Reservation not found',
+  reservation_cash: 'Cash',
+  reservation_card: 'Card',
 };
 
 export default en;

@@ -41,7 +41,7 @@ export default function ReservationRideInfo({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: 12,
     borderRadius: 12,
   },
   header: {

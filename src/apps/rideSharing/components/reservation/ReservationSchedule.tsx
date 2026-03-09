@@ -29,7 +29,7 @@ export default function ReservationSchedule({ label, dateTime }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: 12,
     borderRadius: 12,
   },
   label: {

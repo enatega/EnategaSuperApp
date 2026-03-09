@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
@@ -22,6 +23,7 @@ export default function ReservationDetailScreen() {
   const navigation = useNavigation();
   const route = useRoute<RoutePropType>();
   const { colors } = useTheme();
+  const { t } = useTranslation('rideSharing');
   const [isCancelBottomSheetVisible, setIsCancelBottomSheetVisible] = useState(false);
   const [isMoreOptionsVisible, setIsMoreOptionsVisible] = useState(false);
 
@@ -66,10 +68,10 @@ export default function ReservationDetailScreen() {
   if (!reservation) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <ScreenHeader title="Reservation detail" />
+        <ScreenHeader title={t('reservation_detail_title')} />
         <View style={styles.emptyContainer}>
           <Text variant="subtitle" color={colors.mutedText}>
-            Reservation not found
+            {t('reservation_not_found')}
           </Text>
         </View>
       </View>
@@ -79,7 +81,7 @@ export default function ReservationDetailScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader
-        title="Reservation detail"
+        title={t('reservation_detail_title')}
         rightSlot={
           reservation.status === 'scheduled' && (
             <Pressable
@@ -105,7 +107,7 @@ export default function ReservationDetailScreen() {
         />
 
         <ReservationSchedule
-          label="Scheduled for"
+          label={t('reservation_scheduled_for')}
           dateTime={formatDate(reservation.dateTime)}
         />
 
@@ -149,7 +151,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
-    gap: 16,
+    gap: 12,
   },
   emptyContainer: {
     flex: 1,

@@ -130,6 +130,9 @@ const fr = {
   reservation_status_cancelled: 'Annulé par vos soins',
   reservation_status_in_progress: 'En cours',
   reservation_more_options: 'Plus d\'options',
+  reservation_not_found: 'Réservation non trouvée',
+  reservation_cash: 'Espèces',
+  reservation_card: 'Carte',
 };
 
 export default fr;
