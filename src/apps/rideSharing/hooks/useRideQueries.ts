@@ -1,4 +1,11 @@
-import { useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
+import {
+    useQuery,
+    useQueryClient,
+    UseQueryOptions,
+    useInfiniteQuery,
+    UseInfiniteQueryOptions,
+    InfiniteData,
+} from '@tanstack/react-query';
 import { rideKeys } from '../api/queryKeys';
 import { rideService } from '../api/rideService';
 import type {
@@ -104,21 +111,27 @@ export function useRideEstimates(
 }
 
 // ---------------------------------------------------------------------------
-// useCustomerRides – fetch customer ride history
+// useCustomerRides – fetch customer ride history (infinite scroll)
 // ---------------------------------------------------------------------------
 
-type UseCustomerRidesOptions = Omit<
-    UseQueryOptions<CustomerRidesResponse, ApiError>,
-    'queryKey' | 'queryFn'
->;
+type UseCustomerRidesOptions = any;
 
-export function useCustomerRides(
-    offset: number = 0,
-    options?: UseCustomerRidesOptions,
-) {
-    return useQuery<CustomerRidesResponse, ApiError>({
-        queryKey: rideKeys.customerRideList(offset),
-        queryFn: () => rideService.getCustomerRides(offset),
+export function useCustomerRides(options?: UseCustomerRidesOptions) {
+
+    return useInfiniteQuery<
+        CustomerRidesResponse,
+        ApiError,
+        InfiniteData<CustomerRidesResponse>,
+        readonly string[],
+        number
+    >({
+        queryKey: rideKeys.customerRides(),
+        queryFn: ({ pageParam }) => rideService.getCustomerRides(pageParam),
+        initialPageParam: 0,
+        getNextPageParam: (lastPage) => {
+            if (lastPage.data.length < lastPage.limit) return undefined;
+            return lastPage.offset + lastPage.limit;
+        },
         staleTime: 1 * 60 * 1000, // 1 minute
         ...options,
     });

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -35,7 +35,9 @@ export default function ReservationDetailScreen() {
 
   const { data, isLoading, error } = useCustomerRides();
   const { mutate: cancelRide, isPending: isCancelling } = useCancelRide();
-  const reservations = data?.data.map(mapCustomerRideToReservation) || [];
+  const reservations = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data.map(mapCustomerRideToReservation)) || [];
+  }, [data]);
 
   const reservationId = route.params?.reservationId;
   const reservation = reservationId ? reservations.find(r => r.id === reservationId) : null;

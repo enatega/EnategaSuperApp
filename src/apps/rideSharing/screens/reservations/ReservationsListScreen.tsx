@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react';
-import { StyleSheet, View, FlatList, ScrollView, RefreshControl } from 'react-native';
+import React, { useCallback, useMemo, useState } from 'react';
+import { StyleSheet, View, FlatList, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -20,16 +20,32 @@ export default function ReservationsListScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
-  const { data, isLoading, error, refetch } = useCustomerRides();
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    error,
+    refetch,
+  } = useCustomerRides();
   const [refreshing, setRefreshing] = useState(false);
 
-  const reservations = data?.data.map(mapCustomerRideToReservation) || [];
+  const reservations = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data.map(mapCustomerRideToReservation)) || [];
+  }, [data]);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
   }, [refetch]);
+
+  const handleLoadMore = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleReservationPress = useCallback((id: string) => {
     navigation.navigate('ReservationDetail', { reservationId: id });
@@ -99,6 +115,15 @@ export default function ReservationsListScreen() {
               colors={[colors.primary]}
             />
           }
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            isFetchingNextPage ? (
+              <View style={styles.footerLoader}>
+                <ActivityIndicator size="small" color={colors.primary} />
+              </View>
+            ) : null
+          }
         />
       )}
     </View>
@@ -134,5 +159,9 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'center',
     maxWidth: 240,
+  },
+  footerLoader: {
+    paddingVertical: 20,
+    alignItems: 'center',
   },
 });
