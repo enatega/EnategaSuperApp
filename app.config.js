@@ -1,4 +1,5 @@
 const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY ?? 'DUMMY_GOOGLE_MAPS_API_KEY';
+const iosUrlScheme = process.env.IOS_URL_SCHEME ?? 'com.enategasuper.app';
 
 module.exports = {
   expo: {
@@ -56,6 +57,12 @@ module.exports = {
           iosGoogleMapsApiKey: googleMapsApiKey,
         },
       ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": iosUrlScheme
+        }
+      ]
     ],
   },
 };

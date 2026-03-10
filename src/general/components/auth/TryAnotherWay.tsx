@@ -1,8 +1,8 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import Text from "../../Text";
-import { useTheme } from "../../../theme/theme";
+import Text from "../Text";
+import { useTheme } from "../../theme/theme";
 
 type Props = {
   onPress: () => void;

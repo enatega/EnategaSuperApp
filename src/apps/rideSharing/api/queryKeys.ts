@@ -37,6 +37,10 @@ export const rideKeys = {
   // Profile / Stats
   stats: () => [...rideKeys.all, 'stats'] as const,
   stat: (userId: string) => [...rideKeys.stats(), userId] as const,
+
+  // Customer Rides
+  customerRides: () => [...rideKeys.all, 'customer'] as const,
+  customerRideList: (offset: number) => [...rideKeys.customerRides(), offset] as const,
 };
 
 // ── User ─────────────────────────────────────────────────────────────────────

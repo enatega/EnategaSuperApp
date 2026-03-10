@@ -4,6 +4,7 @@ import { useTheme } from "../../../theme/theme";
 import Text from "../../Text";
 import { useTranslation } from "react-i18next";
 import { useNavigation } from "@react-navigation/native";
+import { useAuthStore } from "../../../stores/useAuthStore";
 
 interface LoginFooterContentProps {
   leftText?: string;
@@ -17,8 +18,10 @@ const LoginFooterContent: React.FC<LoginFooterContentProps> = ({
   const { colors } = useTheme();
   const { t } = useTranslation("general");
   const navigation = useNavigation();
+  const { setFlowType } = useAuthStore();
 
   const handleSignUpPress = () => {
+    setFlowType("signup");
     navigation.navigate("signup");
   };
 

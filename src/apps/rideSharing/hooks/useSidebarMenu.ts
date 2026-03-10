@@ -21,6 +21,30 @@ type UserProfile = {
   avatarUri?: string;
 };
 
+export type RideSharingStackParamList = {
+  RideSharingHome: undefined;
+  RideOptions: undefined;
+  RideAddressSearch: undefined;
+  RideEstimate: undefined;
+  RideDetails: undefined;
+  DriverProfile: undefined;
+  PersonalInfo: undefined;
+  EditName: undefined;
+  EditPhone: undefined;
+  Settings: undefined;
+  UpdatePassword: undefined;
+  Language: undefined;
+  Appearance: undefined;
+  RulesAndTerms: undefined;
+  PrivacyPolicy: undefined;
+  TermsAndConditions: undefined;
+  Licences: undefined;
+  ReservationsList: undefined;
+  ReservationDetail: {
+    reservationId: string;
+  };
+};
+
 export type ProfileStackParamList = {
   PersonalInfo: undefined;
   EditName: undefined;
@@ -34,7 +58,7 @@ export type ProfileStackParamList = {
 
 export function useSidebarMenu() {
   const [sidebarVisible, setSidebarVisible] = useState(false);
-  const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
   const { mutate: logout } = useLogout();
 
   const openSidebar = useCallback(() => {
@@ -67,7 +91,10 @@ export function useSidebarMenu() {
       titleKey: 'sidebar_reservations',
       subtitleKey: 'sidebar_reservations_subtitle',
       showChevron: true,
-      onPress: () => console.log('Reservations pressed'),
+      onPress: () => {
+        closeSidebar();
+        navigation.navigate('ReservationsList');
+      },
     },
     {
       id: 'ride-history',

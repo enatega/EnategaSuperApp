@@ -17,6 +17,7 @@ import type {
     RidePlacePrediction,
     RidePlaceCoordinates,
     DistanceMatrixResponse,
+    CustomerRidesResponse,
 } from './types';
 
 // ---------------------------------------------------------------------------
@@ -158,7 +159,7 @@ export const rideService = {
 
     /** Cancel a ride. */
     cancelRide: (rideId: string): Promise<void> =>
-        apiClient.post(`/rides/${rideId}/cancel`),
+        apiClient.patch(`/api/v1/rides/${rideId}/customer/cancel`),
 
     /** Rate a completed ride. */
     rateRide: (
@@ -171,4 +172,8 @@ export const rideService = {
     /** Fetch profile stats for a driver/rider by userId. */
     getDriverStats: (userId: string): Promise<DriverProfileStats> =>
         apiClient.get<DriverProfileStats>(`api/v1/rides/get-stats/${userId}`),
+
+    /** Fetch customer rides history. */
+    getCustomerRides: (offset: number = 0): Promise<CustomerRidesResponse> =>
+        apiClient.get<CustomerRidesResponse>(`/api/v1/rides/customers?offset=${offset}`),
 };

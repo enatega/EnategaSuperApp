@@ -14,8 +14,9 @@ const ForgetPasswordEnterEmail = () => {
       heading="forget_password"
       description="forget_password_desc"
       onContinue={(email) => {
-        console.log("Forgot password email:", email);
-        navigation.navigate("forgetPasswordEnterOtp" as never);
+        navigation.navigate("forgetPasswordEnterOtp", {
+          emailId: email,
+        } as never);
       }}
       styles={styles}
     />

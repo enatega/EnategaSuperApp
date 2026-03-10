@@ -30,6 +30,7 @@ export function useCreateRide(options?: UseCreateRideOptions) {
         onSuccess: (data, variables, onMutateResult, ctx) => {
             // Invalidate lists so new ride appears
             queryClient.invalidateQueries({ queryKey: rideKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: rideKeys.customerRides() });
             // Invalidate active ride – this is now the active one
             queryClient.invalidateQueries({ queryKey: rideKeys.activeRide() });
 
@@ -105,6 +106,7 @@ export function useUpdateRide(options?: UseUpdateRideOptions) {
                 queryKey: rideKeys.detail(variables.rideId),
             });
             queryClient.invalidateQueries({ queryKey: rideKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: rideKeys.customerRides() });
             queryClient.invalidateQueries({ queryKey: rideKeys.activeRide() });
 
             options?.onSettled?.(data, error, variables, onMutateResult, ctx);
@@ -129,6 +131,7 @@ export function useCancelRide(options?: UseCancelRideOptions) {
         onSuccess: (data, rideId, onMutateResult, ctx) => {
             queryClient.invalidateQueries({ queryKey: rideKeys.detail(rideId) });
             queryClient.invalidateQueries({ queryKey: rideKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: rideKeys.customerRides() });
             queryClient.invalidateQueries({ queryKey: rideKeys.activeRide() });
 
             options?.onSuccess?.(data, rideId, onMutateResult, ctx);
@@ -164,6 +167,7 @@ export function useRateRide(options?: UseRateRideOptions) {
                 queryKey: rideKeys.detail(variables.rideId),
             });
             queryClient.invalidateQueries({ queryKey: rideKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: rideKeys.customerRides() });
 
             options?.onSuccess?.(data, variables, onMutateResult, ctx);
         },

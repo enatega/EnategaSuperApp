@@ -1,36 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import TextInputField from "../TextInputField";
 import PhoneNumberInput from "../PhoneInput";
-import { isValidEmail } from "../../../utils/validation";
+import { useAuthStore } from "../../../stores/useAuthStore";
 
-type Props = {
-  onFieldsChange?: (isValid: boolean) => void;
-};
-
-export default function FieldsWrapper({ onFieldsChange }: Props) {
-  const [name, setName] = useState("john");
-  const [email, setEmail] = useState("john@gmail.com");
-  const [password, setPassword] = useState("johnjohn");
-  const [phone, setPhone] = useState("3044639748");
+export default function FieldsWrapper() {
+  const { formData, setFormData } = useAuthStore();
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  useEffect(() => {
-    const isFormValid = 
-      name.trim().length > 0 &&
-      email.trim().length > 0 &&
-      isValidEmail(email) &&
-      password.trim().length > 0 &&
-      phone.trim().length > 0;
-    
-    onFieldsChange?.(isFormValid);
-  }, [name, email, password, phone, onFieldsChange]);
+  const updateField = (field: keyof typeof formData, value: string) => {
+    setFormData({ [field]: value });
+  };
 
   return (
     <View style={styles.container}>
       <TextInputField
-        value={name}
-        onChangeText={setName}
+        value={formData.name}
+        onChangeText={(value) => updateField("name", value)}
         placeholder="name"
         iconName="user"
         isFocused={focusedField === "name"}
@@ -38,8 +24,8 @@ export default function FieldsWrapper({ onFieldsChange }: Props) {
         onBlur={() => setFocusedField(null)}
       />
       <TextInputField
-        value={email}
-        onChangeText={setEmail}
+        value={formData.email}
+        onChangeText={(value) => updateField("email", value)}
         placeholder="email"
         iconName="mail"
         keyboardType="email-address"
@@ -49,8 +35,8 @@ export default function FieldsWrapper({ onFieldsChange }: Props) {
         onBlur={() => setFocusedField(null)}
       />
       <TextInputField
-        value={password}
-        onChangeText={setPassword}
+        value={formData.password}
+        onChangeText={(value) => updateField("password", value)}
         placeholder="password"
         iconName="lock"
         isPassword
@@ -59,9 +45,12 @@ export default function FieldsWrapper({ onFieldsChange }: Props) {
         onFocus={() => setFocusedField("password")}
         onBlur={() => setFocusedField(null)}
       />
-      <PhoneNumberInput 
-        value={phone} 
-        onChangeText={setPhone} 
+      <PhoneNumberInput
+        value={formData.phone}
+        onChangeText={(value) => updateField("phone", value)}
+        onChangeFormattedText={(formattedValue) => {
+          updateField("phone", formattedValue);
+        }}
         isActive={focusedField === "phone"}
         onFocus={() => setFocusedField("phone")}
         onBlur={() => setFocusedField(null)}
