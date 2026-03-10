@@ -32,7 +32,7 @@ export default function ReservationDriverInfo({
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
-      <Text variant="caption" color={colors.mutedText} style={styles.label}>
+      <Text weight="semiBold" variant="body" color={colors.mutedText} style={styles.label}>
         {t('reservation_driver_details')}
       </Text>
       

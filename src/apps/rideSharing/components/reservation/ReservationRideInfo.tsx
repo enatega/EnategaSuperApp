@@ -28,11 +28,11 @@ export default function ReservationRideInfo({
           ) : (
             <Image source={serviceIcons.rideSharing} style={styles.carImage} resizeMode="contain" />
           )}
-          <Text weight="bold" variant="title" style={styles.title}>
+          <Text weight="semiBold" variant="subtitle" style={styles.title}>
             {rideTitle}
           </Text>
         </View>
-        <Text weight="bold" variant="title">
+        <Text weight="semiBold" variant="subtitle">
           {currency} {price.toFixed(2)}
         </Text>
       </View>
@@ -57,8 +57,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   carImage: {
-    width: 60,
-    height: 30,
+    width: 64,
+    height: 32,
   },
   title: {
     marginLeft: 4,

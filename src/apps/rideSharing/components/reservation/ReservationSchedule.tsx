@@ -14,7 +14,7 @@ export default function ReservationSchedule({ label, dateTime }: Props) {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
-      <Text variant="caption" color={colors.mutedText} style={styles.label}>
+      <Text weight="semiBold" variant="body" color={colors.mutedText} style={styles.label}>
         {label}
       </Text>
       <View style={styles.content}>

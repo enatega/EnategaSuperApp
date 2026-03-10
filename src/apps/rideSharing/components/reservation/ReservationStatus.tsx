@@ -41,7 +41,7 @@ export default function ReservationStatus({ status }: Props) {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
-      <Text variant="caption" color={colors.mutedText} style={styles.label}>
+      <Text weight="semiBold" variant="body" color={colors.mutedText} style={styles.label}>
         {t('reservation_status')}
       </Text>
       <View style={[styles.badge, { backgroundColor: config.backgroundColor }]}>

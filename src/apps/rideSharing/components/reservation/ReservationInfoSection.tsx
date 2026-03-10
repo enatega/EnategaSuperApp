@@ -16,7 +16,7 @@ export default function ReservationInfoSection({ waitTime, cancellationPolicy }:
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
-      <Text weight="semiBold" variant="subtitle" style={styles.title}>
+      <Text weight="bold" variant="subtitle" style={styles.title}>
         {t('reservation_things_to_mind')}
       </Text>
 
@@ -24,7 +24,7 @@ export default function ReservationInfoSection({ waitTime, cancellationPolicy }:
         <View style={styles.infoRow}>
           <Ionicons name="hourglass-outline" size={28} color={colors.mutedText} />
           <View style={styles.infoContent}>
-            <Text weight="semiBold" style={styles.infoTitle}>
+            <Text weight="extraBold" style={styles.infoTitle}>
               {t('reservation_wait_time')}
             </Text>
             <Text variant="caption" color={colors.mutedText}>
@@ -38,7 +38,7 @@ export default function ReservationInfoSection({ waitTime, cancellationPolicy }:
         <View style={styles.infoRow}>
           <Ionicons name="shield-checkmark-outline" size={28} color={colors.mutedText} />
           <View style={styles.infoContent}>
-            <Text weight="semiBold" style={styles.infoTitle}>
+            <Text weight="extraBold" style={styles.infoTitle}>
               {t('reservation_cancellation_policy')}
             </Text>
             <Text variant="caption" color={colors.mutedText}>
