@@ -13,6 +13,7 @@ export interface Reservation {
   };
   licensePlate?: string;
   driver?: {
+    id: string;
     name: string;
     rating: number;
     rideCount: number;

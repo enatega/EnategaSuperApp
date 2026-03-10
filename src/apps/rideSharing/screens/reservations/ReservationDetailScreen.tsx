@@ -137,9 +137,9 @@ export default function ReservationDetailScreen() {
             vehicleInfo={reservation.vehicleInfo}
             licensePlate={reservation.licensePlate}
             onPress={() => {
-              // Temporary fallback user ID as requested
-              const FALLBACK_USER_ID = 'f6280bea-39a4-4616-b462-59381289402e';
-              navigation.navigate('DriverProfile', { userId: FALLBACK_USER_ID });
+              if (reservation.driver?.id) {
+                navigation.navigate('DriverProfile', { userId: reservation.driver.id });
+              }
             }}
           />
         )}

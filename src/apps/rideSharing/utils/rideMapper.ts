@@ -32,6 +32,7 @@ export const mapCustomerRideToReservation = (ride: CustomerRide): Reservation =>
     } : undefined,
     licensePlate: ride.riderInfo?.vehicle?.vehicle_no,
     driver: ride.riderInfo ? {
+      id: ride.riderInfo.id,
       name: ride.riderInfo.name,
       rating: ride.riderInfo.averageRating,
       rideCount: ride.riderInfo.totalCompletedRides,
