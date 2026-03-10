@@ -8,9 +8,7 @@ import Svg from "../Svg";
 import { useTheme } from "../../theme/theme";
 import { useTranslation } from "react-i18next";
 
-const clientId =
-  process.env.IOS_CLIENT_ID ||
-  "94983896797-o070lskua876d5u5cpu482e256pejgd8.apps.googleusercontent.com";
+const clientId = process.env.IOS_CLIENT_ID;
 GoogleSignin.configure({
   iosClientId: clientId,
 });
@@ -27,7 +25,6 @@ const GoogleLogin = () => {
     },
     onError: (error) => {
       showToast.error("Error!", error?.message);
-      console.log("🚀 ~ GoogleLogin ~ error?.message:", error?.message);
     },
   });
 
@@ -35,7 +32,6 @@ const GoogleLogin = () => {
     try {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      console.log("🚀 ~ handleGoogleLogin ~ userInfo:", userInfo);
 
       if (userInfo.data?.idToken) {
         googleLoginMutation.mutate({

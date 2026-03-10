@@ -14,7 +14,7 @@ import Button from './Button';
 type PopupAction = {
   label: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   isLoading?: boolean;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;

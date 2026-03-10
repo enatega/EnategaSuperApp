@@ -8,7 +8,7 @@ type Props = {
   label: string;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   icon?: ReactNode
   disabled?: boolean
   isLoading?: boolean;
@@ -26,6 +26,7 @@ export default function Button({
   const { colors } = useTheme();
   const isGhost = variant === 'ghost';
   const isSecondary = variant === 'secondary';
+  const isDanger = variant === 'danger';
   const isDisabled = disabled || isLoading;
 
   return (
@@ -39,6 +40,8 @@ export default function Button({
         {
           backgroundColor: disabled ? colors.backgroundTertiary : isGhost
             ? 'transparent'
+            : isDanger
+              ? colors.danger
             : isSecondary
               ? colors.surface
               : colors.primary,
