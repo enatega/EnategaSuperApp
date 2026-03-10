@@ -1,8 +1,8 @@
 import React from "react";
 import { Modal, View, StyleSheet, TouchableOpacity } from "react-native";
-import { useTheme } from "../../../theme/theme";
-import Text from "../../Text";
-import Icon from "../../Icon";
+import { useTheme } from "../../theme/theme";
+import Text from "../Text";
+import Icon from "../Icon";
 
 type VerificationOption = {
   id: string;

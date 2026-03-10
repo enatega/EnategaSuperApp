@@ -34,6 +34,7 @@ const EnterPhoneNumber = () => {
           value={phoneNumber}
           onChangeText={setPhoneNumber}
           onChangeFormattedText={(formatted) => {
+            setPhoneNumber(formatted);
             setIsValidPhone(formatted.length >= 10);
           }}
           isActive={hasPhoneInput}
@@ -44,7 +45,9 @@ const EnterPhoneNumber = () => {
         <Button
           variant={isValidPhone ? "primary" : "secondary"}
           label={t("continue")}
-          onPress={() => navigation.navigate("enterPhoneOtp", {source : 'phone'})}
+          onPress={() =>
+            navigation.navigate("enterPhoneOtpLogin", { phone: phoneNumber })
+          }
           disabled={!hasPhoneInput}
         />
       </Footer>

@@ -1,28 +1,28 @@
 import React, { useEffect, useState } from "react";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import OtpVerificationComponent from "../../../components/auth/OtpVerificationComponent";
 import {
-  useForgotPasswordSendOtp,
-  useForgotPasswordVerifyOtp,
+  useLoginSendOtp,
+  useLoginVerifyOtp,
 } from "../../../hooks/useAuthMutations";
-import { showToast } from "../../../components/AppToast";
 import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal";
-import { useAuthStore } from "../../../stores/useAuthStore";
 import AppPopup from "../../../components/AppPopup";
-import { useNavigation } from "@react-navigation/native";
+import { showToast } from "../../../components/AppToast";
+import { useAuthStore } from "../../../stores/useAuthStore";
 
-const ForgetPasswordEnterOtp = ({ route }) => {
-  const { emailId } = route.params;
-  const { t } = useTranslation();
-  const { setOtpSent, setOtpType } = useAuthStore();
-  const rateLimitModal = useTooManyRequestsModal();
-  const [hasError, sethasError] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+const EnterPhoneOtpLogin = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { phone } = route.params as { phone: string };
+  const { t } = useTranslation();
+  const { otpType, setOtpType } = useAuthStore();
+  const rateLimitModal = useTooManyRequestsModal();
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [hasError, sethasError] = useState<boolean>(false);
 
-  const sendOtpMutation = useForgotPasswordSendOtp({
+  const sendOtpMutation = useLoginSendOtp({
     onSuccess: (data) => {
-      setOtpSent(true);
       showToast.success("Success!", data?.message);
     },
     onError: (error) => {
@@ -36,17 +36,15 @@ const ForgetPasswordEnterOtp = ({ route }) => {
 
   useEffect(() => {
     sendOtpMutation.mutate({
-      email: emailId,
-      otp_type: "email",
+      phone: phone,
+      otp_type: otpType,
     });
   }, []);
 
-  const verifyOtpMutation = useForgotPasswordVerifyOtp({
-    onSuccess: (data) => {
-      showToast.success("Success!", data?.message);
-      navigation.navigate("createNewPassword", {
-        userId: data.userId,
-      } as never);
+  const verifyOtpMutation = useLoginVerifyOtp({
+    onSuccess: () => {
+      showToast.success("Success!", "Login successful.");
+      navigation.navigate("login" as never);
       setOtpType("sms")
     },
     onError: (error) => {
@@ -62,34 +60,47 @@ const ForgetPasswordEnterOtp = ({ route }) => {
 
   const handleVerifyOtp = (otp: string) => {
     verifyOtpMutation.mutate({
-      email: emailId,
-      otp: otp,
-      otp_type: "email",
+      phone,
+      otp,
     });
   };
 
   const handleResendOtp = () => {
     sendOtpMutation.mutate({
-      email: emailId,
-      otp_type: "email",
+      phone: phone,
+      otp_type: otpType,
     });
   };
+
+  const verificationOptions = [
+    {
+      id: "sms",
+      icon: "message-square",
+      title: t("sms_verification"),
+      onSelect: () => setOtpType("sms"),
+    },
+    {
+      id: "call",
+      icon: "phone",
+      title: t("call_verification"),
+      onSelect: () => setOtpType("call"),
+    },
+  ];
 
   return (
     <>
       <OtpVerificationComponent
-        heading="verify_your_email"
-        description={t("enter_otp_sent_to", { contact: emailId })}
-        showTryAnotherWay={false}
+        heading="verify_your_phone_number"
+        description={t("enter_otp_sent_to", { contact: phone })}
+        showTryAnotherWay={true}
+        verificationOptions={verificationOptions}
         onVerify={(otp) => {
           handleVerifyOtp(otp);
         }}
-        onResend={() => {
-          handleResendOtp();
-        }}
+        onResend={handleResendOtp}
+        errorMessage={errorMessage}
         hasError={hasError}
         setHasError={sethasError}
-        errorMessage={errorMessage}
         isLoading={verifyOtpMutation.isPending}
       />
       <AppPopup
@@ -107,5 +118,4 @@ const ForgetPasswordEnterOtp = ({ route }) => {
     </>
   );
 };
-
-export default ForgetPasswordEnterOtp;
+export default EnterPhoneOtpLogin;

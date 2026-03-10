@@ -10,8 +10,7 @@ const useStyles = (colors: any) =>
       flex: 1,
       paddingHorizontal: 16,
       gap: 18,
-      alignItems: 'center'
-    }
+    },
   });
 
 export default useStyles;

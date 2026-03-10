@@ -1,26 +1,23 @@
 import { StyleSheet, View } from "react-native";
 import React from "react";
 import Button from "../../Button";
-import Svg from "../../Svg";
 import Icon from "../../Icon";
 import OrDivider from "../OrDivider";
 import { useTheme } from "../../../theme/theme";
 import { useTranslation } from "react-i18next";
 import { useNavigation } from "@react-navigation/native";
+import { useAuthStore } from "../../../stores/useAuthStore";
+import GoogleLogin from "../GoogleLogin";
 
 const ButtonsWrapper = () => {
   const { colors } = useTheme();
   const { t } = useTranslation("general");
   const navigation = useNavigation();
+  const { setFlowType } = useAuthStore();
   return (
     <View>
       <View style={{ gap: 12 }}>
-        <Button
-          variant="secondary"
-          icon={<Svg name="google" height={20} width={20} />}
-          label={t("continue_with_google")}
-          style={{ backgroundColor: colors.backgroundTertiary }}
-        />
+        <GoogleLogin />
         <Button
           variant="secondary"
           icon={
@@ -33,7 +30,10 @@ const ButtonsWrapper = () => {
           }
           label={t("continue_with_email")}
           style={{ backgroundColor: colors.backgroundTertiary }}
-          onPress={() => navigation.navigate("enterEmail")}
+          onPress={() => {
+            setFlowType("login");
+            navigation.navigate("enterEmail");
+          }}
         />
       </View>
 
@@ -42,7 +42,10 @@ const ButtonsWrapper = () => {
       <Button
         variant="primary"
         label={t("continue_with_phone")}
-        onPress={() => navigation.navigate("enterPhoneNumber")}
+        onPress={() => {
+          setFlowType("login");
+          navigation.navigate("enterPhoneNumber");
+        }}
       />
     </View>
   );

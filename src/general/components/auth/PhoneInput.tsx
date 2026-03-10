@@ -2,7 +2,6 @@ import React, { useRef } from "react";
 import { View, StyleSheet, Platform } from "react-native";
 import PhoneInput from "react-native-phone-number-input";
 import { useTheme } from "../../theme/theme";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
   value: string;
@@ -25,7 +24,6 @@ export default function PhoneNumberInput({
 }: Props) {
   const { colors } = useTheme();
   const phoneInput = useRef<PhoneInput>(null);
-  const insets = useSafeAreaInsets();
 
   return (
     <View style={styles.container}>

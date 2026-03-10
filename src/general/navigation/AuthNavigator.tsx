@@ -5,11 +5,12 @@ import EnterPhoneNumber from "../screens/auth/enterPhoneNumber/EnterPhoneNumber"
 import Signup from "../screens/auth/signup/Signup";
 import EnterEmail from "../screens/auth/enterEmail/EnterEmail";
 import EnterPassword from "../screens/auth/enterPassword/EnterPassword";
-import EnterPhoneOtp from "../screens/auth/enterPhoneOtp/EnterPhoneOtp";
 import ForgetPasswordEnterEmail from "../screens/auth/forgetPasswordEnterEmail/ForgetPasswordEnterEmail";
 import CreateNewPassword from "../screens/auth/createNewPassword/CreateNewPassword";
 import ForgetPasswordEnterOtp from "../screens/auth/forgetPasswordEnterOtp/ForgetPasswordEnterOtp";
-import EnterEmailOtp from "../screens/auth/enterEmailOtp/EnterEmailOtp";
+import EnterPhoneOtpLogin from "../screens/auth/enterPhoneOtpLogin/EnterPhoneOtpLogin";
+import EnterPhoneOtpSignup from "../screens/auth/enterPhoneOtpSignup/EnterPhoneOtpSignup";
+import EnterEmailOtpSignup from "../screens/auth/enterEmailOtpSignup/EnterEmailOtpSignup";
 
 const Stack = createNativeStackNavigator();
 
@@ -27,13 +28,18 @@ export default function AuthNavigator() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="enterPhoneOtp"
-        component={EnterPhoneOtp}
+        name="enterPhoneOtpLogin"
+        component={EnterPhoneOtpLogin}
         options={{ headerShown: false }}
       />
-        <Stack.Screen
-        name="enterEmailOtp"
-        component={EnterEmailOtp}
+      <Stack.Screen
+        name="enterPhoneOtpSignup"
+        component={EnterPhoneOtpSignup}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="enterEmailOtpSignup"
+        component={EnterEmailOtpSignup}
         options={{ headerShown: false }}
       />
       <Stack.Screen

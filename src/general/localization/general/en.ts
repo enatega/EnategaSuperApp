@@ -71,7 +71,7 @@ const en = {
   login_desc: 'We’ll check if you have an account',
   verify_your_phone_number: 'Verify Your Phone Number',
   verify_otp: 'Verify OTP',
-  enter_otp_sent_to: 'Enter OTP sent to',
+  enter_otp_sent_to: 'Enter OTP sent to {{contact}}',
   didnt_receive_the_code: 'Didn’t receive the code?',
   resend_in: 'Resend in',
   try_another_way: 'Try another way',
@@ -104,6 +104,7 @@ const en = {
   verify_your_email: 'Verify Your Email',
   enter_strong_password: 'Please enter strong password.',
   password_not_matched: 'Make sure your passwords match',
+  something_went_wrong: 'Something went wrong.',
   location_popup_title: 'Location Access',
   location_popup_description:
     'Use device location to show nearby stores, delivery availability, and relevant offers.',
