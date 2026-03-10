@@ -18,6 +18,6 @@ export const buildTheme = (scheme: 'light' | 'dark' | null): Theme => {
 };
 
 export const useTheme = (): Theme => {
-  const scheme = useColorScheme();
-  return buildTheme(scheme);
+  const context = require('./ThemeProvider').useAppTheme();
+  return context.theme;
 };

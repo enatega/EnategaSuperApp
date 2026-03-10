@@ -145,6 +145,34 @@ export type RideTypeFareParams = {
     dropoff_lng?: number;
 };
 
+export type RidePlacePrediction = {
+    description: string;
+    place_id: string;
+};
+
+export type RidePlaceCoordinates = {
+    lat: string;
+    lng: string;
+};
+
+export type RideAddressSelection = {
+    placeId: string;
+    description: string;
+    structuredFormatting: {
+        mainText: string;
+        secondaryText?: string;
+    };
+    coordinates: {
+        latitude: number;
+        longitude: number;
+    };
+};
+
+export type DistanceMatrixResponse = {
+    distanceKm: number;
+    durationMin: number;
+};
+
 // ---------------------------------------------------------------------------
 // Filters
 // ---------------------------------------------------------------------------
@@ -153,4 +181,81 @@ export interface RideFilters {
     status?: RideStatus;
     page?: number;
     limit?: number;
+}
+
+// ---------------------------------------------------------------------------
+// Driver / Rider Profile Stats  (/api/v1/rides/get-stats/:userId)
+// ---------------------------------------------------------------------------
+
+export interface DriverVehicle {
+    vehicleName: string | null;
+    vehicleNo: string | null;
+    vehicleColor: string | null;
+}
+
+export interface DriverProfileInfo {
+    name: string;
+    userId: string;
+    profilePic: string;
+}
+
+export interface DriverRatingBreakdown {
+    star: number;
+    count: number;
+}
+
+export interface DriverReview {
+    reviewerId: string;
+    reviewerName: string;
+    reviewerProfile: string;
+    rating: number;
+    comment: string;
+    createdAt: string;
+}
+
+export interface DriverProfileStats {
+    type: string;
+    riderId: string;
+    joiningTime: string;
+    vehicle: DriverVehicle;
+    profile: DriverProfileInfo;
+    totalRides: number;
+    averageRating: string;
+    totalReviews: number;
+    ratingBreakdown: DriverRatingBreakdown[];
+    reviews: DriverReview[];
+}
+
+// ---------------------------------------------------------------------------
+// User  (/api/v1/users)
+// ---------------------------------------------------------------------------
+
+export interface UserApiData {
+    id: string;
+    email: string | null;
+    phone: string | null;
+    password: string | null;
+    name: string;
+    email_is_verified: boolean;
+    phone_is_verified: boolean;
+    fcm_token: string | null;
+    profile: string | null;
+    active_status: boolean;
+    block_status: boolean;
+    google_id: string | null;
+    current_location: string | null;
+    last_login: string | null;
+    tokenVersion: number;
+    role_id: string | null;
+    two_factor_enabled: boolean;
+    internal_notes: string;
+    must_change_pass: boolean;
+    termsAccepted: boolean;
+    soft_delete: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface UserApiResponse {
+    user: UserApiData;
 }

@@ -20,6 +20,8 @@ module.exports = {
       bundleIdentifier: 'com.enategasuper.app',
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
+        NSLocationWhenInUseUsageDescription:
+          'Allow EnategaSuperApp to access your location to show nearby stores and delivery availability.',
       },
     },
     android: {
@@ -41,6 +43,13 @@ module.exports = {
     },
     plugins: [
       'expo-secure-store',
+      [
+        'expo-location',
+        {
+          locationWhenInUsePermission:
+            'Allow EnategaSuperApp to access your location to show nearby stores and delivery availability.',
+        },
+      ],
       [
         'react-native-maps',
         {

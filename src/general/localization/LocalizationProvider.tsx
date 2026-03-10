@@ -18,7 +18,8 @@ type Props = {
 };
 
 export function LocalizationProvider({ children }: Props) {
-  const language = (i18n.language as SupportedLanguage) ?? 'en';
+  const { i18n: i18nInstance } = useTranslation();
+  const language = (i18nInstance.language as SupportedLanguage) ?? 'en';
 
   const value = useMemo(
     () => ({

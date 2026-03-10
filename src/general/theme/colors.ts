@@ -1,5 +1,6 @@
 export const lightColors = {
-  background: '#F7F7FB',
+  background: '#FFFFFF',
+  backgroundTertiary: '#F4F4F5',
   surface: '#FFFFFF',
   primary: '#2346E8',
   primaryDark: '#1C2FA6',
@@ -32,19 +33,19 @@ export const lightColors = {
   shadowColor: '#000000',
   white: '#FFFFFF',
   iconColor: '#27272A',
-  backgroundTertiary: '#F4F4F5',
   gray100: '#F3F4F6',
 };
 
 export const darkColors: typeof lightColors = {
   background: '#0F1117',
+  backgroundTertiary: '#161A23',
   surface: '#161A23',
   primary: '#4C7DFF',
   primaryDark: '#2E4BC8',
   secondary: '#8B7BFF',
   text: '#F9FAFB',
   mutedText: '#9CA3AF',
-  border: '#E4E4E7',
+  border: '#424244',
   success: '#34D399',
   warning: '#FBBF24',
   danger: '#F87171',
@@ -70,7 +71,6 @@ export const darkColors: typeof lightColors = {
   shadowColor: '#000000',
   white: '#FFFFFF',
   iconColor: '#27272A',
-  backgroundTertiary: '#F4F4F5',
   gray100: '#F3F4F6'
 };
 

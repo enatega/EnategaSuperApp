@@ -104,7 +104,20 @@ const en = {
   verify_your_email: 'Verify Your Email',
   enter_strong_password: 'Please enter strong password.',
   password_not_matched: 'Make sure your passwords match',
-  something_went_wrong: 'Something went wrong.'
+  something_went_wrong: 'Something went wrong.',
+  location_popup_title: 'Location Access',
+  location_popup_description:
+    'Use device location to show nearby stores, delivery availability, and relevant offers.',
+  location_popup_denied_title: 'Location Permission Denied',
+  location_popup_denied_description:
+    'Location access is still off. Allow it to show nearby stores and accurate delivery availability.',
+  location_popup_blocked_title: 'Enable Location in Settings',
+  location_popup_blocked_description:
+    'Location access is turned off for this app. Open settings to allow location access on your device.',
+  location_popup_enable: 'Enable Location',
+  location_popup_try_again: 'Try Again',
+  location_popup_open_settings: 'Open Settings',
+  location_popup_later: 'Maybe Later'
 };
 
 export default en;

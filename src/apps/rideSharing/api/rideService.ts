@@ -2,6 +2,7 @@ import apiClient from '../../../general/api/apiClient';
 import type {
     ApiResponse,
     CreateRidePayload,
+    DriverProfileStats,
     PaginatedResponse,
     Ride,
     RideDetails,
@@ -12,6 +13,9 @@ import type {
     RideFareResponse,
     RideTypeFare,
     RideTypeFareParams,
+    RidePlacePrediction,
+    RidePlaceCoordinates,
+    DistanceMatrixResponse,
 } from './types';
 
 // ---------------------------------------------------------------------------
@@ -51,8 +55,62 @@ export const rideService = {
         const response = await apiClient.get<RideFareResponse>(
             '/api/v1/rides/fare/all',
             params as Record<string, unknown>,
+            { skipAuth: true },
         );
         return response.rideTypeFares ?? [];
+    },
+
+    /** Search place suggestions through backend Google proxy. */
+    searchPlaces: (input: string): Promise<RidePlacePrediction[]> =>
+        apiClient.post<RidePlacePrediction[]>(
+            '/api/v1/maps/places',
+            { input },
+            { skipAuth: true },
+        ),
+
+    /** Resolve a Google place id to lat/lng through backend proxy. */
+    getPlaceDetails: (placeId: string): Promise<RidePlaceCoordinates> =>
+        apiClient.post<RidePlaceCoordinates>(
+            '/api/v1/maps/place-details',
+            { placeId },
+            { skipAuth: true },
+        ),
+
+    /** Fetch distance + duration between origin and destination. */
+    getDistanceMatrix: (
+        origins: string[],
+        destinations: string[],
+    ): Promise<DistanceMatrixResponse> =>
+        apiClient.post<DistanceMatrixResponse>(
+            '/api/v1/maps/distance-matrix',
+            { origins, destinations },
+            { skipAuth: true },
+        ),
+
+    /** Fetch route polyline path through backend proxy. */
+    getRoutePath: async (
+        origin: { lat: number; lng: number },
+        destination: { lat: number; lng: number },
+    ): Promise<Array<{ latitude: number; longitude: number }>> => {
+        const response = await apiClient.get<{ path?: [number, number][] }>(
+            '/api/v1/maps/route',
+            {
+                originLat: origin.lat,
+                originLng: origin.lng,
+                destinationLat: destination.lat,
+                destinationLng: destination.lng,
+            },
+            { skipAuth: true },
+        );
+
+        if (!Array.isArray(response.path)) {
+            return [];
+        }
+
+        return response.path.map(([latitude, longitude]) => ({
+            latitude,
+            longitude,
+        }));
     },
 
     /** Fetch active (in-progress / accepted) ride, if any. */
@@ -97,4 +155,8 @@ export const rideService = {
         feedback?: string,
     ): Promise<void> =>
         apiClient.post(`/rides/${rideId}/rate`, { rating, feedback }),
+
+    /** Fetch profile stats for a driver/rider by userId. */
+    getDriverStats: (userId: string): Promise<DriverProfileStats> =>
+        apiClient.get<DriverProfileStats>(`api/v1/rides/get-stats/${userId}`),
 };

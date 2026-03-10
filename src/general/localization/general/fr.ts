@@ -57,7 +57,20 @@ const fr = {
   dev_auth_status_verified: 'Inscription vérifiée. Session enregistrée.',
   dev_auth_status_failed: 'Échec de la requête. Voir l’erreur ci-dessous.',
   dev_auth_status_signed_in: 'Session active.',
-  dev_auth_status_signed_out: 'Aucune session active.'
+  dev_auth_status_signed_out: 'Aucune session active.',
+  location_popup_title: 'Accès à la localisation',
+  location_popup_description:
+    'Utilisez la localisation de l’appareil pour afficher les magasins proches, la disponibilité de livraison et les offres pertinentes.',
+  location_popup_denied_title: 'Autorisation refusée',
+  location_popup_denied_description:
+    'L’accès à la localisation est toujours désactivé. Autorisez-le pour afficher les magasins proches et la disponibilité exacte de livraison.',
+  location_popup_blocked_title: 'Activez la localisation dans les réglages',
+  location_popup_blocked_description:
+    'L’accès à la localisation est désactivé pour cette application. Ouvrez les réglages pour autoriser la localisation sur votre appareil.',
+  location_popup_enable: 'Activer la localisation',
+  location_popup_try_again: 'Réessayer',
+  location_popup_open_settings: 'Ouvrir les réglages',
+  location_popup_later: 'Plus tard'
 };
 
 export default fr;

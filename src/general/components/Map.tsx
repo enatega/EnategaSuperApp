@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { forwardRef, memo } from 'react';
 import { ImageSourcePropType, StyleSheet } from 'react-native';
 import MapView, { LatLng, Marker, MarkerProps, Polyline, PolylineProps, MapViewProps, PROVIDER_GOOGLE } from 'react-native-maps';
 
@@ -140,11 +140,14 @@ const MemoizedPolyline = memo(MapPolylineItem, (prev, next) => {
   return true;
 });
 
-function Map({ markers, polylines, useGoogleProvider, children, style, provider, ...props }: Props) {
+const Map = forwardRef<MapView, Props>(function Map(
+  { markers, polylines, useGoogleProvider, children, style, provider, ...props },
+  ref,
+) {
   const resolvedProvider = provider ?? (useGoogleProvider ? PROVIDER_GOOGLE : undefined);
 
   return (
-    <MapView style={[styles.map, style]} provider={resolvedProvider} {...props}>
+    <MapView ref={ref} style={[styles.map, style]} provider={resolvedProvider} {...props}>
       {markers?.map((marker) => (
         <MemoizedMarker key={marker.keyOverride ?? marker.id} marker={marker} />
       ))}
@@ -154,7 +157,7 @@ function Map({ markers, polylines, useGoogleProvider, children, style, provider,
       {children}
     </MapView>
   );
-}
+});
 
 export default memo(Map);
 

@@ -1,24 +1,34 @@
 import React from "react";
 import { StatusBar } from "expo-status-bar";
 import RootNavigator from "./src/navigation/RootNavigator";
-import { useTheme } from "./src/general/theme/theme";
+import { ThemeProvider, useAppTheme } from "./src/general/theme/ThemeProvider";
 import { LocalizationProvider } from "./src/general/localization/LocalizationProvider";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import QueryProvider from "./src/general/providers/QueryProvider";
 import "./src/general/localization/i18n";
 import Toast from "react-native-toast-message";
 
-export default function App() {
-  const { isDark } = useTheme();
+function ThemedApp() {
+  const { theme } = useAppTheme();
   return (
-    <SafeAreaProvider>
-      <QueryProvider>
+    <>
+      <RootNavigator />
+      <StatusBar style={theme.isDark ? 'light' : 'dark'} />
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <SafeAreaProvider>
+        <QueryProvider>
         <LocalizationProvider>
-          <RootNavigator />
-          <StatusBar style={isDark ? "light" : "dark"} />
-          <Toast />
-        </LocalizationProvider>
-      </QueryProvider>
-    </SafeAreaProvider>
+            <ThemedApp />
+            <Toast />
+          </LocalizationProvider>
+          </QueryProvider>
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }
