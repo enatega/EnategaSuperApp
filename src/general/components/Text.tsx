@@ -2,10 +2,12 @@ import React from "react";
 import { StyleProp, Text as RNText, TextStyle } from "react-native";
 import { useTheme } from "../theme/theme";
 
+export type TextVariant = "title" | "subtitle" | "body" | "caption";
+
 type Props = {
   children: React.ReactNode;
   style?: StyleProp<TextStyle>;
-  variant?: "title" | "subtitle" | "body" | "caption";
+  variant?: TextVariant;
   weight?: "regular" | "medium" | "semiBold" | "bold" | "extraBold";
   color?: string;
   numberOfLines?: number;

@@ -57,7 +57,7 @@ export default function ReservationsListScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScreenHeader title="Reservations" />
+      <ScreenHeader title="Reservations" titleVariant="title" />
       {reservations.length === 0 ? (
         <ScrollView contentContainerStyle={styles.emptyContainer}>
           <View style={[styles.emptyIconContainer, { backgroundColor: colors.backgroundTertiary }]}>
