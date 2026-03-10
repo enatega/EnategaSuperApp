@@ -113,7 +113,7 @@ const EnterEmailOtpSignup = () => {
     <>
       <OtpVerificationComponent
         heading="verify_your_email"
-        description={t("enter_otp_sent_to", { phoneNumber: formData.email })}
+        description={t("enter_otp_sent_to", { contact: formData.email })}
         showTryAnotherWay={true}
         verificationOptions={verificationOptions}
         defaultSelectedMethod={otpType}

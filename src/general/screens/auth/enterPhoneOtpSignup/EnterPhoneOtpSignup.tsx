@@ -38,7 +38,6 @@ const EnterPhoneOtpSignup = () => {
     },
   });
 
-  console.log("🚀 ~ EnterPhoneOtpSignup ~ formData.phone:", formData.phone)
   useEffect(() => {
     sendOtpMutation.mutate({
       phone: formData.phone,
@@ -109,7 +108,7 @@ const EnterPhoneOtpSignup = () => {
     <>
       <OtpVerificationComponent
         heading="verify_your_phone_number"
-        description={t("enter_otp_sent_to", { phoneNumber: formData.phone })}
+        description={t("enter_otp_sent_to", { contact: formData.phone })}
         showTryAnotherWay={true}
         verificationOptions={verificationOptions}
         defaultSelectedMethod={otpType}

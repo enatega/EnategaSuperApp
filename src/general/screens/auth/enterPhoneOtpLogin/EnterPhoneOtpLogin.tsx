@@ -91,7 +91,7 @@ const EnterPhoneOtpLogin = () => {
     <>
       <OtpVerificationComponent
         heading="verify_your_phone_number"
-        description={t("enter_otp_sent_to", { phoneNumber: phone })}
+        description={t("enter_otp_sent_to", { contact: phone })}
         showTryAnotherWay={true}
         verificationOptions={verificationOptions}
         onVerify={(otp) => {

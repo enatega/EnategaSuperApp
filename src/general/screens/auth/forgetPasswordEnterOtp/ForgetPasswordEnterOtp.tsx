@@ -79,7 +79,7 @@ const ForgetPasswordEnterOtp = ({ route }) => {
     <>
       <OtpVerificationComponent
         heading="verify_your_email"
-        description={t("enter_otp_sent_to", { phoneNumber: emailId })}
+        description={t("enter_otp_sent_to", { contact: emailId })}
         showTryAnotherWay={false}
         onVerify={(otp) => {
           handleVerifyOtp(otp);
