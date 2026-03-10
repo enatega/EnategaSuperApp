@@ -42,8 +42,8 @@ export default function ReservationRideInfo({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 0,
-    backgroundColor: 'transparent',
+    padding: 12,
+    borderRadius: 12,
     marginBottom: 12,
   },
   content: {
@@ -57,8 +57,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   carImage: {
-    width: 64,
-    height: 32,
+    width: 80,
+    height: 48,
   },
   title: {
     marginLeft: 4,
