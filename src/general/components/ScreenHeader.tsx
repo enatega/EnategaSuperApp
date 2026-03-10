@@ -9,13 +9,17 @@ import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/theme';
-import Text from './Text';
+import Text, { TextVariant } from './Text';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Props = {
   /** Screen title shown in the centre — optional, omit to show back button only */
   title?: string;
+  /**
+   * Title variant. Defaults to 'subtitle'.
+   */
+  titleVariant?: TextVariant;
   /**
    * Custom left slot. If provided, replaces the default back button.
    */
@@ -39,6 +43,7 @@ type Props = {
 
 export default function ScreenHeader({
   title,
+  titleVariant = 'subtitle',
   leftSlot,
   rightSlot,
   showBack,
@@ -93,7 +98,7 @@ export default function ScreenHeader({
       {title ? (
         <Text
           numberOfLines={1}
-          weight="semiBold"
+          weight="bold"
           color={colors.text}
           style={styles.title}
         >
@@ -139,6 +144,6 @@ const styles = StyleSheet.create({
   title: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: 18,
   },
 });

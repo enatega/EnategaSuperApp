@@ -199,6 +199,58 @@ export interface DriverProfileInfo {
     profilePic: string;
 }
 
+// ---------------------------------------------------------------------------
+// Customer Rides
+// ---------------------------------------------------------------------------
+
+export interface CustomerRide {
+    rideId: string;
+    rideStatus: string; // 'COMPLETED' | 'CANCELLED' | 'ASSIGNED' | 'SCHEDULED'
+    rideRequestId: string;
+    riderId: string;
+    createdAt: string;
+    scheduledAt: string | null;
+    isScheduled: boolean;
+    pickup: {
+        lat: number;
+        lng: number;
+        location: string;
+    };
+    dropoff: {
+        lat: number;
+        lng: number;
+        location: string;
+    };
+    agreedPrice: number;
+    paymentVia: string; // 'cash' | 'card'
+    rideType: {
+        id: string;
+        name: string;
+        imageUrl: string;
+        seatCount: number;
+    };
+    riderInfo?: {
+        id: string;
+        name: string;
+        email: string;
+        phone: string;
+        profile: string;
+        totalCompletedRides: number;
+        averageRating: number;
+        vehicle: {
+            vehicle_name: string;
+            vehicle_colour: string;
+            vehicle_no: string;
+        };
+    };
+}
+
+export interface CustomerRidesResponse {
+    data: CustomerRide[];
+    offset: number;
+    limit: number;
+}
+
 export interface DriverRatingBreakdown {
     star: number;
     count: number;
