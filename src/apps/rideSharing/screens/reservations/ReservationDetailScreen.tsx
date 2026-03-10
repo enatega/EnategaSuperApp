@@ -128,6 +128,7 @@ export default function ReservationDetailScreen() {
           rideTitle={reservation.rideTitle}
           price={reservation.price}
           currency={reservation.currency}
+          imageUrl={reservation.imageUrl}
         />
 
         {reservation.driver && (

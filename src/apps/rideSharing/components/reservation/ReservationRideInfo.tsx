@@ -8,12 +8,14 @@ type Props = {
   rideTitle: string;
   price: number;
   currency: string;
+  imageUrl?: string;
 };
 
 export default function ReservationRideInfo({
   rideTitle,
   price,
   currency,
+  imageUrl,
 }: Props) {
   const { colors } = useTheme();
 
@@ -21,7 +23,11 @@ export default function ReservationRideInfo({
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <View style={styles.content}>
         <View style={styles.leftContent}>
-          <Image source={serviceIcons.rideSharing} style={styles.carImage} resizeMode="contain" />
+          {imageUrl ? (
+            <Image source={{ uri: imageUrl }} style={styles.carImage} resizeMode="contain" />
+          ) : (
+            <Image source={serviceIcons.rideSharing} style={styles.carImage} resizeMode="contain" />
+          )}
           <Text weight="bold" variant="title" style={styles.title}>
             {rideTitle}
           </Text>

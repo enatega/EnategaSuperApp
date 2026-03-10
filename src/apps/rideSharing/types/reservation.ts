@@ -6,6 +6,7 @@ export interface Reservation {
   id: string;
   rideType: RideType;
   rideTitle: string;
+  imageUrl?: string;
   vehicleInfo?: {
     model: string;
     color: string;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
+import { StyleSheet, View, Pressable, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
@@ -85,7 +85,15 @@ export default function ReservationCard({ reservation, onPress }: Props) {
       ]}
     >
       <View style={[styles.iconContainer, { backgroundColor: colors.gray100 }]}>
-        <Ionicons name={iconConfig.name} size={40} color={iconConfig.color} />
+        {reservation.imageUrl ? (
+          <Image
+            source={{ uri: reservation.imageUrl }}
+            style={styles.rideIcon}
+            resizeMode="contain"
+          />
+        ) : (
+          <Ionicons name={iconConfig.name} size={40} color={iconConfig.color} />
+        )}
       </View>
       <View style={styles.content}>
         <Text weight="semiBold" variant="subtitle" style={styles.title}>
