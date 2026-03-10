@@ -8,7 +8,7 @@ import {
 import { showToast } from "../../../components/AppToast";
 import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal";
 import { useAuthStore } from "../../../stores/useAuthStore";
-import TooManyRequestsModal from "../../../components/auth/TooManyRequestsModal";
+import AppPopup from "../../../components/AppPopup";
 import { useNavigation } from "@react-navigation/native";
 
 const ForgetPasswordEnterOtp = ({ route }) => {
@@ -92,13 +92,17 @@ const ForgetPasswordEnterOtp = ({ route }) => {
         errorMessage={errorMessage}
         isLoading={verifyOtpMutation.isPending}
       />
-      <TooManyRequestsModal
+      <AppPopup
         visible={rateLimitModal.visible}
-        onClose={rateLimitModal.hide}
-        onPrimaryAction={rateLimitModal.hide}
-        title="too_many_attempts"
-        description="too_many_attempts_desc"
-        primaryButtonText="ok"
+        title={t("too_many_attempts")}
+        description={t("too_many_attempts_desc")}
+        onRequestClose={rateLimitModal.hide}
+        dismissOnOverlayPress={true}
+        primaryAction={{
+          label: t("ok"),
+          onPress: rateLimitModal.hide,
+          variant: "danger",
+        }}
       />
     </>
   );

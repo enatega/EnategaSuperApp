@@ -10,7 +10,7 @@ import Button from "../Button";
 import OtpCodeInput from "./OtpInput";
 import TryAnotherWay from "./TryAnotherWay";
 import VerificationMethodModal from "./VerificationMethodModal";
-import TooManyRequestsModal from "./TooManyRequestsModal";
+import AppPopup from "../AppPopup";
 import { useTheme } from "../../theme/theme";
 
 type VerificationOption = {
@@ -114,13 +114,17 @@ export default function OtpVerificationComponent({
         />
       )}
 
-      <TooManyRequestsModal
+      <AppPopup
         visible={rateLimitingModal}
-        onClose={() => setRateLimitingModal(false)}
-        onPrimaryAction={() => setRateLimitingModal(false)}
-        title="too_many_attempts"
-        description="too_many_attempts_desc"
-        primaryButtonText="ok"
+        title={t("too_many_attempts")}
+        description={t("too_many_attempts_desc")}
+        onRequestClose={() => setRateLimitingModal(false)}
+        dismissOnOverlayPress={true}
+        primaryAction={{
+          label: t("ok"),
+          onPress: () => setRateLimitingModal(false),
+          variant: "danger",
+        }}
       />
     </View>
   );

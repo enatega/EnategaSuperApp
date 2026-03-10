@@ -14,6 +14,7 @@ import Icon from "../../../components/Icon";
 import { useEmailLogin } from "../../../hooks/useAuthMutations";
 import { showToast } from "../../../components/AppToast";
 import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal";
+import AppPopup from "../../../components/AppPopup";
 
 const EnterPassword = ({ route }) => {
   const { emailId } = route.params;
@@ -124,6 +125,19 @@ const EnterPassword = ({ route }) => {
           isLoading={mutateEmailLogin.isPending}
         />
       </Footer>
+
+      <AppPopup
+        visible={rateLimitModal.visible}
+        title={t("too_many_attempts")}
+        description={t("too_many_attempts_desc")}
+        onRequestClose={rateLimitModal.hide}
+        dismissOnOverlayPress={true}
+        primaryAction={{
+          label: t("ok"),
+          onPress: rateLimitModal.hide,
+          variant: "danger",
+        }}
+      />
     </View>
   );
 };

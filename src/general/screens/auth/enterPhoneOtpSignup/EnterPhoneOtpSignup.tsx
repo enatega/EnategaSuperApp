@@ -7,7 +7,7 @@ import {
   useSignupSendOtp,
 } from "../../../hooks/useAuthMutations";
 import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal";
-import TooManyRequestsModal from "../../../components/auth/TooManyRequestsModal";
+import AppPopup from "../../../components/AppPopup";
 import { showToast } from "../../../components/AppToast";
 import { useAuthStore } from "../../../stores/useAuthStore";
 
@@ -121,13 +121,17 @@ const EnterPhoneOtpSignup = () => {
         hasError={hasError}
         setHasError={sethasError}
       />
-      <TooManyRequestsModal
+      <AppPopup
         visible={rateLimitModal.visible}
-        onClose={rateLimitModal.hide}
-        onPrimaryAction={rateLimitModal.hide}
-        title="too_many_attempts"
-        description="too_many_attempts_desc"
-        primaryButtonText="ok"
+        title={t("too_many_attempts")}
+        description={t("too_many_attempts_desc")}
+        onRequestClose={rateLimitModal.hide}
+        dismissOnOverlayPress={true}
+        primaryAction={{
+          label: t("ok"),
+          onPress: rateLimitModal.hide,
+          variant: "danger",
+        }}
       />
     </>
   );
