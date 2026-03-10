@@ -8,7 +8,7 @@ import Svg from "../Svg";
 import { useTheme } from "../../theme/theme";
 import { useTranslation } from "react-i18next";
 
-const clientId = process.env.IOS_CLIENT_ID;
+const clientId = process.env.EXPO_PUBLIC_IOS_CLIENT_ID;
 GoogleSignin.configure({
   iosClientId: clientId,
 });

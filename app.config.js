@@ -1,5 +1,5 @@
 const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY ?? 'DUMMY_GOOGLE_MAPS_API_KEY';
-const iosUrlScheme = process.env.IOS_URL_SCHEME ?? 'com.enategasuper.app';
+const iosUrlScheme = process.env.EXPO_PUBLIC_IOS_URL_SCHEME ?? 'com.enategasuper.app';
 
 module.exports = {
   expo: {

@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import type { RideAddressSelection } from '../../../api/types';
 import RideEstimateMapLayer from '../../rideEstimate/components/RideEstimateMapLayer';
 import FindingRideAnimation from '../../../../../general/components/FindingRideAnimation';
+import { useTheme } from '../../../../../general/theme/theme';
 
 type Props = {
   fromAddress: RideAddressSelection;
