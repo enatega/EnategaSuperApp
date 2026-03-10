@@ -4,6 +4,7 @@ export type RideType = 'ride' | 'women_ride' | 'premium_ride' | 'ac_ride';
 
 export interface Reservation {
   id: string;
+  rideRequestId?: string;
   rideType: RideType;
   rideTitle: string;
   imageUrl?: string;

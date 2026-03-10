@@ -8,6 +8,7 @@ import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import { useCustomerRides } from '../../hooks/useRideQueries';
+import { useCancelRide } from '../../hooks/useRideMutations';
 import { mapCustomerRideToReservation } from '../../utils/rideMapper';
 import CancelRideBottomSheet from '../../components/reservation/CancelRideBottomSheet';
 import MoreOptionsBottomSheet from '../../components/reservation/MoreOptionsBottomSheet';
@@ -32,6 +33,7 @@ export default function ReservationDetailScreen() {
   const [isMoreOptionsVisible, setIsMoreOptionsVisible] = useState(false);
 
   const { data, isLoading, error } = useCustomerRides();
+  const { mutate: cancelRide, isPending: isCancelling } = useCancelRide();
   const reservations = data?.data.map(mapCustomerRideToReservation) || [];
 
   const reservationId = route.params?.reservationId;
@@ -68,11 +70,24 @@ export default function ReservationDetailScreen() {
   }, []);
 
   const handleConfirmCancel = useCallback(() => {
-    // TODO: Integrate with API to cancel reservation
-    console.log('Ride cancelled');
-  }, []);
+    if (reservation?.id) {
+      cancelRide(reservation.id, {
+        onSuccess: () => {
+          setIsCancelBottomSheetVisible(false);
+          // Optional: Navigate back or show success message
+          navigation.goBack();
+        },
+        onError: (error) => {
+          console.error('Failed to cancel ride:', error);
+          // Handle error (e.g., show toast)
+        }
+      });
+    } else {
+      console.warn('Cannot cancel ride: rideId is missing');
+    }
+  }, [reservation, cancelRide, navigation]);
 
-  if (isLoading) {
+  if (isLoading || isCancelling) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }]}>
         <ActivityIndicator size="large" color={colors.primary} />

@@ -23,6 +23,7 @@ export const mapCustomerRideToReservation = (ride: CustomerRide): Reservation =>
 
   return {
     id: ride.rideId,
+    rideRequestId: ride.rideRequestId,
     rideType: 'ride', // Defaulting to 'ride' as the API type structure is different
     rideTitle: ride.rideType.name,
     imageUrl: ride.rideType.imageUrl,

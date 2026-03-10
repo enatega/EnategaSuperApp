@@ -147,7 +147,7 @@ export const rideService = {
 
     /** Cancel a ride. */
     cancelRide: (rideId: string): Promise<void> =>
-        apiClient.post(`/rides/${rideId}/cancel`),
+        apiClient.patch(`/api/v1/rides/${rideId}/customer/cancel`),
 
     /** Rate a completed ride. */
     rateRide: (
