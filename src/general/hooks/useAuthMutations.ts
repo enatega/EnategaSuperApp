@@ -15,10 +15,16 @@ import type {
   LoginSendOtpResponse,
   LoginVerifyOtpPayload,
   LoginVerifyOtpResponse,
+  ResetPasswordPayload,
+  ResetPasswordResponce,
+  SendForgotPasswordOtpPayload,
+  SendForgotPasswordOtpResponce,
   SignupSendOtpPayload,
   SignupSendOtpResponse,
   SignupVerifyOtpPayload,
   SignupVerifyOtpResponse,
+  VerifyForgotPasswordOtpPayload,
+  VerifyForgotPasswordOtpResponce,
 } from "../api/authTypes";
 import { authSession } from "../auth/authSession";
 
@@ -142,7 +148,11 @@ export function useEmailLogin(
 }
 
 export function useGoogleLogin(
-  options?: UseMutationOptions<GoogleLoginResponse, ApiError, GoogleLoginPayload>,
+  options?: UseMutationOptions<
+    GoogleLoginResponse,
+    ApiError,
+    GoogleLoginPayload
+  >,
 ) {
   const queryClient = useQueryClient();
 
@@ -159,5 +169,52 @@ export function useGoogleLogin(
       queryClient.invalidateQueries({ queryKey: authKeys.session() });
       options?.onSuccess?.(data, variables, context);
     },
+  });
+}
+
+export function useForgotPasswordSendOtp(
+  options?: UseMutationOptions<
+    SendForgotPasswordOtpResponce,
+    ApiError,
+    SendForgotPasswordOtpPayload
+  >,
+) {
+  return useMutation<
+    SendForgotPasswordOtpResponce,
+    ApiError,
+    SendForgotPasswordOtpPayload
+  >({
+    mutationFn: authService.sendForgotPasswordOtp,
+    ...options,
+  });
+}
+
+export function useForgotPasswordVerifyOtp(
+  options?: UseMutationOptions<
+    VerifyForgotPasswordOtpResponce,
+    ApiError,
+    VerifyForgotPasswordOtpPayload
+  >,
+) {
+  return useMutation<
+    VerifyForgotPasswordOtpResponce,
+    ApiError,
+    VerifyForgotPasswordOtpPayload
+  >({
+    mutationFn: authService.verifyForgotPasswordOtp,
+    ...options,
+  });
+}
+
+export function useResetPassword(
+  options?: UseMutationOptions<
+    ResetPasswordResponce,
+    ApiError,
+    ResetPasswordPayload
+  >,
+) {
+  return useMutation<ResetPasswordResponce, ApiError, ResetPasswordPayload>({
+    mutationFn: authService.resetPassword,
+    ...options,
   });
 }

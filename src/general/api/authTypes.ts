@@ -14,7 +14,8 @@ export type Profile = Array<{
 }>;
 
 export type SignupSendOtpPayload = {
-  phone: string;
+  phone?: string;
+  email?: string;
   otp_type: OtpType;
 };
 
@@ -108,3 +109,32 @@ export type GoogleLoginResponse = {
   profiles: Profile;
   accessToken: string;
 };
+
+export type SendForgotPasswordOtpPayload = {
+  email: string;
+  otp_type: 'email' | 'sms' | 'call';
+}
+
+export type SendForgotPasswordOtpResponce = {
+  message: string;
+}
+
+export type VerifyForgotPasswordOtpPayload = {
+  email: string;
+  otp: string;
+  otp_type: 'email' | 'sms' | 'call';
+}
+
+export type VerifyForgotPasswordOtpResponce = {
+  message: string;
+  userId: string;
+}
+
+export type ResetPasswordPayload = {
+  userId: string;
+  password: string
+}
+
+export type ResetPasswordResponce = {
+  message: string;
+}

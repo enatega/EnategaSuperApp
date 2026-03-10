@@ -38,7 +38,7 @@ const EnterEmailOtpSignup = () => {
 
   useEffect(() => {
     sendOtpMutation.mutate({
-      phone: formData.phone,
+      email: formData.email,
       otp_type: "email",
     });
   }, []);
@@ -46,14 +46,18 @@ const EnterEmailOtpSignup = () => {
   const verifyOtpMutation = useSignupVerifyOtp({
     onSuccess: () => {
       showToast.success("Success!", "Account created successfully.");
-      navigation.navigate("Main" as never);
+      navigation.navigate("login" as never);
+      setOtpType("sms")
     },
     onError: (error) => {
       if (error.status === 429) {
         rateLimitModal.show();
-      } else {
-        setErrorMessage(error?.message);
+      } else if (error.status === 409) {
         showToast.error("Error!", error?.message);
+        navigation.navigate("signup" as never);
+      } else {
+        showToast.error("Error!", error?.message);
+        setErrorMessage(error?.message);
       }
     },
   });
@@ -100,7 +104,7 @@ const EnterEmailOtpSignup = () => {
 
   const handleResendOtp = () => {
     sendOtpMutation.mutate({
-      phone: formData.phone,
+      email: formData.email,
       otp_type: "email",
     });
   };
@@ -120,6 +124,7 @@ const EnterEmailOtpSignup = () => {
         errorMessage={errorMessage}
         hasError={hasError}
         setHasError={sethasError}
+        isLoading={verifyOtpMutation.isPending}
       />
       <TooManyRequestsModal
         visible={rateLimitModal.visible}

@@ -32,7 +32,7 @@ type SignupState = {
 
 const initialFormData: SignupFormData = {
   name: "kashif",
-  email: "kashif12@gmail.com",
+  email: "kashif100@gmail.com",
   password: "Qwerty123$",
   phone: "3431412212",
 };

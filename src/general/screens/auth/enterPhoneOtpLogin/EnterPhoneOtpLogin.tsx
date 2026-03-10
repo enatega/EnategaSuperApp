@@ -44,7 +44,8 @@ const EnterPhoneOtpLogin = () => {
   const verifyOtpMutation = useLoginVerifyOtp({
     onSuccess: () => {
       showToast.success("Success!", "Login successful.");
-      navigation.navigate("Main" as never);
+      navigation.navigate("login" as never);
+      setOtpType("sms")
     },
     onError: (error) => {
       sethasError(true);

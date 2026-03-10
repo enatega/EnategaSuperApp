@@ -28,12 +28,17 @@ const EnterPhoneOtpSignup = () => {
     onError: (error) => {
       if (error.status === 429) {
         rateLimitModal.show();
+      } else if (error.status === 409) {
+        showToast.error("Error!", error?.message);
+        navigation.navigate("signup" as never);
       } else {
         showToast.error("Error!", error?.message);
+        setErrorMessage(error?.message);
       }
     },
   });
 
+  console.log("🚀 ~ EnterPhoneOtpSignup ~ formData.phone:", formData.phone)
   useEffect(() => {
     sendOtpMutation.mutate({
       phone: formData.phone,
@@ -44,7 +49,8 @@ const EnterPhoneOtpSignup = () => {
   const verifyOtpMutation = useSignupVerifyOtp({
     onSuccess: () => {
       showToast.success("Success!", "Account created successfully.");
-      navigation.navigate("Main" as never);
+      navigation.navigate("login" as never);
+      setOtpType("sms")
     },
     onError: (error) => {
       sethasError(true);
