@@ -19,6 +19,7 @@ import ReservationPayment from '../../components/reservation/ReservationPayment'
 import ReservationRoute from '../../components/reservation/ReservationRoute';
 import ReservationStatus from '../../components/reservation/ReservationStatus';
 import ReservationInfoSection from '../../components/reservation/ReservationInfoSection';
+import ReservationDetailSkeleton from '../../components/reservation/ReservationDetailSkeleton';
 import type { RideSharingStackParamList } from '../../navigation/RideSharingNavigator';
 
 type RoutePropType = RouteProp<RideSharingStackParamList, 'ReservationDetail'>;
@@ -88,11 +89,7 @@ export default function ReservationDetailScreen() {
   }, [reservation, cancelRide, navigation]);
 
   if (isLoading || isCancelling) {
-    return (
-      <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+    return <ReservationDetailSkeleton />;
   }
 
   if (error) {

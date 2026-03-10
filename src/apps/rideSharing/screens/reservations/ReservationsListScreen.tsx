@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { StyleSheet, View, FlatList, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, FlatList, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,7 @@ import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import ReservationCard from '../../components/reservation/ReservationCard';
+import ReservationListSkeleton from '../../components/reservation/ReservationListSkeleton';
 import { useCustomerRides } from '../../hooks/useRideQueries';
 import { mapCustomerRideToReservation } from '../../utils/rideMapper';
 import type { RideSharingStackParamList } from '../../navigation/RideSharingNavigator';
@@ -38,11 +39,7 @@ export default function ReservationsListScreen() {
   );
 
   if (isLoading) {
-    return (
-      <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+    return <ReservationListSkeleton />;
   }
 
   if (error) {
