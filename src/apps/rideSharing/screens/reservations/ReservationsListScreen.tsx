@@ -1,6 +1,8 @@
 import React, { useCallback } from 'react';
 import { StyleSheet, View, FlatList, ScrollView, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
@@ -16,6 +18,7 @@ type NavigationProp = NativeStackNavigationProp<RideSharingStackParamList>;
 export default function ReservationsListScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
+  const { t } = useTranslation('rideSharing');
   const { data, isLoading, error } = useCustomerRides();
 
   const reservations = data?.data.map(mapCustomerRideToReservation) || [];
@@ -57,8 +60,14 @@ export default function ReservationsListScreen() {
       <ScreenHeader title="Reservations" />
       {reservations.length === 0 ? (
         <ScrollView contentContainerStyle={styles.emptyContainer}>
-          <Text variant="subtitle" color={colors.mutedText} style={styles.emptyText}>
-            No reservations yet
+          <View style={[styles.emptyIconContainer, { backgroundColor: colors.backgroundTertiary }]}>
+            <Ionicons name="calendar-outline" size={48} color={colors.primary} />
+          </View>
+          <Text variant="title" weight="bold" style={styles.emptyTitle}>
+            {t('reservations_empty')}
+          </Text>
+          <Text variant="body" color={colors.mutedText} style={styles.emptyText}>
+            {t('sidebar_reservations_subtitle')}
           </Text>
         </ScrollView>
       ) : (
@@ -86,8 +95,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
+    marginTop: '30%',
+  },
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    marginBottom: 8,
+    textAlign: 'center',
   },
   emptyText: {
     textAlign: 'center',
+    maxWidth: 240,
   },
 });

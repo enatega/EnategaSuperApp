@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     marginHorizontal: 16,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   pressed: {
     opacity: 0.7,
