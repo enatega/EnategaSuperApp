@@ -9,6 +9,8 @@ import type { ApiError } from "../api/apiClient";
 import type {
   EmailLoginPayload,
   EmailLoginRespoce,
+  GoogleLoginPayload,
+  GoogleLoginResponse,
   LoginSendOtpPayload,
   LoginSendOtpResponse,
   LoginVerifyOtpPayload,
@@ -125,6 +127,27 @@ export function useEmailLogin(
 
   return useMutation<EmailLoginRespoce, ApiError, EmailLoginPayload>({
     mutationFn: authService.emailLogin,
+    ...options,
+    onSuccess: async (data, variables, context) => {
+      await authSession.setSession(data);
+      queryClient.setQueryData(authKeys.session(), {
+        token: data.accessToken,
+        user: data.user,
+        profiles: data.profiles,
+      });
+      queryClient.invalidateQueries({ queryKey: authKeys.session() });
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
+}
+
+export function useGoogleLogin(
+  options?: UseMutationOptions<GoogleLoginResponse, ApiError, GoogleLoginPayload>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation<GoogleLoginResponse, ApiError, GoogleLoginPayload>({
+    mutationFn: authService.googleLogin,
     ...options,
     onSuccess: async (data, variables, context) => {
       await authSession.setSession(data);

@@ -96,3 +96,15 @@ export type EmailLoginRespoce = {
   profiles: Profile;
   accessToken: string;
 };
+
+export type GoogleLoginPayload = {
+  idToken: string;
+  user_type_id: string;
+  device_push_token?: string;
+};
+
+export type GoogleLoginResponse = {
+  user: User;
+  profiles: Profile;
+  accessToken: string;
+};
