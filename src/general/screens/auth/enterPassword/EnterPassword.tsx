@@ -22,7 +22,7 @@ const EnterPassword = ({ route }) => {
   const navigation = useNavigation();
   const styles = useStyles(colors);
   const { t } = useTranslation();
-  const [password, setPassword] = useState("Qwerty123$");
+  const [password, setPassword] = useState("");
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
