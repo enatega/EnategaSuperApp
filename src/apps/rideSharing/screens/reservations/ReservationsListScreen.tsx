@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { StyleSheet, View, FlatList, ScrollView } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { StyleSheet, View, FlatList, ScrollView, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -20,9 +20,16 @@ export default function ReservationsListScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
-  const { data, isLoading, error } = useCustomerRides();
+  const { data, isLoading, error, refetch } = useCustomerRides();
+  const [refreshing, setRefreshing] = useState(false);
 
   const reservations = data?.data.map(mapCustomerRideToReservation) || [];
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
 
   const handleReservationPress = useCallback((id: string) => {
     navigation.navigate('ReservationDetail', { reservationId: id });
@@ -56,7 +63,17 @@ export default function ReservationsListScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader title="Reservations" titleVariant="title" />
       {reservations.length === 0 ? (
-        <ScrollView contentContainerStyle={styles.emptyContainer}>
+        <ScrollView
+          contentContainerStyle={styles.emptyContainer}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
+        >
           <View style={[styles.emptyIconContainer, { backgroundColor: colors.backgroundTertiary }]}>
             <Ionicons name="calendar-outline" size={48} color={colors.primary} />
           </View>
@@ -74,6 +91,14 @@ export default function ReservationsListScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
         />
       )}
     </View>
