@@ -145,6 +145,17 @@ export type RideTypeFareParams = {
     dropoff_lng?: number;
 };
 
+export type RideTypeCatalogItem = {
+    id: string;
+    name: string;
+    imageUrl: string | null;
+    description: string;
+    seatCount: number;
+    isActive: boolean;
+    created_at: string;
+    updated_at: string;
+};
+
 export type RidePlacePrediction = {
     description: string;
     place_id: string;

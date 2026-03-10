@@ -34,6 +34,20 @@ export const lightColors = {
   white: '#FFFFFF',
   iconColor: '#27272A',
   gray100: '#F3F4F6',
+  findingRideSweepTrack: '#E9E9EC',
+  findingRideSweepEdge: '#F4F4F5',
+  findingRideSweepCenter: '#0EA170',
+  findingRidePrimary: '#1691BF',
+  findingRidePrimarySoft: '#DDF5FF',
+  findingRideMutedSurface: '#ECECEE',
+  findingRideMutedText: '#9C9CA4',
+  findingRideBorderSoft: '#EEEEF2',
+  findingRideHandle: '#D7D7DB',
+  findingRidePulseA: '#8FDDF3',
+  findingRidePulseB: '#65C6E9',
+  findingRidePulseC: '#2FA8D3',
+  findingRideCenterHalo: 'rgba(175, 231, 247, 0.72)',
+  findingRideMapOverlay: 'rgba(255, 255, 255, 0.2)',
 };
 
 export const darkColors: typeof lightColors = {
@@ -71,7 +85,21 @@ export const darkColors: typeof lightColors = {
   shadowColor: '#000000',
   white: '#FFFFFF',
   iconColor: '#27272A',
-  gray100: '#F3F4F6'
+  gray100: '#F3F4F6',
+  findingRideSweepTrack: '#2A2D34',
+  findingRideSweepEdge: '#F4F4F5',
+  findingRideSweepCenter: '#0EA170',
+  findingRidePrimary: '#4FC3E8',
+  findingRidePrimarySoft: '#173847',
+  findingRideMutedSurface: '#2A2D34',
+  findingRideMutedText: '#A7AAB3',
+  findingRideBorderSoft: '#343840',
+  findingRideHandle: '#4A4F58',
+  findingRidePulseA: '#265A6C',
+  findingRidePulseB: '#1F6B84',
+  findingRidePulseC: '#1691BF',
+  findingRideCenterHalo: 'rgba(22, 145, 191, 0.22)',
+  findingRideMapOverlay: 'rgba(15, 17, 23, 0.22)',
 };
 
 export type ThemeColors = typeof lightColors;

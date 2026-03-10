@@ -1,152 +1,102 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { mapIntentToCategory, RideCategory, RideIntent } from '../../utils/rideOptions';
 import RideOptionsLayout from '../../components/rideOptions/RideOptionsLayout';
 import { CachedAddress, RideOptionItem } from '../../components/rideOptions/types';
-import { useRideTypeFares } from '../../hooks/useRideQueries';
-import type { RideTypeFare, RideTypeFareParams } from '../../api/types';
+import { useRideTypes } from '../../hooks/useRideQueries';
+import type { RideTypeCatalogItem } from '../../api/types';
 import useRecentRideAddresses from '../../hooks/useRecentRideAddresses';
 import { toCachedAddress } from '../../utils/rideAddress';
-
-const rideIcon = 'https://www.figma.com/api/mcp/asset/06c62618-d47d-4594-aa0c-3e1886f000ba';
-const womenRideIcon = 'https://www.figma.com/api/mcp/asset/3a734633-3d43-45c8-ae5c-b469d8a82f2f';
-const premiumIcon = 'https://www.figma.com/api/mcp/asset/656d5875-dd51-4403-9fd7-a895e4f8668c';
-const courierIcon = 'https://www.figma.com/api/mcp/asset/70ff6ddc-ce4a-4886-931c-382d1603fa9e';
+import type { RideSharingStackParamList } from '../../navigation/RideSharingNavigator';
 
 type RouteParams = {
   rideType?: RideIntent;
 };
 
-function getFallbackRideOptions(t: (key: string) => string): RideOptionItem[] {
-  return [
-    {
-      id: 'ride',
-      title: t('ride_option_now_title'),
-      icon: rideIcon,
-      seats: 4,
-    },
-    {
-      id: 'women',
-      title: t('ride_option_women_title'),
-      icon: womenRideIcon,
-      seats: 4,
-    },
-    {
-      id: 'ac',
-      title: t('ride_option_ac_title'),
-      icon: rideIcon,
-      seats: 4,
-      showSnowflake: true,
-    },
-    {
-      id: 'premium',
-      title: t('ride_option_premium_title'),
-      icon: premiumIcon,
-      seats: 4,
-    },
-    {
-      id: 'courier',
-      title: t('ride_option_courier_title'),
-      icon: courierIcon,
-    },
-  ];
-}
-
-const defaultRideTypeParams: RideTypeFareParams = {
-  distanceKm: 5,
-  durationMin: 10,
-  isHourly: false,
-  pickup_lat: 0,
-  pickup_lng: 0,
-  dropoff_lat: 0,
-  dropoff_lng: 0,
-};
+const defaultRideIcon = 'https://www.figma.com/api/mcp/asset/06c62618-d47d-4594-aa0c-3e1886f000ba';
 
 function formatRideTypeName(name: string) {
-  return name.replace(/_/g, ' ');
+  return name.replace(/_/g, ' ').trim();
 }
 
-function resolveRideIcon(ride: RideTypeFare) {
-  if (ride.imageUrl) return ride.imageUrl;
-  if (/courier/i.test(ride.name)) return courierIcon;
-  if (/premium/i.test(ride.name)) return premiumIcon;
-  if (/women/i.test(ride.name)) return womenRideIcon;
-  return rideIcon;
-}
-
-function toRideOption(ride: RideTypeFare, t: (key: string) => string): RideOptionItem {
-  const title = ride.name ? formatRideTypeName(ride.name) : t('ride_option_now_title');
-  const seats = ride.capacity ?? (/courier/i.test(ride.name) ? undefined : 4);
-
+function toRideOption(ride: RideTypeCatalogItem): RideOptionItem {
   return {
-    id: ride.ride_type_id ?? ride.name,
-    title,
-    icon: resolveRideIcon(ride),
-    seats,
-    showSnowflake: /ac/i.test(ride.name),
+    id: ride.id,
+    title: formatRideTypeName(ride.name),
+    icon: ride.imageUrl ?? defaultRideIcon,
+    seats: ride.seatCount || undefined,
+    description: ride.description,
   };
 }
 
-function fallbackTitleForId(id: string, t: (key: string) => string) {
-  switch (id) {
-    case 'ride':
-      return t('ride_option_now_title');
-    case 'women':
-      return t('ride_option_women_title');
-    case 'ac':
-      return t('ride_option_ac_title');
-    case 'premium':
-      return t('ride_option_premium_title');
-    case 'courier':
-      return t('ride_option_courier_title');
-    default:
-      return id;
+function resolveInitialRideTypeId(
+  rideOptions: RideOptionItem[],
+  rideType?: RideIntent,
+) {
+  if (!rideOptions.length) {
+    return null;
   }
+
+  const mappedIntent = mapIntentToCategory(rideType);
+
+  const matchedOption = rideOptions.find((option) => {
+    const normalizedTitle = option.title.toLowerCase();
+
+    if (mappedIntent === 'courier') {
+      return normalizedTitle.includes('courier');
+    }
+
+    return !normalizedTitle.includes('courier');
+  });
+
+  return matchedOption?.id ?? rideOptions[0].id;
 }
 
 export default function RideOptionsScreen() {
   const { t } = useTranslation('rideSharing');
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
   const route = useRoute();
   const rideType = (route.params as RouteParams | undefined)?.rideType;
   const { recentAddresses } = useRecentRideAddresses();
-  const [selectedCategory, setSelectedCategory] = useState<RideCategory>(
-    mapIntentToCategory(rideType),
-  );
+  const [selectedCategory, setSelectedCategory] = useState<RideCategory | null>(null);
 
-  const rideTypeQuery = useRideTypeFares(defaultRideTypeParams, {
+  const rideTypesQuery = useRideTypes({
     gcTime: 5 * 60 * 1000,
   });
 
-  const rideOptions = useMemo<RideOptionItem[]>(() => {
-    if (rideTypeQuery.data?.length) {
-      return rideTypeQuery.data.map((ride) => toRideOption(ride, t));
-    }
-
-    return getFallbackRideOptions(t).map((option) => ({
-      ...option,
-      title: fallbackTitleForId(String(option.id), t) || option.title,
-    }));
-  }, [rideTypeQuery.data, t]);
+  const rideOptions = useMemo<RideOptionItem[]>(
+    () => (rideTypesQuery.data ?? []).map(toRideOption),
+    [rideTypesQuery.data],
+  );
 
   useEffect(() => {
-    if (!rideOptions.length) return;
-    const exists = rideOptions.some((option) => option.id === selectedCategory);
-    if (!exists) {
-      setSelectedCategory(rideOptions[0].id);
+    if (!rideOptions.length) {
+      setSelectedCategory(null);
+      return;
     }
-  }, [rideOptions, selectedCategory]);
+
+    const exists = rideOptions.some((option) => option.id === selectedCategory);
+
+    if (!exists) {
+      setSelectedCategory(resolveInitialRideTypeId(rideOptions, rideType));
+    }
+  }, [rideOptions, rideType, selectedCategory]);
 
   const cachedAddresses = useMemo<CachedAddress[]>(
     () => recentAddresses.map(toCachedAddress),
     [recentAddresses],
   );
 
-  const handleSearchPress = useCallback(() => {
+  const handleSearchPress = useCallback((prefilledFromAddress?: CachedAddress) => {
+    if (!selectedCategory) {
+      return;
+    }
+
     navigation.navigate(
-      'RideAddressSearch' as never,
-      { rideType, rideCategory: selectedCategory } as never,
+      'RideAddressSearch',
+      { rideType, rideCategory: selectedCategory, prefilledFromAddress },
     );
   }, [navigation, rideType, selectedCategory]);
 
@@ -158,6 +108,8 @@ export default function RideOptionsScreen() {
     navigation.goBack();
   }, [navigation]);
 
+  const rideTypesErrorMessage = rideTypesQuery.error?.message || null;
+
   return (
     <RideOptionsLayout
       rideOptions={rideOptions}
@@ -166,6 +118,11 @@ export default function RideOptionsScreen() {
       onSelectCategory={handleSelectCategory}
       onSearchPress={handleSearchPress}
       onBackPress={handleBackPress}
+      isLoadingRideTypes={rideTypesQuery.isPending}
+      rideTypesErrorMessage={rideTypesErrorMessage ? `${t('ride_types_error_description')} ${rideTypesErrorMessage}` : null}
+      onRetryRideTypes={() => {
+        void rideTypesQuery.refetch();
+      }}
     />
   );
 }

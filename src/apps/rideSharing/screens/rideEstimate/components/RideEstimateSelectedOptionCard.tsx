@@ -12,6 +12,9 @@ type Props = {
   fare?: number;
   recommendedFare?: number;
   onEditPress?: () => void;
+  onIncreaseFare?: () => void;
+  onDecreaseFare?: () => void;
+  isDecreaseDisabled?: boolean;
 };
 
 function RideEstimateSelectedOptionCard({
@@ -19,57 +22,103 @@ function RideEstimateSelectedOptionCard({
   fare,
   recommendedFare,
   onEditPress,
+  onIncreaseFare,
+  onDecreaseFare,
+  isDecreaseDisabled = false,
 }: Props) {
   const { colors } = useTheme();
+  const iconSource = item.icon ? { uri: item.icon } : undefined;
 
   return (
     <View
       style={[
         styles.container,
         {
-          backgroundColor: '#D7F0FA',
+          backgroundColor: colors.surfaceSoft,
           borderColor: colors.border,
           shadowColor: colors.shadowColor,
         },
       ]}
     >
-      <View style={styles.headerRow}>
-        <View>
-          <Image source={{ uri: item.icon }} style={styles.icon} />
-          <View style={styles.metaRow}>
-            <Text weight="medium" style={{ color: '#1677A4' }}>
-              {item.title}
-            </Text>
-            {item.seats ? (
-              <View style={styles.seatsRow}>
-                <Icon type="Feather" name="user" size={14} color="#1677A4" />
-                <Text weight="medium" style={{ color: '#1677A4' }}>
-                  {item.seats}
-                </Text>
-              </View>
-            ) : null}
+      <View
+        style={[
+          styles.headerCard,
+          {
+            backgroundColor: '#D3F2FA',
+            shadowColor: colors.shadowColor,
+          },
+        ]}
+      >
+        <View style={styles.headerRow}>
+          <View style={styles.infoBlock}>
+            <View style={styles.iconWrap}>
+              {iconSource ? <Image source={iconSource} style={styles.icon} /> : null}
+            </View>
+            <View style={styles.metaRow}>
+              <Text weight="medium" style={styles.primaryMetaText}>
+                {item.title}
+              </Text>
+              {item.seats ? (
+                <View style={styles.seatsRow}>
+                  <Icon type="Feather" name="user" size={16} color="#1677A4" />
+                  <Text weight="medium" style={styles.primaryMetaText}>
+                    {item.seats}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
           </View>
-        </View>
 
-        <Pressable onPress={onEditPress}>
-          <Icon type="Feather" name="edit-2" size={16} color="#1677A4" />
-        </Pressable>
+          <Pressable onPress={onEditPress} hitSlop={8} style={styles.editButton}>
+            <Icon type="Feather" name="edit-2" size={16} color="#1677A4" />
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.fareRow}>
-        <Pressable style={[styles.circleButton, { borderColor: colors.border, backgroundColor: colors.surface }]}>
-          <Icon type="Feather" name="minus" size={16} color={colors.text} />
+        <Pressable
+          onPress={onDecreaseFare}
+          disabled={isDecreaseDisabled}
+          style={[
+            styles.circleButton,
+            {
+              borderColor: colors.border,
+              backgroundColor: colors.surface,
+              shadowColor: colors.shadowColor,
+              opacity: isDecreaseDisabled ? 0.5 : 1,
+            },
+          ]}
+        >
+          <Icon type="Feather" name="minus" size={20} color={colors.text} />
         </Pressable>
         <View style={styles.fareMeta}>
-          <Text weight="extraBold" style={styles.fareValue}>
+          <Text
+            weight="extraBold"
+            style={[
+              styles.fareValue,
+              {
+                color: '#1677A4',
+              },
+            ]}
+          >
             {formatRideCurrency(fare)}
           </Text>
-          <Text style={{ color: colors.mutedText, fontSize: 11 }}>
+          <Text weight="medium" style={styles.recommendedFare}>
             {`recommended fare: ${formatRideCurrency(recommendedFare)}`}
           </Text>
         </View>
-        <Pressable style={[styles.circleButton, { borderColor: colors.border, backgroundColor: colors.surface }]}>
-          <Icon type="Feather" name="plus" size={16} color={colors.text} />
+        <Pressable
+          onPress={onIncreaseFare}
+          style={[
+            styles.circleButton,
+            {
+              borderColor: colors.border,
+              backgroundColor: colors.surface,
+              shadowColor: colors.shadowColor,
+            },
+          ]}
+        >
+          <Icon type="Feather" name="plus" size={20} color={colors.text} />
         </Pressable>
       </View>
     </View>
@@ -83,32 +132,55 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     borderRadius: 8,
     borderWidth: 1,
-    padding: 12,
+    padding: 4,
     gap: 10,
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
+  },
+  headerCard: {
+    borderRadius: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
   },
   headerRow: {
     flexDirection: 'row',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
   },
+  infoBlock: {
+    gap: 8,
+  },
+  iconWrap: {
+    height: 32,
+    justifyContent: 'center',
+  },
   icon: {
-    width: 88,
-    height: 28,
+    width: 75,
+    height: 75,
     resizeMode: 'contain',
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    marginTop: 10,
+    gap: 12,
+  },
+  primaryMetaText: {
+    color: '#1677A4',
+    fontSize: 14,
+    lineHeight: 22,
   },
   seatsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 2,
+  },
+  editButton: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   fareRow: {
     flexDirection: 'row',
@@ -122,12 +194,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
   },
   fareMeta: {
     alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    paddingHorizontal: 12,
   },
   fareValue: {
-    fontSize: 24,
-    color: '#1677A4',
+    fontSize: 32,
+    lineHeight: 38,
+    letterSpacing: -0.48,
+  },
+  recommendedFare: {
+    color: '#71717A',
+    fontSize: 10,
+    lineHeight: 14,
+    marginTop: -2,
   },
 });

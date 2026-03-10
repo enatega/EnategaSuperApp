@@ -9,10 +9,13 @@ import useCurrentLocation from '../../../../general/hooks/useCurrentLocation';
 type Props = {
   rideOptions: RideOptionItem[];
   cachedAddresses: CachedAddress[];
-  selectedCategory: RideCategory;
+  selectedCategory: RideCategory | null;
   onSelectCategory: (category: RideCategory) => void;
-  onSearchPress: () => void;
+  onSearchPress: (address?: CachedAddress) => void;
   onBackPress: () => void;
+  isLoadingRideTypes?: boolean;
+  rideTypesErrorMessage?: string | null;
+  onRetryRideTypes?: () => void;
 };
 
 function RideOptionsLayout({
@@ -22,6 +25,9 @@ function RideOptionsLayout({
   onSelectCategory,
   onSearchPress,
   onBackPress,
+  isLoadingRideTypes = false,
+  rideTypesErrorMessage = null,
+  onRetryRideTypes,
 }: Props) {
   const {
     currentCoordinates,
@@ -44,6 +50,9 @@ function RideOptionsLayout({
         onSearchPress={onSearchPress}
         onLocatePress={refreshCurrentLocation}
         isLocating={isLoadingCurrentLocation}
+        isLoadingRideTypes={isLoadingRideTypes}
+        rideTypesErrorMessage={rideTypesErrorMessage}
+        onRetryRideTypes={onRetryRideTypes}
       />
     </View>
   );

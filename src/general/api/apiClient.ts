@@ -8,6 +8,12 @@ import { apiConfig } from '../config/apiConfig';
 const TOKEN_KEY = 'super_app_auth_token';
 const REFRESH_TOKEN_KEY = 'super_app_refresh_token';
 
+type ApiErrorResponseData = {
+  message?: string | string[];
+  code?: string;
+  error?: string;
+};
+
 // ---------------------------------------------------------------------------
 // Custom error class with typed metadata
 // ---------------------------------------------------------------------------
@@ -72,11 +78,15 @@ httpClient.interceptors.request.use(async (config) => {
 
 function toApiError(error: unknown): ApiError {
   if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError<{ message?: string; code?: string }>;
+    const axiosError = error as AxiosError<ApiErrorResponseData>;
     const status = axiosError.response?.status ?? 0;
     const data = axiosError.response?.data;
+    const message = Array.isArray(data?.message)
+      ? data.message.filter(Boolean).join('\n')
+      : data?.message;
+
     return new ApiError(
-      data?.message ?? axiosError.message ?? 'Request failed',
+      message ?? data?.error ?? axiosError.message ?? 'Request failed',
       status,
       data?.code,
       data,

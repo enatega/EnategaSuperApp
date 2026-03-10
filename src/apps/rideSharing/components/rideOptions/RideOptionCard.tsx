@@ -34,8 +34,23 @@ function RideOptionCard({ item, isActive, onPress }: Props) {
       ]}
     >
       <View style={styles.optionIconWrap}>
-        <Image source={{ uri: item.icon }} style={styles.optionIcon} />
-      
+        {item.icon ? (
+          <Image source={{ uri: item.icon }} style={styles.optionIcon} />
+        ) : (
+          <View
+            style={[
+              styles.optionPlaceholder,
+              { backgroundColor: isActive ? colors.blue100 : colors.backgroundTertiary },
+            ]}
+          >
+            <Icon
+              type="Feather"
+              name="truck"
+              size={18}
+              color={isActive ? colors.blue800 : colors.iconMuted}
+            />
+          </View>
+        )}
       </View>
       <View style={styles.optionMeta}>
         <Text
@@ -86,15 +101,23 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   optionIconWrap: {
+    width: 80,
     height: 32,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 6,
   },
   optionIcon: {
-    width: 80,
-    height: 24,
+    width: 52,
+    height: 52,
     resizeMode: 'contain',
+  },
+  optionPlaceholder: {
+    width: 52,
+    height: 52,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   optionBadge: {
     position: 'absolute',

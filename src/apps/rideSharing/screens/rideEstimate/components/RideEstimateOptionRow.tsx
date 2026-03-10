@@ -16,6 +16,7 @@ type Props = {
 
 function RideEstimateOptionRow({ item, fare, isActive = false, onPress }: Props) {
   const { colors } = useTheme();
+  const iconSource = item.icon ? { uri: item.icon } : undefined;
 
   return (
     <Pressable
@@ -25,7 +26,7 @@ function RideEstimateOptionRow({ item, fare, isActive = false, onPress }: Props)
         isActive ? { backgroundColor: colors.blue50 } : null,
       ]}
     >
-      <Image source={{ uri: item.icon }} style={styles.icon} />
+      {iconSource ? <Image source={iconSource} style={styles.icon} /> : <View style={styles.iconPlaceholder} />}
       <View style={styles.meta}>
         <Text weight="medium">{item.title}</Text>
         {item.seats ? (
@@ -51,9 +52,13 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   icon: {
+    width: 32,
+    height: 32,
+    resizeMode: 'contain',
+  },
+  iconPlaceholder: {
     width: 48,
     height: 20,
-    resizeMode: 'contain',
   },
   meta: {
     flex: 1,

@@ -1,6 +1,7 @@
 import React, { ReactNode, useMemo, useRef, useEffect } from 'react';
 import {
   Animated,
+  Easing,
   PanResponder,
   PanResponderGestureState,
   StyleProp,
@@ -20,6 +21,8 @@ type Props = {
   handleContainerStyle?: StyleProp<ViewStyle>;
   floatingAccessory?: ReactNode;
   floatingAccessoryStyle?: StyleProp<ViewStyle>;
+  onCollapsed?: () => void;
+  modal?: boolean;
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -37,25 +40,58 @@ export default function SwipeableBottomSheet({
   handleContainerStyle,
   floatingAccessory,
   floatingAccessoryStyle,
+  onCollapsed,
+  modal = false,
 }: Props) {
   const collapsedOffset = useMemo(
     () => Math.max(expandedHeight - collapsedHeight, 0),
     [expandedHeight, collapsedHeight],
   );
+  const shouldAnimateOnMount = modal && initialState === 'expanded';
 
   const translateY = useRef(
-    new Animated.Value(initialState === 'collapsed' ? collapsedOffset : 0),
+    new Animated.Value(
+      initialState === 'collapsed'
+        ? collapsedOffset
+        : shouldAnimateOnMount
+          ? collapsedOffset
+          : 0,
+    ),
   ).current;
-  const startY = useRef(initialState === 'collapsed' ? collapsedOffset : 0);
+  const startY = useRef(
+    initialState === 'collapsed'
+      ? collapsedOffset
+      : shouldAnimateOnMount
+        ? collapsedOffset
+        : 0,
+  );
   const isDragging = useRef(false);
   const currentState = useRef<'expanded' | 'collapsed'>(initialState);
+  const hasPresented = useRef(!shouldAnimateOnMount);
 
   useEffect(() => {
     if (isDragging.current) return;
+
     const target = currentState.current === 'collapsed' ? collapsedOffset : 0;
+
+    if (!hasPresented.current && currentState.current === 'expanded') {
+      translateY.setValue(collapsedOffset);
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 260,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start(() => {
+        startY.current = 0;
+        hasPresented.current = true;
+        onStateChange?.('expanded');
+      });
+      return;
+    }
+
     startY.current = target;
     translateY.setValue(target);
-  }, [collapsedOffset, translateY]);
+  }, [collapsedOffset, onStateChange, translateY]);
 
   const animateTo = (state: 'expanded' | 'collapsed') => {
     currentState.current = state;
@@ -67,6 +103,9 @@ export default function SwipeableBottomSheet({
       friction: 24,
     }).start(() => {
       startY.current = state === 'collapsed' ? collapsedOffset : 0;
+      if (state === 'collapsed') {
+        onCollapsed?.();
+      }
     });
   };
 

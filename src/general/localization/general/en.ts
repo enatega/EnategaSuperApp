@@ -117,7 +117,9 @@ const en = {
   location_popup_enable: 'Enable Location',
   location_popup_try_again: 'Try Again',
   location_popup_open_settings: 'Open Settings',
-  location_popup_later: 'Maybe Later'
+  location_popup_later: 'Maybe Later',
+  offline_notice_title: "You're offline",
+  offline_notice_description: 'Reconnect to refresh routes, fares, and live app data.',
 };
 
 export default en;

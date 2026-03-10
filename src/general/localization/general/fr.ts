@@ -70,7 +70,9 @@ const fr = {
   location_popup_enable: 'Activer la localisation',
   location_popup_try_again: 'Réessayer',
   location_popup_open_settings: 'Ouvrir les réglages',
-  location_popup_later: 'Plus tard'
+  location_popup_later: 'Plus tard',
+  offline_notice_title: 'Vous êtes hors ligne',
+  offline_notice_description: 'Reconnectez-vous pour actualiser les trajets, tarifs et données en direct.',
 };
 
 export default fr;

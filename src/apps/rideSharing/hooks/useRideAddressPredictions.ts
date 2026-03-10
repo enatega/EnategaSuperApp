@@ -10,7 +10,7 @@ export default function useRideAddressPredictions(input: string, enabled = true)
   return useQuery<RidePlacePrediction[], ApiError>({
     queryKey: rideKeys.placeSuggestions(normalizedInput),
     queryFn: () => rideService.searchPlaces(normalizedInput),
-    enabled: enabled && normalizedInput.length >= 3,
+    enabled: enabled && normalizedInput.length > 0,
     staleTime: 60 * 1000,
   });
 }
