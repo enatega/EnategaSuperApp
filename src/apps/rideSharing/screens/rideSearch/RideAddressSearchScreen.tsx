@@ -1,7 +1,8 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
@@ -18,69 +19,145 @@ import {
   saveRecentFromAddress,
   saveRecentToAddress,
 } from '../../storage/recentRideAddresses';
-import { toCachedAddress, toRideAddressSelection } from '../../utils/rideAddress';
+import {
+  normalizeAddressDescription,
+  toCachedAddress,
+  toRideAddressSelection,
+} from '../../utils/rideAddress';
 import useDebouncedValue from '../../../../general/hooks/useDebouncedValue';
 import useRecentRideAddresses from '../../hooks/useRecentRideAddresses';
 import RideAddressSuggestionSkeletonList from './components/RideAddressSuggestionSkeletonList';
 import RideAddressEmptyState from './components/RideAddressEmptyState';
+import RideChooseOnMapView from './components/RideChooseOnMapView';
+import type { RideSharingStackParamList } from '../../navigation/RideSharingNavigator';
+import type { RideCategory, RideIntent } from '../../utils/rideOptions';
 
 type RouteParams = {
-  rideType?: string;
-  rideCategory?: string;
+  rideType?: RideIntent;
+  rideCategory?: RideCategory;
+  prefilledFromAddress?: CachedAddress;
 };
 
 export default function RideAddressSearchScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
   const route = useRoute();
   const queryClient = useQueryClient();
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
-  const { rideType, rideCategory } = (route.params as RouteParams | undefined) ?? {};
+  const { rideType, rideCategory, prefilledFromAddress } = (route.params as RouteParams | undefined) ?? {};
   const [activeField, setActiveField] = useState<'from' | 'to'>('from');
+  const [screenMode, setScreenMode] = useState<'search' | 'map'>('search');
   const [fromValue, setFromValue] = useState('');
   const [toValue, setToValue] = useState('');
-  const [selectedFromAddress, setSelectedFromAddress] = useState<RideAddressSelection | null>(null);
-  const [selectedToAddress, setSelectedToAddress] = useState<RideAddressSelection | null>(null);
+  const [, setSelectedFromAddress] = useState<RideAddressSelection | null>(null);
+  const [, setSelectedToAddress] = useState<RideAddressSelection | null>(null);
   const [isResolvingAddress, setIsResolvingAddress] = useState(false);
   const { recentAddresses, isLoadingRecentAddresses, refreshRecentAddresses } = useRecentRideAddresses();
+  const selectedFromAddressRef = useRef<RideAddressSelection | null>(null);
+  const selectedToAddressRef = useRef<RideAddressSelection | null>(null);
+
+  useEffect(() => {
+    if (!prefilledFromAddress?.coordinates) {
+      return;
+    }
+
+    const prefilledSelection: RideAddressSelection = {
+      placeId: prefilledFromAddress.placeId,
+      description: prefilledFromAddress.description,
+      structuredFormatting: prefilledFromAddress.structuredFormatting,
+      coordinates: prefilledFromAddress.coordinates,
+    };
+
+    selectedFromAddressRef.current = prefilledSelection;
+    setSelectedFromAddress(prefilledSelection);
+    setFromValue(prefilledSelection.description);
+    setActiveField('to');
+  }, [prefilledFromAddress]);
 
   const activeValue = activeField === 'from' ? fromValue : toValue;
   const normalizedActiveValue = activeValue.trim();
-  const debouncedQuery = useDebouncedValue(normalizedActiveValue, 450);
-  const selectedActiveAddress = activeField === 'from' ? selectedFromAddress : selectedToAddress;
+  const debouncedQuery = useDebouncedValue(normalizedActiveValue, 1000);
+  const selectedActiveAddress = activeField === 'from'
+    ? selectedFromAddressRef.current
+    : selectedToAddressRef.current;
   const hasConfirmedActiveSelection = selectedActiveAddress?.description === normalizedActiveValue;
+  const isSearchMode = normalizedActiveValue.length > 0 && !hasConfirmedActiveSelection;
+  const shouldSearchSuggestions = debouncedQuery.length > 0 && isSearchMode;
 
   const predictionsQuery = useRideAddressPredictions(
     debouncedQuery,
-    !hasConfirmedActiveSelection,
+    shouldSearchSuggestions,
   );
-  const isShowingSuggestions = normalizedActiveValue.length >= 3;
-  const shouldSearchSuggestions = isShowingSuggestions && !hasConfirmedActiveSelection;
-  const isWaitingForDebounce = shouldSearchSuggestions && normalizedActiveValue !== debouncedQuery;
-  const isSearchingSuggestions = isShowingSuggestions
-    && shouldSearchSuggestions
-    && (isWaitingForDebounce || predictionsQuery.isFetching);
-  const shouldShowSuggestionSkeleton = shouldSearchSuggestions
-    && (isSearchingSuggestions || predictionsQuery.isPending);
-  const shouldShowRecentSkeleton = !isShowingSuggestions
+  const isWaitingForDebounce = isSearchMode && normalizedActiveValue !== debouncedQuery;
+  const shouldShowSuggestionSkeleton = isSearchMode
+    && (isWaitingForDebounce || predictionsQuery.isFetching || predictionsQuery.isPending);
+  const shouldShowRecentSkeleton = normalizedActiveValue.length === 0
     && isLoadingRecentAddresses
     && recentAddresses.length === 0;
-  const loadingField = isResolvingAddress || isSearchingSuggestions ? activeField : null;
+  const loadingField = isResolvingAddress || shouldShowSuggestionSkeleton ? activeField : null;
 
   const suggestionAddresses = useMemo<CachedAddress[]>(() => {
-    if (shouldSearchSuggestions) {
-      return (predictionsQuery.data ?? []).map((prediction) => ({
-        placeId: prediction.place_id,
-        description: prediction.description,
-        structuredFormatting: {
-          mainText: prediction.description.split(',')[0]?.trim() ?? prediction.description,
-          secondaryText: prediction.description.split(',').slice(1).join(',').trim() || undefined,
-        },
-      }));
+    if (isSearchMode) {
+      return (predictionsQuery.data ?? []).map((prediction) => {
+        const description = normalizeAddressDescription(prediction.description);
+        const [mainText, ...secondaryParts] = description.split(',');
+
+        return {
+          placeId: prediction.place_id,
+          description,
+          structuredFormatting: {
+            mainText: mainText?.trim() ?? description,
+            secondaryText: secondaryParts.join(',').trim() || undefined,
+          },
+        };
+      });
     }
 
     return recentAddresses.map(toCachedAddress);
-  }, [predictionsQuery.data, recentAddresses, shouldSearchSuggestions]);
+  }, [isSearchMode, predictionsQuery.data, recentAddresses]);
+
+  const applySelectedAddress = useCallback(async (selectedAddress: RideAddressSelection) => {
+    const nextFromAddress = activeField === 'from' ? selectedAddress : selectedFromAddressRef.current;
+    const nextToAddress = activeField === 'to' ? selectedAddress : selectedToAddressRef.current;
+
+    if (activeField === 'from') {
+      selectedFromAddressRef.current = selectedAddress;
+      setSelectedFromAddress(selectedAddress);
+      setFromValue(selectedAddress.description);
+    } else {
+      selectedToAddressRef.current = selectedAddress;
+      setSelectedToAddress(selectedAddress);
+      setToValue(selectedAddress.description);
+    }
+
+    setScreenMode('search');
+
+    if (nextFromAddress && nextToAddress) {
+      navigation.navigate(
+        'RideEstimate',
+        {
+          rideType,
+          rideCategory,
+          fromAddress: nextFromAddress,
+          toAddress: nextToAddress,
+        },
+      );
+      return;
+    }
+
+    const nextActiveField = activeField === 'from' ? 'to' : 'from';
+    setActiveField(nextActiveField);
+
+    void (async () => {
+      if (activeField === 'from') {
+        await saveRecentFromAddress(selectedAddress);
+      } else {
+        await saveRecentToAddress(selectedAddress);
+      }
+
+      await refreshRecentAddresses();
+    })();
+  }, [activeField, navigation, refreshRecentAddresses, rideCategory, rideType]);
 
   const handleSelectAddress = useCallback(async (item: CachedAddress) => {
     setIsResolvingAddress(true);
@@ -105,74 +182,31 @@ export default function RideAddressSearchScreen() {
             }),
           );
 
-      const nextFromAddress = activeField === 'from' ? selectedAddress : selectedFromAddress;
-      const nextToAddress = activeField === 'to' ? selectedAddress : selectedToAddress;
-
-      if (activeField === 'from') {
-        setSelectedFromAddress(selectedAddress);
-        setFromValue(selectedAddress.description);
-      } else {
-        setSelectedToAddress(selectedAddress);
-        setToValue(selectedAddress.description);
-      }
-
-      if (nextFromAddress && nextToAddress) {
-        setIsResolvingAddress(false);
-        navigation.navigate(
-          'RideEstimate' as never,
-          {
-            rideType,
-            rideCategory,
-            fromAddress: nextFromAddress,
-            toAddress: nextToAddress,
-          } as never,
-        );
-        return;
-      }
-
-      const nextActiveField = activeField === 'from' ? 'to' : 'from';
-      setIsResolvingAddress(false);
-      setActiveField(nextActiveField);
-
-      void (async () => {
-        if (activeField === 'from') {
-          await saveRecentFromAddress(selectedAddress);
-        } else {
-          await saveRecentToAddress(selectedAddress);
-        }
-
-        await refreshRecentAddresses();
-      })();
+      await applySelectedAddress(selectedAddress);
     } catch (error) {
       console.warn('Unable to resolve selected address', error);
     } finally {
       setIsResolvingAddress(false);
     }
-  }, [
-    activeField,
-    navigation,
-    refreshRecentAddresses,
-    rideCategory,
-    rideType,
-    selectedFromAddress,
-    selectedToAddress,
-  ]);
+  }, [applySelectedAddress, queryClient]);
 
   const handleChangeFrom = useCallback((value: string) => {
     setFromValue(value);
-    setSelectedFromAddress((currentValue) =>
-      currentValue?.description === value ? currentValue : null,
-    );
+    if (selectedFromAddressRef.current?.description !== value) {
+      selectedFromAddressRef.current = null;
+      setSelectedFromAddress(null);
+    }
   }, []);
 
   const handleChangeTo = useCallback((value: string) => {
     setToValue(value);
-    setSelectedToAddress((currentValue) =>
-      currentValue?.description === value ? currentValue : null,
-    );
+    if (selectedToAddressRef.current?.description !== value) {
+      selectedToAddressRef.current = null;
+      setSelectedToAddress(null);
+    }
   }, []);
 
-  const emptyState = shouldSearchSuggestions ? (
+  const emptyState = isSearchMode ? (
     <RideAddressEmptyState
       title={t('ride_address_no_results_title')}
       description={t('ride_address_no_results_description')}
@@ -192,12 +226,29 @@ export default function RideAddressSearchScreen() {
       onChangeTo={handleChangeTo}
       onFocusFrom={() => setActiveField('from')}
       onFocusTo={() => setActiveField('to')}
+      onChooseOnMap={() => setScreenMode('map')}
+      activeField={activeField}
       fromPlaceholder={t('ride_address_from_placeholder')}
       toPlaceholder={t('ride_address_to_placeholder')}
       chooseOnMapLabel={t('ride_address_choose_on_map')}
       loadingField={loadingField}
     />
   );
+
+  const activeSelectionCoordinates = activeField === 'from'
+    ? selectedFromAddressRef.current?.coordinates
+    : selectedToAddressRef.current?.coordinates;
+
+  if (screenMode === 'map') {
+    return (
+      <RideChooseOnMapView
+        activeField={activeField}
+        initialCoordinate={activeSelectionCoordinates}
+        onBackPress={() => setScreenMode('search')}
+        onConfirm={applySelectedAddress}
+      />
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>

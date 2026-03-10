@@ -13,6 +13,7 @@ import type {
     RideFareResponse,
     RideTypeFare,
     RideTypeFareParams,
+    RideTypeCatalogItem,
     RidePlacePrediction,
     RidePlaceCoordinates,
     DistanceMatrixResponse,
@@ -58,6 +59,17 @@ export const rideService = {
             { skipAuth: true },
         );
         return response.rideTypeFares ?? [];
+    },
+
+    /** Fetch active ride types catalog for ride options. */
+    getRideTypes: async (): Promise<RideTypeCatalogItem[]> => {
+        const response = await apiClient.get<RideTypeCatalogItem[]>(
+            '/api/v1/ride-types',
+            undefined,
+            { skipAuth: true },
+        );
+
+        return Array.isArray(response) ? response.filter((item) => item.isActive) : [];
     },
 
     /** Search place suggestions through backend Google proxy. */

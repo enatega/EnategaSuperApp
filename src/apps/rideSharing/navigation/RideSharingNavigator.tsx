@@ -17,9 +17,13 @@ import TermsAndConditionsScreen from '../screens/settings/TermsAndConditionsScre
 import LicencesScreen from '../screens/settings/LicencesScreen';
 import RideAddressSearchScreen from '../screens/rideSearch/RideAddressSearchScreen';
 import RideEstimateScreen from '../screens/rideEstimate/RideEstimateScreen';
+import OfferFareScreen from '../screens/offerFare/OfferFareScreen';
+import FindingRideScreen from '../screens/findingRide/FindingRideScreen';
 import { useTranslation } from 'react-i18next';
 import QueryProvider from '../../../general/providers/QueryProvider';
 import type { RideAddressSelection } from '../api/types';
+import type { CachedAddress, RideOptionItem } from '../components/rideOptions/types';
+import type { PaymentMethodId } from '../components/payment/paymentTypes';
 import type { RideCategory, RideIntent } from '../utils/rideOptions';
 
 export type RideSharingStackParamList = {
@@ -28,12 +32,35 @@ export type RideSharingStackParamList = {
   RideAddressSearch: {
     rideType?: RideIntent;
     rideCategory?: RideCategory;
+    prefilledFromAddress?: CachedAddress;
   } | undefined;
   RideEstimate: {
     rideType?: RideIntent;
     rideCategory?: RideCategory;
     fromAddress: RideAddressSelection;
     toAddress: RideAddressSelection;
+    offeredFare?: number;
+    paymentMethodId?: PaymentMethodId;
+  };
+  OfferFare: {
+    rideType?: RideIntent;
+    rideCategory?: RideCategory;
+    fromAddress: RideAddressSelection;
+    toAddress: RideAddressSelection;
+    offeredFare?: number;
+    recommendedFare?: number;
+    paymentMethodId?: PaymentMethodId;
+  };
+  FindingRide: {
+    fromAddress: RideAddressSelection;
+    toAddress: RideAddressSelection;
+    selectedRide: RideOptionItem & {
+      fare?: number;
+      recommendedFare?: number;
+    };
+    offeredFare?: number;
+    recommendedFare?: number;
+    paymentMethodId?: PaymentMethodId;
   };
   RideDetails: undefined;
   DriverProfile: undefined;
@@ -61,6 +88,8 @@ export default function RideSharingNavigator() {
         <Stack.Screen name="RideOptions" component={RideOptionsScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RideAddressSearch" component={RideAddressSearchScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RideEstimate" component={RideEstimateScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="OfferFare" component={OfferFareScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="FindingRide" component={FindingRideScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RideDetails" component={RideDetails} options={{ title: t('details_title') }} />
         <Stack.Screen
           name="DriverProfile"

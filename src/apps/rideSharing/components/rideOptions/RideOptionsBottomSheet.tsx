@@ -9,15 +9,20 @@ import { RideCategory } from '../../utils/rideOptions';
 import { CachedAddress, RideOptionItem } from './types';
 import RideOptionsHeader from './RideOptionsHeader';
 import CachedAddressList from './CachedAddressList';
+import RideOptionsBottomSheetSkeleton from './RideOptionsBottomSheetSkeleton';
+import RideOptionsBottomSheetError from './RideOptionsBottomSheetError';
 
 type Props = {
   rideOptions: RideOptionItem[];
   cachedAddresses: CachedAddress[];
-  selectedCategory: RideCategory;
+  selectedCategory: RideCategory | null;
   onSelectCategory: (category: RideCategory) => void;
-  onSearchPress: () => void;
+  onSearchPress: (address?: CachedAddress) => void;
   onLocatePress: () => void;
   isLocating?: boolean;
+  isLoadingRideTypes?: boolean;
+  rideTypesErrorMessage?: string | null;
+  onRetryRideTypes?: () => void;
 };
 
 function RideOptionsBottomSheet({
@@ -28,6 +33,9 @@ function RideOptionsBottomSheet({
   onSearchPress,
   onLocatePress,
   isLocating = false,
+  isLoadingRideTypes = false,
+  rideTypesErrorMessage = null,
+  onRetryRideTypes,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
@@ -35,6 +43,8 @@ function RideOptionsBottomSheet({
   const screenHeight = Dimensions.get('window').height;
   const expandedHeight = Math.min(screenHeight * 0.6, 520);
   const collapsedHeight = 120;
+  const showErrorState = Boolean(rideTypesErrorMessage) && !isLoadingRideTypes;
+  const searchDisabled = !selectedCategory || isLoadingRideTypes || showErrorState;
 
   return (
     <SwipeableBottomSheet
@@ -59,18 +69,29 @@ function RideOptionsBottomSheet({
       handle={<View style={[styles.sheetHandle, { backgroundColor: colors.border }]} />}
       handleContainerStyle={styles.handleContainer}
     >
-      <CachedAddressList
-        data={cachedAddresses}
-        contentContainerStyle={styles.sheetContent}
-        ListHeaderComponent={(
-          <RideOptionsHeader
-            rideOptions={rideOptions}
-            selectedCategory={selectedCategory}
-            onSelectCategory={onSelectCategory}
-            onSearchPress={onSearchPress}
-          />
-        )}
-      />
+      {isLoadingRideTypes ? (
+        <RideOptionsBottomSheetSkeleton />
+      ) : showErrorState ? (
+        <RideOptionsBottomSheetError
+          message={rideTypesErrorMessage}
+          onRetry={onRetryRideTypes}
+        />
+      ) : (
+        <CachedAddressList
+          data={cachedAddresses}
+          onSelect={onSearchPress}
+          contentContainerStyle={styles.sheetContent}
+          ListHeaderComponent={(
+            <RideOptionsHeader
+              rideOptions={rideOptions}
+              selectedCategory={selectedCategory}
+              onSelectCategory={onSelectCategory}
+              onSearchPress={onSearchPress}
+              searchDisabled={searchDisabled}
+            />
+          )}
+        />
+      )}
     </SwipeableBottomSheet>
   );
 }

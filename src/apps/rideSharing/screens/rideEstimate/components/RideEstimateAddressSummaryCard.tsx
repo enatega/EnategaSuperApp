@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../../../../general/theme/theme';
 import Text from '../../../../../general/components/Text';
@@ -9,9 +9,14 @@ import type { RideAddressSelection } from '../../../api/types';
 type Props = {
   fromAddress: RideAddressSelection;
   toAddress: RideAddressSelection;
+  onChangeAddressPress?: () => void;
 };
 
-function RideEstimateAddressSummaryCard({ fromAddress, toAddress }: Props) {
+function RideEstimateAddressSummaryCard({
+  fromAddress,
+  toAddress,
+  onChangeAddressPress,
+}: Props) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -38,7 +43,14 @@ function RideEstimateAddressSummaryCard({ fromAddress, toAddress }: Props) {
         <Text numberOfLines={1} style={styles.addressText}>
           {toAddress.description}
         </Text>
-        <Icon type="Feather" name="plus" size={20} color={colors.text} />
+        <Pressable
+          onPress={onChangeAddressPress}
+          hitSlop={8}
+          style={styles.actionButton}
+          accessibilityRole="button"
+        >
+          <Icon type="Feather" name="plus" size={20} color={colors.text} />
+        </Pressable>
       </View>
     </View>
   );
@@ -73,5 +85,9 @@ const styles = StyleSheet.create({
   addressText: {
     flex: 1,
     fontSize: 14,
+  },
+  actionButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

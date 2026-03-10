@@ -8,6 +8,8 @@ import Text from '../../../../../general/components/Text';
 import Icon from '../../../../../general/components/Icon';
 import Button from '../../../../../general/components/Button';
 import type { RideOptionItem } from '../../../components/rideOptions/types';
+import RideEstimateStatusCard from '../../../components/rideEstimate/RideEstimateStatusCard';
+import RideEstimateBottomSheetSkeleton from './RideEstimateBottomSheetSkeleton';
 import RideEstimateSelectedOptionCard from './RideEstimateSelectedOptionCard';
 import RideEstimateOptionRow from './RideEstimateOptionRow';
 
@@ -21,6 +23,18 @@ type Props = {
   selectedOptionId: RideOptionItem['id'];
   onSelectOption: (id: RideOptionItem['id']) => void;
   onConfirmRide: () => void;
+  onBackPress: () => void;
+  paymentMethodLabel: string;
+  paymentMethodBadge?: React.ReactNode;
+  onPaymentMethodPress: () => void;
+  onEditFarePress: () => void;
+  onIncreaseFare: () => void;
+  onDecreaseFare: () => void;
+  isDecreaseFareDisabled?: boolean;
+  isLoading?: boolean;
+  errorMessage?: string | null;
+  onRetry?: () => void;
+  isConfirmDisabled?: boolean;
 };
 
 function RideEstimateBottomSheet({
@@ -28,6 +42,18 @@ function RideEstimateBottomSheet({
   selectedOptionId,
   onSelectOption,
   onConfirmRide,
+  onBackPress,
+  paymentMethodLabel,
+  paymentMethodBadge,
+  onPaymentMethodPress,
+  onEditFarePress,
+  onIncreaseFare,
+  onDecreaseFare,
+  isDecreaseFareDisabled = false,
+  isLoading = false,
+  errorMessage = null,
+  onRetry,
+  isConfirmDisabled = false,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
@@ -37,11 +63,28 @@ function RideEstimateBottomSheet({
   const collapsedHeight = 128;
   const selectedOption = options.find((item) => item.id === selectedOptionId) ?? options[0];
   const remainingOptions = options.filter((item) => item.id !== selectedOption?.id);
+  const showErrorState = Boolean(errorMessage);
 
   return (
     <SwipeableBottomSheet
       expandedHeight={expandedHeight}
       collapsedHeight={collapsedHeight + insets.bottom}
+      floatingAccessory={(
+        <Pressable
+          onPress={onBackPress}
+          style={[
+            styles.backButton,
+            {
+              backgroundColor: colors.surface,
+              borderColor: colors.border,
+              shadowColor: colors.shadowColor,
+            },
+          ]}
+        >
+          <Icon type="Ionicons" name="arrow-back" size={22} color={colors.text} />
+        </Pressable>
+      )}
+      floatingAccessoryStyle={styles.backButtonFloating}
       style={[
         styles.sheet,
         {
@@ -54,44 +97,70 @@ function RideEstimateBottomSheet({
       handleContainerStyle={styles.handleContainer}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
-        {selectedOption ? (
+        {isLoading ? (
+          <RideEstimateBottomSheetSkeleton />
+        ) : showErrorState ? (
+          <View style={styles.errorWrap}>
+            <RideEstimateStatusCard
+              title={t('ride_estimate_quote_error_title')}
+              message={errorMessage ?? t('ride_estimate_quote_error_description')}
+              actionLabel={t('ride_estimate_retry')}
+              onActionPress={onRetry}
+            />
+          </View>
+        ) : selectedOption ? (
           <RideEstimateSelectedOptionCard
             item={selectedOption}
             fare={selectedOption.fare}
             recommendedFare={selectedOption.recommendedFare}
+            onEditPress={onEditFarePress}
+            onIncreaseFare={onIncreaseFare}
+            onDecreaseFare={onDecreaseFare}
+            isDecreaseDisabled={isDecreaseFareDisabled}
           />
         ) : null}
 
-        <View style={styles.list}>
-          {remainingOptions.map((item) => (
-            <RideEstimateOptionRow
-              key={item.id}
-              item={item}
-              fare={item.fare}
-              onPress={onSelectOption}
-            />
-          ))}
-        </View>
-
-        <View style={[styles.footer, { borderTopColor: colors.border }]}>
-          <Pressable style={styles.footerRow}>
-            <View style={styles.footerLabelRow}>
-              <Icon type="MaterialCommunityIcons" name="calendar-clock-outline" size={22} color={colors.text} />
-              <Text weight="medium">{t('ride_schedule_label')}</Text>
+        {!isLoading && !showErrorState ? (
+          <>
+            <View style={styles.list}>
+              {remainingOptions.map((item) => (
+                <RideEstimateOptionRow
+                  key={item.id}
+                  item={item}
+                  fare={item.fare}
+                  onPress={onSelectOption}
+                />
+              ))}
             </View>
-            <Icon type="Feather" name="chevron-right" size={20} color={colors.text} />
-          </Pressable>
 
-          <Pressable style={styles.footerRow}>
-            <View style={styles.footerLabelRow}>
-              <Icon type="MaterialCommunityIcons" name="cash-multiple" size={22} color={colors.text} />
-              <Text weight="medium">{t('ride_payment_cash')}</Text>
+            <View style={[styles.footer, { borderTopColor: colors.border }]}>
+              <Pressable style={styles.footerRow}>
+                <View style={styles.footerLabelRow}>
+                  <Icon type="MaterialCommunityIcons" name="calendar-clock-outline" size={22} color={colors.text} />
+                  <Text weight="medium">{t('ride_schedule_label')}</Text>
+                </View>
+                <Icon type="Feather" name="chevron-right" size={20} color={colors.text} />
+              </Pressable>
+
+              <Pressable style={styles.footerRow} onPress={onPaymentMethodPress}>
+                <View style={styles.footerLabelRow}>
+                  {paymentMethodBadge ?? (
+                    <Icon type="MaterialCommunityIcons" name="cash-multiple" size={22} color={colors.text} />
+                  )}
+                  <Text weight="medium">{paymentMethodLabel}</Text>
+                </View>
+                <Icon type="Feather" name="chevron-right" size={20} color={colors.text} />
+              </Pressable>
+
+              <Button
+                label={t('ride_find_button')}
+                onPress={onConfirmRide}
+                disabled={isConfirmDisabled}
+                style={styles.confirmButton}
+              />
             </View>
-            <Icon type="Feather" name="chevron-right" size={20} color={colors.text} />
-          </Pressable>
-
-          <Button label={t('ride_find_button')} onPress={onConfirmRide} style={styles.confirmButton} />
-        </View>
+          </>
+        ) : null}
       </ScrollView>
     </SwipeableBottomSheet>
   );
@@ -120,6 +189,26 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingTop: 4,
+  },
+  errorWrap: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+  },
+  backButtonFloating: {
+    left: 16,
+    top: -54,
+  },
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
   footer: {
     borderTopWidth: 1,

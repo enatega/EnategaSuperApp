@@ -26,6 +26,7 @@ export const rideKeys = {
   estimates: () => [...rideKeys.all, 'estimates'] as const,
   activeRide: () => [...rideKeys.all, 'active'] as const,
   rideTypes: () => [...rideKeys.all, 'types'] as const,
+  rideTypeCatalog: () => [...rideKeys.rideTypes(), 'catalog'] as const,
   rideTypeFares: (params?: Record<string, unknown>) =>
       [...rideKeys.rideTypes(), params] as const,
   places: () => [...rideKeys.all, 'places'] as const,

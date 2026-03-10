@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useTheme } from '../../../../../general/theme/theme';
 import Text from '../../../../../general/components/Text';
@@ -14,6 +14,7 @@ type Props = {
   chooseOnMapLabel: string;
   onFocusFrom?: () => void;
   onFocusTo?: () => void;
+  activeField?: 'from' | 'to';
   loadingField?: 'from' | 'to' | null;
   onChooseOnMap?: () => void;
 };
@@ -28,11 +29,16 @@ function RideAddressSearchHeader({
   chooseOnMapLabel,
   onFocusFrom,
   onFocusTo,
+  activeField = 'from',
   loadingField = null,
   onChooseOnMap,
 }: Props) {
   const { colors, typography } = useTheme();
-  const [focusedField, setFocusedField] = useState<'from' | 'to' | null>('from');
+  const [focusedField, setFocusedField] = useState<'from' | 'to' | null>(activeField);
+
+  useEffect(() => {
+    setFocusedField(activeField);
+  }, [activeField]);
 
   return (
     <>
@@ -54,7 +60,7 @@ function RideAddressSearchHeader({
             placeholderTextColor={colors.mutedText}
             value={fromValue}
             onChangeText={onChangeFrom}
-            autoFocus
+            autoFocus={activeField === 'from'}
             onFocus={() => {
               setFocusedField('from');
               onFocusFrom?.();
@@ -81,6 +87,7 @@ function RideAddressSearchHeader({
             placeholderTextColor={colors.mutedText}
             value={toValue}
             onChangeText={onChangeTo}
+            autoFocus={activeField === 'to'}
             onFocus={() => {
               setFocusedField('to');
               onFocusTo?.();

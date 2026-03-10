@@ -9,6 +9,7 @@ import type {
     RideEstimate,
     RideEstimatePayload,
     RideFilters,
+    RideTypeCatalogItem,
     RideTypeFare,
     RideTypeFareParams,
 } from '../api/types';
@@ -121,6 +122,20 @@ export function useRideTypeFares(
         queryFn: () => rideService.getRideTypeFares(params!),
         staleTime: 5 * 60 * 1000,
         enabled: !!params,
+        ...options,
+    });
+}
+
+type UseRideTypesOptions = Omit<
+    UseQueryOptions<RideTypeCatalogItem[], ApiError>,
+    'queryKey' | 'queryFn'
+>;
+
+export function useRideTypes(options?: UseRideTypesOptions) {
+    return useQuery<RideTypeCatalogItem[], ApiError>({
+        queryKey: rideKeys.rideTypeCatalog(),
+        queryFn: () => rideService.getRideTypes(),
+        staleTime: 5 * 60 * 1000,
         ...options,
     });
 }

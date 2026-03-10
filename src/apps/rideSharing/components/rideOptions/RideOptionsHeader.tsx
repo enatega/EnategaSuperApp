@@ -10,9 +10,10 @@ import RideOptionCard from './RideOptionCard';
 
 type Props = {
   rideOptions: RideOptionItem[];
-  selectedCategory: RideCategory;
+  selectedCategory: RideCategory | null;
   onSelectCategory: (category: RideCategory) => void;
   onSearchPress: () => void;
+  searchDisabled?: boolean;
 };
 
 function RideOptionsHeader({
@@ -20,6 +21,7 @@ function RideOptionsHeader({
   selectedCategory,
   onSelectCategory,
   onSearchPress,
+  searchDisabled = false,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
@@ -47,12 +49,14 @@ function RideOptionsHeader({
       />
       <Pressable
         onPress={onSearchPress}
+        disabled={searchDisabled}
         style={[
           styles.searchInput,
           {
             borderColor: colors.border,
             shadowColor: colors.shadowColor,
             backgroundColor: colors.surface,
+            opacity: searchDisabled ? 0.6 : 1,
           },
         ]}
       >
@@ -70,6 +74,7 @@ export default memo(RideOptionsHeader);
 const styles = StyleSheet.create({
   optionsRow: {
     paddingHorizontal: 16,
+    paddingBottom:8,
     gap: 8,
   },
   searchInput: {
