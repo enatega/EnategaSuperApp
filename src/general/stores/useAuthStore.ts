@@ -31,10 +31,10 @@ type SignupState = {
 };
 
 const initialFormData: SignupFormData = {
-  name: "kashif",
-  email: "kashif100@gmail.com",
-  password: "Qwerty123$",
-  phone: "3431412212",
+  name: "",
+  email: "",
+  password: "",
+  phone: "",
 };
 
 export const useAuthStore = create<SignupState>((set) => ({

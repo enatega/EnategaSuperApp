@@ -30,7 +30,7 @@ export default function PhoneNumberInput({
       <PhoneInput
         ref={phoneInput}
         defaultValue={value}
-        defaultCode="PK"
+        defaultCode="US"
         layout="first"
         onChangeText={onChangeText}
         onChangeFormattedText={onChangeFormattedText}

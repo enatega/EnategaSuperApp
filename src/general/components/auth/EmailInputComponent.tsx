@@ -27,7 +27,7 @@ export default function EmailInputComponent({
 }: Props) {
   const navigation = useNavigation();
   const { t } = useTranslation();
-  const [email, setEmail] = useState("kashif12@gmail.com");
+  const [email, setEmail] = useState("");
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const isFormValid = email.trim().length > 0 && isValidEmail(email);
