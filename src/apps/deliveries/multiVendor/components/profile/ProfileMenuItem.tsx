@@ -20,7 +20,7 @@ export default function ProfileMenuItem({ icon, label, onPress }: Props) {
       accessibilityLabel={label}
       style={({ pressed }) => [
         styles.container,
-        { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
+        { backgroundColor: colors.background, opacity: pressed ? 0.7 : 1 },
       ]}
     >
       <View style={styles.left}>

@@ -22,7 +22,7 @@ export default function ProfileTab() {
   if (isLoading) {
     return (
       <ScrollView
-        style={[styles.scroll, { backgroundColor: colors.surfaceSoft }]}
+        style={[styles.scroll, { backgroundColor: colors.background }]}
         contentContainerStyle={{ paddingTop: insets.top }}
       >
         <ProfileSkeleton />
@@ -34,7 +34,7 @@ export default function ProfileTab() {
 
   return (
     <ScrollView
-      style={[styles.scroll, { backgroundColor: colors.surfaceSoft }]}
+      style={[styles.scroll, { backgroundColor: colors.background }]}
       contentContainerStyle={[styles.content, { paddingTop: insets.top }]}
       showsVerticalScrollIndicator={false}
     >
