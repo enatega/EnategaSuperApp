@@ -10,6 +10,7 @@ import { useTheme } from '../../../../general/theme/theme';
 import { useCustomerRideDetail } from '../../hooks/useRideQueries';
 import { useCancelRide } from '../../hooks/useRideMutations';
 import { mapCustomerRideDetailToReservation } from '../../utils/rideMapper';
+import { showToast } from '../../../../general/components/AppToast';
 import CancelRideBottomSheet from '../../components/reservation/CancelRideBottomSheet';
 import MoreOptionsBottomSheet from '../../components/reservation/MoreOptionsBottomSheet';
 import ReservationRideInfo from '../../components/reservation/ReservationRideInfo';
@@ -77,13 +78,15 @@ export default function ReservationDetailScreen() {
       cancelRide(rideId, {
         onSuccess: () => {
           setIsCancelBottomSheetVisible(false);
+          showToast.success(t('reservation_cancel_success'), t('reservation_cancel_success_message'));
         },
-        onError: (err) => {
-          console.error('Failed to cancel ride:', err);
+        onError: () => {
+          setIsCancelBottomSheetVisible(false);
+          showToast.error(t('reservation_cancel_error'), t('reservation_cancel_error_message'));
         },
       });
     }
-  }, [rideId, cancelRide]);
+  }, [rideId, cancelRide, t]);
 
   if (isLoading || isCancelling) {
     return <ReservationDetailSkeleton />;
