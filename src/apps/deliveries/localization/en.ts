@@ -60,6 +60,17 @@ const en = {
   my_profile_address_apartment: 'Apartment',
   my_profile_address_work: 'Work',
   my_profile_address_other: 'Other',
+  // Profile photo modal
+  photo_modal_title: 'Profile Photo',
+  photo_modal_description: 'Choose how you want to update your profile photo',
+  photo_take_photo: 'Take Photo',
+  photo_choose_gallery: 'Choose from Gallery',
+  photo_cancel: 'Cancel',
+  photo_permission_title: 'Permission required',
+  photo_permission_camera: 'Camera access is needed to take a photo.',
+  photo_permission_gallery: 'Gallery access is needed to pick a photo.',
+  photo_upload_error_title: 'Upload Failed',
+  photo_upload_failed: 'Could not update profile photo.',
 };
 
 export default en;

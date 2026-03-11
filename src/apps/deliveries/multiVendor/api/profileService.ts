@@ -44,8 +44,28 @@ export type WalletResponse = {
   };
 };
 
+export type UpdateProfileImagePayload = {
+  uri: string;
+  mimeType?: string;
+  fileName?: string;
+};
+
 export const profileService = {
   getProfile: () => apiClient.get<ProfileResponse>(PROFILE_BASE),
   getWalletBalance: () =>
     apiClient.get<WalletResponse>(`${PROFILE_BASE}/wallet`),
+  updateProfileImage: (payload: UpdateProfileImagePayload) => {
+    const form = new FormData();
+    form.append('image', {
+      uri: payload.uri,
+      type: payload.mimeType ?? 'image/jpeg',
+      name: payload.fileName ?? 'profile.jpg',
+    } as unknown as Blob);
+
+    return apiClient.patch<ProfileResponse>(
+      `${PROFILE_BASE}/image`,
+      form,
+      { headers: { 'Content-Type': 'multipart/form-data' } },
+    );
+  },
 };

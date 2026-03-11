@@ -60,6 +60,17 @@ const fr = {
   my_profile_address_apartment: 'Appartement',
   my_profile_address_work: 'Travail',
   my_profile_address_other: 'Autre',
+  // Profile photo modal
+  photo_modal_title: 'Photo de profil',
+  photo_modal_description: 'Choisissez comment mettre à jour votre photo de profil',
+  photo_take_photo: 'Prendre une photo',
+  photo_choose_gallery: 'Choisir dans la galerie',
+  photo_cancel: 'Annuler',
+  photo_permission_title: 'Autorisation requise',
+  photo_permission_camera: "L'accès à la caméra est nécessaire pour prendre une photo.",
+  photo_permission_gallery: "L'accès à la galerie est nécessaire pour choisir une photo.",
+  photo_upload_error_title: 'Échec du téléchargement',
+  photo_upload_failed: 'Impossible de mettre à jour la photo de profil.',
 };
 
 export default fr;

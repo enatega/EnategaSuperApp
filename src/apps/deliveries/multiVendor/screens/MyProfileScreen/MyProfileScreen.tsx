@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import useProfile from '../../hooks/useProfile';
 import MyProfileInfoCard from '../../components/profile/MyProfileInfoCard';
 import MyProfileAddressCard from '../../components/profile/MyProfileAddressCard';
 import MyProfileSkeleton from '../../components/profile/MyProfileSkeleton';
+import ProfilePhotoEditor from '../../components/profile/ProfilePhotoEditor';
 import { ProfileAddress } from '../../api/profileService';
 
 const ADDRESS_ICON_MAP: Record<string, keyof typeof Ionicons.glyphMap> = {
@@ -38,10 +39,21 @@ function getAddressTypeLabel(
 export default function MyProfileScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
-  const { user, addresses, isLoading } = useProfile();
+  const { user, addresses, isLoading, refetch } = useProfile();
+  const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false);
+  const [imageCacheKey, setImageCacheKey] = useState(0);
+
+  const handleUploadComplete = () => {
+    setImageCacheKey((prev) => prev + 1);
+    refetch();
+  };
 
   const displayName =
     [user?.first_name, user?.last_name].filter(Boolean).join(' ') || '—';
+
+  const avatarUri = user?.image
+    ? `${user.image}?cache=${imageCacheKey}`
+    : undefined;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -56,7 +68,7 @@ export default function MyProfileScreen() {
         ) : (
           <>
             <MyProfileInfoCard
-              imageUri={user?.image}
+              imageUri={avatarUri}
               displayName={displayName}
               fullName={displayName}
               phone={user?.phone}
@@ -65,6 +77,13 @@ export default function MyProfileScreen() {
               nameLabel={t('my_profile_full_name')}
               phoneLabel={t('my_profile_mobile_number')}
               emailLabel={t('my_profile_email')}
+              onEditAvatar={() => setIsPhotoModalVisible(true)}
+            />
+
+            <ProfilePhotoEditor
+              isVisible={isPhotoModalVisible}
+              onClose={() => setIsPhotoModalVisible(false)}
+              onUploadComplete={handleUploadComplete}
             />
 
             {/* Addresses section */}

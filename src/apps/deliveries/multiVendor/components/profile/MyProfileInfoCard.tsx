@@ -67,15 +67,6 @@ export default function MyProfileInfoCard({
 
   return (
     <View style={[styles.card, { borderColor: colors.border }]}>
-      {/* Top-right edit link */}
-      <View style={styles.editRow}>
-        <Pressable onPress={onEditName} accessibilityRole="button">
-          <Text weight="medium" color={colors.text} style={styles.editText}>
-            {editLabel}
-          </Text>
-        </Pressable>
-      </View>
-
       {/* Avatar + name */}
       <View style={styles.avatarSection}>
         <View style={styles.avatarContainer}>
@@ -140,6 +131,7 @@ const styles = StyleSheet.create({
   avatarSection: {
     alignItems: 'center',
     gap: 3,
+    paddingVertical: 24,
   },
   avatarWrapper: {
     borderRadius: AVATAR_SIZE / 2,
@@ -169,9 +161,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: -4,
     width: 24,
-  },
-  editRow: {
-    alignItems: 'flex-end',
   },
   editText: {
     fontSize: 14,

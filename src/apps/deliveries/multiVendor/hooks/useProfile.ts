@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   profileService,
   ProfileAddress,
@@ -23,8 +24,12 @@ export default function useProfile() {
     error: null,
   });
 
-  const fetchData = useCallback(async () => {
-    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+  const hasFetchedOnce = useRef(false);
+
+  const fetchData = useCallback(async (showLoading = true) => {
+    if (showLoading) {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+    }
     try {
       const [profileRes, walletRes] = await Promise.all([
         profileService.getProfile(),
@@ -44,9 +49,16 @@ export default function useProfile() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useFocusEffect(
+    useCallback(() => {
+      if (hasFetchedOnce.current) {
+        fetchData(false);
+      } else {
+        hasFetchedOnce.current = true;
+        fetchData(true);
+      }
+    }, [fetchData]),
+  );
 
-  return { ...state, refetch: fetchData };
+  return { ...state, refetch: () => fetchData(false) };
 }
