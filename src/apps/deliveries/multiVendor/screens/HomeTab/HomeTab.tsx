@@ -4,51 +4,16 @@ import { useTranslation } from 'react-i18next';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
 import { useTheme } from '../../../../../general/theme/theme';
+import { useShopTypes } from '../../../hooks';
 import MultiVendorAddressHeader from '../../components/HomeTab/AddressHeader';
 import MultiVendorShopTypeCard from '../../components/HomeTab/ShopTypeCard';
 import MultiVendorSpecialOffers from '../../components/HomeTab/SpecialOffersBanner';
-
-const shopTypeImages = {
-  gift: {
-    uri: 'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=240&q=80',
-  },
-  milk: {
-    uri: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=240&q=80',
-  },
-  flower: {
-    uri: 'https://images.unsplash.com/photo-1527061011665-3652c757a4d4?auto=format&fit=crop&w=240&q=80',
-  },
-  liquor: {
-    uri: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?auto=format&fit=crop&w=240&q=80',
-  },
-} as const;
+import ShopTypeCardSkeleton from '../../components/HomeTabSkeletons/ShopTypeCardSkeleton';
 
 export default function HomeTab() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
-
-  const shopTypes = [
-    {
-      id: 'gift',
-      image: shopTypeImages.gift,
-      title: t('multi_vendor_shop_type_gift'),
-    },
-    {
-      id: 'milk',
-      image: shopTypeImages.milk,
-      title: t('multi_vendor_shop_type_milk'),
-    },
-    {
-      id: 'flower',
-      image: shopTypeImages.flower,
-      title: t('multi_vendor_shop_type_flower'),
-    },
-    {
-      id: 'liquor',
-      image: shopTypeImages.liquor,
-      title: t('multi_vendor_shop_type_liquor'),
-    },
-  ];
+  const { data: shopTypes = [], isPending } = useShopTypes();
 
   return (
     <ScrollView
@@ -64,18 +29,22 @@ export default function HomeTab() {
           title={t('multi_vendor_shop_types_title')}
         />
 
-        <HorizontalList
-          data={shopTypes}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.shopTypesListContent}
-          ItemSeparatorComponent={() => <View style={styles.shopTypeSeparator} />}
-          renderItem={({ item }) => (
-            <MultiVendorShopTypeCard
-              image={item.image}
-              title={item.title}
-            />
-          )}
-        />
+        {isPending ? (
+          <ShopTypeCardSkeleton />
+        ) : (
+          <HorizontalList
+            data={shopTypes}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.shopTypesListContent}
+            ItemSeparatorComponent={() => <View style={styles.shopTypeSeparator} />}
+            renderItem={({ item }) => (
+              <MultiVendorShopTypeCard
+                image={{ uri: item.image ?? '' }}
+                title={item.name}
+              />
+            )}
+          />
+        )}
       </View>
 
       <MultiVendorSpecialOffers />

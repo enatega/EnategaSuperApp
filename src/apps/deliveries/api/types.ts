@@ -23,6 +23,21 @@ export interface DeliveryShopType {
     [key: string]: unknown;
 }
 
+export interface PaginatedDeliveryResponse<T> {
+    items: T[];
+    offset: number;
+    limit: number;
+    total: number;
+    isEnd: boolean;
+    nextOffset: number | null;
+}
+
+export interface DeliveryShopTypesParams {
+    offset?: number;
+    limit?: number;
+}
+
 export type DeliveryShopTypesApiResponse =
     | ApiResponse<DeliveryShopType[]>
+    | PaginatedDeliveryResponse<DeliveryShopType>
     | DeliveryShopType[];
