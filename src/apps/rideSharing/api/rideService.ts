@@ -18,6 +18,7 @@ import type {
     RidePlaceCoordinates,
     DistanceMatrixResponse,
     CustomerRidesResponse,
+    CustomerRideDetail,
 } from './types';
 
 // ---------------------------------------------------------------------------
@@ -176,4 +177,9 @@ export const rideService = {
     /** Fetch customer rides history. */
     getCustomerRides: (offset: number = 0): Promise<CustomerRidesResponse> =>
         apiClient.get<CustomerRidesResponse>(`/api/v1/rides/customers?offset=${offset}`),
+
+    /** Fetch single customer ride detail. */
+    getCustomerRideDetail: (rideId: string): Promise<CustomerRideDetail> =>
+        apiClient.get<{ data: CustomerRideDetail }>(`/api/v1/rides/${rideId}/details/customer`)
+            .then((res) => res.data),
 };

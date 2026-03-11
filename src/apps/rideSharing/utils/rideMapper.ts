@@ -1,30 +1,44 @@
-import { CustomerRide } from '../api/types';
+import { CustomerRideListItem, CustomerRideDetail } from '../api/types';
 import { Reservation, RideStatus } from '../types/reservation';
 
-export const mapCustomerRideToReservation = (ride: CustomerRide): Reservation => {
-  let status: RideStatus = 'scheduled';
-  
-  switch (ride.rideStatus) {
+function mapApiStatus(rideStatus: string): RideStatus {
+  switch (rideStatus) {
     case 'COMPLETED':
-      status = 'completed';
-      break;
+      return 'completed';
     case 'CANCELLED':
-      status = 'cancelled';
-      break;
+      return 'cancelled';
     case 'IN_PROGRESS':
-      status = 'in_progress';
-      break;
+      return 'in_progress';
     case 'ASSIGNED':
     case 'SCHEDULED':
     default:
-      status = 'scheduled';
-      break;
+      return 'scheduled';
   }
+}
 
+/** Map a list-level item (slim) to a Reservation for the list screen. */
+export const mapCustomerRideToReservation = (ride: CustomerRideListItem): Reservation => {
   return {
     id: ride.rideId,
-    rideRequestId: ride.rideRequestId,
-    rideType: 'ride', // Defaulting to 'ride' as the API type structure is different
+    rideType: 'ride',
+    rideTitle: ride.rideType.name,
+    imageUrl: ride.rideType.imageUrl,
+    dateTime: ride.scheduledAt || ride.createdAt,
+    price: ride.agreedPrice,
+    currency: 'QAR',
+    status: mapApiStatus(ride.rideStatus),
+    // These fields are not available in the list endpoint; provide defaults
+    pickupAddress: '',
+    dropoffAddress: '',
+    paymentMethod: 'cash',
+  };
+};
+
+/** Map the detail endpoint response to a full Reservation. */
+export const mapCustomerRideDetailToReservation = (ride: CustomerRideDetail): Reservation => {
+  return {
+    id: ride.rideId,
+    rideType: 'ride',
     rideTitle: ride.rideType.name,
     imageUrl: ride.rideType.imageUrl,
     vehicleInfo: ride.riderInfo?.vehicle ? {
@@ -39,10 +53,10 @@ export const mapCustomerRideToReservation = (ride: CustomerRide): Reservation =>
       rideCount: ride.riderInfo.totalCompletedRides,
       image: ride.riderInfo.profile,
     } : undefined,
-    dateTime: ride.scheduledAt || ride.createdAt,
+    dateTime: ride.scheduledAt || '',
     price: ride.agreedPrice,
     currency: 'QAR',
-    status: status,
+    status: mapApiStatus(ride.rideStatus),
     pickupAddress: ride.pickup.location,
     dropoffAddress: ride.dropoff.location,
     paymentMethod: ride.paymentVia as 'cash' | 'card',

@@ -48,7 +48,7 @@ export default function ReservationsListScreen() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleReservationPress = useCallback((id: string) => {
-    navigation.navigate('ReservationDetail', { reservationId: id });
+    navigation.navigate('ReservationDetail', { rideId: id });
   }, [navigation]);
 
   const renderReservation = useCallback(
