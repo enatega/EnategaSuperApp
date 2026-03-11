@@ -35,6 +35,19 @@ const en = {
   type_marketplace_desc: 'Vast Local Community providers',
   type_chain_title: 'Chain Stores',
   type_chain_desc: 'Shop your favorite chains',
+  // Profile screen
+  profile_personal_account: 'Personal account',
+  profile_wallet_balance: 'Wallet Balance',
+  profile_view_wallet: 'View wallet',
+  profile_menu_profile: 'Profile',
+  profile_menu_notifications: 'Notifications',
+  profile_menu_favorites: 'Favorites',
+  profile_menu_coupons: 'Coupons',
+  profile_menu_settings: 'Settings',
+  profile_menu_support: 'Support',
+  profile_menu_color_mode: 'App color mode',
+  profile_menu_language: 'English',
+  profile_menu_logout: 'Log out',
 };
 
 export default en;

@@ -35,6 +35,19 @@ const fr = {
   type_marketplace_desc: 'Nombreux prestataires locaux',
   type_chain_title: 'Magasins de Chaîne',
   type_chain_desc: 'Achetez vos chaînes préférées',
+  // Profile screen
+  profile_personal_account: 'Compte personnel',
+  profile_wallet_balance: 'Solde du portefeuille',
+  profile_view_wallet: 'Voir le portefeuille',
+  profile_menu_profile: 'Profil',
+  profile_menu_notifications: 'Notifications',
+  profile_menu_favorites: 'Favoris',
+  profile_menu_coupons: 'Coupons',
+  profile_menu_settings: 'Paramètres',
+  profile_menu_support: 'Assistance',
+  profile_menu_color_mode: 'Mode couleur',
+  profile_menu_language: 'Français',
+  profile_menu_logout: 'Se déconnecter',
 };
 
 export default fr;

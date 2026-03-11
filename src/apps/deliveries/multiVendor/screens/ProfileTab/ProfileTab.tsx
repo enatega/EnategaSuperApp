@@ -1,9 +1,110 @@
 import React from 'react';
+import { ScrollView, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import TabPlaceholder from '../../components/TabPlaceholder';
+import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '../../../../../general/theme/theme';
+import useProfile from '../../hooks/useProfile';
+import ProfileHeader from '../../components/profile/ProfileHeader';
+import WalletCard from '../../components/profile/WalletCard';
+import ProfileMenuSection from '../../components/profile/ProfileMenuSection';
+import ProfileMenuItem from '../../components/profile/ProfileMenuItem';
+import ProfileSkeleton from '../../components/profile/ProfileSkeleton';
+
+const ICON_SIZE = 20;
 
 export default function ProfileTab() {
+  const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
+  const insets = useSafeAreaInsets();
+  const { user, wallet, isLoading } = useProfile();
 
-  return <TabPlaceholder label={t('multi_vendor_tab_profile')} />;
+  if (isLoading) {
+    return (
+      <ScrollView
+        style={[styles.scroll, { backgroundColor: colors.surfaceSoft }]}
+        contentContainerStyle={{ paddingTop: insets.top }}
+      >
+        <ProfileSkeleton />
+      </ScrollView>
+    );
+  }
+
+  const iconColor = colors.text;
+
+  return (
+    <ScrollView
+      style={[styles.scroll, { backgroundColor: colors.surfaceSoft }]}
+      contentContainerStyle={[styles.content, { paddingTop: insets.top }]}
+      showsVerticalScrollIndicator={false}
+    >
+      <ProfileHeader
+        firstName={user?.first_name}
+        lastName={user?.last_name}
+        imageUri={user?.image}
+        subtitle={t('profile_personal_account')}
+      />
+
+      <WalletCard
+        balance={wallet?.wallet_balance}
+        balanceLabel={t('profile_wallet_balance')}
+        buttonLabel={t('profile_view_wallet')}
+      />
+
+      <ProfileMenuSection>
+        <ProfileMenuItem
+          icon={<Ionicons name="person-outline" size={ICON_SIZE} color={iconColor} />}
+          label={t('profile_menu_profile')}
+        />
+        <ProfileMenuItem
+          icon={<Ionicons name="notifications-outline" size={ICON_SIZE} color={iconColor} />}
+          label={t('profile_menu_notifications')}
+        />
+        <ProfileMenuItem
+          icon={<Ionicons name="heart-outline" size={ICON_SIZE} color={iconColor} />}
+          label={t('profile_menu_favorites')}
+        />
+        <ProfileMenuItem
+          icon={<Ionicons name="pricetag-outline" size={ICON_SIZE} color={iconColor} />}
+          label={t('profile_menu_coupons')}
+        />
+        <ProfileMenuItem
+          icon={<Ionicons name="settings-outline" size={ICON_SIZE} color={iconColor} />}
+          label={t('profile_menu_settings')}
+        />
+      </ProfileMenuSection>
+
+      <ProfileMenuSection>
+        <ProfileMenuItem
+          icon={<Ionicons name="help-buoy-outline" size={ICON_SIZE} color={iconColor} />}
+          label={t('profile_menu_support')}
+        />
+        <ProfileMenuItem
+          icon={<Ionicons name="moon-outline" size={ICON_SIZE} color={iconColor} />}
+          label={t('profile_menu_color_mode')}
+        />
+        <ProfileMenuItem
+          icon={<Ionicons name="globe-outline" size={ICON_SIZE} color={iconColor} />}
+          label={t('profile_menu_language')}
+        />
+      </ProfileMenuSection>
+
+      <ProfileMenuSection>
+        <ProfileMenuItem
+          icon={<Ionicons name="log-out-outline" size={ICON_SIZE} color={iconColor} />}
+          label={t('profile_menu_logout')}
+        />
+      </ProfileMenuSection>
+    </ScrollView>
+  );
 }
+
+const styles = StyleSheet.create({
+  content: {
+    gap: 16,
+    paddingBottom: 28,
+  },
+  scroll: {
+    flex: 1,
+  },
+});
