@@ -4,6 +4,7 @@ import MultiVendorHomeScreen from '../screens/HomeScreen';
 import MultiVendorDeliveryDetails from '../screens/DeliveryDetails';
 import { useTranslation } from 'react-i18next';
 import MultiVendorBottomTabNavigator from './MultiVendorBottomTabNavigator';
+import MyProfileScreen from '../screens/MyProfileScreen/MyProfileScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -25,6 +26,11 @@ export default function MultiVendorNavigator() {
         name="MultiVendorTabs"
         component={MultiVendorBottomTabNavigator}
         options={{ title: t('multi_vendor_tab_search'), headerShown: false }}
+      />
+      <Stack.Screen
+        name="MyProfile"
+        component={MyProfileScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

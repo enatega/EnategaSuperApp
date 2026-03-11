@@ -48,6 +48,18 @@ const fr = {
   profile_menu_color_mode: 'Mode couleur',
   profile_menu_language: 'Français',
   profile_menu_logout: 'Se déconnecter',
+  // My Profile screen
+  my_profile_title: 'Mon profil',
+  my_profile_edit: 'Modifier',
+  my_profile_full_name: 'Nom complet',
+  my_profile_mobile_number: 'Numéro de téléphone',
+  my_profile_email: 'E-mail',
+  my_profile_my_addresses: 'Mes adresses',
+  my_profile_add_address: 'Ajouter une adresse',
+  my_profile_address_home: 'Domicile',
+  my_profile_address_apartment: 'Appartement',
+  my_profile_address_work: 'Travail',
+  my_profile_address_other: 'Autre',
 };
 
 export default fr;

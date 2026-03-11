@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   profileService,
+  ProfileAddress,
   ProfileUser,
   WalletResponse,
 } from '../api/profileService';
 
 type ProfileState = {
   user: ProfileUser | null;
+  addresses: ProfileAddress[];
   wallet: WalletResponse['data'] | null;
   isLoading: boolean;
   error: string | null;
@@ -15,6 +17,7 @@ type ProfileState = {
 export default function useProfile() {
   const [state, setState] = useState<ProfileState>({
     user: null,
+    addresses: [],
     wallet: null,
     isLoading: true,
     error: null,
@@ -29,6 +32,7 @@ export default function useProfile() {
       ]);
       setState({
         user: profileRes?.data?.user ?? null,
+        addresses: profileRes?.data?.addresses ?? [],
         wallet: walletRes?.data ?? null,
         isLoading: false,
         error: null,

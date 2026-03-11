@@ -48,6 +48,18 @@ const en = {
   profile_menu_color_mode: 'App color mode',
   profile_menu_language: 'English',
   profile_menu_logout: 'Log out',
+  // My Profile screen
+  my_profile_title: 'My profile',
+  my_profile_edit: 'Edit',
+  my_profile_full_name: 'Full name',
+  my_profile_mobile_number: 'Mobile number',
+  my_profile_email: 'Email',
+  my_profile_my_addresses: 'My addresses',
+  my_profile_add_address: 'Add address',
+  my_profile_address_home: 'Home',
+  my_profile_address_apartment: 'Apartment',
+  my_profile_address_work: 'Work',
+  my_profile_address_other: 'Other',
 };
 
 export default en;

@@ -13,11 +13,25 @@ export type ProfileUser = {
   image: string | null;
 };
 
+export type ProfileAddress = {
+  id: string;
+  user_id: string;
+  address: string;
+  location: {
+    type: string;
+    coordinates: [number, number];
+  };
+  location_name: string | null;
+  type: 'HOME' | 'APARTMENT' | 'OFFICE' | 'OTHER';
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type ProfileResponse = {
   message: string;
   data: {
     user: ProfileUser;
-    addresses: unknown[];
+    addresses: ProfileAddress[];
   };
 };
 
