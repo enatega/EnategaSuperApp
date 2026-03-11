@@ -20,6 +20,7 @@ import type {
     RideTypeFare,
     RideTypeFareParams,
     CustomerRidesResponse,
+    CustomerRideDetail,
 } from '../api/types';
 import { ApiError } from '../../../general/api/apiClient';
 
@@ -134,6 +135,30 @@ export function useCustomerRides(options?: UseCustomerRidesOptions) {
             return lastPage.offset + lastPage.limit;
         },
         staleTime: 1 * 60 * 1000, // 1 minute
+        ...options,
+    });
+}
+
+// ---------------------------------------------------------------------------
+// useCustomerRideDetail – single customer ride detail
+//  • staleTime 30 s (ride data can change when active)
+//  • enabled only when rideId is provided
+// ---------------------------------------------------------------------------
+
+type UseCustomerRideDetailOptions = Omit<
+    UseQueryOptions<CustomerRideDetail, ApiError>,
+    'queryKey' | 'queryFn'
+>;
+
+export function useCustomerRideDetail(
+    rideId: string | undefined,
+    options?: UseCustomerRideDetailOptions,
+) {
+    return useQuery<CustomerRideDetail, ApiError>({
+        queryKey: rideKeys.customerRideDetail(rideId!),
+        queryFn: () => rideService.getCustomerRideDetail(rideId!),
+        staleTime: 30 * 1000,
+        enabled: !!rideId,
         ...options,
     });
 }

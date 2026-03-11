@@ -81,7 +81,7 @@ export type RideSharingStackParamList = {
   Licences: undefined;
   ReservationsList: undefined;
   ReservationDetail: {
-    reservationId: string;
+    rideId: string;
   };
 };
 

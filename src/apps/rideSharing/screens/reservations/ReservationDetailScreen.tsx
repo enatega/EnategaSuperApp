@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { StyleSheet, View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -7,9 +7,9 @@ import { useTranslation } from 'react-i18next';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
-import { useCustomerRides } from '../../hooks/useRideQueries';
+import { useCustomerRideDetail } from '../../hooks/useRideQueries';
 import { useCancelRide } from '../../hooks/useRideMutations';
-import { mapCustomerRideToReservation } from '../../utils/rideMapper';
+import { mapCustomerRideDetailToReservation } from '../../utils/rideMapper';
 import CancelRideBottomSheet from '../../components/reservation/CancelRideBottomSheet';
 import MoreOptionsBottomSheet from '../../components/reservation/MoreOptionsBottomSheet';
 import ReservationRideInfo from '../../components/reservation/ReservationRideInfo';
@@ -33,14 +33,14 @@ export default function ReservationDetailScreen() {
   const [isCancelBottomSheetVisible, setIsCancelBottomSheetVisible] = useState(false);
   const [isMoreOptionsVisible, setIsMoreOptionsVisible] = useState(false);
 
-  const { data, isLoading, error } = useCustomerRides();
+  const rideId = route.params?.rideId;
+  const { data: rideDetail, isLoading, error } = useCustomerRideDetail(rideId);
   const { mutate: cancelRide, isPending: isCancelling } = useCancelRide();
-  const reservations = useMemo(() => {
-    return data?.pages.flatMap((page) => page.data.map(mapCustomerRideToReservation)) || [];
-  }, [data]);
 
-  const reservationId = route.params?.reservationId;
-  const reservation = reservationId ? reservations.find(r => r.id === reservationId) : null;
+  const reservation = useMemo(() => {
+    if (!rideDetail) return null;
+    return mapCustomerRideDetailToReservation(rideDetail);
+  }, [rideDetail]);
 
   const formatDate = (dateTime: string) => {
     const date = new Date(dateTime);
@@ -73,22 +73,18 @@ export default function ReservationDetailScreen() {
   }, []);
 
   const handleConfirmCancel = useCallback(() => {
-    if (reservation?.id) {
-      cancelRide(reservation.id, {
+    if (rideId) {
+      cancelRide(rideId, {
         onSuccess: () => {
           setIsCancelBottomSheetVisible(false);
-          // Optional: Navigate back or show success message
           navigation.goBack();
         },
-        onError: (error) => {
-          console.error('Failed to cancel ride:', error);
-          // Handle error (e.g., show toast)
-        }
+        onError: (err) => {
+          console.error('Failed to cancel ride:', err);
+        },
       });
-    } else {
-      console.warn('Cannot cancel ride: rideId is missing');
     }
-  }, [reservation, cancelRide, navigation]);
+  }, [rideId, cancelRide, navigation]);
 
   if (isLoading || isCancelling) {
     return <ReservationDetailSkeleton />;
@@ -98,7 +94,7 @@ export default function ReservationDetailScreen() {
     return (
       <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
         <Text variant="subtitle" color={colors.danger} style={{ textAlign: 'center' }}>
-          {error.message || 'Failed to load reservation details'}
+          {error.message || t('reservation_not_found')}
         </Text>
       </View>
     );
@@ -125,6 +121,7 @@ export default function ReservationDetailScreen() {
           reservation.status === 'scheduled' && (
             <Pressable
               onPress={handleMoreOptionsPress}
+              accessibilityLabel={t('reservation_more_options')}
               style={({ pressed }) => [
                 styles.moreOptionsButton,
                 { backgroundColor: colors.backgroundTertiary },
@@ -163,9 +160,7 @@ export default function ReservationDetailScreen() {
           dateTime={formatDate(reservation.dateTime)}
         />
 
-        <ReservationPayment
-          paymentMethod={reservation.paymentMethod}
-        />
+        <ReservationPayment paymentMethod={reservation.paymentMethod} />
 
         <ReservationRoute
           pickupAddress={reservation.pickupAddress}

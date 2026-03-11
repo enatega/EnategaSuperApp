@@ -211,29 +211,37 @@ export interface DriverProfileInfo {
 }
 
 // ---------------------------------------------------------------------------
-// Customer Rides
+// Customer Rides (list endpoint: /api/v1/rides/customers)
 // ---------------------------------------------------------------------------
 
-export interface CustomerRide {
+export interface CustomerRideListItem {
     rideId: string;
-    rideStatus: string; // 'COMPLETED' | 'CANCELLED' | 'ASSIGNED' | 'SCHEDULED'
-    rideRequestId: string;
+    rideStatus: string; // 'COMPLETED' | 'CANCELLED' | 'ASSIGNED' | 'SCHEDULED' | 'IN_PROGRESS'
     riderId: string;
     createdAt: string;
     scheduledAt: string | null;
-    isScheduled: boolean;
-    pickup: {
-        lat: number;
-        lng: number;
-        location: string;
-    };
-    dropoff: {
-        lat: number;
-        lng: number;
-        location: string;
-    };
     agreedPrice: number;
-    paymentVia: string; // 'cash' | 'card'
+    rideType: {
+        id: string;
+        name: string;
+        imageUrl: string;
+        seatCount: number;
+    };
+}
+
+export interface CustomerRidesResponse {
+    data: CustomerRideListItem[];
+    offset: number;
+    limit: number;
+}
+
+// ---------------------------------------------------------------------------
+// Customer Ride Detail (detail endpoint: /api/v1/rides/{rideId}/details/customer)
+// ---------------------------------------------------------------------------
+
+export interface CustomerRideDetail {
+    rideId: string;
+    rideStatus: string;
     rideType: {
         id: string;
         name: string;
@@ -254,12 +262,20 @@ export interface CustomerRide {
             vehicle_no: string;
         };
     };
-}
-
-export interface CustomerRidesResponse {
-    data: CustomerRide[];
-    offset: number;
-    limit: number;
+    agreedPrice: number;
+    scheduledAt: string | null;
+    isScheduled: boolean;
+    paymentVia: string;
+    pickup: {
+        lat: number;
+        lng: number;
+        location: string;
+    };
+    dropoff: {
+        lat: number;
+        lng: number;
+        location: string;
+    };
 }
 
 export interface DriverRatingBreakdown {
