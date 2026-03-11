@@ -77,14 +77,13 @@ export default function ReservationDetailScreen() {
       cancelRide(rideId, {
         onSuccess: () => {
           setIsCancelBottomSheetVisible(false);
-          navigation.goBack();
         },
         onError: (err) => {
           console.error('Failed to cancel ride:', err);
         },
       });
     }
-  }, [rideId, cancelRide, navigation]);
+  }, [rideId, cancelRide]);
 
   if (isLoading || isCancelling) {
     return <ReservationDetailSkeleton />;
