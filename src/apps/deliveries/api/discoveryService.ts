@@ -4,6 +4,9 @@ import type {
     DeliveryBanner,
     DeliveryBannersApiResponse,
     DeliveryBannersParams,
+    DeliveryTopBrand,
+    DeliveryTopBrandsApiResponse,
+    DeliveryTopBrandsParams,
     DeliveryShopType,
     DeliveryShopTypesApiResponse,
     DeliveryShopTypesParams,
@@ -35,6 +38,18 @@ function isPaginatedBannersResponse(
 function isWrappedBannersResponse(
     response: ApiResponse<DeliveryBanner[]> | PaginatedDeliveryResponse<DeliveryBanner>,
 ): response is ApiResponse<DeliveryBanner[]> {
+    return 'data' in response && Array.isArray(response.data);
+}
+
+function isPaginatedTopBrandsResponse(
+    response: ApiResponse<DeliveryTopBrand[]> | PaginatedDeliveryResponse<DeliveryTopBrand>,
+): response is PaginatedDeliveryResponse<DeliveryTopBrand> {
+    return 'items' in response && Array.isArray(response.items);
+}
+
+function isWrappedTopBrandsResponse(
+    response: ApiResponse<DeliveryTopBrand[]> | PaginatedDeliveryResponse<DeliveryTopBrand>,
+): response is ApiResponse<DeliveryTopBrand[]> {
     return 'data' in response && Array.isArray(response.data);
 }
 
@@ -95,6 +110,36 @@ export const discoveryService = {
             return [];
         } catch (error) {
             console.error('mobile banners request failed', error);
+            throw error;
+        }
+    },
+
+    /** Fetch top brands for deliveries home discovery. */
+    getTopBrands: async (
+        params: DeliveryTopBrandsParams = {},
+    ): Promise<DeliveryTopBrand[]> => {
+        const { offset = 0, limit = 10 } = params;
+        try {
+            const response = await apiClient.get<DeliveryTopBrandsApiResponse>(
+                '/api/v1/apps/deliveries/discovery/top-brands',
+                { offset, limit },
+            );
+
+            if (Array.isArray(response)) {
+                return response;
+            }
+
+            if (isPaginatedTopBrandsResponse(response)) {
+                return response.items;
+            }
+
+            if (isWrappedTopBrandsResponse(response)) {
+                return response.data;
+            }
+
+            return [];
+        } catch (error) {
+            console.error('top brands request failed', error);
             throw error;
         }
     },
