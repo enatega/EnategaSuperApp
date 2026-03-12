@@ -100,7 +100,7 @@ const fr = {
   address_selected_location: 'Emplacement sélectionné',
   address_location_name_placeholder: 'Nom du lieu (ex. Ma maison)',
   address_details_label: 'Détails de l\'adresse',
-  address_location_type_label: 'Type de lieu (Optionnel)',
+  address_location_type_label: 'Type de lieu',
   address_type_home: 'Domicile',
   address_type_apartment: 'Appartement',
   address_type_office: 'Bureau',
