@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Keyboard, ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ScreenHeader from '../../../../../general/components/ScreenHeader';
 import Button from '../../../../../general/components/Button';
 import { useTheme } from '../../../../../general/theme/theme';
@@ -40,13 +41,9 @@ export default function EditProfileScreen() {
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation();
   const route = useRoute<RouteProp<RouteParams, 'EditProfile'>>();
+  const insets = useSafeAreaInsets();
 
-  const {
-    name: initialName,
-    dateOfBirth: initialDob,
-    gender: initialGender,
-  } = route.params;
-
+  const { name: initialName, dateOfBirth: initialDob, gender: initialGender } = route.params;
   const initialParsed = parseDob(initialDob);
 
   const [name, setName] = useState(initialName);
@@ -55,6 +52,20 @@ export default function EditProfileScreen() {
   const [dobYear, setDobYear] = useState(initialParsed.year);
   const [gender, setGender] = useState<string | null>(initialGender);
   const [isSaving, setIsSaving] = useState(false);
+  // keyboardOffset: how much the footer should lift above its natural bottom position
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
+
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardDidShow', (e) => {
+      // endCoordinates.screenY is the top of the keyboard from the top of the screen
+      // We want to push the footer up by however much the keyboard overlaps the bottom safe area
+      setKeyboardOffset(e.endCoordinates.height - insets.bottom + 16);
+    });
+    const hide = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardOffset(0);
+    });
+    return () => { show.remove(); hide.remove(); };
+  }, [insets.bottom]);
 
   const handleSave = async () => {
     const trimmedName = name.trim();
@@ -93,10 +104,11 @@ export default function EditProfileScreen() {
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <ScreenHeader title={t('edit_profile_title')} />
 
-      <KeyboardAvoidingView
-        style={styles.content}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={100}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         <EditProfileForm
           name={name}
@@ -117,9 +129,19 @@ export default function EditProfileScreen() {
           onDobYearChange={setDobYear}
           onGenderChange={setGender}
         />
-      </KeyboardAvoidingView>
+      </ScrollView>
 
-      <View style={[styles.footer, { borderTopColor: colors.border }]}>
+      <View
+        style={[
+          styles.footer,
+          {
+            borderTopColor: colors.border,
+            backgroundColor: colors.background,
+            paddingBottom: insets.bottom + 12,
+            bottom: keyboardOffset,
+          },
+        ]}
+      >
         <Button
           label={t('edit_profile_save')}
           onPress={handleSave}
@@ -132,7 +154,16 @@ export default function EditProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { flexGrow: 1, paddingBottom: 16 },
-  footer: { borderTopWidth: 1, paddingHorizontal: 16, paddingVertical: 12 },
+  footer: {
+    borderTopWidth: 1,
+    bottom: 0,
+    left: 0,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    position: 'absolute',
+    right: 0,
+  },
   screen: { flex: 1 },
+  scrollContent: { paddingBottom: 100 },
+  scrollView: { flex: 1 },
 });
