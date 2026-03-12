@@ -47,17 +47,6 @@ export default function AddressDetailScreen() {
     }
   }, [isEditing, params.editAddressId, nav, t]);
 
-  const handleDelete = useCallback(async () => {
-    if (!params.editAddressId) return;
-    try {
-      await addressService.deleteAddress(params.editAddressId);
-      Toast.show({ type: 'success', text1: t('address_delete_success') });
-      nav.navigate('MyProfile');
-    } catch {
-      Toast.show({ type: 'error', text1: t('address_delete_error') });
-    }
-  }, [params.editAddressId, nav, t]);
-
   const screenTitle = isEditing ? t('address_edit_title') : t('address_add_title');
 
   return (
@@ -72,7 +61,6 @@ export default function AddressDetailScreen() {
           initialType={(params.editType as AddressType) ?? 'HOME'}
           isEditing={isEditing}
           onSave={handleSave}
-          onDelete={isEditing ? handleDelete : undefined}
           labels={{
             locationNamePlaceholder: t('address_location_name_placeholder'),
             home: t('address_type_home'),
@@ -81,11 +69,6 @@ export default function AddressDetailScreen() {
             other: t('address_type_other'),
             save: t('address_save'),
             update: t('address_update'),
-            delete: t('address_delete'),
-            deleteConfirmTitle: t('address_delete_confirm_title'),
-            deleteConfirmMessage: t('address_delete_confirm_message'),
-            deleteCancel: t('address_delete_cancel'),
-            deleteConfirm: t('address_delete_confirm'),
             noResults: t('address_no_results'),
           }}
         />

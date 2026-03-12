@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useTheme } from '../../../../general/theme/theme';
 import Button from '../../../../general/components/Button';
 import AddressTypeSelector from './AddressTypeSelector';
@@ -24,7 +24,6 @@ type Props = {
     type: AddressType;
     location_name: string;
   }) => Promise<void>;
-  onDelete?: () => void;
   labels: {
     locationNamePlaceholder: string;
     home: string;
@@ -33,11 +32,6 @@ type Props = {
     other: string;
     save: string;
     update: string;
-    delete: string;
-    deleteConfirmTitle: string;
-    deleteConfirmMessage: string;
-    deleteCancel: string;
-    deleteConfirm: string;
     noResults: string;
   };
 };
@@ -50,7 +44,6 @@ function AddressDetailForm({
   initialType = 'HOME',
   isEditing = false,
   onSave,
-  onDelete,
   labels,
 }: Props) {
   const { colors, typography } = useTheme();
@@ -97,17 +90,6 @@ function AddressDetailForm({
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleDelete = () => {
-    Alert.alert(
-      labels.deleteConfirmTitle,
-      labels.deleteConfirmMessage,
-      [
-        { text: labels.deleteCancel, style: 'cancel' },
-        { text: labels.deleteConfirm, style: 'destructive', onPress: onDelete },
-      ],
-    );
   };
 
   return (
@@ -167,14 +149,6 @@ function AddressDetailForm({
           isLoading={isSaving}
           style={styles.saveBtn}
         />
-        {isEditing && onDelete ? (
-          <Button
-            label={labels.delete}
-            variant="danger"
-            onPress={handleDelete}
-            style={styles.deleteBtn}
-          />
-        ) : null}
       </View>
     </View>
   );
@@ -196,7 +170,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   container: { gap: 16 },
-  deleteBtn: { borderRadius: 6, minHeight: 44 },
   nameInput: {
     borderRadius: 8,
     borderWidth: 1,
