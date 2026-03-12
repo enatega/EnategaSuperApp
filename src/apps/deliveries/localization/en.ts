@@ -115,6 +115,14 @@ const en = {
   address_save_success: 'Address saved successfully.',
   address_update_success: 'Address updated successfully.',
   address_delete_success: 'Address deleted successfully.',
+  searching_near: 'Searching near',
+  search_input_placeholder: 'Search restaurants, stores, items',
+  no_results_found: 'No results found',
+  products: 'Products',
+  stores: 'Stores',
+  see_all: 'See All',
+  recent_searches: 'Recent searches',
+  clear_all: 'Clear all',
 };
 
 export default en;
