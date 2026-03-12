@@ -1,7 +1,6 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useImperativeHandle, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useTheme } from '../../../../general/theme/theme';
-import Button from '../../../../general/components/Button';
 import AddressTypeSelector from './AddressTypeSelector';
 import AddressSuggestionItem from './AddressSuggestionItem';
 import AddressSuggestionSkeleton from './AddressSuggestionSkeleton';
@@ -10,13 +9,17 @@ import { addressService } from '../../api/addressService';
 import useAddressPredictions from '../../hooks/useAddressPredictions';
 import useDebouncedValue from '../../../../general/hooks/useDebouncedValue';
 
+export type AddressDetailFormHandle = {
+  submit: () => Promise<void>;
+  isSaving: boolean;
+};
+
 type Props = {
   address: string;
   latitude: number;
   longitude: number;
   initialLocationName?: string;
   initialType?: AddressType;
-  isEditing?: boolean;
   onSave: (data: {
     address: string;
     latitude: number;
@@ -30,22 +33,21 @@ type Props = {
     apartment: string;
     office: string;
     other: string;
-    save: string;
-    update: string;
-    noResults: string;
   };
 };
 
-function AddressDetailForm({
-  address,
-  latitude,
-  longitude,
-  initialLocationName = '',
-  initialType = 'HOME',
-  isEditing = false,
-  onSave,
-  labels,
-}: Props) {
+const AddressDetailFormInner = forwardRef<AddressDetailFormHandle, Props>(function AddressDetailForm(
+  {
+    address,
+    latitude,
+    longitude,
+    initialLocationName = '',
+    initialType = 'HOME',
+    onSave,
+    labels,
+  },
+  ref,
+) {
   const { colors, typography } = useTheme();
   const [editableAddress, setEditableAddress] = useState(address);
   const [currentLat, setCurrentLat] = useState(latitude);
@@ -76,7 +78,7 @@ function AddressDetailForm({
     } catch { /* user can retry */ }
   }, []);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (isSaving) return;
     setIsSaving(true);
     try {
@@ -90,7 +92,9 @@ function AddressDetailForm({
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [isSaving, onSave, editableAddress, address, currentLat, currentLng, addressType, locationName]);
+
+  useImperativeHandle(ref, () => ({ submit: handleSave, isSaving }), [handleSave, isSaving]);
 
   return (
     <View style={styles.container}>
@@ -141,23 +145,14 @@ function AddressDetailForm({
         onSelect={setAddressType}
         labels={{ home: labels.home, apartment: labels.apartment, office: labels.office, other: labels.other }}
       />
-
-      <View style={styles.actions}>
-        <Button
-          label={isEditing ? labels.update : labels.save}
-          onPress={handleSave}
-          isLoading={isSaving}
-          style={styles.saveBtn}
-        />
-      </View>
     </View>
   );
-}
+});
 
-export default memo(AddressDetailForm);
+const AddressDetailForm = memo(AddressDetailFormInner);
+export default AddressDetailForm;
 
 const styles = StyleSheet.create({
-  actions: { gap: 12, paddingHorizontal: 16 },
   addressInput: {
     borderRadius: 8,
     borderWidth: 1,
@@ -177,7 +172,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     paddingHorizontal: 12,
   },
-  saveBtn: { borderRadius: 6, minHeight: 44 },
   suggestionsList: {
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
