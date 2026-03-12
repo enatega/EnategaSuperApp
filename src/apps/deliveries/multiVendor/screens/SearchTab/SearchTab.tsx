@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import MainSearch from '../../components/Search/MainSearch';
+import MainSearch from '../../components/SearchTab/MainSearch';
 
 export default function SearchTab() {
   const { t } = useTranslation('deliveries');
