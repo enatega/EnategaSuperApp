@@ -1,6 +1,7 @@
 import React, { forwardRef, memo, useCallback, useImperativeHandle, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useTheme } from '../../../../general/theme/theme';
+import Text from '../../../../general/components/Text';
 import AddressTypeSelector from './AddressTypeSelector';
 import AddressSuggestionItem from './AddressSuggestionItem';
 import AddressSuggestionSkeleton from './AddressSuggestionSkeleton';
@@ -29,6 +30,8 @@ type Props = {
   }) => Promise<void>;
   labels: {
     locationNamePlaceholder: string;
+    addressDetailsLabel: string;
+    locationTypeLabel: string;
     home: string;
     apartment: string;
     office: string;
@@ -128,23 +131,29 @@ const AddressDetailFormInner = forwardRef<AddressDetailFormHandle, Props>(functi
         ) : null}
       </View>
 
-      <TextInput
-        style={[
-          styles.nameInput,
-          { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border, fontSize: typography.size.md2 },
-        ]}
-        placeholder={labels.locationNamePlaceholder}
-        placeholderTextColor={colors.mutedText}
-        value={locationName}
-        onChangeText={setLocationName}
-        accessibilityLabel={labels.locationNamePlaceholder}
-      />
+      <View style={styles.fieldGroup}>
+        <Text weight="semiBold" style={styles.fieldLabel}>{labels.addressDetailsLabel}</Text>
+        <TextInput
+          style={[
+            styles.nameInput,
+            { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border, fontSize: typography.size.md2 },
+          ]}
+          placeholder={labels.locationNamePlaceholder}
+          placeholderTextColor={colors.mutedText}
+          value={locationName}
+          onChangeText={setLocationName}
+          accessibilityLabel={labels.locationNamePlaceholder}
+        />
+      </View>
 
-      <AddressTypeSelector
-        selected={addressType}
-        onSelect={setAddressType}
-        labels={{ home: labels.home, apartment: labels.apartment, office: labels.office, other: labels.other }}
-      />
+      <View style={styles.fieldGroup}>
+        <Text weight="semiBold" style={styles.fieldLabel}>{labels.locationTypeLabel}</Text>
+        <AddressTypeSelector
+          selected={addressType}
+          onSelect={setAddressType}
+          labels={{ home: labels.home, apartment: labels.apartment, office: labels.office, other: labels.other }}
+        />
+      </View>
     </View>
   );
 });
@@ -165,6 +174,13 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   container: { gap: 16 },
+  fieldGroup: {
+    gap: 8,
+  },
+  fieldLabel: {
+    fontSize: 14,
+    paddingHorizontal: 16,
+  },
   nameInput: {
     borderRadius: 8,
     borderWidth: 1,

@@ -96,6 +96,8 @@ export default function AddressDetailScreen() {
           onSave={handleSave}
           labels={{
             locationNamePlaceholder: t('address_location_name_placeholder'),
+            addressDetailsLabel: t('address_details_label'),
+            locationTypeLabel: t('address_location_type_label'),
             home: t('address_type_home'),
             apartment: t('address_type_apartment'),
             office: t('address_type_office'),

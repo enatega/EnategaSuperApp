@@ -99,6 +99,8 @@ const en = {
   address_locating: 'Locating…',
   address_selected_location: 'Selected location',
   address_location_name_placeholder: 'Location name (e.g. My home)',
+  address_details_label: 'Address Details',
+  address_location_type_label: 'Location Type (Optional)',
   address_type_home: 'Home',
   address_type_apartment: 'Apartment',
   address_type_office: 'Office',
