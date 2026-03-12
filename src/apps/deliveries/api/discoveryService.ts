@@ -1,6 +1,9 @@
 import apiClient from '../../../general/api/apiClient';
 import type {
     ApiResponse,
+    DeliveryBanner,
+    DeliveryBannersApiResponse,
+    DeliveryBannersParams,
     DeliveryShopType,
     DeliveryShopTypesApiResponse,
     DeliveryShopTypesParams,
@@ -20,6 +23,18 @@ function isPaginatedShopTypesResponse(
 function isWrappedShopTypesResponse(
     response: ApiResponse<DeliveryShopType[]> | PaginatedDeliveryResponse<DeliveryShopType>,
 ): response is ApiResponse<DeliveryShopType[]> {
+    return 'data' in response && Array.isArray(response.data);
+}
+
+function isPaginatedBannersResponse(
+    response: ApiResponse<DeliveryBanner[]> | PaginatedDeliveryResponse<DeliveryBanner>,
+): response is PaginatedDeliveryResponse<DeliveryBanner> {
+    return 'items' in response && Array.isArray(response.items);
+}
+
+function isWrappedBannersResponse(
+    response: ApiResponse<DeliveryBanner[]> | PaginatedDeliveryResponse<DeliveryBanner>,
+): response is ApiResponse<DeliveryBanner[]> {
     return 'data' in response && Array.isArray(response.data);
 }
 
@@ -50,6 +65,36 @@ export const discoveryService = {
             return [];
         } catch (error) {
             console.error('shop types request failed', error);
+            throw error;
+        }
+    },
+
+    /** Fetch mobile banners for deliveries home discovery. */
+    getMobileBanners: async (
+        params: DeliveryBannersParams = {},
+    ): Promise<DeliveryBanner[]> => {
+        const { offset = 0, limit = 10 } = params;
+        try {
+            const response = await apiClient.get<DeliveryBannersApiResponse>(
+                '/api/v1/deliveries/banners/mobile',
+                { offset, limit },
+            );
+
+            if (Array.isArray(response)) {
+                return response;
+            }
+
+            if (isPaginatedBannersResponse(response)) {
+                return response.items;
+            }
+
+            if (isWrappedBannersResponse(response)) {
+                return response.data;
+            }
+
+            return [];
+        } catch (error) {
+            console.error('mobile banners request failed', error);
             throw error;
         }
     },

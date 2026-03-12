@@ -37,7 +37,34 @@ export interface DeliveryShopTypesParams {
     limit?: number;
 }
 
+export interface DeliveryBannerStore {
+    id: string;
+    address?: string | null;
+    storeImage?: string | null;
+    coverImage?: string | null;
+}
+
+export interface DeliveryBanner {
+    id: string;
+    title: string;
+    description?: string | null;
+    bannerVideoLink?: string | null;
+    bannerImageLink?: string | null;
+    relatedStore?: string | null;
+    store?: DeliveryBannerStore | null;
+}
+
+export interface DeliveryBannersParams {
+    offset?: number;
+    limit?: number;
+}
+
 export type DeliveryShopTypesApiResponse =
     | ApiResponse<DeliveryShopType[]>
     | PaginatedDeliveryResponse<DeliveryShopType>
     | DeliveryShopType[];
+
+export type DeliveryBannersApiResponse =
+    | ApiResponse<DeliveryBanner[]>
+    | PaginatedDeliveryResponse<DeliveryBanner>
+    | DeliveryBanner[];
