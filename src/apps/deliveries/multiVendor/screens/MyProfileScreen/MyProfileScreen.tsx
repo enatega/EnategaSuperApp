@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,12 +6,15 @@ import { useNavigation } from '@react-navigation/native';
 import ScreenHeader from '../../../../../general/components/ScreenHeader';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
+import { showToast } from '../../../../../general/components/AppToast';
 import useProfile from '../../hooks/useProfile';
 import MyProfileInfoCard from '../../components/profile/MyProfileInfoCard';
 import MyProfileAddressCard from '../../components/profile/MyProfileAddressCard';
 import MyProfileSkeleton from '../../components/profile/MyProfileSkeleton';
 import ProfilePhotoEditor from '../../components/profile/ProfilePhotoEditor';
+import AddressOptionsBottomSheet from '../../components/profile/AddressOptionsBottomSheet';
 import { ProfileAddress } from '../../api/profileService';
+import { addressService } from '../../../api/addressService';
 
 const ADDRESS_ICON_MAP: Record<string, keyof typeof Ionicons.glyphMap> = {
   HOME: 'home-outline',
@@ -44,6 +47,7 @@ export default function MyProfileScreen() {
   const { user, addresses, isLoading, refetch } = useProfile();
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false);
   const [imageCacheKey, setImageCacheKey] = useState(0);
+  const [selectedAddress, setSelectedAddress] = useState<ProfileAddress | null>(null);
 
   const handleUploadComplete = () => {
     setImageCacheKey((prev) => prev + 1);
@@ -71,6 +75,26 @@ export default function MyProfileScreen() {
       gender: user?.gender ?? null,
     });
   };
+
+  const handleEditAddress = useCallback(() => {
+    if (!selectedAddress) return;
+    (navigation as { navigate: (screen: string, params: Record<string, unknown>) => void }).navigate('AddressSearch', {
+      editAddressId: selectedAddress.id,
+      editType: selectedAddress.type,
+      editLocationName: selectedAddress.location_name ?? '',
+    });
+  }, [navigation, selectedAddress]);
+
+  const handleDeleteAddress = useCallback(async () => {
+    if (!selectedAddress) return;
+    try {
+      await addressService.deleteAddress(String(selectedAddress.id));
+      showToast.success(t('address_delete_success'));
+      refetch();
+    } catch {
+      showToast.error(t('address_delete_error'));
+    }
+  }, [selectedAddress, t, refetch]);
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -125,6 +149,7 @@ export default function MyProfileScreen() {
                         : addr.address
                     }
                     iconName={getAddressIcon(addr.type)}
+                    onMenuPress={() => setSelectedAddress(addr)}
                   />
                 ))}
 
@@ -132,6 +157,9 @@ export default function MyProfileScreen() {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={t('my_profile_add_address')}
+                  onPress={() =>
+                    (navigation as { navigate: (screen: string) => void }).navigate('AddressSearch')
+                  }
                   style={({ pressed }) => [
                     styles.addButton,
                     {
@@ -151,6 +179,22 @@ export default function MyProfileScreen() {
           </>
         )}
       </ScrollView>
+
+      <AddressOptionsBottomSheet
+        isVisible={selectedAddress !== null}
+        addressLabel={
+          selectedAddress
+            ? selectedAddress.location_name
+              ? `${selectedAddress.location_name} - ${selectedAddress.address}`
+              : selectedAddress.address
+            : ''
+        }
+        onClose={() => setSelectedAddress(null)}
+        onEdit={handleEditAddress}
+        onDelete={handleDeleteAddress}
+        editLabel={t('address_edit_title')}
+        deleteLabel={t('address_delete')}
+      />
     </View>
   );
 }

@@ -6,6 +6,9 @@ import { useTranslation } from 'react-i18next';
 import MultiVendorBottomTabNavigator from './MultiVendorBottomTabNavigator';
 import MyProfileScreen from '../screens/MyProfileScreen/MyProfileScreen';
 import EditProfileScreen from '../screens/EditProfileScreen/EditProfileScreen';
+import AddressSearchScreen from '../../screens/addresses/AddressSearchScreen';
+import AddressChooseOnMapScreen from '../../screens/addresses/AddressChooseOnMapScreen';
+import AddressDetailScreen from '../../screens/addresses/AddressDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -36,6 +39,21 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="EditProfile"
         component={EditProfileScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="AddressSearch"
+        component={AddressSearchScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="AddressChooseOnMap"
+        component={AddressChooseOnMapScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="AddressDetail"
+        component={AddressDetailScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

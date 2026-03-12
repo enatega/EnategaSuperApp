@@ -13,6 +13,10 @@ export const deliveryKeys = {
     // Discovery
     discovery: () => [...deliveryKeys.all, 'discovery'] as const,
     shopTypes: () => [...deliveryKeys.discovery(), 'shop-types'] as const,
+
+    // Addresses
+    addresses: () => [...deliveryKeys.all, 'addresses'] as const,
+    address: (id: string) => [...deliveryKeys.addresses(), id] as const,
 };
 
 /*
