@@ -40,10 +40,12 @@ type Props = {
   imageUri: string | null | undefined;
   displayName: string;
   fullName: string | null | undefined;
+  dateOfBirth: string | null | undefined;
   phone: string | null | undefined;
   email: string | null | undefined;
   editLabel: string;
   nameLabel: string;
+  dateOfBirthLabel: string;
   phoneLabel: string;
   emailLabel: string;
   onEditAvatar?: () => void;
@@ -54,10 +56,12 @@ export default function MyProfileInfoCard({
   imageUri,
   displayName,
   fullName,
+  dateOfBirth,
   phone,
   email,
   editLabel,
   nameLabel,
+  dateOfBirthLabel,
   phoneLabel,
   emailLabel,
   onEditAvatar,
@@ -109,6 +113,7 @@ export default function MyProfileInfoCard({
           editLabel={editLabel}
           onEdit={onEditName}
         />
+        <InfoRow label={dateOfBirthLabel} value={dateOfBirth} />
         <InfoRow label={phoneLabel} value={phone} />
         <InfoRow label={emailLabel} value={email} />
       </View>

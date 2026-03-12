@@ -52,6 +52,7 @@ const fr = {
   my_profile_title: 'Mon profil',
   my_profile_edit: 'Modifier',
   my_profile_full_name: 'Nom complet',
+  my_profile_date_of_birth: 'Date de naissance',
   my_profile_mobile_number: 'Numéro de téléphone',
   my_profile_email: 'E-mail',
   my_profile_my_addresses: 'Mes adresses',
@@ -71,6 +72,21 @@ const fr = {
   photo_permission_gallery: "L'accès à la galerie est nécessaire pour choisir une photo.",
   photo_upload_error_title: 'Échec du téléchargement',
   photo_upload_failed: 'Impossible de mettre à jour la photo de profil.',
+  // Edit Profile screen
+  edit_profile_title: 'Modifier le profil',
+  edit_profile_name: 'Nom',
+  edit_profile_date_of_birth: 'Date de naissance',
+  edit_profile_day: 'Jour',
+  edit_profile_month: 'Mois',
+  edit_profile_year: 'Année',
+  edit_profile_gender: 'Genre',
+  edit_profile_gender_placeholder: 'Sélectionner une option',
+  edit_profile_save: 'Enregistrer',
+  edit_profile_success: 'Succès',
+  edit_profile_success_message: 'Profil mis à jour avec succès.',
+  edit_profile_error: 'Erreur',
+  edit_profile_name_required: 'Le nom est requis.',
+  edit_profile_failed: 'Impossible de mettre à jour le profil.',
 };
 
 export default fr;

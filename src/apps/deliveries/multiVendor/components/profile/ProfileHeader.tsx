@@ -4,20 +4,18 @@ import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
 
 type Props = {
-  firstName: string | null | undefined;
-  lastName: string | null | undefined;
+  name: string | null | undefined;
   imageUri: string | null | undefined;
   subtitle: string;
 };
 
 export default function ProfileHeader({
-  firstName,
-  lastName,
+  name,
   imageUri,
   subtitle,
 }: Props) {
   const { colors } = useTheme();
-  const displayName = [firstName, lastName].filter(Boolean).join(' ') || '—';
+  const displayName = name || '—';
 
   return (
     <View style={styles.container}>

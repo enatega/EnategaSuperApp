@@ -5,6 +5,7 @@ import MultiVendorDeliveryDetails from '../screens/DeliveryDetails';
 import { useTranslation } from 'react-i18next';
 import MultiVendorBottomTabNavigator from './MultiVendorBottomTabNavigator';
 import MyProfileScreen from '../screens/MyProfileScreen/MyProfileScreen';
+import EditProfileScreen from '../screens/EditProfileScreen/EditProfileScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,6 +31,11 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="MyProfile"
         component={MyProfileScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfileScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

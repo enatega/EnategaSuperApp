@@ -4,8 +4,7 @@ const PROFILE_BASE = '/api/v1/apps/deliveries/profile';
 
 export type ProfileUser = {
   id: string;
-  first_name: string | null;
-  last_name: string | null;
+  name: string | null;
   email: string | null;
   phone: string | null;
   date_of_birth: string | null;
@@ -39,9 +38,14 @@ export type WalletResponse = {
   message: string;
   data: {
     name: string | null;
-    last_name: string | null;
     wallet_balance: number;
   };
+};
+
+export type UpdateProfilePayload = {
+  name?: string;
+  dateOfBirth?: string;
+  gender?: string;
 };
 
 export type UpdateProfileImagePayload = {
@@ -54,6 +58,8 @@ export const profileService = {
   getProfile: () => apiClient.get<ProfileResponse>(PROFILE_BASE),
   getWalletBalance: () =>
     apiClient.get<WalletResponse>(`${PROFILE_BASE}/wallet`),
+  updateProfile: (payload: UpdateProfilePayload) =>
+    apiClient.patch<ProfileResponse>(PROFILE_BASE, payload),
   updateProfileImage: (payload: UpdateProfileImagePayload) => {
     const form = new FormData();
     form.append('image', {

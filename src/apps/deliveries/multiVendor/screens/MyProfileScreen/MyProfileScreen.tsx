@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import ScreenHeader from '../../../../../general/components/ScreenHeader';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
@@ -39,6 +40,7 @@ function getAddressTypeLabel(
 export default function MyProfileScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
+  const navigation = useNavigation();
   const { user, addresses, isLoading, refetch } = useProfile();
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false);
   const [imageCacheKey, setImageCacheKey] = useState(0);
@@ -48,12 +50,27 @@ export default function MyProfileScreen() {
     refetch();
   };
 
-  const displayName =
-    [user?.first_name, user?.last_name].filter(Boolean).join(' ') || '—';
+  const displayName = user?.name || '—';
 
   const avatarUri = user?.image
     ? `${user.image}?cache=${imageCacheKey}`
     : undefined;
+
+  const formattedDob = user?.date_of_birth
+    ? new Date(user.date_of_birth).toLocaleDateString(undefined, {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    : null;
+
+  const handleEditName = () => {
+    (navigation as { navigate: (screen: string, params: Record<string, unknown>) => void }).navigate('EditProfile', {
+      name: user?.name ?? '',
+      dateOfBirth: user?.date_of_birth ?? null,
+      gender: user?.gender ?? null,
+    });
+  };
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -71,13 +88,16 @@ export default function MyProfileScreen() {
               imageUri={avatarUri}
               displayName={displayName}
               fullName={displayName}
+              dateOfBirth={formattedDob}
               phone={user?.phone}
               email={user?.email}
               editLabel={t('my_profile_edit')}
               nameLabel={t('my_profile_full_name')}
+              dateOfBirthLabel={t('my_profile_date_of_birth')}
               phoneLabel={t('my_profile_mobile_number')}
               emailLabel={t('my_profile_email')}
               onEditAvatar={() => setIsPhotoModalVisible(true)}
+              onEditName={handleEditName}
             />
 
             <ProfilePhotoEditor

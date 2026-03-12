@@ -41,8 +41,7 @@ export default function ProfileTab() {
       showsVerticalScrollIndicator={false}
     >
       <ProfileHeader
-        firstName={user?.first_name}
-        lastName={user?.last_name}
+        name={user?.name}
         imageUri={user?.image}
         subtitle={t('profile_personal_account')}
       />

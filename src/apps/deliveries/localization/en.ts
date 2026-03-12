@@ -52,6 +52,7 @@ const en = {
   my_profile_title: 'My profile',
   my_profile_edit: 'Edit',
   my_profile_full_name: 'Full name',
+  my_profile_date_of_birth: 'Date of birth',
   my_profile_mobile_number: 'Mobile number',
   my_profile_email: 'Email',
   my_profile_my_addresses: 'My addresses',
@@ -71,6 +72,21 @@ const en = {
   photo_permission_gallery: 'Gallery access is needed to pick a photo.',
   photo_upload_error_title: 'Upload Failed',
   photo_upload_failed: 'Could not update profile photo.',
+  // Edit Profile screen
+  edit_profile_title: 'Edit profile',
+  edit_profile_name: 'Name',
+  edit_profile_date_of_birth: 'Date of birth',
+  edit_profile_day: 'Day',
+  edit_profile_month: 'Month',
+  edit_profile_year: 'Year',
+  edit_profile_gender: 'Gender',
+  edit_profile_gender_placeholder: 'Select option',
+  edit_profile_save: 'Save',
+  edit_profile_success: 'Success',
+  edit_profile_success_message: 'Profile updated successfully.',
+  edit_profile_error: 'Error',
+  edit_profile_name_required: 'Name is required.',
+  edit_profile_failed: 'Could not update profile.',
 };
 
 export default en;
