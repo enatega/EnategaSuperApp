@@ -35,6 +35,14 @@ const en = {
   type_marketplace_desc: 'Vast Local Community providers',
   type_chain_title: 'Chain Stores',
   type_chain_desc: 'Shop your favorite chains',
+  searching_near: 'Searching near',
+  search_input_placeholder: 'Search restaurants, stores, items',
+  no_results_found: 'No results found',
+  products: 'Products',
+  stores: 'Stores',
+  see_all: 'See All',
+  recent_searches: 'Recent searches',
+  clear_all: 'Clear all',
 };
 
 export default en;

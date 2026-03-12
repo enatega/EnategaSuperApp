@@ -48,6 +48,7 @@ export const lightColors = {
   findingRidePulseC: '#2FA8D3',
   findingRideCenterHalo: 'rgba(175, 231, 247, 0.72)',
   findingRideMapOverlay: 'rgba(255, 255, 255, 0.2)',
+  yellow500: '#EAB308'
 };
 
 export const darkColors: typeof lightColors = {
@@ -100,6 +101,7 @@ export const darkColors: typeof lightColors = {
   findingRidePulseC: '#1691BF',
   findingRideCenterHalo: 'rgba(22, 145, 191, 0.22)',
   findingRideMapOverlay: 'rgba(15, 17, 23, 0.22)',
+  yellow500: '#EAB308'
 };
 
 export type ThemeColors = typeof lightColors;
