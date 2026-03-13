@@ -19,7 +19,7 @@ import { addressService } from '../../../api/addressService';
 const ADDRESS_ICON_MAP: Record<string, keyof typeof Ionicons.glyphMap> = {
   HOME: 'home-outline',
   APARTMENT: 'business-outline',
-  WORK: 'briefcase-outline',
+  OFFICE: 'briefcase-outline',
   OTHER: 'location-outline',
 };
 
