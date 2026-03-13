@@ -3,17 +3,13 @@ import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
-import type { DeliveryTopBrand } from '../../../api/types';
+import { useTopBrands } from '../../../hooks';
 import TopBrandsListSkeleton from '../HomeTabSkeletons/TopBrandsListSkeleton';
 import TopBrandCard from '../../../components/store-card/TopBrandCard';
 
-type Props = {
-  brands: DeliveryTopBrand[];
-  isLoading?: boolean;
-};
-
-export default function TopBrandsList({ brands, isLoading = false }: Props) {
+export default function TopBrandsList() {
   const { t } = useTranslation('deliveries');
+  const { data: topBrands = [], isPending: isTopBrandsPending } = useTopBrands();
 
   return (
     <View style={styles.section}>
@@ -22,11 +18,11 @@ export default function TopBrandsList({ brands, isLoading = false }: Props) {
         title={t('multi_vendor_top_brands_title')}
       />
 
-      {isLoading ? (
+      {isTopBrandsPending ? (
         <TopBrandsListSkeleton />
       ) : (
         <HorizontalList
-          data={brands}
+          data={topBrands}
           keyExtractor={(item, index) => `${item.name}-${index}`}
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <View style={styles.separator} />}

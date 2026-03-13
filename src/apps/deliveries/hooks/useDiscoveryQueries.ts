@@ -2,7 +2,12 @@ import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import { ApiError } from '../../../general/api/apiClient';
 import { discoveryService } from '../api/discoveryService';
 import { deliveryKeys } from '../api/queryKeys';
-import type { DeliveryBanner, DeliveryShopType, DeliveryTopBrand } from '../api/types';
+import type {
+  DeliveryBanner,
+  DeliveryNearbyStore,
+  DeliveryShopType,
+  DeliveryTopBrand,
+} from '../api/types';
 
 type UseShopTypesOptions = Omit<
   UseQueryOptions<DeliveryShopType[], ApiError>,
@@ -16,6 +21,11 @@ type UseMobileBannersOptions = Omit<
 
 type UseTopBrandsOptions = Omit<
   UseQueryOptions<DeliveryTopBrand[], ApiError>,
+  'queryKey' | 'queryFn'
+>;
+
+type UseNearbyStoresOptions = Omit<
+  UseQueryOptions<DeliveryNearbyStore[], ApiError>,
   'queryKey' | 'queryFn'
 >;
 
@@ -41,6 +51,15 @@ export function useTopBrands(options?: UseTopBrandsOptions) {
   return useQuery<DeliveryTopBrand[], ApiError>({
     queryKey: deliveryKeys.topBrands(),
     queryFn: () => discoveryService.getTopBrands(),
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+}
+
+export function useNearbyStores(options?: UseNearbyStoresOptions) {
+  return useQuery<DeliveryNearbyStore[], ApiError>({
+    queryKey: deliveryKeys.nearbyStores(),
+    queryFn: () => discoveryService.getNearbyStores(),
     staleTime: 5 * 60 * 1000,
     ...options,
   });

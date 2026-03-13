@@ -4,6 +4,9 @@ import type {
     DeliveryBanner,
     DeliveryBannersApiResponse,
     DeliveryBannersParams,
+    DeliveryNearbyStore,
+    DeliveryNearbyStoresApiResponse,
+    DeliveryNearbyStoresParams,
     DeliveryTopBrand,
     DeliveryTopBrandsApiResponse,
     DeliveryTopBrandsParams,
@@ -12,6 +15,13 @@ import type {
     DeliveryShopTypesParams,
     PaginatedDeliveryResponse,
 } from './types';
+
+const NEARBY_STORES_DEFAULTS = {
+    offset: 0,
+    limit: 10,
+    latitude: 33.7039543,
+    longitude: 72.9680349,
+} as const;
 
 // ---------------------------------------------------------------------------
 // Discovery Service – all public deliveries discovery HTTP calls live here
@@ -50,6 +60,22 @@ function isPaginatedTopBrandsResponse(
 function isWrappedTopBrandsResponse(
     response: ApiResponse<DeliveryTopBrand[]> | PaginatedDeliveryResponse<DeliveryTopBrand>,
 ): response is ApiResponse<DeliveryTopBrand[]> {
+    return 'data' in response && Array.isArray(response.data);
+}
+
+function isPaginatedNearbyStoresResponse(
+    response:
+        | ApiResponse<DeliveryNearbyStore[]>
+        | PaginatedDeliveryResponse<DeliveryNearbyStore>,
+): response is PaginatedDeliveryResponse<DeliveryNearbyStore> {
+    return 'items' in response && Array.isArray(response.items);
+}
+
+function isWrappedNearbyStoresResponse(
+    response:
+        | ApiResponse<DeliveryNearbyStore[]>
+        | PaginatedDeliveryResponse<DeliveryNearbyStore>,
+): response is ApiResponse<DeliveryNearbyStore[]> {
     return 'data' in response && Array.isArray(response.data);
 }
 
@@ -140,6 +166,42 @@ export const discoveryService = {
             return [];
         } catch (error) {
             console.error('top brands request failed', error);
+            throw error;
+        }
+    },
+
+    /** Fetch nearby stores for deliveries home discovery. */
+    getNearbyStores: async (
+        params: DeliveryNearbyStoresParams = {},
+    ): Promise<DeliveryNearbyStore[]> => {
+        const {
+            offset = NEARBY_STORES_DEFAULTS.offset,
+            limit = NEARBY_STORES_DEFAULTS.limit,
+            latitude = NEARBY_STORES_DEFAULTS.latitude,
+            longitude = NEARBY_STORES_DEFAULTS.longitude,
+        } = params;
+
+        try {
+            const response = await apiClient.get<DeliveryNearbyStoresApiResponse>(
+                '/api/v1/apps/deliveries/discovery/nearby-stores',
+                { offset, limit, latitude, longitude },
+            );
+
+            if (Array.isArray(response)) {
+                return response;
+            }
+
+            if (isPaginatedNearbyStoresResponse(response)) {
+                return response.items;
+            }
+
+            if (isWrappedNearbyStoresResponse(response)) {
+                return response.data;
+            }
+
+            return [];
+        } catch (error) {
+            console.error('nearby stores request failed', error);
             throw error;
         }
     },

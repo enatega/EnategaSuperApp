@@ -50,6 +50,35 @@ export interface DeliveryTopBrandsParams {
     limit?: number;
 }
 
+export interface DeliveryNearbyStore {
+    storeId: string;
+    vendorId: string;
+    name: string;
+    logo?: string | null;
+    coverImage?: string | null;
+    address?: string | null;
+    shopTypeId?: string | null;
+    shopTypeName?: string | null;
+    averageRating?: number | null;
+    reviewCount?: number | null;
+    deliveryTime?: number | null;
+    minimumOrder?: number | null;
+    baseFee?: number | null;
+    distanceKm?: number | null;
+    isAvailable?: boolean;
+    deal?: string | null;
+    dealType?: string | null;
+    dealAmount?: number | null;
+    isFavorite?: boolean;
+}
+
+export interface DeliveryNearbyStoresParams {
+    offset?: number;
+    limit?: number;
+    latitude?: number;
+    longitude?: number;
+}
+
 export interface DeliveryBannerStore {
     id: string;
     address?: string | null;
@@ -81,6 +110,11 @@ export type DeliveryTopBrandsApiResponse =
     | ApiResponse<DeliveryTopBrand[]>
     | PaginatedDeliveryResponse<DeliveryTopBrand>
     | DeliveryTopBrand[];
+
+export type DeliveryNearbyStoresApiResponse =
+    | ApiResponse<DeliveryNearbyStore[]>
+    | PaginatedDeliveryResponse<DeliveryNearbyStore>
+    | DeliveryNearbyStore[];
 
 export type DeliveryBannersApiResponse =
     | ApiResponse<DeliveryBanner[]>
