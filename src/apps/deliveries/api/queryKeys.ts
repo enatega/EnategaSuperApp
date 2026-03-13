@@ -13,10 +13,12 @@ export const deliveryKeys = {
     // Discovery
     discovery: () => [...deliveryKeys.all, 'discovery'] as const,
     shopTypes: () => [...deliveryKeys.discovery(), 'shop-types'] as const,
+};
 
-    // Addresses
-    addresses: () => [...deliveryKeys.all, 'addresses'] as const,
-    address: (id: string) => [...deliveryKeys.addresses(), id] as const,
+export const addressKeys = {
+    all: ['addresses'] as const,
+    list: () => [...addressKeys.all, 'list'] as const,
+    detail: (id: string) => [...addressKeys.all, id] as const,
 };
 
 /*
@@ -26,9 +28,14 @@ export const deliveryKeys = {
   deliveryKeys.discovery() → ['deliveries', 'discovery']
   deliveryKeys.shopTypes() → ['deliveries', 'discovery', 'shop-types']
 
+  addressKeys.all          → ['addresses']
+  addressKeys.list()       → ['addresses', 'list']
+  addressKeys.detail(id)   → ['addresses', id]
+
   Invalidation examples:
   ──────────────────────
   queryClient.invalidateQueries({ queryKey: deliveryKeys.all })         // all deliveries
   queryClient.invalidateQueries({ queryKey: deliveryKeys.discovery() }) // discovery endpoints
-  queryClient.invalidateQueries({ queryKey: deliveryKeys.shopTypes() }) // shop types
+  queryClient.invalidateQueries({ queryKey: addressKeys.all })          // all addresses
+  queryClient.invalidateQueries({ queryKey: addressKeys.list() })       // address list
 */
