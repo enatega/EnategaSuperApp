@@ -27,6 +27,7 @@ import type {
   VerifyForgotPasswordOtpResponce,
 } from "../api/authTypes";
 import { authSession } from "../auth/authSession";
+import { socketClient } from "../services/socket";
 
 export function useSignupSendOtp(
   options?: UseMutationOptions<
@@ -111,6 +112,8 @@ export function useLogout(options?: UseMutationOptions<void, ApiError, void>) {
 
   return useMutation<void, ApiError, void>({
     mutationFn: async () => {
+      await socketClient.updateAuthToken(null);
+      socketClient.disconnect();
       await authSession.clearSession();
     },
     ...options,

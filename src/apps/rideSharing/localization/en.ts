@@ -146,6 +146,8 @@ const en = {
   ride_schedule_label: 'Schedule ride',
   ride_payment_cash: 'Cash',
   ride_find_button: 'Find a ride',
+  ride_active_notice_searching_title: 'Ride request in progress',
+  ride_active_notice_live_title: 'Active ride in progress',
   ride_finding_title: 'Finding a driver near you',
   ride_finding_description: 'We are matching your request with the nearest available drivers.',
   ride_finding_timeout_title: 'No driver accepted yet',

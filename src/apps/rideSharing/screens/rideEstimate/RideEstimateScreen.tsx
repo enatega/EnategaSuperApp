@@ -12,16 +12,26 @@ import RideEstimateBottomSheet from './components/RideEstimateBottomSheet';
 import RideEstimateMapLayer from './components/RideEstimateMapLayer';
 import { useTheme } from '../../../../general/theme/theme';
 import { getApiErrorMessage } from '../../../../general/utils/apiError';
+import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
+import { socketClient } from '../../../../general/services/socket';
+import { socketLogger } from '../../../../general/services/socket';
 import type {
+  ActiveRideRequestPayload,
+  CreateRidePayload,
   RideAddressSelection,
   RideTypeFare,
 } from '../../api/types';
 import type { RideOptionItem } from '../../components/rideOptions/types';
 import useRideEstimateOptions from '../../hooks/useRideEstimateOptions';
+import { useCreateRide } from '../../hooks/useRideMutations';
 import useRideRoutePath from '../../hooks/useRideRoutePath';
 import type { RideSharingStackParamList } from '../../navigation/RideSharingNavigator';
+import { useActiveRideRequestStore } from '../../stores/useActiveRideRequestStore';
+import { useActiveRideStore } from '../../stores/useActiveRideStore';
+import { emitRideSharingEvent } from '../../socket/rideSharingSocket';
 import type { RideIntent } from '../../utils/rideOptions';
 import { rideEstimateIcons } from './rideEstimateAssets';
+import { showToast } from '../../../../general/components/AppToast';
 
 type RouteParams = {
   rideType?: RideIntent;
@@ -40,6 +50,18 @@ function resolveRideIcon(name: string) {
   if (/women/i.test(name)) return rideEstimateIcons.women;
   if (/premium/i.test(name)) return rideEstimateIcons.premium;
   return rideEstimateIcons.ride;
+}
+
+function mapPaymentMethodToApi(paymentMethodId: PaymentMethodId) {
+  switch (paymentMethodId) {
+    case 'wallet':
+      return 'WALLET';
+    case 'visa':
+      return 'CARD';
+    case 'cash':
+    default:
+      return 'CASH';
+  }
 }
 
 function toRideOption(ride: RideTypeFare): RideOptionItem & { fare?: number; recommendedFare?: number } {
@@ -86,6 +108,10 @@ export default function RideEstimateScreen() {
   const [customFare, setCustomFare] = useState<number | undefined>(initialOfferedFare);
   const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethodId>(initialPaymentMethodId);
   const [isPaymentMethodVisible, setIsPaymentMethodVisible] = useState(false);
+  const createRideMutation = useCreateRide();
+  const authSessionQuery = useAuthSessionQuery();
+  const setActiveRideRequest = useActiveRideRequestStore((state) => state.setActiveRideRequest);
+  const clearActiveRide = useActiveRideStore((state) => state.clearActiveRide);
 
   useEffect(() => {
     setPaymentMethodId(initialPaymentMethodId);
@@ -131,6 +157,120 @@ export default function RideEstimateScreen() {
     setCustomFare(undefined);
   }, [initialOfferedFare]);
 
+  const handleConfirmRide = async () => {
+    if (createRideMutation.isPending) {
+      return;
+    }
+
+    if (!fromAddress?.coordinates || !toAddress?.coordinates) {
+      showToast.error(t('error'), t('ride_estimate_route_error_description'));
+      return;
+    }
+
+    if (!selectedOption?.id) {
+      showToast.error(t('error'), t('ride_types_error_description'));
+      return;
+    }
+
+    const resolvedFare = selectedOptionCurrentFare ?? selectedOptionRecommendedFare;
+    if (typeof resolvedFare !== 'number' || Number.isNaN(resolvedFare) || resolvedFare <= 0) {
+      showToast.error(t('error'), t('ride_estimate_quote_error_description'));
+      return;
+    }
+
+    if (!quoteQuery.data) {
+      showToast.error(t('error'), t('ride_estimate_quote_error_description'));
+      return;
+    }
+
+    try {
+      const createRidePayload: CreateRidePayload = {
+        pickup: {
+          lat: fromAddress.coordinates.latitude,
+          lng: fromAddress.coordinates.longitude,
+        },
+        dropoff: {
+          lat: toAddress.coordinates.latitude,
+          lng: toAddress.coordinates.longitude,
+        },
+        ride_type_id: String(selectedOption.id),
+        fare: resolvedFare,
+        payment_via: mapPaymentMethodToApi(paymentMethodId),
+        is_hourly: false,
+        stops: [],
+        pickup_address: fromAddress.description,
+        pickup_location: fromAddress.description,
+        dropoff_location: toAddress.description,
+        destination_address: toAddress.description,
+        is_scheduled: false,
+        is_family: false,
+        estimated_time: quoteQuery.data.durationMin,
+        estimated_distance: quoteQuery.data.distanceKm,
+        base_fair: selectedOptionRecommendedFare ?? resolvedFare,
+        offered_fair: resolvedFare,
+      };
+      const createdRide = await createRideMutation.mutateAsync(createRidePayload);
+
+      try {
+        await socketClient.connect();
+        emitRideSharingEvent('ride-request-created-by-customer', {
+          rideRequestData: {
+            ...createRidePayload,
+            passenger_user_id: authSessionQuery.data?.user?.id,
+            ride_request_id: createdRide.id,
+          },
+          latitude: fromAddress.coordinates.latitude,
+          longitude: fromAddress.coordinates.longitude,
+          radiusKm: 1,
+        });
+      } catch (socketError) {
+        socketLogger.warn('Ride request socket emit failed after API success', {
+          rideRequestId: createdRide.id,
+          error:
+            socketError instanceof Error ? socketError.message : String(socketError),
+        });
+      }
+
+      const createdActiveRideRequest: ActiveRideRequestPayload = {
+        id: createdRide.id,
+        pickup: {
+          lat: fromAddress.coordinates.latitude,
+          lng: fromAddress.coordinates.longitude,
+        },
+        dropoff: {
+          lat: toAddress.coordinates.latitude,
+          lng: toAddress.coordinates.longitude,
+        },
+        pickup_location: fromAddress.description,
+        dropoff_location: toAddress.description,
+        payment_via: mapPaymentMethodToApi(paymentMethodId),
+        ride_type_id: String(selectedOption.id),
+        offeredFair: resolvedFare,
+        baseFair: selectedOptionRecommendedFare ?? resolvedFare,
+        status: createdRide.status ?? 'pending',
+        is_hourly: false,
+        is_family: false,
+        is_scheduled: false,
+        estimated_time: quoteQuery.data.durationMin,
+        estimated_distance: quoteQuery.data.distanceKm,
+        ride_type: {
+          id: String(selectedOption.id),
+          name: selectedOption.title,
+          imageUrl: typeof selectedOption.icon === 'string' ? selectedOption.icon : null,
+          seatCount: selectedOption.seats,
+        },
+      };
+      clearActiveRide();
+      setActiveRideRequest(createdActiveRideRequest);
+      navigation.popToTop();
+    } catch (error) {
+      showToast.error(
+        t('error'),
+        getApiErrorMessage(error, t('ride_estimate_quote_error_description')),
+      );
+    }
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <RideEstimateMapLayer
@@ -169,18 +309,7 @@ export default function RideEstimateScreen() {
           const nextOption = options.find((item) => item.id === nextOptionId);
           setCustomFare(nextOption?.fare);
         }}
-        onConfirmRide={() => navigation.navigate('FindingRide', {
-          fromAddress,
-          toAddress,
-          selectedRide: {
-            ...selectedOption,
-            fare: selectedOptionCurrentFare,
-            recommendedFare: selectedOptionRecommendedFare,
-          },
-          offeredFare: selectedOptionCurrentFare,
-          recommendedFare: selectedOptionRecommendedFare,
-          paymentMethodId,
-        })}
+        onConfirmRide={handleConfirmRide}
         onBackPress={() => navigation.goBack()}
         paymentMethodLabel={paymentMethodLabel}
         paymentMethodBadge={<PaymentMethodBadge paymentMethodId={paymentMethodId} size="sm" />}
@@ -214,7 +343,8 @@ export default function RideEstimateScreen() {
         isLoading={isQuoteLoading}
         errorMessage={quoteErrorMessage}
         onRetry={() => quoteQuery.refetch()}
-        isConfirmDisabled={quoteQuery.isLoading || quoteQuery.isFetching}
+        isConfirmDisabled={quoteQuery.isLoading || quoteQuery.isFetching || !quoteQuery.data}
+        isConfirmLoading={createRideMutation.isPending}
       />
 
       <PaymentMethodBottomSheet

@@ -9,9 +9,12 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import QueryProvider from "./src/general/providers/QueryProvider";
 import "./src/general/localization/i18n";
 import Toast from "react-native-toast-message";
+import { useSocketSession } from "./src/general/hooks/useSocketSession";
 
 function ThemedApp() {
   const { theme } = useAppTheme();
+  useSocketSession();
+
   return (
     <View style={styles.container}>
       <OfflineNotice />

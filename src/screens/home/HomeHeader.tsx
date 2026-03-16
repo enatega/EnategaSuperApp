@@ -8,6 +8,7 @@ import { useTheme } from '../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { homePatterns } from '../../general/assets/images';
+import { useActiveRideStore } from '../../apps/rideSharing/stores/useActiveRideStore';
 
 const doodleLines = 'https://www.figma.com/api/mcp/asset/903ad3ca-275a-49f4-a3e3-b7b90c360b96';
 const doodleSplines = 'https://www.figma.com/api/mcp/asset/08bf846b-8b15-4164-920e-5e2179f67dbe';
@@ -31,6 +32,7 @@ export default function HomeHeader({ backgroundVariant = 'gradient' }: Props) {
   const { t } = useTranslation('general');
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+ 
   const bannerSidePadding = 16;
   const bannerWidth = width - bannerSidePadding * 2;
   const [bannerIndex, setBannerIndex] = useState(0);
@@ -54,7 +56,7 @@ export default function HomeHeader({ backgroundVariant = 'gradient' }: Props) {
   ];
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
+    <View style={[styles.root, { paddingTop:  insets.top + 12 }]}>
       <View style={styles.heroBackground}>
         <Image
           source={homePatterns.header}

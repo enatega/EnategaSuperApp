@@ -11,8 +11,8 @@
   "dependencies": {
     "@expo/vector-icons": "^15.1.1",
     "@react-native-community/netinfo": "11.4.1",
-    "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-native-google-signin/google-signin": "^16.1.2",
+    "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.9.26",
     "@shopify/flash-list": "2.0.2",
@@ -38,6 +38,7 @@
     "react-native-svg": "15.12.1",
     "react-native-swiper-flatlist": "^3.2.5",
     "react-native-toast-message": "^2.3.3",
+    "socket.io-client": "^4.8.3",
     "zustand": "^5.0.11"
   },
   "devDependencies": {

@@ -135,6 +135,8 @@ const fr = {
   ride_schedule_label: 'Programmer le trajet',
   ride_payment_cash: 'Espèces',
   ride_find_button: 'Trouver un trajet',
+  ride_active_notice_searching_title: 'Demande de trajet en cours',
+  ride_active_notice_live_title: 'Trajet actif en cours',
   // Reservations
   reservations_title: 'Réservations',
   reservations_empty: 'Aucune réservation',
