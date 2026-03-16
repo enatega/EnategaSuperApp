@@ -39,6 +39,8 @@ const fr = {
   multi_vendor_shop_type_milk: 'Livraison de lait',
   multi_vendor_shop_type_flower: 'Livraison de fleurs',
   multi_vendor_shop_type_liquor: 'Livraison d’alcool',
+  multi_vendor_shop_type_products_empty: 'Aucun produit trouve pour ce type de boutique.',
+  multi_vendor_shop_type_products_error: 'Impossible de charger les produits pour le moment.',
   chain_home_subtitle: 'Chaînes favorites',
   chain_home_body: 'Commandez auprès de vos chaînes préférées.',
   type_single_vendor_title: 'Magasin Vendeur Unique',

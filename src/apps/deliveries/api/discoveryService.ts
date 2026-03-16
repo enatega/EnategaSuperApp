@@ -13,6 +13,9 @@ import type {
     DeliveryTopBrandsApiResponse,
     DeliveryTopBrandsParams,
     DeliveryShopType,
+    DeliveryShopTypeProduct,
+    DeliveryShopTypeProductsApiResponse,
+    DeliveryShopTypeProductsParams,
     DeliveryShopTypesApiResponse,
     DeliveryShopTypesParams,
     PaginatedDeliveryResponse,
@@ -28,6 +31,11 @@ const NEARBY_STORES_DEFAULTS = {
 const DEALS_DEFAULTS = {
     offset: 0,
     limit: 10,
+} as const;
+
+const SHOP_TYPE_PRODUCTS_DEFAULTS = {
+    offset: 0,
+    limit: 5,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -102,6 +110,22 @@ function isWrappedDealsResponse(
     return 'data' in response && Array.isArray(response.data);
 }
 
+function isPaginatedShopTypeProductsResponse(
+    response:
+        | ApiResponse<DeliveryShopTypeProduct[]>
+        | PaginatedDeliveryResponse<DeliveryShopTypeProduct>,
+): response is PaginatedDeliveryResponse<DeliveryShopTypeProduct> {
+    return 'items' in response && Array.isArray(response.items);
+}
+
+function isWrappedShopTypeProductsResponse(
+    response:
+        | ApiResponse<DeliveryShopTypeProduct[]>
+        | PaginatedDeliveryResponse<DeliveryShopTypeProduct>,
+): response is ApiResponse<DeliveryShopTypeProduct[]> {
+    return 'data' in response && Array.isArray(response.data);
+}
+
 export const discoveryService = {
     /** Fetch available deliveries shop types for app discovery. */
     getShopTypes: async (
@@ -129,6 +153,41 @@ export const discoveryService = {
             return [];
         } catch (error) {
             console.error('shop types request failed', error);
+            throw error;
+        }
+    },
+
+    /** Fetch products for a specific shop type in deliveries discovery. */
+    getShopTypeProducts: async (
+        params: DeliveryShopTypeProductsParams,
+    ): Promise<DeliveryShopTypeProduct[]> => {
+        const {
+            shopTypeId,
+            offset = SHOP_TYPE_PRODUCTS_DEFAULTS.offset,
+            limit = SHOP_TYPE_PRODUCTS_DEFAULTS.limit,
+        } = params;
+
+        try {
+            const response = await apiClient.get<DeliveryShopTypeProductsApiResponse>(
+                `/api/v1/apps/deliveries/discovery/shop-types/${shopTypeId}/products`,
+                { offset, limit },
+            );
+
+            if (Array.isArray(response)) {
+                return response;
+            }
+
+            if (isPaginatedShopTypeProductsResponse(response)) {
+                return response.items;
+            }
+
+            if (isWrappedShopTypeProductsResponse(response)) {
+                return response.data;
+            }
+
+            return [];
+        } catch (error) {
+            console.error('shop type products request failed', error);
             throw error;
         }
     },

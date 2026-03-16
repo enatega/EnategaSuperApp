@@ -13,6 +13,14 @@ export const deliveryKeys = {
     // Discovery
     discovery: () => [...deliveryKeys.all, 'discovery'] as const,
     shopTypes: () => [...deliveryKeys.discovery(), 'shop-types'] as const,
+    shopTypeProducts: (shopTypeId: string, offset = 0, limit = 10) =>
+        [
+            ...deliveryKeys.discovery(),
+            'shop-type-products',
+            shopTypeId,
+            offset,
+            limit,
+        ] as const,
     topBrands: () => [...deliveryKeys.discovery(), 'top-brands'] as const,
     mobileBanners: () => [...deliveryKeys.discovery(), 'mobile-banners'] as const,
     nearbyStores: () => [...deliveryKeys.discovery(), 'nearby-stores'] as const,

@@ -19,8 +19,8 @@ export default function HomeTab() {
       style={{ backgroundColor: colors.background }}
     >
       <MultiVendorAddressHeader />
-      <ShopTypeList />
       <MultiVendorSpecialOffers />
+      <ShopTypeList />
       <TopBrandsList />
       <NearbyStoreList />
       <Deals />

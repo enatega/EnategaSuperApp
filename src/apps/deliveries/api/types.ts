@@ -37,6 +37,26 @@ export interface DeliveryShopTypesParams {
     limit?: number;
 }
 
+export interface DeliveryShopTypeProduct {
+    productId: string;
+    storeId: string;
+    productName: string;
+    storeName?: string | null;
+    productImage?: string | null;
+    storeLogo?: string | null;
+    storeImage?: string | null;
+    price?: number | null;
+    deal?: string | null;
+    dealType?: string | null;
+    dealAmount?: number | null;
+}
+
+export interface DeliveryShopTypeProductsParams {
+    shopTypeId: string;
+    offset?: number;
+    limit?: number;
+}
+
 export interface DeliveryTopBrand {
     name: string;
     logo?: string | null;
@@ -115,6 +135,11 @@ export type DeliveryTopBrandsApiResponse =
     | ApiResponse<DeliveryTopBrand[]>
     | PaginatedDeliveryResponse<DeliveryTopBrand>
     | DeliveryTopBrand[];
+
+export type DeliveryShopTypeProductsApiResponse =
+    | ApiResponse<DeliveryShopTypeProduct[]>
+    | PaginatedDeliveryResponse<DeliveryShopTypeProduct>
+    | DeliveryShopTypeProduct[];
 
 export type DeliveryNearbyStoresApiResponse =
     | ApiResponse<DeliveryNearbyStore[]>

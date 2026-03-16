@@ -39,6 +39,8 @@ const en = {
   multi_vendor_shop_type_milk: 'Milk Delivery',
   multi_vendor_shop_type_flower: 'Flower Delivery',
   multi_vendor_shop_type_liquor: 'Liquor Delivery',
+  multi_vendor_shop_type_products_empty: 'No products found for this shop type.',
+  multi_vendor_shop_type_products_error: 'Unable to load products right now.',
   chain_home_subtitle: 'Favorite chains',
   chain_home_body: 'Order from your favorite chain stores.',
   type_single_vendor_title: 'Single Vendor Store',
