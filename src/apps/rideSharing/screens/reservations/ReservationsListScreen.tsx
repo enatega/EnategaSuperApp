@@ -80,6 +80,7 @@ export default function ReservationsListScreen() {
       <ScreenHeader title="Reservations" titleVariant="title" />
       {reservations.length === 0 ? (
         <ScrollView
+          style={styles.flex}
           contentContainerStyle={styles.emptyContainer}
           refreshControl={
             <RefreshControl
@@ -142,7 +143,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
-    marginTop: '30%',
+  },
+  flex: {
+    flex: 1,
   },
   emptyIconContainer: {
     width: 80,
