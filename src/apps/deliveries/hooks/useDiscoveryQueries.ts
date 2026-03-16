@@ -29,6 +29,11 @@ type UseNearbyStoresOptions = Omit<
   'queryKey' | 'queryFn'
 >;
 
+type UseDealsOptions = Omit<
+  UseQueryOptions<DeliveryNearbyStore[], ApiError>,
+  'queryKey' | 'queryFn'
+>;
+
 export function useShopTypes(options?: UseShopTypesOptions) {
   return useQuery<DeliveryShopType[], ApiError>({
     queryKey: deliveryKeys.shopTypes(),
@@ -60,7 +65,16 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
   return useQuery<DeliveryNearbyStore[], ApiError>({
     queryKey: deliveryKeys.nearbyStores(),
     queryFn: () => discoveryService.getNearbyStores(),
-    staleTime: 5 * 60 * 1000,
+    // staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+}
+
+export function useDeals(options?: UseDealsOptions) {
+  return useQuery<DeliveryNearbyStore[], ApiError>({
+    queryKey: deliveryKeys.deals(),
+    queryFn: () => discoveryService.getDeals(),
+    // staleTime: 5 * 60 * 1000,
     ...options,
   });
 }

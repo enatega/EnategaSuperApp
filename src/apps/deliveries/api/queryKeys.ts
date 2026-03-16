@@ -16,6 +16,7 @@ export const deliveryKeys = {
     topBrands: () => [...deliveryKeys.discovery(), 'top-brands'] as const,
     mobileBanners: () => [...deliveryKeys.discovery(), 'mobile-banners'] as const,
     nearbyStores: () => [...deliveryKeys.discovery(), 'nearby-stores'] as const,
+    deals: () => [...deliveryKeys.discovery(), 'deals'] as const,
 };
 
 /*

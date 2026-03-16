@@ -61,7 +61,7 @@ export interface DeliveryNearbyStore {
     shopTypeName?: string | null;
     averageRating?: number | null;
     reviewCount?: number | null;
-    deliveryTime?: number | null;
+    deliveryTime?: number | string | null;
     minimumOrder?: number | null;
     baseFee?: number | null;
     distanceKm?: number | null;
@@ -77,6 +77,11 @@ export interface DeliveryNearbyStoresParams {
     limit?: number;
     latitude?: number;
     longitude?: number;
+}
+
+export interface DeliveryDealsParams {
+    offset?: number;
+    limit?: number;
 }
 
 export interface DeliveryBannerStore {
@@ -112,6 +117,11 @@ export type DeliveryTopBrandsApiResponse =
     | DeliveryTopBrand[];
 
 export type DeliveryNearbyStoresApiResponse =
+    | ApiResponse<DeliveryNearbyStore[]>
+    | PaginatedDeliveryResponse<DeliveryNearbyStore>
+    | DeliveryNearbyStore[];
+
+export type DeliveryDealsApiResponse =
     | ApiResponse<DeliveryNearbyStore[]>
     | PaginatedDeliveryResponse<DeliveryNearbyStore>
     | DeliveryNearbyStore[];

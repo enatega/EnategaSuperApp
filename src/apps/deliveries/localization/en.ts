@@ -23,6 +23,7 @@ const en = {
   multi_vendor_shop_types_title: 'Shop Types',
   multi_vendor_top_brands_title: 'Top Brands',
   multi_vendor_nearby_store_title: 'Nearby Store',
+  multi_vendor_deals_title: 'Deals',
   multi_vendor_see_all: 'See all',
   multi_vendor_nearby_store_name_hardees: 'Hardee’s - Z Block',
   multi_vendor_nearby_store_name_subway: 'Subway - Z Block',

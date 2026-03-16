@@ -2,6 +2,8 @@ import apiClient from '../../../general/api/apiClient';
 import type {
     ApiResponse,
     DeliveryBanner,
+    DeliveryDealsApiResponse,
+    DeliveryDealsParams,
     DeliveryBannersApiResponse,
     DeliveryBannersParams,
     DeliveryNearbyStore,
@@ -21,6 +23,11 @@ const NEARBY_STORES_DEFAULTS = {
     limit: 10,
     latitude: 33.7039543,
     longitude: 72.9680349,
+} as const;
+
+const DEALS_DEFAULTS = {
+    offset: 0,
+    limit: 10,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -72,6 +79,22 @@ function isPaginatedNearbyStoresResponse(
 }
 
 function isWrappedNearbyStoresResponse(
+    response:
+        | ApiResponse<DeliveryNearbyStore[]>
+        | PaginatedDeliveryResponse<DeliveryNearbyStore>,
+): response is ApiResponse<DeliveryNearbyStore[]> {
+    return 'data' in response && Array.isArray(response.data);
+}
+
+function isPaginatedDealsResponse(
+    response:
+        | ApiResponse<DeliveryNearbyStore[]>
+        | PaginatedDeliveryResponse<DeliveryNearbyStore>,
+): response is PaginatedDeliveryResponse<DeliveryNearbyStore> {
+    return 'items' in response && Array.isArray(response.items);
+}
+
+function isWrappedDealsResponse(
     response:
         | ApiResponse<DeliveryNearbyStore[]>
         | PaginatedDeliveryResponse<DeliveryNearbyStore>,
@@ -202,6 +225,37 @@ export const discoveryService = {
             return [];
         } catch (error) {
             console.error('nearby stores request failed', error);
+            throw error;
+        }
+    },
+
+    /** Fetch deals for deliveries home discovery. */
+    getDeals: async (
+        params: DeliveryDealsParams = {},
+    ): Promise<DeliveryNearbyStore[]> => {
+        const { offset = DEALS_DEFAULTS.offset, limit = DEALS_DEFAULTS.limit } = params;
+
+        try {
+            const response = await apiClient.get<DeliveryDealsApiResponse>(
+                '/api/v1/apps/deliveries/deals/home',
+                { offset, limit },
+            );
+
+            if (Array.isArray(response)) {
+                return response;
+            }
+
+            if (isPaginatedDealsResponse(response)) {
+                return response.items;
+            }
+
+            if (isWrappedDealsResponse(response)) {
+                return response.data;
+            }
+
+            return [];
+        } catch (error) {
+            console.error('deals request failed', error);
             throw error;
         }
     },

@@ -18,7 +18,7 @@ interface StoreCardProps {
   reviewCount?: number;
   cuisine?: string;
   price?: number;
-  deliveryTime?: number;
+  deliveryTime?: number | string;
   distance?: number;
   onPress: () => void;
 }
@@ -32,19 +32,16 @@ export default function StoreCard({
   rating,
   reviewCount,
   cuisine,
-  price = 0,
-  deliveryTime = 0,
-  distance = 0,
+  price,
+  deliveryTime,
+  distance,
   onPress,
 }: StoreCardProps) {
   const { colors } = useTheme();
   const resolvedImageUrl =
     imageUrl || store?.coverImage || store?.logo || "https://placehold.co/400x400.png";
   const resolvedOffer =
-    offer ||
-    (store?.dealType && store.dealAmount != null
-      ? `${store.dealAmount}${store.dealType === "PERCENTAGE" ? "% off" : " off"}`
-      : store?.deal || undefined);
+    offer || undefined;
   const resolvedName = name || store?.name || "";
   const resolvedLocation = location || store?.address || undefined;
   const resolvedRating = rating ?? store?.averageRating ?? undefined;
