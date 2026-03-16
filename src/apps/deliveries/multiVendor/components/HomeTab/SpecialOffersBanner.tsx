@@ -3,7 +3,7 @@ import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import BannerSwiper from '../../../../../general/components/BannerSwiper';
 import { useTheme } from '../../../../../general/theme/theme';
 import { useMobileBanners } from '../../../hooks';
-import SpecialOffersBannerSkeleton from '../HomeTabSkeletons/SpecialOffersBannerSkeleton';
+import SpecialOffersBannerSkeleton from './HomeTabSkeletons/SpecialOffersBannerSkeleton';
 import SpecialOffersBannerCard from './SpecialOffersBannerCard';
 
 export default function SpecialOffersBanner() {

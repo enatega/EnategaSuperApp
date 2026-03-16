@@ -5,7 +5,7 @@ import MultiVendorAddressHeader from '../../components/HomeTab/AddressHeader';
 import ShopTypeList from '../../components/HomeTab/ShopTypeList';
 import MultiVendorSpecialOffers from '../../components/HomeTab/SpecialOffersBanner';
 import TopBrandsList from '../../components/HomeTab/TopBrandsList';
-import NearbyStoreList from '../../../components/hometab/NearbyStoreList';
+import NearbyStoreList from '../../components/HomeTab/NearbyStoreList';
 import { styles } from './HomeTabStyle';
 
 export default function HomeTab() {

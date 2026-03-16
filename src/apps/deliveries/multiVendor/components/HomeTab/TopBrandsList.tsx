@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
 import { useTopBrands } from '../../../hooks';
-import TopBrandsListSkeleton from '../HomeTabSkeletons/TopBrandsListSkeleton';
+import TopBrandsListSkeleton from './HomeTabSkeletons/TopBrandsListSkeleton';
 import TopBrandCard from '../../../components/store-card/TopBrandCard';
 
 export default function TopBrandsList() {

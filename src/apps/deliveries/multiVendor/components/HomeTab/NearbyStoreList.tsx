@@ -1,15 +1,18 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import HorizontalList from '../../../../general/components/HorizontalList';
-import SectionActionHeader from '../../../../general/components/SectionActionHeader';
-import { useNearbyStores } from '../../hooks';
-import type { DeliveryNearbyStore } from '../../api/types';
-import StoreCard from '../store-card/StoreCard';
-import NearbyStoreListSkeleton from './NearbyStoreListSkeleton';
-import type { NearbyStoreListProps } from './types';
+import HorizontalList from '../../../../../general/components/HorizontalList';
+import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
+import { useNearbyStores } from '../../../hooks';
+import type { DeliveryNearbyStore } from '../../../api/types';
+import StoreCard from '../../../components/store-card/StoreCard';
+import NearbyStoreListSkeleton from './HomeTabSkeletons/NearbyStoreListSkeleton';
 
-export default function NearbyStoreList({ onRestaurantPress }: NearbyStoreListProps) {
+type Props = {
+  onRestaurantPress?: (store: DeliveryNearbyStore) => void;
+};
+
+export default function NearbyStoreList({ onRestaurantPress }: Props) {
   const { t } = useTranslation('deliveries');
   const { data: nearbyStoresData = [], isPending: isNearbyStoresPending } = useNearbyStores();
 

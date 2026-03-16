@@ -67,6 +67,8 @@ httpClient.interceptors.request.use(async (config) => {
   }
 
   const token = await tokenManager.getToken();
+  console.log('token______',token);
+  
   if (token) {
     config.headers = {
       ...config.headers,

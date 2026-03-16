@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
 import { useShopTypes } from '../../../hooks';
-import ShopTypeCardSkeleton from '../HomeTabSkeletons/ShopTypeCardSkeleton';
+// import ShopTypeCardSkeleton from '../HomeTabSkeletons/ShopTypeCardSkeleton';
+import ShopTypeCardSkeleton from './HomeTabSkeletons/ShopTypeCardSkeleton';
 import MultiVendorShopTypeCard from './ShopTypeCard';
 
 export default function ShopTypeList() {

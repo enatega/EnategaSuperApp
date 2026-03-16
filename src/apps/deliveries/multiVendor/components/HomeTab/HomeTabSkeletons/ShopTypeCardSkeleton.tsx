@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Skeleton from '../../../../../general/components/Skeleton';
+import Skeleton from '../../../../../../general/components/Skeleton';
 
 function Card() {
   return (
