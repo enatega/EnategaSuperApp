@@ -43,6 +43,7 @@ module.exports = {
     },
     plugins: [
       'expo-secure-store',
+      'expo-video',
       [
         'expo-location',
         {
