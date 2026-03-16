@@ -8,6 +8,8 @@ export { default as apiClient, ApiError, tokenManager } from '../../../general/a
 // Types
 export type {
     ApiResponse,
+    DeliveryNearbyStore,
+    DeliveryNearbyStoresApiResponse,
     DeliveryShopType,
     DeliveryShopTypesApiResponse,
 } from './types';
