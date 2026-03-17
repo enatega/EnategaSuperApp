@@ -9,6 +9,7 @@ import EditProfileScreen from '../screens/EditProfileScreen/EditProfileScreen';
 import AddressSearchScreen from '../../screens/addresses/AddressSearchScreen';
 import AddressChooseOnMapScreen from '../../screens/addresses/AddressChooseOnMapScreen';
 import AddressDetailScreen from '../../screens/addresses/AddressDetailScreen';
+import FavouritesScreen from '../screens/FavouritesScreen/FavouritesScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -54,6 +55,11 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="AddressDetail"
         component={AddressDetailScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Favourites"
+        component={FavouritesScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

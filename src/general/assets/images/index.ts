@@ -15,3 +15,7 @@ export const homePatterns = {
   banner: require('./bannerPattern.png'),
   header: require('./headerPattern.png'),
 } as const;
+
+export const placeholderImages = {
+  store: require('./400x400.png'),
+} as const;

@@ -128,6 +128,17 @@ const fr = {
   address_save_success: 'Adresse enregistrée avec succès.',
   address_update_success: 'Adresse mise à jour avec succès.',
   address_delete_success: 'Adresse supprimée avec succès.',
+  // Favourites screen
+  favourites_title: 'Vos Favoris',
+  favourites_empty_title: 'Aucun favori pour l\'instant',
+  favourites_empty_subtitle: 'Les magasins que vous aimez apparaîtront ici.',
+  favourites_error: 'Impossible de charger les favoris. Tirez vers le bas pour réessayer.',
+  favourites_free_delivery: 'Livraison gratuite',
+  favourites_remove: 'Retirer des favoris',
+  favourites_add: 'Ajouter aux favoris',
+  favourites_toggle_added: 'Ajouté aux favoris',
+  favourites_toggle_removed: 'Retiré des favoris',
+  favourites_toggle_error: 'Échec de la mise à jour des favoris',
 };
 
 export default fr;
