@@ -314,9 +314,20 @@ export default function DeveloperModeHomeScreen() {
         onPress={() => navigation.navigate('DriverProfile')}
         style={styles.button}
       />
-        <Button
+      <Button
         label={t('Auth flow')}
         onPress={() => navigation.navigate('Auth')}
+        style={styles.button}
+      />
+      <Button
+        label="Rate Order Screen"
+        onPress={() =>
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (navigation as any).navigate('RateOrder', {
+            orderId: 'order-hardcoded-001',
+            storeName: 'Subway @ Old Town, New Mexico',
+          })
+        }
         style={styles.button}
       />
     </ScrollView>

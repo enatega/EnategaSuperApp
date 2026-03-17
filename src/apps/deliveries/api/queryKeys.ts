@@ -25,6 +25,15 @@ export const deliveryKeys = {
     mobileBanners: () => [...deliveryKeys.discovery(), 'mobile-banners'] as const,
     nearbyStores: () => [...deliveryKeys.discovery(), 'nearby-stores'] as const,
     deals: () => [...deliveryKeys.discovery(), 'deals'] as const,
+
+    // Search
+    search: () => [...deliveryKeys.all, 'search'] as const,
+    recommendations: () => [...deliveryKeys.search(), 'recommendations'] as const,
+    recentSearches: () => [...deliveryKeys.search(), 'recent-searches'] as const,
+    productSearch: (keyword: string, latitude?: number, longitude?: number) =>
+        [...deliveryKeys.search(), 'products', keyword, latitude, longitude] as const,
+    storeSearch: (keyword: string, latitude?: number, longitude?: number) =>
+        [...deliveryKeys.search(), 'stores', keyword, latitude, longitude] as const,
     orderAgain: () => [...deliveryKeys.discovery(), 'order-again'] as const,
 };
 
