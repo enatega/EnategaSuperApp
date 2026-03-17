@@ -142,6 +142,12 @@ const fr = {
   favourites_toggle_added: 'Ajouté aux favoris',
   favourites_toggle_removed: 'Retiré des favoris',
   favourites_toggle_error: 'Échec de la mise à jour des favoris',
+  // Rate order screen
+  rate_order_title: 'Évaluer votre commande',
+  rate_order_heading: 'Comment était votre repas ?',
+  rate_order_subheading: 'Vos commentaires nous aident à améliorer notre livraison.',
+  rate_order_comment_placeholder: 'Écrivez votre expérience ici...',
+  rate_order_submit: 'Soumettre',
 };
 
 export default fr;
