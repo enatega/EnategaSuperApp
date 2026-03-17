@@ -7,8 +7,16 @@ import { styles } from "../styles";
 
 interface StoreDeliveryInfoProps {
   price: number;
-  deliveryTime: number;
+  deliveryTime: number | string;
   distance: number;
+}
+
+function formatDeliveryTime(value: number | string) {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  return `${value} mins`;
 }
 
 export default function StoreDeliveryInfo({ price, deliveryTime, distance }: StoreDeliveryInfoProps) {
@@ -58,7 +66,7 @@ export default function StoreDeliveryInfo({ price, deliveryTime, distance }: Sto
           weight="medium"
           style={[styles.infoText, { color: colors.mutedText }]}
         >
-          {deliveryTime} mins
+          {formatDeliveryTime(deliveryTime)}
         </Text>
       </View>
 

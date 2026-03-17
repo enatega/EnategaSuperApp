@@ -2,6 +2,8 @@ import apiClient from '../../../general/api/apiClient';
 import type {
     ApiResponse,
     DeliveryBanner,
+    DeliveryDealsApiResponse,
+    DeliveryDealsParams,
     DeliveryBannersApiResponse,
     DeliveryBannersParams,
     DeliveryNearbyStore,
@@ -11,6 +13,9 @@ import type {
     DeliveryTopBrandsApiResponse,
     DeliveryTopBrandsParams,
     DeliveryShopType,
+    DeliveryShopTypeProduct,
+    DeliveryShopTypeProductsApiResponse,
+    DeliveryShopTypeProductsParams,
     DeliveryShopTypesApiResponse,
     DeliveryShopTypesParams,
     PaginatedDeliveryResponse,
@@ -21,6 +26,16 @@ const NEARBY_STORES_DEFAULTS = {
     limit: 10,
     latitude: 33.7039543,
     longitude: 72.9680349,
+} as const;
+
+const DEALS_DEFAULTS = {
+    offset: 0,
+    limit: 10,
+} as const;
+
+const SHOP_TYPE_PRODUCTS_DEFAULTS = {
+    offset: 0,
+    limit: 5,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -79,6 +94,38 @@ function isWrappedNearbyStoresResponse(
     return 'data' in response && Array.isArray(response.data);
 }
 
+function isPaginatedDealsResponse(
+    response:
+        | ApiResponse<DeliveryNearbyStore[]>
+        | PaginatedDeliveryResponse<DeliveryNearbyStore>,
+): response is PaginatedDeliveryResponse<DeliveryNearbyStore> {
+    return 'items' in response && Array.isArray(response.items);
+}
+
+function isWrappedDealsResponse(
+    response:
+        | ApiResponse<DeliveryNearbyStore[]>
+        | PaginatedDeliveryResponse<DeliveryNearbyStore>,
+): response is ApiResponse<DeliveryNearbyStore[]> {
+    return 'data' in response && Array.isArray(response.data);
+}
+
+function isPaginatedShopTypeProductsResponse(
+    response:
+        | ApiResponse<DeliveryShopTypeProduct[]>
+        | PaginatedDeliveryResponse<DeliveryShopTypeProduct>,
+): response is PaginatedDeliveryResponse<DeliveryShopTypeProduct> {
+    return 'items' in response && Array.isArray(response.items);
+}
+
+function isWrappedShopTypeProductsResponse(
+    response:
+        | ApiResponse<DeliveryShopTypeProduct[]>
+        | PaginatedDeliveryResponse<DeliveryShopTypeProduct>,
+): response is ApiResponse<DeliveryShopTypeProduct[]> {
+    return 'data' in response && Array.isArray(response.data);
+}
+
 export const discoveryService = {
     /** Fetch available deliveries shop types for app discovery. */
     getShopTypes: async (
@@ -106,6 +153,41 @@ export const discoveryService = {
             return [];
         } catch (error) {
             console.error('shop types request failed', error);
+            throw error;
+        }
+    },
+
+    /** Fetch products for a specific shop type in deliveries discovery. */
+    getShopTypeProducts: async (
+        params: DeliveryShopTypeProductsParams,
+    ): Promise<DeliveryShopTypeProduct[]> => {
+        const {
+            shopTypeId,
+            offset = SHOP_TYPE_PRODUCTS_DEFAULTS.offset,
+            limit = SHOP_TYPE_PRODUCTS_DEFAULTS.limit,
+        } = params;
+
+        try {
+            const response = await apiClient.get<DeliveryShopTypeProductsApiResponse>(
+                `/api/v1/apps/deliveries/discovery/shop-types/${shopTypeId}/products`,
+                { offset, limit },
+            );
+
+            if (Array.isArray(response)) {
+                return response;
+            }
+
+            if (isPaginatedShopTypeProductsResponse(response)) {
+                return response.items;
+            }
+
+            if (isWrappedShopTypeProductsResponse(response)) {
+                return response.data;
+            }
+
+            return [];
+        } catch (error) {
+            console.error('shop type products request failed', error);
             throw error;
         }
     },
@@ -202,6 +284,37 @@ export const discoveryService = {
             return [];
         } catch (error) {
             console.error('nearby stores request failed', error);
+            throw error;
+        }
+    },
+
+    /** Fetch deals for deliveries home discovery. */
+    getDeals: async (
+        params: DeliveryDealsParams = {},
+    ): Promise<DeliveryNearbyStore[]> => {
+        const { offset = DEALS_DEFAULTS.offset, limit = DEALS_DEFAULTS.limit } = params;
+
+        try {
+            const response = await apiClient.get<DeliveryDealsApiResponse>(
+                '/api/v1/apps/deliveries/deals/home',
+                { offset, limit },
+            );
+
+            if (Array.isArray(response)) {
+                return response;
+            }
+
+            if (isPaginatedDealsResponse(response)) {
+                return response.items;
+            }
+
+            if (isWrappedDealsResponse(response)) {
+                return response.data;
+            }
+
+            return [];
+        } catch (error) {
+            console.error('deals request failed', error);
             throw error;
         }
     },

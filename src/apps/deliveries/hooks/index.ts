@@ -1,1 +1,9 @@
-export { useMobileBanners, useNearbyStores, useShopTypes, useTopBrands } from './useDiscoveryQueries';
+export {
+  useDeals,
+  useMobileBanners,
+  useNearbyStores,
+  useShopTypeProducts,
+  useShopTypeProductsSections,
+  useShopTypes,
+  useTopBrands,
+} from './useDiscoveryQueries';
