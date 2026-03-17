@@ -20,6 +20,7 @@ interface StoreCardProps {
   price?: number;
   deliveryTime?: number | string;
   distance?: number;
+  actionSlot?: React.ReactNode;
   onPress: () => void;
 }
 
@@ -35,6 +36,7 @@ export default function StoreCard({
   price,
   deliveryTime,
   distance,
+  actionSlot,
   onPress,
 }: StoreCardProps) {
   const { colors } = useTheme();
@@ -64,7 +66,7 @@ export default function StoreCard({
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <StoreImage imageUrl={resolvedImageUrl} offer={resolvedOffer} />
+      <StoreImage imageUrl={resolvedImageUrl} offer={resolvedOffer} actionSlot={actionSlot} />
 
       <View style={styles.content}>
         <StoreInfo name={resolvedName} />

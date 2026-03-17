@@ -33,6 +33,11 @@ export const addressKeys = {
     detail: (id: string) => [...addressKeys.all, id] as const,
 };
 
+export const favouriteKeys = {
+    all: ['favourites'] as const,
+    list: () => [...favouriteKeys.all, 'list'] as const,
+};
+
 /*
   Usage cheat-sheet:
   ──────────────────
