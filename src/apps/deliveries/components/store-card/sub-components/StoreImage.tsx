@@ -9,9 +9,10 @@ import { styles } from "../styles";
 interface StoreImageProps {
   imageUrl: string;
   offer?: string;
+  actionSlot?: React.ReactNode;
 }
 
-export default function StoreImage({ imageUrl, offer }: StoreImageProps) {
+export default function StoreImage({ imageUrl, offer, actionSlot }: StoreImageProps) {
   const { colors } = useTheme();
 
   return (
@@ -35,6 +36,8 @@ export default function StoreImage({ imageUrl, offer }: StoreImageProps) {
           </Text>
         </View>
       )}
+
+      {actionSlot ?? null}
     </View>
   );
 }

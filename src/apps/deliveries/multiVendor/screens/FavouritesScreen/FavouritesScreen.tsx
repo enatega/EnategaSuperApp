@@ -5,8 +5,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../../../../general/theme/theme';
 import ScreenHeader from '../../../../../general/components/ScreenHeader';
 import Text from '../../../../../general/components/Text';
-import FavouriteStoreCard from '../../components/favourites/FavouriteStoreCard';
+import FavouriteHeartButton from '../../components/favourites/FavouriteHeartButton';
 import FavouritesListFooter from '../../components/favourites/FavouritesListFooter';
+import StoreCard from '../../../components/store-card/StoreCard';
 import { showToast } from '../../../../../general/components/AppToast';
 import { useFavouritesQuery } from '../../hooks/useFavouritesQuery';
 import { useToggleFavouriteMutation } from '../../hooks/useToggleFavouriteMutation';
@@ -45,27 +46,27 @@ export default function FavouritesScreen() {
     [data],
   );
 
-  const freeDeliveryLabel = t('favourites_free_delivery');
   const addToFavLabel = t('favourites_add');
   const removeFromFavLabel = t('favourites_remove');
 
   const renderItem = useCallback(
     ({ item }: { item: DeliveryNearbyStore }) => (
-      <FavouriteStoreCard
+      <StoreCard
         store={item}
-        freeDeliveryLabel={freeDeliveryLabel}
-        addToFavLabel={addToFavLabel}
-        removeFromFavLabel={removeFromFavLabel}
-        isTogglingFavourite={isToggling && toggleVariables?.storeId === item.storeId}
         onPress={() => {
           console.log('store pressed', item.storeId);
         }}
-        onFavouritePress={() => {
-          toggleFavourite({ storeId: item.storeId });
-        }}
+        actionSlot={
+          <FavouriteHeartButton
+            isFavourite={item.isFavorite ?? false}
+            isLoading={isToggling && toggleVariables?.storeId === item.storeId}
+            accessibilityLabel={item.isFavorite ? removeFromFavLabel : addToFavLabel}
+            onPress={() => toggleFavourite({ storeId: item.storeId })}
+          />
+        }
       />
     ),
-    [freeDeliveryLabel, addToFavLabel, removeFromFavLabel, toggleFavourite, isToggling, toggleVariables],
+    [addToFavLabel, removeFromFavLabel, toggleFavourite, isToggling, toggleVariables],
   );
 
   const keyExtractor = useCallback(
