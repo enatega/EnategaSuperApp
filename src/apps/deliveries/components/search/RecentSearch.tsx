@@ -1,25 +1,23 @@
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from "react-native";
 import React from "react";
 import Icon from "../../../../general/components/Icon";
 import { useTheme } from "../../../../general/theme/theme";
 import Text from "../../../../general/components/Text";
 import { typography } from "../../../../general/theme/typography";
+import type { RecentSearchProps } from "./types";
 
-// Todo: a reuseable resent search component can be used in multiple places
 const RecentSearch = ({
   search,
   onDeletePress,
   onItemPress,
-}: {
-  search: string;
-  onDeletePress: () => void;
-  onItemPress: () => void;
-}) => {
+  isDeleting = false,
+  isDeleteDisabled = false,
+}: RecentSearchProps) => {
   const { colors } = useTheme();
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        onPress={onItemPress}
+        onPressIn={onItemPress}
         style={styles.item}
         activeOpacity={0.7}
       >
@@ -41,10 +39,20 @@ const RecentSearch = ({
       <TouchableOpacity
         hitSlop={12}
         onPress={onDeletePress}
+        disabled={isDeleting || isDeleteDisabled}
         activeOpacity={0.7}
         style={styles.deleteButton}
       >
-        <Icon type="Entypo" name="cross" size={20} color={colors.mutedText} />
+        {isDeleting ? (
+          <ActivityIndicator size="small" color={colors.mutedText} />
+        ) : (
+          <Icon
+            type="Entypo"
+            name="cross"
+            size={20}
+            color={colors.mutedText}
+          />
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -58,7 +66,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
-    paddingVertical: 6,
+    paddingVertical: 10,
   },
   item: {
     flexDirection: "row",

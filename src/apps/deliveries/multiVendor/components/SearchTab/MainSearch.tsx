@@ -1,89 +1,190 @@
-import React, { useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
-import Text from "../../../../../general/components/Text";
-import { useTheme } from "../../../../../general/theme/theme";
-import { useTranslation } from "react-i18next";
+import React from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Text from "../../../../../general/components/Text";
 import SearchInput from "../../../components/search/SearchInput";
+import SearchSuggestionsSkeleton from "../../../components/search/SearchSuggestionsSkeleton";
 import SearchSuggestions from "../../../components/search/SearchSuggestions";
-import Svg from "../../../components/Svg";
-import EmptySearch from "../../../components/search/EmptySearch";
-import ProductMiniCardScroller from "./ProductMiniCardScroller";
-import StoreCardScroller from "./StoreCardScroller";
-import RecentSearch from "../../../components/search/RecentSearch";
 import RecentSearches from "../../../components/search/RecentSearches";
+import Icon from "../../../../../general/components/Icon";
+import { typography } from "../../../../../general/theme/typography";
+import useMainSearchFlow from "./useMainSearchFlow";
+import SearchResults from "./SearchResults";
 
-// Todo: a reuseable component for search functionality
 export default function MainSearch() {
-  const { colors } = useTheme();
-  const [searchQuery, setSearchQuery] = useState("");
-  const { t } = useTranslation("deliveries");
-
-  const handleSuggestionPress = (suggestion: string) => {
-    setSearchQuery(suggestion); // Updates search input
-    // Optionally trigger search here
-  };
-
-  const DEMO_SUGGESTIONS = [
-    "Pizza",
-    "Burger",
-    "Asian",
-    "Pasta",
-    "Italian",
-    "Sushi",
-    "French",
-    "Vegan",
-    "Chinese",
-    "African",
-    "Fish",
-    "Gluten-free",
-    "Ice cream",
-    "Sandwich",
-    "Wings",
-  ];
+  const {
+    colors,
+    t,
+    inputRef,
+    searchQuery,
+    recommendations,
+    recentSearches,
+    products,
+    stores,
+    shouldSearchStores,
+    isSearchActive,
+    isLoadingRecommendations,
+    isSearchLoading,
+    isFetchingMoreProducts,
+    isFetchingMoreStores,
+    deletingRecentSearchId,
+    isDeletingRecentSearch,
+    isClearingRecentSearches,
+    showIdleState,
+    showRecentSearches,
+    hasNoResults,
+    handleChangeText,
+    handleFocus,
+    handleBlur,
+    handleClear,
+    dismissKeyboard,
+    handleSubmitEditing,
+    handleSuggestionPress,
+    handleRecentSearchPress,
+    handleLoadMoreProducts,
+    handleLoadMoreStores,
+    onDeleteRecentSearch,
+    onClearRecentSearches,
+    onAddressPress,
+  } = useMainSearchFlow();
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
-    >
-      <SearchInput
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        placeholder={t("search_input_placeholder")}
-        onClear={() => console.log("Search cleared")}
-      />
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <SafeAreaView
+        style={[styles.safeArea, { backgroundColor: colors.background }]}
+      >
+        <KeyboardAvoidingView
+          style={styles.content}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          <SearchInput
+            ref={inputRef}
+            value={searchQuery}
+            onChangeText={handleChangeText}
+            placeholder={t("search_input_placeholder")}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            onClear={handleClear}
+            onSubmitEditing={handleSubmitEditing}
+          />
 
-      <RecentSearches
-        onDeleteAllPress={() => console.log("delete all pressed")}
-      />
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={
+              Platform.OS === "ios" ? "interactive" : "on-drag"
+            }
+            onScrollBeginDrag={dismissKeyboard}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+          >
+            {showRecentSearches && (
+              <RecentSearches
+                items={recentSearches}
+                onItemPress={handleRecentSearchPress}
+                onDeletePress={onDeleteRecentSearch}
+                onDeleteAllPress={() => onClearRecentSearches()}
+                deletingRecentSearchId={deletingRecentSearchId}
+                isDeletingRecentSearch={isDeletingRecentSearch}
+                isClearingRecentSearches={isClearingRecentSearches}
+              />
+            )}
 
-      {/* searching near bar */}
-      <View style={[styles.searchingNear]}>
-        <Text color={colors.text} variant="caption">
-          {t("searching_near")}
-        </Text>
-      </View>
+            {showIdleState && (
+              <View style={styles.idleState}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t("multi_vendor_address_label")}
+                  onPress={onAddressPress}
+                  style={styles.addressButton}
+                >
+                  <Text
+                    color={colors.mutedText}
+                    variant="caption"
+                    style={styles.addressPrefix}
+                  >
+                    {t("searching_near")}
+                  </Text>
+                  <Text
+                    numberOfLines={1}
+                    weight="medium"
+                    style={styles.addressValue}
+                  >
+                    {t("multi_vendor_address_label")}
+                  </Text>
+                  <Icon
+                    type="Ionicons"
+                    name="chevron-down"
+                    size={16}
+                    color={colors.text}
+                  />
+                </Pressable>
 
-      <ScrollView>
-        <SearchSuggestions
-          suggestions={DEMO_SUGGESTIONS}
-          onSuggestionPress={handleSuggestionPress}
-        />
-        <EmptySearch />
-        <ProductMiniCardScroller />
-        <StoreCardScroller />
-      </ScrollView>
-    </SafeAreaView>
+                {isLoadingRecommendations ? (
+                  <SearchSuggestionsSkeleton />
+                ) : (
+                  <SearchSuggestions
+                    recommendations={recommendations}
+                    onSuggestionPress={handleSuggestionPress}
+                  />
+                )}
+              </View>
+            )}
+            <SearchResults
+              isSearchActive={isSearchActive}
+              shouldSearchStores={shouldSearchStores}
+              isSearchLoading={isSearchLoading}
+              hasNoResults={hasNoResults}
+              products={products}
+              stores={stores}
+              isFetchingMoreProducts={isFetchingMoreProducts}
+              isFetchingMoreStores={isFetchingMoreStores}
+              onLoadMoreProducts={handleLoadMoreProducts}
+              onLoadMoreStores={handleLoadMoreStores}
+            />
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+  },
+  content: {
+    flex: 1,
     paddingHorizontal: 16,
     gap: 12,
   },
-  searchingNear: {
-    marginVertical: 12,
+  scrollContent: {
+    paddingBottom: 24,
+  },
+  idleState: {
+    gap: 12,
+  },
+  addressButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  addressPrefix: {
+    fontSize: typography.size.xs2,
+    lineHeight: typography.lineHeight.sm,
+  },
+  addressValue: {
+    flex: 1,
+    fontSize: typography.size.xs2,
+    lineHeight: typography.lineHeight.sm,
   },
 });
