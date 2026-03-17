@@ -142,6 +142,12 @@ const en = {
   favourites_toggle_added: 'Added to favourites',
   favourites_toggle_removed: 'Removed from favourites',
   favourites_toggle_error: 'Failed to update favourites',
+  // Rate order screen
+  rate_order_title: 'Rate Your Order',
+  rate_order_heading: 'How was your meal?',
+  rate_order_subheading: 'Your feedback helps us improve our delivery.',
+  rate_order_comment_placeholder: 'Write your experience here...',
+  rate_order_submit: 'Submit',
   searching_near: 'Searching near',
   search_input_placeholder: 'Search restaurants, stores, items',
   no_results_found: 'No results found',
