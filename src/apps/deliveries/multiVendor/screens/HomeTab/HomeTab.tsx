@@ -9,6 +9,7 @@ import MultiVendorSpecialOffers from '../../components/HomeTab/SpecialOffersBann
 import TopBrandsList from '../../components/HomeTab/TopBrandsList';
 import NearbyStoreList from '../../components/HomeTab/NearbyStoreList';
 import Deals from '../../components/HomeTab/Deals';
+import OrderAgain from '../../components/HomeTab/OrderAgain';
 import { styles } from './HomeTabStyle';
 
 type NavProp = NativeStackNavigationProp<Record<string, object | undefined>>;
@@ -34,6 +35,7 @@ export default function HomeTab() {
       <TopBrandsList />
       <NearbyStoreList />
       <Deals />
+      <OrderAgain />
     </ScrollView>
   );
 }

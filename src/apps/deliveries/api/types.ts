@@ -104,6 +104,25 @@ export interface DeliveryDealsParams {
     limit?: number;
 }
 
+export interface DeliveryOrderAgainItem {
+    productId: string;
+    storeId: string;
+    productName: string;
+    storeName?: string | null;
+    productImage?: string | null;
+    storeLogo?: string | null;
+    storeImage?: string | null;
+    price?: number | null;
+    deal?: string | null;
+    dealType?: string | null;
+    dealAmount?: number | null;
+}
+
+export interface DeliveryOrderAgainParams {
+    offset?: number;
+    limit?: number;
+}
+
 export interface DeliveryBannerStore {
     id: string;
     address?: string | null;
@@ -150,6 +169,11 @@ export type DeliveryDealsApiResponse =
     | ApiResponse<DeliveryNearbyStore[]>
     | PaginatedDeliveryResponse<DeliveryNearbyStore>
     | DeliveryNearbyStore[];
+
+export type DeliveryOrderAgainApiResponse =
+    | ApiResponse<DeliveryOrderAgainItem[]>
+    | PaginatedDeliveryResponse<DeliveryOrderAgainItem>
+    | DeliveryOrderAgainItem[];
 
 export type DeliveryBannersApiResponse =
     | ApiResponse<DeliveryBanner[]>

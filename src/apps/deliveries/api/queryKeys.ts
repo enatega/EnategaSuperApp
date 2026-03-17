@@ -25,6 +25,7 @@ export const deliveryKeys = {
     mobileBanners: () => [...deliveryKeys.discovery(), 'mobile-banners'] as const,
     nearbyStores: () => [...deliveryKeys.discovery(), 'nearby-stores'] as const,
     deals: () => [...deliveryKeys.discovery(), 'deals'] as const,
+    orderAgain: () => [...deliveryKeys.discovery(), 'order-again'] as const,
 };
 
 export const addressKeys = {
