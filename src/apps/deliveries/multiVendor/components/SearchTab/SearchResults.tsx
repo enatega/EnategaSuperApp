@@ -1,15 +1,75 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import EmptySearch from "../../../components/search/EmptySearch";
+import SearchResultsSkeleton from "../../../components/search/SearchResultsSkeleton";
+import ProductMiniCardScroller from "./ProductMiniCardScroller";
+import StoreCardScroller from "./StoreCardScroller";
+import type { SearchResultsProps } from "./types";
 
-// Todo: a component which will use <ProductCard/> and <StoreCard/> and show search results
-const SearchResults = () => {
+export default function SearchResults({
+  isSearchActive,
+  shouldSearchStores,
+  isSearchLoading,
+  hasNoResults,
+  products,
+  stores,
+  isFetchingMoreProducts,
+  isFetchingMoreStores,
+  onLoadMoreProducts,
+  onLoadMoreStores,
+}: SearchResultsProps) {
+  if (!isSearchActive) {
+    return null;
+  }
+
+  if (isSearchLoading) {
+    return <SearchResultsSkeleton showStores={shouldSearchStores} />;
+  }
+
+  if (hasNoResults) {
+    return (
+      <View style={styles.emptyContainer}>
+        <EmptySearch />
+      </View>
+    );
+  }
+
+  if (products.length === 0 && stores.length === 0) {
+    return null;
+  }
+
   return (
-    <View>
-      <Text>SearchResults</Text>
-    </View>
-  )
+    <>
+      {products?.length > 0 && (
+        <View style={styles.section}>
+          <ProductMiniCardScroller
+            products={products}
+            onSeeAllPress={() => console.log("see all pressed")}
+            onLoadMore={onLoadMoreProducts}
+            isLoadingMore={isFetchingMoreProducts}
+          />
+        </View>
+      )}
+
+      {stores?.length > 0 && (
+        <View style={styles.section}>
+          <StoreCardScroller
+            stores={stores}
+            onLoadMore={onLoadMoreStores}
+            isLoadingMore={isFetchingMoreStores}
+          />
+        </View>
+      )}
+    </>
+  );
 }
 
-export default SearchResults
-
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  emptyContainer: {
+    minHeight: 320,
+    justifyContent: "center",
+  },
+  section: {
+    marginBottom: 20,
+  },
+});

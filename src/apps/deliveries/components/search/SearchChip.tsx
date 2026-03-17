@@ -2,11 +2,7 @@ import React from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
 import Text from "../../../../general/components/Text";
 import { useTheme } from "../../../../general/theme/theme";
-
-interface SearchChipProps {
-  label: string;
-  onPress: (label: string) => void;
-}
+import type { SearchChipProps } from "./types";
 
 export default function SearchChip({ label, onPress }: SearchChipProps) {
   const { colors, typography } = useTheme();
@@ -26,7 +22,8 @@ export default function SearchChip({ label, onPress }: SearchChipProps) {
       <Text
         variant="caption"
         numberOfLines={1}
-        style={{ fontSize: typography.size.sm2 }}
+        weight="medium"
+        style={{ fontSize: typography.size.sm2, lineHeight: 22 }}
       >
         {label}
       </Text>
@@ -37,7 +34,7 @@ export default function SearchChip({ label, onPress }: SearchChipProps) {
 const styles = StyleSheet.create({
   chip: {
     paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingVertical: 7,
     borderRadius: 999,
     borderWidth: 1,
     alignSelf: "flex-start",
