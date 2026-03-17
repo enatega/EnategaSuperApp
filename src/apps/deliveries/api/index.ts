@@ -10,6 +10,8 @@ export type {
     ApiResponse,
     DeliveryNearbyStore,
     DeliveryNearbyStoresApiResponse,
+    DeliveryShopTypeProduct,
+    DeliveryShopTypeProductsApiResponse,
     DeliveryShopType,
     DeliveryShopTypesApiResponse,
 } from './types';
