@@ -4,12 +4,7 @@ import Svg from "../Svg";
 import Text from "../../../../general/components/Text";
 import { useTheme } from "../../../../general/theme/theme";
 import { useTranslation } from "react-i18next";
-
-interface EmptySearchProps {
-  title?: string
-  subtitle?: string
-  showIcon?: boolean
-}
+import type { EmptySearchProps } from "./types";
 
 const EmptySearch = ({ 
   title = "No results found", 
