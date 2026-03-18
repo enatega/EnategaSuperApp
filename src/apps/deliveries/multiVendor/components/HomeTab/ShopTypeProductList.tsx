@@ -2,11 +2,12 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import HorizontalList from '../../../../../general/components/HorizontalList';
+import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
 import type { DeliveryShopTypeProduct } from '../../../api/types';
+import StoreCard from '../../../components/store-card/StoreCard';
 import ShopTypeCardSkeleton from './HomeTabSkeletons/ShopTypeCardSkeleton';
-import MultiVendorShopTypeCard from './ShopTypeCard';
 
 type Props = {
   errorMessage?: string;
@@ -28,15 +29,11 @@ export default function ShopTypeProductList({
 
   return (
     <View style={styles.section}>
-      <Text
-        weight="extraBold"
-        style={{
-          fontSize: typography.size.lg,
-          lineHeight: typography.lineHeight.h5,
-        }}
-      >
-        {title}
-      </Text>
+      <SectionActionHeader
+        actionLabel={t('multi_vendor_see_all')}
+        onActionPress={() => {}}
+        title={title}
+      />
 
       {isLoading ? (
         <ShopTypeCardSkeleton />
@@ -79,15 +76,20 @@ export default function ShopTypeProductList({
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           renderItem={({ item }) => (
-            <MultiVendorShopTypeCard
-              image={{
-                uri:
-                  item.productImage ??
-                  item.storeImage ??
-                  item.storeLogo ??
-                  'https://placehold.co/400x400.png',
-              }}
-              title={item.productName}
+            <StoreCard
+              imageUrl={
+                item.productImage ??
+                item.storeImage ??
+                item.storeLogo ??
+                'https://placehold.co/400x400.png'
+              }
+              offer={item.deal ?? undefined}
+              name={item.productName}
+              cuisine={item.storeName ?? undefined}
+              price={item.price ?? 0}
+              deliveryTime=""
+              distance={0}
+              onPress={() => {}}
             />
           )}
         />

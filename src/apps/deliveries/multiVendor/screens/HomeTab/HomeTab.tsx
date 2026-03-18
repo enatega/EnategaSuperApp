@@ -29,7 +29,6 @@ export default function HomeTab() {
       style={{ backgroundColor: colors.background }}
     >
       <MultiVendorAddressHeader onAddressPress={handleAddressPress} />
-      <ShopTypeList />
       <MultiVendorSpecialOffers />
       <ShopTypeList />
       <TopBrandsList />
