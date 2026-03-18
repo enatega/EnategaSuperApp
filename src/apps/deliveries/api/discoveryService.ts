@@ -9,6 +9,9 @@ import type {
     DeliveryNearbyStore,
     DeliveryNearbyStoresApiResponse,
     DeliveryNearbyStoresParams,
+    DeliveryOrderAgainApiResponse,
+    DeliveryOrderAgainItem,
+    DeliveryOrderAgainParams,
     DeliveryTopBrand,
     DeliveryTopBrandsApiResponse,
     DeliveryTopBrandsParams,
@@ -29,6 +32,11 @@ const NEARBY_STORES_DEFAULTS = {
 } as const;
 
 const DEALS_DEFAULTS = {
+    offset: 0,
+    limit: 10,
+} as const;
+
+const ORDER_AGAIN_DEFAULTS = {
     offset: 0,
     limit: 10,
 } as const;
@@ -107,6 +115,22 @@ function isWrappedDealsResponse(
         | ApiResponse<DeliveryNearbyStore[]>
         | PaginatedDeliveryResponse<DeliveryNearbyStore>,
 ): response is ApiResponse<DeliveryNearbyStore[]> {
+    return 'data' in response && Array.isArray(response.data);
+}
+
+function isPaginatedOrderAgainResponse(
+    response:
+        | ApiResponse<DeliveryOrderAgainItem[]>
+        | PaginatedDeliveryResponse<DeliveryOrderAgainItem>,
+): response is PaginatedDeliveryResponse<DeliveryOrderAgainItem> {
+    return 'items' in response && Array.isArray(response.items);
+}
+
+function isWrappedOrderAgainResponse(
+    response:
+        | ApiResponse<DeliveryOrderAgainItem[]>
+        | PaginatedDeliveryResponse<DeliveryOrderAgainItem>,
+): response is ApiResponse<DeliveryOrderAgainItem[]> {
     return 'data' in response && Array.isArray(response.data);
 }
 
@@ -315,6 +339,40 @@ export const discoveryService = {
             return [];
         } catch (error) {
             console.error('deals request failed', error);
+            throw error;
+        }
+    },
+
+    /** Fetch order again products for deliveries home discovery. */
+    getOrderAgain: async (
+        params: DeliveryOrderAgainParams = {},
+    ): Promise<DeliveryOrderAgainItem[]> => {
+        const {
+            offset = ORDER_AGAIN_DEFAULTS.offset,
+            limit = ORDER_AGAIN_DEFAULTS.limit,
+        } = params;
+
+        try {
+            const response = await apiClient.get<DeliveryOrderAgainApiResponse>(
+                '/api/v1/apps/deliveries/discovery/order-again',
+                { offset, limit },
+            );
+
+            if (Array.isArray(response)) {
+                return response;
+            }
+
+            if (isPaginatedOrderAgainResponse(response)) {
+                return response.items;
+            }
+
+            if (isWrappedOrderAgainResponse(response)) {
+                return response.data;
+            }
+
+            return [];
+        } catch (error) {
+            console.error('order again request failed', error);
             throw error;
         }
     },

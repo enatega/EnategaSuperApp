@@ -10,6 +10,7 @@ import { deliveryKeys } from '../api/queryKeys';
 import type {
   DeliveryBanner,
   DeliveryNearbyStore,
+  DeliveryOrderAgainItem,
   DeliveryShopTypeProduct,
   DeliveryShopType,
   DeliveryTopBrand,
@@ -37,6 +38,11 @@ type UseNearbyStoresOptions = Omit<
 
 type UseDealsOptions = Omit<
   UseQueryOptions<DeliveryNearbyStore[], ApiError>,
+  'queryKey' | 'queryFn'
+>;
+
+type UseOrderAgainOptions = Omit<
+  UseQueryOptions<DeliveryOrderAgainItem[], ApiError>,
   'queryKey' | 'queryFn'
 >;
 
@@ -131,6 +137,14 @@ export function useDeals(options?: UseDealsOptions) {
     queryKey: deliveryKeys.deals(),
     queryFn: () => discoveryService.getDeals(),
     // staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+}
+
+export function useOrderAgain(options?: UseOrderAgainOptions) {
+  return useQuery<DeliveryOrderAgainItem[], ApiError>({
+    queryKey: deliveryKeys.orderAgain(),
+    queryFn: () => discoveryService.getOrderAgain(),
     ...options,
   });
 }

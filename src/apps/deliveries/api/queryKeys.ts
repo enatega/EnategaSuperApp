@@ -34,6 +34,7 @@ export const deliveryKeys = {
         [...deliveryKeys.search(), 'products', keyword, latitude, longitude] as const,
     storeSearch: (keyword: string, latitude?: number, longitude?: number) =>
         [...deliveryKeys.search(), 'stores', keyword, latitude, longitude] as const,
+    orderAgain: () => [...deliveryKeys.discovery(), 'order-again'] as const,
 };
 
 export const addressKeys = {
