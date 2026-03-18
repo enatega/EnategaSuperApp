@@ -37,6 +37,26 @@ export interface DeliveryShopTypesParams {
     limit?: number;
 }
 
+export interface DeliveryShopTypeProduct {
+    productId: string;
+    storeId: string;
+    productName: string;
+    storeName?: string | null;
+    productImage?: string | null;
+    storeLogo?: string | null;
+    storeImage?: string | null;
+    price?: number | null;
+    deal?: string | null;
+    dealType?: string | null;
+    dealAmount?: number | null;
+}
+
+export interface DeliveryShopTypeProductsParams {
+    shopTypeId: string;
+    offset?: number;
+    limit?: number;
+}
+
 export interface DeliveryTopBrand {
     name: string;
     logo?: string | null;
@@ -61,7 +81,7 @@ export interface DeliveryNearbyStore {
     shopTypeName?: string | null;
     averageRating?: number | null;
     reviewCount?: number | null;
-    deliveryTime?: number | null;
+    deliveryTime?: number | string | null;
     minimumOrder?: number | null;
     baseFee?: number | null;
     distanceKm?: number | null;
@@ -77,6 +97,30 @@ export interface DeliveryNearbyStoresParams {
     limit?: number;
     latitude?: number;
     longitude?: number;
+}
+
+export interface DeliveryDealsParams {
+    offset?: number;
+    limit?: number;
+}
+
+export interface DeliveryOrderAgainItem {
+    productId: string;
+    storeId: string;
+    productName: string;
+    storeName?: string | null;
+    productImage?: string | null;
+    storeLogo?: string | null;
+    storeImage?: string | null;
+    price?: number | null;
+    deal?: string | null;
+    dealType?: string | null;
+    dealAmount?: number | null;
+}
+
+export interface DeliveryOrderAgainParams {
+    offset?: number;
+    limit?: number;
 }
 
 export interface DeliveryBannerStore {
@@ -111,10 +155,25 @@ export type DeliveryTopBrandsApiResponse =
     | PaginatedDeliveryResponse<DeliveryTopBrand>
     | DeliveryTopBrand[];
 
+export type DeliveryShopTypeProductsApiResponse =
+    | ApiResponse<DeliveryShopTypeProduct[]>
+    | PaginatedDeliveryResponse<DeliveryShopTypeProduct>
+    | DeliveryShopTypeProduct[];
+
 export type DeliveryNearbyStoresApiResponse =
     | ApiResponse<DeliveryNearbyStore[]>
     | PaginatedDeliveryResponse<DeliveryNearbyStore>
     | DeliveryNearbyStore[];
+
+export type DeliveryDealsApiResponse =
+    | ApiResponse<DeliveryNearbyStore[]>
+    | PaginatedDeliveryResponse<DeliveryNearbyStore>
+    | DeliveryNearbyStore[];
+
+export type DeliveryOrderAgainApiResponse =
+    | ApiResponse<DeliveryOrderAgainItem[]>
+    | PaginatedDeliveryResponse<DeliveryOrderAgainItem>
+    | DeliveryOrderAgainItem[];
 
 export type DeliveryBannersApiResponse =
     | ApiResponse<DeliveryBanner[]>

@@ -81,6 +81,17 @@ export const styles = StyleSheet.create({
     height: 1,
     marginVertical: 12,
   },
+  heartButton: {
+    alignItems: 'center',
+    borderRadius: 20,
+    height: 32,
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 8,
+    top: 8,
+    width: 32,
+    zIndex: 10,
+  },
   infoItem: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -18,8 +18,9 @@ interface StoreCardProps {
   reviewCount?: number;
   cuisine?: string;
   price?: number;
-  deliveryTime?: number;
+  deliveryTime?: number | string;
   distance?: number;
+  actionSlot?: React.ReactNode;
   onPress: () => void;
 }
 
@@ -32,19 +33,17 @@ export default function StoreCard({
   rating,
   reviewCount,
   cuisine,
-  price = 0,
-  deliveryTime = 0,
-  distance = 0,
+  price,
+  deliveryTime,
+  distance,
+  actionSlot,
   onPress,
 }: StoreCardProps) {
   const { colors } = useTheme();
   const resolvedImageUrl =
     imageUrl || store?.coverImage || store?.logo || "https://placehold.co/400x400.png";
   const resolvedOffer =
-    offer ||
-    (store?.dealType && store.dealAmount != null
-      ? `${store.dealAmount}${store.dealType === "PERCENTAGE" ? "% off" : " off"}`
-      : store?.deal || undefined);
+    offer || undefined;
   const resolvedName = name || store?.name || "";
   const resolvedLocation = location || store?.address || undefined;
   const resolvedRating = rating ?? store?.averageRating ?? undefined;
@@ -67,7 +66,7 @@ export default function StoreCard({
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <StoreImage imageUrl={resolvedImageUrl} offer={resolvedOffer} />
+      <StoreImage imageUrl={resolvedImageUrl} offer={resolvedOffer} actionSlot={actionSlot} />
 
       <View style={styles.content}>
         <StoreInfo name={resolvedName} />

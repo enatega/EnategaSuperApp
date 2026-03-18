@@ -65,6 +65,7 @@ export default function ProfileTab() {
         <ProfileMenuItem
           icon={<Ionicons name="heart-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_favorites')}
+          onPress={() => navigation.navigate('Favourites' as never)}
         />
         <ProfileMenuItem
           icon={<Ionicons name="pricetag-outline" size={ICON_SIZE} color={iconColor} />}
