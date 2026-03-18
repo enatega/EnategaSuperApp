@@ -23,6 +23,8 @@ const fr = {
   ride_types_retry: 'Réessayer',
   ride_estimate_quote_error_title: 'Impossible de charger les estimations tarifaires',
   ride_estimate_quote_error_description: 'Nous n’avons pas pu charger les options tarifaires pour ce trajet. Veuillez réessayer.',
+  ride_create_error_description: 'Nous n’avons pas pu creer votre demande de trajet pour le moment. Veuillez reessayer.',
+  ride_create_invalid_response_description: 'Votre demande de trajet a ete envoyee, mais la reponse etait incomplete. Veuillez actualiser et verifier vos trajets actifs.',
   ride_estimate_route_error_title: 'Aperçu de l’itinéraire indisponible',
   ride_estimate_route_error_description: 'Nous n’avons pas pu tracer l’itinéraire pour le moment. Les points de départ et d’arrivée restent visibles sur la carte.',
   ride_estimate_retry: 'Réessayer',

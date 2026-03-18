@@ -47,7 +47,7 @@ function FindingRideBottomSheet({
   const screenWidth = Dimensions.get('window').width;
   const trackWidth = screenWidth - 32;
   const collapsedHeight = FINDING_RIDE_BOTTOM_SHEET_COLLAPSED_HEIGHT;
-  const expandedHeight = 300;
+  const expandedHeight = 332;
   const expandedSheetHeight = expandedHeight + insets.bottom;
   const collapsedSheetHeight = collapsedHeight + insets.bottom;
   const hasTimedOut = timeLeftSec <= 0;

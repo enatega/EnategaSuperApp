@@ -43,7 +43,7 @@ export default memo(FindingRideBidsList);
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    maxHeight: 340,
+    maxHeight: 420,
   },
   list: {
     borderRadius: 24,

@@ -4,7 +4,7 @@ export type FindingRideBid = {
   driverRides?: number;
   driverAvatarUri?: string;
   vehicleLabel?: string;
-  etaMin: number;
+  etaMin?: number;
   distanceKm?: number;
   rating?: number;
   amount: number;

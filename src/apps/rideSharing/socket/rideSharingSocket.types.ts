@@ -2,6 +2,7 @@ import type { CreateRidePayload } from '../api/types';
 import type { FindingRideBid } from '../screens/findingRide/types/bids';
 
 export type RideSharingServerEventMap = {
+  'received-bids': unknown;
   'ride:bid:new': {
     rideRequestId: string;
     bid: FindingRideBid;
@@ -25,6 +26,10 @@ export type RideSharingClientEventMap = {
     latitude: number;
     longitude: number;
     radiusKm: number;
+  };
+  'ride-cancelled': {
+    rideId: string;
+    genericUserId: string;
   };
   'ride-request-cancelled-by-customer': {
     rideRequestId: string;

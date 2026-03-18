@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { RideAddressSelection } from '../../../api/types';
@@ -8,8 +8,7 @@ import FindingRideBottomSheet from './FindingRideBottomSheet';
 import FindingRideBidsList from './FindingRideBidsList';
 import useRideRoutePath from '../../../hooks/useRideRoutePath';
 import { useTheme } from '../../../../../general/theme/theme';
-import { useCancelRide } from '../../../hooks/useRideMutations';
-import { useRideBidSocket } from '../../../hooks/useRideBidSocket';
+import { useCancelRideRequest } from '../../../hooks/useRideMutations';
 import { useActiveRideRequestStore } from '../../../stores/useActiveRideRequestStore';
 import { useRideBidsStore } from '../../../stores/useRideBidsStore';
 import { showToast } from '../../../../../general/components/AppToast';
@@ -49,52 +48,14 @@ export default function FindingRideView({
   const { t } = useTranslation('rideSharing');
   const activeRideRequestId = useActiveRideRequestStore((state) => state.activeRideRequest?.id);
   const clearActiveRideRequest = useActiveRideRequestStore((state) => state.clearActiveRideRequest);
-  const cancelRideMutation = useCancelRide();
+  const cancelRideRequestMutation = useCancelRideRequest();
   const routeQuery = useRideRoutePath(fromAddress, toAddress);
   const minimumFare = recommendedFare ?? selectedRide.recommendedFare ?? selectedRide.fare ?? 0;
   const [currentFare, setCurrentFare] = useState<number>(offeredFare ?? minimumFare);
   const [timeLeftSec, setTimeLeftSec] = useState(SEARCH_DURATION_SECONDS);
   const resolvedRideRequestId = rideRequestId ?? activeRideRequestId;
   const setBids = useRideBidsStore((state) => state.setBids);
-  const storedBidsCount = useRideBidsStore((state) => state.bids.length);
-  useRideBidSocket();
-  const fallbackBids = useMemo<FindingRideBid[]>(() => {
-    return [
-      {
-        id: 'bid-1',
-        driverName: 'Jhon',
-        driverRides: 2713,
-        driverAvatarUri: 'https://i.pravatar.cc/84?img=12',
-        vehicleLabel: 'Toyota Camry',
-        etaMin: 10,
-        distanceKm: 8.2,
-        rating: 4.9,
-        amount: 30.1,
-      },
-      {
-        id: 'bid-2',
-        driverName: 'Alice',
-        driverRides: 3105,
-        driverAvatarUri: 'https://i.pravatar.cc/84?img=49',
-        vehicleLabel: 'BWM 320',
-        etaMin: 8,
-        distanceKm: 7.5,
-        rating: 4.75,
-        amount: 28.5,
-      },
-      {
-        id: 'bid-3',
-        driverName: 'Mike',
-        driverRides: 1845,
-        driverAvatarUri: 'https://i.pravatar.cc/84?img=14',
-        vehicleLabel: 'Suzuki Boulevard',
-        etaMin: 5,
-        distanceKm: 5.8,
-        rating: 4.95,
-        amount: 32,
-      },
-    ];
-  }, []);
+  const clearBids = useRideBidsStore((state) => state.clearBids);
 
   useEffect(() => {
     setCurrentFare(offeredFare ?? minimumFare);
@@ -113,23 +74,20 @@ export default function FindingRideView({
   }, [timeLeftSec]);
 
   useEffect(() => {
-    if (incomingBids && incomingBids.length) {
+    if (incomingBids) {
       setBids(incomingBids);
-      return;
     }
+  }, [incomingBids, setBids]);
 
-    if (storedBidsCount === 0) {
-      setBids(fallbackBids);
-    }
-  }, [fallbackBids, incomingBids, setBids, storedBidsCount]);
 
   const handleCancelRide = async () => {
-    if (!resolvedRideRequestId || cancelRideMutation.isPending) {
+    if (!resolvedRideRequestId || cancelRideRequestMutation.isPending) {
       return;
     }
 
     try {
-      await cancelRideMutation.mutateAsync(resolvedRideRequestId);
+      await cancelRideRequestMutation.mutateAsync(resolvedRideRequestId);
+      clearBids();
       clearActiveRideRequest();
       onCancelSuccess?.();
     } catch (error) {
@@ -162,7 +120,7 @@ export default function FindingRideView({
         isDecreaseDisabled={currentFare <= minimumFare}
         onKeepSearching={() => setTimeLeftSec(SEARCH_DURATION_SECONDS)}
         onCancelRide={handleCancelRide}
-        isCancelLoading={cancelRideMutation.isPending}
+        isCancelLoading={cancelRideRequestMutation.isPending}
         floatingAccessory={(
           <FindingRideBidsList
             onAcceptBid={(bid) => setCurrentFare(bid.amount)}

@@ -1,5 +1,8 @@
-import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, { useCallback } from 'react';
+import {
+  createNativeStackNavigator,
+  type NativeStackNavigationProp,
+} from '@react-navigation/native-stack';
 import HomeScreen from '../../screens/HomeScreen';
 import DeliveriesNavigator from '../../apps/deliveries/navigation/DeliveriesNavigator';
 import RideSharingNavigator from '../../apps/rideSharing/navigation/RideSharingNavigator';
@@ -7,10 +10,45 @@ import HomeVisitsNavigator from '../../apps/homeVisits/navigation/HomeVisitsNavi
 import AppointmentsNavigator from '../../apps/appointments/navigation/AppointmentsNavigator';
 import DeveloperModeNavigator from '../../apps/developerMode/navigation/DeveloperModeNavigator';
 import AuthNavigator from './AuthNavigator';
+import { authSession } from '../auth/authSession';
+import type { MiniAppId } from '../utils/constants';
+import type { SharedAppRouteName, SharedStackParamList } from './navigationTypes';
+import { setPendingAppRoute } from './pendingAppRedirect';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<SharedStackParamList>();
+const APP_ROUTES: Partial<Record<MiniAppId, SharedAppRouteName>> = {
+  deliveries: 'Deliveries',
+  rideSharing: 'RideSharing',
+  homeVisits: 'HomeVisits',
+  appointments: 'Appointments',
+  developerMode: 'DeveloperMode',
+};
 
 export default function SharedNavigator() {
+  const handleSelectMiniApp = useCallback(
+    async (
+      id: MiniAppId,
+      navigation: NativeStackNavigationProp<SharedStackParamList, 'Home'>,
+    ) => {
+      const routeName = APP_ROUTES[id];
+
+      if (!routeName) {
+        return;
+      }
+
+      const token = await authSession.getAccessToken();
+
+      if (token) {
+        navigation.navigate(routeName);
+        return;
+      }
+
+      await setPendingAppRoute(routeName);
+      navigation.navigate('Auth');
+    },
+    [],
+  );
+
   return (
     <Stack.Navigator>
       <Stack.Screen name="Home" options={{ headerShown: false }}>
@@ -18,11 +56,7 @@ export default function SharedNavigator() {
           <HomeScreen
             {...props}
             onSelectMiniApp={(id) => {
-              if (id === 'deliveries') props.navigation.navigate('Deliveries');
-              if (id === 'rideSharing') props.navigation.navigate('RideSharing');
-              if (id === 'homeVisits') props.navigation.navigate('HomeVisits');
-              if (id === 'appointments') props.navigation.navigate('Appointments');
-              if (id === 'developerMode') props.navigation.navigate('DeveloperMode');
+              void handleSelectMiniApp(id, props.navigation);
             }}
           />
         )}

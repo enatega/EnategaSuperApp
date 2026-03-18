@@ -11,10 +11,10 @@ type DeliveryService = {
   image: string;
 };
 
-const foodImage = 'https://www.figma.com/api/mcp/asset/79f928f9-686e-4a66-aca3-242383ee46d8';
-const groceryImage = 'https://www.figma.com/api/mcp/asset/9332698f-1fbb-4679-b9c4-cd7df1a1c9bd';
-const giftImage = 'https://www.figma.com/api/mcp/asset/8d726e5c-0ee9-446e-9ad5-086e6fab61e2';
-const medicineImage = 'https://www.figma.com/api/mcp/asset/007e3097-6001-4efb-b8cc-5db9f1ebd541';
+const foodImage = require('../../rideSharing/assets/images/pizza.png');
+const groceryImage = require('../../rideSharing/assets/images/basket.png');
+const giftImage =  require('../../rideSharing/assets/images/gift.png');
+const medicineImage = require('../../rideSharing/assets/images/medicine.png');
 
 export default function DeliveryServicesSection() {
   const { colors, typography } = useTheme();
@@ -63,7 +63,7 @@ export default function DeliveryServicesSection() {
             >
               {item.title}
             </Text>
-            <Image source={{ uri: item.image }} style={styles.image} />
+            <Image source={item.image} style={styles.image} />
           </View>
         ))}
       </View>

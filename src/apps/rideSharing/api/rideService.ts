@@ -180,6 +180,10 @@ export const rideService = {
     cancelRide: (rideId: string): Promise<void> =>
         apiClient.patch(`/api/v1/rides/${rideId}/customer/cancel`),
 
+    /** Cancel a pending ride request before a ride is accepted. */
+    cancelRideRequest: (rideId: string): Promise<void> =>
+        apiClient.patch(`/api/v1/rides/${rideId}/cancel`),
+
     /** Rate a completed ride. */
     rateRide: (
         rideId: string,

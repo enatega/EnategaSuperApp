@@ -1,6 +1,7 @@
 import React from "react";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { useGoogleLogin } from "../../hooks/useAuthMutations";
+import { getPendingAppRoute } from "../../navigation/pendingAppRedirect";
 import { showToast } from "../AppToast";
 import { useNavigation } from "@react-navigation/native";
 import Button from "../Button";
@@ -19,9 +20,13 @@ const GoogleLogin = () => {
   const navigation = useNavigation();
 
   const googleLoginMutation = useGoogleLogin({
-    onSuccess: () => {
+    onSuccess: async () => {
       showToast.success("Success!", "Logged in successfully.");
-      navigation.navigate("Main" as never);
+      const pendingRoute = await getPendingAppRoute();
+
+      if (!pendingRoute) {
+        navigation.navigate("Main" as never);
+      }
     },
     onError: (error) => {
       showToast.error("Error!", error?.message);

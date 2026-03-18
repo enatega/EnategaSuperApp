@@ -68,7 +68,7 @@ function FindingRideBidCard({ bid, onPressDecline, onPressAccept }: Props) {
 
           <View style={styles.rightBlock}>
             <Text weight="semiBold" style={[styles.metaTextStrong, { color: colors.text }]}>
-              {`${bid.etaMin} min`}
+              {typeof bid.etaMin === 'number' ? `${bid.etaMin} min` : 'New bid'}
             </Text>
             {typeof bid.distanceKm === 'number' ? (
               <Text weight="semiBold" style={[styles.metaTextStrong, { color: colors.text }]}>

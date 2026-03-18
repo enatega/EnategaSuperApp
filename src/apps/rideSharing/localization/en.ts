@@ -23,6 +23,8 @@ const en = {
   ride_types_retry: 'Try again',
   ride_estimate_quote_error_title: 'Unable to load fare estimates',
   ride_estimate_quote_error_description: 'We could not load fare options for this route. Please try again.',
+  ride_create_error_description: 'We could not create your ride request right now. Please try again.',
+  ride_create_invalid_response_description: 'Your ride request was submitted, but the response was incomplete. Please refresh and check your active rides.',
   ride_estimate_route_error_title: 'Route preview unavailable',
   ride_estimate_route_error_description: 'We could not draw the route right now. Pickup and drop-off are still shown on the map.',
   ride_estimate_retry: 'Try again',

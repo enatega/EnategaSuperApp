@@ -183,33 +183,42 @@ export default function RideEstimateScreen() {
       return;
     }
 
+    const createRidePayload: CreateRidePayload = {
+      pickup: {
+        lat: fromAddress.coordinates.latitude,
+        lng: fromAddress.coordinates.longitude,
+      },
+      dropoff: {
+        lat: toAddress.coordinates.latitude,
+        lng: toAddress.coordinates.longitude,
+      },
+      ride_type_id: String(selectedOption.id),
+      fare: resolvedFare,
+      payment_via: mapPaymentMethodToApi(paymentMethodId),
+      is_hourly: false,
+      stops: [],
+      pickup_address: fromAddress.description,
+      pickup_location: fromAddress.description,
+      dropoff_location: toAddress.description,
+      destination_address: toAddress.description,
+      is_scheduled: false,
+      is_family: false,
+      estimated_time: quoteQuery.data.durationMin,
+      estimated_distance: quoteQuery.data.distanceKm,
+      base_fair: selectedOptionRecommendedFare ?? resolvedFare,
+      offered_fair: resolvedFare,
+    };
+
     try {
-      const createRidePayload: CreateRidePayload = {
-        pickup: {
-          lat: fromAddress.coordinates.latitude,
-          lng: fromAddress.coordinates.longitude,
-        },
-        dropoff: {
-          lat: toAddress.coordinates.latitude,
-          lng: toAddress.coordinates.longitude,
-        },
-        ride_type_id: String(selectedOption.id),
-        fare: resolvedFare,
-        payment_via: mapPaymentMethodToApi(paymentMethodId),
-        is_hourly: false,
-        stops: [],
-        pickup_address: fromAddress.description,
-        pickup_location: fromAddress.description,
-        dropoff_location: toAddress.description,
-        destination_address: toAddress.description,
-        is_scheduled: false,
-        is_family: false,
-        estimated_time: quoteQuery.data.durationMin,
-        estimated_distance: quoteQuery.data.distanceKm,
-        base_fair: selectedOptionRecommendedFare ?? resolvedFare,
-        offered_fair: resolvedFare,
-      };
-      const createdRide = await createRideMutation.mutateAsync(createRidePayload);
+      const createdRide = await createRideMutation.mutateAsync(createRidePayload) as {
+        rideReq?: ActiveRideRequestPayload | null;
+      } | null;
+      const createdRideRequest = createdRide?.rideReq ?? null;
+
+      if (!createdRideRequest?.id) {
+        showToast.error(t('error'), t('ride_create_invalid_response_description'));
+        return;
+      }
 
       try {
         await socketClient.connect();
@@ -217,7 +226,7 @@ export default function RideEstimateScreen() {
           rideRequestData: {
             ...createRidePayload,
             passenger_user_id: authSessionQuery.data?.user?.id,
-            ride_request_id: createdRide.id,
+            ride_request_id: createdRideRequest.id,
           },
           latitude: fromAddress.coordinates.latitude,
           longitude: fromAddress.coordinates.longitude,
@@ -225,48 +234,19 @@ export default function RideEstimateScreen() {
         });
       } catch (socketError) {
         socketLogger.warn('Ride request socket emit failed after API success', {
-          rideRequestId: createdRide.id,
+          rideRequestId: createdRideRequest.id,
           error:
             socketError instanceof Error ? socketError.message : String(socketError),
         });
       }
 
-      const createdActiveRideRequest: ActiveRideRequestPayload = {
-        id: createdRide.id,
-        pickup: {
-          lat: fromAddress.coordinates.latitude,
-          lng: fromAddress.coordinates.longitude,
-        },
-        dropoff: {
-          lat: toAddress.coordinates.latitude,
-          lng: toAddress.coordinates.longitude,
-        },
-        pickup_location: fromAddress.description,
-        dropoff_location: toAddress.description,
-        payment_via: mapPaymentMethodToApi(paymentMethodId),
-        ride_type_id: String(selectedOption.id),
-        offeredFair: resolvedFare,
-        baseFair: selectedOptionRecommendedFare ?? resolvedFare,
-        status: createdRide.status ?? 'pending',
-        is_hourly: false,
-        is_family: false,
-        is_scheduled: false,
-        estimated_time: quoteQuery.data.durationMin,
-        estimated_distance: quoteQuery.data.distanceKm,
-        ride_type: {
-          id: String(selectedOption.id),
-          name: selectedOption.title,
-          imageUrl: typeof selectedOption.icon === 'string' ? selectedOption.icon : null,
-          seatCount: selectedOption.seats,
-        },
-      };
       clearActiveRide();
-      setActiveRideRequest(createdActiveRideRequest);
+      setActiveRideRequest(createdRideRequest);
       navigation.popToTop();
     } catch (error) {
       showToast.error(
         t('error'),
-        getApiErrorMessage(error, t('ride_estimate_quote_error_description')),
+        getApiErrorMessage(error, t('ride_create_error_description')),
       );
     }
   };

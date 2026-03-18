@@ -11,14 +11,14 @@ import HamburgerMenu from '../../components/HamburgerMenu';
 import Sidebar, { type UserProfile } from '../../components/Sidebar';
 import ActiveRideNotice from '../../components/ActiveRideNotice';
 import useBootstrapActiveRide from '../../hooks/useBootstrapActiveRide';
+import useRideSocketBootstrap from '../../hooks/useRideSocketBootstrap';
 import { useSidebarMenu } from '../../hooks/useSidebarMenu';
 import { useProfile } from '../../hooks/useProfile';
 import { useActiveRideRequestStore } from '../../stores/useActiveRideRequestStore';
 import { mapActiveRideRequestToFindingRideViewData } from '../../utils/activeRideRequestMapper';
 import FindingRideView from '../findingRide/components/FindingRideView';
 
-const recommendationImageOne = 'https://www.figma.com/api/mcp/asset/651c88ad-0287-4bc1-8f06-492da512be4b';
-const recommendationImageTwo = 'https://www.figma.com/api/mcp/asset/498bbad1-818d-450a-ae02-e885a587ded5';
+
 
 export default function RideSharingHomeScreen() {
   const { colors } = useTheme();
@@ -27,6 +27,7 @@ export default function RideSharingHomeScreen() {
   const activeRideRequest = useActiveRideRequestStore((state) => state.activeRideRequest);
 
   useBootstrapActiveRide();
+  useRideSocketBootstrap();
 
   // Real user data from the API
   const { userProfile: apiProfile } = useProfile();
@@ -40,24 +41,7 @@ export default function RideSharingHomeScreen() {
     };
   }, [apiProfile]);
 
-  const recommendations = [
-    {
-      id: 'rec-1',
-      title: t('recommended_name'),
-      rating: 4.1,
-      reviews: 5000,
-      price: 25,
-      image: recommendationImageOne,
-    },
-    {
-      id: 'rec-2',
-      title: t('recommended_name_secondary'),
-      rating: 4.1,
-      reviews: 5000,
-      price: 25,
-      image: recommendationImageTwo,
-    },
-  ];
+
 
   const findingRideViewData = useMemo(
     () => (activeRideRequest ? mapActiveRideRequestToFindingRideViewData(activeRideRequest) : null),
@@ -91,7 +75,7 @@ export default function RideSharingHomeScreen() {
           <ActiveRideNotice />
           <RideOptionsSection />
           <DeliveryServicesSection />
-          <RecommendedSection items={recommendations} />
+          <RecommendedSection />
         </ScrollView>
       </SafeAreaView>
 

@@ -163,7 +163,7 @@ function RideEstimateBottomSheet({
               <Button
                 label={t('ride_find_button')}
                 onPress={onConfirmRide}
-                disabled={isConfirmDisabled || isConfirmLoading}
+                disabled={isConfirmDisabled}
                 isLoading={isConfirmLoading}
                 style={styles.confirmButton}
               />

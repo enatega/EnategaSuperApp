@@ -10,10 +10,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { homePatterns } from '../../general/assets/images';
 import { useActiveRideStore } from '../../apps/rideSharing/stores/useActiveRideStore';
 
-const doodleLines = 'https://www.figma.com/api/mcp/asset/903ad3ca-275a-49f4-a3e3-b7b90c360b96';
-const doodleSplines = 'https://www.figma.com/api/mcp/asset/08bf846b-8b15-4164-920e-5e2179f67dbe';
-const doodleCircles = 'https://www.figma.com/api/mcp/asset/829d08ad-f239-4503-b7c6-e638a01dac31';
-const doodleTriangles = 'https://www.figma.com/api/mcp/asset/1883caab-8f5b-421f-a5c2-825d2dbaa071';
 type BannerItem = {
   id: string;
   title: string;
