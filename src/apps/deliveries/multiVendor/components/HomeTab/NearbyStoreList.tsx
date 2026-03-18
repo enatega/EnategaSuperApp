@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
@@ -8,16 +10,24 @@ import type { DeliveryNearbyStore } from '../../../api/types';
 import StoreCard from '../../../components/store-card/StoreCard';
 import NearbyStoreListSkeleton from './HomeTabSkeletons/NearbyStoreListSkeleton';
 
-type Props = {
-  onRestaurantPress?: (store: DeliveryNearbyStore) => void;
-};
+type NavProp = NativeStackNavigationProp<Record<string, object | undefined>>;
 
-export default function NearbyStoreList({ onRestaurantPress }: Props) {
+export default function NearbyStoreList() {
   const { t } = useTranslation('deliveries');
+  const navigation = useNavigation<NavProp>();
   const { data: nearbyStoresData = [], isPending: isNearbyStoresPending } = useNearbyStores();
+  console.log('nearby_Store_data__',JSON.stringify(nearbyStoresData,null,2));
+  
+
+  const handleRestaurantPress = useCallback(
+    (store: DeliveryNearbyStore) => {
+      navigation.navigate('StoreDetails', { store });
+    },
+    [navigation],
+  );
 
   const renderItem = ({ item }: { item: DeliveryNearbyStore }) => (
-    <StoreCard store={item} onPress={() => onRestaurantPress?.(item)} />
+    <StoreCard store={item} onPress={() => handleRestaurantPress(item)} />
   );
 
   return (

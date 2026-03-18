@@ -99,6 +99,86 @@ export interface DeliveryNearbyStoresParams {
     longitude?: number;
 }
 
+export interface DeliveryStoreDetailsParams {
+    offset?: number;
+    limit?: number;
+    search?: string;
+    selectedCategoryId?: string;
+    selectedSubcategoryId?: string;
+}
+
+export interface DeliveryStoreTimingSlot {
+    open: string;
+    close: string;
+}
+
+export interface DeliveryStoreTimingDay {
+    slots: DeliveryStoreTimingSlot[];
+    is_active: boolean;
+}
+
+export type DeliveryStoreTimings = Record<string, DeliveryStoreTimingDay>;
+
+export interface DeliveryStoreContact {
+    email?: string | null;
+    phone?: string | null;
+}
+
+export interface DeliveryStoreDetailsStore {
+    id: string;
+    name: string;
+    address?: string | null;
+    logo?: string | null;
+    coverImage?: string | null;
+    averageRating?: number | null;
+    reviewCount?: number | null;
+    deliveryTime?: number | string | null;
+    minimumOrder?: number | null;
+    baseFee?: number | null;
+    shopTypeId?: string | null;
+    shopTypeName?: string | null;
+    deal?: string | null;
+    dealType?: string | null;
+    dealAmount?: number | null;
+    tagLine?: string | null;
+    description?: string | null;
+    storeTimings?: DeliveryStoreTimings | null;
+    isAvailable?: boolean;
+    contact?: DeliveryStoreContact | null;
+}
+
+export interface DeliveryStoreDetailsFilterItem {
+    id: string;
+    name: string;
+    [key: string]: unknown;
+}
+
+export interface DeliveryStoreDetailsFilters {
+    selectedCategoryId: string | null;
+    selectedSubcategoryId: string | null;
+    categories: DeliveryStoreDetailsFilterItem[];
+    subcategories: DeliveryStoreDetailsFilterItem[];
+}
+
+export interface DeliveryStoreDetailsProduct {
+    productId: string;
+    name: string;
+    productImage?: string | null;
+    price?: number | null;
+    deal?: string | null;
+    dealType?: string | null;
+    dealAmount?: number | null;
+    categoryId?: string | null;
+    subcategoryId?: string | null;
+    [key: string]: unknown;
+}
+
+export interface DeliveryStoreDetailsResponse {
+    store: DeliveryStoreDetailsStore;
+    filters: DeliveryStoreDetailsFilters;
+    products: PaginatedDeliveryResponse<DeliveryStoreDetailsProduct>;
+}
+
 export interface DeliveryDealsParams {
     offset?: number;
     limit?: number;
@@ -164,6 +244,8 @@ export type DeliveryNearbyStoresApiResponse =
     | ApiResponse<DeliveryNearbyStore[]>
     | PaginatedDeliveryResponse<DeliveryNearbyStore>
     | DeliveryNearbyStore[];
+
+export type DeliveryStoreDetailsApiResponse = DeliveryStoreDetailsResponse;
 
 export type DeliveryDealsApiResponse =
     | ApiResponse<DeliveryNearbyStore[]>

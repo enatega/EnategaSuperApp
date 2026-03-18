@@ -9,6 +9,9 @@ import type {
     DeliveryNearbyStore,
     DeliveryNearbyStoresApiResponse,
     DeliveryNearbyStoresParams,
+    DeliveryStoreDetailsApiResponse,
+    DeliveryStoreDetailsParams,
+    DeliveryStoreDetailsResponse,
     DeliveryOrderAgainApiResponse,
     DeliveryOrderAgainItem,
     DeliveryOrderAgainParams,
@@ -308,6 +311,39 @@ export const discoveryService = {
             return [];
         } catch (error) {
             console.error('nearby stores request failed', error);
+            throw error;
+        }
+    },
+
+    /** Fetch store details and products for a specific deliveries store. */
+    getStoreDetails: async (
+        storeId: string,
+        params: DeliveryStoreDetailsParams = {},
+    ): Promise<DeliveryStoreDetailsResponse> => {
+        const {
+            offset = NEARBY_STORES_DEFAULTS.offset,
+            limit = NEARBY_STORES_DEFAULTS.limit,
+            search,
+            selectedCategoryId,
+            selectedSubcategoryId,
+        } = params;
+
+        try {
+            const response= await apiClient.get<DeliveryStoreDetailsApiResponse>(
+                `/api/v1/apps/deliveries/stores/${storeId}/view`,
+                {
+                    offset,
+                    limit,
+                    search,
+                    categoryId : selectedCategoryId,
+                    subcategoryId:selectedSubcategoryId,
+                },
+            );
+            console.log('store_Data_res',JSON.stringify(response,null,2));
+            
+            return response;
+        } catch (error) {
+            console.error('store details request failed', error);
             throw error;
         }
     },

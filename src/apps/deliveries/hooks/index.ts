@@ -6,5 +6,6 @@ export {
   useShopTypeProducts,
   useShopTypeProductsSections,
   useShopTypes,
+  useStoreDetails,
   useTopBrands,
 } from './useDiscoveryQueries';

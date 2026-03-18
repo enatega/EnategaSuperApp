@@ -11,6 +11,8 @@ import type {
   DeliveryBanner,
   DeliveryNearbyStore,
   DeliveryOrderAgainItem,
+  DeliveryStoreDetailsParams,
+  DeliveryStoreDetailsResponse,
   DeliveryShopTypeProduct,
   DeliveryShopType,
   DeliveryTopBrand,
@@ -33,6 +35,11 @@ type UseTopBrandsOptions = Omit<
 
 type UseNearbyStoresOptions = Omit<
   UseQueryOptions<DeliveryNearbyStore[], ApiError>,
+  'queryKey' | 'queryFn'
+>;
+
+type UseStoreDetailsOptions = Omit<
+  UseQueryOptions<DeliveryStoreDetailsResponse, ApiError>,
   'queryKey' | 'queryFn'
 >;
 
@@ -128,6 +135,41 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
     queryKey: deliveryKeys.nearbyStores(),
     queryFn: () => discoveryService.getNearbyStores(),
     // staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+}
+
+export function useStoreDetails(
+  storeId: string,
+  params: DeliveryStoreDetailsParams = {},
+  options?: UseStoreDetailsOptions,
+) {
+  const {
+    offset = 0,
+    limit = 10,
+    search,
+    selectedCategoryId,
+    selectedSubcategoryId,
+  } = params;
+
+  return useQuery<DeliveryStoreDetailsResponse, ApiError>({
+    queryKey: deliveryKeys.storeDetails(
+      storeId,
+      offset,
+      limit,
+      search,
+      selectedCategoryId,
+      selectedSubcategoryId,
+    ),
+    queryFn: () =>
+      discoveryService.getStoreDetails(storeId, {
+        offset,
+        limit,
+        search,
+        selectedCategoryId,
+        selectedSubcategoryId,
+      }),
+    enabled: Boolean(storeId),
     ...options,
   });
 }
