@@ -42,10 +42,20 @@ export interface DeliveryShopTypeProduct {
     storeId: string;
     productName: string;
     storeName?: string | null;
+    storeAddress?: string | null;
     productImage?: string | null;
     storeLogo?: string | null;
     storeImage?: string | null;
     price?: number | null;
+    averageRating?: number | null;
+    reviewCount?: number | null;
+    deliveryTime?: number | string | null;
+    baseFee?: number | null;
+    distanceKm?: number | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    storeLatitude?: number | null;
+    storeLongitude?: number | null;
     deal?: string | null;
     dealType?: string | null;
     dealAmount?: number | null;
@@ -55,6 +65,7 @@ export interface DeliveryShopTypeProductsParams {
     shopTypeId: string;
     offset?: number;
     limit?: number;
+    search?: string;
 }
 
 export interface DeliveryTopBrand {
@@ -90,11 +101,16 @@ export interface DeliveryNearbyStore {
     dealType?: string | null;
     dealAmount?: number | null;
     isFavorite?: boolean;
+    latitude?: number | null;
+    longitude?: number | null;
+    storeLatitude?: number | null;
+    storeLongitude?: number | null;
 }
 
 export interface DeliveryNearbyStoresParams {
     offset?: number;
     limit?: number;
+    search?: string;
     latitude?: number;
     longitude?: number;
 }

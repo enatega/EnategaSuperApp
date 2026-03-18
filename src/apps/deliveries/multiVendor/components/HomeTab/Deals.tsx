@@ -5,7 +5,7 @@ import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
 import type { DeliveryNearbyStore } from '../../../api/types';
 import { useDeals } from '../../../hooks';
-import StoreCard from '../../../components/store-card/StoreCard';
+import StoreCard from '../../../components/storeCard/StoreCard';
 import NearbyStoreListSkeleton from './HomeTabSkeletons/NearbyStoreListSkeleton';
 
 type Props = {
@@ -15,8 +15,6 @@ type Props = {
 export default function Deals({ onRestaurantPress }: Props) {
   const { t } = useTranslation('deliveries');
   const { data: dealsData = [], isPending: isDealsPending } = useDeals();
-  console.log('deals_Data',JSON.stringify(dealsData,null,2));
-  
 
   const renderItem = ({ item }: { item: DeliveryNearbyStore }) => (
     <StoreCard store={item} onPress={() => onRestaurantPress?.(item)} />

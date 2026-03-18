@@ -1,5 +1,6 @@
 import {
   useQueries,
+  useInfiniteQuery,
   useQuery,
   type UseQueryOptions,
   type UseQueryResult,
@@ -7,10 +8,13 @@ import {
 import { ApiError } from '../../../general/api/apiClient';
 import { discoveryService } from '../api/discoveryService';
 import { deliveryKeys } from '../api/queryKeys';
+import type { GenericListFilters } from '../components/filters/types';
 import type {
   DeliveryBanner,
   DeliveryNearbyStore,
   DeliveryOrderAgainItem,
+  DeliveryNearbyStoresParams,
+  PaginatedDeliveryResponse,
   DeliveryShopTypeProduct,
   DeliveryShopType,
   DeliveryTopBrand,
@@ -31,10 +35,14 @@ type UseTopBrandsOptions = Omit<
   'queryKey' | 'queryFn'
 >;
 
-type UseNearbyStoresOptions = Omit<
-  UseQueryOptions<DeliveryNearbyStore[], ApiError>,
-  'queryKey' | 'queryFn'
->;
+type UseNearbyStoresMode = 'preview' | 'paginated';
+
+type UseNearbyStoresOptions = {
+  filters?: GenericListFilters;
+  mode?: UseNearbyStoresMode;
+  enabled?: boolean;
+  search?: string;
+};
 
 type UseDealsOptions = Omit<
   UseQueryOptions<DeliveryNearbyStore[], ApiError>,
@@ -46,10 +54,17 @@ type UseOrderAgainOptions = Omit<
   'queryKey' | 'queryFn'
 >;
 
-type UseShopTypeProductsOptions = Omit<
-  UseQueryOptions<DeliveryShopTypeProduct[], ApiError>,
-  'queryKey' | 'queryFn'
->;
+// type UseShopTypeProductsOptions = Omit<
+//   UseQueryOptions<DeliveryShopTypeProduct[], ApiError>,
+//   'queryKey' | 'queryFn'
+// >;
+type UseShopTypeProductsMode = 'preview' | 'paginated';
+
+type UseShopTypeProductsOptions = {
+  mode?: UseShopTypeProductsMode;
+  enabled?: boolean;
+  search?: string;
+};
 
 type ShopTypeProductsSectionResult = UseQueryResult<
   DeliveryShopTypeProduct[],
@@ -71,16 +86,43 @@ export function useShopTypeProducts(
   shopTypeId: string,
   options?: UseShopTypeProductsOptions,
 ) {
-  return useQuery<DeliveryShopTypeProduct[], ApiError>({
-    queryKey: deliveryKeys.shopTypeProducts(shopTypeId),
-    queryFn: () =>
-      discoveryService.getShopTypeProducts({
+  const mode = options?.mode ?? 'preview';
+  const limit = 10;
+
+  const query = useInfiniteQuery<
+    PaginatedDeliveryResponse<DeliveryShopTypeProduct>,
+    ApiError
+  >({
+    queryKey: [
+      ...deliveryKeys.shopTypeProducts(shopTypeId, 0, limit),
+      {
+        mode,
+        search: options?.search?.trim() ?? '',
+      },
+    ],
+    queryFn: ({ pageParam = 0 }) =>
+      discoveryService.getShopTypeProductsPage({
         shopTypeId,
+        offset: pageParam as number,
+        limit,
+        search: options?.search?.trim() || undefined,
       }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
     staleTime: 5 * 60 * 1000,
-    enabled: Boolean(shopTypeId),
-    ...options,
+    enabled: (options?.enabled ?? true) && Boolean(shopTypeId),
   });
+
+  const items = query.data?.pages.flatMap((page) => page.items) ?? [];
+
+  return {
+    ...query,
+    data: mode === 'preview' ? items.slice(0, limit) : items,
+    totalCount: query.data?.pages.length
+      ? query.data.pages[query.data.pages.length - 1]?.total
+      : undefined,
+  };
 }
 
 export function useShopTypeProductsSections(
@@ -89,10 +131,11 @@ export function useShopTypeProductsSections(
   const featuredShopTypes = shopTypes.slice(0, 5);
   const results = useQueries({
     queries: featuredShopTypes.map((shopType) => ({
-      queryKey: deliveryKeys.shopTypeProducts(shopType.id),
+      queryKey: deliveryKeys.shopTypeProducts(shopType.id, 0, 10),
       queryFn: () =>
         discoveryService.getShopTypeProducts({
           shopTypeId: shopType.id,
+          limit: 10,
         }),
       staleTime: 5 * 60 * 1000,
       enabled: Boolean(shopType.id),
@@ -124,12 +167,45 @@ export function useTopBrands(options?: UseTopBrandsOptions) {
 }
 
 export function useNearbyStores(options?: UseNearbyStoresOptions) {
-  return useQuery<DeliveryNearbyStore[], ApiError>({
-    queryKey: deliveryKeys.nearbyStores(),
-    queryFn: () => discoveryService.getNearbyStores(),
-    // staleTime: 5 * 60 * 1000,
-    ...options,
+  const mode = options?.mode ?? 'preview';
+  const limit = 10;
+
+  const query = useInfiniteQuery<
+    PaginatedDeliveryResponse<DeliveryNearbyStore>,
+    ApiError
+  >({
+    queryKey: [
+      ...deliveryKeys.nearbyStores(),
+      {
+        filters: options?.filters,
+        mode,
+        limit,
+        search: options?.search?.trim() ?? '',
+      },
+    ],
+    queryFn: ({ pageParam = 0 }) =>
+      discoveryService.getNearbyStoresPage({
+        offset: pageParam as number,
+        limit,
+        search: options?.search?.trim() || undefined,
+      } satisfies DeliveryNearbyStoresParams),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
+    enabled: options?.enabled ?? true,
+    staleTime: 5 * 60 * 1000,
   });
+
+  const items =
+    query.data?.pages.flatMap((page) => page.items) ?? [];
+
+  return {
+    ...query,
+    data: mode === 'preview' ? items.slice(0, limit) : items,
+    totalCount: query.data?.pages.length
+      ? query.data.pages[query.data.pages.length - 1]?.total
+      : undefined,
+  };
 }
 
 export function useDeals(options?: UseDealsOptions) {

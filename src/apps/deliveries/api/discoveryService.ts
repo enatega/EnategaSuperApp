@@ -150,6 +150,37 @@ function isWrappedShopTypeProductsResponse(
     return 'data' in response && Array.isArray(response.data);
 }
 
+function toPaginatedResponse<T>(
+    response: ApiResponse<T[]> | PaginatedDeliveryResponse<T> | T[],
+    params: { offset: number; limit: number },
+): PaginatedDeliveryResponse<T> {
+    if (Array.isArray(response)) {
+        return {
+            items: response,
+            offset: params.offset,
+            limit: params.limit,
+            total: response.length,
+            isEnd: response.length < params.limit,
+            nextOffset: response.length < params.limit ? null : params.offset + params.limit,
+        };
+    }
+
+    if ('items' in response && Array.isArray(response.items)) {
+        return response;
+    }
+
+    const items = 'data' in response && Array.isArray(response.data) ? response.data : [];
+
+    return {
+        items,
+        offset: params.offset,
+        limit: params.limit,
+        total: items.length,
+        isEnd: items.length < params.limit,
+        nextOffset: items.length < params.limit ? null : params.offset + params.limit,
+    };
+}
+
 export const discoveryService = {
     /** Fetch available deliveries shop types for app discovery. */
     getShopTypes: async (
@@ -185,31 +216,28 @@ export const discoveryService = {
     getShopTypeProducts: async (
         params: DeliveryShopTypeProductsParams,
     ): Promise<DeliveryShopTypeProduct[]> => {
+        const response = await discoveryService.getShopTypeProductsPage(params);
+        return response.items;
+    },
+
+    /** Fetch products for a specific shop type in deliveries discovery. */
+    getShopTypeProductsPage: async (
+        params: DeliveryShopTypeProductsParams,
+    ): Promise<PaginatedDeliveryResponse<DeliveryShopTypeProduct>> => {
         const {
             shopTypeId,
             offset = SHOP_TYPE_PRODUCTS_DEFAULTS.offset,
             limit = SHOP_TYPE_PRODUCTS_DEFAULTS.limit,
+            search = '',
         } = params;
 
         try {
             const response = await apiClient.get<DeliveryShopTypeProductsApiResponse>(
                 `/api/v1/apps/deliveries/discovery/shop-types/${shopTypeId}/products`,
-                { offset, limit },
+                { offset, limit, search },
             );
 
-            if (Array.isArray(response)) {
-                return response;
-            }
-
-            if (isPaginatedShopTypeProductsResponse(response)) {
-                return response.items;
-            }
-
-            if (isWrappedShopTypeProductsResponse(response)) {
-                return response.data;
-            }
-
-            return [];
+            return toPaginatedResponse(response, { offset, limit });
         } catch (error) {
             console.error('shop type products request failed', error);
             throw error;
@@ -277,12 +305,13 @@ export const discoveryService = {
     },
 
     /** Fetch nearby stores for deliveries home discovery. */
-    getNearbyStores: async (
+    getNearbyStoresPage: async (
         params: DeliveryNearbyStoresParams = {},
-    ): Promise<DeliveryNearbyStore[]> => {
+    ): Promise<PaginatedDeliveryResponse<DeliveryNearbyStore>> => {
         const {
             offset = NEARBY_STORES_DEFAULTS.offset,
             limit = NEARBY_STORES_DEFAULTS.limit,
+            search = '',
             latitude = NEARBY_STORES_DEFAULTS.latitude,
             longitude = NEARBY_STORES_DEFAULTS.longitude,
         } = params;
@@ -290,22 +319,10 @@ export const discoveryService = {
         try {
             const response = await apiClient.get<DeliveryNearbyStoresApiResponse>(
                 '/api/v1/apps/deliveries/discovery/nearby-stores',
-                { offset, limit, latitude, longitude },
+                { offset, limit, search, latitude, longitude },
             );
 
-            if (Array.isArray(response)) {
-                return response;
-            }
-
-            if (isPaginatedNearbyStoresResponse(response)) {
-                return response.items;
-            }
-
-            if (isWrappedNearbyStoresResponse(response)) {
-                return response.data;
-            }
-
-            return [];
+            return toPaginatedResponse(response, { offset, limit });
         } catch (error) {
             console.error('nearby stores request failed', error);
             throw error;
@@ -316,6 +333,14 @@ export const discoveryService = {
     getDeals: async (
         params: DeliveryDealsParams = {},
     ): Promise<DeliveryNearbyStore[]> => {
+        const response = await discoveryService.getDealsPage(params);
+        return response.items;
+    },
+
+    /** Fetch deals for deliveries home discovery. */
+    getDealsPage: async (
+        params: DeliveryDealsParams = {},
+    ): Promise<PaginatedDeliveryResponse<DeliveryNearbyStore>> => {
         const { offset = DEALS_DEFAULTS.offset, limit = DEALS_DEFAULTS.limit } = params;
 
         try {
@@ -324,19 +349,7 @@ export const discoveryService = {
                 { offset, limit },
             );
 
-            if (Array.isArray(response)) {
-                return response;
-            }
-
-            if (isPaginatedDealsResponse(response)) {
-                return response.items;
-            }
-
-            if (isWrappedDealsResponse(response)) {
-                return response.data;
-            }
-
-            return [];
+            return toPaginatedResponse(response, { offset, limit });
         } catch (error) {
             console.error('deals request failed', error);
             throw error;
@@ -375,5 +388,5 @@ export const discoveryService = {
             console.error('order again request failed', error);
             throw error;
         }
-    },
+    }
 };
