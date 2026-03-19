@@ -18,13 +18,12 @@ import LicencesScreen from '../screens/settings/LicencesScreen';
 import RideAddressSearchScreen from '../screens/rideSearch/RideAddressSearchScreen';
 import RideEstimateScreen from '../screens/rideEstimate/RideEstimateScreen';
 import OfferFareScreen from '../screens/offerFare/OfferFareScreen';
-import FindingRideScreen from '../screens/findingRide/FindingRideScreen';
 import ReservationsListScreen from '../screens/reservations/ReservationsListScreen';
 import ReservationDetailScreen from '../screens/reservations/ReservationDetailScreen';
 import { useTranslation } from 'react-i18next';
 import QueryProvider from '../../../general/providers/QueryProvider';
 import type { RideAddressSelection } from '../api/types';
-import type { CachedAddress, RideOptionItem } from '../components/rideOptions/types';
+import type { CachedAddress } from '../components/rideOptions/types';
 import type { PaymentMethodId } from '../components/payment/paymentTypes';
 import type { RideCategory, RideIntent } from '../utils/rideOptions';
 
@@ -49,17 +48,6 @@ export type RideSharingStackParamList = {
     rideCategory?: RideCategory;
     fromAddress: RideAddressSelection;
     toAddress: RideAddressSelection;
-    offeredFare?: number;
-    recommendedFare?: number;
-    paymentMethodId?: PaymentMethodId;
-  };
-  FindingRide: {
-    fromAddress: RideAddressSelection;
-    toAddress: RideAddressSelection;
-    selectedRide: RideOptionItem & {
-      fare?: number;
-      recommendedFare?: number;
-    };
     offeredFare?: number;
     recommendedFare?: number;
     paymentMethodId?: PaymentMethodId;
@@ -97,7 +85,6 @@ export default function RideSharingNavigator() {
         <Stack.Screen name="RideAddressSearch" component={RideAddressSearchScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RideEstimate" component={RideEstimateScreen} options={{ headerShown: false }} />
         <Stack.Screen name="OfferFare" component={OfferFareScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="FindingRide" component={FindingRideScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RideDetails" component={RideDetails} options={{ title: t('details_title') }} />
         <Stack.Screen
           name="DriverProfile"

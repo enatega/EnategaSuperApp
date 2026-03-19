@@ -14,6 +14,7 @@ import type {
     RideTypeFare,
     RideTypeFareParams,
     RideTypeCatalogItem,
+    ActiveRideRequestResponse,
     RidePlacePrediction,
     RidePlaceCoordinates,
     DistanceMatrixResponse,
@@ -26,6 +27,19 @@ import type {
 // ---------------------------------------------------------------------------
 
 export const rideService = {
+    // Accept both `{ data: ... }` and raw payload responses while the backend contracts settle.
+    unwrapData<T>(response: ApiResponse<T> | T): T {
+        if (
+            response
+            && typeof response === 'object'
+            && 'data' in (response as Record<string, unknown>)
+        ) {
+            return (response as ApiResponse<T>).data;
+        }
+
+        return response as T;
+    },
+
     // ── Queries ───────────────────────────────────────────────────────────
 
     /** Fetch a paginated list of rides, optionally filtered. */
@@ -129,21 +143,25 @@ export const rideService = {
 
     /** Fetch active (in-progress / accepted) ride, if any. */
     getActiveRide: async (): Promise<RideDetails | null> => {
-        const response = await apiClient.get<ApiResponse<RideDetails | null>>(
-            '/rides/active',
+        const response = await apiClient.get<ApiResponse<RideDetails | null> | RideDetails | null>(
+            '/api/v1/rides/ongoing/active/customer',
         );
-        return response.data;
+        return rideService.unwrapData(response);
     },
+
+    /** Fetch active ride request when a driver has not been assigned yet. */
+    getActiveRideRequest: (): Promise<ActiveRideRequestResponse> =>
+        apiClient.get<ActiveRideRequestResponse>('/api/v1/rides/ride-request/active'),
 
     // ── Mutations ─────────────────────────────────────────────────────────
 
     /** Request a new ride. */
     createRide: async (payload: CreateRidePayload): Promise<RideDetails> => {
-        const response = await apiClient.post<ApiResponse<RideDetails>>(
-            '/rides',
+        const response = await apiClient.post<ApiResponse<RideDetails> | RideDetails>(
+            '/api/v1/rides',
             payload,
         );
-        return response.data;
+        return rideService.unwrapData(response);
     },
 
     /** Update a ride (status change, rating, etc.). */
@@ -161,6 +179,10 @@ export const rideService = {
     /** Cancel a ride. */
     cancelRide: (rideId: string): Promise<void> =>
         apiClient.patch(`/api/v1/rides/${rideId}/customer/cancel`),
+
+    /** Cancel a pending ride request before a ride is accepted. */
+    cancelRideRequest: (rideId: string): Promise<void> =>
+        apiClient.patch(`/api/v1/rides/${rideId}/cancel`),
 
     /** Rate a completed ride. */
     rateRide: (

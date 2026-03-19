@@ -8,8 +8,8 @@ import Icon from '../../../../general/components/Icon';
 import Map, { MapMarker } from '../../../../general/components/Map';
 import type { CachedAddress } from './types';
 
-const mapMarkerIcon = 'https://www.figma.com/api/mcp/asset/ceda917e-cfee-4f0b-84bc-2fcb6e8865b5';
-const pickupMarkerIcon = 'https://www.figma.com/api/mcp/asset/e71a825a-9a77-4f55-9458-a571fb6334e0';
+const mapMarkerIcon = require('../../../rideSharing/assets/images/map-pin.png');
+const pickupMarkerIcon = require('../../../rideSharing/assets/images/map-pin.png') //'https://www.figma.com/api/mcp/asset/e71a825a-9a77-4f55-9458-a571fb6334e0';
 
 const DEFAULT_REGION: Region = {
   latitude: 24.8607,
@@ -55,7 +55,7 @@ function RideOptionsMapLayer({ onBackPress, currentCoordinates, cachedAddresses 
           tracksViewChanges: false,
           render: (
             <Image
-              source={{ uri: index === 0 ? pickupMarkerIcon : mapMarkerIcon }}
+              source={index === 0 ? pickupMarkerIcon : mapMarkerIcon}
               style={index === 0 ? styles.pickupMarkerIcon : styles.markerIcon}
             />
           ),
