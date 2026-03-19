@@ -6,6 +6,20 @@ import { useTheme } from '../../../../../general/theme/theme';
 import { formatRideCurrency } from '../../../utils/rideFormatting';
 import type { FindingRideBid } from '../types/bids';
 
+function formatExpiry(expiresAt: string | undefined) {
+  if (!expiresAt) {
+    return undefined;
+  }
+
+  const expiresAtMs = Date.parse(expiresAt);
+  if (Number.isNaN(expiresAtMs)) {
+    return undefined;
+  }
+
+  const remainingSeconds = Math.max(Math.ceil((expiresAtMs - Date.now()) / 1000), 0);
+  return `${remainingSeconds}s left`;
+}
+
 type Props = {
   bid: FindingRideBid;
   onPressDecline?: (bid: FindingRideBid) => void;
@@ -14,6 +28,7 @@ type Props = {
 
 function FindingRideBidCard({ bid, onPressDecline, onPressAccept }: Props) {
   const { colors } = useTheme();
+  const fallbackMetaText = bid.status ?? formatExpiry(bid.expiresAt) ?? 'New bid';
 
   return (
     <View
@@ -62,13 +77,17 @@ function FindingRideBidCard({ bid, onPressDecline, onPressAccept }: Props) {
                 <Text style={[styles.vehicleText, { color: colors.text }]} numberOfLines={1}>
                   {bid.vehicleLabel}
                 </Text>
-              ) : null}
+              ) : (
+                <Text style={[styles.vehicleText, { color: colors.mutedText }]} numberOfLines={1}>
+                  {fallbackMetaText}
+                </Text>
+              )}
             </View>
           </View>
 
           <View style={styles.rightBlock}>
             <Text weight="semiBold" style={[styles.metaTextStrong, { color: colors.text }]}>
-              {typeof bid.etaMin === 'number' ? `${bid.etaMin} min` : 'New bid'}
+              {typeof bid.etaMin === 'number' ? `${bid.etaMin} min` : fallbackMetaText}
             </Text>
             {typeof bid.distanceKm === 'number' ? (
               <Text weight="semiBold" style={[styles.metaTextStrong, { color: colors.text }]}>

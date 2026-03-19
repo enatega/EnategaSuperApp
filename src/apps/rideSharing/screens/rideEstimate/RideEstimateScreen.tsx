@@ -220,13 +220,15 @@ export default function RideEstimateScreen() {
         return;
       }
 
+      console.log('Ride created successfully, emitting socket event...', JSON.stringify(createdRide))
+
       try {
         await socketClient.connect();
         emitRideSharingEvent('ride-request-created-by-customer', {
           rideRequestData: {
             ...createRidePayload,
-            passenger_user_id: authSessionQuery.data?.user?.id,
-            ride_request_id: createdRideRequest.id,
+            passenger_user_id: createdRideRequest?.passenger?.userProfile?.user?.id,
+            
           },
           latitude: fromAddress.coordinates.latitude,
           longitude: fromAddress.coordinates.longitude,

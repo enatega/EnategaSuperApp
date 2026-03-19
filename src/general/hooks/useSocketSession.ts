@@ -13,12 +13,17 @@ export function useSocketSession(options?: Options) {
   const { enabled = true, disconnectOnBackground = false } = options ?? {};
   const sessionQuery = useAuthSessionQuery();
   const token = sessionQuery.data?.token ?? null;
+  const userId = sessionQuery.data?.user?.id ?? null;
   const tokenRef = useRef<string | null>(token);
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 
   useEffect(() => {
     tokenRef.current = token;
   }, [token]);
+
+  useEffect(() => {
+    socketClient.updateCurrentUserId(userId);
+  }, [userId]);
 
   useEffect(() => {
     void socketClient.updateAuthToken(token);

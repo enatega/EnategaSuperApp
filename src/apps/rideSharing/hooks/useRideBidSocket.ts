@@ -33,7 +33,13 @@ export function useRideBidSocket(options?: Options) {
   useSocketEvent<[RideSharingServerEventMap['received-bids']]>(
     'received-bids',
     (payload) => {
+      console.log('[RideBidSocket] received-bids payload:', payload);
+
       if (!isEnabled || !resolvedRideRequestId) {
+        console.log('[RideBidSocket] received-bids ignored:', {
+          isEnabled,
+          resolvedRideRequestId,
+        });
         return;
       }
 
@@ -41,13 +47,23 @@ export function useRideBidSocket(options?: Options) {
       items.forEach((item) => {
         const normalizedBid = normalizeRideBidEvent(item);
         if (!normalizedBid) {
+          console.log('[RideBidSocket] received-bids could not normalize item:', item);
           return;
         }
 
         if (normalizedBid.rideRequestId && normalizedBid.rideRequestId !== resolvedRideRequestId) {
+          console.log('[RideBidSocket] received-bids ignored for different ride request:', {
+            expectedRideRequestId: resolvedRideRequestId,
+            incomingRideRequestId: normalizedBid.rideRequestId,
+            bid: normalizedBid.bid,
+          });
           return;
         }
 
+        console.log('[RideBidSocket] received-bids accepted bid:', {
+          rideRequestId: resolvedRideRequestId,
+          bid: normalizedBid.bid,
+        });
         addBid(normalizedBid.bid);
       });
     },
@@ -58,9 +74,16 @@ export function useRideBidSocket(options?: Options) {
     'ride:bid:new',
     (payload) => {
       if (!isEnabled || !resolvedRideRequestId || payload.rideRequestId !== resolvedRideRequestId) {
+        console.log('[RideBidSocket] ride:bid:new ignored:', {
+          isEnabled,
+          expectedRideRequestId: resolvedRideRequestId,
+          incomingRideRequestId: payload.rideRequestId,
+          payload,
+        });
         return;
       }
 
+      console.log('[RideBidSocket] ride:bid:new accepted:', payload);
       addBid(payload.bid);
     },
     { enabled: isEnabled },
@@ -70,9 +93,16 @@ export function useRideBidSocket(options?: Options) {
     'ride:bid:removed',
     (payload) => {
       if (!isEnabled || !resolvedRideRequestId || payload.rideRequestId !== resolvedRideRequestId) {
+        console.log('[RideBidSocket] ride:bid:removed ignored:', {
+          isEnabled,
+          expectedRideRequestId: resolvedRideRequestId,
+          incomingRideRequestId: payload.rideRequestId,
+          payload,
+        });
         return;
       }
 
+      console.log('[RideBidSocket] ride:bid:removed accepted:', payload);
       removeBid(payload.bidId);
     },
     { enabled: isEnabled },

@@ -15,6 +15,7 @@ type SocketIoOptions = Partial<ManagerOptions & SocketOptions>;
 class SocketClient {
   private socket: Socket | null = null;
   private authToken: string | null = null;
+  private currentUserId: string | null = null;
   private isIntentionalDisconnect = false;
   private lifecycleState: SocketLifecycleState = 'idle';
   private readonly listenerRegistry = new Map<
@@ -30,10 +31,24 @@ class SocketClient {
     this.lifecycleState = nextState;
   }
 
+  private emitAddUser(socket: Socket) {
+    if (!this.currentUserId) {
+      socketLogger.debug('Skipping add-user emit because no current user id is available');
+      return;
+    }
+
+    socket.emit('add-user', this.currentUserId);
+    socketLogger.info('Emitted add-user', {
+      userId: this.currentUserId,
+      socketId: socket.id,
+    });
+  }
+
   private bindLifecycleListeners(socket: Socket) {
     socket.on('connect', () => {
       this.setLifecycleState('connected');
       this.isIntentionalDisconnect = false;
+      this.emitAddUser(socket);
 
       socketLogger.info('Connected', {
         id: socket.id,
@@ -266,6 +281,16 @@ class SocketClient {
       socketLogger.info('Refreshing socket auth token');
       this.socket.disconnect().connect();
     }
+  }
+
+  updateCurrentUserId(userId: string | null) {
+    this.currentUserId = userId;
+
+    if (!this.socket?.connected || !userId) {
+      return;
+    }
+
+    this.emitAddUser(this.socket);
   }
 }
 

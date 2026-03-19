@@ -48,6 +48,19 @@ function readRideRequestId(value: unknown) {
   );
 }
 
+function formatBidStatus(status: string | undefined) {
+  if (!status) {
+    return undefined;
+  }
+
+  return status
+    .toLowerCase()
+    .split('_')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
 export function normalizeRideBidEvent(value: unknown): {
   rideRequestId?: string;
   bid: FindingRideBid;
@@ -63,6 +76,13 @@ export function normalizeRideBidEvent(value: unknown): {
   const stats = asRecord(payload.stats);
   const rideRequest = asRecord(payload.rideRequest);
   const rideType = asRecord(rideRequest?.ride_type);
+  const driverId = readString(
+    payload.driverId,
+    payload.driver_id,
+    payload.rider_id,
+    riderUser?.id,
+  );
+  const status = formatBidStatus(readString(payload.status));
 
   const id = readString(payload.id, payload.bidId, payload.bid_id);
   const amount = readNumber(
@@ -82,13 +102,14 @@ export function normalizeRideBidEvent(value: unknown): {
     payload.driver_name,
     riderUser?.name,
     payload.name,
-  ) ?? 'Driver';
+  ) ?? (driverId ? `Driver ${driverId.slice(0, 6)}` : 'Driver bid');
 
   return {
     rideRequestId: readRideRequestId(payload),
     bid: {
       id,
       driverName,
+      driverId,
       driverAvatarUri: readString(
         payload.driverAvatarUri,
         payload.driver_avatar_uri,
@@ -126,6 +147,9 @@ export function normalizeRideBidEvent(value: unknown): {
         stats?.average_rating,
       ),
       amount,
+      status,
+      createdAt: readString(payload.createdAt, payload.created_at),
+      expiresAt: readString(payload.expiresAt, payload.expires_at),
     },
   };
 }

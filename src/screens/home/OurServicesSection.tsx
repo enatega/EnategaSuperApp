@@ -28,7 +28,7 @@ export default function OurServicesSection({ onSelectMiniApp }: Props) {
     { id: 'homeVisits', title: t('service_home_visit'), icon: serviceIcons.homeVisits, background: colors.cardMint },
     { id: 'appointments', title: t('service_general_appointment'), icon: serviceIcons.appointments, background: colors.cardLavender },
     { id: 'rideSharing', title: t('service_ride_sharing'), icon: serviceIcons.rideSharing, background: colors.cardPeach },
-    { id: 'developerMode', title: t('developer_mode'), icon: serviceIcons.homeVisits, background: colors.cardPeach },
+    // { id: 'developerMode', title: t('developer_mode'), icon: serviceIcons.homeVisits, background: colors.cardPeach },
 
   ];
 
