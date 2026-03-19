@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import DeveloperModeHomeScreen from '../screens/home/HomeScreen';
 import DriverProfileScreen from '../../rideSharing/screens/driverProfile/DriverProfileScreen';
 import RateOrderScreen from '../../deliveries/screens/RateOrderScreen/RateOrderScreen';
+import CourierDetails from '../../rideSharing/screens/courierDetails/CourierDetails';
 import QueryProvider from '../../../general/providers/QueryProvider';
 
 const Stack = createNativeStackNavigator();
@@ -24,6 +25,11 @@ export default function DeveloperModeNavigator() {
         <Stack.Screen
           name="RateOrder"
           component={RateOrderScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="CourierDetails"
+          component={CourierDetails}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
