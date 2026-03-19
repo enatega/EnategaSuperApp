@@ -16,27 +16,14 @@ import Text, { TextVariant } from './Text';
 type Props = {
   /** Screen title shown in the centre — optional, omit to show back button only */
   title?: string;
-  /**
-   * Title variant. Defaults to 'subtitle'.
-   */
   titleVariant?: TextVariant;
-  /**
-   * Custom left slot. If provided, replaces the default back button.
-   */
   leftSlot?: React.ReactNode;
-  /**
-   * Anything rendered in the right slot — an icon button, avatar, menu, etc.
-   * If omitted a transparent placeholder keeps the title centred.
-   */
   rightSlot?: React.ReactNode;
-  /**
-   * Override whether the back button is shown.
-   * Defaults to `navigation.canGoBack()` when not provided.
-   */
   showBack?: boolean;
-  /** Called when the back button is pressed. Defaults to `navigation.goBack()`. */
   onBack?: () => void;
   style?: ViewStyle;
+  /** 'arrow' shows arrow-back (default), 'close' shows an X */
+  variant?: 'arrow' | 'close';
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -49,6 +36,7 @@ export default function ScreenHeader({
   showBack,
   onBack,
   style,
+  variant = 'arrow',
 }: Props) {
   const { colors } = useTheme();
   const navigation = useNavigation();
@@ -88,7 +76,7 @@ export default function ScreenHeader({
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <View style={[styles.backButton, { backgroundColor: colors.backgroundTertiary }]}>
-                <Ionicons name="arrow-back" size={24} color={colors.text} />
+                <Ionicons name={variant === 'close' ? 'close' : 'arrow-back'} size={24} color={colors.text} />
               </View>
             </Pressable>
           )}
