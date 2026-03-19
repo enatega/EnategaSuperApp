@@ -24,11 +24,13 @@ type Props = {
    * Custom left slot. If provided, replaces the default back button.
    */
   leftSlot?: React.ReactNode;
+  leftSlotContainerStyle?: ViewStyle;
   /**
    * Anything rendered in the right slot — an icon button, avatar, menu, etc.
    * If omitted a transparent placeholder keeps the title centred.
    */
   rightSlot?: React.ReactNode;
+  rightSlotContainerStyle?: ViewStyle;
   /**
    * Override whether the back button is shown.
    * Defaults to `navigation.canGoBack()` when not provided.
@@ -45,7 +47,9 @@ export default function ScreenHeader({
   title,
   titleVariant = 'subtitle',
   leftSlot,
+  leftSlotContainerStyle,
   rightSlot,
+  rightSlotContainerStyle,
   showBack,
   onBack,
   style,
@@ -76,7 +80,7 @@ export default function ScreenHeader({
       ]}
     >
       {/* ── Left: Back Button ── */}
-      <View style={styles.side}>
+      <View style={[styles.side, leftSlotContainerStyle]}>
         {leftSlot
           ? leftSlot
           : canGoBack && (
@@ -109,7 +113,7 @@ export default function ScreenHeader({
       )}
 
       {/* ── Right: Optional Slot ── */}
-      <View style={[styles.side, styles.rightSide]}>
+      <View style={[styles.side, styles.rightSide, rightSlotContainerStyle]}>
         {rightSlot ?? null}
       </View>
     </View>

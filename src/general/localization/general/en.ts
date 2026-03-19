@@ -29,6 +29,8 @@ const en = {
   developer_mode_subtitle: 'System tools & diagnostics',
   developer_mode_welcome: 'Welcome to Developer Mode. Additional diagnostic tools will be available here soon.',
   driver_profile_button: 'Driver profile',
+  auth_flow_button: 'Auth flow',
+  rider_chat_button: 'Rider chat',
   dev_auth_title: 'Auth Sandbox',
   dev_auth_description: 'Temporary signup + session tools for development.',
   dev_auth_mode_signup: 'Signup',

@@ -35,6 +35,12 @@ export const deliveryKeys = {
     storeSearch: (keyword: string, latitude?: number, longitude?: number) =>
         [...deliveryKeys.search(), 'stores', keyword, latitude, longitude] as const,
     orderAgain: () => [...deliveryKeys.discovery(), 'order-again'] as const,
+
+    // Chat
+    chat: () => [...deliveryKeys.all, 'chat'] as const,
+    chatBoxes: (userId: string) => [...deliveryKeys.chat(), 'boxes', userId] as const,
+    chatMessages: (chatBoxId: string) =>
+        [...deliveryKeys.chat(), 'messages', chatBoxId] as const,
 };
 
 export const addressKeys = {
