@@ -4,15 +4,20 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
-import Skeleton from '../../../../../general/components/Skeleton';
-import { useStoreDetails } from '../../../hooks';
+import { useStoreProducts, useStoreView } from '../../../hooks';
 import type {
   DeliveryNearbyStore,
   DeliveryStoreDetailsProduct,
   DeliveryStoreTimings,
 } from '../../../api/types';
+import {
+  getStoreDetailSwipeTargetCategoryId,
+  type StoreDetailSwipeDirection,
+} from '../../hooks/useStoreDetailSwiper';
 import StoreDetailListHeader from '../../components/StoreDetails/StoreDetailListHeader';
 import StoreDetailMenuCard from '../../components/StoreDetails/StoreDetailMenuCard';
+import StoreDetailMenuCardSkeleton from '../../components/StoreDetails/StoreDetailMenuCardSkeleton';
+import StoreDetailsScreenSkeleton from '../../components/StoreDetails/StoreDetailsScreenSkeleton';
 // import { data } from './storedetaiolsData';
 
 type StoreDetailsParamList = {
@@ -23,6 +28,19 @@ type StoreDetailsParamList = {
 
 const STORE_DETAILS_LIMIT = 10;
 const SEARCH_DEBOUNCE_MS = 400;
+const STORE_DETAIL_PRODUCT_SKELETON_ITEMS = Array.from({ length: 4 }, (_, index) => ({
+  id: `store-detail-product-skeleton-${index}`,
+  isSkeleton: true as const,
+}));
+
+type StoreDetailSkeletonItem = (typeof STORE_DETAIL_PRODUCT_SKELETON_ITEMS)[number];
+type StoreDetailListItem =
+  | DeliveryStoreDetailsProduct
+  | StoreDetailSkeletonItem;
+
+function isStoreDetailSkeletonItem(item: StoreDetailListItem): item is StoreDetailSkeletonItem {
+  return (item as StoreDetailSkeletonItem).isSkeleton === true;
+}
 
 function getTodayStoreHours(
   storeTimings?: DeliveryStoreTimings | null,
@@ -76,7 +94,22 @@ export default function StoreDetailsScreen() {
     };
   }, [searchValue]);
 
-  const { data, isPending, error } = useStoreDetails(
+  const {
+    data: storeData,
+    error: storeError,
+    isPending: isStorePending,
+  } = useStoreView(
+    storeId,
+    {
+      enabled: Boolean(storeId),
+    },
+  );
+
+  const {
+    data: productsData,
+    error: productsError,
+    isPending: isProductsPending,
+  } = useStoreProducts(
     storeId,
     {
       offset: 0,
@@ -89,8 +122,6 @@ export default function StoreDetailsScreen() {
       enabled: Boolean(storeId),
     },
   );
-  console.log('store_Data_rrr',JSON.stringify(data,null,2));
-  
 
   useEffect(() => {
     setSearchValue('');
@@ -99,7 +130,7 @@ export default function StoreDetailsScreen() {
     setSelectedSubcategoryId(null);
   }, [storeId]);
 
-  const handleCategorySelect = (categoryId: string) => {
+  const handleCategorySelect = (categoryId: string | null) => {
     setSelectedCategoryId(categoryId);
     setSelectedSubcategoryId(null);
   };
@@ -112,15 +143,13 @@ export default function StoreDetailsScreen() {
     navigation.goBack();
   };
 
-  const store = data?.store;
-  const filters = data?.filters;
-  const products = data?.products.items ?? [];
-  const categories = filters?.categories ?? [];
-  const subcategories = filters?.subcategories ?? [];
-  const activeCategoryId = filters?.selectedCategoryId ?? selectedCategoryId;
-  const activeSubcategoryId = filters?.selectedSubcategoryId ?? selectedSubcategoryId;
+  const store = storeData;
+  const products = productsData?.items ?? [];
+  const categories = store?.categories ?? [];
+  const subcategories = store?.subcategories ?? [];
+  const activeCategoryId = selectedCategoryId;
+  const activeSubcategoryId = selectedSubcategoryId;
   const activeCategory = categories.find((category) => category.id === activeCategoryId) ?? null;
-  
 
   const storeName = store?.name ?? selectedStore?.name ?? t('store_details_store_name');
   const rating = store?.averageRating ?? selectedStore?.averageRating ?? null;
@@ -143,6 +172,24 @@ export default function StoreDetailsScreen() {
   const phone = store?.contact?.phone ?? null;
   const email = store?.contact?.email ?? null;
   const sectionTitle = activeCategory?.name ?? t('store_details_all_offered_items');
+  const shouldShowProductSkeletons = isProductsPending && !productsData;
+  const listData: StoreDetailListItem[] = shouldShowProductSkeletons
+    ? STORE_DETAIL_PRODUCT_SKELETON_ITEMS
+    : products;
+
+  const handleCategorySwipe = (direction: StoreDetailSwipeDirection) => {
+    const nextCategoryId = getStoreDetailSwipeTargetCategoryId({
+      activeCategoryId,
+      categories,
+      direction,
+    });
+
+    if (typeof nextCategoryId === 'undefined' || nextCategoryId === activeCategoryId) {
+      return;
+    }
+
+    handleCategorySelect(nextCategoryId);
+  };
 
   if (!storeId) {
     return (
@@ -152,23 +199,11 @@ export default function StoreDetailsScreen() {
     );
   }
 
-  if (isPending && !data) {
-    return (
-      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
-        <Skeleton height={240} width="100%" borderRadius={0} />
-        <View style={styles.loadingContent}>
-          <Skeleton height={88} width={88} borderRadius={12} />
-          <Skeleton height={24} width="60%" borderRadius={6} />
-          <Skeleton height={18} width="80%" borderRadius={6} />
-          <Skeleton height={46} width="100%" borderRadius={12} />
-          <Skeleton height={44} width="100%" borderRadius={0} />
-          <Skeleton height={180} width="100%" borderRadius={12} />
-        </View>
-      </View>
-    );
+  if (isStorePending && !storeData) {
+    return <StoreDetailsScreenSkeleton />;
   }
 
-  if (error && !data) {
+  if ((storeError && !storeData) || (productsError && !productsData)) {
     return (
       <View style={[styles.centeredState, { backgroundColor: colors.background }]}>
         <Text style={{ color: colors.mutedText }}>{t('store_details_load_error')}</Text>
@@ -177,7 +212,7 @@ export default function StoreDetailsScreen() {
   }
 
   return (
-    <FlatList<DeliveryStoreDetailsProduct>
+    <FlatList<StoreDetailListItem>
       ListEmptyComponent={
         <View style={styles.emptyState}>
           <Text style={{ color: colors.mutedText }}>{t('store_details_no_items')}</Text>
@@ -211,10 +246,16 @@ export default function StoreDetailsScreen() {
       columnWrapperStyle={styles.column}
       contentContainerStyle={[styles.content, { backgroundColor: colors.background }]}
       contentInsetAdjustmentBehavior="automatic"
-      data={products}
-      keyExtractor={(item) => item.productId}
+      data={listData}
+      keyExtractor={(item) => item.id}
       numColumns={2}
-      renderItem={({ item }) => <StoreDetailMenuCard item={item} />}
+      renderItem={({ item }) =>
+        isStoreDetailSkeletonItem(item) ? (
+          <StoreDetailMenuCardSkeleton />
+        ) : (
+          <StoreDetailMenuCard item={item} onSwipeCategory={handleCategorySwipe} />
+        )
+      }
       showsVerticalScrollIndicator={false}
       style={{ backgroundColor: colors.background }}
     />
@@ -224,13 +265,6 @@ export default function StoreDetailsScreen() {
 const styles = StyleSheet.create({
   content: {
     paddingBottom: 24,
-  },
-  loadingContainer: {
-    flex: 1,
-  },
-  loadingContent: {
-    gap: 16,
-    padding: 16,
   },
   column: {
     gap: 12,

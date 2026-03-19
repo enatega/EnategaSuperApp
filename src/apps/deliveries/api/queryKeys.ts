@@ -24,7 +24,13 @@ export const deliveryKeys = {
     topBrands: () => [...deliveryKeys.discovery(), 'top-brands'] as const,
     mobileBanners: () => [...deliveryKeys.discovery(), 'mobile-banners'] as const,
     nearbyStores: () => [...deliveryKeys.discovery(), 'nearby-stores'] as const,
-    storeDetails: (
+    storeView: (storeId: string) =>
+        [
+            ...deliveryKeys.discovery(),
+            'store-view',
+            storeId,
+        ] as const,
+    storeProducts: (
         storeId: string,
         offset = 0,
         limit = 10,
@@ -34,7 +40,7 @@ export const deliveryKeys = {
     ) =>
         [
             ...deliveryKeys.discovery(),
-            'store-details',
+            'store-products',
             storeId,
             offset,
             limit,

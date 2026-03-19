@@ -9,9 +9,9 @@ import type {
     DeliveryNearbyStore,
     DeliveryNearbyStoresApiResponse,
     DeliveryNearbyStoresParams,
-    DeliveryStoreDetailsApiResponse,
-    DeliveryStoreDetailsParams,
-    DeliveryStoreDetailsResponse,
+    DeliveryStoreProductsApiResponse,
+    DeliveryStoreProductsParams,
+    DeliveryStoreViewApiResponse,
     DeliveryOrderAgainApiResponse,
     DeliveryOrderAgainItem,
     DeliveryOrderAgainParams,
@@ -315,11 +315,25 @@ export const discoveryService = {
         }
     },
 
-    /** Fetch store details and products for a specific deliveries store. */
-    getStoreDetails: async (
+    /** Fetch store view metadata for a specific deliveries store. */
+    getStoreView: async (
         storeId: string,
-        params: DeliveryStoreDetailsParams = {},
-    ): Promise<DeliveryStoreDetailsResponse> => {
+    ): Promise<DeliveryStoreViewApiResponse> => {
+        try {
+            return await apiClient.get<DeliveryStoreViewApiResponse>(
+                `/api/v1/apps/deliveries/stores/${storeId}/view`,
+            );
+        } catch (error) {
+            console.error('store view request failed', error);
+            throw error;
+        }
+    },
+
+    /** Fetch store products for a specific deliveries store. */
+    getStoreProducts: async (
+        storeId: string,
+        params: DeliveryStoreProductsParams = {},
+    ): Promise<DeliveryStoreProductsApiResponse> => {
         const {
             offset = NEARBY_STORES_DEFAULTS.offset,
             limit = NEARBY_STORES_DEFAULTS.limit,
@@ -329,21 +343,18 @@ export const discoveryService = {
         } = params;
 
         try {
-            const response= await apiClient.get<DeliveryStoreDetailsApiResponse>(
-                `/api/v1/apps/deliveries/stores/${storeId}/view`,
+            return await apiClient.get<DeliveryStoreProductsApiResponse>(
+                `/api/v1/apps/deliveries/stores/${storeId}/view/products`,
                 {
                     offset,
                     limit,
                     search,
-                    categoryId : selectedCategoryId,
-                    subcategoryId:selectedSubcategoryId,
+                    categoryId: selectedCategoryId,
+                    subcategoryId: selectedSubcategoryId,
                 },
             );
-            console.log('store_Data_res',JSON.stringify(response,null,2));
-            
-            return response;
         } catch (error) {
-            console.error('store details request failed', error);
+            console.error('store products request failed', error);
             throw error;
         }
     },

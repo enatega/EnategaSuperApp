@@ -99,7 +99,7 @@ export interface DeliveryNearbyStoresParams {
     longitude?: number;
 }
 
-export interface DeliveryStoreDetailsParams {
+export interface DeliveryStoreProductsParams {
     offset?: number;
     limit?: number;
     search?: string;
@@ -147,36 +147,32 @@ export interface DeliveryStoreDetailsStore {
     contact?: DeliveryStoreContact | null;
 }
 
+export interface DeliveryStoreViewApiResponse extends DeliveryStoreDetailsStore {
+    categories: DeliveryStoreDetailsFilterItem[];
+    subcategories: DeliveryStoreDetailsFilterItem[];
+}
+
 export interface DeliveryStoreDetailsFilterItem {
     id: string;
     name: string;
     [key: string]: unknown;
 }
 
-export interface DeliveryStoreDetailsFilters {
-    selectedCategoryId: string | null;
-    selectedSubcategoryId: string | null;
-    categories: DeliveryStoreDetailsFilterItem[];
-    subcategories: DeliveryStoreDetailsFilterItem[];
-}
-
 export interface DeliveryStoreDetailsProduct {
-    productId: string;
+    id: string;
     name: string;
-    productImage?: string | null;
+    imageUrl?: string | null;
     price?: number | null;
+    shortDescription?: string | null;
+    description?: string | null;
     deal?: string | null;
     dealType?: string | null;
     dealAmount?: number | null;
     categoryId?: string | null;
     subcategoryId?: string | null;
+    category?: DeliveryStoreDetailsFilterItem | null;
+    subcategory?: DeliveryStoreDetailsFilterItem | null;
     [key: string]: unknown;
-}
-
-export interface DeliveryStoreDetailsResponse {
-    store: DeliveryStoreDetailsStore;
-    filters: DeliveryStoreDetailsFilters;
-    products: PaginatedDeliveryResponse<DeliveryStoreDetailsProduct>;
 }
 
 export interface DeliveryDealsParams {
@@ -245,7 +241,8 @@ export type DeliveryNearbyStoresApiResponse =
     | PaginatedDeliveryResponse<DeliveryNearbyStore>
     | DeliveryNearbyStore[];
 
-export type DeliveryStoreDetailsApiResponse = DeliveryStoreDetailsResponse;
+export type DeliveryStoreProductsApiResponse =
+    PaginatedDeliveryResponse<DeliveryStoreDetailsProduct>;
 
 export type DeliveryDealsApiResponse =
     | ApiResponse<DeliveryNearbyStore[]>

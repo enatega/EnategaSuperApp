@@ -26,7 +26,7 @@ type Props = {
   hours?: string | null;
   logoImageUrl: string;
   onBackPress: () => void;
-  onCategorySelect: (categoryId: string) => void;
+  onCategorySelect: (categoryId: string | null) => void;
   onSubcategorySelect: (subcategoryId: string) => void;
   phone?: string | null;
   rating?: number | null;

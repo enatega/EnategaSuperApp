@@ -11,8 +11,9 @@ import type {
   DeliveryBanner,
   DeliveryNearbyStore,
   DeliveryOrderAgainItem,
-  DeliveryStoreDetailsParams,
-  DeliveryStoreDetailsResponse,
+  DeliveryStoreProductsApiResponse,
+  DeliveryStoreProductsParams,
+  DeliveryStoreViewApiResponse,
   DeliveryShopTypeProduct,
   DeliveryShopType,
   DeliveryTopBrand,
@@ -38,8 +39,13 @@ type UseNearbyStoresOptions = Omit<
   'queryKey' | 'queryFn'
 >;
 
-type UseStoreDetailsOptions = Omit<
-  UseQueryOptions<DeliveryStoreDetailsResponse, ApiError>,
+type UseStoreViewOptions = Omit<
+  UseQueryOptions<DeliveryStoreViewApiResponse, ApiError>,
+  'queryKey' | 'queryFn'
+>;
+
+type UseStoreProductsOptions = Omit<
+  UseQueryOptions<DeliveryStoreProductsApiResponse, ApiError>,
   'queryKey' | 'queryFn'
 >;
 
@@ -139,10 +145,23 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
   });
 }
 
-export function useStoreDetails(
+export function useStoreView(
   storeId: string,
-  params: DeliveryStoreDetailsParams = {},
-  options?: UseStoreDetailsOptions,
+  options?: UseStoreViewOptions,
+) {
+  return useQuery<DeliveryStoreViewApiResponse, ApiError>({
+    queryKey: deliveryKeys.storeView(storeId),
+    queryFn: () => discoveryService.getStoreView(storeId),
+    staleTime: 5 * 60 * 1000,
+    enabled: Boolean(storeId),
+    ...options,
+  });
+}
+
+export function useStoreProducts(
+  storeId: string,
+  params: DeliveryStoreProductsParams = {},
+  options?: UseStoreProductsOptions,
 ) {
   const {
     offset = 0,
@@ -152,8 +171,8 @@ export function useStoreDetails(
     selectedSubcategoryId,
   } = params;
 
-  return useQuery<DeliveryStoreDetailsResponse, ApiError>({
-    queryKey: deliveryKeys.storeDetails(
+  return useQuery<DeliveryStoreProductsApiResponse, ApiError>({
+    queryKey: deliveryKeys.storeProducts(
       storeId,
       offset,
       limit,
@@ -162,7 +181,7 @@ export function useStoreDetails(
       selectedSubcategoryId,
     ),
     queryFn: () =>
-      discoveryService.getStoreDetails(storeId, {
+      discoveryService.getStoreProducts(storeId, {
         offset,
         limit,
         search,
