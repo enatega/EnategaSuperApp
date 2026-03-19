@@ -141,6 +141,29 @@ export function useCancelRide(options?: UseCancelRideOptions) {
     });
 }
 
+type UseCancelRideRequestOptions = Omit<
+    UseMutationOptions<void, ApiError, string, unknown>,
+    'mutationFn'
+>;
+
+export function useCancelRideRequest(options?: UseCancelRideRequestOptions) {
+    const queryClient = useQueryClient();
+
+    return useMutation<void, ApiError, string, unknown>({
+        mutationFn: rideService.cancelRideRequest,
+        onSuccess: (data, rideId, onMutateResult, ctx) => {
+            queryClient.invalidateQueries({ queryKey: rideKeys.detail(rideId) });
+            queryClient.invalidateQueries({ queryKey: rideKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: rideKeys.customerRides() });
+            queryClient.invalidateQueries({ queryKey: rideKeys.activeRide() });
+
+            options?.onSuccess?.(data, rideId, onMutateResult, ctx);
+        },
+        onError: options?.onError,
+        onSettled: options?.onSettled,
+    });
+}
+
 // ---------------------------------------------------------------------------
 // useRateRide
 // ---------------------------------------------------------------------------

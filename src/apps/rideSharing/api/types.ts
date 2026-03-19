@@ -91,10 +91,62 @@ export interface Vehicle {
 // ---------------------------------------------------------------------------
 
 export interface CreateRidePayload {
-    pickup: Location;
-    dropoff: Location;
-    vehicleType?: VehicleType;
-    paymentMethod?: string;
+    pickup: { lat: number; lng: number };
+    dropoff: { lat: number; lng: number };
+    ride_type_id: string;
+    fare?: number;
+    payment_via: string;
+    is_hourly: boolean;
+    stops?: Array<{
+        lat: number;
+        lng: number;
+        address: string;
+        order: number;
+    }>;
+    pickup_address: string;
+    pickup_location: string;
+    dropoff_location: string;
+    destination_address: string;
+    is_scheduled: boolean;
+    is_family: boolean;
+    estimated_time?: number;
+    estimated_distance?: number;
+    base_fair?: number;
+    offered_fair?: number;
+    scheduled_at?: string;
+}
+
+export interface ActiveRideRequestRideType {
+    id: string;
+    name: string;
+    imageUrl?: string | null;
+    seatCount?: number;
+}
+
+export interface ActiveRideRequestPayload {
+    id: string;
+    pickup: { lat: number; lng: number };
+    dropoff: { lat: number; lng: number };
+    pickup_location: string;
+    dropoff_location: string;
+    payment_via: string;
+    ride_type_id: string;
+    offeredFair?: string | number | null;
+    baseFair?: string | number | null;
+    status: string;
+    is_hourly: boolean;
+    is_family: boolean;
+    is_scheduled: boolean;
+    scheduled_at?: string | null;
+    estimated_time?: string | number | null;
+    estimated_distance?: string | number | null;
+    ride_type?: ActiveRideRequestRideType | null;
+}
+
+export interface ActiveRideRequestResponse {
+    success: boolean;
+    message: string;
+    activeRideRequest: ActiveRideRequestPayload | null;
 }
 
 export interface UpdateRidePayload {

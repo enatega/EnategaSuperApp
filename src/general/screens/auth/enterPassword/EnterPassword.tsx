@@ -12,6 +12,7 @@ import TextInputField from "../../../components/auth/TextInputField";
 import Text from "../../../components/Text";
 import Icon from "../../../components/Icon";
 import { useEmailLogin } from "../../../hooks/useAuthMutations";
+import { getPendingAppRoute } from "../../../navigation/pendingAppRedirect";
 import { showToast } from "../../../components/AppToast";
 import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal";
 import AppPopup from "../../../components/AppPopup";
@@ -32,9 +33,13 @@ const EnterPassword = ({ route }) => {
   const rateLimitModal = useTooManyRequestsModal();
 
   const mutateEmailLogin = useEmailLogin({
-    onSuccess: () => {
+    onSuccess: async () => {
       showToast.success("Success!", "Welcome back.");
-      navigation.navigate("Home" as never);
+      const pendingRoute = await getPendingAppRoute();
+
+      if (!pendingRoute) {
+        navigation.navigate("Home" as never);
+      }
     },
     onError: (error) => {
       setHasError(true);

@@ -6,8 +6,6 @@ import Image from '../../../../general/components/Image';
 import Icon from '../../../../general/components/Icon';
 import { RideOptionItem } from './types';
 
-const snowflakeIcon =
-  'https://www.figma.com/api/mcp/asset/e3bf8833-d0b1-417e-bd37-7f98321a219c';
 
 type Props = {
   item: RideOptionItem;

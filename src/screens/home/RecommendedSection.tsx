@@ -6,8 +6,9 @@ import Image from '../../general/components/Image';
 import HorizontalList from '../../general/components/HorizontalList';
 import { useTheme } from '../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
+import { mockImages } from '../../general/utils/mockImages';
 
-const starIcon = 'https://www.figma.com/api/mcp/asset/93443844-d119-461f-8b08-d5b5445d430e';
+const starIcon = require('../../general/assets/images/star.png');
 
 type Recommendation = {
   id: string;
@@ -22,9 +23,28 @@ type Props = {
   items: Recommendation[];
 };
 
-export default function RecommendedSection({ items }: Props) {
+export default function RecommendedSection({  }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('general');
+
+    const items = [
+      {
+        id: 'rec-1',
+        title: t('recommended_name'),
+        rating: 4.1,
+        reviews: 5000,
+        price: 25,
+        image: mockImages.recommendationOne,
+      },
+      {
+        id: 'rec-2',
+        title: t('recommended_name'),
+        rating: 4.1,
+        reviews: 5000,
+        price: 25,
+        image: mockImages.recommendationTwo,
+      },
+    ];
 
   return (
     <View style={styles.section}>
@@ -64,7 +84,7 @@ export default function RecommendedSection({ items }: Props) {
                 {item.title}
               </Text>
               <View style={styles.meta}>
-                <Image source={{ uri: starIcon }} style={styles.star} />
+                <Image source={starIcon} style={styles.star} />
                 <Text
                   weight="semiBold"
                   style={{
