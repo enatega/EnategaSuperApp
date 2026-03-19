@@ -18,6 +18,7 @@ import type {
   DeliveryShopTypeProduct,
   DeliveryShopType,
   DeliveryTopBrand,
+  DeliveryShopTypeProductsParams,
 } from '../api/types';
 
 type UseShopTypesOptions = Omit<
@@ -42,6 +43,10 @@ type UseNearbyStoresOptions = {
   mode?: UseNearbyStoresMode;
   enabled?: boolean;
   search?: string;
+  requestParams?: Omit<
+    DeliveryNearbyStoresParams,
+    'offset' | 'limit' | 'search'
+  >;
 };
 
 type UseDealsOptions = Omit<
@@ -64,6 +69,11 @@ type UseShopTypeProductsOptions = {
   mode?: UseShopTypeProductsMode;
   enabled?: boolean;
   search?: string;
+  filters?: GenericListFilters;
+  requestParams?: Omit<
+    DeliveryShopTypeProductsParams,
+    'shopTypeId' | 'offset' | 'limit' | 'search'
+  >;
 };
 
 type ShopTypeProductsSectionResult = UseQueryResult<
@@ -72,6 +82,38 @@ type ShopTypeProductsSectionResult = UseQueryResult<
 > & {
   shopType: DeliveryShopType;
 };
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function normalizeCategoryIds(categorySelections?: string[]) {
+  if (!categorySelections?.length) {
+    return undefined;
+  }
+
+  const validCategoryIds = categorySelections
+    .map((categorySelection) => categorySelection.trim())
+    .filter(Boolean)
+    .filter((categoryId) => UUID_PATTERN.test(categoryId));
+
+  return validCategoryIds.length > 0 ? Array.from(new Set(validCategoryIds)) : undefined;
+}
+
+function normalizeStockValue(stockId?: string | null) {
+  if (!stockId) {
+    return undefined;
+  }
+
+  if (stockId === 'in_stock') {
+    return 'instock';
+  }
+
+  if (stockId === 'out_of_stock') {
+    return 'outofstock';
+  }
+
+  return stockId;
+}
 
 export function useShopTypes(options?: UseShopTypesOptions) {
   return useQuery<DeliveryShopType[], ApiError>({
@@ -88,6 +130,18 @@ export function useShopTypeProducts(
 ) {
   const mode = options?.mode ?? 'preview';
   const limit = 10;
+  const shopTypeProductParams: Omit<
+    DeliveryShopTypeProductsParams,
+    'shopTypeId' | 'offset' | 'limit' | 'search'
+  > = {
+    ...options?.requestParams,
+    category_ids: normalizeCategoryIds(options?.filters?.category_ids),
+    price_tiers: options?.filters?.price_tiers
+      ? [options.filters.price_tiers]
+      : undefined,
+    stock: normalizeStockValue(options?.filters?.stock),
+    sort_by: options?.filters?.sort_by ?? undefined,
+  };
 
   const query = useInfiniteQuery<
     PaginatedDeliveryResponse<DeliveryShopTypeProduct>,
@@ -96,7 +150,9 @@ export function useShopTypeProducts(
     queryKey: [
       ...deliveryKeys.shopTypeProducts(shopTypeId, 0, limit),
       {
+        filters: options?.filters,
         mode,
+        requestParams: shopTypeProductParams,
         search: options?.search?.trim() ?? '',
       },
     ],
@@ -106,6 +162,7 @@ export function useShopTypeProducts(
         offset: pageParam as number,
         limit,
         search: options?.search?.trim() || undefined,
+        ...shopTypeProductParams,
       }),
     initialPageParam: 0,
     getNextPageParam: (lastPage) =>
@@ -169,6 +226,18 @@ export function useTopBrands(options?: UseTopBrandsOptions) {
 export function useNearbyStores(options?: UseNearbyStoresOptions) {
   const mode = options?.mode ?? 'preview';
   const limit = 10;
+  const nearbyStoreParams: Omit<
+    DeliveryNearbyStoresParams,
+    'offset' | 'limit' | 'search'
+  > = {
+    ...options?.requestParams,
+    category_ids: normalizeCategoryIds(options?.filters?.category_ids),
+    price_tiers: options?.filters?.price_tiers
+      ? [options.filters.price_tiers]
+      : undefined,
+    stock: normalizeStockValue(options?.filters?.stock),
+    sort_by: options?.filters?.sort_by ?? undefined,
+  };
 
   const query = useInfiniteQuery<
     PaginatedDeliveryResponse<DeliveryNearbyStore>,
@@ -180,6 +249,7 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
         filters: options?.filters,
         mode,
         limit,
+        requestParams: nearbyStoreParams,
         search: options?.search?.trim() ?? '',
       },
     ],
@@ -188,6 +258,7 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
         offset: pageParam as number,
         limit,
         search: options?.search?.trim() || undefined,
+        ...nearbyStoreParams,
       } satisfies DeliveryNearbyStoresParams),
     initialPageParam: 0,
     getNextPageParam: (lastPage) =>

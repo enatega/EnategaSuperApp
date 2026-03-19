@@ -25,6 +25,8 @@ export const deliveryKeys = {
     mobileBanners: () => [...deliveryKeys.discovery(), 'mobile-banners'] as const,
     nearbyStores: () => [...deliveryKeys.discovery(), 'nearby-stores'] as const,
     deals: () => [...deliveryKeys.discovery(), 'deals'] as const,
+    filterValues: (storeId?: string) =>
+        [...deliveryKeys.discovery(), 'filter-values', storeId ?? 'all'] as const,
 
     // Search
     search: () => [...deliveryKeys.all, 'search'] as const,

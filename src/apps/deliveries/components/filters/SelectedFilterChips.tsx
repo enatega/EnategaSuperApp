@@ -1,9 +1,9 @@
-import React from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import Icon from '../../../../general/components/Icon';
-import Text from '../../../../general/components/Text';
-import { useTheme } from '../../../../general/theme/theme';
-import type { GenericFilterChip } from './types';
+import React from "react";
+import { FlatList, Pressable, StyleSheet, View } from "react-native";
+import Icon from "../../../../general/components/Icon";
+import Text from "../../../../general/components/Text";
+import { useTheme } from "../../../../general/theme/theme";
+import type { GenericFilterChip } from "./types";
 
 type Props = {
   chips: GenericFilterChip[];
@@ -26,14 +26,14 @@ export default function SelectedFilterChips({
 
   return (
     <View style={styles.container}>
-      <ScrollView
+      <FlatList
+        data={chips}
         horizontal
+        keyExtractor={(chip) => chip.id}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.chipsContent}
-      >
-        {chips.map((chip) => (
+        renderItem={({ item: chip }) => (
           <Pressable
-            key={chip.id}
             accessibilityRole="button"
             onPress={() => onRemoveChip(chip)}
             style={({ pressed }) => [
@@ -53,10 +53,18 @@ export default function SelectedFilterChips({
             >
               {chip.label}
             </Text>
-            <Icon type="Entypo" name="cross" size={16} color={colors.text} />
+            <View
+              style={{
+                backgroundColor: colors.background,
+                borderRadius: 200,
+                padding: 2,
+              }}
+            >
+              <Icon type="Entypo" name="cross" size={16} color={colors.text} />
+            </View>
           </Pressable>
-        ))}
-      </ScrollView>
+        )}
+      />
 
       <Pressable
         accessibilityRole="button"
@@ -85,9 +93,9 @@ export default function SelectedFilterChips({
 
 const styles = StyleSheet.create({
   chip: {
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: 999,
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 6,
     minHeight: 32,
     paddingHorizontal: 12,
@@ -98,10 +106,11 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
   clearButton: {
-    justifyContent: 'center',
+    justifyContent: "center",
+    paddingLeft: 4,
   },
   container: {
-    alignItems: 'center',
-    flexDirection: 'row',
+    alignItems: "center",
+    flexDirection: "row",
   },
 });

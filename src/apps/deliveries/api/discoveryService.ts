@@ -46,6 +46,66 @@ const SHOP_TYPE_PRODUCTS_DEFAULTS = {
     limit: 5,
 } as const;
 
+function toShopTypeProductsQueryParams(
+    params: DeliveryShopTypeProductsParams,
+): Record<string, unknown> {
+    const {
+        offset = SHOP_TYPE_PRODUCTS_DEFAULTS.offset,
+        limit = SHOP_TYPE_PRODUCTS_DEFAULTS.limit,
+        search = '',
+        latitude = NEARBY_STORES_DEFAULTS.latitude,
+        longitude = NEARBY_STORES_DEFAULTS.longitude,
+        stock,
+        category_ids,
+        subcategory_id,
+        price_tiers,
+        sort_by,
+    } = params;
+
+    return {
+        offset,
+        limit,
+        search,
+        latitude,
+        longitude,
+        stock,
+        category_ids,
+        subcategory_id,
+        price_tiers,
+        sort_by,
+    };
+}
+
+function toNearbyStoresQueryParams(
+    params: DeliveryNearbyStoresParams,
+): Record<string, unknown> {
+    const {
+        offset = NEARBY_STORES_DEFAULTS.offset,
+        limit = NEARBY_STORES_DEFAULTS.limit,
+        search = '',
+        latitude = NEARBY_STORES_DEFAULTS.latitude,
+        longitude = NEARBY_STORES_DEFAULTS.longitude,
+        stock,
+        category_ids,
+        subcategory_id,
+        price_tiers,
+        sort_by,
+    } = params;
+
+    return {
+        offset,
+        limit,
+        search,
+        latitude,
+        longitude,
+        stock,
+        category_ids,
+        subcategory_id,
+        price_tiers,
+        sort_by,
+    };
+}
+
 // ---------------------------------------------------------------------------
 // Discovery Service – all public deliveries discovery HTTP calls live here
 // ---------------------------------------------------------------------------
@@ -224,17 +284,21 @@ export const discoveryService = {
     getShopTypeProductsPage: async (
         params: DeliveryShopTypeProductsParams,
     ): Promise<PaginatedDeliveryResponse<DeliveryShopTypeProduct>> => {
-        const {
-            shopTypeId,
-            offset = SHOP_TYPE_PRODUCTS_DEFAULTS.offset,
-            limit = SHOP_TYPE_PRODUCTS_DEFAULTS.limit,
-            search = '',
-        } = params;
+        const { shopTypeId } = params;
+        const queryParams = toShopTypeProductsQueryParams(params);
+        const offset =
+            typeof queryParams.offset === 'number'
+                ? queryParams.offset
+                : SHOP_TYPE_PRODUCTS_DEFAULTS.offset;
+        const limit =
+            typeof queryParams.limit === 'number'
+                ? queryParams.limit
+                : SHOP_TYPE_PRODUCTS_DEFAULTS.limit;
 
         try {
             const response = await apiClient.get<DeliveryShopTypeProductsApiResponse>(
                 `/api/v1/apps/deliveries/discovery/shop-types/${shopTypeId}/products`,
-                { offset, limit, search },
+                queryParams,
             );
 
             return toPaginatedResponse(response, { offset, limit });
@@ -308,18 +372,20 @@ export const discoveryService = {
     getNearbyStoresPage: async (
         params: DeliveryNearbyStoresParams = {},
     ): Promise<PaginatedDeliveryResponse<DeliveryNearbyStore>> => {
-        const {
-            offset = NEARBY_STORES_DEFAULTS.offset,
-            limit = NEARBY_STORES_DEFAULTS.limit,
-            search = '',
-            latitude = NEARBY_STORES_DEFAULTS.latitude,
-            longitude = NEARBY_STORES_DEFAULTS.longitude,
-        } = params;
+        const queryParams = toNearbyStoresQueryParams(params);
+        const offset =
+            typeof queryParams.offset === 'number'
+                ? queryParams.offset
+                : NEARBY_STORES_DEFAULTS.offset;
+        const limit =
+            typeof queryParams.limit === 'number'
+                ? queryParams.limit
+                : NEARBY_STORES_DEFAULTS.limit;
 
         try {
             const response = await apiClient.get<DeliveryNearbyStoresApiResponse>(
                 '/api/v1/apps/deliveries/discovery/nearby-stores',
-                { offset, limit, search, latitude, longitude },
+                queryParams,
             );
 
             return toPaginatedResponse(response, { offset, limit });

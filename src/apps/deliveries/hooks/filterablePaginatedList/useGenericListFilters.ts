@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import type {
   GenericFilterChip,
-  GenericListFilterGroup,
+  GenericListFilterData,
   GenericListFilters,
 } from '../../components/filters/types';
 import {
@@ -13,11 +13,11 @@ import {
 } from '../../components/filters/utils';
 
 type Props = {
-  filterOptions?: GenericListFilterGroup;
+  filterData?: GenericListFilterData;
   initialFilters?: Partial<GenericListFilters>;
 };
 
-export default function useGenericListFilters({ filterOptions, initialFilters }: Props) {
+export default function useGenericListFilters({ filterData, initialFilters }: Props) {
   const initialState = useMemo(
     () => createGenericListFilters(initialFilters),
     [initialFilters],
@@ -52,35 +52,42 @@ export default function useGenericListFilters({ filterOptions, initialFilters }:
 
   const toggleCategory = useCallback((categoryId: string) => {
     setDraftFilters((current) => {
-      const isSelected = current.categoryIds.includes(categoryId);
+      const isSelected = current.category_ids.includes(categoryId);
 
       return {
         ...current,
-        categoryIds: isSelected
-          ? current.categoryIds.filter((id) => id !== categoryId)
-          : [...current.categoryIds, categoryId],
+        category_ids: isSelected
+          ? current.category_ids.filter((id) => id !== categoryId)
+          : [...current.category_ids, categoryId],
       };
     });
   }, []);
 
-  const selectPrice = useCallback((priceId: string) => {
+  const selectPrice = useCallback((priceTier: string) => {
     setDraftFilters((current) => ({
       ...current,
-      priceId: current.priceId === priceId ? null : priceId,
+      price_tiers: current.price_tiers === priceTier ? null : priceTier,
     }));
   }, []);
 
   const selectAddress = useCallback((addressId: string) => {
     setDraftFilters((current) => ({
       ...current,
-      addressId: current.addressId === addressId ? null : addressId,
+      address_id: current.address_id === addressId ? null : addressId,
     }));
   }, []);
 
-  const selectSort = useCallback((sortId: string) => {
+  const selectStock = useCallback((stock: string) => {
     setDraftFilters((current) => ({
       ...current,
-      sortId: current.sortId === sortId ? null : sortId,
+      stock: current.stock === stock ? null : stock,
+    }));
+  }, []);
+
+  const selectSort = useCallback((sortBy: string) => {
+    setDraftFilters((current) => ({
+      ...current,
+      sort_by: current.sort_by === sortBy ? null : sortBy,
     }));
   }, []);
 
@@ -89,8 +96,8 @@ export default function useGenericListFilters({ filterOptions, initialFilters }:
   }, []);
 
   const chips = useMemo(
-    () => buildFilterChips(appliedFilters, filterOptions),
-    [appliedFilters, filterOptions],
+    () => buildFilterChips(appliedFilters, filterData),
+    [appliedFilters, filterData],
   );
 
   return {
@@ -105,6 +112,7 @@ export default function useGenericListFilters({ filterOptions, initialFilters }:
     toggleCategory,
     selectPrice,
     selectAddress,
+    selectStock,
     selectSort,
     removeChip,
     chips,

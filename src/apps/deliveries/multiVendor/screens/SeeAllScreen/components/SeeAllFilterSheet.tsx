@@ -1,10 +1,16 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import FilterSheet from '../../../../components/filters/FilterSheet';
-import type { GenericListFilterSheetRenderProps } from '../../../../components/filters';
-import { getSeeAllFilterOptions } from './seeAllFilterOptions';
+import type {
+  GenericListFilterData,
+  GenericListFilterSheetRenderProps,
+} from '../../../../components/filters';
 
-export default function SeeAllFilterSheet(props: GenericListFilterSheetRenderProps) {
+type Props = GenericListFilterSheetRenderProps & {
+  filters?: GenericListFilterData;
+};
+
+export default function SeeAllFilterSheet(props: Props) {
   const { t } = useTranslation('deliveries');
 
   return (
@@ -13,8 +19,7 @@ export default function SeeAllFilterSheet(props: GenericListFilterSheetRenderPro
       title={t('filter_title')}
       applyLabel={t('filter_apply_results')}
       closeLabel={t('filter_close_label')}
-      resultCount={props.resultCount}
-      filters={getSeeAllFilterOptions(t)}
+      filters={props.filters}
       draftFilters={props.draftFilters}
       isApplyDisabled={props.isApplyDisabled}
       onClose={props.onClose}
@@ -23,8 +28,8 @@ export default function SeeAllFilterSheet(props: GenericListFilterSheetRenderPro
       onToggleCategory={props.onToggleCategory}
       onSelectPrice={props.onSelectPrice}
       onSelectAddress={props.onSelectAddress}
+      onSelectStock={props.onSelectStock}
       onSelectSort={props.onSelectSort}
-      clearAllLabel={props.clearAllLabel}
     />
   );
 }

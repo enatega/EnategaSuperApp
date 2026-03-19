@@ -1,62 +1,64 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useState } from "react";
 import { Keyboard, Pressable, StyleSheet } from "react-native";
-import { RouteProp, useRoute } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { GenericFilterablePaginatedListScreen } from "../../../components/filterablePaginatedList";
 import type { GenericListFilters } from "../../../components/filters";
-import { useNearbyStores, useShopTypeProducts } from "../../../hooks";
+import {
+  useFilterValues,
+  useNearbyStores,
+  useShopTypeProducts,
+} from "../../../hooks";
 import type {
-  DeliveryNearbyStore,
-  DeliveryShopTypeProduct,
-} from "../../../api/types";
-import type { MultiVendorStackParamList } from "../../navigation/types";
+  MultiVendorStackParamList,
+  SeeAllItem,
+} from "../../navigation/types";
 import VerticalStoreListSkeleton from "../../components/HomeTab/HomeTabSkeletons/VerticalStoreListSkeleton";
 import SeeAllHeader from "./components/SeeAllHeader";
 import SeeAllFilterSheet from "./components/SeeAllFilterSheet";
-import { getSeeAllFilterOptions } from "./components/seeAllFilterOptions";
 import useDebouncedValue from "../../../../../general/hooks/useDebouncedValue";
 import useGenericListFilters from "../../../hooks/filterablePaginatedList/useGenericListFilters";
-import SeeAllMapView from "./components/SeeAllMapView";
-import {
-  SEE_ALL_DEFAULT_USER_COORDINATE,
-  toSeeAllMapStore,
-  type SeeAllMapStore,
-} from "./components/mapStoreUtils";
 
 function useSeeAllNearbyStores({
+  enabled,
   filters,
   search,
 }: {
+  enabled: boolean;
   filters: GenericListFilters;
   search: string;
 }) {
   return useNearbyStores({
     mode: "paginated",
+    enabled,
     filters,
     search,
   });
 }
 
 function useSeeAllShopTypeProducts({
-  filters: _filters,
+  enabled,
+  filters,
   search,
   shopTypeId,
 }: {
+  enabled: boolean;
   filters: GenericListFilters;
   search: string;
   shopTypeId?: string;
 }) {
   return useShopTypeProducts(shopTypeId ?? "", {
     mode: "paginated",
+    filters,
     search,
-    enabled: Boolean(shopTypeId),
+    enabled: enabled && Boolean(shopTypeId),
   });
 }
 
-type SeeAllItem = DeliveryNearbyStore | DeliveryShopTypeProduct;
-
 type SeeAllScreenConfig = {
   useListQuery: (params: {
+    enabled: boolean;
     filters: GenericListFilters;
     search: string;
   }) => {
@@ -107,6 +109,8 @@ function getSeeAllScreenConfig(params: {
 
 export default function SeeAllScreen() {
   const { t } = useTranslation("deliveries");
+  const navigation =
+    useNavigation<NativeStackNavigationProp<MultiVendorStackParamList>>();
   const route =
     useRoute<RouteProp<MultiVendorStackParamList, "SeeAllScreen">>();
   const { queryType, title, shopTypeId } = route.params;
@@ -114,11 +118,8 @@ export default function SeeAllScreen() {
     queryType,
     shopTypeId,
   });
-  const filterOptions = getSeeAllFilterOptions(t);
+  const { data: filterValues } = useFilterValues();
   const [searchText, setSearchText] = useState("");
-  const [isMapMode, setIsMapMode] = useState(false);
-  const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
-  const wasMapModeRef = useRef(false);
   const debouncedSearch = useDebouncedValue(searchText.trim(), 500);
   const {
     appliedFilters,
@@ -132,51 +133,21 @@ export default function SeeAllScreen() {
     toggleCategory,
     selectPrice,
     selectAddress,
+    selectStock,
     selectSort,
     removeChip,
     chips,
     hasAppliedFilters,
     hasDraftFilters,
   } = useGenericListFilters({
-    filterOptions,
+    filterData: filterValues?.filters,
   });
   const listQuery = screenConfig.useListQuery({
+    enabled: true,
     filters: appliedFilters,
     search: debouncedSearch,
   });
   const items = listQuery.data ?? [];
-  const mapStores = useMemo<SeeAllMapStore[]>(
-    () => items.map((item, index) => toSeeAllMapStore(item, index)),
-    [items],
-  );
-  const selectableMapStores = useMemo(
-    () => mapStores.filter((store) => Boolean(store.coordinate)),
-    [mapStores],
-  );
-
-  useEffect(() => {
-    const wasMapMode = wasMapModeRef.current;
-    wasMapModeRef.current = isMapMode;
-
-    if (isMapMode && !wasMapMode && !selectedStoreId) {
-      setSelectedStoreId(selectableMapStores[0]?.id ?? null);
-      return;
-    }
-
-    if (!isMapMode) {
-      return;
-    }
-
-    if (!selectedStoreId) {
-      return;
-    }
-
-    if (selectableMapStores.some((store) => store.id === selectedStoreId)) {
-      return;
-    }
-
-    setSelectedStoreId(null);
-  }, [isMapMode, selectableMapStores, selectedStoreId]);
 
   const header = (
     <SeeAllHeader
@@ -185,7 +156,12 @@ export default function SeeAllScreen() {
       onSearchChangeText={setSearchText}
       isSearchEditable={true}
       onOpenFilters={openFilters}
-      onMapPress={() => setIsMapMode(true)}
+      onMapPress={() =>
+        navigation.navigate("SeeAllMapView", {
+          items,
+          title,
+        })
+      }
       isSearchVisible={true}
       isFilterVisible={true}
       isMapVisible={true}
@@ -196,7 +172,6 @@ export default function SeeAllScreen() {
     <SeeAllFilterSheet
       visible={isFilterSheetVisible}
       draftFilters={draftFilters}
-      resultCount={listQuery.totalCount}
       isApplyDisabled={!hasDraftFilters && !hasAppliedFilters}
       onClose={closeFilters}
       onApply={applyFilters}
@@ -204,33 +179,11 @@ export default function SeeAllScreen() {
       onToggleCategory={toggleCategory}
       onSelectPrice={selectPrice}
       onSelectAddress={selectAddress}
+      onSelectStock={selectStock}
       onSelectSort={selectSort}
-      clearAllLabel={t("clear_all")}
+      filters={filterValues?.filters}
     />
   );
-
-  if (isMapMode) {
-    return (
-      <>
-        <SeeAllMapView
-          stores={mapStores}
-          userCoordinate={SEE_ALL_DEFAULT_USER_COORDINATE}
-          selectedStoreId={selectedStoreId}
-          isLoading={listQuery.isPending && items.length === 0}
-          loadingTitle={t("see_all_map_loading_title", { title })}
-          loadingDescription={t("see_all_map_loading_description")}
-          bottomSheetTitle={t("see_all_map_sheet_title")}
-          ctaLabel={t("see_all_map_cta")}
-          onBackPress={() => setIsMapMode(false)}
-          onListPress={() => setIsMapMode(false)}
-          onSelectStore={setSelectedStoreId}
-          onCloseSheet={() => setSelectedStoreId(null)}
-          onViewStore={() => setIsMapMode(false)}
-        />
-        {filterSheet}
-      </>
-    );
-  }
 
   return (
     <Pressable style={styles.screen} onPress={() => Keyboard.dismiss()}>

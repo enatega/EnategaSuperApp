@@ -1,24 +1,24 @@
 import type {
-  AddressFilterOption,
-  FilterOption,
   GenericFilterChip,
-  GenericListFilterGroup,
+  GenericListFilterData,
   GenericListFilters,
 } from './types';
 
 export const EMPTY_FILTERS: GenericListFilters = {
-  categoryIds: [],
-  priceId: null,
-  addressId: null,
-  sortId: null,
+  category_ids: [],
+  price_tiers: null,
+  address_id: null,
+  stock: null,
+  sort_by: null,
 };
 
 export function buildQueryFilterPayload(filters: GenericListFilters) {
   return {
-    categoryIds: filters.categoryIds,
-    priceId: filters.priceId,
-    addressId: filters.addressId,
-    sortId: filters.sortId,
+    category_ids: filters.category_ids,
+    price_tiers: filters.price_tiers,
+    address_id: filters.address_id,
+    stock: filters.stock,
+    sort_by: filters.sort_by,
   };
 }
 
@@ -26,61 +26,90 @@ export function createGenericListFilters(
   initialFilters?: Partial<GenericListFilters>,
 ): GenericListFilters {
   return {
-    categoryIds: initialFilters?.categoryIds ?? EMPTY_FILTERS.categoryIds,
-    priceId: initialFilters?.priceId ?? EMPTY_FILTERS.priceId,
-    addressId: initialFilters?.addressId ?? EMPTY_FILTERS.addressId,
-    sortId: initialFilters?.sortId ?? EMPTY_FILTERS.sortId,
+    category_ids: initialFilters?.category_ids ?? EMPTY_FILTERS.category_ids,
+    price_tiers: initialFilters?.price_tiers ?? EMPTY_FILTERS.price_tiers,
+    address_id: initialFilters?.address_id ?? EMPTY_FILTERS.address_id,
+    stock: initialFilters?.stock ?? EMPTY_FILTERS.stock,
+    sort_by: initialFilters?.sort_by ?? EMPTY_FILTERS.sort_by,
   };
 }
 
-function findOptionLabel(options: FilterOption[] | undefined, id: string | null) {
-  if (!options || !id) return null;
-  return options.find((option) => option.id === id)?.label ?? null;
+function decodeFilterLabel(label: string) {
+  return label.replaceAll('&amp;', '&');
 }
 
-function findAddressLabel(options: AddressFilterOption[] | undefined, id: string | null) {
-  if (!options || !id) return null;
-  return options.find((option) => option.id === id)?.label ?? null;
+function findCategoryLabel(filters: GenericListFilterData | undefined, id: string) {
+  return (
+    filters?.categories.find((category) => category.ids.includes(id))?.label ?? null
+  );
+}
+
+function findAddressLabel(filters: GenericListFilterData | undefined, id: string | null) {
+  if (!filters || !id) return null;
+  return filters.addresses.find((address) => address.id === id)?.label ?? null;
+}
+
+function findPriceTierLabel(filters: GenericListFilterData | undefined, value: string | null) {
+  if (!filters || !value) return null;
+  return filters.priceTiers.find((priceTier) => priceTier.value === value)?.label ?? null;
+}
+
+function findStockLabel(filters: GenericListFilterData | undefined, value: string | null) {
+  if (!filters || !value) return null;
+  return filters.stock.find((stockOption) => stockOption.value === value)?.label ?? null;
+}
+
+function findSortByLabel(filters: GenericListFilterData | undefined, value: string | null) {
+  if (!filters || !value) return null;
+  return filters.sortBy.find((sortOption) => sortOption.value === value)?.label ?? null;
 }
 
 export function buildFilterChips(
   filters: GenericListFilters,
-  options?: GenericListFilterGroup,
+  filterData?: GenericListFilterData,
 ): GenericFilterChip[] {
   const chips: GenericFilterChip[] = [];
 
-  filters.categoryIds.forEach((categoryId) => {
-    const label = findOptionLabel(options?.categoryOptions, categoryId);
+  filters.category_ids.forEach((categoryId) => {
+    const label = findCategoryLabel(filterData, categoryId);
 
     if (label) {
       chips.push({
         id: `category:${categoryId}`,
-        label,
+        label: decodeFilterLabel(label),
       });
     }
   });
 
-  const priceLabel = findOptionLabel(options?.priceOptions, filters.priceId);
+  const priceLabel = findPriceTierLabel(filterData, filters.price_tiers);
   if (priceLabel) {
     chips.push({
-      id: `price:${filters.priceId}`,
-      label: priceLabel,
+      id: `price:${filters.price_tiers}`,
+      label: decodeFilterLabel(priceLabel),
     });
   }
 
-  const addressLabel = findAddressLabel(options?.addressOptions, filters.addressId);
+  const addressLabel = findAddressLabel(filterData, filters.address_id);
   if (addressLabel) {
     chips.push({
-      id: `address:${filters.addressId}`,
-      label: addressLabel,
+      id: `address:${filters.address_id}`,
+      label: decodeFilterLabel(addressLabel),
     });
   }
 
-  const sortLabel = findOptionLabel(options?.sortOptions, filters.sortId);
+  const stockLabel = findStockLabel(filterData, filters.stock);
+  if (stockLabel) {
+    chips.push({
+      id: `stock:${filters.stock}`,
+      label: decodeFilterLabel(stockLabel),
+    });
+  }
+
+  const sortLabel = findSortByLabel(filterData, filters.sort_by);
   if (sortLabel) {
     chips.push({
-      id: `sort:${filters.sortId}`,
-      label: sortLabel,
+      id: `sort:${filters.sort_by}`,
+      label: decodeFilterLabel(sortLabel),
     });
   }
 
@@ -96,28 +125,35 @@ export function removeChipFromFilters(
   if (group === 'category') {
     return {
       ...filters,
-      categoryIds: filters.categoryIds.filter((categoryId) => categoryId !== value),
+      category_ids: filters.category_ids.filter((categoryId) => categoryId !== value),
     };
   }
 
   if (group === 'price') {
     return {
       ...filters,
-      priceId: null,
+      price_tiers: null,
     };
   }
 
   if (group === 'address') {
     return {
       ...filters,
-      addressId: null,
+      address_id: null,
+    };
+  }
+
+  if (group === 'stock') {
+    return {
+      ...filters,
+      stock: null,
     };
   }
 
   if (group === 'sort') {
     return {
       ...filters,
-      sortId: null,
+      sort_by: null,
     };
   }
 
@@ -126,9 +162,10 @@ export function removeChipFromFilters(
 
 export function hasActiveFilters(filters: GenericListFilters) {
   return (
-    filters.categoryIds.length > 0 ||
-    Boolean(filters.priceId) ||
-    Boolean(filters.addressId) ||
-    Boolean(filters.sortId)
+    filters.category_ids.length > 0 ||
+    Boolean(filters.price_tiers) ||
+    Boolean(filters.address_id) ||
+    Boolean(filters.stock) ||
+    Boolean(filters.sort_by)
   );
 }

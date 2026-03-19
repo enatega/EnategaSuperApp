@@ -1,41 +1,33 @@
-import React, { memo, useEffect, useMemo, useRef } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MapView, { LatLng, Region } from "react-native-maps";
 import Icon from "../../../../../../general/components/Icon";
 import Map, { MapMarker } from "../../../../../../general/components/Map";
 import { useTheme } from "../../../../../../general/theme/theme";
+import type { MultiVendorStackParamList } from "../../../navigation/types";
 import MapStoreBottomSheet from "./MapStoreBottomSheet";
 import MapStoreMarker from "./MapStoreMarker";
 import SeeAllMapLoadingState from "./SeeAllMapLoadingState";
-import type { SeeAllMapStore } from "./mapStoreUtils";
+import {
+  SEE_ALL_DEFAULT_USER_COORDINATE,
+  toSeeAllMapStore,
+  type SeeAllMapStore,
+} from "./mapStoreUtils";
 
 const DEFAULT_REGION: Region = {
   latitude: 24.8607,
   longitude: 67.0011,
-  latitudeDelta: 0.08,
-  longitudeDelta: 0.08,
+  latitudeDelta: 0.05,
+  longitudeDelta: 0.05,
 };
 
 const FOCUSED_DELTA = {
-  latitudeDelta: 0.03,
-  longitudeDelta: 0.03,
-};
-
-type Props = {
-  stores: SeeAllMapStore[];
-  userCoordinate: LatLng;
-  selectedStoreId: string | null;
-  isLoading: boolean;
-  loadingTitle: string;
-  loadingDescription: string;
-  bottomSheetTitle: string;
-  ctaLabel: string;
-  onBackPress: () => void;
-  onListPress: () => void;
-  onSelectStore: (storeId: string) => void;
-  onCloseSheet: () => void;
-  onViewStore: () => void;
+  latitudeDelta: 0.05,
+  longitudeDelta: 0.05,
 };
 
 function getRegionFromCoordinates(coordinate: LatLng): Region {
@@ -46,24 +38,24 @@ function getRegionFromCoordinates(coordinate: LatLng): Region {
   };
 }
 
-function SeeAllMapView({
-  stores,
-  userCoordinate,
-  selectedStoreId,
-  isLoading,
-  loadingTitle,
-  loadingDescription,
-  bottomSheetTitle,
-  ctaLabel,
-  onBackPress,
-  onListPress,
-  onSelectStore,
-  onCloseSheet,
-  onViewStore,
-}: Props) {
+function SeeAllMapView() {
+  const { t } = useTranslation("deliveries");
+  const navigation =
+    useNavigation<NativeStackNavigationProp<MultiVendorStackParamList>>();
+  const route =
+    useRoute<RouteProp<MultiVendorStackParamList, "SeeAllMapView">>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView | null>(null);
+  const hasInitializedSelectionRef = useRef(false);
+  const { items, title } = route.params;
+  const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
+  const stores = useMemo<SeeAllMapStore[]>(
+    () => items.map((item, index) => toSeeAllMapStore(item, index)),
+    [items],
+  );
+  const isLoading = items.length === 0;
+  const userCoordinate = SEE_ALL_DEFAULT_USER_COORDINATE;
 
   const storesWithCoordinates = useMemo(
     () => stores.filter((store) => Boolean(store.coordinate)),
@@ -81,7 +73,7 @@ function SeeAllMapView({
         active: true,
         zIndex: store.id === selectedStoreId ? 3 : 1,
         keyOverride: `${store.id}-${store.id === selectedStoreId ? "selected" : "default"}`,
-        onPress: () => onSelectStore(store.id),
+        onPress: () => setSelectedStoreId(store.id),
         tracksViewChanges: true,
         render: (
           <MapStoreMarker
@@ -90,7 +82,7 @@ function SeeAllMapView({
           />
         ),
       })),
-    [onSelectStore, selectedStoreId, storesWithCoordinates],
+    [selectedStoreId, storesWithCoordinates],
   );
 
   useEffect(() => {
@@ -131,8 +123,29 @@ function SeeAllMapView({
       return;
     }
 
-    mapRef.current.animateToRegion(getRegionFromCoordinates(userCoordinate), 350);
+    mapRef.current.animateToRegion(
+      getRegionFromCoordinates(userCoordinate),
+      350,
+    );
   }, [selectedStore, storesWithCoordinates, userCoordinate]);
+
+  useEffect(() => {
+    if (!hasInitializedSelectionRef.current) {
+      hasInitializedSelectionRef.current = true;
+      setSelectedStoreId(storesWithCoordinates[0]?.id ?? null);
+      return;
+    }
+
+    if (!selectedStoreId) {
+      return;
+    }
+
+    if (storesWithCoordinates.some((store) => store.id === selectedStoreId)) {
+      return;
+    }
+
+    setSelectedStoreId(null);
+  }, [selectedStoreId, storesWithCoordinates]);
 
   return (
     <View style={styles.container}>
@@ -154,7 +167,7 @@ function SeeAllMapView({
       <View style={[styles.header, { top: insets.top + 8 }]}>
         <Pressable
           accessibilityRole="button"
-          onPress={onBackPress}
+          onPress={() => navigation.goBack()}
           style={({ pressed }) => [
             styles.headerButton,
             {
@@ -165,40 +178,28 @@ function SeeAllMapView({
             },
           ]}
         >
-          <Icon type="Ionicons" name="arrow-back" size={20} color={colors.text} />
+          <Icon
+            type="Ionicons"
+            name="arrow-back"
+            size={20}
+            color={colors.text}
+          />
         </Pressable>
-
-        {/* Todo: can implement the right button in future */}
-        {/* <Pressable
-          accessibilityRole="button"
-          onPress={onListPress}
-          style={({ pressed }) => [
-            styles.headerButton,
-            {
-              backgroundColor: colors.surface,
-              borderColor: colors.border,
-              shadowColor: colors.shadowColor,
-              opacity: pressed ? 0.82 : 1,
-            },
-          ]}
-        >
-          <Icon type="Feather" name="list" size={20} color={colors.text} />
-        </Pressable> */}
       </View>
 
       {isLoading ? (
         <SeeAllMapLoadingState
-          title={loadingTitle}
-          description={loadingDescription}
+          title={t("see_all_map_loading_title", { title })}
+          description={t("see_all_map_loading_description")}
         />
       ) : null}
 
       <MapStoreBottomSheet
         store={selectedStore}
-        onClose={onCloseSheet}
-        onViewStore={onViewStore}
-        title={bottomSheetTitle}
-        ctaLabel={ctaLabel}
+        onClose={() => setSelectedStoreId(null)}
+        onViewStore={() => navigation.goBack()}
+        title={t("see_all_map_sheet_title")}
+        ctaLabel={t("see_all_map_cta")}
       />
     </View>
   );

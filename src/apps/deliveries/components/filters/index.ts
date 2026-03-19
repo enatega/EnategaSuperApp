@@ -4,10 +4,8 @@ export { default as FilterSheet } from "./FilterSheet";
 export { default as SelectedFilterChips } from "./SelectedFilterChips";
 
 export type {
-  AddressFilterOption,
-  FilterOption,
   GenericFilterChip,
-  GenericListFilterGroup,
+  GenericListFilterData,
   GenericListFilterSheetRenderProps,
   GenericListFilters,
 } from "./types";

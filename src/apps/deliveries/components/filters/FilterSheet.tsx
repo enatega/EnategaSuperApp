@@ -16,7 +16,7 @@ import Icon from "../../../../general/components/Icon";
 import Text from "../../../../general/components/Text";
 import { useTheme } from "../../../../general/theme/theme";
 import type {
-  GenericListFilterGroup,
+  GenericListFilterData,
   GenericListFilters,
 } from "./types";
 import FilterAddressOptionRow from "./FilterAddressOptionRow";
@@ -27,8 +27,7 @@ type Props = {
   title: string;
   applyLabel: string;
   closeLabel: string;
-  resultCount?: number;
-  filters?: GenericListFilterGroup;
+  filters?: GenericListFilterData;
   draftFilters: GenericListFilters;
   isApplyDisabled?: boolean;
   onClose: () => void;
@@ -37,8 +36,8 @@ type Props = {
   onToggleCategory: (categoryId: string) => void;
   onSelectPrice: (priceId: string) => void;
   onSelectAddress: (addressId: string) => void;
+  onSelectStock: (stockId: string) => void;
   onSelectSort: (sortId: string) => void;
-  clearAllLabel: string;
 };
 
 const SHEET_HEIGHT = Math.min(Dimensions.get("window").height * 0.78, 760);
@@ -48,7 +47,6 @@ export default function FilterSheet({
   title,
   applyLabel,
   closeLabel,
-  resultCount,
   filters,
   draftFilters,
   isApplyDisabled = false,
@@ -58,8 +56,8 @@ export default function FilterSheet({
   onToggleCategory,
   onSelectPrice,
   onSelectAddress,
+  onSelectStock,
   onSelectSort,
-  clearAllLabel,
 }: Props) {
   const { t } = useTranslation("deliveries");
   const insets = useSafeAreaInsets();
@@ -68,11 +66,7 @@ export default function FilterSheet({
   if (!visible) {
     return null;
   }
-
-  const resolvedApplyLabel =
-    typeof resultCount === "number"
-      ? `${applyLabel} (${resultCount})`
-      : applyLabel;
+  const decodeFilterLabel = (label: string) => label.replaceAll("&amp;", "&");
 
   return (
     <Modal
@@ -139,60 +133,66 @@ export default function FilterSheet({
               { paddingBottom: insets.bottom + 16 },
             ]}
           >
-            {filters?.categoryOptions?.length ? (
+            {filters?.categories?.length ? (
               <View style={styles.section}>
                 <Text variant="subtitle" weight="bold">
                   {t("filter_category_title")}
                 </Text>
                 <View style={styles.chipWrap}>
-                  {filters.categoryOptions.map((option) => (
-                    <FilterOptionChip
-                      key={option.id}
-                      label={option.label}
-                      isSelected={draftFilters.categoryIds.includes(option.id)}
-                      onPress={() => onToggleCategory(option.id)}
-                    />
-                  ))}
+                  {filters.categories.map((category) => {
+                    const categoryId = category.ids[0];
+
+                    if (!categoryId) {
+                      return null;
+                    }
+
+                    return (
+                      <FilterOptionChip
+                        key={categoryId}
+                        label={decodeFilterLabel(category.label)}
+                        isSelected={draftFilters.category_ids.includes(categoryId)}
+                        onPress={() => onToggleCategory(categoryId)}
+                      />
+                    );
+                  })}
                 </View>
               </View>
             ) : null}
 
-            {filters?.priceOptions?.length ? (
+            {filters?.priceTiers?.length ? (
               <View style={styles.section}>
                 <Text variant="subtitle" weight="bold">
                   {t("filter_price_title")}
                 </Text>
                 <FlatList
-                  data={filters.priceOptions}
+                  data={filters.priceTiers}
                   horizontal
-                  keyExtractor={(item) => item.id}
+                  keyExtractor={(item) => item.value}
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.flatListContent}
                   renderItem={({ item: option }) => (
                     <FilterOptionChip
-                      label={option.label}
-                      isSelected={draftFilters.priceId === option.id}
-                      onPress={() => onSelectPrice(option.id)}
+                      label={decodeFilterLabel(option.label)}
+                      isSelected={draftFilters.price_tiers === option.value}
+                      onPress={() => onSelectPrice(option.value)}
                     />
                   )}
                 />
               </View>
             ) : null}
 
-            {filters?.addressOptions?.length ? (
+            {filters?.addresses?.length ? (
               <View style={styles.section}>
                 <Text variant="subtitle" weight="bold">
                   {t("filter_address_title")}
                 </Text>
                 <View style={styles.addressList}>
-                  {filters.addressOptions.map((option) => (
+                  {filters.addresses.map((option) => (
                     <FilterAddressOptionRow
                       key={option.id}
-                      label={option.label}
-                      description={option.description}
-                      iconName={option.iconName}
-                      iconType={option.iconType}
-                      isSelected={draftFilters.addressId === option.id}
+                      label={decodeFilterLabel(option.label)}
+                      description={option.description ?? undefined}
+                      isSelected={draftFilters.address_id === option.id}
                       onPress={() => onSelectAddress(option.id)}
                     />
                   ))}
@@ -200,22 +200,45 @@ export default function FilterSheet({
               </View>
             ) : null}
 
-            {filters?.sortOptions?.length ? (
+            {/* Todo: can ass stock filters in future. */}
+            {/* {filters?.stock?.length ? (
+              <View style={styles.section}>
+                <Text variant="subtitle" weight="bold">
+                  {t("filter_stock_title")}
+                </Text>
+                <FlatList
+                  data={filters.stock}
+                  horizontal
+                  keyExtractor={(item) => item.value}
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.flatListContent}
+                  renderItem={({ item: option }) => (
+                    <FilterOptionChip
+                      label={decodeFilterLabel(option.label)}
+                      isSelected={draftFilters.stock === option.value}
+                      onPress={() => onSelectStock(option.value)}
+                    />
+                  )}
+                />
+              </View>
+            ) : null} */}
+
+            {filters?.sortBy?.length ? (
               <View style={styles.section}>
                 <Text variant="subtitle" weight="bold">
                   {t("filter_sort_title")}
                 </Text>
                 <FlatList
-                  data={filters.sortOptions}
+                  data={filters.sortBy}
                   horizontal
-                  keyExtractor={(item) => item.id}
+                  keyExtractor={(item) => item.value}
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.flatListContent}
                   renderItem={({ item: option }) => (
                     <FilterOptionChip
-                      label={option.label}
-                      isSelected={draftFilters.sortId === option.id}
-                      onPress={() => onSelectSort(option.id)}
+                      label={decodeFilterLabel(option.label)}
+                      isSelected={draftFilters.sort_by === option.value}
+                      onPress={() => onSelectSort(option.value)}
                     />
                   )}
                 />
@@ -224,7 +247,7 @@ export default function FilterSheet({
 
             <View style={styles.actions}>
               <Button
-                label={resolvedApplyLabel}
+                label={applyLabel}
                 onPress={onApply}
                 disabled={isApplyDisabled}
                 style={styles.applyButton}

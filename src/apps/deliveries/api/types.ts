@@ -52,10 +52,8 @@ export interface DeliveryShopTypeProduct {
     deliveryTime?: number | string | null;
     baseFee?: number | null;
     distanceKm?: number | null;
-    latitude?: number | null;
-    longitude?: number | null;
-    storeLatitude?: number | null;
-    storeLongitude?: number | null;
+    latitude?: number | string | null;
+    longitude?: number | string | null;
     deal?: string | null;
     dealType?: string | null;
     dealAmount?: number | null;
@@ -66,6 +64,59 @@ export interface DeliveryShopTypeProductsParams {
     offset?: number;
     limit?: number;
     search?: string;
+    latitude?: number;
+    longitude?: number;
+    stock?: string;
+    category_ids?: string[];
+    subcategory_id?: string;
+    price_tiers?: string[];
+    sort_by?: string;
+}
+
+export interface DeliveryFilterValueCategory {
+    ids: string[];
+    key: string;
+    label: string;
+    slug: string;
+    usageCount: number;
+}
+
+export interface DeliveryFilterValueAddress {
+    id: string;
+    label: string;
+    description?: string | null;
+}
+
+export interface DeliveryFilterValuePriceTier {
+    value: string;
+    label: string;
+    min: number;
+    max: number | null;
+    productCount: number;
+    isAvailable: boolean;
+}
+
+export interface DeliveryFilterValueStockOption {
+    value: string;
+    label: string;
+    productCount: number;
+    isAvailable: boolean;
+}
+
+export interface DeliveryFilterValueSortOption {
+    value: string;
+    label: string;
+}
+
+export interface DeliveryProductFilterValues {
+    store_id: string | null;
+    filters: {
+        categories: DeliveryFilterValueCategory[];
+        addresses: DeliveryFilterValueAddress[];
+        priceTiers: DeliveryFilterValuePriceTier[];
+        stock: DeliveryFilterValueStockOption[];
+        sortBy: DeliveryFilterValueSortOption[];
+    };
 }
 
 export interface DeliveryTopBrand {
@@ -101,10 +152,8 @@ export interface DeliveryNearbyStore {
     dealType?: string | null;
     dealAmount?: number | null;
     isFavorite?: boolean;
-    latitude?: number | null;
-    longitude?: number | null;
-    storeLatitude?: number | null;
-    storeLongitude?: number | null;
+    latitude?: number | string | null;
+    longitude?: number | string | null;
 }
 
 export interface DeliveryNearbyStoresParams {
@@ -113,6 +162,11 @@ export interface DeliveryNearbyStoresParams {
     search?: string;
     latitude?: number;
     longitude?: number;
+    stock?: string;
+    category_ids?: string[];
+    subcategory_id?: string;
+    price_tiers?: string[];
+    sort_by?: string;
 }
 
 export interface DeliveryDealsParams {

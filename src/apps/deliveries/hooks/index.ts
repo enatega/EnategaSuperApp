@@ -8,3 +8,4 @@ export {
   useShopTypes,
   useTopBrands,
 } from './useDiscoveryQueries';
+export { useFilterValues } from './useFilterValues';

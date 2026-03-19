@@ -13,6 +13,7 @@ import FavouritesScreen from '../screens/FavouritesScreen/FavouritesScreen';
 import RateOrderScreen from '../../screens/RateOrderScreen/RateOrderScreen';
 import SeeAllScreen from '../screens/SeeAllScreen/SeeAllScreen';
 import type { MultiVendorStackParamList } from './types';
+import SeeAllMapView from '../screens/SeeAllScreen/components/SeeAllMapView';
 
 const Stack = createNativeStackNavigator<MultiVendorStackParamList>();
 
@@ -73,6 +74,11 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="SeeAllScreen"
         component={SeeAllScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SeeAllMapView"
+        component={SeeAllMapView}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

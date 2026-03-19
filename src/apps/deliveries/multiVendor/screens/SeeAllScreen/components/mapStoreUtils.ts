@@ -23,18 +23,25 @@ export const SEE_ALL_DEFAULT_USER_COORDINATE: LatLng = {
 };
 
 function toNumber(value: unknown) {
-  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const parsedValue = Number(value.trim());
+
+    return Number.isFinite(parsedValue) ? parsedValue : undefined;
+  }
+
+  return undefined;
 }
 
 function resolveCoordinate(candidate: {
-  latitude?: number | null;
-  longitude?: number | null;
-  storeLatitude?: number | null;
-  storeLongitude?: number | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
 }) {
-  const latitude = toNumber(candidate.latitude) ?? toNumber(candidate.storeLatitude);
-  const longitude =
-    toNumber(candidate.longitude) ?? toNumber(candidate.storeLongitude);
+  const latitude = toNumber(candidate.latitude);
+  const longitude = toNumber(candidate.longitude);
 
   if (latitude === undefined || longitude === undefined) {
     return undefined;
