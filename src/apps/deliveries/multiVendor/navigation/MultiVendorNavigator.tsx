@@ -11,6 +11,7 @@ import AddressChooseOnMapScreen from '../../screens/addresses/AddressChooseOnMap
 import AddressDetailScreen from '../../screens/addresses/AddressDetailScreen';
 import FavouritesScreen from '../screens/FavouritesScreen/FavouritesScreen';
 import RateOrderScreen from '../../screens/RateOrderScreen/RateOrderScreen';
+import SettingsScreen from '../screens/SettingsScreen/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -66,6 +67,11 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="RateOrder"
         component={RateOrderScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

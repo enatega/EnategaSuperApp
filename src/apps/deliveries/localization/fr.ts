@@ -154,6 +154,15 @@ const fr = {
   rate_order_success_title: 'Merci !',
   rate_order_success_message: 'Votre avis a été soumis.',
   rate_order_error_title: 'Échec de la soumission',
+  // Settings screen
+  settings_title: 'Paramètres',
+  settings_notifications: 'Paramètres de notifications',
+  settings_change_password: 'Changer le mot de passe',
+  settings_privacy_policy: 'Politique de confidentialité',
+  settings_terms_of_service: 'Conditions d\'utilisation',
+  settings_terms_of_use: 'Conditions d\'usage',
+  settings_delete_account: 'Supprimer le compte',
+  settings_app_version: 'Version de l\'application 1.0.0',
 };
 
 export default fr;

@@ -74,6 +74,7 @@ export default function ProfileTab() {
         <ProfileMenuItem
           icon={<Ionicons name="settings-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_settings')}
+          onPress={() => navigation.navigate('Settings' as never)}
         />
       </ProfileMenuSection>
 
