@@ -15,6 +15,10 @@ import type {
     RideTypeFareParams,
     RideTypeCatalogItem,
     ActiveRideRequestResponse,
+    AcceptRideBidParams,
+    RaiseRideFarePayload,
+    RaiseRideFareResponse,
+    RejectRideBidParams,
     RidePlacePrediction,
     RidePlaceCoordinates,
     DistanceMatrixResponse,
@@ -183,6 +187,31 @@ export const rideService = {
     /** Cancel a pending ride request before a ride is accepted. */
     cancelRideRequest: (rideId: string): Promise<void> =>
         apiClient.patch(`/api/v1/rides/${rideId}/cancel`),
+
+    /** Raise fare for an active ride request and continue searching. */
+    raiseRideFare: async (
+        payload: RaiseRideFarePayload,
+    ): Promise<RaiseRideFareResponse> => {
+        const response = await apiClient.patch<RaiseRideFareResponse>(
+            '/api/v1/rides/ride-request/raise-fare',
+            payload,
+        );
+
+        return response;
+    },
+
+    /** Accept a driver's bid for an active ride request. */
+    acceptRideBid: async ({
+        rideBidId,
+        payload,
+    }: AcceptRideBidParams): Promise<unknown> =>
+        apiClient.patch(`/api/v1/rides/bids/${rideBidId}/accept`, payload),
+
+    /** Reject a driver's bid for an active ride request. */
+    rejectRideBid: async ({
+        rideBidId,
+    }: RejectRideBidParams): Promise<unknown> =>
+        apiClient.patch(`/api/v1/rides/bids/${rideBidId}/reject`),
 
     /** Rate a completed ride. */
     rateRide: (

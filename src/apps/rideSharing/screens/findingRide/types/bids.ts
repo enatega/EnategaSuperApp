@@ -12,4 +12,5 @@ export type FindingRideBid = {
   status?: string;
   createdAt?: string;
   expiresAt?: string;
+  remainingTimeMs?: number;
 };

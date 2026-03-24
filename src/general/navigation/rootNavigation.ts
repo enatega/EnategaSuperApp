@@ -1,6 +1,6 @@
 import { createNavigationContainerRef } from '@react-navigation/native';
 import type { RootStackParamList, SharedAppRouteName } from './navigationTypes';
-import { clearPendingAppRoute, getPendingAppRoute } from './pendingAppRedirect';
+import { clearPendingAppRoute, getPendingAppRoute, setActiveAppRoute } from './pendingAppRedirect';
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
@@ -23,6 +23,7 @@ export async function redirectToPendingAppIfNeeded() {
     ],
   });
 
+  await setActiveAppRoute(routeName);
   await clearPendingAppRoute();
   return true;
 }

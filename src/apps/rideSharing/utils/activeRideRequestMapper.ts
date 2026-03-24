@@ -1,6 +1,6 @@
 import type { ActiveRideRequestPayload, RideAddressSelection } from '../api/types';
 import type { RideOptionItem } from '../components/rideOptions/types';
-import type { FindingRideViewData } from '../screens/findingRide/components/FindingRideView';
+import type { FindingRideViewData } from '../screens/findingRide/types/view';
 
 function toAddressSelection(
   requestId: string,

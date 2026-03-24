@@ -52,6 +52,7 @@ export default function useBootstrapActiveRide() {
           return;
         }
 
+        console.log('[useBootstrapActiveRide] Fetched active ride:', activeRide);
         if (activeRide) {
           clearActiveRideRequest();
           setActiveRide(activeRide);

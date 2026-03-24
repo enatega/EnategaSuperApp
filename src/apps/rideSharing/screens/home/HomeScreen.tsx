@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { BackHandler, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
 import HomeHeader from '../../../../screens/home/HomeHeader';
 import RideOptionsSection from '../../components/RideOptionsSection';
@@ -9,21 +8,21 @@ import DeliveryServicesSection from '../../components/DeliveryServicesSection';
 import RecommendedSection from '../../../../screens/home/RecommendedSection';
 import HamburgerMenu from '../../components/HamburgerMenu';
 import Sidebar, { type UserProfile } from '../../components/Sidebar';
-import ActiveRideNotice from '../../components/ActiveRideNotice';
 import useBootstrapActiveRide from '../../hooks/useBootstrapActiveRide';
 import useRideSocketBootstrap from '../../hooks/useRideSocketBootstrap';
 import { useSidebarMenu } from '../../hooks/useSidebarMenu';
 import { useProfile } from '../../hooks/useProfile';
+import { useActiveRideStore } from '../../stores/useActiveRideStore';
 import { useActiveRideRequestStore } from '../../stores/useActiveRideRequestStore';
+import ActiveRideView from '../activeRide/components/ActiveRideView';
 import { mapActiveRideRequestToFindingRideViewData } from '../../utils/activeRideRequestMapper';
+import { mapActiveRideToViewData } from '../../utils/activeRideMapper';
 import FindingRideView from '../findingRide/components/FindingRideView';
-
-
 
 export default function RideSharingHomeScreen() {
   const { colors } = useTheme();
-  const { t } = useTranslation('rideSharing');
   const { sidebarVisible, openSidebar, closeSidebar, menuItems, handleLogout, handleProfilePress } = useSidebarMenu();
+  const activeRide = useActiveRideStore((state) => state.activeRide);
   const activeRideRequest = useActiveRideRequestStore((state) => state.activeRideRequest);
 
   useBootstrapActiveRide();
@@ -47,16 +46,33 @@ export default function RideSharingHomeScreen() {
     () => (activeRideRequest ? mapActiveRideRequestToFindingRideViewData(activeRideRequest) : null),
     [activeRideRequest],
   );
+  const activeRideViewData = useMemo(
+    () => (activeRide ? mapActiveRideToViewData(activeRide) : null),
+    [activeRide],
+  );
+  const overlayView = useMemo(() => {
+    if (activeRideViewData) {
+      return <ActiveRideView {...activeRideViewData} />;
+    }
+
+    if (findingRideViewData) {
+      return <FindingRideView {...findingRideViewData} />;
+    }
+
+    return null;
+  }, [activeRideViewData, findingRideViewData]);
+  
+  const hasOverlay = Boolean(overlayView);
 
   useEffect(() => {
-    if (!findingRideViewData) {
+    if (!hasOverlay) {
       return undefined;
     }
 
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => true);
 
     return () => subscription.remove();
-  }, [findingRideViewData]);
+  }, [hasOverlay]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -72,7 +88,6 @@ export default function RideSharingHomeScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <ActiveRideNotice />
           <RideOptionsSection />
           <DeliveryServicesSection />
           <RecommendedSection />
@@ -89,9 +104,9 @@ export default function RideSharingHomeScreen() {
         onProfilePress={handleProfilePress}
       />
 
-      {findingRideViewData ? (
+      {hasOverlay ? (
         <View style={styles.findingRideOverlay}>
-          <FindingRideView {...findingRideViewData} />
+          {overlayView}
         </View>
       ) : null}
     </View>

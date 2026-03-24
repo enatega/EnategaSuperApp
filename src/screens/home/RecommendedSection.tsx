@@ -20,7 +20,7 @@ type Recommendation = {
 };
 
 type Props = {
-  items: Recommendation[];
+
 };
 
 export default function RecommendedSection({  }: Props) {

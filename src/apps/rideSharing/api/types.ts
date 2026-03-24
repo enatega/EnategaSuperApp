@@ -149,6 +149,34 @@ export interface ActiveRideRequestResponse {
     activeRideRequest: ActiveRideRequestPayload | null;
 }
 
+export interface RaiseRideFarePayload {
+    rideRequestId: string;
+    newFare: number;
+}
+
+export interface RaiseRideFareResponse {
+    success?: boolean;
+    message?: string;
+    rideReq?: ActiveRideRequestPayload | null;
+}
+
+export interface AcceptRideBidPayload {
+    customerId: string;
+    bidId: string;
+    isSchedule: boolean;
+    payment_via: string;
+    scheduledAt: string;
+}
+
+export interface AcceptRideBidParams {
+    rideBidId: string;
+    payload: AcceptRideBidPayload;
+}
+
+export interface RejectRideBidParams {
+    rideBidId: string;
+}
+
 export interface UpdateRidePayload {
     rideId: string;
     status?: RideStatus;

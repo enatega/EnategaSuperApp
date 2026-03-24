@@ -6,7 +6,11 @@ import {
 import { rideKeys } from '../api/queryKeys';
 import { rideService } from '../api/rideService';
 import type {
+    AcceptRideBidParams,
     CreateRidePayload,
+    RejectRideBidParams,
+    RaiseRideFarePayload,
+    RaiseRideFareResponse,
     RideDetails,
     UpdateRidePayload,
 } from '../api/types';
@@ -158,6 +162,80 @@ export function useCancelRideRequest(options?: UseCancelRideRequestOptions) {
             queryClient.invalidateQueries({ queryKey: rideKeys.activeRide() });
 
             options?.onSuccess?.(data, rideId, onMutateResult, ctx);
+        },
+        onError: options?.onError,
+        onSettled: options?.onSettled,
+    });
+}
+
+type UseRaiseRideFareOptions<TContext> = Omit<
+    UseMutationOptions<RaiseRideFareResponse, ApiError, RaiseRideFarePayload, TContext>,
+    'mutationFn'
+>;
+
+export function useRaiseRideFare<TContext = unknown>(options?: UseRaiseRideFareOptions<TContext>) {
+    const queryClient = useQueryClient();
+
+    return useMutation<RaiseRideFareResponse, ApiError, RaiseRideFarePayload, TContext>({
+        mutationFn: rideService.raiseRideFare,
+        onMutate: options?.onMutate,
+        onSuccess: (data, variables, onMutateResult, ctx) => {
+            queryClient.invalidateQueries({
+                queryKey: rideKeys.detail(variables.rideRequestId),
+            });
+            queryClient.invalidateQueries({ queryKey: rideKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: rideKeys.customerRides() });
+            queryClient.invalidateQueries({ queryKey: rideKeys.activeRide() });
+
+            options?.onSuccess?.(data, variables, onMutateResult, ctx);
+        },
+        onError: (error, variables, onMutateResult, ctx) => {
+            options?.onError?.(error, variables, onMutateResult, ctx);
+        },
+        onSettled: (data, error, variables, onMutateResult, ctx) => {
+            options?.onSettled?.(data, error, variables, onMutateResult, ctx);
+        },
+    });
+}
+
+type UseAcceptRideBidOptions = Omit<
+    UseMutationOptions<unknown, ApiError, AcceptRideBidParams, unknown>,
+    'mutationFn'
+>;
+
+export function useAcceptRideBid(options?: UseAcceptRideBidOptions) {
+    const queryClient = useQueryClient();
+
+    return useMutation<unknown, ApiError, AcceptRideBidParams, unknown>({
+        mutationFn: rideService.acceptRideBid,
+        onSuccess: (data, variables, onMutateResult, ctx) => {
+            queryClient.invalidateQueries({ queryKey: rideKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: rideKeys.customerRides() });
+            queryClient.invalidateQueries({ queryKey: rideKeys.activeRide() });
+
+            options?.onSuccess?.(data, variables, onMutateResult, ctx);
+        },
+        onError: options?.onError,
+        onSettled: options?.onSettled,
+    });
+}
+
+type UseRejectRideBidOptions = Omit<
+    UseMutationOptions<unknown, ApiError, RejectRideBidParams, unknown>,
+    'mutationFn'
+>;
+
+export function useRejectRideBid(options?: UseRejectRideBidOptions) {
+    const queryClient = useQueryClient();
+
+    return useMutation<unknown, ApiError, RejectRideBidParams, unknown>({
+        mutationFn: rideService.rejectRideBid,
+        onSuccess: (data, variables, onMutateResult, ctx) => {
+            queryClient.invalidateQueries({ queryKey: rideKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: rideKeys.customerRides() });
+            queryClient.invalidateQueries({ queryKey: rideKeys.activeRide() });
+
+            options?.onSuccess?.(data, variables, onMutateResult, ctx);
         },
         onError: options?.onError,
         onSettled: options?.onSettled,

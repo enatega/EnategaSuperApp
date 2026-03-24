@@ -1,34 +1,65 @@
-import React, { memo } from 'react';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import React, { memo, useEffect, useRef } from 'react';
+import { ActivityIndicator, Animated, Image, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
 import { formatRideCurrency } from '../../../utils/rideFormatting';
 import type { FindingRideBid } from '../types/bids';
 
-function formatExpiry(expiresAt: string | undefined) {
-  if (!expiresAt) {
-    return undefined;
-  }
-
-  const expiresAtMs = Date.parse(expiresAt);
-  if (Number.isNaN(expiresAtMs)) {
-    return undefined;
-  }
-
-  const remainingSeconds = Math.max(Math.ceil((expiresAtMs - Date.now()) / 1000), 0);
-  return `${remainingSeconds}s left`;
-}
+const BID_VALIDITY_MS = 15_000;
 
 type Props = {
   bid: FindingRideBid;
   onPressDecline?: (bid: FindingRideBid) => void;
   onPressAccept?: (bid: FindingRideBid) => void;
+  isAccepting?: boolean;
+  isDeclining?: boolean;
+  isInteractionLocked?: boolean;
 };
 
-function FindingRideBidCard({ bid, onPressDecline, onPressAccept }: Props) {
+function FindingRideBidCard({
+  bid,
+  onPressDecline,
+  onPressAccept,
+  isAccepting = false,
+  isDeclining = false,
+  isInteractionLocked = false,
+}: Props) {
   const { colors } = useTheme();
-  const fallbackMetaText = bid.status ?? formatExpiry(bid.expiresAt) ?? 'New bid';
+  const isBusy = isAccepting || isDeclining || isInteractionLocked;
+  const remainingTimeMs = bid.remainingTimeMs ?? BID_VALIDITY_MS;
+  const isExpired = remainingTimeMs <= 0;
+  const fallbackMetaText = bid.status ?? (isExpired ? 'Expired' : `${Math.ceil(remainingTimeMs / 1000)}s left`);
+  const progress = useRef(new Animated.Value(Math.max(Math.min(remainingTimeMs / BID_VALIDITY_MS, 1), 0))).current;
+
+  useEffect(() => {
+    const normalizedProgress = Math.max(Math.min(remainingTimeMs / BID_VALIDITY_MS, 1), 0);
+    const animationDurationMs = Math.max(remainingTimeMs, 0);
+
+    progress.stopAnimation();
+    progress.setValue(normalizedProgress);
+
+    if (animationDurationMs <= 0) {
+      return undefined;
+    }
+
+    const animation = Animated.timing(progress, {
+      toValue: 0,
+      duration: animationDurationMs,
+      useNativeDriver: false,
+    });
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+    };
+  }, [bid.expiresAt, bid.id, progress]);
+
+  const progressWidth = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+  });
 
   return (
     <View
@@ -104,19 +135,44 @@ function FindingRideBidCard({ bid, onPressDecline, onPressAccept }: Props) {
         <View style={styles.actions}>
           <Pressable
             onPress={() => onPressDecline?.(bid)}
-            style={[styles.declineButton, { backgroundColor: colors.backgroundTertiary }]}
+            disabled={isBusy || isExpired}
+            style={[
+              styles.declineButton,
+              { backgroundColor: colors.backgroundTertiary },
+              (isBusy || isExpired) ? styles.buttonDisabled : null,
+            ]}
           >
-            <Text weight="medium" style={[styles.declineLabel, { color: colors.text }]}>
-              Decline
-            </Text>
+            {isDeclining ? (
+              <ActivityIndicator size="small" color={colors.text} />
+            ) : (
+              <Text weight="medium" style={[styles.declineLabel, { color: colors.text }]}>
+                Decline
+              </Text>
+            )}
           </Pressable>
 
           <Pressable
             onPress={() => onPressAccept?.(bid)}
-            style={[styles.acceptButton, { backgroundColor: colors.findingRidePrimary }]}
+            disabled={isBusy || isExpired}
+            style={[
+              styles.acceptButton,
+              { backgroundColor: colors.findingRidePrimary },
+              (isBusy || isExpired) ? styles.buttonDisabled : null,
+            ]}
           >
+            <View style={styles.progressOverlayWrap}>
+              <Animated.View
+                style={[
+                  styles.progressOverlay,
+                  {
+                    width: progressWidth,
+                    backgroundColor: 'rgba(0,0,0,0.18)',
+                  },
+                ]}
+              />
+            </View>
             <Text weight="medium" style={styles.acceptLabel}>
-              Accept
+              {isAccepting ? 'Accepting...' : isExpired ? 'Expired' : 'Accept'}
             </Text>
           </Pressable>
         </View>
@@ -223,6 +279,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flex: 1,
   },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
   declineLabel: {
     fontSize: 14,
     lineHeight: 22,
@@ -233,6 +292,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: 163.5,
+    overflow: 'hidden',
+  },
+  progressOverlayWrap: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  progressOverlay: {
+    height: '100%',
   },
   acceptLabel: {
     fontSize: 16,

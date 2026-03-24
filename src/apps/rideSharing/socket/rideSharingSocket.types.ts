@@ -1,4 +1,4 @@
-import type { CreateRidePayload } from '../api/types';
+import type { ActiveRideRequestPayload, CreateRidePayload } from '../api/types';
 import type { FindingRideBid } from '../screens/findingRide/types/bids';
 
 export type RideSharingServerEventMap = {
@@ -18,6 +18,11 @@ export type RideSharingServerEventMap = {
 };
 
 export type RideSharingClientEventMap = {
+  'bid-accepted': {
+    rideRequestId: string;
+    riderUserId: string;
+    startType: string;
+  };
   'ride-request-created-by-customer': {
     rideRequestData: CreateRidePayload & {
       passenger_user_id?: string;
@@ -27,12 +32,19 @@ export type RideSharingClientEventMap = {
     longitude: number;
     radiusKm: number;
   };
+  'ride-request-fare-raised': {
+    rideRequestData: ActiveRideRequestPayload & {
+      previousFare?: number;
+      newFare?: number;
+      passenger_user_id?: string;
+    };
+    latitude: number;
+    longitude: number;
+    radiusKm: number;
+  };
   'ride-cancelled': {
     rideId: string;
     genericUserId: string;
-  };
-  'ride-request-cancelled-by-customer': {
-    rideRequestId: string;
   };
 };
 

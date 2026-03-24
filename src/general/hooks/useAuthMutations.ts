@@ -28,6 +28,7 @@ import type {
 } from "../api/authTypes";
 import { authSession } from "../auth/authSession";
 import { redirectToPendingAppIfNeeded } from "../navigation/rootNavigation";
+import { clearActiveAppRoute } from "../navigation/pendingAppRedirect";
 import { socketClient } from "../services/socket";
 
 async function finalizeAuthSession(
@@ -123,6 +124,7 @@ export function useLogout(options?: UseMutationOptions<void, ApiError, void>) {
       await socketClient.updateAuthToken(null);
       socketClient.disconnect();
       await authSession.clearSession();
+      await clearActiveAppRoute();
     },
     ...options,
     onSuccess: async (_data, variables, onMutateResult, context) => {

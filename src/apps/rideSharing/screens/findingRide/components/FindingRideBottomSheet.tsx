@@ -22,9 +22,11 @@ type Props = {
   timeLeftSec: number;
   onIncreaseFare: () => void;
   onDecreaseFare: () => void;
+  isIncreaseDisabled?: boolean;
   isDecreaseDisabled?: boolean;
   onCancelRide: () => void;
   onKeepSearching: () => void;
+  isKeepSearchingLoading?: boolean;
   isCancelLoading?: boolean;
   floatingAccessory?: React.ReactNode;
 };
@@ -35,9 +37,11 @@ function FindingRideBottomSheet({
   timeLeftSec,
   onIncreaseFare,
   onDecreaseFare,
+  isIncreaseDisabled = false,
   isDecreaseDisabled = false,
   onCancelRide,
   onKeepSearching,
+  isKeepSearchingLoading = false,
   isCancelLoading = false,
   floatingAccessory,
 }: Props) {
@@ -112,7 +116,12 @@ function FindingRideBottomSheet({
 
           <Pressable
             onPress={onIncreaseFare}
-            style={[styles.adjustButton, { backgroundColor: colors.findingRidePrimarySoft }]}
+            disabled={isIncreaseDisabled}
+            style={[
+              styles.adjustButton,
+              { backgroundColor: colors.findingRidePrimarySoft },
+              isIncreaseDisabled ? styles.adjustButtonDisabled : null,
+            ]}
           >
             <Text weight="medium" color={colors.findingRidePrimary} style={styles.adjustLabel}>
               +0.5
@@ -124,6 +133,7 @@ function FindingRideBottomSheet({
           <Button
             label={t('ride_finding_keep_searching')}
             onPress={onKeepSearching}
+            isLoading={isKeepSearchingLoading}
             style={[
               styles.primaryButton,
               {

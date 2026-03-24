@@ -16,19 +16,17 @@ export function useRideBidSocket(options?: Options) {
   );
   const resolvedRideRequestId = options?.rideRequestId ?? activeRideRequestId;
   const isEnabled = options?.enabled ?? true;
+  const syncRideRequest = useRideBidsStore((state) => state.syncRideRequest);
   const addBid = useRideBidsStore((state) => state.addBid);
   const removeBid = useRideBidsStore((state) => state.removeBid);
-  const clearBids = useRideBidsStore((state) => state.clearBids);
 
   useEffect(() => {
-    clearBids();
-  }, [clearBids, resolvedRideRequestId]);
-
-  useEffect(() => {
-    if (!isEnabled) {
-      clearBids();
+    if (!isEnabled || !resolvedRideRequestId) {
+      return;
     }
-  }, [clearBids, isEnabled]);
+
+    syncRideRequest(resolvedRideRequestId);
+  }, [isEnabled, resolvedRideRequestId, syncRideRequest]);
 
   useSocketEvent<[RideSharingServerEventMap['received-bids']]>(
     'received-bids',
