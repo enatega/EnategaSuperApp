@@ -148,6 +148,8 @@ export default function SeeAllScreen() {
     search: debouncedSearch,
   });
   const items = listQuery.data ?? [];
+  const isMapVisible =
+    listQuery.isPending || listQuery.isRefetching || items.length > 0;
 
   const header = (
     <SeeAllHeader
@@ -156,15 +158,16 @@ export default function SeeAllScreen() {
       onSearchChangeText={setSearchText}
       isSearchEditable={true}
       onOpenFilters={openFilters}
-      onMapPress={() =>
+      onMapPress={() => {
+        if (!items.length) return;
         navigation.navigate("SeeAllMapView", {
           items,
           title,
-        })
-      }
+        });
+      }}
       isSearchVisible={true}
       isFilterVisible={true}
-      isMapVisible={true}
+      isMapVisible={isMapVisible}
     />
   );
 
