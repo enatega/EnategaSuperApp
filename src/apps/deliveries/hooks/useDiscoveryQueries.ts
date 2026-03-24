@@ -1,6 +1,9 @@
 import {
+  InfiniteData,
+  useInfiniteQuery,
   useQueries,
   useQuery,
+  type UseInfiniteQueryOptions,
   type UseQueryOptions,
   type UseQueryResult,
 } from '@tanstack/react-query';
@@ -45,9 +48,17 @@ type UseStoreViewOptions = Omit<
 >;
 
 type UseStoreProductsOptions = Omit<
-  UseQueryOptions<DeliveryStoreProductsApiResponse, ApiError>,
-  'queryKey' | 'queryFn'
+  UseInfiniteQueryOptions<
+    DeliveryStoreProductsApiResponse,
+    ApiError,
+    InfiniteData<DeliveryStoreProductsApiResponse>,
+    ReturnType<typeof deliveryKeys.storeProducts>,
+    number
+  >,
+  'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
 >;
+
+type UseStoreProductsParams = Omit<DeliveryStoreProductsParams, 'offset'>;
 
 type UseDealsOptions = Omit<
   UseQueryOptions<DeliveryNearbyStore[], ApiError>,
@@ -160,34 +171,40 @@ export function useStoreView(
 
 export function useStoreProducts(
   storeId: string,
-  params: DeliveryStoreProductsParams = {},
+  params: UseStoreProductsParams = {},
   options?: UseStoreProductsOptions,
 ) {
   const {
-    offset = 0,
-    limit = 10,
+    limit,
     search,
     selectedCategoryId,
     selectedSubcategoryId,
   } = params;
 
-  return useQuery<DeliveryStoreProductsApiResponse, ApiError>({
-    queryKey: deliveryKeys.storeProducts(
-      storeId,
-      offset,
+  return useInfiniteQuery<
+    DeliveryStoreProductsApiResponse,
+    ApiError,
+    InfiniteData<DeliveryStoreProductsApiResponse>,
+    ReturnType<typeof deliveryKeys.storeProducts>,
+    number
+  >({
+    queryKey: deliveryKeys.storeProducts(storeId, {
       limit,
       search,
       selectedCategoryId,
       selectedSubcategoryId,
-    ),
-    queryFn: () =>
+    }),
+    queryFn: ({ pageParam }) =>
       discoveryService.getStoreProducts(storeId, {
-        offset,
+        offset: pageParam,
         limit,
         search,
         selectedCategoryId,
         selectedSubcategoryId,
       }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
     enabled: Boolean(storeId),
     ...options,
   });

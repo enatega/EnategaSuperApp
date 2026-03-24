@@ -11,9 +11,11 @@ export default function StoreDetailsScreenSkeleton() {
       <Skeleton height={240} width="100%" borderRadius={0} />
 
       <View style={styles.content}>
-        <Skeleton height={88} width={88} borderRadius={12} />
-        <Skeleton height={24} width="60%" borderRadius={6} />
-        <Skeleton height={18} width="80%" borderRadius={6} />
+        <View style={{ alignItems: 'center', gap: 8 }}>
+          <Skeleton height={88} width={88} borderRadius={12} />
+          <Skeleton height={24} width="60%" borderRadius={6} />
+          <Skeleton height={18} width="80%" borderRadius={6} />
+        </View>
         <Skeleton height={46} width="100%" borderRadius={12} />
         <Skeleton height={44} width="100%" borderRadius={0} />
         <Skeleton height={180} width="100%" borderRadius={12} />

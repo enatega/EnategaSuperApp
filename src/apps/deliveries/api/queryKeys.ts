@@ -32,21 +32,18 @@ export const deliveryKeys = {
         ] as const,
     storeProducts: (
         storeId: string,
-        offset = 0,
-        limit = 10,
-        search?: string,
-        selectedCategoryId?: string,
-        selectedSubcategoryId?: string,
+        filters?: {
+            limit?: number;
+            search?: string;
+            selectedCategoryId?: string;
+            selectedSubcategoryId?: string;
+        },
     ) =>
         [
             ...deliveryKeys.discovery(),
             'store-products',
             storeId,
-            offset,
-            limit,
-            search,
-            selectedCategoryId,
-            selectedSubcategoryId,
+            filters,
         ] as const,
     deals: () => [...deliveryKeys.discovery(), 'deals'] as const,
 

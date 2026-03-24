@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import Text from '../../../../../general/components/Text';
@@ -26,7 +26,6 @@ type StoreDetailsParamList = {
   };
 };
 
-const STORE_DETAILS_LIMIT = 10;
 const SEARCH_DEBOUNCE_MS = 400;
 const STORE_DETAIL_PRODUCT_SKELETON_ITEMS = Array.from({ length: 4 }, (_, index) => ({
   id: `store-detail-product-skeleton-${index}`,
@@ -104,16 +103,19 @@ export default function StoreDetailsScreen() {
       enabled: Boolean(storeId),
     },
   );
+  console.log('storrrrr_data',JSON.stringify(storeData,null,2));
+  
 
   const {
     data: productsData,
     error: productsError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     isPending: isProductsPending,
   } = useStoreProducts(
     storeId,
     {
-      offset: 0,
-      limit: STORE_DETAILS_LIMIT,
       search: debouncedSearchValue || undefined,
       selectedCategoryId: selectedCategoryId ?? undefined,
       selectedSubcategoryId: selectedSubcategoryId ?? undefined,
@@ -122,6 +124,7 @@ export default function StoreDetailsScreen() {
       enabled: Boolean(storeId),
     },
   );
+console.log('productsData_Data___',JSON.stringify(productsData,null,2));
 
   useEffect(() => {
     setSearchValue('');
@@ -143,8 +146,14 @@ export default function StoreDetailsScreen() {
     navigation.goBack();
   };
 
+  const handleLoadMoreProducts = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
+
   const store = storeData;
-  const products = productsData?.items ?? [];
+  const products = productsData?.pages.flatMap((page) => page.items) ?? [];
   const categories = store?.categories ?? [];
   const subcategories = store?.subcategories ?? [];
   const activeCategoryId = selectedCategoryId;
@@ -218,6 +227,13 @@ export default function StoreDetailsScreen() {
           <Text style={{ color: colors.mutedText }}>{t('store_details_no_items')}</Text>
         </View>
       }
+      ListFooterComponent={
+        isFetchingNextPage ? (
+          <View style={styles.footerLoader}>
+            <ActivityIndicator color={colors.primary} size="small" />
+          </View>
+        ) : null
+      }
       ListHeaderComponent={
         <StoreDetailListHeader
           activeCategoryId={activeCategoryId}
@@ -249,6 +265,8 @@ export default function StoreDetailsScreen() {
       data={listData}
       keyExtractor={(item) => item.id}
       numColumns={2}
+      onEndReached={handleLoadMoreProducts}
+      onEndReachedThreshold={0.4}
       renderItem={({ item }) =>
         isStoreDetailSkeletonItem(item) ? (
           <StoreDetailMenuCardSkeleton />
@@ -279,5 +297,9 @@ const styles = StyleSheet.create({
   emptyState: {
     paddingHorizontal: 16,
     paddingTop: 8,
+  },
+  footerLoader: {
+    alignItems: 'center',
+    paddingVertical: 16,
   },
 });
