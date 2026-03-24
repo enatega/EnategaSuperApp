@@ -7,9 +7,11 @@ import { useTheme } from '../../../../general/theme/theme';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import Button from '../../../../general/components/Button';
+import { showToast } from '../../../../general/components/AppToast';
 import RatingStars from '../../components/rateOrder/RatingStars';
 import RatingTagList from '../../components/rateOrder/RatingTagList';
 import RatingCommentInput from '../../components/rateOrder/RatingCommentInput';
+import { useSubmitReviewMutation } from '../../hooks/useSubmitReviewMutation';
 
 export type RateOrderScreenParams = {
   RateOrder: {
@@ -78,9 +80,22 @@ export default function RateOrderScreen() {
     setComment('');
   };
 
+  const submitReview = useSubmitReviewMutation({
+    onSuccess: () => {
+      showToast.success(t('rate_order_success_title'), t('rate_order_success_message'));
+      navigation.goBack();
+    },
+    onError: (error) => {
+      showToast.error(t('rate_order_error_title'), error.message);
+    },
+  });
+
   const handleSubmit = () => {
-    console.log('submit rating', { orderId, rating, selectedTags, comment });
-    navigation.goBack();
+    submitReview.mutate({
+      orderId,
+      rating,
+      description: comment.trim(),
+    });
   };
 
   return (
@@ -140,7 +155,8 @@ export default function RateOrderScreen() {
         <Button
           label={t('rate_order_submit')}
           onPress={handleSubmit}
-          disabled={rating === 0}
+          disabled={rating === 0 || submitReview.isPending}
+          isLoading={submitReview.isPending}
         />
       </View>
     </View>
