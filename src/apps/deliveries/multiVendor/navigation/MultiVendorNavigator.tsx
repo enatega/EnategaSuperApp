@@ -16,6 +16,9 @@ import type { MultiVendorStackParamList } from './types';
 import SeeAllMapView from '../screens/SeeAllScreen/components/SeeAllMapView';
 import SettingsScreen from '../screens/SettingsScreen/SettingsScreen';
 import NotificationSettingsScreen from '../screens/NotificationSettingsScreen/NotificationSettingsScreen';
+import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen/PrivacyPolicyScreen';
+import TermsOfServiceScreen from '../screens/TermsOfServiceScreen/TermsOfServiceScreen';
+import TermsOfUseScreen from '../screens/TermsOfUseScreen/TermsOfUseScreen';
 
 const Stack = createNativeStackNavigator<MultiVendorStackParamList>();
 
@@ -91,6 +94,21 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="NotificationSettings"
         component={NotificationSettingsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicyScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="TermsOfService"
+        component={TermsOfServiceScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="TermsOfUse"
+        component={TermsOfUseScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

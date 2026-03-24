@@ -47,14 +47,17 @@ export default function SettingsScreen() {
           <ProfileMenuItem
             icon={<Ionicons name="shield-outline" size={ICON_SIZE} color={iconColor} />}
             label={t('settings_privacy_policy')}
+            onPress={() => navigation.navigate('PrivacyPolicy' as never)}
           />
           <ProfileMenuItem
             icon={<Ionicons name="document-text-outline" size={ICON_SIZE} color={iconColor} />}
             label={t('settings_terms_of_service')}
+            onPress={() => navigation.navigate('TermsOfService' as never)}
           />
           <ProfileMenuItem
             icon={<Ionicons name="document-outline" size={ICON_SIZE} color={iconColor} />}
             label={t('settings_terms_of_use')}
+            onPress={() => navigation.navigate('TermsOfUse' as never)}
           />
         </ProfileMenuSection>
       </ScrollView>

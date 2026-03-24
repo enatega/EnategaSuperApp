@@ -28,4 +28,7 @@ export type MultiVendorStackParamList = {
   };
   Settings: undefined;
   NotificationSettings: undefined;
+  PrivacyPolicy: undefined;
+  TermsOfService: undefined;
+  TermsOfUse: undefined;
 };
