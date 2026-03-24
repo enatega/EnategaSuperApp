@@ -13,10 +13,10 @@ type RideOption = {
   icon: string;
 };
 
-const rideIcon = 'https://www.figma.com/api/mcp/asset/3390d01b-1526-4c81-8f48-c893f0c72934';
-const scheduledIcon = 'https://www.figma.com/api/mcp/asset/bb35b336-dd7e-4ea5-a109-ed7670f4e8de';
-const hourlyIcon = 'https://www.figma.com/api/mcp/asset/49504a75-984a-43cb-8eca-b0d94303cd10';
-const courierIcon = 'https://www.figma.com/api/mcp/asset/513bf805-51ec-4377-acbb-775318fcfe6f';
+const rideIcon = require('../../rideSharing/assets/images/3d-car.png');
+const scheduledIcon = require('../../rideSharing/assets/images/calendar.png');
+const hourlyIcon = require('../../rideSharing/assets/images/3d-alarm.png');
+const courierIcon = require('../../rideSharing/assets/images/3d-truck.png');
 
 export default function RideOptionsSection() {
   const { colors, typography } = useTheme();
@@ -65,7 +65,7 @@ export default function RideOptionsSection() {
             onPress={() => navigation.navigate('RideOptions' as never, { rideType: item.id } as never)}
           >
             <View style={[styles.iconWrap, { backgroundColor: colors.blue50 }]}>
-              <Image source={{ uri: item.icon }} style={styles.icon} />
+              <Image source={item.icon } style={styles.icon} />
             </View>
             <Text
               weight="semiBold"

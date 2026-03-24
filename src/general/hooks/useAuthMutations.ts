@@ -27,6 +27,25 @@ import type {
   VerifyForgotPasswordOtpResponce,
 } from "../api/authTypes";
 import { authSession } from "../auth/authSession";
+import { redirectToPendingAppIfNeeded } from "../navigation/rootNavigation";
+import { socketClient } from "../services/socket";
+
+async function finalizeAuthSession(
+  queryClient: ReturnType<typeof useQueryClient>,
+  data:
+    | SignupVerifyOtpResponse
+    | LoginVerifyOtpResponse
+    | EmailLoginRespoce
+    | GoogleLoginResponse,
+) {
+  await authSession.setSession(data);
+  queryClient.setQueryData(authKeys.session(), {
+    token: data.accessToken,
+    user: data.user,
+    profiles: data.profiles,
+  });
+  await queryClient.invalidateQueries({ queryKey: authKeys.session() });
+}
 
 export function useSignupSendOtp(
   options?: UseMutationOptions<
@@ -54,15 +73,10 @@ export function useSignupVerifyOtp(
     {
       mutationFn: authService.verifySignupOtp,
       ...options,
-      onSuccess: async (data, variables, context) => {
-        await authSession.setSession(data);
-        queryClient.setQueryData(authKeys.session(), {
-          token: data.accessToken,
-          user: data.user,
-          profiles: data.profiles,
-        });
-        queryClient.invalidateQueries({ queryKey: authKeys.session() });
-        options?.onSuccess?.(data, variables, context);
+      onSuccess: async (data, variables, onMutateResult, context) => {
+        await finalizeAuthSession(queryClient, data);
+        options?.onSuccess?.(data, variables, onMutateResult, context);
+        await redirectToPendingAppIfNeeded();
       },
     },
   );
@@ -93,15 +107,10 @@ export function useLoginVerifyOtp(
   return useMutation<LoginVerifyOtpResponse, ApiError, LoginVerifyOtpPayload>({
     mutationFn: authService.verifyLoginOtp,
     ...options,
-    onSuccess: async (data, variables, context) => {
-      await authSession.setSession(data);
-      queryClient.setQueryData(authKeys.session(), {
-        token: data.accessToken,
-        user: data.user,
-        profiles: data.profiles,
-      });
-      queryClient.invalidateQueries({ queryKey: authKeys.session() });
-      options?.onSuccess?.(data, variables, context);
+    onSuccess: async (data, variables, onMutateResult, context) => {
+      await finalizeAuthSession(queryClient, data);
+      options?.onSuccess?.(data, variables, onMutateResult, context);
+      await redirectToPendingAppIfNeeded();
     },
   });
 }
@@ -111,17 +120,19 @@ export function useLogout(options?: UseMutationOptions<void, ApiError, void>) {
 
   return useMutation<void, ApiError, void>({
     mutationFn: async () => {
+      await socketClient.updateAuthToken(null);
+      socketClient.disconnect();
       await authSession.clearSession();
     },
     ...options,
-    onSuccess: async (_data, variables, context) => {
+    onSuccess: async (_data, variables, onMutateResult, context) => {
       queryClient.setQueryData(authKeys.session(), {
         token: null,
         user: null,
         profiles: null,
       });
       queryClient.invalidateQueries({ queryKey: authKeys.session() });
-      options?.onSuccess?.(_data, variables, context);
+      options?.onSuccess?.(_data, variables, onMutateResult, context);
     },
   });
 }
@@ -134,15 +145,10 @@ export function useEmailLogin(
   return useMutation<EmailLoginRespoce, ApiError, EmailLoginPayload>({
     mutationFn: authService.emailLogin,
     ...options,
-    onSuccess: async (data, variables, context) => {
-      await authSession.setSession(data);
-      queryClient.setQueryData(authKeys.session(), {
-        token: data.accessToken,
-        user: data.user,
-        profiles: data.profiles,
-      });
-      queryClient.invalidateQueries({ queryKey: authKeys.session() });
-      options?.onSuccess?.(data, variables, context);
+    onSuccess: async (data, variables, onMutateResult, context) => {
+      await finalizeAuthSession(queryClient, data);
+      options?.onSuccess?.(data, variables, onMutateResult, context);
+      await redirectToPendingAppIfNeeded();
     },
   });
 }
@@ -159,15 +165,10 @@ export function useGoogleLogin(
   return useMutation<GoogleLoginResponse, ApiError, GoogleLoginPayload>({
     mutationFn: authService.googleLogin,
     ...options,
-    onSuccess: async (data, variables, context) => {
-      await authSession.setSession(data);
-      queryClient.setQueryData(authKeys.session(), {
-        token: data.accessToken,
-        user: data.user,
-        profiles: data.profiles,
-      });
-      queryClient.invalidateQueries({ queryKey: authKeys.session() });
-      options?.onSuccess?.(data, variables, context);
+    onSuccess: async (data, variables, onMutateResult, context) => {
+      await finalizeAuthSession(queryClient, data);
+      options?.onSuccess?.(data, variables, onMutateResult, context);
+      await redirectToPendingAppIfNeeded();
     },
   });
 }

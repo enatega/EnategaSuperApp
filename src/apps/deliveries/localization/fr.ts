@@ -177,6 +177,9 @@ const fr = {
   see_all_map_loading_description: 'Cela peut prendre quelques instants. Veuillez rester sur cet écran.',
   see_all_map_sheet_title: 'Restaurant',
   see_all_map_cta: 'Voir le restaurant',
+  rate_order_success_title: 'Merci !',
+  rate_order_success_message: 'Votre avis a été soumis.',
+  rate_order_error_title: 'Échec de la soumission',
 };
 
 export default fr;

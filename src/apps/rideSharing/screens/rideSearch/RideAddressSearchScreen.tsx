@@ -132,6 +132,12 @@ export default function RideAddressSearchScreen() {
 
     setScreenMode('search');
 
+    if (activeField === 'from') {
+      await saveRecentFromAddress(selectedAddress);
+    } else {
+      await saveRecentToAddress(selectedAddress);
+    }
+
     if (nextFromAddress && nextToAddress) {
       navigation.navigate(
         'RideEstimate',
@@ -147,16 +153,7 @@ export default function RideAddressSearchScreen() {
 
     const nextActiveField = activeField === 'from' ? 'to' : 'from';
     setActiveField(nextActiveField);
-
-    void (async () => {
-      if (activeField === 'from') {
-        await saveRecentFromAddress(selectedAddress);
-      } else {
-        await saveRecentToAddress(selectedAddress);
-      }
-
-      await refreshRecentAddresses();
-    })();
+    await refreshRecentAddresses();
   }, [activeField, navigation, refreshRecentAddresses, rideCategory, rideType]);
 
   const handleSelectAddress = useCallback(async (item: CachedAddress) => {
