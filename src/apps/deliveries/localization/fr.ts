@@ -151,6 +151,9 @@ const fr = {
   rate_order_subheading: 'Vos commentaires nous aident à améliorer notre livraison.',
   rate_order_comment_placeholder: 'Écrivez votre expérience ici...',
   rate_order_submit: 'Soumettre',
+  rate_order_success_title: 'Merci !',
+  rate_order_success_message: 'Votre avis a été soumis.',
+  rate_order_error_title: 'Échec de la soumission',
 };
 
 export default fr;
