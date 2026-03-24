@@ -189,6 +189,16 @@ const fr = {
   settings_terms_of_use: 'Conditions d\'usage',
   settings_delete_account: 'Supprimer le compte',
   settings_app_version: 'Version de l\'application 1.0.0',
+  // Notification settings screen
+  notif_settings_title: 'Paramètres de notifications',
+  notif_settings_food_delivery: 'Livraison de nourriture',
+  notif_settings_marketing: 'Marketing',
+  notif_settings_email: 'E-mail',
+  notif_settings_sms: 'SMS',
+  notif_settings_whatsapp: 'WhatsApp',
+  notif_settings_success_title: 'Enregistré',
+  notif_settings_success_message: 'Préférence de notification mise à jour.',
+  notif_settings_error_title: 'Erreur',
 };
 
 export default fr;

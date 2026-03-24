@@ -15,6 +15,7 @@ import SeeAllScreen from '../screens/SeeAllScreen/SeeAllScreen';
 import type { MultiVendorStackParamList } from './types';
 import SeeAllMapView from '../screens/SeeAllScreen/components/SeeAllMapView';
 import SettingsScreen from '../screens/SettingsScreen/SettingsScreen';
+import NotificationSettingsScreen from '../screens/NotificationSettingsScreen/NotificationSettingsScreen';
 
 const Stack = createNativeStackNavigator<MultiVendorStackParamList>();
 
@@ -85,6 +86,11 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="Settings"
         component={SettingsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="NotificationSettings"
+        component={NotificationSettingsScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

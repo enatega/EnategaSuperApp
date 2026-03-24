@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../../../../general/theme/theme';
 import ScreenHeader from '../../../../../general/components/ScreenHeader';
 import Text from '../../../../../general/components/Text';
@@ -16,6 +17,7 @@ export default function SettingsScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
 
   const iconColor = colors.text;
 
@@ -36,6 +38,7 @@ export default function SettingsScreen() {
           <ProfileMenuItem
             icon={<Ionicons name="notifications-outline" size={ICON_SIZE} color={iconColor} />}
             label={t('settings_notifications')}
+            onPress={() => navigation.navigate('NotificationSettings' as never)}
           />
           <ProfileMenuItem
             icon={<Ionicons name="key-outline" size={ICON_SIZE} color={iconColor} />}

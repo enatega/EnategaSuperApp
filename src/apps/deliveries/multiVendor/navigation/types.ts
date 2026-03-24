@@ -26,4 +26,6 @@ export type MultiVendorStackParamList = {
     items: SeeAllItem[];
     title: string;
   };
+  Settings: undefined;
+  NotificationSettings: undefined;
 };
