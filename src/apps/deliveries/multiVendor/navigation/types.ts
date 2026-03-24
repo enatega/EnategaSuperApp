@@ -31,4 +31,5 @@ export type MultiVendorStackParamList = {
   PrivacyPolicy: undefined;
   TermsOfService: undefined;
   TermsOfUse: undefined;
+  ChangePassword: undefined;
 };

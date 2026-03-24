@@ -43,6 +43,7 @@ export default function SettingsScreen() {
           <ProfileMenuItem
             icon={<Ionicons name="key-outline" size={ICON_SIZE} color={iconColor} />}
             label={t('settings_change_password')}
+            onPress={() => navigation.navigate('ChangePassword' as never)}
           />
           <ProfileMenuItem
             icon={<Ionicons name="shield-outline" size={ICON_SIZE} color={iconColor} />}
