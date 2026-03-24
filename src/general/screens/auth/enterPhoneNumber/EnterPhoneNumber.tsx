@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View } from "react-native";
+import { View, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useTheme } from "../../../theme/theme";
 import ScreenHeader from "../../../components/ScreenHeader";
 import { useNavigation } from "@react-navigation/native";
@@ -20,7 +20,8 @@ const EnterPhoneNumber = () => {
   const hasPhoneInput = phoneNumber.length > 0;
 
   return (
-    <View style={[styles.container]}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
       <ScreenHeader onBack={() => navigation.goBack()} />
 
       {/* Center content container */}
@@ -52,6 +53,7 @@ const EnterPhoneNumber = () => {
         />
       </Footer>
     </View>
+    </TouchableWithoutFeedback>
   );
 };
 

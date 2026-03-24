@@ -330,6 +330,12 @@ export default function DeveloperModeHomeScreen() {
         }
         style={styles.button}
       />
+      <Button
+        label="Courier Details"
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onPress={() => (navigation as any).navigate('CourierDetails')}
+        style={styles.button}
+      />
     </ScrollView>
   );
 }
