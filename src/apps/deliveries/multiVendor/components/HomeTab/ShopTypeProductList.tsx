@@ -1,28 +1,36 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
 import type { DeliveryShopTypeProduct } from '../../../api/types';
-import StoreCard from '../../../components/store-card/StoreCard';
+import StoreCard from '../../../components/storeCard/StoreCard';
 import ShopTypeCardSkeleton from './HomeTabSkeletons/ShopTypeCardSkeleton';
+import type { MultiVendorStackParamList } from '../../navigation/types';
 
 type Props = {
   errorMessage?: string;
   isLoading: boolean;
   products: DeliveryShopTypeProduct[];
+  shopTypeId: string;
   title: string;
 };
+
+type NavProp = NativeStackNavigationProp<MultiVendorStackParamList, 'SeeAllScreen'>;
 
 export default function ShopTypeProductList({
   errorMessage,
   isLoading,
   products,
+  shopTypeId,
   title,
 }: Props) {
   const { t } = useTranslation('deliveries');
+  const navigation = useNavigation<NavProp>();
   const { colors, typography } = useTheme();
   const hasError = Boolean(errorMessage);
   const isEmpty = !isLoading && !hasError && products.length === 0;
@@ -31,7 +39,14 @@ export default function ShopTypeProductList({
     <View style={styles.section}>
       <SectionActionHeader
         actionLabel={t('multi_vendor_see_all')}
-        onActionPress={() => {}}
+        onActionPress={() =>
+          navigation.navigate('SeeAllScreen', {
+            queryType: 'shop-type-products',
+            title,
+            cardType: 'store',
+            shopTypeId,
+          })
+        }
         title={title}
       />
 

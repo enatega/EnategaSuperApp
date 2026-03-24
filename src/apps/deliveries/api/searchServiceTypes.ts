@@ -119,4 +119,8 @@ export type SearchStoresParams = {
   limit: number;
   latitude?: number;
   longitude?: number;
+  categoryIds?: string[];
+  priceId?: string;
+  addressId?: string;
+  sortId?: string;
 };

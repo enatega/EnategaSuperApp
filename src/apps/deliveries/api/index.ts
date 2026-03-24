@@ -23,3 +23,4 @@ export { deliveryKeys } from './queryKeys';
 
 // Discovery service
 export { discoveryService } from './discoveryService';
+export { filterService } from './filterService';
