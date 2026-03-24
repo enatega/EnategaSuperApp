@@ -3,12 +3,12 @@ import { View, TouchableOpacity } from "react-native";
 import { useTheme } from "../../../../general/theme/theme";
 import type { DeliveryNearbyStore } from "../../api/types";
 import { styles } from "./styles";
-import StoreImage from "./sub-components/StoreImage";
-import StoreInfo from "./sub-components/StoreInfo";
-import StoreRating from "./sub-components/StoreRating";
-import StoreDeliveryInfo from "./sub-components/StoreDeliveryInfo";
+import StoreImage from "./subComponents/StoreImage";
+import StoreInfo from "./subComponents/StoreInfo";
+import StoreRating from "./subComponents/StoreRating";
+import StoreDeliveryInfo from "./subComponents/StoreDeliveryInfo";
 
-interface StoreCardProps {
+export interface StoreCardProps {
   store?: DeliveryNearbyStore;
   imageUrl?: string;
   offer?: string;
