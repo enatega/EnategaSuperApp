@@ -1,9 +1,11 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import * as Localization from 'expo-localization';
+import * as SecureStore from 'expo-secure-store';
 import { translations } from './translations';
 
 const SUPPORTED_LANGUAGES = ['en', 'fr'] as const;
+const LANGUAGE_STORAGE_KEY = 'super_app_language';
 
 const normalizeLanguage = (languageTag: string) => {
   console.log('Device language:', languageTag);
@@ -29,6 +31,12 @@ void i18n
     interpolation: {
       escapeValue: false,
     },
+  })
+  .then(async () => {
+    const saved = await SecureStore.getItemAsync(LANGUAGE_STORAGE_KEY);
+    if (saved && SUPPORTED_LANGUAGES.includes(saved as (typeof SUPPORTED_LANGUAGES)[number])) {
+      await i18n.changeLanguage(saved);
+    }
   });
 
 export default i18n;

@@ -314,6 +314,11 @@ const en = {
   color_mode_system: 'Default System',
   color_mode_light: 'Light',
   color_mode_dark: 'Dark',
+  // Language screen
+  language_title: 'App languages',
+  language_section_label: 'Select language',
+  language_english: 'English',
+  language_french: 'French',
 };
 
 export default en;

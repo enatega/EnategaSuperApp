@@ -103,6 +103,7 @@ export default function ProfileTab() {
         <ProfileMenuItem
           icon={<Ionicons name="globe-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_language')}
+          onPress={() => navigation.navigate('Language' as never)}
         />
       </ProfileMenuSection>
 

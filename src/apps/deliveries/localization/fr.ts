@@ -335,6 +335,11 @@ const fr = {
   color_mode_system: 'Système par défaut',
   color_mode_light: 'Clair',
   color_mode_dark: 'Sombre',
+  // Language screen
+  language_title: 'Langues de l\'application',
+  language_section_label: 'Sélectionner la langue',
+  language_english: 'Anglais',
+  language_french: 'Français',
 };
 
 export default fr;
