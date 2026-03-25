@@ -7,7 +7,7 @@ import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
 import StoreDetailActionButton from './StoreDetailActionButton';
 import StoreDetailInfoRow from './StoreDetailInfoRow';
-import StoreDetailSubcategoryChips from './StoreDetailSubcategoryChips';
+import StoreDetailSubcategory from './StoreDetailSubcategory';
 import StoreDetailTabs from './StoreDetailTabs';
 import type {
   DeliveryStoreDetailsFilterItem,
@@ -165,7 +165,7 @@ export default function StoreDetailListHeader({
 
         {showsSubcategories ? (
           <View style={styles.subcategoryContainer}>
-            <StoreDetailSubcategoryChips
+            <StoreDetailSubcategory
               activeSubcategoryId={activeSubcategoryId}
               onSelect={onSubcategorySelect}
               subcategories={subcategories}

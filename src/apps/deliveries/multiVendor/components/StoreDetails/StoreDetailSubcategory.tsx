@@ -10,7 +10,7 @@ type Props = {
   subcategories: DeliveryStoreDetailsFilterItem[];
 };
 
-export default function StoreDetailSubcategoryChips({
+export default function StoreDetailSubcategory({
   activeSubcategoryId,
   onSelect,
   subcategories,

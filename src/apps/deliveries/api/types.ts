@@ -155,6 +155,8 @@ export interface DeliveryStoreViewApiResponse extends DeliveryStoreDetailsStore 
 export interface DeliveryStoreDetailsFilterItem {
     id: string;
     name: string;
+    imageUrl?: string | null;
+    subcategoryIds?: string[];
     [key: string]: unknown;
 }
 

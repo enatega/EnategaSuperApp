@@ -157,8 +157,19 @@ console.log('productsData_Data___',JSON.stringify(productsData,null,2));
   const categories = store?.categories ?? [];
   const subcategories = store?.subcategories ?? [];
   const activeCategoryId = selectedCategoryId;
-  const activeSubcategoryId = selectedSubcategoryId;
   const activeCategory = categories.find((category) => category.id === activeCategoryId) ?? null;
+  const activeCategorySubcategoryIds = Array.isArray(activeCategory?.subcategoryIds)
+    ? activeCategory.subcategoryIds
+    : null;
+  const visibleSubcategories =
+    activeCategory == null
+      ? []
+      : activeCategorySubcategoryIds
+      ? subcategories.filter((subcategory) =>
+          activeCategorySubcategoryIds.includes(subcategory.id),
+        )
+      : subcategories;
+  const activeSubcategoryId = selectedSubcategoryId;
 
   const storeName = store?.name ?? selectedStore?.name ?? t('store_details_store_name');
   const rating = store?.averageRating ?? selectedStore?.averageRating ?? null;
@@ -256,7 +267,7 @@ console.log('productsData_Data___',JSON.stringify(productsData,null,2));
           searchValue={searchValue}
           sectionTitle={sectionTitle}
           storeName={storeName}
-          subcategories={subcategories}
+          subcategories={visibleSubcategories}
         />
       }
       columnWrapperStyle={styles.column}

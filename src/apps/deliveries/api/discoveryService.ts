@@ -320,9 +320,10 @@ export const discoveryService = {
         storeId: string,
     ): Promise<DeliveryStoreViewApiResponse> => {
         try {
-            return await apiClient.get<DeliveryStoreViewApiResponse>(
+            const response = await apiClient.get<DeliveryStoreViewApiResponse>(
                 `/api/v1/apps/deliveries/stores/${storeId}/view`,
             );
+            return response;
         } catch (error) {
             console.error('store view request failed', error);
             throw error;
