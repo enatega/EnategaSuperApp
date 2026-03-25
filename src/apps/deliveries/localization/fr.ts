@@ -329,6 +329,12 @@ const fr = {
   delete_account_alert_message: 'Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action est irréversible.',
   delete_account_alert_cancel: 'Annuler',
   delete_account_alert_confirm: 'Supprimer',
+  // Color mode screen
+  color_mode_title: 'Mode couleur',
+  color_mode_section_label: 'Sélectionner le mode couleur',
+  color_mode_system: 'Système par défaut',
+  color_mode_light: 'Clair',
+  color_mode_dark: 'Sombre',
 };
 
 export default fr;

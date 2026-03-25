@@ -308,6 +308,12 @@ const en = {
   delete_account_alert_message: 'Are you sure you want to permanently delete your account? This action cannot be undone.',
   delete_account_alert_cancel: 'Cancel',
   delete_account_alert_confirm: 'Delete',
+  // Color mode screen
+  color_mode_title: 'App color mode',
+  color_mode_section_label: 'Select app color mode',
+  color_mode_system: 'Default System',
+  color_mode_light: 'Light',
+  color_mode_dark: 'Dark',
 };
 
 export default en;

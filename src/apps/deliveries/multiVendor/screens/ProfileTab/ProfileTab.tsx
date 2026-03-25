@@ -98,6 +98,7 @@ export default function ProfileTab() {
         <ProfileMenuItem
           icon={<Ionicons name="moon-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_color_mode')}
+          onPress={() => navigation.navigate('ColorMode' as never)}
         />
         <ProfileMenuItem
           icon={<Ionicons name="globe-outline" size={ICON_SIZE} color={iconColor} />}
