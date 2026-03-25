@@ -75,6 +75,9 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="StoreDetails"
         component={StoreDetailsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="SeeAllScreen"
         component={SeeAllScreen}
         options={{ headerShown: false }}

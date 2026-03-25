@@ -135,7 +135,24 @@ console.log('productsData_Data___',JSON.stringify(productsData,null,2));
 
   const handleCategorySelect = (categoryId: string | null) => {
     setSelectedCategoryId(categoryId);
-    setSelectedSubcategoryId(null);
+
+    if (!categoryId) {
+      setSelectedSubcategoryId(null);
+      return;
+    }
+
+    const nextCategory = categories.find((category) => category.id === categoryId) ?? null;
+    const nextCategorySubcategoryIds = Array.isArray(nextCategory?.subcategoryIds)
+      ? nextCategory.subcategoryIds
+      : null;
+    const nextVisibleSubcategories =
+      nextCategorySubcategoryIds
+        ? subcategories.filter((subcategory) =>
+            nextCategorySubcategoryIds.includes(subcategory.id),
+          )
+        : subcategories;
+
+    setSelectedSubcategoryId(nextVisibleSubcategories[0]?.id ?? null);
   };
 
   const handleSubcategorySelect = (subcategoryId: string) => {
@@ -170,6 +187,24 @@ console.log('productsData_Data___',JSON.stringify(productsData,null,2));
         )
       : subcategories;
   const activeSubcategoryId = selectedSubcategoryId;
+
+  useEffect(() => {
+    if (visibleSubcategories.length === 0) {
+      if (selectedSubcategoryId !== null) {
+        setSelectedSubcategoryId(null);
+      }
+
+      return;
+    }
+
+    const hasSelectedVisibleSubcategory = visibleSubcategories.some(
+      (subcategory) => subcategory.id === selectedSubcategoryId,
+    );
+
+    if (!hasSelectedVisibleSubcategory) {
+      setSelectedSubcategoryId(visibleSubcategories[0].id);
+    }
+  }, [selectedSubcategoryId, visibleSubcategories]);
 
   const storeName = store?.name ?? selectedStore?.name ?? t('store_details_store_name');
   const rating = store?.averageRating ?? selectedStore?.averageRating ?? null;
