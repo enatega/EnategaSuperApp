@@ -329,6 +329,8 @@ const fr = {
   delete_account_alert_message: 'Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action est irréversible.',
   delete_account_alert_cancel: 'Annuler',
   delete_account_alert_confirm: 'Supprimer',
+  delete_account_error_title: 'Erreur',
+  delete_account_error: 'Échec de la suppression du compte. Veuillez réessayer.',
   // Color mode screen
   color_mode_title: 'Mode couleur',
   color_mode_section_label: 'Sélectionner le mode couleur',

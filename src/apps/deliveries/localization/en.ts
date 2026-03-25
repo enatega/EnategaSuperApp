@@ -308,6 +308,8 @@ const en = {
   delete_account_alert_message: 'Are you sure you want to permanently delete your account? This action cannot be undone.',
   delete_account_alert_cancel: 'Cancel',
   delete_account_alert_confirm: 'Delete',
+  delete_account_error_title: 'Error',
+  delete_account_error: 'Failed to delete account. Please try again.',
   // Color mode screen
   color_mode_title: 'App color mode',
   color_mode_section_label: 'Select app color mode',

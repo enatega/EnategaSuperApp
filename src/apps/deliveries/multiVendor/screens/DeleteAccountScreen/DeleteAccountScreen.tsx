@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,7 +7,10 @@ import { Ionicons } from '@expo/vector-icons';
 import ScreenHeader from '../../../../../general/components/ScreenHeader';
 import Button from '../../../../../general/components/Button';
 import { useTheme } from '../../../../../general/theme/theme';
-import useProfile from '../../hooks/useProfile';
+import { showToast } from '../../../../../general/components/AppToast';
+import { useDeleteAccountMutation } from '../../../hooks/useDeleteAccountMutation';
+import { authSession } from '../../../../../general/auth/authSession';
+import { navigationRef } from '../../../../../general/navigation/rootNavigation';
 import DeleteAccountStepIndicator from '../../components/deleteAccount/DeleteAccountStepIndicator';
 import DeleteAccountReasonStep from '../../components/deleteAccount/DeleteAccountReasonStep';
 import DeleteAccountConfirmStep from '../../components/deleteAccount/DeleteAccountConfirmStep';
@@ -22,11 +25,18 @@ export default function DeleteAccountScreen() {
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const { user } = useProfile();
+  const deleteAccountMutation = useDeleteAccountMutation();
 
   const [step, setStep] = useState<Step>(1);
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [checkedItems, setCheckedItems] = useState<boolean[]>([false, false]);
+  const [userEmail, setUserEmail] = useState<string>('');
+
+  useEffect(() => {
+    authSession.getUser().then((u) => {
+      setUserEmail(u?.email ?? '');
+    });
+  }, []);
 
   const handleToggleCheck = (index: number) => {
     setCheckedItems((prev) => {
@@ -48,35 +58,34 @@ export default function DeleteAccountScreen() {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      await deleteAccountMutation.mutateAsync(selectedReason ?? '');
+      await authSession.clearSession();
+      if (navigationRef.isReady()) {
+        navigationRef.resetRoot({
+          index: 0,
+          routes: [{ name: 'Main', params: { screen: 'Auth' } }],
+        });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : t('delete_account_error');
+      showToast.error(t('delete_account_error_title'), message);
+    }
+  };
+
   const handleContinue = () => {
     if (step < TOTAL_STEPS) {
       setStep((prev) => (prev + 1) as Step);
     } else {
-      handleDeleteAccount();
+      void handleDeleteAccount();
     }
-  };
-
-  const handleDeleteAccount = () => {
-    Alert.alert(
-      t('delete_account_alert_title'),
-      t('delete_account_alert_message'),
-      [
-        { text: t('delete_account_alert_cancel'), style: 'cancel' },
-        {
-          text: t('delete_account_alert_confirm'),
-          style: 'destructive',
-          onPress: () => {
-            // TODO: integrate delete account API
-          },
-        },
-      ],
-    );
   };
 
   const isContinueDisabled = () => {
     if (step === 1) return selectedReason === null;
     if (step === 2) return !checkedItems.every(Boolean);
-    return false;
+    return deleteAccountMutation.isPending;
   };
 
   const closeButton = (
@@ -121,7 +130,7 @@ export default function DeleteAccountScreen() {
           />
         )}
         {step === 3 && (
-          <DeleteAccountEmailStep email={user?.email ?? ''} />
+          <DeleteAccountEmailStep email={userEmail} />
         )}
       </ScrollView>
 
@@ -139,6 +148,7 @@ export default function DeleteAccountScreen() {
           label={step === TOTAL_STEPS ? t('delete_account_cta_delete') : t('delete_account_cta_continue')}
           onPress={handleContinue}
           disabled={isContinueDisabled()}
+          isLoading={step === TOTAL_STEPS && deleteAccountMutation.isPending}
           variant={step === TOTAL_STEPS ? 'danger' : 'primary'}
         />
       </View>
