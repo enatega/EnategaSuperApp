@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Dimensions, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import SwipeableBottomSheet from '../../../../../general/components/SwipeableBottomSheet';
@@ -10,8 +10,13 @@ import { useTheme } from '../../../../../general/theme/theme';
 import { formatRideCurrency } from '../../../utils/rideFormatting';
 import type { RideOptionItem } from '../../../components/rideOptions/types';
 
+export const FINDING_RIDE_BOTTOM_SHEET_COLLAPSED_HEIGHT = 120;
+
 type Props = {
-  selectedRide: RideOptionItem;
+  selectedRide: RideOptionItem & {
+    fare?: number;
+    recommendedFare?: number;
+  };
   fare?: number;
   recommendedFare?: number;
   timeLeftSec: number;
@@ -20,6 +25,8 @@ type Props = {
   isDecreaseDisabled?: boolean;
   onCancelRide: () => void;
   onKeepSearching: () => void;
+  isCancelLoading?: boolean;
+  floatingAccessory?: React.ReactNode;
 };
 
 function FindingRideBottomSheet({
@@ -31,115 +38,116 @@ function FindingRideBottomSheet({
   isDecreaseDisabled = false,
   onCancelRide,
   onKeepSearching,
+  isCancelLoading = false,
+  floatingAccessory,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
   const insets = useSafeAreaInsets();
-  const screenHeight = Dimensions.get('window').height;
-  const trackWidth = Dimensions.get('window').width - 32;
-  const expandedHeight = Math.min(screenHeight * 0.46, 360);
-  const collapsedHeight = 182;
+  const screenWidth = Dimensions.get('window').width;
+  const trackWidth = screenWidth - 32;
+  const collapsedHeight = FINDING_RIDE_BOTTOM_SHEET_COLLAPSED_HEIGHT;
+  const expandedHeight = 332;
+  const expandedSheetHeight = expandedHeight + insets.bottom;
+  const collapsedSheetHeight = collapsedHeight + insets.bottom;
   const hasTimedOut = timeLeftSec <= 0;
+  const effectiveFare = fare ?? recommendedFare ?? 0;
 
   return (
     <SwipeableBottomSheet
-      expandedHeight={expandedHeight}
-      collapsedHeight={collapsedHeight + insets.bottom}
+      expandedHeight={expandedSheetHeight}
+      collapsedHeight={collapsedSheetHeight}
       style={[
         styles.sheet,
         {
           backgroundColor: colors.surface,
-          paddingBottom: insets.bottom + 16,
+          paddingBottom: insets.bottom + 10,
           shadowColor: colors.shadowColor,
         },
       ]}
       handle={<View style={[styles.handle, { backgroundColor: colors.findingRideHandle }]} />}
       handleContainerStyle={styles.handleContainer}
+      floatingAccessory={floatingAccessory}
+      floatingAccessoryStyle={[
+        styles.floatingAccessory,
+        { bottom: expandedSheetHeight + 12 },
+      ]}
     >
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        bounces={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={styles.content}>
-          <View style={styles.headerBlock}>
-            <Text weight="extraBold" style={[styles.title, { color: colors.text }]}>
-              {hasTimedOut
-                ? t('ride_finding_timeout_title')
-                : t('ride_finding_title')}
-            </Text>
+      <View style={styles.content}>
+        <View style={styles.headerBlock}>
+          <Text weight="extraBold" style={[styles.title, { color: colors.text }]}>
+            {hasTimedOut ? t('ride_finding_timeout_title') : 'Finding a driver for you...'}
+          </Text>
 
-            <AnimatedSweepBar width={trackWidth} />
-          </View>
-
-          <View style={[styles.fareCard, { borderColor: colors.findingRideBorderSoft }]}>
-            <Pressable
-              onPress={onDecreaseFare}
-              disabled={isDecreaseDisabled}
-              style={[
-                styles.adjustButton,
-                { backgroundColor: colors.findingRideMutedSurface },
-                isDecreaseDisabled ? styles.adjustButtonDisabled : null,
-              ]}
-            >
-              <Text weight="medium" color={colors.findingRideMutedText} style={styles.adjustLabel}>
-                -0.5
-              </Text>
-            </Pressable>
-
-            <View style={styles.fareValueWrap}>
-              <Text weight="extraBold" style={[styles.fareValue, { color: colors.findingRidePrimary }]}>
-                {formatRideCurrency(fare)}
-              </Text>
-              {hasTimedOut ? (
-                <Text color={colors.mutedText} style={styles.helperText}>
-                  {t('ride_offer_fare_recommended', {
-                    fare: formatRideCurrency(recommendedFare),
-                  })}
-                </Text>
-              ) : null}
-            </View>
-
-            <Pressable
-              onPress={onIncreaseFare}
-              style={[styles.adjustButton, { backgroundColor: colors.findingRidePrimarySoft }]}
-            >
-              <Text weight="medium" color={colors.findingRidePrimary} style={styles.adjustLabel}>
-                +0.5
-              </Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.actions}>
-            {hasTimedOut ? (
-              <Button
-                label={t('ride_finding_keep_searching')}
-                onPress={onKeepSearching}
-                style={[
-                  styles.primaryButton,
-                  {
-                    backgroundColor: colors.findingRidePrimary,
-                    borderColor: colors.findingRidePrimary,
-                  },
-                ]}
-              />
-            ) : null}
-
-            <Button
-              label={t('ride_finding_cancel')}
-              onPress={onCancelRide}
-              variant="secondary"
-              style={[
-                styles.secondaryButton,
-                {
-                  backgroundColor: colors.findingRideMutedSurface,
-                  borderColor: colors.findingRideMutedSurface,
-                },
-              ]}
-            />
-          </View>
+          <AnimatedSweepBar width={trackWidth} />
         </View>
-      </ScrollView>
+
+        <View style={[styles.fareRow, { borderBottomColor: colors.findingRideBorderSoft }]}>
+          <Pressable
+            onPress={onDecreaseFare}
+            disabled={isDecreaseDisabled}
+            style={[
+              styles.adjustButton,
+              { backgroundColor: colors.findingRideMutedSurface },
+              isDecreaseDisabled ? styles.adjustButtonDisabled : null,
+            ]}
+          >
+            <Text weight="medium" color={colors.findingRideMutedText} style={styles.adjustLabel}>
+              -0.5
+            </Text>
+          </Pressable>
+
+          <View style={styles.fareValueWrap}>
+            <Text weight="extraBold" style={[styles.fareValue, { color: colors.findingRidePrimary }]}>
+              {formatRideCurrency(effectiveFare)}
+            </Text>
+            {hasTimedOut ? (
+              <Text color={colors.mutedText} style={styles.helperText}>
+                {t('ride_offer_fare_recommended', {
+                  fare: formatRideCurrency(recommendedFare),
+                })}
+              </Text>
+            ) : null}
+          </View>
+
+          <Pressable
+            onPress={onIncreaseFare}
+            style={[styles.adjustButton, { backgroundColor: colors.findingRidePrimarySoft }]}
+          >
+            <Text weight="medium" color={colors.findingRidePrimary} style={styles.adjustLabel}>
+              +0.5
+            </Text>
+          </Pressable>
+        </View>
+
+        {hasTimedOut ? (
+          <Button
+            label={t('ride_finding_keep_searching')}
+            onPress={onKeepSearching}
+            style={[
+              styles.primaryButton,
+              {
+                backgroundColor: colors.findingRidePrimary,
+                borderColor: colors.findingRidePrimary,
+              },
+            ]}
+          />
+        ) : null}
+
+        <Button
+          label={t('ride_finding_cancel')}
+          onPress={onCancelRide}
+          isLoading={isCancelLoading}
+          variant="secondary"
+          style={[
+            styles.secondaryButton,
+            {
+              backgroundColor: colors.findingRideMutedSurface,
+              borderColor: colors.findingRideMutedSurface,
+            },
+          ]}
+        />
+      </View>
     </SwipeableBottomSheet>
   );
 }
@@ -155,46 +163,50 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -3 },
     elevation: 8,
   },
+  floatingAccessory: {
+    left: 16,
+    right: 16,
+    zIndex: 25,
+    elevation: 6,
+  },
   handleContainer: {
     alignItems: 'center',
-    paddingTop: 12,
-    paddingBottom: 12,
+    paddingTop: 10,
+    paddingBottom: 8,
   },
   handle: {
     width: 40,
     height: 4,
     borderRadius: 999,
   },
-  scrollContent: {
-    paddingBottom: 8,
-  },
   content: {
     paddingHorizontal: 16,
     gap: 16,
+    paddingBottom: 16,
   },
   headerBlock: {
     alignItems: 'center',
-    gap: 16,
+    gap: 14,
   },
   title: {
     fontSize: 17,
     lineHeight: 22,
     letterSpacing: -0.2,
     textAlign: 'center',
+    marginTop: 4,
   },
-  fareCard: {
+  fareRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    // borderTopWidth: 1,
     borderBottomWidth: 1,
+    paddingTop: 2,
     paddingBottom: 16,
-    marginTop: 2,
-    gap: 14,
+    gap: 12,
   },
   adjustButton: {
-    width: 58,
-    height: 40,
+    width: 62,
+    height: 44,
     borderRadius: 6,
     alignItems: 'center',
     justifyContent: 'center',
@@ -212,8 +224,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   fareValue: {
-    fontSize: 24,
-    lineHeight: 30,
+    fontSize: 21,
+    lineHeight: 28,
     letterSpacing: -0.3,
   },
   helperText: {
@@ -222,13 +234,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
     textAlign: 'center',
   },
-  actions: {
-    gap: 10,
-  },
   primaryButton: {
     borderRadius: 6,
+    minHeight: 44,
   },
   secondaryButton: {
     borderRadius: 6,
+    minHeight: 44,
   },
 });

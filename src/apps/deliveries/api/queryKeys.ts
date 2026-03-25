@@ -46,6 +46,8 @@ export const deliveryKeys = {
             filters,
         ] as const,
     deals: () => [...deliveryKeys.discovery(), 'deals'] as const,
+    filterValues: (storeId?: string) =>
+        [...deliveryKeys.discovery(), 'filter-values', storeId ?? 'all'] as const,
 
     // Search
     search: () => [...deliveryKeys.all, 'search'] as const,
@@ -56,6 +58,8 @@ export const deliveryKeys = {
     storeSearch: (keyword: string, latitude?: number, longitude?: number) =>
         [...deliveryKeys.search(), 'stores', keyword, latitude, longitude] as const,
     orderAgain: () => [...deliveryKeys.discovery(), 'order-again'] as const,
+    filterableListing: (scope: string) =>
+        [...deliveryKeys.search(), 'filterable-listing', scope] as const,
 };
 
 export const addressKeys = {

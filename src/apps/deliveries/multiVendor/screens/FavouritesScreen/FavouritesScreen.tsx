@@ -7,7 +7,7 @@ import ScreenHeader from '../../../../../general/components/ScreenHeader';
 import Text from '../../../../../general/components/Text';
 import FavouriteHeartButton from '../../components/favourites/FavouriteHeartButton';
 import FavouritesListFooter from '../../components/favourites/FavouritesListFooter';
-import StoreCard from '../../../components/store-card/StoreCard';
+import StoreCard from '../../../components/storeCard/StoreCard';
 import { showToast } from '../../../../../general/components/AppToast';
 import { useFavouritesQuery } from '../../hooks/useFavouritesQuery';
 import { useToggleFavouriteMutation } from '../../hooks/useToggleFavouriteMutation';

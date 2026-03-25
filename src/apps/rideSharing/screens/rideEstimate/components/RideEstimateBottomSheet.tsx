@@ -35,6 +35,7 @@ type Props = {
   errorMessage?: string | null;
   onRetry?: () => void;
   isConfirmDisabled?: boolean;
+  isConfirmLoading?: boolean;
 };
 
 function RideEstimateBottomSheet({
@@ -54,6 +55,7 @@ function RideEstimateBottomSheet({
   errorMessage = null,
   onRetry,
   isConfirmDisabled = false,
+  isConfirmLoading = false,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
@@ -96,7 +98,7 @@ function RideEstimateBottomSheet({
       handle={<View style={[styles.sheetHandle, { backgroundColor: colors.border }]} />}
       handleContainerStyle={styles.handleContainer}
     >
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={styles.content}>
         {isLoading ? (
           <RideEstimateBottomSheetSkeleton />
         ) : showErrorState ? (
@@ -108,21 +110,27 @@ function RideEstimateBottomSheet({
               onActionPress={onRetry}
             />
           </View>
-        ) : selectedOption ? (
-          <RideEstimateSelectedOptionCard
-            item={selectedOption}
-            fare={selectedOption.fare}
-            recommendedFare={selectedOption.recommendedFare}
-            onEditPress={onEditFarePress}
-            onIncreaseFare={onIncreaseFare}
-            onDecreaseFare={onDecreaseFare}
-            isDecreaseDisabled={isDecreaseFareDisabled}
-          />
         ) : null}
 
         {!isLoading && !showErrorState ? (
           <>
-            <View style={styles.list}>
+            <ScrollView
+              style={styles.listScroll}
+              contentContainerStyle={styles.list}
+              showsVerticalScrollIndicator={false}
+            >
+              {selectedOption ? (
+                <RideEstimateSelectedOptionCard
+                  item={selectedOption}
+                  fare={selectedOption.fare}
+                  recommendedFare={selectedOption.recommendedFare}
+                  onEditPress={onEditFarePress}
+                  onIncreaseFare={onIncreaseFare}
+                  onDecreaseFare={onDecreaseFare}
+                  isDecreaseDisabled={isDecreaseFareDisabled}
+                />
+              ) : null}
+
               {remainingOptions.map((item) => (
                 <RideEstimateOptionRow
                   key={item.id}
@@ -131,7 +139,7 @@ function RideEstimateBottomSheet({
                   onPress={onSelectOption}
                 />
               ))}
-            </View>
+            </ScrollView>
 
             <View style={[styles.footer, { borderTopColor: colors.border }]}>
               <Pressable style={styles.footerRow}>
@@ -156,12 +164,13 @@ function RideEstimateBottomSheet({
                 label={t('ride_find_button')}
                 onPress={onConfirmRide}
                 disabled={isConfirmDisabled}
+                isLoading={isConfirmLoading}
                 style={styles.confirmButton}
               />
             </View>
           </>
         ) : null}
-      </ScrollView>
+      </View>
     </SwipeableBottomSheet>
   );
 }
@@ -178,9 +187,15 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -2 },
     elevation: 8,
   },
+  content: {
+    flex: 1,
+  },
   handleContainer: {
     alignItems: 'center',
     paddingBottom: 12,
+  },
+  listScroll: {
+    flex: 1,
   },
   sheetHandle: {
     width: 40,
@@ -189,6 +204,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingTop: 4,
+    paddingBottom: 12,
   },
   errorWrap: {
     paddingHorizontal: 16,

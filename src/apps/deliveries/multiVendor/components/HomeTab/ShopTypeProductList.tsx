@@ -1,42 +1,54 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import HorizontalList from '../../../../../general/components/HorizontalList';
+import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
 import type { DeliveryShopTypeProduct } from '../../../api/types';
+import StoreCard from '../../../components/storeCard/StoreCard';
 import ShopTypeCardSkeleton from './HomeTabSkeletons/ShopTypeCardSkeleton';
-import MultiVendorShopTypeCard from './ShopTypeCard';
+import type { MultiVendorStackParamList } from '../../navigation/types';
 
 type Props = {
   errorMessage?: string;
   isLoading: boolean;
   products: DeliveryShopTypeProduct[];
+  shopTypeId: string;
   title: string;
 };
+
+type NavProp = NativeStackNavigationProp<MultiVendorStackParamList, 'SeeAllScreen'>;
 
 export default function ShopTypeProductList({
   errorMessage,
   isLoading,
   products,
+  shopTypeId,
   title,
 }: Props) {
   const { t } = useTranslation('deliveries');
+  const navigation = useNavigation<NavProp>();
   const { colors, typography } = useTheme();
   const hasError = Boolean(errorMessage);
   const isEmpty = !isLoading && !hasError && products.length === 0;
 
   return (
     <View style={styles.section}>
-      <Text
-        weight="extraBold"
-        style={{
-          fontSize: typography.size.lg,
-          lineHeight: typography.lineHeight.h5,
-        }}
-      >
-        {title}
-      </Text>
+      <SectionActionHeader
+        actionLabel={t('multi_vendor_see_all')}
+        onActionPress={() =>
+          navigation.navigate('SeeAllScreen', {
+            queryType: 'shop-type-products',
+            title,
+            cardType: 'store',
+            shopTypeId,
+          })
+        }
+        title={title}
+      />
 
       {isLoading ? (
         <ShopTypeCardSkeleton />
@@ -79,15 +91,20 @@ export default function ShopTypeProductList({
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           renderItem={({ item }) => (
-            <MultiVendorShopTypeCard
-              image={{
-                uri:
-                  item.productImage ??
-                  item.storeImage ??
-                  item.storeLogo ??
-                  'https://placehold.co/400x400.png',
-              }}
-              title={item.productName}
+            <StoreCard
+              imageUrl={
+                item.productImage ??
+                item.storeImage ??
+                item.storeLogo ??
+                'https://placehold.co/400x400.png'
+              }
+              offer={item.deal ?? undefined}
+              name={item.productName}
+              cuisine={item.storeName ?? undefined}
+              price={item.price ?? 0}
+              deliveryTime=""
+              distance={0}
+              onPress={() => {}}
             />
           )}
         />

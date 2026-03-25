@@ -1,5 +1,6 @@
 const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY ?? 'DUMMY_GOOGLE_MAPS_API_KEY';
 const iosUrlScheme = process.env.EXPO_PUBLIC_IOS_URL_SCHEME ?? 'com.enategasuper.app';
+const hasValidGoogleIosUrlScheme = iosUrlScheme.startsWith('com.googleusercontent.apps');
 
 module.exports = {
   expo: {
@@ -36,6 +37,12 @@ module.exports = {
     web: {
       favicon: './assets/favicon.png',
     },
+    updates: {
+      url: 'https://u.expo.dev/4c12b75d-6b64-4ea6-a4a7-83e366964b04',
+    },
+    runtimeVersion: {
+      policy: 'appVersion',
+    },
     extra: {
       eas: {
         projectId: '4c12b75d-6b64-4ea6-a4a7-83e366964b04',
@@ -58,12 +65,14 @@ module.exports = {
           iosGoogleMapsApiKey: googleMapsApiKey,
         },
       ],
-      [
-        "@react-native-google-signin/google-signin",
-        {
-          "iosUrlScheme": iosUrlScheme
-        }
-      ]
-    ],
+      hasValidGoogleIosUrlScheme
+        ? [
+            '@react-native-google-signin/google-signin',
+            {
+              iosUrlScheme,
+            },
+          ]
+        : null,
+    ].filter(Boolean),
   },
 };

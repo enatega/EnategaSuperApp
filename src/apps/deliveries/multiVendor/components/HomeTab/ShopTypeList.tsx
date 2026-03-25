@@ -44,6 +44,7 @@ export default function ShopTypeList() {
             errorMessage={error?.message}
             isLoading={isProductsPending}
             products={data}
+            shopTypeId={shopType.id}
             title={shopType.name}
           />
         ),

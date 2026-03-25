@@ -54,24 +54,7 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
     },
   ];
 
-  const recommendations = [
-    {
-      id: 'rec-1',
-      title: t('recommended_name'),
-      rating: 4.1,
-      reviews: 5000,
-      price: 25,
-      image: mockImages.recommendationOne,
-    },
-    {
-      id: 'rec-2',
-      title: t('recommended_name'),
-      rating: 4.1,
-      reviews: 5000,
-      price: 25,
-      image: mockImages.recommendationTwo,
-    },
-  ];
+
 
   useEffect(() => {
     if (!isFocused) {
@@ -157,7 +140,7 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <OurServicesSection onSelectMiniApp={onSelectMiniApp} />
           <ServiceTypeSection items={serviceTypes} />
-          <RecommendedSection items={recommendations} />
+          <RecommendedSection  />
         </ScrollView>
       </SafeAreaView>
 

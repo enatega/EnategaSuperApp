@@ -1,12 +1,10 @@
-import React, { memo, useEffect, useMemo, useRef } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import {
   Animated,
   Easing,
-  PanResponder,
   StyleSheet,
   View,
 } from 'react-native';
-import Icon from './Icon';
 import { useTheme } from '../theme/theme';
 
 type Props = {
@@ -15,7 +13,6 @@ type Props = {
 
 function FindingRideAnimation({ size = 240 }: Props) {
   const { colors } = useTheme();
-  const drag = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
   const pulseA = useRef(new Animated.Value(0)).current;
   const pulseB = useRef(new Animated.Value(0)).current;
   const pulseC = useRef(new Animated.Value(0)).current;
@@ -50,35 +47,6 @@ function FindingRideAnimation({ size = 240 }: Props) {
     return () => animation.stop();
   }, [pulseA, pulseB, pulseC]);
 
-  const panResponder = useMemo(
-    () =>
-      PanResponder.create({
-        onMoveShouldSetPanResponder: (_evt, gestureState) =>
-          Math.abs(gestureState.dx) > 4 || Math.abs(gestureState.dy) > 4,
-        onPanResponderMove: Animated.event(
-          [null, { dx: drag.x, dy: drag.y }],
-          { useNativeDriver: false },
-        ),
-        onPanResponderRelease: () => {
-          Animated.spring(drag, {
-            toValue: { x: 0, y: 0 },
-            useNativeDriver: true,
-            tension: 55,
-            friction: 7,
-          }).start();
-        },
-        onPanResponderTerminate: () => {
-          Animated.spring(drag, {
-            toValue: { x: 0, y: 0 },
-            useNativeDriver: true,
-            tension: 55,
-            friction: 7,
-          }).start();
-        },
-      }),
-    [drag],
-  );
-
   const renderPulse = (animatedValue: Animated.Value, tint: string) => (
     <Animated.View
       pointerEvents="none"
@@ -112,15 +80,7 @@ function FindingRideAnimation({ size = 240 }: Props) {
       {renderPulse(pulseB, colors.findingRidePulseB)}
       {renderPulse(pulseC, colors.findingRidePulseC)}
 
-      <Animated.View
-        {...panResponder.panHandlers}
-        style={[
-          styles.centerWrap,
-          {
-            transform: [...drag.getTranslateTransform()],
-          },
-        ]}
-      >
+      <View style={styles.centerWrap}>
         <View
           style={[
             styles.centerHalo,
@@ -136,14 +96,9 @@ function FindingRideAnimation({ size = 240 }: Props) {
             },
           ]}
         >
-          <Icon
-            type="MaterialCommunityIcons"
-            name="car-estate"
-            size={34}
-            color={colors.white}
-          />
+          <View style={[styles.centerDot, { backgroundColor: colors.white }]} />
         </View>
-      </Animated.View>
+      </View>
     </View>
   );
 }
@@ -171,14 +126,19 @@ const styles = StyleSheet.create({
     borderRadius: 46,
   },
   centerCore: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     alignItems: 'center',
     justifyContent: 'center',
     shadowOpacity: 0.28,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 10 },
     elevation: 10,
+  },
+  centerDot: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
   },
 });

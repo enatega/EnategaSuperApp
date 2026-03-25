@@ -324,10 +324,16 @@ export default function DeveloperModeHomeScreen() {
         onPress={() =>
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (navigation as any).navigate('RateOrder', {
-            orderId: 'order-hardcoded-001',
+            orderId: '764331ff-4069-4789-93af-41568f49638a',
             storeName: 'Subway @ Old Town, New Mexico',
           })
         }
+        style={styles.button}
+      />
+      <Button
+        label="Courier Details"
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onPress={() => (navigation as any).navigate('CourierDetails')}
         style={styles.button}
       />
     </ScrollView>

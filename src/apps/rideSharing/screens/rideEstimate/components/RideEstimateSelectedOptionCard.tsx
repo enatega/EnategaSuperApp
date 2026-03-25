@@ -157,8 +157,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   icon: {
-    width: 75,
-    height: 75,
+    width: 55,
+    height: 55,
     resizeMode: 'contain',
   },
   metaRow: {

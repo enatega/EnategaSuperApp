@@ -10,3 +10,4 @@ export {
   useStoreView,
   useTopBrands,
 } from './useDiscoveryQueries';
+export { useFilterValues } from './useFilterValues';

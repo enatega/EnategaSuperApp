@@ -8,8 +8,16 @@
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
-        "simulator": true
+        "simulator": false
       },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+      "staging": {
+      "developmentClient": false,
+      "channel": "staging",
+      "distribution": "internal",
       "android": {
         "buildType": "apk"
       }

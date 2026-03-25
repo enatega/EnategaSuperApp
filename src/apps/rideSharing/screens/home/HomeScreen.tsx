@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useEffect, useMemo } from 'react';
+import { BackHandler, ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
 import HomeHeader from '../../../../screens/home/HomeHeader';
@@ -9,17 +9,25 @@ import DeliveryServicesSection from '../../components/DeliveryServicesSection';
 import RecommendedSection from '../../../../screens/home/RecommendedSection';
 import HamburgerMenu from '../../components/HamburgerMenu';
 import Sidebar, { type UserProfile } from '../../components/Sidebar';
+import ActiveRideNotice from '../../components/ActiveRideNotice';
+import useBootstrapActiveRide from '../../hooks/useBootstrapActiveRide';
+import useRideSocketBootstrap from '../../hooks/useRideSocketBootstrap';
 import { useSidebarMenu } from '../../hooks/useSidebarMenu';
 import { useProfile } from '../../hooks/useProfile';
+import { useActiveRideRequestStore } from '../../stores/useActiveRideRequestStore';
+import { mapActiveRideRequestToFindingRideViewData } from '../../utils/activeRideRequestMapper';
+import FindingRideView from '../findingRide/components/FindingRideView';
 
-const recommendationImageOne = 'https://www.figma.com/api/mcp/asset/651c88ad-0287-4bc1-8f06-492da512be4b';
-const recommendationImageTwo = 'https://www.figma.com/api/mcp/asset/498bbad1-818d-450a-ae02-e885a587ded5';
+
 
 export default function RideSharingHomeScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
   const { sidebarVisible, openSidebar, closeSidebar, menuItems, handleLogout, handleProfilePress } = useSidebarMenu();
-  const insets = useSafeAreaInsets();
+  const activeRideRequest = useActiveRideRequestStore((state) => state.activeRideRequest);
+
+  useBootstrapActiveRide();
+  useRideSocketBootstrap();
 
   // Real user data from the API
   const { userProfile: apiProfile } = useProfile();
@@ -33,24 +41,22 @@ export default function RideSharingHomeScreen() {
     };
   }, [apiProfile]);
 
-  const recommendations = [
-    {
-      id: 'rec-1',
-      title: t('recommended_name'),
-      rating: 4.1,
-      reviews: 5000,
-      price: 25,
-      image: recommendationImageOne,
-    },
-    {
-      id: 'rec-2',
-      title: t('recommended_name_secondary'),
-      rating: 4.1,
-      reviews: 5000,
-      price: 25,
-      image: recommendationImageTwo,
-    },
-  ];
+
+
+  const findingRideViewData = useMemo(
+    () => (activeRideRequest ? mapActiveRideRequestToFindingRideViewData(activeRideRequest) : null),
+    [activeRideRequest],
+  );
+
+  useEffect(() => {
+    if (!findingRideViewData) {
+      return undefined;
+    }
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => true);
+
+    return () => subscription.remove();
+  }, [findingRideViewData]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -66,9 +72,10 @@ export default function RideSharingHomeScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
+          <ActiveRideNotice />
           <RideOptionsSection />
           <DeliveryServicesSection />
-          <RecommendedSection items={recommendations} />
+          <RecommendedSection />
         </ScrollView>
       </SafeAreaView>
 
@@ -81,6 +88,12 @@ export default function RideSharingHomeScreen() {
         onLogout={handleLogout}
         onProfilePress={handleProfilePress}
       />
+
+      {findingRideViewData ? (
+        <View style={styles.findingRideOverlay}>
+          <FindingRideView {...findingRideViewData} />
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -107,5 +120,9 @@ const styles = StyleSheet.create({
     gap: 24,
     paddingTop: 0,
   },
+  findingRideOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 999,
+    elevation: 12,
+  },
 });
-
