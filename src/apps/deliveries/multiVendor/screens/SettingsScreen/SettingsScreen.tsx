@@ -22,7 +22,7 @@ export default function SettingsScreen() {
   const iconColor = colors.text;
 
   const handleDeleteAccount = () => {
-    // TODO: implement delete account confirmation
+    navigation.navigate('DeleteAccount' as never);
   };
 
   return (

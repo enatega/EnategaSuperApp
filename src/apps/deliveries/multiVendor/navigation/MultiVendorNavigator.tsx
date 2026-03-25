@@ -20,6 +20,7 @@ import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen/PrivacyPolicyScr
 import TermsOfServiceScreen from '../screens/TermsOfServiceScreen/TermsOfServiceScreen';
 import TermsOfUseScreen from '../screens/TermsOfUseScreen/TermsOfUseScreen';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen/ChangePasswordScreen';
+import DeleteAccountScreen from '../screens/DeleteAccountScreen/DeleteAccountScreen';
 
 const Stack = createNativeStackNavigator<MultiVendorStackParamList>();
 
@@ -115,6 +116,11 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="ChangePassword"
         component={ChangePasswordScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="DeleteAccount"
+        component={DeleteAccountScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

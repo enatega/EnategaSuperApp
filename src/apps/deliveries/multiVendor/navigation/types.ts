@@ -32,4 +32,5 @@ export type MultiVendorStackParamList = {
   TermsOfService: undefined;
   TermsOfUse: undefined;
   ChangePassword: undefined;
+  DeleteAccount: undefined;
 };
