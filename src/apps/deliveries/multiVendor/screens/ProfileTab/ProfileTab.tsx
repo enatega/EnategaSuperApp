@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,6 +11,8 @@ import WalletCard from '../../components/profile/WalletCard';
 import ProfileMenuSection from '../../components/profile/ProfileMenuSection';
 import ProfileMenuItem from '../../components/profile/ProfileMenuItem';
 import ProfileSkeleton from '../../components/profile/ProfileSkeleton';
+import { authSession } from '../../../../../general/auth/authSession';
+import { navigationRef } from '../../../../../general/navigation/rootNavigation';
 
 const ICON_SIZE = 20;
 
@@ -20,6 +22,16 @@ export default function ProfileTab() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { user, wallet, isLoading } = useProfile();
+
+  const handleLogout = useCallback(async () => {
+    await authSession.clearSession();
+    if (navigationRef.isReady()) {
+      navigationRef.resetRoot({
+        index: 0,
+        routes: [{ name: 'Main', params: { screen: 'Auth' } }],
+      });
+    }
+  }, []);
 
   if (isLoading) {
     return (
@@ -74,6 +86,7 @@ export default function ProfileTab() {
         <ProfileMenuItem
           icon={<Ionicons name="settings-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_settings')}
+          onPress={() => navigation.navigate('Settings' as never)}
         />
       </ProfileMenuSection>
 
@@ -85,10 +98,12 @@ export default function ProfileTab() {
         <ProfileMenuItem
           icon={<Ionicons name="moon-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_color_mode')}
+          onPress={() => navigation.navigate('ColorMode' as never)}
         />
         <ProfileMenuItem
           icon={<Ionicons name="globe-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_language')}
+          onPress={() => navigation.navigate('Language' as never)}
         />
       </ProfileMenuSection>
 
@@ -96,6 +111,7 @@ export default function ProfileTab() {
         <ProfileMenuItem
           icon={<Ionicons name="log-out-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_logout')}
+          onPress={() => { void handleLogout(); }}
         />
       </ProfileMenuSection>
     </ScrollView>

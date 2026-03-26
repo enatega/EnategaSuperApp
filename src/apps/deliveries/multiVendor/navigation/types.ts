@@ -26,4 +26,13 @@ export type MultiVendorStackParamList = {
     items: SeeAllItem[];
     title: string;
   };
+  Settings: undefined;
+  NotificationSettings: undefined;
+  PrivacyPolicy: undefined;
+  TermsOfService: undefined;
+  TermsOfUse: undefined;
+  ChangePassword: undefined;
+  DeleteAccount: undefined;
+  ColorMode: undefined;
+  Language: undefined;
 };

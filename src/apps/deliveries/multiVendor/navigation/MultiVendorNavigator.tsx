@@ -14,6 +14,15 @@ import RateOrderScreen from '../../screens/RateOrderScreen/RateOrderScreen';
 import SeeAllScreen from '../screens/SeeAllScreen/SeeAllScreen';
 import type { MultiVendorStackParamList } from './types';
 import SeeAllMapView from '../screens/SeeAllScreen/components/SeeAllMapView';
+import SettingsScreen from '../screens/SettingsScreen/SettingsScreen';
+import NotificationSettingsScreen from '../screens/NotificationSettingsScreen/NotificationSettingsScreen';
+import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen/PrivacyPolicyScreen';
+import TermsOfServiceScreen from '../screens/TermsOfServiceScreen/TermsOfServiceScreen';
+import TermsOfUseScreen from '../screens/TermsOfUseScreen/TermsOfUseScreen';
+import ChangePasswordScreen from '../screens/ChangePasswordScreen/ChangePasswordScreen';
+import DeleteAccountScreen from '../screens/DeleteAccountScreen/DeleteAccountScreen';
+import ColorModeScreen from '../screens/ColorModeScreen/ColorModeScreen';
+import LanguageScreen from '../screens/LanguageScreen/LanguageScreen';
 
 const Stack = createNativeStackNavigator<MultiVendorStackParamList>();
 
@@ -79,6 +88,51 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="SeeAllMapView"
         component={SeeAllMapView}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="NotificationSettings"
+        component={NotificationSettingsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicyScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="TermsOfService"
+        component={TermsOfServiceScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="TermsOfUse"
+        component={TermsOfUseScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ChangePassword"
+        component={ChangePasswordScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="DeleteAccount"
+        component={DeleteAccountScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ColorMode"
+        component={ColorModeScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Language"
+        component={LanguageScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
