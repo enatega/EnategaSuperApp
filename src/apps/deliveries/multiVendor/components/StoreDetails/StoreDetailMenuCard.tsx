@@ -6,17 +6,12 @@ import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
 import Icon from '../../../../../general/components/Icon';
 import type { DeliveryStoreDetailsProduct } from '../../../api/types';
-import {
-  useStoreDetailCardSwipe,
-  type StoreDetailSwipeDirection,
-} from '../../hooks/useStoreDetailSwiper';
 
 type Props = {
   item: DeliveryStoreDetailsProduct;
-  onSwipeCategory?: (direction: StoreDetailSwipeDirection) => void;
 };
 
-export default function StoreDetailMenuCard({ item, onSwipeCategory }: Props) {
+export default function StoreDetailMenuCard({ item }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const badgeText = item.deal ?? item.dealType ?? null;
@@ -26,10 +21,9 @@ export default function StoreDetailMenuCard({ item, onSwipeCategory }: Props) {
   const imageBackgroundColor = badgeText
     ? colors.storeMenuAccentOrange
     : colors.storeMenuAccentLime;
-  const panHandlers = useStoreDetailCardSwipe({ onSwipe: onSwipeCategory });
 
   return (
-    <View {...panHandlers} style={styles.gestureArea}>
+    <View style={styles.container}>
       <View
         style={[
           styles.card,
@@ -93,7 +87,7 @@ export default function StoreDetailMenuCard({ item, onSwipeCategory }: Props) {
 }
 
 const styles = StyleSheet.create({
-  gestureArea: {
+  container: {
     flexShrink: 0,
     marginVertical: 6,
     width: '48%',

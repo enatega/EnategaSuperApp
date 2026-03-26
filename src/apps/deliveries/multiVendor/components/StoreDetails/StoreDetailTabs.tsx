@@ -4,7 +4,7 @@ import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 're
 import { useTheme } from '../../../../../general/theme/theme';
 import Text from '../../../../../general/components/Text';
 import type { DeliveryStoreDetailsFilterItem } from '../../../api/types';
-import { useStoreDetailTabsScroll } from '../../hooks/useStoreDetailSwiper';
+import { useStoreDetailTabsScroll } from '../../hooks/useStoreDetailPager';
 
 type Props = {
   activeCategoryId: string | null;

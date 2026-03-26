@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -7,16 +7,10 @@ import { useTheme } from '../../../../../general/theme/theme';
 import { useStoreProducts, useStoreView } from '../../../hooks';
 import type {
   DeliveryNearbyStore,
-  DeliveryStoreDetailsProduct,
   DeliveryStoreTimings,
 } from '../../../api/types';
-import {
-  getStoreDetailSwipeTargetCategoryId,
-  type StoreDetailSwipeDirection,
-} from '../../hooks/useStoreDetailSwiper';
 import StoreDetailListHeader from '../../components/StoreDetails/StoreDetailListHeader';
-import StoreDetailMenuCard from '../../components/StoreDetails/StoreDetailMenuCard';
-import StoreDetailMenuCardSkeleton from '../../components/StoreDetails/StoreDetailMenuCardSkeleton';
+import StoreDetailProductsList from '../../components/StoreDetails/StoreDetailProductsList';
 import StoreDetailsScreenSkeleton from '../../components/StoreDetails/StoreDetailsScreenSkeleton';
 // import { data } from './storedetaiolsData';
 
@@ -27,19 +21,6 @@ type StoreDetailsParamList = {
 };
 
 const SEARCH_DEBOUNCE_MS = 400;
-const STORE_DETAIL_PRODUCT_SKELETON_ITEMS = Array.from({ length: 4 }, (_, index) => ({
-  id: `store-detail-product-skeleton-${index}`,
-  isSkeleton: true as const,
-}));
-
-type StoreDetailSkeletonItem = (typeof STORE_DETAIL_PRODUCT_SKELETON_ITEMS)[number];
-type StoreDetailListItem =
-  | DeliveryStoreDetailsProduct
-  | StoreDetailSkeletonItem;
-
-function isStoreDetailSkeletonItem(item: StoreDetailListItem): item is StoreDetailSkeletonItem {
-  return (item as StoreDetailSkeletonItem).isSkeleton === true;
-}
 
 function getTodayStoreHours(
   storeTimings?: DeliveryStoreTimings | null,
@@ -103,8 +84,6 @@ export default function StoreDetailsScreen() {
       enabled: Boolean(storeId),
     },
   );
-  console.log('storrrrr_data',JSON.stringify(storeData,null,2));
-  
 
   const {
     data: productsData,
@@ -124,7 +103,6 @@ export default function StoreDetailsScreen() {
       enabled: Boolean(storeId),
     },
   );
-console.log('productsData_Data___',JSON.stringify(productsData,null,2));
 
   useEffect(() => {
     setSearchValue('');
@@ -133,59 +111,33 @@ console.log('productsData_Data___',JSON.stringify(productsData,null,2));
     setSelectedSubcategoryId(null);
   }, [storeId]);
 
-  const handleCategorySelect = (categoryId: string | null) => {
-    setSelectedCategoryId(categoryId);
-
-    if (!categoryId) {
-      setSelectedSubcategoryId(null);
-      return;
-    }
-
-    const nextCategory = categories.find((category) => category.id === categoryId) ?? null;
-    const nextCategorySubcategoryIds = Array.isArray(nextCategory?.subcategoryIds)
-      ? nextCategory.subcategoryIds
-      : null;
-    const nextVisibleSubcategories =
-      nextCategorySubcategoryIds
-        ? subcategories.filter((subcategory) =>
-            nextCategorySubcategoryIds.includes(subcategory.id),
-          )
-        : subcategories;
-
-    setSelectedSubcategoryId(nextVisibleSubcategories[0]?.id ?? null);
-  };
-
-  const handleSubcategorySelect = (subcategoryId: string) => {
-    setSelectedSubcategoryId(subcategoryId);
-  };
-
-  const handleBackPress = () => {
-    navigation.goBack();
-  };
-
-  const handleLoadMoreProducts = () => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  };
-
   const store = storeData;
-  const products = productsData?.pages.flatMap((page) => page.items) ?? [];
   const categories = store?.categories ?? [];
   const subcategories = store?.subcategories ?? [];
+  const products = useMemo(
+    () => productsData?.pages.flatMap((page) => page.items) ?? [],
+    [productsData],
+  );
   const activeCategoryId = selectedCategoryId;
-  const activeCategory = categories.find((category) => category.id === activeCategoryId) ?? null;
-  const activeCategorySubcategoryIds = Array.isArray(activeCategory?.subcategoryIds)
-    ? activeCategory.subcategoryIds
-    : null;
-  const visibleSubcategories =
-    activeCategory == null
-      ? []
-      : activeCategorySubcategoryIds
+  const activeCategory = useMemo(
+    () => categories.find((category) => category.id === activeCategoryId) ?? null,
+    [activeCategoryId, categories],
+  );
+  const visibleSubcategories = useMemo(() => {
+    if (activeCategory == null) {
+      return [];
+    }
+
+    const activeCategorySubcategoryIds = Array.isArray(activeCategory.subcategoryIds)
+      ? activeCategory.subcategoryIds
+      : null;
+
+    return activeCategorySubcategoryIds
       ? subcategories.filter((subcategory) =>
           activeCategorySubcategoryIds.includes(subcategory.id),
         )
       : subcategories;
+  }, [activeCategory, subcategories]);
   const activeSubcategoryId = selectedSubcategoryId;
 
   useEffect(() => {
@@ -205,6 +157,41 @@ console.log('productsData_Data___',JSON.stringify(productsData,null,2));
       setSelectedSubcategoryId(visibleSubcategories[0].id);
     }
   }, [selectedSubcategoryId, visibleSubcategories]);
+
+  const handleCategorySelect = useCallback((categoryId: string | null) => {
+    setSelectedCategoryId(categoryId);
+
+    if (!categoryId) {
+      setSelectedSubcategoryId(null);
+      return;
+    }
+
+    const nextCategory = categories.find((category) => category.id === categoryId) ?? null;
+    const nextCategorySubcategoryIds = Array.isArray(nextCategory?.subcategoryIds)
+      ? nextCategory.subcategoryIds
+      : null;
+    const nextVisibleSubcategories = nextCategorySubcategoryIds
+      ? subcategories.filter((subcategory) =>
+          nextCategorySubcategoryIds.includes(subcategory.id),
+        )
+      : subcategories;
+
+    setSelectedSubcategoryId(nextVisibleSubcategories[0]?.id ?? null);
+  }, [categories, subcategories]);
+
+  const handleSubcategorySelect = useCallback((subcategoryId: string) => {
+    setSelectedSubcategoryId(subcategoryId);
+  }, []);
+
+  const handleBackPress = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
+  const handleLoadMoreProducts = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const storeName = store?.name ?? selectedStore?.name ?? t('store_details_store_name');
   const rating = store?.averageRating ?? selectedStore?.averageRating ?? null;
@@ -228,23 +215,55 @@ console.log('productsData_Data___',JSON.stringify(productsData,null,2));
   const email = store?.contact?.email ?? null;
   const sectionTitle = activeCategory?.name ?? t('store_details_all_offered_items');
   const shouldShowProductSkeletons = isProductsPending && !productsData;
-  const listData: StoreDetailListItem[] = shouldShowProductSkeletons
-    ? STORE_DETAIL_PRODUCT_SKELETON_ITEMS
-    : products;
-
-  const handleCategorySwipe = (direction: StoreDetailSwipeDirection) => {
-    const nextCategoryId = getStoreDetailSwipeTargetCategoryId({
+  const renderHeader = useCallback(
+    () => (
+      <StoreDetailListHeader
+        activeCategoryId={activeCategoryId}
+        activeSubcategoryId={activeSubcategoryId}
+        categories={categories}
+        coverImageUrl={coverImageUrl}
+        deliveryFee={deliveryFee}
+        distance={distance}
+        email={email}
+        heroTitle={heroTitle}
+        hours={hours}
+        logoImageUrl={logoImageUrl}
+        onBackPress={handleBackPress}
+        onCategorySelect={handleCategorySelect}
+        onSearchChange={setSearchValue}
+        onSubcategorySelect={handleSubcategorySelect}
+        phone={phone}
+        rating={rating}
+        reviewCount={reviewCount}
+        searchValue={searchValue}
+        sectionTitle={sectionTitle}
+        storeName={storeName}
+        subcategories={visibleSubcategories}
+      />
+    ),
+    [
       activeCategoryId,
+      activeSubcategoryId,
       categories,
-      direction,
-    });
-
-    if (typeof nextCategoryId === 'undefined' || nextCategoryId === activeCategoryId) {
-      return;
-    }
-
-    handleCategorySelect(nextCategoryId);
-  };
+      coverImageUrl,
+      deliveryFee,
+      distance,
+      email,
+      heroTitle,
+      hours,
+      logoImageUrl,
+      handleBackPress,
+      handleCategorySelect,
+      handleSubcategorySelect,
+      phone,
+      rating,
+      reviewCount,
+      searchValue,
+      sectionTitle,
+      storeName,
+      visibleSubcategories,
+    ],
+  );
 
   if (!storeId) {
     return (
@@ -267,12 +286,7 @@ console.log('productsData_Data___',JSON.stringify(productsData,null,2));
   }
 
   return (
-    <FlatList<StoreDetailListItem>
-      ListEmptyComponent={
-        <View style={styles.emptyState}>
-          <Text style={{ color: colors.mutedText }}>{t('store_details_no_items')}</Text>
-        </View>
-      }
+    <FlatList
       ListFooterComponent={
         isFetchingNextPage ? (
           <View style={styles.footerLoader}>
@@ -280,69 +294,40 @@ console.log('productsData_Data___',JSON.stringify(productsData,null,2));
           </View>
         ) : null
       }
-      ListHeaderComponent={
-        <StoreDetailListHeader
-          activeCategoryId={activeCategoryId}
-          activeSubcategoryId={activeSubcategoryId}
-          categories={categories}
-          coverImageUrl={coverImageUrl}
-          deliveryFee={deliveryFee}
-          distance={distance}
-          email={email}
-          heroTitle={heroTitle}
-          hours={hours}
-          logoImageUrl={logoImageUrl}
-          onBackPress={handleBackPress}
-          onCategorySelect={handleCategorySelect}
-          onSearchChange={setSearchValue}
-          onSubcategorySelect={handleSubcategorySelect}
-          phone={phone}
-          rating={rating}
-          reviewCount={reviewCount}
-          searchValue={searchValue}
-          sectionTitle={sectionTitle}
-          storeName={storeName}
-          subcategories={visibleSubcategories}
-        />
-      }
-      columnWrapperStyle={styles.column}
+      ListHeaderComponent={renderHeader}
       contentContainerStyle={[styles.content, { backgroundColor: colors.background }]}
       contentInsetAdjustmentBehavior="automatic"
-      data={listData}
+      data={PRODUCT_LIST_DATA}
       keyExtractor={(item) => item.id}
-      numColumns={2}
       onEndReached={handleLoadMoreProducts}
       onEndReachedThreshold={0.4}
-      renderItem={({ item }) =>
-        isStoreDetailSkeletonItem(item) ? (
-          <StoreDetailMenuCardSkeleton />
-        ) : (
-          <StoreDetailMenuCard item={item} onSwipeCategory={handleCategorySwipe} />
-        )
-      }
+      renderItem={() => (
+        <StoreDetailProductsList
+          activeCategoryId={activeCategoryId}
+          categories={categories}
+          emptyText={t('store_details_no_items')}
+          onCategorySelect={handleCategorySelect}
+          products={products}
+          shouldShowProductSkeletons={shouldShowProductSkeletons}
+        />
+      )}
       showsVerticalScrollIndicator={false}
       style={{ backgroundColor: colors.background }}
     />
   );
 }
 
+const PRODUCT_LIST_DATA = [{ id: 'store-detail-products' }] as const;
+
 const styles = StyleSheet.create({
   content: {
     paddingBottom: 24,
-  },
-  column: {
-    gap: 12,
-    paddingHorizontal: 16,
   },
   centeredState: {
     alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 16,
-  },
-  emptyState: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
   },
   footerLoader: {
     alignItems: 'center',
