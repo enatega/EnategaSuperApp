@@ -262,6 +262,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     letterSpacing: -0.36,
-    height:35,
+    paddingTop:12,
+    paddingBottom: 10,
   },
 });
