@@ -19,6 +19,12 @@ import {
   openAppLocationSettings,
   requestLocationPermission,
 } from '../general/utils/locationPermission';
+import {
+  DEFAULT_DELIVERY_MODE,
+  getDeliveryModePreference,
+  setDeliveryModePreference,
+  type DeliveryMode,
+} from '../apps/deliveries/navigation/deliveryModePreference';
 
 type Props = {
   onSelectMiniApp?: (id: MiniAppId) => void;
@@ -32,19 +38,20 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
   const [isLocationPopupVisible, setIsLocationPopupVisible] = useState(false);
   const [locationPopupMode, setLocationPopupMode] = useState<LocationPopupMode>('request');
   const [isRequestingLocation, setIsRequestingLocation] = useState(false);
+  const [selectedDeliveryMode, setSelectedDeliveryMode] = useState<DeliveryMode>(DEFAULT_DELIVERY_MODE);
 
   const serviceTypes = [
-    {
-      id: 'single',
-      title: tDeliveries('type_single_vendor_title'),
-      description: tDeliveries('type_single_vendor_desc'),
-      icon: serviceTypeIcons.singleStore,
-    },
     {
       id: 'marketplace',
       title: tDeliveries('type_marketplace_title'),
       description: tDeliveries('type_marketplace_desc'),
       icon: serviceTypeIcons.multiStore,
+    },
+    {
+      id: 'single',
+      title: tDeliveries('type_single_vendor_title'),
+      description: tDeliveries('type_single_vendor_desc'),
+      icon: serviceTypeIcons.singleStore,
     },
     {
       id: 'chain',
@@ -54,7 +61,28 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
     },
   ];
 
+  useEffect(() => {
+    let isMounted = true;
 
+    const loadDeliveryModePreference = async () => {
+      const savedMode = await getDeliveryModePreference();
+      const resolvedMode = savedMode ?? DEFAULT_DELIVERY_MODE;
+
+      if (!savedMode) {
+        await setDeliveryModePreference(resolvedMode);
+      }
+
+      if (isMounted) {
+        setSelectedDeliveryMode(resolvedMode);
+      }
+    };
+
+    void loadDeliveryModePreference();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!isFocused) {
@@ -133,13 +161,36 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
     }
   }
 
+  async function handleSelectDeliveryMode(nextModeId: string) {
+    const nextMode = nextModeId === 'marketplace'
+      ? 'multiVendor'
+      : nextModeId === 'chain'
+        ? 'chain'
+        : 'singleVendor';
+
+    setSelectedDeliveryMode(nextMode);
+    await setDeliveryModePreference(nextMode);
+  }
+
+  const selectedServiceTypeId = selectedDeliveryMode === 'multiVendor'
+    ? 'marketplace'
+    : selectedDeliveryMode === 'chain'
+      ? 'chain'
+      : 'single';
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <HomeHeader backgroundVariant="solid" />
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <OurServicesSection onSelectMiniApp={onSelectMiniApp} />
-          <ServiceTypeSection items={serviceTypes} />
+          <ServiceTypeSection
+            items={serviceTypes}
+            selectedId={selectedServiceTypeId}
+            onSelect={(id) => {
+              void handleSelectDeliveryMode(id);
+            }}
+          />
           <RecommendedSection  />
         </ScrollView>
       </SafeAreaView>

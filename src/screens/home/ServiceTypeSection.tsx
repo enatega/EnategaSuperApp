@@ -6,7 +6,6 @@ import Image from '../../general/components/Image';
 import HorizontalList from '../../general/components/HorizontalList';
 import { useTheme } from '../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
-import { serviceTypeIcons } from '../../general/assets/images';
 
 type ServiceTypeItem = {
   id: string;
@@ -17,27 +16,36 @@ type ServiceTypeItem = {
 
 type Props = {
   items: ServiceTypeItem[];
+  selectedId?: string;
+  onSelect?: (id: string) => void;
 };
 
-export default function ServiceTypeSection({ items }: Props) {
+export default function ServiceTypeSection({ items, selectedId: controlledSelectedId, onSelect }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('general');
-  const [selectedId, setSelectedId] = useState(items[0]?.id ?? '');
+  const [uncontrolledSelectedId, setUncontrolledSelectedId] = useState(items[0]?.id ?? '');
+  const selectedId = controlledSelectedId ?? uncontrolledSelectedId;
 
   return (
     <View style={styles.section}>
       <Text variant="subtitle" weight="bold" style={styles.sectionTitle}>
         {t('service_type_title')}
       </Text>
-      <HorizontalList
+      <HorizontalList<ServiceTypeItem>
         data={items}
         keyExtractor={(item) => item.id}
-        estimatedItemSize={230}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => {
           const isSelected = item.id === selectedId;
           return (
-          <Pressable onPress={() => setSelectedId(item.id)}>
+          <Pressable
+            onPress={() => {
+              if (controlledSelectedId === undefined) {
+                setUncontrolledSelectedId(item.id);
+              }
+              onSelect?.(item.id);
+            }}
+          >
             <Card
               variant="outlined"
               style={[styles.card, isSelected && styles.cardSelected]}
