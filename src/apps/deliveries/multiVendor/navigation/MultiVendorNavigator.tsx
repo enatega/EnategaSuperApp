@@ -11,6 +11,12 @@ import AddressChooseOnMapScreen from '../../screens/addresses/AddressChooseOnMap
 import AddressDetailScreen from '../../screens/addresses/AddressDetailScreen';
 import FavouritesScreen from '../screens/FavouritesScreen/FavouritesScreen';
 import RateOrderScreen from '../../screens/RateOrderScreen/RateOrderScreen';
+import SupportScreen from '../../screens/SupportScreen/SupportScreen';
+import SupportChatScreen from '../../screens/SupportChatScreen/SupportChatScreen';
+import SupportConversationsScreen from '../../screens/SupportConversationsScreen/SupportConversationsScreen';
+import SupportContactFormScreen from '../../screens/SupportContactFormScreen/SupportContactFormScreen';
+import SupportFaqScreen from '../../screens/SupportFaqScreen/SupportFaqScreen';
+import SupportFaqArticleScreen from '../../screens/SupportFaqArticleScreen/SupportFaqArticleScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -66,6 +72,36 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="RateOrder"
         component={RateOrderScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Support"
+        component={SupportScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SupportChat"
+        component={SupportChatScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SupportFaq"
+        component={SupportFaqScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SupportConversations"
+        component={SupportConversationsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SupportContactForm"
+        component={SupportContactFormScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SupportFaqArticle"
+        component={SupportFaqArticleScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

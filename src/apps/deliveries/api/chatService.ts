@@ -19,9 +19,12 @@ export const chatService = {
       `${DELIVERIES_CHAT_BASE}/messages/${chatBoxId}`,
     ),
 
-  sendMessage: (payload: SendDeliveryChatMessagePayload) =>
-    apiClient.post<SendDeliveryChatMessageResponse>(
+  sendMessage: (payload: SendDeliveryChatMessagePayload) => {
+    console.log('deliveries chat send payload', payload);
+
+    return apiClient.post<SendDeliveryChatMessageResponse>(
       `${DELIVERIES_CHAT_BASE}/send`,
       payload,
-    ),
+    );
+  },
 };

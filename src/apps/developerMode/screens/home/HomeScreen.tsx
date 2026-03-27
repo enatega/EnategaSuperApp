@@ -61,6 +61,7 @@ export default function DeveloperModeHomeScreen() {
   const isSignup = mode === 'signup';
 
   const handleSendOtp = useCallback(() => {
+
     if (isSignup) {
       sendOtpMutation.mutate({ phone, otp_type: 'sms' });
     } else {
@@ -347,7 +348,7 @@ export default function DeveloperModeHomeScreen() {
           navigation.navigate('RiderChat', {
             estimatedMinutes: 8,
             orderCode: '#D-2048',
-            receiverId: '6ad93791-04bf-4ea9-825c-96b095811843',
+            receiverId: 'b0e84890-0d23-4aac-93d9-99b80620d84c',
             riderName: 'Alex',
           })
         }

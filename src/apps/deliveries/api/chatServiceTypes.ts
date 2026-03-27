@@ -13,18 +13,21 @@ export type DeliveryChatParticipant = {
 export type DeliveryChatMessageRecord = {
   id?: string;
   chatBoxId?: string;
+  chat_box_id?: string;
   senderId?: string;
+  sender_id?: string;
   receiverId?: string;
+  receiver_id?: string;
   text?: string;
   createdAt?: string;
+  updatedAt?: string;
   sender?: DeliveryChatParticipant;
   receiver?: DeliveryChatParticipant;
 };
 
 export type SendDeliveryChatMessageResponse = {
-  success?: boolean;
   message?: string;
-  data?: DeliveryChatMessageRecord;
+  chatBoxId?: string;
 };
 
 export type DeliveryChatBoxRecord = {
@@ -51,7 +54,13 @@ export type DeliveryChatBoxesResponse =
 export type DeliveryChatMessagesResponse =
   | DeliveryChatMessageRecord[]
   | {
+      messages?: DeliveryChatMessageRecord[];
       data?: DeliveryChatMessageRecord[] | { items?: DeliveryChatMessageRecord[] };
+      otherUser?: DeliveryChatParticipant & {
+        email?: string;
+        phone?: string;
+        profile?: string;
+      };
       message?: string;
       success?: boolean;
     };
