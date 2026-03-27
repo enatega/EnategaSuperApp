@@ -90,8 +90,9 @@ export default function StoreDetailsScreen() {
     error: productsError,
     fetchNextPage,
     hasNextPage,
+    isFetched: hasFetchedProducts,
     isFetchingNextPage,
-    isPending: isProductsPending,
+    refetch: refetchProducts,
   } = useStoreProducts(
     storeId,
     {
@@ -214,7 +215,12 @@ export default function StoreDetailsScreen() {
   const phone = store?.contact?.phone ?? null;
   const email = store?.contact?.email ?? null;
   const sectionTitle = activeCategory?.name ?? t('store_details_all_offered_items');
-  const shouldShowProductSkeletons = isProductsPending && !productsData;
+  const shouldShowProductSkeletons = !hasFetchedProducts && !productsData && !productsError;
+  const productsContentKey = [
+    activeCategoryId ?? 'offers',
+    activeSubcategoryId ?? 'all',
+    debouncedSearchValue || 'all',
+  ].join(':');
   const renderHeader = useCallback(
     () => (
       <StoreDetailListHeader
@@ -277,7 +283,7 @@ export default function StoreDetailsScreen() {
     return <StoreDetailsScreenSkeleton />;
   }
 
-  if ((storeError && !storeData) || (productsError && !productsData)) {
+  if (storeError && !storeData) {
     return (
       <View style={[styles.centeredState, { backgroundColor: colors.background }]}>
         <Text style={{ color: colors.mutedText }}>{t('store_details_load_error')}</Text>
@@ -305,8 +311,15 @@ export default function StoreDetailsScreen() {
         <StoreDetailProductsList
           activeCategoryId={activeCategoryId}
           categories={categories}
+          contentLayoutKey={productsContentKey}
           emptyText={t('store_details_no_items')}
+          errorText={productsError?.message ?? t('store_details_load_error')}
+          hasError={Boolean(productsError)}
+          hasFetchedProducts={hasFetchedProducts}
           onCategorySelect={handleCategorySelect}
+          onRetry={() => {
+            void refetchProducts();
+          }}
           products={products}
           shouldShowProductSkeletons={shouldShowProductSkeletons}
         />
