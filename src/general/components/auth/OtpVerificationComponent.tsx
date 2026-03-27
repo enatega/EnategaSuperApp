@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableWithoutFeedback, Keyboard, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 
@@ -59,6 +59,7 @@ export default function OtpVerificationComponent({
   const [rateLimitingModal, setRateLimitingModal] = useState(false);
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View style={useStyles(colors).container}>
       <ScreenHeader onBack={() => navigation.goBack()} />
 
@@ -127,6 +128,7 @@ export default function OtpVerificationComponent({
         }}
       />
     </View>
+    </TouchableWithoutFeedback>
   );
 }
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { ActivityIndicator, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../../../../general/theme/theme';
-import { styles } from '../../../components/store-card/styles';
+import { styles } from '../../../components/storeCard/styles';
 
 type Props = {
   isFavourite: boolean;

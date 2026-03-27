@@ -18,7 +18,7 @@ import SupportContactFormScreen from '../../screens/SupportContactFormScreen/Sup
 import SupportFaqScreen from '../../screens/SupportFaqScreen/SupportFaqScreen';
 import SupportFaqArticleScreen from '../../screens/SupportFaqArticleScreen/SupportFaqArticleScreen';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<MultiVendorStackParamList>();
 
 export default function MultiVendorNavigator() {
   const { t } = useTranslation('deliveries');
