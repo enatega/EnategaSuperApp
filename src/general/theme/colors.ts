@@ -48,7 +48,12 @@ export const lightColors = {
   findingRidePulseC: '#2FA8D3',
   findingRideCenterHalo: 'rgba(175, 231, 247, 0.72)',
   findingRideMapOverlay: 'rgba(255, 255, 255, 0.2)',
-  yellow500: '#EAB308'
+  yellow500: '#EAB308',
+  storeHeroPrimary: '#009A2B',
+  storeHeroSecondary: '#005A2B',
+  storeHeroOverlay: 'rgba(0, 90, 43, 0.22)',
+  storeMenuAccentLime: '#A9D329',
+  storeMenuAccentOrange: '#F86A33',
 };
 
 export const darkColors: typeof lightColors = {
@@ -101,7 +106,12 @@ export const darkColors: typeof lightColors = {
   findingRidePulseC: '#1691BF',
   findingRideCenterHalo: 'rgba(22, 145, 191, 0.22)',
   findingRideMapOverlay: 'rgba(15, 17, 23, 0.22)',
-  yellow500: '#EAB308'
+  yellow500: '#EAB308',
+  storeHeroPrimary: '#007E27',
+  storeHeroSecondary: '#044A25',
+  storeHeroOverlay: 'rgba(4, 74, 37, 0.3)',
+  storeMenuAccentLime: '#88B11F',
+  storeMenuAccentOrange: '#D85B2D',
 };
 
 export type ThemeColors = typeof lightColors;

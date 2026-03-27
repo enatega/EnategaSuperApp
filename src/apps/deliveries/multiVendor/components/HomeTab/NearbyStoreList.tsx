@@ -11,20 +11,27 @@ import StoreCard from "../../../components/storeCard/StoreCard";
 import NearbyStoreListSkeleton from "./HomeTabSkeletons/NearbyStoreListSkeleton";
 import type { MultiVendorStackParamList } from "../../navigation/types";
 
-type Props = {
-  onRestaurantPress?: (store: DeliveryNearbyStore) => void;
-};
 
 type NavProp = NativeStackNavigationProp<
-  MultiVendorStackParamList,
-  "SeeAllScreen"
+  MultiVendorStackParamList,
+  "SeeAllScreen"
 >;
 
-export default function NearbyStoreList({ onRestaurantPress }: Props) {
-  const { t } = useTranslation("deliveries");
+export default function NearbyStoreList() {
+  const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavProp>();
-  const { data: nearbyStoresData = [], isPending: isNearbyStoresPending } =
-    useNearbyStores();
+  const { data: nearbyStoresData = [], isPending: isNearbyStoresPending } = useNearbyStores();
+  console.log('nearby_Store_data__',JSON.stringify(nearbyStoresData,null,2));
+  
+
+  const handleRestaurantPress = useCallback(
+    (store: DeliveryNearbyStore) => {
+      navigation.navigate('StoreDetails', { store });
+    },
+    [navigation],
+  );
+
+
 
   const handleSeeAllNearbyRestaurants = useCallback(() => {
     navigation.navigate("SeeAllScreen", {
@@ -35,7 +42,7 @@ export default function NearbyStoreList({ onRestaurantPress }: Props) {
   }, [navigation, t]);
 
   const renderItem = ({ item }: { item: DeliveryNearbyStore }) => (
-    <StoreCard store={item} onPress={() => onRestaurantPress?.(item)} />
+    <StoreCard store={item} onPress={() => handleRestaurantPress(item)} />
   );
 
   return (

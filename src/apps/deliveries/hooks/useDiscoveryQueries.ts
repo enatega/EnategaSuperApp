@@ -1,7 +1,10 @@
 import {
-  useQueries,
+  InfiniteData,
   useInfiniteQuery,
+  useQueries,
+ 
   useQuery,
+  type UseInfiniteQueryOptions,
   type UseQueryOptions,
   type UseQueryResult,
 } from '@tanstack/react-query';
@@ -13,6 +16,9 @@ import type {
   DeliveryBanner,
   DeliveryNearbyStore,
   DeliveryOrderAgainItem,
+  DeliveryStoreProductsApiResponse,
+  DeliveryStoreProductsParams,
+  DeliveryStoreViewApiResponse,
   DeliveryNearbyStoresParams,
   PaginatedDeliveryResponse,
   DeliveryShopTypeProduct,
@@ -48,6 +54,24 @@ type UseNearbyStoresOptions = {
     'offset' | 'limit' | 'search'
   >;
 };
+
+type UseStoreViewOptions = Omit<
+  UseQueryOptions<DeliveryStoreViewApiResponse, ApiError>,
+  'queryKey' | 'queryFn'
+>;
+
+type UseStoreProductsOptions = Omit<
+  UseInfiniteQueryOptions<
+    DeliveryStoreProductsApiResponse,
+    ApiError,
+    InfiniteData<DeliveryStoreProductsApiResponse>,
+    ReturnType<typeof deliveryKeys.storeProducts>,
+    number
+  >,
+  'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
+>;
+
+type UseStoreProductsParams = Omit<DeliveryStoreProductsParams, 'offset'>;
 
 type UseDealsOptions = Omit<
   UseQueryOptions<DeliveryNearbyStore[], ApiError>,
@@ -277,6 +301,60 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
       ? query.data.pages[query.data.pages.length - 1]?.total
       : undefined,
   };
+}
+
+export function useStoreView(
+  storeId: string,
+  options?: UseStoreViewOptions,
+) {
+  return useQuery<DeliveryStoreViewApiResponse, ApiError>({
+    queryKey: deliveryKeys.storeView(storeId),
+    queryFn: () => discoveryService.getStoreView(storeId),
+    staleTime: 5 * 60 * 1000,
+    enabled: Boolean(storeId),
+    ...options,
+  });
+}
+
+export function useStoreProducts(
+  storeId: string,
+  params: UseStoreProductsParams = {},
+  options?: UseStoreProductsOptions,
+) {
+  const {
+    limit,
+    search,
+    selectedCategoryId,
+    selectedSubcategoryId,
+  } = params;
+
+  return useInfiniteQuery<
+    DeliveryStoreProductsApiResponse,
+    ApiError,
+    InfiniteData<DeliveryStoreProductsApiResponse>,
+    ReturnType<typeof deliveryKeys.storeProducts>,
+    number
+  >({
+    queryKey: deliveryKeys.storeProducts(storeId, {
+      limit,
+      search,
+      selectedCategoryId,
+      selectedSubcategoryId,
+    }),
+    queryFn: ({ pageParam }) =>
+      discoveryService.getStoreProducts(storeId, {
+        offset: pageParam,
+        limit,
+        search,
+        selectedCategoryId,
+        selectedSubcategoryId,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
+    enabled: Boolean(storeId),
+    ...options,
+  });
 }
 
 export function useDeals(options?: UseDealsOptions) {

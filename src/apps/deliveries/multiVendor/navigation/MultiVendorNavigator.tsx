@@ -11,6 +11,7 @@ import AddressChooseOnMapScreen from '../../screens/addresses/AddressChooseOnMap
 import AddressDetailScreen from '../../screens/addresses/AddressDetailScreen';
 import FavouritesScreen from '../screens/FavouritesScreen/FavouritesScreen';
 import RateOrderScreen from '../../screens/RateOrderScreen/RateOrderScreen';
+import StoreDetailsScreen from '../screens/StoreDetailsScreen/StoreDetailsScreen';
 import SeeAllScreen from '../screens/SeeAllScreen/SeeAllScreen';
 import type { MultiVendorStackParamList } from './types';
 import SeeAllMapView from '../screens/SeeAllScreen/components/SeeAllMapView';
@@ -78,6 +79,11 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="RateOrder"
         component={RateOrderScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="StoreDetails"
+        component={StoreDetailsScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen
