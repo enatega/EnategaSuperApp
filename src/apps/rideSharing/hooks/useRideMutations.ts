@@ -12,6 +12,7 @@ import type {
     RaiseRideFarePayload,
     RaiseRideFareResponse,
     RideDetails,
+    SubmitRideReviewPayload,
     UpdateRidePayload,
 } from '../api/types';
 import { ApiError } from '../../../general/api/apiClient';
@@ -246,23 +247,16 @@ export function useRejectRideBid(options?: UseRejectRideBidOptions) {
 // useRateRide
 // ---------------------------------------------------------------------------
 
-interface RateRideVariables {
-    rideId: string;
-    rating: number;
-    feedback?: string;
-}
-
 type UseRateRideOptions = Omit<
-    UseMutationOptions<void, ApiError, RateRideVariables, unknown>,
+    UseMutationOptions<unknown, ApiError, SubmitRideReviewPayload, unknown>,
     'mutationFn'
 >;
 
 export function useRateRide(options?: UseRateRideOptions) {
     const queryClient = useQueryClient();
 
-    return useMutation<void, ApiError, RateRideVariables, unknown>({
-        mutationFn: ({ rideId, rating, feedback }) =>
-            rideService.rateRide(rideId, rating, feedback),
+    return useMutation<unknown, ApiError, SubmitRideReviewPayload, unknown>({
+        mutationFn: rideService.submitRideReview,
         onSuccess: (data, variables, onMutateResult, ctx) => {
             queryClient.invalidateQueries({
                 queryKey: rideKeys.detail(variables.rideId),

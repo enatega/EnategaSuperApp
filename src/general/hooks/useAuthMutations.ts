@@ -48,6 +48,13 @@ async function finalizeAuthSession(
   await queryClient.invalidateQueries({ queryKey: authKeys.session() });
 }
 
+export async function clearStoredAuthSession() {
+  await socketClient.updateAuthToken(null);
+  socketClient.disconnect();
+  await authSession.clearSession();
+  await clearActiveAppRoute();
+}
+
 export function useSignupSendOtp(
   options?: UseMutationOptions<
     SignupSendOtpResponse,
@@ -120,12 +127,7 @@ export function useLogout(options?: UseMutationOptions<void, ApiError, void>) {
   const queryClient = useQueryClient();
 
   return useMutation<void, ApiError, void>({
-    mutationFn: async () => {
-      await socketClient.updateAuthToken(null);
-      socketClient.disconnect();
-      await authSession.clearSession();
-      await clearActiveAppRoute();
-    },
+    mutationFn: clearStoredAuthSession,
     ...options,
     onSuccess: async (_data, variables, onMutateResult, context) => {
       queryClient.setQueryData(authKeys.session(), {

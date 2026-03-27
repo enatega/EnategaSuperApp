@@ -21,6 +21,8 @@ import type {
     RideTypeFareParams,
     CustomerRidesResponse,
     CustomerRideDetail,
+    NearbyDriver,
+    ActiveRidePayload,
 } from '../api/types';
 import { ApiError } from '../../../general/api/apiClient';
 
@@ -70,20 +72,43 @@ export function useRideDetails(
 
 // ---------------------------------------------------------------------------
 // useActiveRide – currently in-progress ride
-//  • Polls every 10 s when data exists (driver location, ETA updates)
+//  • Fetch once on bootstrap
+//  • Subsequent updates come from explicit socket-driven refetches
 // ---------------------------------------------------------------------------
 
 type UseActiveRideOptions = Omit<
-    UseQueryOptions<RideDetails | null, ApiError>,
+    UseQueryOptions<ActiveRidePayload | null, ApiError>,
     'queryKey' | 'queryFn'
 >;
 
 export function useActiveRide(options?: UseActiveRideOptions) {
-    return useQuery<RideDetails | null, ApiError>({
+    return useQuery<ActiveRidePayload | null, ApiError>({
         queryKey: rideKeys.activeRide(),
         queryFn: () => rideService.getActiveRide(),
-        staleTime: 10 * 1000, // 10 seconds
-        refetchInterval: (query) => (query.state.data ? 10_000 : false), // poll only when ride exists
+        staleTime: Infinity,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+        ...options,
+    });
+}
+
+type UseNearbyDriversOptions = Omit<
+    UseQueryOptions<NearbyDriver[], ApiError>,
+    'queryKey' | 'queryFn'
+>;
+
+export function useNearbyDrivers(
+    latitude: number | undefined,
+    longitude: number | undefined,
+    radiusKm: number = 7,
+    options?: UseNearbyDriversOptions,
+) {
+    return useQuery<NearbyDriver[], ApiError>({
+        queryKey: rideKeys.nearbyDrivers(latitude, longitude, radiusKm),
+        queryFn: () => rideService.getNearbyDrivers(latitude!, longitude!, radiusKm),
+        enabled: typeof latitude === 'number' && typeof longitude === 'number',
+        staleTime: 8 * 1000,
+        refetchInterval: 10 * 1000,
         ...options,
     });
 }

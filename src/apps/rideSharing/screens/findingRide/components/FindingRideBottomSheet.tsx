@@ -17,6 +17,8 @@ type Props = {
     fare?: number;
     recommendedFare?: number;
   };
+  findingTitle?: string;
+  cancelLabel?: string;
   fare?: number;
   recommendedFare?: number;
   timeLeftSec: number;
@@ -32,6 +34,8 @@ type Props = {
 };
 
 function FindingRideBottomSheet({
+  findingTitle,
+  cancelLabel,
   fare,
   recommendedFare,
   timeLeftSec,
@@ -80,7 +84,7 @@ function FindingRideBottomSheet({
       <View style={styles.content}>
         <View style={styles.headerBlock}>
           <Text weight="extraBold" style={[styles.title, { color: colors.text }]}>
-            {hasTimedOut ? t('ride_finding_timeout_title') : 'Finding a driver for you...'}
+            {hasTimedOut ? t('ride_finding_timeout_title') : (findingTitle ?? t('ride_finding_driver_title'))}
           </Text>
 
           <AnimatedSweepBar width={trackWidth} />
@@ -145,7 +149,7 @@ function FindingRideBottomSheet({
         ) : null}
 
         <Button
-          label={t('ride_finding_cancel')}
+          label={cancelLabel ?? t('ride_finding_cancel')}
           onPress={onCancelRide}
           isLoading={isCancelLoading}
           variant="secondary"

@@ -1,22 +1,9 @@
-import type { RideAddressSelection } from '../../../api/types';
+import type { ActiveRidePayload } from '../../../api/types';
 
-export type ActiveRideViewData = {
+export type CompletedRideFeedbackData = {
   rideId: string;
-  fromAddress: RideAddressSelection;
-  toAddress: RideAddressSelection;
-  title: string;
-  statusLabel?: string;
-  fare?: number;
-  paymentMethodLabel?: string;
+  driverUserId?: string;
   driverName?: string;
-  driverRating?: number;
   driverAvatarUri?: string;
-  driverPhone?: string;
-  vehicleName?: string;
-  vehicleColor?: string;
-  licensePlate?: string;
-  driverCoordinate?: {
-    latitude: number;
-    longitude: number;
-  };
+  rawRideData?: ActiveRidePayload;
 };

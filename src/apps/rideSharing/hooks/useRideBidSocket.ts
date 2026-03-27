@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useSocketEvent } from '../../../general/hooks/useSocketEvent';
 import { useActiveRideRequestStore } from '../stores/useActiveRideRequestStore';
 import { useRideBidsStore } from '../stores/useRideBidsStore';
-import { normalizeRideBidEvent } from '../utils/rideBidMapper';
 import type { RideSharingServerEventMap } from '../socket/rideSharingSocket.types';
 
 type Options = {
@@ -43,26 +42,20 @@ export function useRideBidSocket(options?: Options) {
 
       const items = Array.isArray(payload) ? payload : [payload];
       items.forEach((item) => {
-        const normalizedBid = normalizeRideBidEvent(item);
-        if (!normalizedBid) {
-          console.log('[RideBidSocket] received-bids could not normalize item:', item);
-          return;
-        }
-
-        if (normalizedBid.rideRequestId && normalizedBid.rideRequestId !== resolvedRideRequestId) {
+        if (item.ride_request_id !== resolvedRideRequestId) {
           console.log('[RideBidSocket] received-bids ignored for different ride request:', {
             expectedRideRequestId: resolvedRideRequestId,
-            incomingRideRequestId: normalizedBid.rideRequestId,
-            bid: normalizedBid.bid,
+            incomingRideRequestId: item.ride_request_id,
+            bid: item,
           });
           return;
         }
 
         console.log('[RideBidSocket] received-bids accepted bid:', {
           rideRequestId: resolvedRideRequestId,
-          bid: normalizedBid.bid,
+          bid: item,
         });
-        addBid(normalizedBid.bid);
+        addBid(item);
       });
     },
     { enabled: isEnabled },

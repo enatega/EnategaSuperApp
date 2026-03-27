@@ -47,3 +47,23 @@ export function resetToSharedRoute(routeName: SharedAppRouteName) {
 
   return true;
 }
+
+export function resetToSharedHome() {
+  if (!navigationRef.isReady()) {
+    return false;
+  }
+
+  navigationRef.resetRoot({
+    index: 0,
+    routes: [
+      {
+        name: 'Main',
+        params: {
+          screen: 'Home',
+        },
+      },
+    ],
+  });
+
+  return true;
+}

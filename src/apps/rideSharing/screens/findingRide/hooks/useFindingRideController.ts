@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useAuthSessionQuery } from '../../../../../general/hooks/useAuthQueries';
 import { socketClient, socketLogger } from '../../../../../general/services/socket';
@@ -12,8 +14,10 @@ import { useActiveRideStore } from '../../../stores/useActiveRideStore';
 import { useRideBidsStore } from '../../../stores/useRideBidsStore';
 import { emitRideSharingEvent } from '../../../socket/rideSharingSocket';
 import type { RideSharingClientEventMap } from '../../../socket/rideSharingSocket.types';
+import type { RideSharingStackParamList } from '../../../navigation/RideSharingNavigator';
 import type { FindingRideBid } from '../types/bids';
 import type { FindingRideViewProps } from '../types/view';
+import type { RideOptionItem } from '../../../components/rideOptions/types';
 
 const SEARCH_DURATION_SECONDS = 60;
 const RAISE_FARE_DEBOUNCE_MS = 500;
@@ -45,13 +49,13 @@ function buildAcceptBidPayload(input: {
   customerId: string;
   bidId: string;
   paymentVia?: string;
+  isScheduled?: boolean;
 }): AcceptRideBidPayload {
   return {
     customerId: input.customerId,
     bidId: input.bidId,
-    isSchedule: false,
+    isSchedule: input.isScheduled ?? false,
     payment_via: input.paymentVia ?? 'CASH',
-    // scheduledAt: new Date().toISOString(),
   };
 }
 
@@ -130,15 +134,21 @@ async function emitRideRaiseFareEvent({
 }
 
 export function useFindingRideController({
-  rideRequestId,
+  activeRideRequest: currentActiveRideRequest,
   fromAddress,
   selectedRide,
-  offeredFare,
-  recommendedFare,
   bids: incomingBids,
   onCancelSuccess,
-}: FindingRideViewProps) {
+}: FindingRideViewProps & {
+  fromAddress: RideAddressSelection;
+  toAddress: RideAddressSelection;
+  selectedRide: RideOptionItem & {
+    fare?: number;
+    recommendedFare?: number;
+  };
+}) {
   const { t } = useTranslation('rideSharing');
+  const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
   const authSessionQuery = useAuthSessionQuery();
   const activeRideRequestId = useActiveRideRequestStore((state) => state.activeRideRequest?.id);
   const activeRideRequest = useActiveRideRequestStore((state) => state.activeRideRequest);
@@ -152,10 +162,10 @@ export function useFindingRideController({
   const acceptRideBidMutation = useAcceptRideBid();
   const rejectRideBidMutation = useRejectRideBid();
 
-  const minimumFare = recommendedFare ?? selectedRide.recommendedFare ?? selectedRide.fare ?? 0;
-  const resolvedRideRequestId = rideRequestId ?? activeRideRequestId;
+  const minimumFare = selectedRide.recommendedFare ?? selectedRide.fare ?? 0;
+  const resolvedRideRequestId = currentActiveRideRequest.id ?? activeRideRequestId;
 
-  const [currentFare, setCurrentFare] = useState<number>(offeredFare ?? minimumFare);
+  const [currentFare, setCurrentFare] = useState<number>(selectedRide.fare ?? minimumFare);
   const [timeLeftSec, setTimeLeftSec] = useState(SEARCH_DURATION_SECONDS);
   const [isKeepSearchingPending, setIsKeepSearchingPending] = useState(false);
   const [acceptingBidId, setAcceptingBidId] = useState<string | null>(null);
@@ -163,7 +173,7 @@ export function useFindingRideController({
 
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasHydratedFareRef = useRef(false);
-  const committedFareRef = useRef<number>(offeredFare ?? minimumFare);
+  const committedFareRef = useRef<number>(selectedRide.fare ?? minimumFare);
   const activeRideRequestRef = useRef(activeRideRequest);
   const isCancellingRef = useRef(false);
   const searchRadiusKmRef = useRef(DEFAULT_SEARCH_RADIUS_KM);
@@ -245,10 +255,10 @@ export function useFindingRideController({
   }, [activeRideRequest]);
 
   useEffect(() => {
-    committedFareRef.current = offeredFare ?? minimumFare;
-    setCurrentFare(offeredFare ?? minimumFare);
+    committedFareRef.current = selectedRide.fare ?? minimumFare;
+    setCurrentFare(selectedRide.fare ?? minimumFare);
     hasHydratedFareRef.current = true;
-  }, [minimumFare, offeredFare]);
+  }, [minimumFare, selectedRide.fare]);
 
   useEffect(() => {
     if (timeLeftSec <= 0) {
@@ -388,14 +398,15 @@ export function useFindingRideController({
   ]);
 
   const handleAcceptBid = useCallback(async (bid: FindingRideBid) => {
+    console.log('handleAcceptBid called with bid:', bid);
     if (!resolvedRideRequestId || acceptingBidId || decliningBidId) {
       return;
     }
 
     const customerId = authSessionQuery.data?.user?.id;
-    const riderUserId = bid.driverId;
+    const riderSId = bid.riderSId;
 
-    if (!customerId || !riderUserId) {
+    if (!customerId || !riderSId) {
       showToast.error(t('error'), t('ride_create_invalid_response_description'));
       return;
     }
@@ -403,19 +414,40 @@ export function useFindingRideController({
     setAcceptingBidId(bid.id);
 
     try {
-      await acceptRideBidMutation.mutateAsync({
+      const acceptedBidResponse = await acceptRideBidMutation.mutateAsync({
         rideBidId: bid.id,
         payload: buildAcceptBidPayload({
           customerId,
           bidId: bid.id,
           paymentVia: activeRideRequestRef.current?.payment_via,
+          isScheduled: activeRideRequestRef.current?.is_scheduled,
         }),
       });
+      const isScheduledRide = Boolean(
+        activeRideRequestRef.current?.is_scheduled
+        ?? (acceptedBidResponse as { is_scheduled?: boolean } | null)?.is_scheduled,
+      );
+
+      console.log('Bid accepted successfully:', acceptedBidResponse, { isScheduledRide });
+      if (isScheduledRide) {
+        const scheduledRideId =
+         (acceptedBidResponse as { ride_id?: string; rideId?: string; id?: string } | null)?.rideId
+        ??  (acceptedBidResponse as { ride_id?: string; rideId?: string; id?: string } | null)?.ride_id
+          ?? (acceptedBidResponse as { ride_id?: string; rideId?: string; id?: string } | null)?.id;
+
+        clearBids();
+        clearActiveRideRequest();
+
+        if (scheduledRideId) {
+          navigation.navigate('ReservationDetail', { rideId: scheduledRideId });
+        }
+        return;
+      }
 
       try {
         await emitRequiredRideSharingEvent('bid-accepted', {
           rideRequestId: resolvedRideRequestId,
-          riderUserId,
+          riderSId,
           startType: BID_ACCEPT_START_TYPE,
         });
       } catch (socketError) {
@@ -447,9 +479,9 @@ export function useFindingRideController({
         throw new Error('Unable to load accepted ride.');
       }
 
-      setActiveRide(activeRide);
       clearBids();
       clearActiveRideRequest();
+      setActiveRide(activeRide);
     } catch (error) {
       if (error instanceof Error && error.message === 'Unable to load accepted ride.') {
         showToast.error(t('error'), 'Ride accepted, but we could not load the active ride yet. Please try again.');
@@ -477,6 +509,7 @@ export function useFindingRideController({
     clearActiveRideRequest,
     clearBids,
     decliningBidId,
+    navigation,
     resolvedRideRequestId,
     setActiveRide,
     t,

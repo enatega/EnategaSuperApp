@@ -11,11 +11,11 @@ import Button from '../../../../general/components/Button';
 import {
   useLoginSendOtp,
   useLoginVerifyOtp,
-  useLogout,
   useSignupSendOtp,
   useSignupVerifyOtp,
 } from '../../../../general/hooks/useAuthMutations';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
+import { useAppLogout } from '../../../../general/hooks/useAppLogout';
 
 type RideSharingStackParamList = {
   RideSharingHome: undefined;
@@ -46,7 +46,7 @@ export default function DeveloperModeHomeScreen() {
   const verifyOtpMutation = useSignupVerifyOtp();
   const loginSendOtpMutation = useLoginSendOtp();
   const loginVerifyOtpMutation = useLoginVerifyOtp();
-  const logoutMutation = useLogout();
+  const logoutMutation = useAppLogout();
 
   const isSignup = mode === 'signup';
 

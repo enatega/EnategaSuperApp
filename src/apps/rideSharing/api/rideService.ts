@@ -24,6 +24,9 @@ import type {
     DistanceMatrixResponse,
     CustomerRidesResponse,
     CustomerRideDetail,
+    NearbyDriver,
+    SubmitRideReviewPayload,
+    ActiveRidePayload,
 } from './types';
 
 // ---------------------------------------------------------------------------
@@ -42,6 +45,76 @@ export const rideService = {
         }
 
         return response as T;
+    },
+
+    normalizeNearbyDrivers(rawDrivers: unknown): NearbyDriver[] {
+        if (!Array.isArray(rawDrivers)) {
+            return [];
+        }
+
+        return rawDrivers.flatMap((item): NearbyDriver[] => {
+            if (!item || typeof item !== 'object') {
+                return [];
+            }
+
+            const record = item as Record<string, unknown>;
+            const user = record.user && typeof record.user === 'object'
+                ? record.user as Record<string, unknown>
+                : null;
+            const currentLocation = user?.current_location && typeof user.current_location === 'object'
+                ? user.current_location as Record<string, unknown>
+                : null;
+
+            const idCandidate = [
+                record.id,
+                user?.id,
+                record.driverId,
+                record.riderId,
+            ].find((value) => typeof value === 'string' && value.trim().length > 0);
+            const id = typeof idCandidate === 'string' ? idCandidate : undefined;
+
+            const latitudeSource = [
+                currentLocation?.latitude,
+                currentLocation?.lat,
+                record.latitude,
+                record.lat,
+            ].find((value) => value !== null && value !== undefined);
+            const longitudeSource = [
+                currentLocation?.longitude,
+                currentLocation?.lng,
+                currentLocation?.lon,
+                record.longitude,
+                record.lng,
+                record.lon,
+            ].find((value) => value !== null && value !== undefined);
+            const latitude = Number(latitudeSource);
+            const longitude = Number(longitudeSource);
+
+            if (!id || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+                return [];
+            }
+
+            const headingSource = [
+                currentLocation?.heading,
+                record.heading,
+            ].find((value) => value !== null && value !== undefined);
+            const heading = headingSource === undefined ? undefined : Number(headingSource);
+            const name = typeof user?.name === 'string' ? user.name : undefined;
+            const vehicleType = typeof record.vehicle_type === 'string'
+                ? record.vehicle_type
+                : typeof record.vehicleType === 'string'
+                    ? record.vehicleType
+                    : undefined;
+
+            return [{
+                id,
+                latitude,
+                longitude,
+                heading: Number.isFinite(heading) ? heading : undefined,
+                name,
+                vehicleType,
+            }];
+        });
     },
 
     // ── Queries ───────────────────────────────────────────────────────────
@@ -145,9 +218,24 @@ export const rideService = {
         }));
     },
 
+    /** Fetch nearby available drivers around a map center. */
+    getNearbyDrivers: async (
+        latitude: number,
+        longitude: number,
+        radiusKm: number = 7,
+    ): Promise<NearbyDriver[]> => {
+        const response = await apiClient.get<unknown>(
+            `/api/v1/rides/drivers/nearby/${latitude}/${longitude}/${radiusKm}`,
+            undefined,
+            { skipAuth: true },
+        );
+
+        return rideService.normalizeNearbyDrivers(response);
+    },
+
     /** Fetch active (in-progress / accepted) ride, if any. */
-    getActiveRide: async (): Promise<RideDetails | null> => {
-        const response = await apiClient.get<ApiResponse<RideDetails | null> | RideDetails | null>(
+    getActiveRide: async (): Promise<ActiveRidePayload | null> => {
+        const response = await apiClient.get<ApiResponse<ActiveRidePayload | null> | ActiveRidePayload | null>(
             '/api/v1/rides/ongoing/active/customer',
         );
         return rideService.unwrapData(response);
@@ -213,13 +301,9 @@ export const rideService = {
     }: RejectRideBidParams): Promise<unknown> =>
         apiClient.patch(`/api/v1/rides/bids/${rideBidId}/reject`),
 
-    /** Rate a completed ride. */
-    rateRide: (
-        rideId: string,
-        rating: number,
-        feedback?: string,
-    ): Promise<void> =>
-        apiClient.post(`/rides/${rideId}/rate`, { rating, feedback }),
+    /** Submit a customer review for a completed ride. */
+    submitRideReview: (payload: SubmitRideReviewPayload): Promise<unknown> =>
+        apiClient.post('/api/v1/reviews', payload),
 
     /** Fetch profile stats for a driver/rider by userId. */
     getDriverStats: (userId: string): Promise<DriverProfileStats> =>

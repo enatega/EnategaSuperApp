@@ -114,39 +114,149 @@ export interface CreateRidePayload {
     base_fair?: number;
     offered_fair?: number;
     scheduled_at?: string;
+    courier_delivery_mode?: 'TO_BUILDING' | 'TO_DOOR';
+    sender_phone_number?: string;
+    receiver_phone_number?: string;
+    comments_for_courier?: string;
+    package_size?: number;
+    package_size_category?: 'S' | 'M' | 'L';
+    package_types?: string[];
+    pickup_street_building?: string;
+    pickup_address_details?: string;
+    destination_street_building?: string;
+    destination_address_details?: string;
+    pickup_coordinates?: { lat: number; lng: number };
+    destination_coordinates?: { lat: number; lng: number };
 }
 
 export interface ActiveRideRequestRideType {
     id: string;
     name: string;
+    description?: string | null;
     imageUrl?: string | null;
     seatCount?: number;
+    isActive?: boolean;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface ActiveRideRequestPayload {
     id: string;
+    passenger_id?: string;
     pickup: { lat: number; lng: number };
     dropoff: { lat: number; lng: number };
     pickup_location: string;
     dropoff_location: string;
     payment_via: string;
     ride_type_id: string;
+    courier_detail_id?: string | null;
     offeredFair?: string | number | null;
     baseFair?: string | number | null;
     status: string;
+    expiresAt?: string;
     is_hourly: boolean;
     is_family: boolean;
     is_scheduled: boolean;
     scheduled_at?: string | null;
     estimated_time?: string | number | null;
     estimated_distance?: string | number | null;
+    createdAt?: string;
+    zone_id?: string;
+    passenger?: unknown;
     ride_type?: ActiveRideRequestRideType | null;
+    zone?: unknown;
 }
 
 export interface ActiveRideRequestResponse {
     success: boolean;
     message: string;
     activeRideRequest: ActiveRideRequestPayload | null;
+}
+
+export interface RideBidPayload {
+    id: string;
+    ride_request_id: string;
+    rider_id: string;
+    riderSId: string;
+    price: number;
+    status: string;
+    createdAt?: string;
+    expiresAt?: string;
+    remainingTimeMs?: number;
+}
+
+export interface ActiveRideUserLocation {
+    lat?: number | string | null;
+    lng?: number | string | null;
+    heading?: number | string | null;
+    speed?: number | string | null;
+    timestamp?: number | string | null;
+}
+
+export interface ActiveRideUser {
+    id: string;
+    name: string;
+    profile?: string | null;
+    phone?: string | null;
+    createdAt?: string;
+    current_location?: ActiveRideUserLocation | null;
+}
+
+export interface ActiveRideDriverDynamicInfo {
+    averageRating?: number | string | null;
+    noOfRatings?: number | string | null;
+    riderTotalRides?: number | string | null;
+}
+
+export interface ActiveRideVehicle {
+    name?: string | null;
+    colour?: string | null;
+    no?: string | null;
+}
+
+export interface ActiveRideDriver {
+    id: string;
+    license_valid?: boolean;
+    photcontrol_complete?: boolean;
+    dynamic_info?: ActiveRideDriverDynamicInfo | null;
+    user?: ActiveRideUser | null;
+    vehicle?: ActiveRideVehicle | null;
+}
+
+export interface ActiveRideStop {
+    address?: string | null;
+    lat?: number | string | null;
+    lng?: number | string | null;
+}
+
+export interface ActiveRideLocationPoint {
+    lat: number | string;
+    lng: number | string;
+}
+
+export interface ActiveRideRideType {
+    id: string;
+    name: string;
+    description?: string | null;
+    imageUrl?: string | null;
+    seatCount?: number | null;
+}
+
+export interface ActiveRidePayload {
+    ride_id: string;
+    pickup: ActiveRideLocationPoint;
+    pickup_location: string;
+    dropoff: ActiveRideLocationPoint;
+    dropoff_location: string;
+    agreed_price?: number | string | null;
+    ride_status: string;
+    payment_via: string;
+    isScheduled?: boolean;
+    scheduledAt?: string | null;
+    stops: ActiveRideStop[];
+    ride_type?: ActiveRideRideType | null;
+    driver?: ActiveRideDriver | null;
+    courierDetail?: unknown;
 }
 
 export interface RaiseRideFarePayload {
@@ -165,7 +275,7 @@ export interface AcceptRideBidPayload {
     bidId: string;
     isSchedule: boolean;
     payment_via: string;
-    scheduledAt: string;
+    scheduledAt?: string;
 }
 
 export interface AcceptRideBidParams {
@@ -182,6 +292,14 @@ export interface UpdateRidePayload {
     status?: RideStatus;
     rating?: number;
     feedback?: string;
+}
+
+export interface SubmitRideReviewPayload {
+    description: string;
+    rating: number;
+    reviewedId?: string;
+    rideId: string;
+    reviewerId: string;
 }
 
 export interface RideEstimatePayload {
@@ -257,6 +375,15 @@ export type RideAddressSelection = {
         latitude: number;
         longitude: number;
     };
+};
+
+export type NearbyDriver = {
+    id: string;
+    latitude: number;
+    longitude: number;
+    heading?: number;
+    name?: string;
+    vehicleType?: string;
 };
 
 export type DistanceMatrixResponse = {

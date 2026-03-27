@@ -33,6 +33,8 @@ export const rideKeys = {
   placeSuggestions: (input: string) => [...rideKeys.places(), 'suggestions', input] as const,
   placeDetails: (placeId: string) => [...rideKeys.places(), 'details', placeId] as const,
   route: (fromPlaceId: string, toPlaceId: string) => [...rideKeys.all, 'route', fromPlaceId, toPlaceId] as const,
+  nearbyDrivers: (latitude?: number, longitude?: number, radiusKm?: number) =>
+      [...rideKeys.all, 'nearby-drivers', latitude ?? 'unknown', longitude ?? 'unknown', radiusKm ?? 'default'] as const,
 
   // Profile / Stats
   stats: () => [...rideKeys.all, 'stats'] as const,

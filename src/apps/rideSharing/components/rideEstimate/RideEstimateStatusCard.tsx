@@ -53,7 +53,7 @@ function RideEstimateStatusCard({
         />
       </View>
 
-      <View style={styles.content}>
+      <View style={[styles.content, compact ? styles.contentCompact : styles.contentDefault]}>
         <Text
           weight="semiBold"
           style={[
@@ -118,6 +118,12 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   content: {
+    minWidth: 0,
+  },
+  contentDefault: {
+    alignSelf: 'stretch',
+  },
+  contentCompact: {
     flex: 1,
   },
   title: {

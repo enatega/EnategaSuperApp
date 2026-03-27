@@ -139,15 +139,28 @@ export default function RideAddressSearchScreen() {
     }
 
     if (nextFromAddress && nextToAddress) {
-      navigation.navigate(
-        'RideEstimate',
-        {
-          rideType,
-          rideCategory,
-          fromAddress: nextFromAddress,
-          toAddress: nextToAddress,
-        },
-      );
+      if (rideType === 'courier') {
+        navigation.navigate(
+          'CourierDetails',
+          {
+            rideType,
+            rideCategory,
+            fromAddress: nextFromAddress,
+            toAddress: nextToAddress,
+            source: 'addressSearch',
+          },
+        );
+      } else {
+        navigation.navigate(
+          'RideEstimate',
+          {
+            rideType,
+            rideCategory,
+            fromAddress: nextFromAddress,
+            toAddress: nextToAddress,
+          },
+        );
+      }
       return;
     }
 

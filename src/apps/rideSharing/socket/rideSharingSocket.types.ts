@@ -1,11 +1,10 @@
-import type { ActiveRideRequestPayload, CreateRidePayload } from '../api/types';
-import type { FindingRideBid } from '../screens/findingRide/types/bids';
+import type { ActiveRideRequestPayload, CreateRidePayload, RideBidPayload } from '../api/types';
 
 export type RideSharingServerEventMap = {
-  'received-bids': unknown;
+  'received-bids': RideBidPayload | RideBidPayload[];
   'ride:bid:new': {
     rideRequestId: string;
-    bid: FindingRideBid;
+    bid: RideBidPayload;
   };
   'ride:bid:removed': {
     rideRequestId: string;
@@ -20,7 +19,7 @@ export type RideSharingServerEventMap = {
 export type RideSharingClientEventMap = {
   'bid-accepted': {
     rideRequestId: string;
-    riderUserId: string;
+    riderSId: string;
     startType: string;
   };
   'ride-request-created-by-customer': {
