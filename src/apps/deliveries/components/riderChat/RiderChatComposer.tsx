@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import ChatComposer from '../chat/ChatComposer';
 
 type Props = {
@@ -18,11 +19,13 @@ export default function RiderChatComposer({
   placeholder,
   value,
 }: Props) {
+  const { t } = useTranslation('deliveries');
+
   return (
     <ChatComposer
-      attachmentAccessibilityLabel="Add attachment"
+      attachmentAccessibilityLabel={t('rider_chat_add_attachment')}
       isSending={isSending}
-      messageAccessibilityLabel="Send message"
+      messageAccessibilityLabel={t('rider_chat_send_message')}
       onAttachmentPress={onAttachmentPress}
       onChangeText={onChangeText}
       onSend={onSend}

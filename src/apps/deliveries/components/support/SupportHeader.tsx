@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 
@@ -15,13 +16,15 @@ type Props = {
 
 export default function SupportHeader({
   onRightPress,
-  rightAccessibilityLabel = 'Header action',
+  rightAccessibilityLabel,
   rightIconName = 'call-outline',
   title,
 }: Props) {
   const { colors, typography } = useTheme();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation('deliveries');
+  const resolvedRightAccessibilityLabel = rightAccessibilityLabel ?? t('support_header_action');
 
   return (
     <View
@@ -35,7 +38,7 @@ export default function SupportHeader({
     >
       <View style={styles.side}>
         <Pressable
-          accessibilityLabel="Go back"
+          accessibilityLabel={t('support_back_action')}
           accessibilityRole="button"
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           onPress={() => navigation.goBack()}
@@ -56,7 +59,7 @@ export default function SupportHeader({
 
       <View style={[styles.side, styles.rightSide]}>
         <Pressable
-          accessibilityLabel={rightAccessibilityLabel}
+          accessibilityLabel={resolvedRightAccessibilityLabel}
           accessibilityRole="button"
           onPress={onRightPress}
           style={[styles.iconButton, { backgroundColor: colors.backgroundTertiary }]}

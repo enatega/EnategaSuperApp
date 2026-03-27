@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
@@ -13,6 +14,7 @@ type Props = {
 export default function RiderChatHeader({ riderName }: Props) {
   const { colors } = useTheme();
   const navigation = useNavigation();
+  const { t } = useTranslation('deliveries');
 
   return (
     <ScreenHeader
@@ -20,7 +22,7 @@ export default function RiderChatHeader({ riderName }: Props) {
       leftSlot={(
         <View style={styles.leftContent}>
           <Pressable
-            accessibilityLabel="Go back"
+            accessibilityLabel={t('support_back_action')}
             accessibilityRole="button"
             hitSlop={10}
             onPress={() => navigation.goBack()}
@@ -43,7 +45,7 @@ export default function RiderChatHeader({ riderName }: Props) {
       leftSlotContainerStyle={styles.leftSlotContainer}
       rightSlot={(
         <Pressable
-          accessibilityLabel="Call rider"
+          accessibilityLabel={t('rider_chat_call_action')}
           accessibilityRole="button"
           style={[styles.iconButton, { backgroundColor: colors.backgroundTertiary }]}
         >
