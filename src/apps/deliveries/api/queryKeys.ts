@@ -24,7 +24,30 @@ export const deliveryKeys = {
     topBrands: () => [...deliveryKeys.discovery(), 'top-brands'] as const,
     mobileBanners: () => [...deliveryKeys.discovery(), 'mobile-banners'] as const,
     nearbyStores: () => [...deliveryKeys.discovery(), 'nearby-stores'] as const,
+    storeView: (storeId: string) =>
+        [
+            ...deliveryKeys.discovery(),
+            'store-view',
+            storeId,
+        ] as const,
+    storeProducts: (
+        storeId: string,
+        filters?: {
+            limit?: number;
+            search?: string;
+            selectedCategoryId?: string;
+            selectedSubcategoryId?: string;
+        },
+    ) =>
+        [
+            ...deliveryKeys.discovery(),
+            'store-products',
+            storeId,
+            filters,
+        ] as const,
     deals: () => [...deliveryKeys.discovery(), 'deals'] as const,
+    filterValues: (storeId?: string) =>
+        [...deliveryKeys.discovery(), 'filter-values', storeId ?? 'all'] as const,
 
     // Search
     search: () => [...deliveryKeys.all, 'search'] as const,

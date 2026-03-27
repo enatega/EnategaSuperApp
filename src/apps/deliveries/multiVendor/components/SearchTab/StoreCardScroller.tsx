@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, View, FlatList, TouchableOpacity } from "react-native";
 import { useTheme } from "../../../../../general/theme/theme";
 import Text from "../../../../../general/components/Text";
-import StoreCard from "../../../components/store-card/StoreCard";
+import StoreCard from "../../../components/storeCard/StoreCard";
 import { useTranslation } from "react-i18next";
 import { typography } from "../../../../../general/theme/typography";
 import type { StoreCardScrollerProps } from "./types";

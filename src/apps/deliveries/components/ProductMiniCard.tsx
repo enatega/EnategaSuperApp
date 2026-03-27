@@ -5,7 +5,7 @@ import Text from "../../../general/components/Text";
 import Image from "../../../general/components/Image";
 import { typography } from "../../../general/theme/typography";
 
-interface ProductMiniCardProps {
+export interface ProductMiniCardProps {
   title: string;
   imageUri?: string;
   onPress?: () => void;

@@ -5,7 +5,7 @@ import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
 import { useTopBrands } from '../../../hooks';
 import TopBrandsListSkeleton from './HomeTabSkeletons/TopBrandsListSkeleton';
-import TopBrandCard from '../../../components/store-card/TopBrandCard';
+import TopBrandCard from '../../../components/storeCard/TopBrandCard';
 
 export default function TopBrandsList() {
   const { t } = useTranslation('deliveries');
