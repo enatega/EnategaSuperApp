@@ -39,6 +39,7 @@ type RouteParams = {
   rideCategory?: RideOptionItem['id'];
   fromAddress: RideAddressSelection;
   toAddress: RideAddressSelection;
+  stops?: RideAddressSelection[];
   offeredFare?: number;
   recommendedFare?: number;
   paymentMethodId?: PaymentMethodId;
@@ -56,6 +57,7 @@ export default function OfferFareScreen() {
     rideCategory,
     fromAddress,
     toAddress,
+    stops = [],
     offeredFare,
     recommendedFare,
     paymentMethodId: initialPaymentMethodId = 'cash',
@@ -133,6 +135,7 @@ export default function OfferFareScreen() {
       rideCategory,
       fromAddress,
       toAddress,
+      stops,
       offeredFare: parsedFare,
       paymentMethodId,
       offerMode: resolvedOfferMode,

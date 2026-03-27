@@ -36,12 +36,19 @@ export type RideSharingStackParamList = {
     rideType?: RideIntent;
     rideCategory?: RideCategory;
     prefilledFromAddress?: CachedAddress;
+    prefilledStopAddress?: RideAddressSelection;
+    fromAddress?: RideAddressSelection;
+    toAddress?: RideAddressSelection;
+    stops?: RideAddressSelection[];
+    stopAction?: 'add' | 'edit';
+    stopIndex?: number;
   } | undefined;
   RideEstimate: {
     rideType?: RideIntent;
     rideCategory?: RideCategory;
     fromAddress: RideAddressSelection;
     toAddress: RideAddressSelection;
+    stops?: RideAddressSelection[];
     offeredFare?: number;
     paymentMethodId?: PaymentMethodId;
     offerMode?: RideOfferMode;
@@ -52,6 +59,7 @@ export type RideSharingStackParamList = {
     rideCategory?: RideCategory;
     fromAddress: RideAddressSelection;
     toAddress: RideAddressSelection;
+    stops?: RideAddressSelection[];
     offeredFare?: number;
     recommendedFare?: number;
     paymentMethodId?: PaymentMethodId;
@@ -63,6 +71,7 @@ export type RideSharingStackParamList = {
     rideCategory?: RideCategory;
     fromAddress: RideAddressSelection;
     toAddress: RideAddressSelection;
+    stops?: RideAddressSelection[];
     offeredFare?: number;
     paymentMethodId?: PaymentMethodId;
     offerMode?: RideOfferMode;

@@ -5,6 +5,7 @@ import { useTheme } from '../../../../general/theme/theme';
 import Image from '../../../../general/components/Image';
 import Icon from '../../../../general/components/Icon';
 import Map, { MapMarker } from '../../../../general/components/Map';
+import type { RideAddressSelection } from '../../api/types';
 import type { CachedAddress } from './types';
 import { useNearbyDrivers } from '../../hooks/useRideQueries';
 
@@ -27,6 +28,9 @@ const NEARBY_RADIUS_KM = 7;
 type Props = {
   currentCoordinates: LatLng | null;
   cachedAddresses: CachedAddress[];
+  fromAddress?: RideAddressSelection;
+  stopAddresses?: RideAddressSelection[];
+  toAddress?: RideAddressSelection;
 };
 
 function getRegionFromCoordinates(coordinates: LatLng): Region {
@@ -37,10 +41,20 @@ function getRegionFromCoordinates(coordinates: LatLng): Region {
   };
 }
 
-function RideOptionsMapLayer({ currentCoordinates, cachedAddresses }: Props) {
+function RideOptionsMapLayer({
+  currentCoordinates,
+  cachedAddresses,
+  fromAddress,
+  stopAddresses = [],
+  toAddress,
+}: Props) {
   const { colors } = useTheme();
   const mapRef = useRef<MapView | null>(null);
   const firstCachedCoordinates = cachedAddresses.find((item) => item.coordinates)?.coordinates ?? null;
+  const tripPoints = useMemo(
+    () => [fromAddress, ...stopAddresses, toAddress].filter(Boolean) as RideAddressSelection[],
+    [fromAddress, stopAddresses, toAddress],
+  );
   const nearbyDriversQuery = useNearbyDrivers(
     currentCoordinates?.latitude,
     currentCoordinates?.longitude,
@@ -68,6 +82,39 @@ function RideOptionsMapLayer({ currentCoordinates, cachedAddresses }: Props) {
             />
           ),
           })),
+        ...tripPoints.map((point, index) => ({
+          id: `trip-point:${point.placeId}`,
+          coordinate: point.coordinates,
+          zIndex: 2,
+          render: (
+            <View
+              style={[
+                index === 0 || index === tripPoints.length - 1 ? styles.tripPin : styles.stopPin,
+                {
+                  borderColor: index === 0
+                    ? '#10B981'
+                    : index === tripPoints.length - 1
+                      ? '#F87171'
+                      : '#FBBF24',
+                  backgroundColor: colors.surface,
+                },
+              ]}
+            >
+              <View
+                style={[
+                  styles.tripPinDot,
+                  {
+                    backgroundColor: index === 0
+                      ? '#10B981'
+                      : index === tripPoints.length - 1
+                        ? '#F87171'
+                        : '#F59E0B',
+                  },
+                ]}
+              />
+            </View>
+          ),
+        })),
         ...(nearbyDriversQuery.data ?? []).map((driver) => ({
           id: `nearby-driver:${driver.id}`,
           coordinate: {
@@ -85,16 +132,34 @@ function RideOptionsMapLayer({ currentCoordinates, cachedAddresses }: Props) {
           ),
         })),
       ],
-    [cachedAddresses, colors.shadowColor, colors.surface, colors.text, nearbyDriversQuery.data]
+    [cachedAddresses, colors.shadowColor, colors.surface, colors.text, nearbyDriversQuery.data, tripPoints]
   );
 
-  const initialRegion = currentCoordinates
-    ? getRegionFromCoordinates(currentCoordinates)
-    : firstCachedCoordinates
-      ? getRegionFromCoordinates(firstCachedCoordinates)
-      : DEFAULT_REGION;
+  const initialRegion = tripPoints.length
+    ? getRegionFromCoordinates(tripPoints[0].coordinates)
+    : currentCoordinates
+      ? getRegionFromCoordinates(currentCoordinates)
+      : firstCachedCoordinates
+        ? getRegionFromCoordinates(firstCachedCoordinates)
+        : DEFAULT_REGION;
 
   useEffect(() => {
+    if (tripPoints.length) {
+      mapRef.current?.fitToCoordinates(
+        tripPoints.map((point) => point.coordinates),
+        {
+          edgePadding: {
+            top: 120,
+            right: 60,
+            bottom: 240,
+            left: 60,
+          },
+          animated: true,
+        },
+      );
+      return;
+    }
+
     if (currentCoordinates) {
       mapRef.current?.animateToRegion(getRegionFromCoordinates(currentCoordinates), 350);
       return;
@@ -103,7 +168,7 @@ function RideOptionsMapLayer({ currentCoordinates, cachedAddresses }: Props) {
     if (firstCachedCoordinates) {
       mapRef.current?.animateToRegion(getRegionFromCoordinates(firstCachedCoordinates), 350);
     }
-  }, [currentCoordinates, firstCachedCoordinates]);
+  }, [currentCoordinates, firstCachedCoordinates, tripPoints]);
 
   return (
     <>
@@ -127,6 +192,27 @@ const styles = StyleSheet.create({
   markerIcon: {
     width: 20,
     height: 20,
+  },
+  tripPin: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stopPin: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tripPinDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
   },
   pickupMarkerIcon: {
     width: 36,

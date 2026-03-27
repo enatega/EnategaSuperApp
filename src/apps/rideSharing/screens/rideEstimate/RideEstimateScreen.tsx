@@ -11,6 +11,7 @@ import { getPaymentMethodOption, type PaymentMethodId } from '../../components/p
 import RideEstimateAddressSummaryCard from './components/RideEstimateAddressSummaryCard';
 import RideEstimateBottomSheet from './components/RideEstimateBottomSheet';
 import RideEstimateMapLayer from './components/RideEstimateMapLayer';
+import RideEstimateTripPointsSheet from './components/RideEstimateTripPointsSheet';
 import { useTheme } from '../../../../general/theme/theme';
 import { getApiErrorMessage } from '../../../../general/utils/apiError';
 import { socketClient } from '../../../../general/services/socket';
@@ -39,6 +40,7 @@ import {
 import { resolveRideOfferMode, type RideOfferMode } from '../../utils/rideOffer';
 import type { RideIntent } from '../../utils/rideOptions';
 import { formatScheduledRideSummary, toApiScheduledDateString } from '../../utils/rideSchedule';
+import { toCreateRideStops } from '../../utils/rideStops';
 import { rideEstimateIcons } from './rideEstimateAssets';
 import { showToast } from '../../../../general/components/AppToast';
 
@@ -47,6 +49,7 @@ type RouteParams = {
   rideCategory?: RideOptionItem['id'];
   fromAddress: RideAddressSelection;
   toAddress: RideAddressSelection;
+  stops?: RideAddressSelection[];
   offeredFare?: number;
   paymentMethodId?: PaymentMethodId;
   offerMode?: RideOfferMode;
@@ -101,6 +104,7 @@ export default function RideEstimateScreen() {
     rideType,
     fromAddress,
     toAddress,
+    stops = [],
     rideCategory,
     offeredFare: initialOfferedFare,
     paymentMethodId: initialPaymentMethodId = 'cash',
@@ -108,8 +112,8 @@ export default function RideEstimateScreen() {
     hourlyHours: initialHourlyHours,
   } = route.params as RouteParams;
 
-  const quoteQuery = useRideEstimateOptions(fromAddress, toAddress);
-  const routeQuery = useRideRoutePath(fromAddress, toAddress);
+  const quoteQuery = useRideEstimateOptions(fromAddress, toAddress, stops);
+  const routeQuery = useRideRoutePath(fromAddress, toAddress, stops);
   const quoteErrorMessage = quoteQuery.error
     ? getApiErrorMessage(quoteQuery.error, t('ride_estimate_quote_error_description'))
     : null;
@@ -130,6 +134,7 @@ export default function RideEstimateScreen() {
   const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
   const [wantsScheduledRide, setWantsScheduledRide] = useState(rideType === 'schedule');
   const [isSchedulePickerVisible, setIsSchedulePickerVisible] = useState(false);
+  const [isTripPointsVisible, setIsTripPointsVisible] = useState(false);
   const hasPresentedHourlyOfferRef = useRef(false);
   const createRideMutation = useCreateRide();
   const setActiveRideRequest = useActiveRideRequestStore((state) => state.setActiveRideRequest);
@@ -200,6 +205,35 @@ export default function RideEstimateScreen() {
     ? displayOptions.filter((item) => item.id === resolvedSelectedOptionId)
     : displayOptions;
 
+  const handleEditStop = (stopIndex: number) => {
+    const selectedStop = stops[stopIndex];
+
+    if (!selectedStop) {
+      return;
+    }
+
+    navigation.navigate('RideAddressSearch', {
+      rideType,
+      rideCategory,
+      fromAddress,
+      toAddress,
+      stops,
+      stopAction: 'edit',
+      stopIndex,
+      prefilledStopAddress: selectedStop,
+    });
+  };
+
+  const handleRemoveStop = (stopIndex: number) => {
+    const nextStops = stops.filter((_, index) => index !== stopIndex);
+
+    if (!nextStops.length) {
+      setIsTripPointsVisible(false);
+    }
+
+    navigation.setParams({ stops: nextStops });
+  };
+
   useEffect(() => {
     if (typeof initialOfferedFare === 'number') {
       setCustomFare(initialOfferedFare);
@@ -225,6 +259,7 @@ export default function RideEstimateScreen() {
       rideCategory,
       fromAddress,
       toAddress,
+      stops,
       offeredFare: selectedOptionCurrentFare,
       recommendedFare: selectedOptionRecommendedFare,
       paymentMethodId,
@@ -240,6 +275,7 @@ export default function RideEstimateScreen() {
     rideType,
     selectedOptionCurrentFare,
     selectedOptionRecommendedFare,
+    stops,
     toAddress,
   ]);
 
@@ -280,6 +316,7 @@ export default function RideEstimateScreen() {
         rideCategory,
         fromAddress,
         toAddress,
+        stops,
         offeredFare: selectedOptionCurrentFare,
         paymentMethodId,
         offerMode,
@@ -302,7 +339,7 @@ export default function RideEstimateScreen() {
       fare: resolvedFare,
       payment_via: mapPaymentMethodToApi(paymentMethodId),
       is_hourly: isHourlyRide,
-      stops: [],
+      stops: toCreateRideStops(stops),
       pickup_address: fromAddress.description,
       pickup_location: fromAddress.description,
       dropoff_location: toAddress.description,
@@ -327,6 +364,7 @@ export default function RideEstimateScreen() {
       const createdRide = await createRideMutation.mutateAsync(createRidePayload) as {
         rideReq?: ActiveRideRequestPayload | null;
       } | null;
+      console.log('Create ride API response', JSON.stringify(createdRide));
       const createdRideRequest = createdRide?.rideReq ?? null;
 
       if (!createdRideRequest?.id) {
@@ -370,16 +408,28 @@ export default function RideEstimateScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <RideEstimateMapLayer
         fromAddress={fromAddress}
+        stopAddresses={stops}
         toAddress={toAddress}
         routeCoordinates={routeQuery.data ?? []}
       />
       <RideEstimateAddressSummaryCard
         fromAddress={fromAddress}
+        stopAddresses={stops}
         toAddress={toAddress}
-        onChangeAddressPress={() => navigation.navigate('RideAddressSearch', {
+        onAddStopPress={() => navigation.navigate('RideAddressSearch', {
           rideType,
           rideCategory,
+          fromAddress,
+          toAddress,
+          stops,
+          stopAction: 'add',
         })}
+        onStopPress={handleEditStop}
+        onRemoveStopPress={handleRemoveStop}
+        onViewStopsPress={() => setIsTripPointsVisible(true)}
+        viewStopsLabel={t('ride_trip_points_view_all')}
+        moreStopsLabel={(count) => t('ride_trip_points_more_stops', { count })}
+        removeStopLabel={(count) => t('ride_trip_points_remove_stop', { count })}
       />
       <RideEstimateBottomSheet
         options={bottomSheetOptions}
@@ -412,6 +462,7 @@ export default function RideEstimateScreen() {
           rideCategory,
           fromAddress,
           toAddress,
+          stops,
           offeredFare: selectedOptionCurrentFare,
           paymentMethodId,
           offerMode,
@@ -434,6 +485,7 @@ export default function RideEstimateScreen() {
           rideCategory,
           fromAddress,
           toAddress,
+          stops,
           offeredFare: selectedOptionCurrentFare,
           recommendedFare: selectedOptionRecommendedFare,
           paymentMethodId,
@@ -486,6 +538,21 @@ export default function RideEstimateScreen() {
           }}
         />
       ) : null}
+
+      <RideEstimateTripPointsSheet
+        visible={isTripPointsVisible}
+        title={t('ride_trip_points_title')}
+        originLabel={t('ride_trip_points_origin')}
+        stopLabel={(index) => t('ride_trip_points_stop', { count: index })}
+        destinationLabel={t('ride_trip_points_destination')}
+        fromAddress={fromAddress}
+        stopAddresses={stops}
+        toAddress={toAddress}
+        onStopPress={handleEditStop}
+        removeStopLabel={(count) => t('ride_trip_points_remove_stop', { count })}
+        onRemoveStop={handleRemoveStop}
+        onClose={() => setIsTripPointsVisible(false)}
+      />
     </View>
   );
 }

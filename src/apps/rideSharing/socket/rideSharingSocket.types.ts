@@ -19,7 +19,7 @@ export type RideSharingServerEventMap = {
 export type RideSharingClientEventMap = {
   'bid-accepted': {
     rideRequestId: string;
-    riderSId: string;
+    riderUserId: string;
     startType: string;
   };
   'ride-request-created-by-customer': {

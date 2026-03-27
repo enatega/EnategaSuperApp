@@ -164,6 +164,7 @@ export interface ActiveRideRequestPayload {
     zone_id?: string;
     passenger?: unknown;
     ride_type?: ActiveRideRequestRideType | null;
+    stops?: ActiveRideStop[];
     zone?: unknown;
 }
 
@@ -224,9 +225,16 @@ export interface ActiveRideDriver {
 }
 
 export interface ActiveRideStop {
+    id?: string | null;
+    order?: number | string | null;
+    ride_request_id?: string | null;
     address?: string | null;
     lat?: number | string | null;
     lng?: number | string | null;
+    coordinates?: {
+        type?: string | null;
+        coordinates?: [number, number] | number[] | null;
+    } | null;
 }
 
 export interface ActiveRideLocationPoint {

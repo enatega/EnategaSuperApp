@@ -9,6 +9,11 @@ import { useTheme } from '../../../../../general/theme/theme';
 import type { RideAddressSelection } from '../../../api/types';
 import { rideKeys } from '../../../api/queryKeys';
 import { rideService } from '../../../api/rideService';
+import {
+  getActiveRideDriverPolylineColor,
+  getActiveRideTripSegmentColor,
+  isRideInProgressStatus,
+} from '../../../utils/activeRideMapper';
 
 type Props = {
   fromAddress: RideAddressSelection;
@@ -18,10 +23,6 @@ type Props = {
   driverCoordinate?: LatLng;
   driverHeading?: number;
 };
-
-function isRideInProgress(statusCode?: string) {
-  return statusCode === 'IN_PROGRESS' || statusCode === 'DRIVER_REACHED';
-}
 
 function toRouteKeyValue(value: number | undefined) {
   if (typeof value !== 'number' || !Number.isFinite(value)) {
@@ -54,7 +55,7 @@ function ActiveRideMapLayer({
       })),
     [orderedTripPoints],
   );
-  const targetAddress = isRideInProgress(statusCode) ? toAddress : fromAddress;
+  const targetAddress = isRideInProgressStatus(statusCode) ? toAddress : fromAddress;
   const driverRouteQuery = useQuery({
     queryKey: [
       ...rideKeys.route(
@@ -112,8 +113,21 @@ function ActiveRideMapLayer({
         coordinate: stopAddress.coordinates,
         zIndex: 2,
         render: (
-          <View style={[styles.stopPin, { borderColor: '#FBBF24', backgroundColor: colors.surface }]}>
-            <Icon type="MaterialCommunityIcons" name="map-marker" size={12} color="#D97706" />
+          <View
+            style={[
+              styles.stopPin,
+              {
+                borderColor: getActiveRideTripSegmentColor(index),
+                backgroundColor: colors.surface,
+              },
+            ]}
+          >
+            <Icon
+              type="MaterialCommunityIcons"
+              name="map-marker"
+              size={12}
+              color={getActiveRideTripSegmentColor(index)}
+            />
           </View>
         ),
         title: `Stop ${index + 1}`,
@@ -166,45 +180,35 @@ function ActiveRideMapLayer({
     return {
       id: 'driver-progress',
       coordinates: routedCoordinates,
-      strokeColor: isRideInProgress(statusCode) ? '#16A34A' : '#22C55E',
+      strokeColor: getActiveRideDriverPolylineColor(statusCode),
       strokeWidth: 4,
       zIndex: 3,
     };
   }, [driverCoordinate, driverRouteQuery.data, statusCode, targetAddress.coordinates]);
 
-  const tripPolyline = useMemo<MapPolyline | null>(() => {
-    const segmentCoordinates = tripSegmentQueries
-      .map((query) => query.data ?? [])
-      .filter((coordinates) => coordinates.length > 0);
+  const tripPolylines = useMemo<MapPolyline[]>(
+    () =>
+      tripSegmentQueries.flatMap((query, index) => {
+        const coordinates = query.data ?? [];
 
-    if (!segmentCoordinates.length) {
-      return null;
-    }
+        if (coordinates.length < 2) {
+          return [];
+        }
 
-    const mergedCoordinates = segmentCoordinates.flatMap((coordinates, index) => {
-      if (index === 0) {
-        return coordinates;
-      }
-
-      return coordinates.slice(1);
-    });
-
-    if (mergedCoordinates.length < 2) {
-      return null;
-    }
-
-    return {
-      id: 'trip-route',
-      coordinates: mergedCoordinates,
-      strokeColor: '#0F8EC7',
-      strokeWidth: 5,
-      zIndex: 1,
-    };
-  }, [tripSegmentQueries]);
+        return [{
+          id: `trip-route:${tripSegments[index]?.id ?? index}`,
+          coordinates,
+          strokeColor: getActiveRideTripSegmentColor(index),
+          strokeWidth: 5,
+          zIndex: 1,
+        }];
+      }),
+    [tripSegmentQueries, tripSegments],
+  );
 
   const polylines = useMemo<MapPolyline[]>(
-    () => [tripPolyline, driverApproachPolyline].filter(Boolean) as MapPolyline[],
-    [driverApproachPolyline, tripPolyline],
+    () => [...tripPolylines, ...(driverApproachPolyline ? [driverApproachPolyline] : [])],
+    [driverApproachPolyline, tripPolylines],
   );
 
   const initialRegion = useMemo(() => {

@@ -51,6 +51,7 @@ export default function CourierDetails() {
       rideCategory: params.rideCategory,
       fromAddress: params.fromAddress,
       toAddress: params.toAddress,
+      stops: params.stops,
       offeredFare: params.offeredFare,
       paymentMethodId: params.paymentMethodId,
       offerMode: params.offerMode,

@@ -69,6 +69,9 @@ function readCoordinates(value: {
   lat?: unknown;
   lng?: unknown;
   heading?: unknown;
+  coordinates?: {
+    coordinates?: unknown;
+  } | null;
 } | null | undefined) {
   if (!value) {
     return undefined;
@@ -77,13 +80,28 @@ function readCoordinates(value: {
   const latitude = readNumber(value.lat);
   const longitude = readNumber(value.lng);
 
-  if (latitude === undefined || longitude === undefined) {
+  if (latitude !== undefined && longitude !== undefined) {
+    return {
+      latitude,
+      longitude,
+      heading: readNumber(value.heading),
+    };
+  }
+
+  const rawGeoJsonCoordinates = value.coordinates?.coordinates;
+  const geoJsonCoordinates = Array.isArray(rawGeoJsonCoordinates)
+    ? rawGeoJsonCoordinates
+    : [];
+  const geoJsonLongitude = readNumber(geoJsonCoordinates[0]);
+  const geoJsonLatitude = readNumber(geoJsonCoordinates[1]);
+
+  if (geoJsonLatitude === undefined || geoJsonLongitude === undefined) {
     return undefined;
   }
 
   return {
-    latitude,
-    longitude,
+    latitude: geoJsonLatitude,
+    longitude: geoJsonLongitude,
     heading: readNumber(value.heading),
   };
 }

@@ -3,6 +3,14 @@ import type {
 } from '../api/types';
 import type { CompletedRideFeedbackData } from '../screens/activeRide/types/view';
 
+const ACTIVE_RIDE_SEGMENT_COLORS = [
+  '#0F8EC7',
+  '#8B5CF6',
+  '#F59E0B',
+  '#EC4899',
+  '#14B8A6',
+] as const;
+
 function readString(...values: Array<unknown>) {
   for (const value of values) {
     if (typeof value === 'string' && value.trim().length > 0) {
@@ -39,6 +47,18 @@ export function getActiveRideDriverUserId(activeRide: ActiveRidePayload | null |
     driver?.user?.id,
     driver?.id,
   );
+}
+
+export function isRideInProgressStatus(statusCode?: string) {
+  return statusCode === 'IN_PROGRESS' || statusCode === 'DRIVER_REACHED';
+}
+
+export function getActiveRideDriverPolylineColor(statusCode?: string) {
+  return isRideInProgressStatus(statusCode) ? '#16A34A' : '#22C55E';
+}
+
+export function getActiveRideTripSegmentColor(index: number) {
+  return ACTIVE_RIDE_SEGMENT_COLORS[index % ACTIVE_RIDE_SEGMENT_COLORS.length];
 }
 
 export function mapActiveRideToCompletedRideFeedbackData(

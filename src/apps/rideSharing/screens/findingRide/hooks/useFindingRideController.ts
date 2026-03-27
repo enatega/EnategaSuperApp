@@ -447,7 +447,7 @@ export function useFindingRideController({
       try {
         await emitRequiredRideSharingEvent('bid-accepted', {
           rideRequestId: resolvedRideRequestId,
-          riderSId,
+          riderUserId: riderSId,
           startType: BID_ACCEPT_START_TYPE,
         });
       } catch (socketError) {
