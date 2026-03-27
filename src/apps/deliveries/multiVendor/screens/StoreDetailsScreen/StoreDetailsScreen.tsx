@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import AppPopup from '../../../../../general/components/AppPopup';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
 import { useStoreProducts, useStoreView } from '../../../hooks';
@@ -59,6 +60,7 @@ export default function StoreDetailsScreen() {
   const route = useRoute<RouteProp<StoreDetailsParamList, 'StoreDetails'>>();
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('');
+  const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string | null>(null);
   const selectedStore = route.params?.store;
@@ -106,6 +108,7 @@ export default function StoreDetailsScreen() {
   );
 
   useEffect(() => {
+    setIsInfoModalVisible(false);
     setSearchValue('');
     setDebouncedSearchValue('');
     setSelectedCategoryId(null);
@@ -188,6 +191,14 @@ export default function StoreDetailsScreen() {
     navigation.goBack();
   }, [navigation]);
 
+  const handleOpenInfoModal = useCallback(() => {
+    setIsInfoModalVisible(true);
+  }, []);
+
+  const handleCloseInfoModal = useCallback(() => {
+    setIsInfoModalVisible(false);
+  }, []);
+
   const handleLoadMoreProducts = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
@@ -236,6 +247,7 @@ export default function StoreDetailsScreen() {
         logoImageUrl={logoImageUrl}
         onBackPress={handleBackPress}
         onCategorySelect={handleCategorySelect}
+        onInfoPress={handleOpenInfoModal}
         onSearchChange={setSearchValue}
         onSubcategorySelect={handleSubcategorySelect}
         phone={phone}
@@ -260,6 +272,7 @@ export default function StoreDetailsScreen() {
       logoImageUrl,
       handleBackPress,
       handleCategorySelect,
+      handleOpenInfoModal,
       handleSubcategorySelect,
       phone,
       rating,
@@ -292,41 +305,57 @@ export default function StoreDetailsScreen() {
   }
 
   return (
-    <FlatList
-      ListFooterComponent={
-        isFetchingNextPage ? (
-          <View style={styles.footerLoader}>
-            <ActivityIndicator color={colors.primary} size="small" />
-          </View>
-        ) : null
-      }
-      ListHeaderComponent={renderHeader}
-      contentContainerStyle={[styles.content, { backgroundColor: colors.background }]}
-      contentInsetAdjustmentBehavior="automatic"
-      data={PRODUCT_LIST_DATA}
-      keyExtractor={(item) => item.id}
-      onEndReached={handleLoadMoreProducts}
-      onEndReachedThreshold={0.4}
-      renderItem={() => (
-        <StoreDetailProductsList
-          activeCategoryId={activeCategoryId}
-          categories={categories}
-          contentLayoutKey={productsContentKey}
-          emptyText={t('store_details_no_items')}
-          errorText={productsError?.message ?? t('store_details_load_error')}
-          hasError={Boolean(productsError)}
-          hasFetchedProducts={hasFetchedProducts}
-          onCategorySelect={handleCategorySelect}
-          onRetry={() => {
-            void refetchProducts();
-          }}
-          products={products}
-          shouldShowProductSkeletons={shouldShowProductSkeletons}
-        />
-      )}
-      showsVerticalScrollIndicator={false}
-      style={{ backgroundColor: colors.background }}
-    />
+    <>
+      <FlatList
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <View style={styles.footerLoader}>
+              <ActivityIndicator color={colors.primary} size="small" />
+            </View>
+          ) : null
+        }
+        ListHeaderComponent={renderHeader}
+        contentContainerStyle={[styles.content, { backgroundColor: colors.background }]}
+        contentInsetAdjustmentBehavior="automatic"
+        data={PRODUCT_LIST_DATA}
+        keyExtractor={(item) => item.id}
+        onEndReached={handleLoadMoreProducts}
+        onEndReachedThreshold={0.4}
+        renderItem={() => (
+          <StoreDetailProductsList
+            activeCategoryId={activeCategoryId}
+            categories={categories}
+            contentLayoutKey={productsContentKey}
+            emptyText={t('store_details_no_items')}
+            errorText={productsError?.message ?? t('store_details_load_error')}
+            hasError={Boolean(productsError)}
+            hasFetchedProducts={hasFetchedProducts}
+            onCategorySelect={handleCategorySelect}
+            onRetry={() => {
+              void refetchProducts();
+            }}
+            products={products}
+            shouldShowProductSkeletons={shouldShowProductSkeletons}
+          />
+        )}
+        showsVerticalScrollIndicator={false}
+        style={{ backgroundColor: colors.background }}
+      />
+
+      <AppPopup
+        description={store?.description?.trim() || t('store_details_about_fallback')}
+        dismissOnOverlayPress
+        onRequestClose={handleCloseInfoModal}
+        primaryAction={{
+          label: t('store_details_close'),
+          onPress: handleCloseInfoModal,
+        }}
+        showPrimaryAction={false}
+        title={t('store_details_about_title')}
+        visible={isInfoModalVisible}
+        
+      />
+    </>
   );
 }
 
