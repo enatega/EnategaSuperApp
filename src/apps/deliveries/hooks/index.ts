@@ -6,6 +6,8 @@ export {
   useShopTypeProducts,
   useShopTypeProductsSections,
   useShopTypes,
+  useStoreProducts,
+  useStoreView,
   useTopBrands,
 } from './useDiscoveryQueries';
 export { useFilterValues } from './useFilterValues';

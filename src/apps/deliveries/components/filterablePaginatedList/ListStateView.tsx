@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../../../../general/components/Button';
 import Text from '../../../../general/components/Text';
@@ -10,6 +10,7 @@ type Props = {
   description?: string;
   actionLabel?: string;
   onActionPress?: () => void;
+  containerStyle?: StyleProp<ViewStyle>;
   variant: 'loading' | 'empty' | 'error';
 };
 
@@ -18,12 +19,13 @@ export default function ListStateView({
   description,
   actionLabel,
   onActionPress,
+  containerStyle,
   variant,
 }: Props) {
   const { colors } = useTheme();
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       {variant === 'loading' ? (
         <ActivityIndicator size="large" color={colors.primary} />
       ) : (
