@@ -11,7 +11,11 @@ import StoreCard from "../../../components/storeCard/StoreCard";
 import NearbyStoreListSkeleton from "./HomeTabSkeletons/NearbyStoreListSkeleton";
 import type { MultiVendorStackParamList } from "../../navigation/types";
 
-type NavProp = NativeStackNavigationProp<Record<string, object | undefined>>;
+
+type NavProp = NativeStackNavigationProp<
+  MultiVendorStackParamList,
+  "SeeAllScreen"
+>;
 
 export default function NearbyStoreList() {
   const { t } = useTranslation('deliveries');
