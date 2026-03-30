@@ -59,6 +59,10 @@ export const deliveryKeys = {
         [...deliveryKeys.search(), 'stores', keyword, latitude, longitude] as const,
     orderAgain: () => [...deliveryKeys.discovery(), 'order-again'] as const,
 
+    filterableListing: (scope: string) =>
+        [...deliveryKeys.search(), 'filterable-listing', scope] as const,
+
+
     // Chat
     chat: () => [...deliveryKeys.all, 'chat'] as const,
     chatBoxes: (userId: string) => [...deliveryKeys.chat(), 'boxes', userId] as const,
