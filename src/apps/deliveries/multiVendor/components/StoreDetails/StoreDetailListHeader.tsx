@@ -27,6 +27,7 @@ type Props = {
   logoImageUrl: string;
   onBackPress: () => void;
   onCategorySelect: (categoryId: string | null) => void;
+  onInfoPress: () => void;
   onSubcategorySelect: (subcategoryId: string) => void;
   phone?: string | null;
   rating?: number | null;
@@ -51,6 +52,7 @@ export default function StoreDetailListHeader({
   logoImageUrl,
   onBackPress,
   onCategorySelect,
+  onInfoPress,
   onSearchChange,
   onSubcategorySelect,
   phone,
@@ -86,6 +88,7 @@ export default function StoreDetailListHeader({
                   accessibilityLabel={t('store_details_action_info')}
                   iconName="info"
                   iconType="Feather"
+                  onPress={onInfoPress}
                 />
                 <StoreDetailActionButton
                   accessibilityLabel={t('store_details_action_favorite')}

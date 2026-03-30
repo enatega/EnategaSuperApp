@@ -58,8 +58,25 @@ export const deliveryKeys = {
     storeSearch: (keyword: string, latitude?: number, longitude?: number) =>
         [...deliveryKeys.search(), 'stores', keyword, latitude, longitude] as const,
     orderAgain: () => [...deliveryKeys.discovery(), 'order-again'] as const,
+
     filterableListing: (scope: string) =>
         [...deliveryKeys.search(), 'filterable-listing', scope] as const,
+
+
+    // Chat
+    chat: () => [...deliveryKeys.all, 'chat'] as const,
+    chatBoxes: (userId: string) => [...deliveryKeys.chat(), 'boxes', userId] as const,
+    chatMessages: (chatBoxId: string) =>
+        [...deliveryKeys.chat(), 'messages', chatBoxId] as const,
+    supportChat: () => [...deliveryKeys.all, 'support-chat'] as const,
+    supportChatBoxes: (filters: Record<string, unknown>) =>
+        [...deliveryKeys.supportChat(), 'boxes', filters] as const,
+    supportChatBoxesByUser: (userId: string, filters: Record<string, unknown>) =>
+        [...deliveryKeys.supportChat(), 'boxes', 'user', userId, filters] as const,
+    supportChatBox: (chatBoxId: string) =>
+        [...deliveryKeys.supportChat(), 'box', chatBoxId] as const,
+    supportChatMessages: (chatBoxId: string) =>
+        [...deliveryKeys.supportChat(), 'messages', chatBoxId] as const,
 };
 
 export const addressKeys = {
