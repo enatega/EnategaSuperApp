@@ -1,11 +1,13 @@
 const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY ?? 'DUMMY_GOOGLE_MAPS_API_KEY';
 const iosUrlScheme = process.env.EXPO_PUBLIC_IOS_URL_SCHEME ?? 'com.enategasuper.app';
+const appUrlScheme = process.env.EXPO_PUBLIC_APP_URL_SCHEME ?? 'enategasuperapp';
 const hasValidGoogleIosUrlScheme = iosUrlScheme.startsWith('com.googleusercontent.apps');
 
 module.exports = {
   expo: {
     name: 'EnategaSuperApp',
     slug: 'EnategaSuperApp',
+    scheme: appUrlScheme,
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/icon.png',

@@ -28,6 +28,7 @@ type Props = {
   onBackPress: () => void;
   onCategorySelect: (categoryId: string | null) => void;
   onInfoPress: () => void;
+  onSharePress: () => void;
   onSubcategorySelect: (subcategoryId: string) => void;
   phone?: string | null;
   rating?: number | null;
@@ -54,6 +55,7 @@ export default function StoreDetailListHeader({
   onCategorySelect,
   onInfoPress,
   onSearchChange,
+  onSharePress,
   onSubcategorySelect,
   phone,
   rating,
@@ -98,6 +100,7 @@ export default function StoreDetailListHeader({
                   accessibilityLabel={t('store_details_action_share')}
                   iconName="share-2"
                   iconType="Feather"
+                  onPress={onSharePress}
                 />
               </View>
             </View>

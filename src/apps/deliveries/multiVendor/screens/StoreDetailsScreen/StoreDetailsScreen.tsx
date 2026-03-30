@@ -1,25 +1,21 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Share, StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import AppPopup from '../../../../../general/components/AppPopup';
+import { showToast } from '../../../../../general/components/AppToast';
 import Text from '../../../../../general/components/Text';
+import { buildStoreDetailsDeepLink } from '../../../../../general/navigation/deepLinks';
 import { useTheme } from '../../../../../general/theme/theme';
 import { useStoreProducts, useStoreView } from '../../../hooks';
 import type {
-  DeliveryNearbyStore,
   DeliveryStoreTimings,
 } from '../../../api/types';
 import StoreDetailListHeader from '../../components/StoreDetails/StoreDetailListHeader';
 import StoreDetailProductsList from '../../components/StoreDetails/StoreDetailProductsList';
 import StoreDetailsScreenSkeleton from '../../components/StoreDetails/StoreDetailsScreenSkeleton';
+import type { MultiVendorStackParamList } from '../../navigation/types';
 // import { data } from './storedetaiolsData';
-
-type StoreDetailsParamList = {
-  StoreDetails: {
-    store?: DeliveryNearbyStore;
-  };
-};
 
 const SEARCH_DEBOUNCE_MS = 400;
 
@@ -57,14 +53,14 @@ export default function StoreDetailsScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation();
-  const route = useRoute<RouteProp<StoreDetailsParamList, 'StoreDetails'>>();
+  const route = useRoute<RouteProp<MultiVendorStackParamList, 'StoreDetails'>>();
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('');
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string | null>(null);
   const selectedStore = route.params?.store;
-  const storeId = selectedStore?.storeId ?? '';
+  const storeId = route.params?.storeId ?? selectedStore?.storeId ?? '';
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -232,6 +228,34 @@ export default function StoreDetailsScreen() {
     activeSubcategoryId ?? 'all',
     debouncedSearchValue || 'all',
   ].join(':');
+  const handleSharePress = useCallback(async () => {
+    if (!storeId) {
+      showToast.error(
+        t('store_details_share_error_title'),
+        t('store_details_share_missing_message'),
+      );
+      return;
+    }
+
+    const storeLink = buildStoreDetailsDeepLink(storeId);
+    const shareMessage = t('store_details_share_message', {
+      storeName,
+      url: storeLink,
+    });
+
+    try {
+      await Share.share({
+        title: storeName,
+        message: shareMessage,
+        url: storeLink,
+      });
+    } catch {
+      showToast.error(
+        t('store_details_share_error_title'),
+        t('store_details_share_error_message'),
+      );
+    }
+  }, [storeId, storeName, t]);
   const renderHeader = useCallback(
     () => (
       <StoreDetailListHeader
@@ -249,6 +273,7 @@ export default function StoreDetailsScreen() {
         onCategorySelect={handleCategorySelect}
         onInfoPress={handleOpenInfoModal}
         onSearchChange={setSearchValue}
+        onSharePress={handleSharePress}
         onSubcategorySelect={handleSubcategorySelect}
         phone={phone}
         rating={rating}
@@ -273,6 +298,7 @@ export default function StoreDetailsScreen() {
       handleBackPress,
       handleCategorySelect,
       handleOpenInfoModal,
+      handleSharePress,
       handleSubcategorySelect,
       phone,
       rating,

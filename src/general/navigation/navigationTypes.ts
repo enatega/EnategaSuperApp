@@ -1,8 +1,9 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { DeliveriesStackParamList } from '../../apps/deliveries/navigation/types';
 
 export type SharedStackParamList = {
   Home: undefined;
-  Deliveries: undefined;
+  Deliveries: NavigatorScreenParams<DeliveriesStackParamList> | undefined;
   RideSharing: undefined;
   HomeVisits: undefined;
   Appointments: undefined;

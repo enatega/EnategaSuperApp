@@ -20,6 +20,11 @@ export type AddressFlowParams = {
   editLocationName?: string;
 };
 
+export type MultiVendorStoreDetailsParams = {
+  store?: DeliveryNearbyStore;
+  storeId?: string;
+};
+
 export type MultiVendorStackParamList = {
   MultiVendorTabs: undefined;
   MyProfile: undefined;

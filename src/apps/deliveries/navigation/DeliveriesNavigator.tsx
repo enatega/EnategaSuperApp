@@ -5,8 +5,9 @@ import SingleVendorNavigator from '../singleVendor/navigation/SingleVendorNaviga
 import MultiVendorNavigator from '../multiVendor/navigation/MultiVendorNavigator';
 import ChainNavigator from '../chain/navigation/ChainNavigator';
 import { useTranslation } from 'react-i18next';
+import type { DeliveriesStackParamList } from './types';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<DeliveriesStackParamList>();
 
 export default function DeliveriesNavigator() {
   const { t } = useTranslation('deliveries');
