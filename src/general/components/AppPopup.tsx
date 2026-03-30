@@ -27,6 +27,7 @@ type Props = {
   illustration?: ReactNode;
   primaryAction: PopupAction;
   secondaryAction?: PopupAction;
+  showPrimaryAction?: boolean;
   onRequestClose?: () => void;
   dismissOnOverlayPress?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
@@ -39,11 +40,14 @@ export default function AppPopup({
   illustration,
   primaryAction,
   secondaryAction,
+  showPrimaryAction = true,
   onRequestClose,
   dismissOnOverlayPress = false,
   containerStyle,
 }: Props) {
   const { colors } = useTheme();
+  const showsPrimaryAction = showPrimaryAction;
+  const showsActions = showsPrimaryAction || Boolean(secondaryAction);
 
   const handleOverlayPress = () => {
     if (dismissOnOverlayPress) {
@@ -82,27 +86,31 @@ export default function AppPopup({
                 </Text>
               </View>
 
-              <View style={styles.actions}>
-                <Button
-                  label={primaryAction.label}
-                  onPress={primaryAction.onPress}
-                  variant={primaryAction.variant}
-                  isLoading={primaryAction.isLoading}
-                  disabled={primaryAction.disabled}
-                  style={[styles.button, primaryAction.style]}
-                />
+              {showsActions ? (
+                <View style={styles.actions}>
+                  {showsPrimaryAction ? (
+                    <Button
+                      label={primaryAction.label}
+                      onPress={primaryAction.onPress}
+                      variant={primaryAction.variant}
+                      isLoading={primaryAction.isLoading}
+                      disabled={primaryAction.disabled}
+                      style={[styles.button, primaryAction.style]}
+                    />
+                  ) : null}
 
-                {secondaryAction ? (
-                  <Button
-                    label={secondaryAction.label}
-                    onPress={secondaryAction.onPress}
-                    variant={secondaryAction.variant}
-                    isLoading={secondaryAction.isLoading}
-                    disabled={secondaryAction.disabled}
-                    style={[styles.button, secondaryAction.style]}
-                  />
-                ) : null}
-              </View>
+                  {secondaryAction ? (
+                    <Button
+                      label={secondaryAction.label}
+                      onPress={secondaryAction.onPress}
+                      variant={secondaryAction.variant}
+                      isLoading={secondaryAction.isLoading}
+                      disabled={secondaryAction.disabled}
+                      style={[styles.button, secondaryAction.style]}
+                    />
+                  ) : null}
+                </View>
+              ) : null}
             </View>
           </View>
         </Pressable>
