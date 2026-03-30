@@ -24,3 +24,13 @@ export { deliveryKeys } from './queryKeys';
 // Discovery service
 export { discoveryService } from './discoveryService';
 export { filterService } from './filterService';
+// Chat service
+export { chatService } from './chatService';
+export type {
+    DeliveryChatMessageRecord,
+    DeliveryChatBoxesResponse,
+    DeliveryChatBoxRecord,
+    DeliveryChatMessagesResponse,
+    SendDeliveryChatMessagePayload,
+    SendDeliveryChatMessageResponse,
+} from './chatServiceTypes';

@@ -29,6 +29,8 @@ const fr = {
   developer_mode_subtitle: 'Outils système et diagnostics',
   developer_mode_welcome: 'Bienvenue en mode développeur. D’autres outils de diagnostic seront bientôt disponibles.',
   driver_profile_button: 'Profil conducteur',
+  auth_flow_button: 'Parcours auth',
+  rider_chat_button: 'Chat livreur',
   dev_auth_title: 'Espace Auth',
   dev_auth_description: 'Outils temporaires pour inscription et session.',
   dev_auth_mode_signup: 'Inscription',

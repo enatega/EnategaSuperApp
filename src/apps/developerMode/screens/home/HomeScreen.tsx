@@ -17,13 +17,23 @@ import {
 } from '../../../../general/hooks/useAuthMutations';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
 
-type RideSharingStackParamList = {
-  RideSharingHome: undefined;
-  RideDetails: undefined;
+type DeveloperModeStackParamList = {
+  DeveloperModeHome: undefined;
   DriverProfile: undefined;
+  Auth: undefined;
+  RateOrder: {
+    orderId: string;
+    storeName: string;
+  };
+  RiderChat: {
+    estimatedMinutes: number;
+    orderCode: string;
+    receiverId: string;
+    riderName: string;
+  };
 };
 
-type NavigationProp = NativeStackNavigationProp<RideSharingStackParamList, 'RideSharingHome'>;
+type NavigationProp = NativeStackNavigationProp<DeveloperModeStackParamList, 'DeveloperModeHome'>;
 
 type AuthMode = 'signup' | 'login';
 
@@ -51,6 +61,7 @@ export default function DeveloperModeHomeScreen() {
   const isSignup = mode === 'signup';
 
   const handleSendOtp = useCallback(() => {
+
     if (isSignup) {
       sendOtpMutation.mutate({ phone, otp_type: 'sms' });
     } else {
@@ -69,6 +80,7 @@ export default function DeveloperModeHomeScreen() {
         otp,
         name,
         password,
+        otp_type: 'sms',
         device_push_token: devicePushToken || undefined,
         referral_code: referralCode || undefined,
       });
@@ -153,7 +165,7 @@ export default function DeveloperModeHomeScreen() {
 
   return (
     <ScrollView
-    contentContainerStyle={{paddingBottom: 100}}
+      contentContainerStyle={{ paddingBottom: 100 }}
       style={[
         styles.container,
         { backgroundColor: colors.background, paddingTop: Math.max(insets.top + 8, 20) },
@@ -315,10 +327,11 @@ export default function DeveloperModeHomeScreen() {
         style={styles.button}
       />
       <Button
-        label={t('Auth flow')}
+        label={t('auth_flow_button')}
         onPress={() => navigation.navigate('Auth')}
         style={styles.button}
       />
+
       <Button
         label="Rate Order Screen"
         onPress={() =>
@@ -326,6 +339,18 @@ export default function DeveloperModeHomeScreen() {
           (navigation as any).navigate('RateOrder', {
             orderId: '764331ff-4069-4789-93af-41568f49638a',
             storeName: 'Subway @ Old Town, New Mexico',
+          })
+        }
+        style={styles.button}
+      />
+      <Button
+        label={t('rider_chat_button')}
+        onPress={() =>
+          navigation.navigate('RiderChat', {
+            estimatedMinutes: 8,
+            orderCode: '#D-2048',
+            receiverId: 'b0e84890-0d23-4aac-93d9-99b80620d84c',
+            riderName: 'Alex',
           })
         }
         style={styles.button}
@@ -344,9 +369,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    
+
     gap: 16,
-    
+
   },
   statusCard: {
     borderWidth: 1,
