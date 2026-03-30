@@ -5,6 +5,8 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import HorizontalList from "../../../../../general/components/HorizontalList";
 import SectionActionHeader from "../../../../../general/components/SectionActionHeader";
+import Text from "../../../../../general/components/Text";
+import { useTheme } from "../../../../../general/theme/theme";
 import { useNearbyStores } from "../../../hooks";
 import type { DeliveryNearbyStore } from "../../../api/types";
 import StoreCard from "../../../components/storeCard/StoreCard";
@@ -20,9 +22,9 @@ type NavProp = NativeStackNavigationProp<
 export default function NearbyStoreList() {
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavProp>();
+  const { colors, typography } = useTheme();
   const { data: nearbyStoresData = [], isPending: isNearbyStoresPending } = useNearbyStores();
-  console.log('nearby_Store_data__',JSON.stringify(nearbyStoresData,null,2));
-  
+  const isEmpty = !isNearbyStoresPending && nearbyStoresData.length === 0;
 
   const handleRestaurantPress = useCallback(
     (store: DeliveryNearbyStore) => {
@@ -30,8 +32,6 @@ export default function NearbyStoreList() {
     },
     [navigation],
   );
-
-
 
   const handleSeeAllNearbyRestaurants = useCallback(() => {
     navigation.navigate("SeeAllScreen", {
@@ -55,6 +55,27 @@ export default function NearbyStoreList() {
 
       {isNearbyStoresPending ? (
         <NearbyStoreListSkeleton />
+      ) : isEmpty ? (
+        <View
+          style={[
+            styles.messageContainer,
+            { backgroundColor: colors.blue50 },
+          ]}
+        >
+          <Text
+            weight="medium"
+            style={[
+              styles.messageText,
+              {
+                color: colors.mutedText,
+                fontSize: typography.size.sm2,
+                lineHeight: typography.lineHeight.sm2,
+              },
+            ]}
+          >
+            {t('multi_vendor_location_stores_empty')}
+          </Text>
+        </View>
       ) : (
         <HorizontalList
           data={nearbyStoresData}
@@ -69,6 +90,14 @@ export default function NearbyStoreList() {
 }
 
 const styles = StyleSheet.create({
+  messageContainer: {
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  messageText: {
+    textAlign: "center",
+  },
   section: {
     gap: 12,
     paddingHorizontal: 16,

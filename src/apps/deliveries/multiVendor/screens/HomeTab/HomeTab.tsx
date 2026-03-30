@@ -11,15 +11,20 @@ import NearbyStoreList from '../../components/HomeTab/NearbyStoreList';
 import Deals from '../../components/HomeTab/Deals';
 import OrderAgain from '../../components/HomeTab/OrderAgain';
 import { styles } from './HomeTabStyle';
+import type { MultiVendorStackParamList } from '../../navigation/types';
 
-type NavProp = NativeStackNavigationProp<Record<string, object | undefined>>;
+type NavProp = NativeStackNavigationProp<MultiVendorStackParamList>;
 
 export default function HomeTab() {
   const { colors } = useTheme();
   const navigation = useNavigation<NavProp>();
 
   const handleAddressPress = useCallback(() => {
-    navigation.navigate('AddressSearch', {});
+    navigation.navigate('MyProfile', { selectionMode: true });
+  }, [navigation]);
+
+  const handleAddAddressPress = useCallback(() => {
+    navigation.navigate('AddressSearch', { origin: 'home-header' });
   }, [navigation]);
 
   return (
@@ -28,7 +33,10 @@ export default function HomeTab() {
       showsVerticalScrollIndicator={false}
       style={{ backgroundColor: colors.background }}
     >
-      <MultiVendorAddressHeader onAddressPress={handleAddressPress} />
+      <MultiVendorAddressHeader
+        onAddressPress={handleAddressPress}
+        onAddAddressPress={handleAddAddressPress}
+      />
       <MultiVendorSpecialOffers />
       <ShopTypeList />
       <TopBrandsList />

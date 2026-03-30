@@ -12,6 +12,7 @@ import { ApiError } from '../../../general/api/apiClient';
 import { discoveryService } from '../api/discoveryService';
 import { deliveryKeys } from '../api/queryKeys';
 import type { GenericListFilters } from '../components/filters/types';
+import useAddress from './useAddress';
 import type {
   DeliveryBanner,
   DeliveryNearbyStore,
@@ -139,6 +140,15 @@ function normalizeStockValue(stockId?: string | null) {
   return stockId;
 }
 
+function useDiscoveryCoordinates() {
+  const { latitude, longitude } = useAddress();
+
+  return {
+    latitude,
+    longitude,
+  };
+}
+
 export function useShopTypes(options?: UseShopTypesOptions) {
   return useQuery<DeliveryShopType[], ApiError>({
     queryKey: deliveryKeys.shopTypes(),
@@ -154,11 +164,14 @@ export function useShopTypeProducts(
 ) {
   const mode = options?.mode ?? 'preview';
   const limit = 10;
+  const { latitude, longitude } = useDiscoveryCoordinates();
   const shopTypeProductParams: Omit<
     DeliveryShopTypeProductsParams,
     'shopTypeId' | 'offset' | 'limit' | 'search'
   > = {
     ...options?.requestParams,
+    latitude: options?.requestParams?.latitude ?? latitude,
+    longitude: options?.requestParams?.longitude ?? longitude,
     category_ids: normalizeCategoryIds(options?.filters?.category_ids),
     price_tiers: options?.filters?.price_tiers
       ? [options.filters.price_tiers]
@@ -210,13 +223,19 @@ export function useShopTypeProductsSections(
   shopTypes: DeliveryShopType[],
 ): ShopTypeProductsSectionResult[] {
   const featuredShopTypes = shopTypes.slice(0, 5);
+  const { latitude, longitude } = useDiscoveryCoordinates();
   const results = useQueries({
     queries: featuredShopTypes.map((shopType) => ({
-      queryKey: deliveryKeys.shopTypeProducts(shopType.id, 0, 10),
+      queryKey: [
+        ...deliveryKeys.shopTypeProducts(shopType.id, 0, 10),
+        { latitude, longitude },
+      ],
       queryFn: () =>
         discoveryService.getShopTypeProducts({
           shopTypeId: shopType.id,
           limit: 10,
+          latitude,
+          longitude,
         }),
       staleTime: 5 * 60 * 1000,
       enabled: Boolean(shopType.id),
@@ -250,11 +269,14 @@ export function useTopBrands(options?: UseTopBrandsOptions) {
 export function useNearbyStores(options?: UseNearbyStoresOptions) {
   const mode = options?.mode ?? 'preview';
   const limit = 10;
+  const { latitude, longitude } = useDiscoveryCoordinates();
   const nearbyStoreParams: Omit<
     DeliveryNearbyStoresParams,
     'offset' | 'limit' | 'search'
   > = {
     ...options?.requestParams,
+    latitude: options?.requestParams?.latitude ?? latitude,
+    longitude: options?.requestParams?.longitude ?? longitude,
     category_ids: normalizeCategoryIds(options?.filters?.category_ids),
     price_tiers: options?.filters?.price_tiers
       ? [options.filters.price_tiers]

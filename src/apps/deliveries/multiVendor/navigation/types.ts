@@ -14,15 +14,22 @@ export type EditProfileParams = {
   gender: string | null;
 };
 
+export type AddressFlowOrigin = 'home-header' | 'profile';
+
 export type AddressFlowParams = {
   editAddressId?: string;
   editType?: string;
   editLocationName?: string;
+  origin?: AddressFlowOrigin;
 };
 
 export type MultiVendorStackParamList = {
   MultiVendorTabs: undefined;
-  MyProfile: undefined;
+  MyProfile:
+    | {
+        selectionMode?: boolean;
+      }
+    | undefined;
   EditProfile: EditProfileParams;
   AddressSearch: AddressFlowParams | undefined;
   AddressChooseOnMap: AddressFlowParams | undefined;
@@ -33,6 +40,7 @@ export type MultiVendorStackParamList = {
     editAddressId?: string;
     editType?: string;
     editLocationName?: string;
+    origin?: AddressFlowOrigin;
   };
   Favourites: undefined;
   RateOrder: {

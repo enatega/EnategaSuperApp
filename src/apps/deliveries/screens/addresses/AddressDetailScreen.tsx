@@ -11,18 +11,13 @@ import Button from '../../../../general/components/Button';
 import AddressDetailForm from '../../components/addresses/AddressDetailForm';
 import type { AddressDetailFormHandle } from '../../components/addresses/AddressDetailForm';
 import { addressService, AddressType } from '../../api/addressService';
-
-type RouteParams = {
-  address: string;
-  latitude: number;
-  longitude: number;
-  editAddressId?: string;
-  editType?: string;
-  editLocationName?: string;
-};
+import type { MultiVendorStackParamList } from '../../multiVendor/navigation/types';
+import useAddress from '../../hooks/useAddress';
+import { createDeliveryAddress } from '../../utils/address';
 
 export default function AddressDetailScreen() {
-  const nav = useNavigation<NativeStackNavigationProp<Record<string, object | undefined>>>();
+  const nav =
+    useNavigation<NativeStackNavigationProp<MultiVendorStackParamList>>();
   const route = useRoute();
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
@@ -30,7 +25,8 @@ export default function AddressDetailScreen() {
   const formRef = useRef<AddressDetailFormHandle>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
-  const params = route.params as RouteParams;
+  const { setSelectedAddress } = useAddress();
+  const params = route.params as MultiVendorStackParamList['AddressDetail'];
   const isEditing = Boolean(params.editAddressId);
   const lat = Number(params.latitude);
   const lng = Number(params.longitude);
@@ -58,11 +54,27 @@ export default function AddressDetailScreen() {
         await addressService.addAddress(payload);
         Toast.show({ type: 'success', text1: t('address_save_success') });
       }
+      setSelectedAddress(
+        createDeliveryAddress({
+          id: params.editAddressId,
+          address: payload.address,
+          locationName: payload.location_name,
+          latitude: payload.latitude,
+          longitude: payload.longitude,
+          type: payload.type,
+        }),
+      );
+
+      if (params.origin === 'home-header') {
+        nav.navigate('MultiVendorTabs');
+        return;
+      }
+
       nav.navigate('MyProfile');
     } catch {
       Toast.show({ type: 'error', text1: t('address_save_error') });
     }
-  }, [isEditing, params.editAddressId, nav, t]);
+  }, [isEditing, nav, params.editAddressId, params.origin, setSelectedAddress, t]);
 
   const handleButtonPress = useCallback(async () => {
     if (!formRef.current) return;

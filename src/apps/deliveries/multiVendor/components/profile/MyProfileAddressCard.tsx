@@ -8,6 +8,8 @@ type Props = {
   typeLabel: string;
   address: string | null | undefined;
   iconName: keyof typeof Ionicons.glyphMap;
+  isSelected?: boolean;
+  onPress?: () => void;
   onMenuPress?: () => void;
 };
 
@@ -15,15 +17,25 @@ export default function MyProfileAddressCard({
   typeLabel,
   address,
   iconName,
+  isSelected = false,
+  onPress,
   onMenuPress,
 }: Props) {
   const { colors } = useTheme();
 
   return (
-    <View
-      style={[
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={address || typeLabel}
+      onPress={onPress}
+      disabled={!onPress}
+      style={({ pressed }) => [
         styles.card,
-        { borderColor: colors.border, backgroundColor: colors.surface },
+        {
+          backgroundColor: isSelected ? colors.blue50 : colors.surface,
+          borderColor: isSelected ? colors.primary : colors.border,
+          opacity: pressed && onPress ? 0.9 : 1,
+        },
       ]}
     >
       <View style={styles.content}>
@@ -47,7 +59,7 @@ export default function MyProfileAddressCard({
           <Pressable
             onPress={onMenuPress}
             accessibilityRole="button"
-            accessibilityLabel={`${typeLabel} options`}
+            accessibilityLabel={typeLabel}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             style={({ pressed }) => [
               styles.menuButton,
@@ -58,7 +70,7 @@ export default function MyProfileAddressCard({
           </Pressable>
         ) : null}
       </View>
-    </View>
+    </Pressable>
   );
 }
 
