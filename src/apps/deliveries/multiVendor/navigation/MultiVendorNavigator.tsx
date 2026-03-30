@@ -24,6 +24,7 @@ import ChangePasswordScreen from '../screens/ChangePasswordScreen/ChangePassword
 import DeleteAccountScreen from '../screens/DeleteAccountScreen/DeleteAccountScreen';
 import ColorModeScreen from '../screens/ColorModeScreen/ColorModeScreen';
 import LanguageScreen from '../screens/LanguageScreen/LanguageScreen';
+import ProductInfo from '../../screens/ProductInfo/ProductInfo';
 
 const Stack = createNativeStackNavigator<MultiVendorStackParamList>();
 
@@ -139,6 +140,11 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="Language"
         component={LanguageScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProductInfo"
+        component={ProductInfo}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

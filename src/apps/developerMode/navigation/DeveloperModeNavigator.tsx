@@ -5,6 +5,7 @@ import DriverProfileScreen from '../../rideSharing/screens/driverProfile/DriverP
 import RateOrderScreen from '../../deliveries/screens/RateOrderScreen/RateOrderScreen';
 import CourierDetails from '../../rideSharing/screens/courierDetails/CourierDetails';
 import QueryProvider from '../../../general/providers/QueryProvider';
+import ProductInfo from '../../deliveries/screens/ProductInfo/ProductInfo';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,6 +31,11 @@ export default function DeveloperModeNavigator() {
         <Stack.Screen
           name="CourierDetails"
           component={CourierDetails}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ProductInfo"
+          component={ProductInfo}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
