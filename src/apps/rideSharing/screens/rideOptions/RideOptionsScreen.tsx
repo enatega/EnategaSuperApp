@@ -54,6 +54,21 @@ function resolveInitialRideTypeId(
   return matchedOption?.id ?? rideOptions[0].id;
 }
 
+function resolveRideIntentFromSelection(params: {
+  rideOptions: RideOptionItem[];
+  selectedCategory: RideCategory | null;
+  routeRideType?: RideIntent;
+}): RideIntent | undefined {
+  const { rideOptions, selectedCategory, routeRideType } = params;
+  const selectedOption = rideOptions.find((option) => option.id === selectedCategory);
+
+  if (!selectedOption) {
+    return routeRideType;
+  }
+
+  return selectedOption.title.toLowerCase().includes('courier') ? 'courier' : 'now';
+}
+
 export default function RideOptionsScreen() {
   const { t } = useTranslation('rideSharing');
   const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
@@ -69,6 +84,14 @@ export default function RideOptionsScreen() {
   const rideOptions = useMemo<RideOptionItem[]>(
     () => (rideTypesQuery.data ?? []).map(toRideOption),
     [rideTypesQuery.data],
+  );
+  const resolvedRideType = useMemo(
+    () => resolveRideIntentFromSelection({
+      rideOptions,
+      selectedCategory,
+      routeRideType: rideType,
+    }),
+    [rideOptions, rideType, selectedCategory],
   );
 
   useEffect(() => {
@@ -96,9 +119,9 @@ export default function RideOptionsScreen() {
 
     navigation.navigate(
       'RideAddressSearch',
-      { rideType, rideCategory: selectedCategory, prefilledFromAddress },
+      { rideType: resolvedRideType, rideCategory: selectedCategory, prefilledFromAddress },
     );
-  }, [navigation, rideType, selectedCategory]);
+  }, [navigation, resolvedRideType, selectedCategory]);
 
   const handleSelectCategory = useCallback((category: RideCategory) => {
     setSelectedCategory(category);

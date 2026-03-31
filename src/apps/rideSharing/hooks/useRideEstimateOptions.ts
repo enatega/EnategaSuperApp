@@ -13,24 +13,38 @@ type RideEstimateOptionsResult = {
 export default function useRideEstimateOptions(
   fromAddress: RideAddressSelection | undefined,
   toAddress: RideAddressSelection | undefined,
+  stops: RideAddressSelection[] = [],
 ) {
   return useQuery<RideEstimateOptionsResult, ApiError>({
     queryKey: [
       ...rideKeys.estimates(),
       fromAddress?.placeId,
+      ...stops.map((stop) => stop.placeId),
       toAddress?.placeId,
     ],
     enabled: !!fromAddress && !!toAddress,
     staleTime: 5 * 60 * 1000,
     queryFn: async () => {
-      const origins = [
-        `${fromAddress!.coordinates.latitude},${fromAddress!.coordinates.longitude}`,
-      ];
-      const destinations = [
-        `${toAddress!.coordinates.latitude},${toAddress!.coordinates.longitude}`,
-      ];
-
-      const distanceMatrix = await rideService.getDistanceMatrix(origins, destinations);
+      const orderedPoints = [fromAddress!, ...stops, toAddress!];
+      const tripSegments = orderedPoints.slice(0, -1).map((point, index) => ({
+        origin: point,
+        destination: orderedPoints[index + 1],
+      }));
+      const segmentDistanceMatrices = await Promise.all(
+        tripSegments.map((segment) =>
+          rideService.getDistanceMatrix(
+            [`${segment.origin.coordinates.latitude},${segment.origin.coordinates.longitude}`],
+            [`${segment.destination.coordinates.latitude},${segment.destination.coordinates.longitude}`],
+          ),
+        ),
+      );
+      const distanceMatrix = segmentDistanceMatrices.reduce(
+        (totals, segment) => ({
+          distanceKm: totals.distanceKm + segment.distanceKm,
+          durationMin: totals.durationMin + segment.durationMin,
+        }),
+        { distanceKm: 0, durationMin: 0 },
+      );
       const rideTypeFares = await rideService.getRideTypeFares({
         distanceKm: distanceMatrix.distanceKm,
         durationMin: distanceMatrix.durationMin,

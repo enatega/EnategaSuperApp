@@ -16,7 +16,7 @@ import type { RideAddressSelection } from '../../../api/types';
 import { splitAddressDescription } from '../../../utils/rideAddress';
 
 type Props = {
-  activeField: 'from' | 'to';
+  activeField: 'from' | 'to' | 'stop';
   initialCoordinate?: LatLng | null;
   onBackPress: () => void;
   onConfirm: (address: RideAddressSelection) => Promise<void> | void;
@@ -285,7 +285,9 @@ function RideChooseOnMapView({
 
   const confirmLabel = activeField === 'from'
     ? t('ride_address_confirm_pickup')
-    : t('ride_address_confirm_dropoff');
+    : activeField === 'stop'
+      ? t('ride_address_stop_title')
+      : t('ride_address_confirm_dropoff');
   const addressChipTitle = isResolvingAddress
     ? t('ride_address_map_locating')
     : resolvedAddress?.structuredFormatting.mainText || t('ride_address_map_selected_location');

@@ -24,9 +24,19 @@ type Props = {
   onSelectOption: (id: RideOptionItem['id']) => void;
   onConfirmRide: () => void;
   onBackPress: () => void;
+  floatingStatusCard?: React.ReactNode;
   paymentMethodLabel: string;
   paymentMethodBadge?: React.ReactNode;
   onPaymentMethodPress: () => void;
+  selectedOptionMetaLabel?: string;
+  isCourierFlow?: boolean;
+  courierCommentLabel?: string;
+  onCourierDetailsPress?: () => void;
+  confirmButtonLabel?: string;
+  scheduleLabel: string;
+  hasScheduledRide: boolean;
+  onSchedulePress: () => void;
+  onClearSchedule: () => void;
   onEditFarePress: () => void;
   onIncreaseFare: () => void;
   onDecreaseFare: () => void;
@@ -44,9 +54,19 @@ function RideEstimateBottomSheet({
   onSelectOption,
   onConfirmRide,
   onBackPress,
+  floatingStatusCard,
   paymentMethodLabel,
   paymentMethodBadge,
   onPaymentMethodPress,
+  selectedOptionMetaLabel,
+  isCourierFlow = false,
+  courierCommentLabel,
+  onCourierDetailsPress,
+  confirmButtonLabel,
+  scheduleLabel,
+  hasScheduledRide,
+  onSchedulePress,
+  onClearSchedule,
   onEditFarePress,
   onIncreaseFare,
   onDecreaseFare,
@@ -66,27 +86,36 @@ function RideEstimateBottomSheet({
   const selectedOption = options.find((item) => item.id === selectedOptionId) ?? options[0];
   const remainingOptions = options.filter((item) => item.id !== selectedOption?.id);
   const showErrorState = Boolean(errorMessage);
+  const hasFloatingStatusCard = Boolean(floatingStatusCard);
 
   return (
     <SwipeableBottomSheet
       expandedHeight={expandedHeight}
       collapsedHeight={collapsedHeight + insets.bottom}
       floatingAccessory={(
-        <Pressable
-          onPress={onBackPress}
-          style={[
-            styles.backButton,
-            {
-              backgroundColor: colors.surface,
-              borderColor: colors.border,
-              shadowColor: colors.shadowColor,
-            },
-          ]}
-        >
-          <Icon type="Ionicons" name="arrow-back" size={22} color={colors.text} />
-        </Pressable>
+        <View style={styles.floatingAccessoryContent}>
+          <Pressable
+            onPress={onBackPress}
+            style={[
+              styles.backButton,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+                shadowColor: colors.shadowColor,
+              },
+            ]}
+          >
+            <Icon type="Ionicons" name="arrow-back" size={22} color={colors.text} />
+          </Pressable>
+          {floatingStatusCard ? (
+            <View style={styles.floatingStatusCardWrap}>{floatingStatusCard}</View>
+          ) : null}
+        </View>
       )}
-      floatingAccessoryStyle={styles.backButtonFloating}
+      floatingAccessoryStyle={[
+        styles.floatingAccessory,
+        hasFloatingStatusCard ? styles.floatingAccessoryWithAlert : styles.floatingAccessoryDefault,
+      ]}
       style={[
         styles.sheet,
         {
@@ -124,6 +153,7 @@ function RideEstimateBottomSheet({
                   item={selectedOption}
                   fare={selectedOption.fare}
                   recommendedFare={selectedOption.recommendedFare}
+                  metaLabel={selectedOptionMetaLabel}
                   onEditPress={onEditFarePress}
                   onIncreaseFare={onIncreaseFare}
                   onDecreaseFare={onDecreaseFare}
@@ -142,13 +172,35 @@ function RideEstimateBottomSheet({
             </ScrollView>
 
             <View style={[styles.footer, { borderTopColor: colors.border }]}>
-              <Pressable style={styles.footerRow}>
-                <View style={styles.footerLabelRow}>
-                  <Icon type="MaterialCommunityIcons" name="calendar-clock-outline" size={22} color={colors.text} />
-                  <Text weight="medium">{t('ride_schedule_label')}</Text>
-                </View>
-                <Icon type="Feather" name="chevron-right" size={20} color={colors.text} />
-              </Pressable>
+              {isCourierFlow ? (
+                <Pressable style={styles.footerRow} onPress={onCourierDetailsPress}>
+                  <View style={styles.footerLabelRow}>
+                    <Icon type="MaterialCommunityIcons" name="message-text-outline" size={22} color={colors.text} />
+                    <Text weight="medium">{courierCommentLabel ?? t('ride_courier_comment_label')}</Text>
+                  </View>
+                  <Icon type="Feather" name="chevron-right" size={20} color={colors.text} />
+                </Pressable>
+              ) : (
+                <Pressable style={styles.footerRow} onPress={onSchedulePress}>
+                  <View style={styles.footerLabelRow}>
+                    <Icon type="MaterialCommunityIcons" name="calendar-clock-outline" size={22} color={colors.text} />
+                    <Text weight="medium">{scheduleLabel}</Text>
+                  </View>
+                  {hasScheduledRide ? (
+                    <Pressable
+                      onPress={onClearSchedule}
+                      hitSlop={8}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('ride_schedule_remove')}
+                      style={[styles.clearScheduleButton, { backgroundColor: colors.backgroundTertiary }]}
+                    >
+                      <Icon type="Feather" name="x" size={16} color={colors.mutedText} />
+                    </Pressable>
+                  ) : (
+                    <Icon type="Feather" name="chevron-right" size={20} color={colors.text} />
+                  )}
+                </Pressable>
+              )}
 
               <Pressable style={styles.footerRow} onPress={onPaymentMethodPress}>
                 <View style={styles.footerLabelRow}>
@@ -161,7 +213,7 @@ function RideEstimateBottomSheet({
               </Pressable>
 
               <Button
-                label={t('ride_find_button')}
+                label={confirmButtonLabel ?? (hasScheduledRide ? t('ride_schedule_confirm_button') : t('ride_find_button'))}
                 onPress={onConfirmRide}
                 disabled={isConfirmDisabled}
                 isLoading={isConfirmLoading}
@@ -210,9 +262,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
-  backButtonFloating: {
+  floatingAccessory: {
     left: 16,
+    right: 16,
+  },
+  floatingAccessoryDefault: {
     top: -54,
+  },
+  floatingAccessoryWithAlert: {
+    top: -185,
+  },
+  floatingAccessoryContent: {
+    gap: 12,
+    alignItems: 'flex-start',
+  },
+  floatingStatusCardWrap: {
+    width: '100%',
   },
   backButton: {
     width: 44,
@@ -241,6 +306,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+  },
+  clearScheduleButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   confirmButton: {
     borderRadius: 6,

@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   View,
@@ -19,10 +19,11 @@ import type {
   DeliveryChatMessageRecord,
   DeliveryChatMessagesResponse,
 } from '../../api/chatServiceTypes';
-import RiderChatComposer from '../../components/riderChat/RiderChatComposer';
+import RiderChatFooter from '../../components/riderChat/RiderChatFooter';
 import RiderChatHeader from '../../components/riderChat/RiderChatHeader';
-import RiderChatMessageBubble from '../../components/riderChat/RiderChatMessageBubble';
-import RiderQuickReplyChip from '../../components/riderChat/RiderQuickReplyChip';
+import RiderChatMessageList from '../../components/riderChat/RiderChatMessageList';
+import RiderChatQuickReplies from '../../components/riderChat/RiderChatQuickReplies';
+import type { RiderChatMessage } from '../../components/riderChat/types';
 import { useSendDeliveryChatMessage } from '../../hooks/useChatMutations';
 import { useDeliveryChatBoxes, useDeliveryChatMessages } from '../../hooks/useChatQueries';
 
@@ -35,19 +36,8 @@ export type RiderChatScreenParams = {
   };
 };
 
-type Sender = 'rider' | 'user';
-
-type ChatMessage = {
-  id: string;
-  sender: Sender;
-  text: string;
-  timeLabel?: string;
-};
-
-const HARDCODED_SENDER_ID = 'b0e84890-0d23-4aac-93d9-99b80620d84c';
+const HARDCODED_SENDER_ID = 'b0e84890-0d23-4aac-93af-41568f49638a';
 const HARDCODED_RECEIVER_ID = '4825e24a-6100-4c00-9f45-d5b8bb31d7ac';
-const TEMP_CHAT_BOX_ID = '6f423e32-59df-404a-809f-4208c73d960a';
-
 function getResponseItems<T>(
   response?: T[] | { messages?: T[]; data?: T[] | { items?: T[] } },
 ): T[] {
@@ -59,11 +49,11 @@ function getResponseItems<T>(
     return response;
   }
 
-  const data = response.data;
-
   if (Array.isArray(response.messages)) {
     return response.messages;
   }
+
+  const data = response.data;
 
   if (Array.isArray(data)) {
     return data;
@@ -103,11 +93,14 @@ export default function RiderChatScreen() {
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
   const route = useRoute<RouteProp<RiderChatScreenParams, 'RiderChat'>>();
-  const { estimatedMinutes, riderName } = route.params;
+  const riderName = route.params.riderName;
   const senderId = HARDCODED_SENDER_ID;
-  const receiverId = HARDCODED_RECEIVER_ID;
+  const receiverId = route.params.receiverId || HARDCODED_RECEIVER_ID;
+
   const [draftMessage, setDraftMessage] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<RiderChatMessage[]>([]);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
   const chatBoxesQuery = useDeliveryChatBoxes(senderId);
   const sendMessageMutation = useSendDeliveryChatMessage({
     onError: (error) => {
@@ -136,8 +129,8 @@ export default function RiderChatScreen() {
           const chatReceiverId = resolveParticipantId(chatBox.receiver, chatBox.receiverId);
 
           return (
-            (chatSenderId === senderId && chatReceiverId === receiverId) ||
-            (chatSenderId === receiverId && chatReceiverId === senderId)
+            (chatSenderId === senderId && chatReceiverId === receiverId)
+            || (chatSenderId === receiverId && chatReceiverId === senderId)
           );
         }) ?? {},
       ) ??
@@ -145,18 +138,7 @@ export default function RiderChatScreen() {
     );
   }, [chatBoxes, receiverId, senderId]);
 
-  const activeChatBoxId = resolvedChatBoxId ?? TEMP_CHAT_BOX_ID;
-  const chatMessagesQuery = useDeliveryChatMessages(activeChatBoxId ?? undefined);
-
-  useEffect(() => {
-    console.log('rider chat route config', {
-      estimatedMinutes,
-      receiverId,
-      riderName,
-      senderId,
-      routeParams: route.params,
-    });
-  }, [estimatedMinutes, receiverId, riderName, route.params, senderId]);
+  const chatMessagesQuery = useDeliveryChatMessages(resolvedChatBoxId ?? undefined);
 
   useEffect(() => {
     const remoteMessages = getResponseItems<DeliveryChatMessageRecord>(
@@ -169,11 +151,10 @@ export default function RiderChatScreen() {
           message.sender,
           message.senderId ?? message.sender_id,
         );
-        const sender: Sender = messageSenderId === senderId ? 'user' : 'rider';
 
         return {
           id: message.id ?? `${message.createdAt ?? 'message'}-${index}`,
-          sender,
+          sender: messageSenderId === senderId ? 'user' : 'rider',
           text: message.text ?? '',
           timeLabel: formatMessageTime(message.createdAt),
         };
@@ -182,33 +163,33 @@ export default function RiderChatScreen() {
   }, [chatMessagesQuery.data, senderId]);
 
   useEffect(() => {
-    if (messages.length === 0) {
-      return;
-    }
-
     requestAnimationFrame(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: true });
+      scrollViewRef.current?.scrollToEnd({ animated: messages.length > 0 });
     });
   }, [messages]);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => setIsKeyboardVisible(true),
+    );
+    const hideSubscription = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => setIsKeyboardVisible(false),
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   const submitMessage = (messageText: string, resetDraft = false) => {
     const trimmedMessage = messageText.trim();
 
-    console.log('rider chat submit start', {
-      messageText,
-      receiverId,
-      resetDraft,
-      trimmedMessage,
-    });
-
     if (!trimmedMessage) {
       return;
     }
-
-    console.log('rider chat ids', {
-      senderId,
-      receiverId,
-    });
 
     if (!senderId) {
       showToast.error(t('rider_chat_send_error'), t('rider_chat_missing_session_error'));
@@ -228,14 +209,6 @@ export default function RiderChatScreen() {
       },
       {
         onSuccess: (response) => {
-          console.log('rider chat send success', {
-            senderId,
-            receiverId,
-            text: trimmedMessage,
-            activeChatBoxId,
-            chatBoxId: response.chatBoxId,
-          });
-
           setMessages((current) => [
             ...current,
             {
@@ -246,7 +219,7 @@ export default function RiderChatScreen() {
             },
           ]);
 
-          if (response.chatBoxId || activeChatBoxId) {
+          if (response.chatBoxId || resolvedChatBoxId) {
             void chatBoxesQuery.refetch();
             void chatMessagesQuery.refetch();
           }
@@ -255,25 +228,17 @@ export default function RiderChatScreen() {
             setDraftMessage('');
           }
         },
-        onError: (error) => {
-          console.log('rider chat send error', {
-            senderId,
-            receiverId,
-            text: trimmedMessage,
-            error: error.message,
-          });
-        },
       },
     );
   };
 
-  const handleQuickReply = (text: string) => {
+  const handleQuickReply = useCallback((text: string) => {
     submitMessage(text);
-  };
+  }, []);
 
-  const handleSend = () => {
+  const handleSend = useCallback(() => {
     submitMessage(draftMessage, true);
-  };
+  }, [draftMessage]);
 
   const handleAttachmentPress = useCallback(async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -309,97 +274,72 @@ export default function RiderChatScreen() {
   const handleRefresh = useCallback(async () => {
     await chatBoxesQuery.refetch();
 
-    if (activeChatBoxId) {
+    if (resolvedChatBoxId) {
       await chatMessagesQuery.refetch();
     }
-  }, [activeChatBoxId, chatBoxesQuery, chatMessagesQuery]);
+  }, [chatBoxesQuery, chatMessagesQuery, resolvedChatBoxId]);
+
+  const quickReplies = useMemo(
+    () => [
+      t('rider_chat_quick_reply_here'),
+      t('rider_chat_quick_reply_hello'),
+      t('rider_chat_quick_reply_call_arrive'),
+      t('rider_chat_quick_reply_where'),
+      t('rider_chat_quick_reply_eta'),
+    ],
+    [t],
+  );
 
   const isRefreshing = chatBoxesQuery.isRefetching || chatMessagesQuery.isRefetching;
+  const hasRealMessages = useMemo(
+    () => messages.some((message) => message.text.trim().length > 0),
+    [messages],
+  );
+
+  const displayMessages = useMemo<RiderChatMessage[]>(() => {
+    if (hasRealMessages) {
+      return messages;
+    }
+
+    return [
+      {
+        id: 'rider-chat-empty-state',
+        sender: 'rider',
+        text: t('rider_chat_auto_message'),
+        timeLabel: t('rider_chat_auto_time'),
+      },
+    ];
+  }, [hasRealMessages, messages, t]);
+
+  const shouldShowQuickReplies = !hasRealMessages && !isKeyboardVisible;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
-      <RiderChatHeader riderName={riderName} />
+      <RiderChatHeader riderName={riderName} onCallPress={() => {}} />
 
-      <KeyboardAvoidingView
-        style={styles.chatLayout}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 20 : 0}
-      >
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.scrollView}
-          contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          onContentSizeChange={() => {
-            scrollViewRef.current?.scrollToEnd({ animated: true });
-          }}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={handleRefresh}
-              tintColor={colors.primary}
-              colors={[colors.primary]}
-            />
-          }
+      <View style={styles.chatLayout}>
+        <RiderChatMessageList
+          isRefreshing={isRefreshing}
+          messages={displayMessages}
+          onRefresh={handleRefresh}
+          scrollViewRef={scrollViewRef}
+        />
+
+        {shouldShowQuickReplies ? (
+          <RiderChatQuickReplies
+            disabled={sendMessageMutation.isPending}
+            onPressReply={handleQuickReply}
+            replies={quickReplies}
+          />
+        ) : null}
+
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'position' : undefined}
+          keyboardVerticalOffset={0}
         >
-          <View style={styles.messageSection}>
-            {messages.map((message) => (
-              <RiderChatMessageBubble
-                key={message.id}
-                sender={message.sender}
-                text={message.text}
-                timeLabel={message.timeLabel}
-              />
-            ))}
-          </View>
-        </ScrollView>
-
-        <View style={[styles.quickReplyRail, { borderTopColor: colors.border }]}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.quickReplyRow}
-            keyboardShouldPersistTaps="handled"
-          >
-            <RiderQuickReplyChip
-              disabled={sendMessageMutation.isPending}
-              label={t('rider_chat_quick_reply_here')}
-              onPress={() => handleQuickReply(t('rider_chat_quick_reply_here'))}
-            />
-            <RiderQuickReplyChip
-              disabled={sendMessageMutation.isPending}
-              label={t('rider_chat_quick_reply_hello')}
-              onPress={() => handleQuickReply(t('rider_chat_quick_reply_hello'))}
-            />
-            <RiderQuickReplyChip
-              disabled={sendMessageMutation.isPending}
-              label={t('rider_chat_quick_reply_call_arrive')}
-              onPress={() => handleQuickReply(t('rider_chat_quick_reply_call_arrive'))}
-            />
-            <RiderQuickReplyChip
-              disabled={sendMessageMutation.isPending}
-              label={t('rider_chat_quick_reply_where')}
-              onPress={() => handleQuickReply(t('rider_chat_quick_reply_where'))}
-            />
-            <RiderQuickReplyChip
-              disabled={sendMessageMutation.isPending}
-              label={t('rider_chat_quick_reply_eta')}
-              onPress={() => handleQuickReply(t('rider_chat_quick_reply_eta'))}
-            />
-          </ScrollView>
-        </View>
-
-        <View
-          style={[
-            styles.composer,
-            {
-              backgroundColor: colors.background,
-              paddingBottom: insets.bottom + 12,
-            },
-          ]}
-        >
-          <RiderChatComposer
+          <RiderChatFooter
+            bottomInset={insets.bottom}
+            isKeyboardVisible={isKeyboardVisible}
             onAttachmentPress={handleAttachmentPress}
             isSending={sendMessageMutation.isPending}
             value={draftMessage}
@@ -407,8 +347,8 @@ export default function RiderChatScreen() {
             onSend={handleSend}
             placeholder={t('rider_chat_input_placeholder')}
           />
-        </View>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </View>
     </View>
   );
 }
@@ -417,34 +357,7 @@ const styles = StyleSheet.create({
   chatLayout: {
     flex: 1,
   },
-  composer: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-  },
-  content: {
-    flexGrow: 1,
-    justifyContent: 'flex-end',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 24,
-  },
-  messageSection: {
-    gap: 20,
-    paddingBottom: 8,
-  },
-  quickReplyRail: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-  },
-  quickReplyRow: {
-    alignItems: 'center',
-    gap: 10,
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    paddingTop: 12,
-  },
   screen: {
-    flex: 1,
-  },
-  scrollView: {
     flex: 1,
   },
 });

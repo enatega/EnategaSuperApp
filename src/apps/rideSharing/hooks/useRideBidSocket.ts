@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useSocketEvent } from '../../../general/hooks/useSocketEvent';
 import { useActiveRideRequestStore } from '../stores/useActiveRideRequestStore';
 import { useRideBidsStore } from '../stores/useRideBidsStore';
-import { normalizeRideBidEvent } from '../utils/rideBidMapper';
 import type { RideSharingServerEventMap } from '../socket/rideSharingSocket.types';
 
 type Options = {
@@ -16,19 +15,17 @@ export function useRideBidSocket(options?: Options) {
   );
   const resolvedRideRequestId = options?.rideRequestId ?? activeRideRequestId;
   const isEnabled = options?.enabled ?? true;
+  const syncRideRequest = useRideBidsStore((state) => state.syncRideRequest);
   const addBid = useRideBidsStore((state) => state.addBid);
   const removeBid = useRideBidsStore((state) => state.removeBid);
-  const clearBids = useRideBidsStore((state) => state.clearBids);
 
   useEffect(() => {
-    clearBids();
-  }, [clearBids, resolvedRideRequestId]);
-
-  useEffect(() => {
-    if (!isEnabled) {
-      clearBids();
+    if (!isEnabled || !resolvedRideRequestId) {
+      return;
     }
-  }, [clearBids, isEnabled]);
+
+    syncRideRequest(resolvedRideRequestId);
+  }, [isEnabled, resolvedRideRequestId, syncRideRequest]);
 
   useSocketEvent<[RideSharingServerEventMap['received-bids']]>(
     'received-bids',
@@ -45,26 +42,20 @@ export function useRideBidSocket(options?: Options) {
 
       const items = Array.isArray(payload) ? payload : [payload];
       items.forEach((item) => {
-        const normalizedBid = normalizeRideBidEvent(item);
-        if (!normalizedBid) {
-          console.log('[RideBidSocket] received-bids could not normalize item:', item);
-          return;
-        }
-
-        if (normalizedBid.rideRequestId && normalizedBid.rideRequestId !== resolvedRideRequestId) {
+        if (item.ride_request_id !== resolvedRideRequestId) {
           console.log('[RideBidSocket] received-bids ignored for different ride request:', {
             expectedRideRequestId: resolvedRideRequestId,
-            incomingRideRequestId: normalizedBid.rideRequestId,
-            bid: normalizedBid.bid,
+            incomingRideRequestId: item.ride_request_id,
+            bid: item,
           });
           return;
         }
 
         console.log('[RideBidSocket] received-bids accepted bid:', {
           rideRequestId: resolvedRideRequestId,
-          bid: normalizedBid.bid,
+          bid: item,
         });
-        addBid(normalizedBid.bid);
+        addBid(item);
       });
     },
     { enabled: isEnabled },

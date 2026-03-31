@@ -8,9 +8,9 @@ import ScreenHeader from '../../../../../general/components/ScreenHeader';
 import Button from '../../../../../general/components/Button';
 import { useTheme } from '../../../../../general/theme/theme';
 import { showToast } from '../../../../../general/components/AppToast';
+import { useAppLogout } from '../../../../../general/hooks/useAppLogout';
 import { useDeleteAccountMutation } from '../../../hooks/useDeleteAccountMutation';
 import { authSession } from '../../../../../general/auth/authSession';
-import { navigationRef } from '../../../../../general/navigation/rootNavigation';
 import DeleteAccountStepIndicator from '../../components/deleteAccount/DeleteAccountStepIndicator';
 import DeleteAccountReasonStep from '../../components/deleteAccount/DeleteAccountReasonStep';
 import DeleteAccountConfirmStep from '../../components/deleteAccount/DeleteAccountConfirmStep';
@@ -26,6 +26,7 @@ export default function DeleteAccountScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const deleteAccountMutation = useDeleteAccountMutation();
+  const logoutMutation = useAppLogout();
 
   const [step, setStep] = useState<Step>(1);
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
@@ -61,13 +62,7 @@ export default function DeleteAccountScreen() {
   const handleDeleteAccount = async () => {
     try {
       await deleteAccountMutation.mutateAsync(selectedReason ?? '');
-      await authSession.clearSession();
-      if (navigationRef.isReady()) {
-        navigationRef.resetRoot({
-          index: 0,
-          routes: [{ name: 'Main', params: { screen: 'Auth' } }],
-        });
-      }
+      await logoutMutation.mutateAsync();
     } catch (error) {
       const message = error instanceof Error ? error.message : t('delete_account_error');
       showToast.error(t('delete_account_error_title'), message);
@@ -85,7 +80,7 @@ export default function DeleteAccountScreen() {
   const isContinueDisabled = () => {
     if (step === 1) return selectedReason === null;
     if (step === 2) return !checkedItems.every(Boolean);
-    return deleteAccountMutation.isPending;
+    return deleteAccountMutation.isPending || logoutMutation.isPending;
   };
 
   const closeButton = (

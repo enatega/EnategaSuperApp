@@ -102,7 +102,7 @@ function PaymentMethodBottomSheet({
           <>
             <View style={styles.header}>
               <View style={styles.headerSpacer} />
-              <Text weight="extraBold" style={styles.headerTitle}>
+              <Text variant='subtitle' weight="extraBold" >
                 {t('ride_payment_choose_title')}
               </Text>
               <Pressable
@@ -165,7 +165,7 @@ function PaymentMethodBottomSheet({
               >
                 <Icon type="Ionicons" name="arrow-back" size={18} color={colors.text} />
               </Pressable>
-              <Text weight="extraBold" style={styles.headerTitle}>
+              <Text variant='subtitle' weight="extraBold" >
                 {t('ride_payment_choose_title')}
               </Text>
               <Pressable
@@ -265,9 +265,9 @@ const styles = StyleSheet.create({
     height: 32,
   },
   headerTitle: {
-    fontSize: 24,
-    lineHeight: 28,
-    letterSpacing: -0.36,
+    // fontSize: 24,
+    // lineHeight: 28,
+    // letterSpacing: -0.36,
   },
   headerButton: {
     width: 32,

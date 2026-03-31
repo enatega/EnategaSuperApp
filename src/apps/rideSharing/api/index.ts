@@ -35,6 +35,16 @@ export { rideKeys, userKeys } from './queryKeys';
 
 // Ride service
 export { rideService } from './rideService';
+export { rideChatService } from './rideChatService';
+export type {
+    RideChatBoxRecord,
+    RideChatBoxesResponse,
+    RideChatMessageRecord,
+    RideChatMessagesResponse,
+    RideChatParticipant,
+    SendRideChatMessagePayload,
+    SendRideChatMessageResponse,
+} from './rideChatServiceTypes';
 
 // User service
 export { userService } from './userService';
