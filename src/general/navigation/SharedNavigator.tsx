@@ -14,7 +14,6 @@ import { authSession } from '../auth/authSession';
 import type { MiniAppId } from '../utils/constants';
 import type { SharedAppRouteName, SharedStackParamList } from './navigationTypes';
 import { setPendingAppRoute } from './pendingAppRedirect';
-import ProductInfo from '../../apps/deliveries/screens/ProductInfo/ProductInfo';
 
 const Stack = createNativeStackNavigator<SharedStackParamList>();
 const APP_ROUTES: Partial<Record<MiniAppId, SharedAppRouteName>> = {
@@ -68,7 +67,6 @@ export default function SharedNavigator() {
       <Stack.Screen name="Appointments" component={AppointmentsNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="DeveloperMode" component={DeveloperModeNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="Auth" component={AuthNavigator} options={{ headerShown: false }} />
-      <Stack.Screen name="ProductInfo" component={ProductInfo} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
