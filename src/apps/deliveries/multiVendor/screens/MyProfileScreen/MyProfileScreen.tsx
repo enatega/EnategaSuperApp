@@ -17,8 +17,8 @@ import { ProfileAddress } from '../../api/profileService';
 import { addressService } from '../../../api/addressService';
 import type { MultiVendorStackParamList } from '../../navigation/types';
 import useAddress from '../../../hooks/useAddress';
+import useSelectSavedAddress from '../../../hooks/useSelectSavedAddress';
 import {
-  createDeliveryAddressFromProfile,
   formatDeliveryAddressLabel,
 } from '../../../utils/address';
 
@@ -36,8 +36,8 @@ export default function MyProfileScreen() {
   const {
     clearSelectedAddress,
     selectedAddress,
-    setSelectedAddress,
   } = useAddress();
+  const { selectSavedAddress } = useSelectSavedAddress();
   const isSelectionMode = route.params?.selectionMode ?? false;
 
   const handleUploadComplete = () => {
@@ -84,20 +84,24 @@ export default function MyProfileScreen() {
   }, [addressMenuTarget, isSelectionMode, navigation]);
 
   const handleSelectAddress = useCallback(
-    (address: ProfileAddress) => {
-      const nextAddress = createDeliveryAddressFromProfile(address);
+    async (address: ProfileAddress) => {
+      try {
+        const isSelected = await selectSavedAddress(address.id);
 
-      if (!nextAddress) {
-        return;
-      }
+        if (!isSelected) {
+          return;
+        }
 
-      setSelectedAddress(nextAddress);
+        void refetch();
 
-      if (isSelectionMode && navigation.canGoBack()) {
-        navigation.goBack();
+        if (isSelectionMode && navigation.canGoBack()) {
+          navigation.goBack();
+        }
+      } catch {
+        showToast.error(t('address_select_error'));
       }
     },
-    [isSelectionMode, navigation, setSelectedAddress],
+    [isSelectionMode, navigation, refetch, selectSavedAddress, t],
   );
 
   const handleDeleteAddress = useCallback(async () => {

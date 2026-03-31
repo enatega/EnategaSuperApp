@@ -170,6 +170,7 @@ const en = {
   address_delete_cancel: 'Cancel',
   address_delete_confirm: 'Delete',
   address_save_error: 'Could not save address.',
+  address_select_error: 'Could not select address.',
   address_delete_error: 'Could not delete address.',
   address_save_success: 'Address saved successfully.',
   address_update_success: 'Address updated successfully.',

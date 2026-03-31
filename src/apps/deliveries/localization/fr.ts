@@ -170,6 +170,7 @@ const fr = {
   address_delete_cancel: 'Annuler',
   address_delete_confirm: 'Supprimer',
   address_save_error: "Impossible d'enregistrer l'adresse.",
+  address_select_error: "Impossible de sélectionner l'adresse.",
   address_delete_error: "Impossible de supprimer l'adresse.",
   address_save_success: 'Adresse enregistrée avec succès.',
   address_update_success: 'Adresse mise à jour avec succès.',

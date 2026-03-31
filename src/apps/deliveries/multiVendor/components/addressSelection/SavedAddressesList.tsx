@@ -5,7 +5,10 @@ import { useTranslation } from 'react-i18next';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
 import type { ProfileAddress } from '../../api/profileService';
-import { formatDeliveryAddressLabel } from '../../../utils/address';
+import {
+  formatDeliveryAddressLabel,
+  getSelectedSavedAddressId,
+} from '../../../utils/address';
 import MyProfileAddressCard from '../profile/MyProfileAddressCard';
 import SavedAddressListRow from './SavedAddressListRow';
 import {
@@ -35,13 +38,15 @@ export default function SavedAddressesList({
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const isCompact = variant === 'compact';
+  const resolvedSelectedAddressId =
+    getSelectedSavedAddressId(addresses) ?? selectedAddressId;
 
   return (
     <View style={isCompact ? styles.compactList : styles.cardList}>
       {addresses.map((address) => {
         const typeLabel = getSavedAddressTypeLabel(address.type, t);
         const iconName = getSavedAddressIcon(address.type);
-        const isSelected = selectedAddressId === address.id;
+        const isSelected = resolvedSelectedAddressId === address.id;
 
         if (isCompact) {
           return (

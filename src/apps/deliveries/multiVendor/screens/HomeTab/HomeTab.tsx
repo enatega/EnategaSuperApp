@@ -2,7 +2,9 @@ import React, { useCallback, useState } from 'react';
 import { ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../../general/theme/theme';
+import { showToast } from '../../../../../general/components/AppToast';
 import MultiVendorAddressHeader from '../../components/HomeTab/AddressHeader';
 import AddressSelectionBottomSheet from '../../components/addressSelection/AddressSelectionBottomSheet';
 import ShopTypeList from '../../components/HomeTab/ShopTypeList';
@@ -16,16 +18,22 @@ import useSavedAddresses from '../../hooks/useSavedAddresses';
 import { styles } from './HomeTabStyle';
 import type { MultiVendorStackParamList } from '../../navigation/types';
 import useAddress from '../../../hooks/useAddress';
-import { createDeliveryAddressFromProfile } from '../../../utils/address';
+import useSelectSavedAddress from '../../../hooks/useSelectSavedAddress';
 
 type NavProp = NativeStackNavigationProp<MultiVendorStackParamList>;
 
 export default function HomeTab() {
   const { colors } = useTheme();
+  const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavProp>();
   const [isAddressSheetVisible, setIsAddressSheetVisible] = useState(false);
-  const { addresses, isLoading: isAddressesLoading } = useSavedAddresses();
-  const { selectedAddress, setSelectedAddress } = useAddress();
+  const {
+    addresses,
+    isLoading: isAddressesLoading,
+    refetch,
+  } = useSavedAddresses();
+  const { selectedAddress } = useAddress();
+  const { selectSavedAddress } = useSelectSavedAddress();
 
   const handleOpenAddressSheet = useCallback(() => {
     setIsAddressSheetVisible(true);
@@ -36,17 +44,21 @@ export default function HomeTab() {
   }, []);
 
   const handleSelectAddress = useCallback(
-    (address: ProfileAddress) => {
-      const nextAddress = createDeliveryAddressFromProfile(address);
+    async (address: ProfileAddress) => {
+      try {
+        const isSelected = await selectSavedAddress(address.id);
 
-      if (!nextAddress) {
-        return;
+        if (!isSelected) {
+          return;
+        }
+
+        void refetch();
+        setIsAddressSheetVisible(false);
+      } catch {
+        showToast.error(t('address_select_error'));
       }
-
-      setSelectedAddress(nextAddress);
-      setIsAddressSheetVisible(false);
     },
-    [setSelectedAddress],
+    [refetch, selectSavedAddress, t],
   );
 
   const handleAddAddressPress = useCallback(() => {

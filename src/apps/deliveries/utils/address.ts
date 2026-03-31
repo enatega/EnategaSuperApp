@@ -11,6 +11,17 @@ type DeliveryAddressInput = {
   type?: AddressType;
 };
 
+type SavedAddressInput = {
+  id: string;
+  address: string;
+  location: {
+    coordinates: [number, number];
+  };
+  location_name: string | null;
+  type: AddressType;
+  is_selected?: boolean;
+};
+
 function toFiniteNumber(value: number | string | undefined) {
   const numericValue = Number(value);
   return Number.isFinite(numericValue) ? numericValue : null;
@@ -46,8 +57,51 @@ export function formatDeliveryAddressLabel(
   return locationName || addressLine || null;
 }
 
+export function areDeliveryAddressesEqual(
+  first: DeliveryAddress | null | undefined,
+  second: DeliveryAddress | null | undefined,
+) {
+  if (first === second) {
+    return true;
+  }
+
+  if (!first || !second) {
+    return false;
+  }
+
+  return (
+    first.id === second.id &&
+    first.address === second.address &&
+    first.locationName === second.locationName &&
+    first.latitude === second.latitude &&
+    first.longitude === second.longitude &&
+    first.type === second.type
+  );
+}
+
+export function getSelectedSavedAddressId(
+  addresses:
+    | Array<Pick<SavedAddressInput, 'id' | 'is_selected'>>
+    | null
+    | undefined,
+) {
+  return addresses?.find((address) => address.is_selected)?.id;
+}
+
+export function getSelectedSavedAddress(
+  addresses: SavedAddressInput[] | null | undefined,
+) {
+  return addresses?.find((address) => address.is_selected) ?? null;
+}
+
 export function createDeliveryAddressFromProfile(
   address: ProfileAddress,
+): DeliveryAddress | null {
+  return createDeliveryAddressFromSavedAddress(address);
+}
+
+export function createDeliveryAddressFromSavedAddress(
+  address: SavedAddressInput,
 ): DeliveryAddress | null {
   const [rawLongitude, rawLatitude] = address.location?.coordinates ?? [];
   const latitude = toFiniteNumber(rawLatitude);
@@ -65,4 +119,16 @@ export function createDeliveryAddressFromProfile(
     longitude,
     type: address.type,
   });
+}
+
+export function createSelectedDeliveryAddress(
+  addresses: SavedAddressInput[] | null | undefined,
+): DeliveryAddress | null {
+  const selectedAddress = getSelectedSavedAddress(addresses);
+
+  if (!selectedAddress) {
+    return null;
+  }
+
+  return createDeliveryAddressFromSavedAddress(selectedAddress);
 }
