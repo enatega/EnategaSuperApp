@@ -7,12 +7,14 @@ import { useTheme } from '../../../../../general/theme/theme';
 
 type Props = {
   fromAddress: RideAddressSelection;
+  stopAddresses?: RideAddressSelection[];
   toAddress: RideAddressSelection;
   routeCoordinates: Array<{ latitude: number; longitude: number }>;
 };
 
 function FindingRideMapLayer({
   fromAddress,
+  stopAddresses = [],
   toAddress,
   routeCoordinates,
 }: Props) {
@@ -22,6 +24,7 @@ function FindingRideMapLayer({
     <View style={StyleSheet.absoluteFill}>
       <RideEstimateMapLayer
         fromAddress={fromAddress}
+        stopAddresses={stopAddresses}
         toAddress={toAddress}
         routeCoordinates={routeCoordinates}
       />

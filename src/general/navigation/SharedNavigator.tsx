@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   createNativeStackNavigator,
   type NativeStackNavigationProp,
@@ -13,7 +13,8 @@ import AuthNavigator from './AuthNavigator';
 import { authSession } from '../auth/authSession';
 import type { MiniAppId } from '../utils/constants';
 import type { SharedAppRouteName, SharedStackParamList } from './navigationTypes';
-import { setPendingAppRoute } from './pendingAppRedirect';
+import { getActiveAppRoute, setActiveAppRoute, setPendingAppRoute } from './pendingAppRedirect';
+import { resetToSharedRoute } from './rootNavigation';
 
 const Stack = createNativeStackNavigator<SharedStackParamList>();
 const APP_ROUTES: Partial<Record<MiniAppId, SharedAppRouteName>> = {
@@ -25,6 +26,41 @@ const APP_ROUTES: Partial<Record<MiniAppId, SharedAppRouteName>> = {
 };
 
 export default function SharedNavigator() {
+  const [initialRouteName, setInitialRouteName] = useState<keyof SharedStackParamList | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const resolveInitialRoute = async () => {
+      const [token, activeAppRoute] = await Promise.all([
+        authSession.getAccessToken(),
+        getActiveAppRoute(),
+      ]);
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (!token) {
+        setInitialRouteName('Home');
+        return;
+      }
+
+      const resolvedRoute = activeAppRoute ?? 'RideSharing';
+      if (!activeAppRoute) {
+        await setActiveAppRoute(resolvedRoute);
+      }
+
+      setInitialRouteName(resolvedRoute);
+    };
+
+    void resolveInitialRoute();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const handleSelectMiniApp = useCallback(
     async (
       id: MiniAppId,
@@ -39,7 +75,8 @@ export default function SharedNavigator() {
       const token = await authSession.getAccessToken();
 
       if (token) {
-        navigation.navigate(routeName);
+        await setActiveAppRoute(routeName);
+        resetToSharedRoute(routeName);
         return;
       }
 
@@ -49,8 +86,12 @@ export default function SharedNavigator() {
     [],
   );
 
+  if (!initialRouteName) {
+    return null;
+  }
+
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName={initialRouteName}>
       <Stack.Screen name="Home" options={{ headerShown: false }}>
         {(props) => (
           <HomeScreen

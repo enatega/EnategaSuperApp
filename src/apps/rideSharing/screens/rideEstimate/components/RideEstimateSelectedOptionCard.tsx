@@ -11,6 +11,7 @@ type Props = {
   item: RideOptionItem;
   fare?: number;
   recommendedFare?: number;
+  metaLabel?: string;
   onEditPress?: () => void;
   onIncreaseFare?: () => void;
   onDecreaseFare?: () => void;
@@ -21,6 +22,7 @@ function RideEstimateSelectedOptionCard({
   item,
   fare,
   recommendedFare,
+  metaLabel,
   onEditPress,
   onIncreaseFare,
   onDecreaseFare,
@@ -69,9 +71,16 @@ function RideEstimateSelectedOptionCard({
             </View>
           </View>
 
-          <Pressable onPress={onEditPress} hitSlop={8} style={styles.editButton}>
-            <Icon type="Feather" name="edit-2" size={16} color="#1677A4" />
-          </Pressable>
+          <View style={styles.optionsColumn}>
+            <Pressable onPress={onEditPress} hitSlop={8} style={styles.editButton}>
+              <Icon type="Feather" name="edit-2" size={16} color="#1677A4" />
+            </Pressable>
+            {metaLabel ? (
+              <Text weight="medium" style={styles.metaLabel}>
+                {metaLabel}
+              </Text>
+            ) : null}
+          </View>
         </View>
       </View>
 
@@ -152,6 +161,11 @@ const styles = StyleSheet.create({
   infoBlock: {
     gap: 8,
   },
+  optionsColumn: {
+    alignSelf: 'stretch',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+  },
   iconWrap: {
     height: 32,
     justifyContent: 'center',
@@ -177,10 +191,15 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   editButton: {
-    width: 20,
-    height: 20,
+    minWidth: 20,
+    minHeight: 20,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  metaLabel: {
+    color: '#1677A4',
+    fontSize: 14,
+    lineHeight: 22,
   },
   fareRow: {
     flexDirection: 'row',

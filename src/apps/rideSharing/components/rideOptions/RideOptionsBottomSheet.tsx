@@ -1,10 +1,11 @@
 import React, { memo } from 'react';
-import { Dimensions, StyleSheet, View } from 'react-native';
+import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
 import SwipeableBottomSheet from '../../../../general/components/SwipeableBottomSheet';
 import MapCurrentLocationButton from '../../../../general/components/MapCurrentLocationButton';
+import Icon from '../../../../general/components/Icon';
 import { RideCategory } from '../../utils/rideOptions';
 import { CachedAddress, RideOptionItem } from './types';
 import RideOptionsHeader from './RideOptionsHeader';
@@ -17,6 +18,7 @@ type Props = {
   cachedAddresses: CachedAddress[];
   selectedCategory: RideCategory | null;
   onSelectCategory: (category: RideCategory) => void;
+  onBackPress: () => void;
   onSearchPress: (address?: CachedAddress) => void;
   onLocatePress: () => void;
   isLocating?: boolean;
@@ -30,6 +32,7 @@ function RideOptionsBottomSheet({
   cachedAddresses,
   selectedCategory,
   onSelectCategory,
+  onBackPress,
   onSearchPress,
   onLocatePress,
   isLocating = false,
@@ -51,11 +54,26 @@ function RideOptionsBottomSheet({
       expandedHeight={expandedHeight}
       collapsedHeight={collapsedHeight + insets.bottom}
       floatingAccessory={(
-        <MapCurrentLocationButton
-          label={t('ride_current_location')}
-          onPress={onLocatePress}
-          isLoading={isLocating}
-        />
+        <View style={styles.floatingAccessoryContent}>
+          <Pressable
+            onPress={onBackPress}
+            style={[
+              styles.backButton,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+                shadowColor: colors.shadowColor,
+              },
+            ]}
+          >
+            <Icon type="Ionicons" name="arrow-back" size={22} color={colors.text} />
+          </Pressable>
+          <MapCurrentLocationButton
+            label={t('ride_current_location')}
+            onPress={onLocatePress}
+            isLoading={isLocating}
+          />
+        </View>
       )}
       floatingAccessoryStyle={styles.locateFloatingButton}
       style={[
@@ -121,7 +139,25 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   locateFloatingButton: {
+    left: 16,
     right: 16,
     top: -54,
+  },
+  floatingAccessoryContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
 });

@@ -1,6 +1,14 @@
-import React, { forwardRef, memo } from 'react';
-import { ImageSourcePropType, StyleSheet } from 'react-native';
-import MapView, { LatLng, Marker, MarkerProps, Polyline, PolylineProps, MapViewProps, PROVIDER_GOOGLE } from 'react-native-maps';
+import React, { forwardRef, memo, useMemo } from 'react';
+import { StyleSheet } from 'react-native';
+import MapView, {
+  LatLng,
+  Marker,
+  MapMarkerProps,
+  Polyline,
+  MapPolylineProps,
+  MapViewProps,
+  PROVIDER_GOOGLE,
+} from 'react-native-maps';
 
 const HIDDEN_COORDINATE: LatLng = { latitude: 0, longitude: 0 };
 
@@ -9,16 +17,16 @@ export type MapMarker = {
   coordinate: LatLng;
   active?: boolean;
   opacity?: number;
-  image?: ImageSourcePropType;
-  icon?: ImageSourcePropType;
+  image?: MapMarkerProps['image'];
+  icon?: MapMarkerProps['icon'];
   title?: string;
   description?: string;
-  anchor?: MarkerProps['anchor'];
+  anchor?: MapMarkerProps['anchor'];
   zIndex?: number;
   rotation?: number;
   draggable?: boolean;
   tappable?: boolean;
-  onPress?: MarkerProps['onPress'];
+  onPress?: MapMarkerProps['onPress'];
   tracksViewChanges?: boolean;
   render?: React.ReactNode;
   keyOverride?: string | number;
@@ -31,11 +39,11 @@ export type MapPolyline = {
   strokeColor?: string;
   geodesic?: boolean;
   lineDashPattern?: number[];
-  lineCap?: PolylineProps['lineCap'];
-  lineJoin?: PolylineProps['lineJoin'];
+  lineCap?: MapPolylineProps['lineCap'];
+  lineJoin?: MapPolylineProps['lineJoin'];
   miterLimit?: number;
   tappable?: boolean;
-  onPress?: PolylineProps['onPress'];
+  onPress?: MapPolylineProps['onPress'];
   zIndex?: number;
 };
 
@@ -145,13 +153,17 @@ const Map = forwardRef<MapView, Props>(function Map(
   ref,
 ) {
   const resolvedProvider = provider ?? (useGoogleProvider ? PROVIDER_GOOGLE : undefined);
+  const sortedPolylines = useMemo(
+    () => [...(polylines ?? [])].sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0)),
+    [polylines],
+  );
 
   return (
     <MapView ref={ref} style={[styles.map, style]} provider={resolvedProvider} {...props}>
       {markers?.map((marker) => (
         <MemoizedMarker key={marker.keyOverride ?? marker.id} marker={marker} />
       ))}
-      {polylines?.map((polyline) => (
+      {sortedPolylines.map((polyline) => (
         <MemoizedPolyline key={polyline.id} polyline={polyline} />
       ))}
       {children}

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { StyleSheet, View, Pressable } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, Pressable } from 'react-native';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import SwipeableBottomSheet from '../../../../general/components/SwipeableBottomSheet';
@@ -9,6 +9,10 @@ type Props = {
   onClose: () => void;
   onConfirmCancel: () => void;
   expandedHeight?: number;
+  title?: string;
+  confirmLabel?: string;
+  continueLabel?: string;
+  isLoading?: boolean;
 };
 
 const DEFAULT_EXPANDED_HEIGHT = 280;
@@ -18,13 +22,20 @@ export default function CancelRideBottomSheet({
   onClose,
   onConfirmCancel,
   expandedHeight = DEFAULT_EXPANDED_HEIGHT,
+  title = 'Are you sure?',
+  confirmLabel = 'Yes, cancel the ride',
+  continueLabel = 'No, Continue the ride',
+  isLoading = false,
 }: Props) {
   const { colors } = useTheme();
 
   const handleConfirmCancel = useCallback(() => {
+    if (isLoading) {
+      return;
+    }
+
     onConfirmCancel();
-    onClose();
-  }, [onConfirmCancel, onClose]);
+  }, [isLoading, onConfirmCancel]);
 
   if (!isVisible) {
     return null;
@@ -35,7 +46,7 @@ export default function CancelRideBottomSheet({
       expandedHeight={expandedHeight}
       collapsedHeight={0}
       initialState="expanded"
-      onStateChange={(state: 'expanded' | 'collapsed') => {
+      onStateChange={(state) => {
         if (state === 'collapsed') {
           onClose();
         }
@@ -53,36 +64,44 @@ export default function CancelRideBottomSheet({
       <View style={styles.container}>
         <View style={styles.header}>
           <Text weight="bold" variant="title" style={styles.title}>
-            Are you sure?
+            {title}
           </Text>
         </View>
 
         <View style={styles.buttonContainer}>
           <Pressable
             onPress={handleConfirmCancel}
+            disabled={isLoading}
             style={({ pressed }) => [
               styles.cancelButton,
               { backgroundColor: colors.danger },
               pressed && styles.cancelButtonPressed,
+              isLoading ? styles.disabledButton : null,
             ]}
             hitSlop={{ top: 4, bottom: 4, left: 8, right: 8 }}
           >
-            <Text weight="semiBold" style={styles.cancelButtonText}>
-              Yes, cancel the ride
-            </Text>
+            {isLoading ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Text weight="semiBold" style={styles.cancelButtonText}>
+                {confirmLabel}
+              </Text>
+            )}
           </Pressable>
 
           <Pressable
             onPress={onClose}
+            disabled={isLoading}
             style={({ pressed }) => [
               styles.continueButton,
               { backgroundColor: colors.gray100 },
               pressed && styles.continueButtonPressed,
+              isLoading ? styles.disabledButton : null,
             ]}
             hitSlop={{ top: 4, bottom: 4, left: 8, right: 8 }}
           >
             <Text weight="semiBold" color={colors.text}>
-              No, Continue the ride
+              {continueLabel}
             </Text>
           </Pressable>
         </View>
@@ -139,6 +158,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 20,
     gap: 16,
+  },
+  disabledButton: {
+    opacity: 0.75,
   },
   cancelButton: {
     paddingVertical: 18,

@@ -10,12 +10,14 @@ import type { RideAddressSelection } from '../../../api/types';
 
 type Props = {
   fromAddress: RideAddressSelection;
+  stopAddresses?: RideAddressSelection[];
   toAddress: RideAddressSelection;
   routeCoordinates: LatLng[];
 };
 
 function RideEstimateMapLayer({
   fromAddress,
+  stopAddresses = [],
   toAddress,
   routeCoordinates,
 }: Props) {
@@ -32,6 +34,17 @@ function RideEstimateMapLayer({
           </View>
         ),
       },
+      ...stopAddresses.map((stopAddress, index) => ({
+        id: stopAddress.placeId,
+        coordinate: stopAddress.coordinates,
+        render: (
+          <View style={[styles.stopPin, { borderColor: '#FBBF24', backgroundColor: colors.surface }]}>
+            <View style={[styles.stopPinDot, { backgroundColor: '#F59E0B' }]} />
+          </View>
+        ),
+        title: `Stop ${index + 1}`,
+        description: stopAddress.description,
+      })),
       {
         id: 'dropoff',
         coordinate: toAddress.coordinates,
@@ -42,7 +55,7 @@ function RideEstimateMapLayer({
         ),
       },
     ],
-    [colors.surface, fromAddress.coordinates, toAddress.coordinates],
+    [colors.surface, fromAddress.coordinates, stopAddresses, toAddress.coordinates],
   );
 
   const polylines = useMemo<MapPolyline[]>(
@@ -61,8 +74,9 @@ function RideEstimateMapLayer({
   );
 
   const initialRegion = useMemo(() => {
-    const latitudeValues = [fromAddress.coordinates.latitude, toAddress.coordinates.latitude];
-    const longitudeValues = [fromAddress.coordinates.longitude, toAddress.coordinates.longitude];
+    const tripPoints = [fromAddress, ...stopAddresses, toAddress];
+    const latitudeValues = tripPoints.map((point) => point.coordinates.latitude);
+    const longitudeValues = tripPoints.map((point) => point.coordinates.longitude);
     const minLatitude = Math.min(...latitudeValues);
     const maxLatitude = Math.max(...latitudeValues);
     const minLongitude = Math.min(...longitudeValues);
@@ -74,7 +88,7 @@ function RideEstimateMapLayer({
       latitudeDelta: Math.max(maxLatitude - minLatitude, 0.02) * 1.8,
       longitudeDelta: Math.max(maxLongitude - minLongitude, 0.02) * 1.8,
     };
-  }, [fromAddress.coordinates, toAddress.coordinates]);
+  }, [fromAddress, stopAddresses, toAddress]);
 
   return (
     <Map
@@ -101,6 +115,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pinDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+  },
+  stopPin: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stopPinDot: {
     width: 4,
     height: 4,
     borderRadius: 2,

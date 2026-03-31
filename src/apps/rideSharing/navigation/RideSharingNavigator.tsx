@@ -18,13 +18,16 @@ import LicencesScreen from '../screens/settings/LicencesScreen';
 import RideAddressSearchScreen from '../screens/rideSearch/RideAddressSearchScreen';
 import RideEstimateScreen from '../screens/rideEstimate/RideEstimateScreen';
 import OfferFareScreen from '../screens/offerFare/OfferFareScreen';
+import CourierDetailsScreen from '../screens/courierDetails/CourierDetails';
 import ReservationsListScreen from '../screens/reservations/ReservationsListScreen';
 import ReservationDetailScreen from '../screens/reservations/ReservationDetailScreen';
+import RiderChatScreen from '../screens/riderChat/RiderChatScreen';
 import { useTranslation } from 'react-i18next';
 import QueryProvider from '../../../general/providers/QueryProvider';
 import type { RideAddressSelection } from '../api/types';
 import type { CachedAddress } from '../components/rideOptions/types';
 import type { PaymentMethodId } from '../components/payment/paymentTypes';
+import type { RideOfferMode } from '../utils/rideOffer';
 import type { RideCategory, RideIntent } from '../utils/rideOptions';
 
 export type RideSharingStackParamList = {
@@ -34,23 +37,47 @@ export type RideSharingStackParamList = {
     rideType?: RideIntent;
     rideCategory?: RideCategory;
     prefilledFromAddress?: CachedAddress;
+    prefilledStopAddress?: RideAddressSelection;
+    fromAddress?: RideAddressSelection;
+    toAddress?: RideAddressSelection;
+    stops?: RideAddressSelection[];
+    stopAction?: 'add' | 'edit';
+    stopIndex?: number;
   } | undefined;
   RideEstimate: {
     rideType?: RideIntent;
     rideCategory?: RideCategory;
     fromAddress: RideAddressSelection;
     toAddress: RideAddressSelection;
+    stops?: RideAddressSelection[];
     offeredFare?: number;
     paymentMethodId?: PaymentMethodId;
+    offerMode?: RideOfferMode;
+    hourlyHours?: number;
   };
   OfferFare: {
     rideType?: RideIntent;
     rideCategory?: RideCategory;
     fromAddress: RideAddressSelection;
     toAddress: RideAddressSelection;
+    stops?: RideAddressSelection[];
     offeredFare?: number;
     recommendedFare?: number;
     paymentMethodId?: PaymentMethodId;
+    offerMode?: RideOfferMode;
+    hourlyHours?: number;
+  };
+  CourierDetails: {
+    rideType?: RideIntent;
+    rideCategory?: RideCategory;
+    fromAddress: RideAddressSelection;
+    toAddress: RideAddressSelection;
+    stops?: RideAddressSelection[];
+    offeredFare?: number;
+    paymentMethodId?: PaymentMethodId;
+    offerMode?: RideOfferMode;
+    hourlyHours?: number;
+    source?: 'addressSearch' | 'rideEstimate';
   };
   RideDetails: undefined;
   DriverProfile: {
@@ -71,6 +98,12 @@ export type RideSharingStackParamList = {
   ReservationDetail: {
     rideId: string;
   };
+  RiderChat: {
+    driverAvatarUri?: string;
+    driverName: string;
+    driverPhone?: string;
+    driverUserId: string;
+  };
 };
 
 const Stack = createNativeStackNavigator();
@@ -85,6 +118,7 @@ export default function RideSharingNavigator() {
         <Stack.Screen name="RideAddressSearch" component={RideAddressSearchScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RideEstimate" component={RideEstimateScreen} options={{ headerShown: false }} />
         <Stack.Screen name="OfferFare" component={OfferFareScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="CourierDetails" component={CourierDetailsScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RideDetails" component={RideDetails} options={{ title: t('details_title') }} />
         <Stack.Screen
           name="DriverProfile"
@@ -157,6 +191,11 @@ export default function RideSharingNavigator() {
         <Stack.Screen
           name="ReservationDetail"
           component={ReservationDetailScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="RiderChat"
+          component={RiderChatScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

@@ -17,27 +17,35 @@ type Props = {
     fare?: number;
     recommendedFare?: number;
   };
+  findingTitle?: string;
+  cancelLabel?: string;
   fare?: number;
   recommendedFare?: number;
   timeLeftSec: number;
   onIncreaseFare: () => void;
   onDecreaseFare: () => void;
+  isIncreaseDisabled?: boolean;
   isDecreaseDisabled?: boolean;
   onCancelRide: () => void;
   onKeepSearching: () => void;
+  isKeepSearchingLoading?: boolean;
   isCancelLoading?: boolean;
   floatingAccessory?: React.ReactNode;
 };
 
 function FindingRideBottomSheet({
+  findingTitle,
+  cancelLabel,
   fare,
   recommendedFare,
   timeLeftSec,
   onIncreaseFare,
   onDecreaseFare,
+  isIncreaseDisabled = false,
   isDecreaseDisabled = false,
   onCancelRide,
   onKeepSearching,
+  isKeepSearchingLoading = false,
   isCancelLoading = false,
   floatingAccessory,
 }: Props) {
@@ -76,7 +84,7 @@ function FindingRideBottomSheet({
       <View style={styles.content}>
         <View style={styles.headerBlock}>
           <Text weight="extraBold" style={[styles.title, { color: colors.text }]}>
-            {hasTimedOut ? t('ride_finding_timeout_title') : 'Finding a driver for you...'}
+            {hasTimedOut ? t('ride_finding_timeout_title') : (findingTitle ?? t('ride_finding_driver_title'))}
           </Text>
 
           <AnimatedSweepBar width={trackWidth} />
@@ -112,7 +120,12 @@ function FindingRideBottomSheet({
 
           <Pressable
             onPress={onIncreaseFare}
-            style={[styles.adjustButton, { backgroundColor: colors.findingRidePrimarySoft }]}
+            disabled={isIncreaseDisabled}
+            style={[
+              styles.adjustButton,
+              { backgroundColor: colors.findingRidePrimarySoft },
+              isIncreaseDisabled ? styles.adjustButtonDisabled : null,
+            ]}
           >
             <Text weight="medium" color={colors.findingRidePrimary} style={styles.adjustLabel}>
               +0.5
@@ -124,6 +137,7 @@ function FindingRideBottomSheet({
           <Button
             label={t('ride_finding_keep_searching')}
             onPress={onKeepSearching}
+            isLoading={isKeepSearchingLoading}
             style={[
               styles.primaryButton,
               {
@@ -135,7 +149,7 @@ function FindingRideBottomSheet({
         ) : null}
 
         <Button
-          label={t('ride_finding_cancel')}
+          label={cancelLabel ?? t('ride_finding_cancel')}
           onPress={onCancelRide}
           isLoading={isCancelLoading}
           variant="secondary"
