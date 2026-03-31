@@ -174,6 +174,10 @@ const en = {
   address_save_success: 'Address saved successfully.',
   address_update_success: 'Address updated successfully.',
   address_delete_success: 'Address deleted successfully.',
+  address_selector_title: 'Location',
+  address_selector_close: 'Close location picker',
+  address_selector_use_current_location: 'Use my current location',
+  address_selector_add_new: 'Add new address',
   // Favourites screen
   favourites_title: 'Your Favourites',
   favourites_empty_title: 'No favourites yet',

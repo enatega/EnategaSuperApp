@@ -1,48 +1,96 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../../../../../general/theme/theme';
 import MultiVendorAddressHeader from '../../components/HomeTab/AddressHeader';
+import AddressSelectionBottomSheet from '../../components/addressSelection/AddressSelectionBottomSheet';
 import ShopTypeList from '../../components/HomeTab/ShopTypeList';
 import MultiVendorSpecialOffers from '../../components/HomeTab/SpecialOffersBanner';
 import TopBrandsList from '../../components/HomeTab/TopBrandsList';
 import NearbyStoreList from '../../components/HomeTab/NearbyStoreList';
 import Deals from '../../components/HomeTab/Deals';
 import OrderAgain from '../../components/HomeTab/OrderAgain';
+import type { ProfileAddress } from '../../api/profileService';
+import useSavedAddresses from '../../hooks/useSavedAddresses';
 import { styles } from './HomeTabStyle';
 import type { MultiVendorStackParamList } from '../../navigation/types';
+import useAddress from '../../../hooks/useAddress';
+import { createDeliveryAddressFromProfile } from '../../../utils/address';
 
 type NavProp = NativeStackNavigationProp<MultiVendorStackParamList>;
 
 export default function HomeTab() {
   const { colors } = useTheme();
   const navigation = useNavigation<NavProp>();
+  const [isAddressSheetVisible, setIsAddressSheetVisible] = useState(false);
+  const { addresses, isLoading: isAddressesLoading } = useSavedAddresses();
+  const { selectedAddress, setSelectedAddress } = useAddress();
 
-  const handleAddressPress = useCallback(() => {
-    navigation.navigate('MyProfile', { selectionMode: true });
-  }, [navigation]);
+  const handleOpenAddressSheet = useCallback(() => {
+    setIsAddressSheetVisible(true);
+  }, []);
+
+  const handleCloseAddressSheet = useCallback(() => {
+    setIsAddressSheetVisible(false);
+  }, []);
+
+  const handleSelectAddress = useCallback(
+    (address: ProfileAddress) => {
+      const nextAddress = createDeliveryAddressFromProfile(address);
+
+      if (!nextAddress) {
+        return;
+      }
+
+      setSelectedAddress(nextAddress);
+      setIsAddressSheetVisible(false);
+    },
+    [setSelectedAddress],
+  );
 
   const handleAddAddressPress = useCallback(() => {
+    setIsAddressSheetVisible(false);
     navigation.navigate('AddressSearch', { origin: 'home-header' });
   }, [navigation]);
 
+  const handleUseCurrentLocation = useCallback(() => {
+    setIsAddressSheetVisible(false);
+    navigation.navigate('AddressChooseOnMap', { origin: 'home-header' });
+  }, [navigation]);
+
   return (
-    <ScrollView
-      contentContainerStyle={[styles.contentContainer, { backgroundColor: colors.background }]}
-      showsVerticalScrollIndicator={false}
-      style={{ backgroundColor: colors.background }}
-    >
-      <MultiVendorAddressHeader
-        onAddressPress={handleAddressPress}
-        onAddAddressPress={handleAddAddressPress}
+    <>
+      <ScrollView
+        contentContainerStyle={[
+          styles.contentContainer,
+          { backgroundColor: colors.background },
+        ]}
+        showsVerticalScrollIndicator={false}
+        style={{ backgroundColor: colors.background }}
+      >
+        <MultiVendorAddressHeader
+          onAddAddressPress={handleOpenAddressSheet}
+          onAddressPress={handleOpenAddressSheet}
+        />
+        <MultiVendorSpecialOffers />
+        <ShopTypeList />
+        <TopBrandsList />
+        <NearbyStoreList />
+        <Deals />
+        <OrderAgain />
+      </ScrollView>
+
+      <AddressSelectionBottomSheet
+        addresses={addresses}
+        isLoading={isAddressesLoading}
+        isVisible={isAddressSheetVisible}
+        onAddAddress={handleAddAddressPress}
+        onClose={handleCloseAddressSheet}
+        onSelectAddress={handleSelectAddress}
+        onUseCurrentLocation={handleUseCurrentLocation}
+        selectedAddressId={selectedAddress?.id}
       />
-      <MultiVendorSpecialOffers />
-      <ShopTypeList />
-      <TopBrandsList />
-      <NearbyStoreList />
-      <Deals />
-      <OrderAgain />
-    </ScrollView>
+    </>
   );
 }

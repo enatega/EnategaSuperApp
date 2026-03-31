@@ -13,10 +13,9 @@ import StoreCard from "../../../components/storeCard/StoreCard";
 import NearbyStoreListSkeleton from "./HomeTabSkeletons/NearbyStoreListSkeleton";
 import type { MultiVendorStackParamList } from "../../navigation/types";
 
-
 type NavProp = NativeStackNavigationProp<
-  MultiVendorStackParamList,
-  "SeeAllScreen"
+  MultiVendorStackParamList,
+  "SeeAllScreen"
 >;
 
 export default function NearbyStoreList() {
@@ -25,13 +24,6 @@ export default function NearbyStoreList() {
   const { colors, typography } = useTheme();
   const { data: nearbyStoresData = [], isPending: isNearbyStoresPending } = useNearbyStores();
   const isEmpty = !isNearbyStoresPending && nearbyStoresData.length === 0;
-
-  const handleRestaurantPress = useCallback(
-    (store: DeliveryNearbyStore) => {
-      navigation.navigate('StoreDetails', { store });
-    },
-    [navigation],
-  );
 
   const handleSeeAllNearbyRestaurants = useCallback(() => {
     navigation.navigate("SeeAllScreen", {
@@ -42,7 +34,7 @@ export default function NearbyStoreList() {
   }, [navigation, t]);
 
   const renderItem = ({ item }: { item: DeliveryNearbyStore }) => (
-    <StoreCard store={item} onPress={() => handleRestaurantPress(item)} />
+    <StoreCard store={item} />
   );
 
   return (

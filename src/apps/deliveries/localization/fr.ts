@@ -174,6 +174,10 @@ const fr = {
   address_save_success: 'Adresse enregistrée avec succès.',
   address_update_success: 'Adresse mise à jour avec succès.',
   address_delete_success: 'Adresse supprimée avec succès.',
+  address_selector_title: 'Emplacement',
+  address_selector_close: "Fermer le sélecteur d'emplacement",
+  address_selector_use_current_location: 'Utiliser ma position actuelle',
+  address_selector_add_new: 'Ajouter une nouvelle adresse',
   // Favourites screen
   favourites_title: 'Vos Favoris',
   favourites_empty_title: "Aucun favori pour l'instant",

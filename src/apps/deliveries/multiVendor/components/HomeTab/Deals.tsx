@@ -17,7 +17,7 @@ export default function Deals({ onRestaurantPress }: Props) {
   const { data: dealsData = [], isPending: isDealsPending } = useDeals();
 
   const renderItem = ({ item }: { item: DeliveryNearbyStore }) => (
-    <StoreCard store={item} onPress={() => onRestaurantPress?.(item)} />
+    <StoreCard store={item} />
   );
 
   return (
