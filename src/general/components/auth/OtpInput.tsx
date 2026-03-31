@@ -108,6 +108,8 @@ const styles = StyleSheet.create({
   },
   otpContainer: {
     width: "100%",
+    justifyContent: "center",
+    gap: 14,
   },
   pinCodeContainer: {
     width: 56,

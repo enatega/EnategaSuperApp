@@ -1,24 +1,37 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../../../../general/theme/theme';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
-import Text from '../../../../general/components/Text';
 import Icon from '../../../../general/components/Icon';
 import Button from '../../../../general/components/Button';
+import Text from '../../../../general/components/Text';
+import { showToast } from '../../../../general/components/AppToast';
+import { useTheme } from '../../../../general/theme/theme';
+import OfferFareHourlyStepper from '../../components/offerFare/OfferFareHourlyStepper';
+import OfferFareModeTabs from '../../components/offerFare/OfferFareModeTabs';
+import OfferFareTripSummary from '../../components/offerFare/OfferFareTripSummary';
 import PaymentMethodBadge from '../../components/payment/PaymentMethodBadge';
 import PaymentMethodBottomSheet from '../../components/payment/PaymentMethodBottomSheet';
 import {
   getPaymentMethodOption,
   type PaymentMethodId,
 } from '../../components/payment/paymentTypes';
-import { formatRideCurrency } from '../../utils/rideFormatting';
 import type { RideAddressSelection } from '../../api/types';
 import type { RideOptionItem } from '../../components/rideOptions/types';
 import type { RideSharingStackParamList } from '../../navigation/RideSharingNavigator';
+import { formatRideCurrency } from '../../utils/rideFormatting';
+import {
+  DEFAULT_HOURLY_HOURS,
+  getHourlyIncludedMiles,
+  getRecommendedOfferFare,
+  getSuggestedOfferFare,
+  MIN_HOURLY_HOURS,
+  resolveRideOfferMode,
+  type RideOfferMode,
+} from '../../utils/rideOffer';
 import type { RideIntent } from '../../utils/rideOptions';
 
 type RouteParams = {
@@ -26,9 +39,12 @@ type RouteParams = {
   rideCategory?: RideOptionItem['id'];
   fromAddress: RideAddressSelection;
   toAddress: RideAddressSelection;
+  stops?: RideAddressSelection[];
   offeredFare?: number;
   recommendedFare?: number;
   paymentMethodId?: PaymentMethodId;
+  offerMode?: RideOfferMode;
+  hourlyHours?: number;
 };
 
 export default function OfferFareScreen() {
@@ -41,26 +57,76 @@ export default function OfferFareScreen() {
     rideCategory,
     fromAddress,
     toAddress,
+    stops = [],
     offeredFare,
     recommendedFare,
     paymentMethodId: initialPaymentMethodId = 'cash',
+    offerMode,
+    hourlyHours: initialHourlyHours,
   } = route.params as RouteParams;
+  const isCourierFlow = rideType === 'courier';
+  const [activeMode, setActiveMode] = useState<RideOfferMode>(
+    isCourierFlow ? 'standard' : resolveRideOfferMode(rideType, offerMode),
+  );
+  const [hourlyHours, setHourlyHours] = useState(
+    initialHourlyHours ?? DEFAULT_HOURLY_HOURS,
+  );
   const [fareValue, setFareValue] = useState(
     typeof offeredFare === 'number' ? offeredFare.toFixed(2) : '',
   );
+  const [hasEditedFare, setHasEditedFare] = useState(typeof offeredFare === 'number');
   const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethodId>(initialPaymentMethodId);
   const [isPaymentVisible, setIsPaymentVisible] = useState(false);
 
-  const selectedPayment = getPaymentMethodOption(paymentMethodId);
-  const paymentMethodLabel = selectedPayment.value
+  const paymentMethod = getPaymentMethodOption(paymentMethodId);
+  const paymentMethodLabel = paymentMethod.value
     ?? (paymentMethodId === 'cash' ? t('ride_payment_cash') : '');
-  const minimumFare = recommendedFare ?? 0;
+  const resolvedOfferMode = isCourierFlow ? 'standard' : activeMode;
+  const recommendedOfferFare = useMemo(
+    () => getRecommendedOfferFare({
+      baseFare: recommendedFare,
+      offerMode: resolvedOfferMode,
+      hourlyHours,
+    }),
+    [hourlyHours, recommendedFare, resolvedOfferMode],
+  );
+  const suggestedOfferFare = useMemo(
+    () => getSuggestedOfferFare({
+      recommendedFare: recommendedOfferFare,
+      offerMode: resolvedOfferMode,
+    }),
+    [recommendedOfferFare, resolvedOfferMode],
+  );
   const parsedFare = useMemo(() => Number.parseFloat(fareValue), [fareValue]);
-  const isBelowRecommended = fareValue.trim().length > 0 && Number.isFinite(parsedFare) && parsedFare < minimumFare;
-  const canSave = Number.isFinite(parsedFare) && parsedFare >= minimumFare;
+  const isBelowRecommended = fareValue.trim().length > 0
+    && Number.isFinite(parsedFare)
+    && parsedFare < recommendedOfferFare;
+  const canContinue = Number.isFinite(parsedFare) && parsedFare >= recommendedOfferFare;
+  const hourlyTitle = hourlyHours === 1
+    ? t('ride_offer_fare_hour_single', { count: hourlyHours })
+    : t('ride_offer_fare_hour_plural', { count: hourlyHours });
+  const hourlySubtitle = t('ride_offer_fare_miles_included', {
+    miles: getHourlyIncludedMiles(hourlyHours),
+  });
+
+  useEffect(() => {
+    if (!isCourierFlow || activeMode === 'standard') {
+      return;
+    }
+
+    setActiveMode('standard');
+  }, [activeMode, isCourierFlow]);
+
+  useEffect(() => {
+    if (hasEditedFare) {
+      return;
+    }
+
+    setFareValue(suggestedOfferFare.toFixed(2));
+  }, [hasEditedFare, suggestedOfferFare]);
 
   const handleSave = () => {
-    if (!canSave) {
+    if (!canContinue) {
       return;
     }
 
@@ -69,8 +135,11 @@ export default function OfferFareScreen() {
       rideCategory,
       fromAddress,
       toAddress,
+      stops,
       offeredFare: parsedFare,
       paymentMethodId,
+      offerMode: resolvedOfferMode,
+      hourlyHours: resolvedOfferMode === 'hourly' ? hourlyHours : undefined,
     });
   };
 
@@ -92,79 +161,103 @@ export default function OfferFareScreen() {
         />
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <View style={styles.fieldBlock}>
-            <Text weight="medium" style={styles.fieldLabel}>
-              {t('ride_offer_fare_field_label')}
-              <Text color={colors.danger}> *</Text>
-            </Text>
-            <Text style={[styles.fieldHint, { color: colors.mutedText }]}>
-              {t('ride_offer_fare_recommended', { fare: formatRideCurrency(recommendedFare) })}
-            </Text>
-
-            <View
-              style={[
-                styles.inputWrap,
-                {
-                  borderColor: isBelowRecommended ? colors.danger : colors.border,
-                  backgroundColor: colors.surface,
-                },
-              ]}
-            >
-              <Text style={styles.currencyLabel}>QAR</Text>
-              <TextInput
-                keyboardType="decimal-pad"
-                value={fareValue}
-                onChangeText={setFareValue}
-                style={[styles.input, { color: colors.text, fontSize: typography.size.md2 }]}
+          <View style={styles.topSection}>
+            {!isCourierFlow ? (
+              <OfferFareModeTabs
+                activeMode={activeMode}
+                onChange={(nextMode) => {
+                  setActiveMode(nextMode);
+                  setHasEditedFare(false);
+                }}
+                standardLabel={t('ride_offer_fare_tab_standard')}
+                hourlyLabel={t('ride_offer_fare_tab_hourly')}
               />
-            </View>
-            {isBelowRecommended ? (
-              <Text style={[styles.validationText, { color: colors.danger }]}>
-                {t('ride_offer_fare_validation', { fare: formatRideCurrency(minimumFare) })}
-              </Text>
             ) : null}
+
+            {resolvedOfferMode === 'hourly' ? (
+              <OfferFareHourlyStepper
+                title={hourlyTitle}
+                subtitle={hourlySubtitle}
+                onIncrease={() => setHourlyHours((currentHours) => currentHours + 1)}
+                onDecrease={() => setHourlyHours((currentHours) => Math.max(MIN_HOURLY_HOURS, currentHours - 1))}
+                isDecreaseDisabled={hourlyHours <= MIN_HOURLY_HOURS}
+              />
+            ) : null}
+
+            <View style={styles.fieldBlock}>
+              <Text weight="medium" style={styles.fieldLabel}>
+                {t('ride_offer_fare_title')}
+                <Text color={colors.danger}> *</Text>
+              </Text>
+              <Text style={[styles.fieldHint, { color: colors.mutedText }]}>
+                {t('ride_offer_fare_recommended', { fare: formatRideCurrency(recommendedOfferFare) })}
+              </Text>
+
+              <View
+                style={[
+                  styles.inputWrap,
+                  {
+                    borderColor: isBelowRecommended ? colors.primary : colors.border,
+                    backgroundColor: colors.surface,
+                  },
+                ]}
+              >
+                <Text style={styles.currencyLabel}>QAR</Text>
+                <TextInput
+                  keyboardType="decimal-pad"
+                  value={fareValue}
+                  onChangeText={(value) => {
+                    setHasEditedFare(true);
+                    setFareValue(value);
+                  }}
+                  style={[styles.input, { color: colors.text, fontSize: typography.size.md2 }]}
+                />
+              </View>
+              {isBelowRecommended ? (
+                <Text style={[styles.validationText, { color: colors.danger }]}>
+                  {t('ride_offer_fare_validation', { fare: formatRideCurrency(recommendedOfferFare) })}
+                </Text>
+              ) : null}
+            </View>
           </View>
 
-          <Pressable style={styles.row} onPress={() => {}}>
-            <View style={styles.rowLeft}>
-              <Icon type="Feather" name="percent" size={20} color={colors.text} />
-              <Text weight="medium" style={styles.rowLabel}>{t('ride_offer_fare_promo_code')}</Text>
-            </View>
-            <Icon type="Feather" name="chevron-right" size={18} color={colors.text} />
-          </Pressable>
+          <View style={styles.bottomSection}>
+            <Pressable
+              style={styles.row}
+              onPress={() => showToast.info(t('ride_offer_fare_promo_coming_soon'))}
+            >
+              <View style={styles.rowLeft}>
+                <Icon type="Feather" name="percent" size={20} color={colors.text} />
+                <Text weight="medium" style={styles.rowLabel}>
+                  {t('ride_offer_fare_promo_code')}
+                </Text>
+              </View>
+              <Icon type="Feather" name="chevron-right" size={18} color={colors.text} />
+            </Pressable>
 
-          <Pressable style={styles.row} onPress={() => setIsPaymentVisible(true)}>
-            <View style={styles.rowLeft}>
-              <PaymentMethodBadge paymentMethodId={paymentMethodId} size="sm" />
-              <Text weight="medium" style={styles.rowLabel}>
-                {paymentMethodLabel}
-              </Text>
-            </View>
-            <Icon type="Feather" name="chevron-right" size={18} color={colors.text} />
-          </Pressable>
+            <Pressable style={styles.row} onPress={() => setIsPaymentVisible(true)}>
+              <View style={styles.rowLeft}>
+                <PaymentMethodBadge paymentMethodId={paymentMethodId} size="sm" />
+                <Text weight="medium" style={styles.rowLabel}>
+                  {paymentMethodLabel}
+                </Text>
+              </View>
+              <Icon type="Feather" name="chevron-right" size={18} color={colors.text} />
+            </Pressable>
 
-          <View style={styles.tripBlock}>
-            <Text weight="medium" style={[styles.tripLabel, { color: colors.mutedText }]}>
-              {t('ride_offer_fare_current_trip')}
-            </Text>
-
-            <View style={styles.tripRow}>
-              <View style={[styles.tripDot, { borderColor: colors.success }]} />
-              <Text style={styles.tripAddress}>{fromAddress.description}</Text>
-            </View>
-
-            <View style={styles.tripRow}>
-              <View style={[styles.tripDot, { borderColor: colors.danger }]} />
-              <Text style={styles.tripAddress}>{toAddress.description}</Text>
-            </View>
+            <OfferFareTripSummary
+              title={t('ride_offer_fare_current_trip')}
+              fromAddress={fromAddress.description}
+              toAddress={toAddress.description}
+            />
           </View>
         </ScrollView>
 
         <View style={styles.footer}>
           <Button
-            label={t('ride_payment_save')}
+            label={t('ride_offer_fare_next')}
             onPress={handleSave}
-            disabled={!canSave}
+            disabled={!canContinue}
             style={styles.saveButton}
           />
         </View>
@@ -202,12 +295,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   content: {
-    paddingTop: 8,
+    flexGrow: 1,
+    justifyContent: 'space-between',
     paddingBottom: 24,
   },
-  fieldBlock: {
+  topSection: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingTop: 8,
+    gap: 16,
+  },
+  bottomSection: {
+    paddingTop: 12,
+    gap: 4,
+  },
+  fieldBlock: {
+    gap: 4,
   },
   fieldLabel: {
     fontSize: 14,
@@ -216,19 +318,19 @@ const styles = StyleSheet.create({
   fieldHint: {
     fontSize: 14,
     lineHeight: 22,
-    marginTop: 4,
-    marginBottom: 10,
   },
   inputWrap: {
     minHeight: 48,
     borderWidth: 1,
-    borderRadius: 6,
+    borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
+    marginTop: 6,
   },
   currencyLabel: {
     fontSize: 16,
+    lineHeight: 24,
     marginRight: 8,
   },
   input: {
@@ -236,7 +338,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   validationText: {
-    marginTop: 8,
+    marginTop: 4,
     fontSize: 13,
     lineHeight: 18,
   },
@@ -256,31 +358,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
   },
-  tripBlock: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    gap: 12,
-  },
-  tripLabel: {
-    fontSize: 14,
-    lineHeight: 22,
-  },
-  tripRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  tripDot: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    borderWidth: 4,
-  },
-  tripAddress: {
-    flex: 1,
-    fontSize: 16,
-    lineHeight: 24,
-  },
   footer: {
     paddingHorizontal: 16,
     paddingBottom: 16,
@@ -288,6 +365,8 @@ const styles = StyleSheet.create({
   saveButton: {
     minHeight: 44,
     borderRadius: 6,
-    borderWidth: 0,
+    borderWidth: 1,
+    backgroundColor: '#1691BF',
+    borderColor: '#1691BF',
   },
 });

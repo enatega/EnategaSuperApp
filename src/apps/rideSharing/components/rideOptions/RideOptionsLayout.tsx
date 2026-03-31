@@ -38,7 +38,6 @@ function RideOptionsLayout({
   return (
     <View style={styles.container}>
       <RideOptionsMapLayer
-        onBackPress={onBackPress}
         currentCoordinates={currentCoordinates}
         cachedAddresses={cachedAddresses}
       />
@@ -47,6 +46,7 @@ function RideOptionsLayout({
         cachedAddresses={cachedAddresses}
         selectedCategory={selectedCategory}
         onSelectCategory={onSelectCategory}
+        onBackPress={onBackPress}
         onSearchPress={onSearchPress}
         onLocatePress={refreshCurrentLocation}
         isLocating={isLoadingCurrentLocation}

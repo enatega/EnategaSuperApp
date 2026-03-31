@@ -8,17 +8,33 @@ import type { RideAddressSelection } from '../../../api/types';
 
 type Props = {
   fromAddress: RideAddressSelection;
+  stopAddresses?: RideAddressSelection[];
   toAddress: RideAddressSelection;
-  onChangeAddressPress?: () => void;
+  onAddStopPress?: () => void;
+  onStopPress?: (index: number) => void;
+  onRemoveStopPress?: (index: number) => void;
+  onViewStopsPress?: () => void;
+  viewStopsLabel?: string;
+  moreStopsLabel?: (count: number) => string;
+  removeStopLabel?: (index: number) => string;
 };
 
 function RideEstimateAddressSummaryCard({
   fromAddress,
+  stopAddresses = [],
   toAddress,
-  onChangeAddressPress,
+  onAddStopPress,
+  onStopPress,
+  onRemoveStopPress,
+  onViewStopsPress,
+  viewStopsLabel,
+  moreStopsLabel,
+  removeStopLabel,
 }: Props) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const visibleStop = stopAddresses[0];
+  const hiddenStopsCount = Math.max(stopAddresses.length - 1, 0);
 
   return (
     <View
@@ -38,13 +54,31 @@ function RideEstimateAddressSummaryCard({
         </Text>
       </View>
 
+      {visibleStop ? (
+        <Pressable onPress={() => onStopPress?.(0)} style={styles.row} accessibilityRole="button">
+          <View style={[styles.statusDot, { borderColor: '#FBBF24' }]} />
+          <Text numberOfLines={1} style={styles.addressText}>
+            {visibleStop.description}
+          </Text>
+          <Pressable
+            onPress={() => onRemoveStopPress?.(0)}
+            hitSlop={8}
+            style={styles.actionButton}
+            accessibilityRole="button"
+            accessibilityLabel={removeStopLabel?.(1)}
+          >
+            <Icon type="Feather" name="x" size={18} color={colors.mutedText} />
+          </Pressable>
+        </Pressable>
+      ) : null}
+
       <View style={styles.row}>
         <View style={[styles.statusDot, { borderColor: '#F87171' }]} />
         <Text numberOfLines={1} style={styles.addressText}>
           {toAddress.description}
         </Text>
         <Pressable
-          onPress={onChangeAddressPress}
+          onPress={onAddStopPress}
           hitSlop={8}
           style={styles.actionButton}
           accessibilityRole="button"
@@ -52,6 +86,15 @@ function RideEstimateAddressSummaryCard({
           <Icon type="Feather" name="plus" size={20} color={colors.text} />
         </Pressable>
       </View>
+
+      {stopAddresses.length ? (
+        <Pressable onPress={onViewStopsPress} style={styles.footerAction} accessibilityRole="button">
+          <Text weight="medium" style={[styles.footerActionText, { color: colors.primary }]}>
+            {hiddenStopsCount > 0 ? moreStopsLabel?.(hiddenStopsCount) : viewStopsLabel}
+          </Text>
+          <Icon type="Feather" name="chevron-right" size={16} color={colors.primary} />
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -89,5 +132,15 @@ const styles = StyleSheet.create({
   actionButton: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  footerAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 4,
+  },
+  footerActionText: {
+    fontSize: 13,
+    lineHeight: 18,
   },
 });
