@@ -1,18 +1,19 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import RideEstimateStatusCard from '../../components/rideEstimate/RideEstimateStatusCard';
+import RideScheduleBottomSheet from '../../components/rideEstimate/schedule/RideScheduleBottomSheet';
 import PaymentMethodBadge from '../../components/payment/PaymentMethodBadge';
 import PaymentMethodBottomSheet from '../../components/payment/PaymentMethodBottomSheet';
 import { getPaymentMethodOption, type PaymentMethodId } from '../../components/payment/paymentTypes';
 import RideEstimateAddressSummaryCard from './components/RideEstimateAddressSummaryCard';
 import RideEstimateBottomSheet from './components/RideEstimateBottomSheet';
 import RideEstimateMapLayer from './components/RideEstimateMapLayer';
+import RideEstimateTripPointsSheet from './components/RideEstimateTripPointsSheet';
 import { useTheme } from '../../../../general/theme/theme';
 import { getApiErrorMessage } from '../../../../general/utils/apiError';
-import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
 import { socketClient } from '../../../../general/services/socket';
 import { socketLogger } from '../../../../general/services/socket';
 import type {
@@ -28,8 +29,18 @@ import useRideRoutePath from '../../hooks/useRideRoutePath';
 import type { RideSharingStackParamList } from '../../navigation/RideSharingNavigator';
 import { useActiveRideRequestStore } from '../../stores/useActiveRideRequestStore';
 import { useActiveRideStore } from '../../stores/useActiveRideStore';
+import { useCourierBookingStore } from '../../stores/useCourierBookingStore';
 import { emitRideSharingEvent } from '../../socket/rideSharingSocket';
+import {
+  buildCourierCreateRidePayload,
+  getCourierComment,
+  isCourierBookingValid,
+  isCourierRideRequest,
+} from '../../utils/courierBooking';
+import { resolveRideOfferMode, type RideOfferMode } from '../../utils/rideOffer';
 import type { RideIntent } from '../../utils/rideOptions';
+import { formatScheduledRideSummary, toApiScheduledDateString } from '../../utils/rideSchedule';
+import { toCreateRideStops } from '../../utils/rideStops';
 import { rideEstimateIcons } from './rideEstimateAssets';
 import { showToast } from '../../../../general/components/AppToast';
 
@@ -38,8 +49,11 @@ type RouteParams = {
   rideCategory?: RideOptionItem['id'];
   fromAddress: RideAddressSelection;
   toAddress: RideAddressSelection;
+  stops?: RideAddressSelection[];
   offeredFare?: number;
   paymentMethodId?: PaymentMethodId;
+  offerMode?: RideOfferMode;
+  hourlyHours?: number;
 };
 
 function resolveRideIcon(name: string) {
@@ -75,6 +89,12 @@ function toRideOption(ride: RideTypeFare): RideOptionItem & { fare?: number; rec
   };
 }
 
+function getPassengerUserId(passenger: ActiveRideRequestPayload['passenger']) {
+  return (
+    passenger as { userProfile?: { user?: { id?: string } } } | undefined
+  )?.userProfile?.user?.id;
+}
+
 export default function RideEstimateScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
   const route = useRoute();
@@ -84,13 +104,16 @@ export default function RideEstimateScreen() {
     rideType,
     fromAddress,
     toAddress,
+    stops = [],
     rideCategory,
     offeredFare: initialOfferedFare,
     paymentMethodId: initialPaymentMethodId = 'cash',
+    offerMode: initialOfferMode,
+    hourlyHours: initialHourlyHours,
   } = route.params as RouteParams;
 
-  const quoteQuery = useRideEstimateOptions(fromAddress, toAddress);
-  const routeQuery = useRideRoutePath(fromAddress, toAddress);
+  const quoteQuery = useRideEstimateOptions(fromAddress, toAddress, stops);
+  const routeQuery = useRideRoutePath(fromAddress, toAddress, stops);
   const quoteErrorMessage = quoteQuery.error
     ? getApiErrorMessage(quoteQuery.error, t('ride_estimate_quote_error_description'))
     : null;
@@ -108,14 +131,32 @@ export default function RideEstimateScreen() {
   const [customFare, setCustomFare] = useState<number | undefined>(initialOfferedFare);
   const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethodId>(initialPaymentMethodId);
   const [isPaymentMethodVisible, setIsPaymentMethodVisible] = useState(false);
+  const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
+  const [wantsScheduledRide, setWantsScheduledRide] = useState(rideType === 'schedule');
+  const [isSchedulePickerVisible, setIsSchedulePickerVisible] = useState(false);
+  const [isTripPointsVisible, setIsTripPointsVisible] = useState(false);
+  const hasPresentedHourlyOfferRef = useRef(false);
   const createRideMutation = useCreateRide();
-  const authSessionQuery = useAuthSessionQuery();
   const setActiveRideRequest = useActiveRideRequestStore((state) => state.setActiveRideRequest);
   const clearActiveRide = useActiveRideStore((state) => state.clearActiveRide);
+  const courierActiveTab = useCourierBookingStore((state) => state.activeTab);
+  const courierToBuilding = useCourierBookingStore((state) => state.toBuilding);
+  const courierToDoor = useCourierBookingStore((state) => state.toDoor);
+  const courierBooking = useMemo(() => ({
+    activeTab: courierActiveTab,
+    toBuilding: courierToBuilding,
+    toDoor: courierToDoor,
+  }), [courierActiveTab, courierToBuilding, courierToDoor]);
 
   useEffect(() => {
     setPaymentMethodId(initialPaymentMethodId);
   }, [initialPaymentMethodId]);
+
+  useEffect(() => {
+    if (wantsScheduledRide && !scheduledAt) {
+      setIsSchedulePickerVisible(true);
+    }
+  }, [scheduledAt, wantsScheduledRide]);
 
   const options = mappedOptions.length
     ? mappedOptions
@@ -138,6 +179,19 @@ export default function RideEstimateScreen() {
   const paymentMethod = getPaymentMethodOption(paymentMethodId);
   const paymentMethodLabel = paymentMethod.value
     ?? (paymentMethodId === 'cash' ? t('ride_payment_cash') : '');
+  const offerMode = resolveRideOfferMode(rideType, initialOfferMode);
+  const isHourlyRide = offerMode === 'hourly';
+  const isCourierFlow = rideType === 'courier' || isCourierRideRequest(selectedOption.title);
+  const isCourierDetailsValid = isCourierBookingValid(courierBooking);
+  const courierComment = getCourierComment(courierBooking);
+  const hourlyMetaLabel = isHourlyRide && typeof initialHourlyHours === 'number'
+    ? (initialHourlyHours === 1
+        ? t('ride_offer_fare_hour_single', { count: initialHourlyHours })
+        : t('ride_offer_fare_hour_plural', { count: initialHourlyHours }))
+    : undefined;
+  const scheduleLabel = scheduledAt
+    ? formatScheduledRideSummary(scheduledAt)
+    : t('ride_schedule_label');
   const displayOptions = options.map((item) => (
     item.id === resolvedSelectedOptionId
       ? {
@@ -147,6 +201,38 @@ export default function RideEstimateScreen() {
         }
       : item
   ));
+  const bottomSheetOptions = isCourierFlow
+    ? displayOptions.filter((item) => item.id === resolvedSelectedOptionId)
+    : displayOptions;
+
+  const handleEditStop = (stopIndex: number) => {
+    const selectedStop = stops[stopIndex];
+
+    if (!selectedStop) {
+      return;
+    }
+
+    navigation.navigate('RideAddressSearch', {
+      rideType,
+      rideCategory,
+      fromAddress,
+      toAddress,
+      stops,
+      stopAction: 'edit',
+      stopIndex,
+      prefilledStopAddress: selectedStop,
+    });
+  };
+
+  const handleRemoveStop = (stopIndex: number) => {
+    const nextStops = stops.filter((_, index) => index !== stopIndex);
+
+    if (!nextStops.length) {
+      setIsTripPointsVisible(false);
+    }
+
+    navigation.setParams({ stops: nextStops });
+  };
 
   useEffect(() => {
     if (typeof initialOfferedFare === 'number') {
@@ -156,6 +242,42 @@ export default function RideEstimateScreen() {
 
     setCustomFare(undefined);
   }, [initialOfferedFare]);
+
+  useEffect(() => {
+    if (
+      !isHourlyRide
+      || typeof initialHourlyHours === 'number'
+      || hasPresentedHourlyOfferRef.current
+      || typeof selectedOptionRecommendedFare !== 'number'
+    ) {
+      return;
+    }
+
+    hasPresentedHourlyOfferRef.current = true;
+    navigation.navigate('OfferFare', {
+      rideType,
+      rideCategory,
+      fromAddress,
+      toAddress,
+      stops,
+      offeredFare: selectedOptionCurrentFare,
+      recommendedFare: selectedOptionRecommendedFare,
+      paymentMethodId,
+      offerMode: 'hourly',
+    });
+  }, [
+    fromAddress,
+    initialHourlyHours,
+    isHourlyRide,
+    navigation,
+    paymentMethodId,
+    rideCategory,
+    rideType,
+    selectedOptionCurrentFare,
+    selectedOptionRecommendedFare,
+    stops,
+    toAddress,
+  ]);
 
   const handleConfirmRide = async () => {
     if (createRideMutation.isPending) {
@@ -183,6 +305,27 @@ export default function RideEstimateScreen() {
       return;
     }
 
+    if (wantsScheduledRide && !scheduledAt) {
+      setIsSchedulePickerVisible(true);
+      return;
+    }
+
+    if (isCourierFlow && !isCourierDetailsValid) {
+      navigation.navigate('CourierDetails', {
+        rideType,
+        rideCategory,
+        fromAddress,
+        toAddress,
+        stops,
+        offeredFare: selectedOptionCurrentFare,
+        paymentMethodId,
+        offerMode,
+        hourlyHours: initialHourlyHours,
+        source: 'rideEstimate',
+      });
+      return;
+    }
+
     const createRidePayload: CreateRidePayload = {
       pickup: {
         lat: fromAddress.coordinates.latitude,
@@ -195,24 +338,33 @@ export default function RideEstimateScreen() {
       ride_type_id: String(selectedOption.id),
       fare: resolvedFare,
       payment_via: mapPaymentMethodToApi(paymentMethodId),
-      is_hourly: false,
-      stops: [],
+      is_hourly: isHourlyRide,
+      stops: toCreateRideStops(stops),
       pickup_address: fromAddress.description,
       pickup_location: fromAddress.description,
       dropoff_location: toAddress.description,
       destination_address: toAddress.description,
-      is_scheduled: false,
+      is_scheduled: Boolean(scheduledAt),
       is_family: false,
       estimated_time: quoteQuery.data.durationMin,
       estimated_distance: quoteQuery.data.distanceKm,
       base_fair: selectedOptionRecommendedFare ?? resolvedFare,
       offered_fair: resolvedFare,
+      ...(scheduledAt ? { scheduled_at: toApiScheduledDateString(scheduledAt) ?? scheduledAt.toISOString() } : {}),
+      ...(isCourierFlow
+        ? buildCourierCreateRidePayload({
+            snapshot: courierBooking,
+            fromAddress,
+            toAddress,
+          })
+        : {}),
     };
 
     try {
       const createdRide = await createRideMutation.mutateAsync(createRidePayload) as {
         rideReq?: ActiveRideRequestPayload | null;
       } | null;
+      console.log('Create ride API response', JSON.stringify(createdRide));
       const createdRideRequest = createdRide?.rideReq ?? null;
 
       if (!createdRideRequest?.id) {
@@ -227,8 +379,7 @@ export default function RideEstimateScreen() {
         emitRideSharingEvent('ride-request-created-by-customer', {
           rideRequestData: {
             ...createRidePayload,
-            passenger_user_id: createdRideRequest?.passenger?.userProfile?.user?.id,
-            
+            passenger_user_id: getPassengerUserId(createdRideRequest?.passenger),
           },
           latitude: fromAddress.coordinates.latitude,
           longitude: fromAddress.coordinates.longitude,
@@ -257,34 +408,31 @@ export default function RideEstimateScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <RideEstimateMapLayer
         fromAddress={fromAddress}
+        stopAddresses={stops}
         toAddress={toAddress}
         routeCoordinates={routeQuery.data ?? []}
       />
       <RideEstimateAddressSummaryCard
         fromAddress={fromAddress}
+        stopAddresses={stops}
         toAddress={toAddress}
-        onChangeAddressPress={() => navigation.navigate(
-          'RideAddressSearch' as never,
-          {
-            rideType,
-            rideCategory,
-          } as never,
-        )}
+        onAddStopPress={() => navigation.navigate('RideAddressSearch', {
+          rideType,
+          rideCategory,
+          fromAddress,
+          toAddress,
+          stops,
+          stopAction: 'add',
+        })}
+        onStopPress={handleEditStop}
+        onRemoveStopPress={handleRemoveStop}
+        onViewStopsPress={() => setIsTripPointsVisible(true)}
+        viewStopsLabel={t('ride_trip_points_view_all')}
+        moreStopsLabel={(count) => t('ride_trip_points_more_stops', { count })}
+        removeStopLabel={(count) => t('ride_trip_points_remove_stop', { count })}
       />
-      {showRouteAlert ? (
-        <View style={styles.routeAlertWrap}>
-          <RideEstimateStatusCard
-            title={t('ride_estimate_route_error_title')}
-            message={routeErrorMessage ?? t('ride_estimate_route_error_description')}
-            variant="warning"
-            actionLabel={t('ride_estimate_retry')}
-            onActionPress={() => routeQuery.refetch()}
-            compact
-          />
-        </View>
-      ) : null}
       <RideEstimateBottomSheet
-        options={displayOptions}
+        options={bottomSheetOptions}
         selectedOptionId={resolvedSelectedOptionId}
         onSelectOption={(nextOptionId) => {
           setSelectedOptionId(nextOptionId);
@@ -293,17 +441,56 @@ export default function RideEstimateScreen() {
         }}
         onConfirmRide={handleConfirmRide}
         onBackPress={() => navigation.goBack()}
+        floatingStatusCard={showRouteAlert ? (
+          <RideEstimateStatusCard
+            title={t('ride_estimate_route_error_title')}
+            message={routeErrorMessage ?? t('ride_estimate_route_error_description')}
+            variant="warning"
+            actionLabel={t('ride_estimate_retry')}
+            onActionPress={() => routeQuery.refetch()}
+            compact
+          />
+        ) : null}
         paymentMethodLabel={paymentMethodLabel}
         paymentMethodBadge={<PaymentMethodBadge paymentMethodId={paymentMethodId} size="sm" />}
         onPaymentMethodPress={() => setIsPaymentMethodVisible(true)}
+        selectedOptionMetaLabel={hourlyMetaLabel}
+        isCourierFlow={isCourierFlow}
+        courierCommentLabel={courierComment ?? t('ride_courier_comment_label')}
+        onCourierDetailsPress={() => navigation.navigate('CourierDetails', {
+          rideType,
+          rideCategory,
+          fromAddress,
+          toAddress,
+          stops,
+          offeredFare: selectedOptionCurrentFare,
+          paymentMethodId,
+          offerMode,
+          hourlyHours: initialHourlyHours,
+          source: 'rideEstimate',
+        })}
+        confirmButtonLabel={isCourierFlow ? t('ride_find_courier_button') : undefined}
+        scheduleLabel={scheduleLabel}
+        hasScheduledRide={Boolean(scheduledAt)}
+        onSchedulePress={() => {
+          setWantsScheduledRide(true);
+          setIsSchedulePickerVisible(true);
+        }}
+        onClearSchedule={() => {
+          setScheduledAt(null);
+          setWantsScheduledRide(false);
+        }}
         onEditFarePress={() => navigation.navigate('OfferFare', {
           rideType,
           rideCategory,
           fromAddress,
           toAddress,
+          stops,
           offeredFare: selectedOptionCurrentFare,
           recommendedFare: selectedOptionRecommendedFare,
           paymentMethodId,
+          offerMode,
+          hourlyHours: initialHourlyHours,
         })}
         onIncreaseFare={() => {
           const minimumFare = selectedOptionRecommendedFare ?? 0;
@@ -325,7 +512,7 @@ export default function RideEstimateScreen() {
         isLoading={isQuoteLoading}
         errorMessage={quoteErrorMessage}
         onRetry={() => quoteQuery.refetch()}
-        isConfirmDisabled={quoteQuery.isLoading || quoteQuery.isFetching || !quoteQuery.data}
+        isConfirmDisabled={quoteQuery.isLoading || quoteQuery.isFetching || !quoteQuery.data || (isCourierFlow && !isCourierDetailsValid)}
         isConfirmLoading={createRideMutation.isPending}
       />
 
@@ -338,6 +525,34 @@ export default function RideEstimateScreen() {
           setIsPaymentMethodVisible(false);
         }}
       />
+
+      {!isCourierFlow ? (
+        <RideScheduleBottomSheet
+          visible={isSchedulePickerVisible}
+          value={scheduledAt}
+          onClose={() => setIsSchedulePickerVisible(false)}
+          onConfirm={(nextDate) => {
+            setWantsScheduledRide(true);
+            setScheduledAt(nextDate);
+            setIsSchedulePickerVisible(false);
+          }}
+        />
+      ) : null}
+
+      <RideEstimateTripPointsSheet
+        visible={isTripPointsVisible}
+        title={t('ride_trip_points_title')}
+        originLabel={t('ride_trip_points_origin')}
+        stopLabel={(index) => t('ride_trip_points_stop', { count: index })}
+        destinationLabel={t('ride_trip_points_destination')}
+        fromAddress={fromAddress}
+        stopAddresses={stops}
+        toAddress={toAddress}
+        onStopPress={handleEditStop}
+        removeStopLabel={(count) => t('ride_trip_points_remove_stop', { count })}
+        onRemoveStop={handleRemoveStop}
+        onClose={() => setIsTripPointsVisible(false)}
+      />
     </View>
   );
 }
@@ -345,11 +560,5 @@ export default function RideEstimateScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  routeAlertWrap: {
-    position: 'absolute',
-    left: 16,
-    right: 16,
-    bottom: 156,
   },
 });

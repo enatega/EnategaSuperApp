@@ -86,4 +86,7 @@ export type MultiVendorStackParamList = {
   DeleteAccount: undefined;
   ColorMode: undefined;
   Language: undefined;
+  ProductInfo: {
+    productId: string
+  }
 };

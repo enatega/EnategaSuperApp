@@ -3,13 +3,13 @@ import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import { useCustomerRideDetail } from '../../hooks/useRideQueries';
 import { useCancelRide } from '../../hooks/useRideMutations';
-import { mapCustomerRideDetailToReservation } from '../../utils/rideMapper';
 import { showToast } from '../../../../general/components/AppToast';
 import CancelRideBottomSheet from '../../components/reservation/CancelRideBottomSheet';
 import MoreOptionsBottomSheet from '../../components/reservation/MoreOptionsBottomSheet';
@@ -22,14 +22,55 @@ import ReservationStatus from '../../components/reservation/ReservationStatus';
 import ReservationInfoSection from '../../components/reservation/ReservationInfoSection';
 import ReservationDetailSkeleton from '../../components/reservation/ReservationDetailSkeleton';
 import type { RideSharingStackParamList } from '../../navigation/RideSharingNavigator';
+import type { CustomerRideDetail } from '../../api/types';
+import type { RideStatus } from '../../types/reservation';
 
 type RoutePropType = RouteProp<RideSharingStackParamList, 'ReservationDetail'>;
 type NavigationProp = NativeStackNavigationProp<RideSharingStackParamList>;
+
+function mapRideStatus(rideStatus: CustomerRideDetail['rideStatus']): RideStatus {
+  switch (rideStatus) {
+    case 'COMPLETED':
+      return 'completed';
+    case 'CANCELLED':
+      return 'cancelled';
+    case 'IN_PROGRESS':
+      return 'in_progress';
+    case 'ASSIGNED':
+    case 'SCHEDULED':
+    default:
+      return 'scheduled';
+  }
+}
+
+function mapPaymentMethod(paymentVia?: string): 'cash' | 'card' {
+  return paymentVia?.toUpperCase() === 'CARD' ? 'card' : 'cash';
+}
+
+function formatScheduledDate(dateTime: string): string {
+  const date = new Date(dateTime);
+
+  if (Number.isNaN(date.getTime())) {
+    return dateTime;
+  }
+
+  const day = date.toLocaleString('en-US', { weekday: 'short' });
+  const month = date.toLocaleString('en-US', { month: 'short' });
+  const dayNum = date.getDate();
+  const time = date.toLocaleString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  return `${day}, ${month} ${dayNum}. ${time} GMT`;
+}
 
 export default function ReservationDetailScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<RoutePropType>();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation('rideSharing');
   const [isCancelBottomSheetVisible, setIsCancelBottomSheetVisible] = useState(false);
   const [isMoreOptionsVisible, setIsMoreOptionsVisible] = useState(false);
@@ -37,24 +78,22 @@ export default function ReservationDetailScreen() {
   const rideId = route.params?.rideId;
   const { data: rideDetail, isLoading, error } = useCustomerRideDetail(rideId);
   const { mutate: cancelRide, isPending: isCancelling } = useCancelRide();
-
-  const reservation = useMemo(() => {
-    if (!rideDetail) return null;
-    return mapCustomerRideDetailToReservation(rideDetail);
-  }, [rideDetail]);
-
-  const formatDate = (dateTime: string) => {
-    const date = new Date(dateTime);
-    const day = date.toLocaleString('en-US', { weekday: 'short' });
-    const month = date.toLocaleString('en-US', { month: 'short' });
-    const dayNum = date.getDate();
-    const time = date.toLocaleString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
-    return `${day}, ${month} ${dayNum}. ${time} GMT`;
-  };
+  const detailStatus = useMemo(
+    () => (rideDetail ? mapRideStatus(rideDetail.rideStatus) : null),
+    [rideDetail],
+  );
+  const shouldShowSchedule = Boolean(rideDetail?.isScheduled && rideDetail?.scheduledAt);
+  const riderVehicle = rideDetail?.riderInfo?.vehicle;
+  const stopAddresses = useMemo(
+    () => (
+      rideDetail?.stops
+        ?.slice()
+        .sort((left, right) => Number(left.order ?? 0) - Number(right.order ?? 0))
+        .map((stop) => stop.address?.trim())
+        .filter((address): address is string => Boolean(address))
+    ) ?? [],
+    [rideDetail?.stops],
+  );
 
   const handleMoreOptionsPress = useCallback(() => {
     setIsMoreOptionsVisible(true);
@@ -102,7 +141,7 @@ export default function ReservationDetailScreen() {
     );
   }
 
-  if (!reservation) {
+  if (!rideDetail || !detailStatus) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <ScreenHeader title={t('reservation_detail_title')} />
@@ -120,7 +159,7 @@ export default function ReservationDetailScreen() {
       <ScreenHeader
         title={t('reservation_detail_title')}
         rightSlot={
-          reservation.status === 'scheduled' && (
+          shouldShowSchedule && (
             <Pressable
               onPress={handleMoreOptionsPress}
               accessibilityLabel={t('reservation_more_options')}
@@ -136,44 +175,58 @@ export default function ReservationDetailScreen() {
         }
       />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 16 }]}
+        showsVerticalScrollIndicator={false}
+      >
         <ReservationRideInfo
-          rideTitle={reservation.rideTitle}
-          price={reservation.price}
-          currency={reservation.currency}
-          imageUrl={reservation.imageUrl}
+          rideTitle={rideDetail.rideType.name}
+          price={rideDetail.agreedPrice}
+          currency="QAR"
+          imageUrl={rideDetail.rideType.imageUrl}
         />
 
-        {reservation.driver && (
+        {rideDetail.riderInfo && (
           <ReservationDriverInfo
-            driver={reservation.driver}
-            vehicleInfo={reservation.vehicleInfo}
-            licensePlate={reservation.licensePlate}
+            driver={{
+              name: rideDetail.riderInfo.name,
+              rating: rideDetail.riderInfo.averageRating,
+              rideCount: rideDetail.riderInfo.totalCompletedRides,
+              image: rideDetail.riderInfo.profile,
+            }}
+            vehicleInfo={riderVehicle ? {
+              model: riderVehicle.vehicle_name,
+              color: riderVehicle.vehicle_colour,
+            } : undefined}
+            licensePlate={riderVehicle?.vehicle_no}
             onPress={() => {
-              if (reservation.driver?.id) {
-                navigation.navigate('DriverProfile', { userId: reservation.driver.id });
+              if (rideDetail.riderInfo?.id) {
+                navigation.navigate('DriverProfile', { userId: rideDetail.riderInfo.id });
               }
             }}
           />
         )}
 
-        <ReservationSchedule
-          label={t('reservation_scheduled_for')}
-          dateTime={formatDate(reservation.dateTime)}
-        />
+        {shouldShowSchedule ? (
+          <ReservationSchedule
+            label={t('reservation_scheduled_for')}
+            dateTime={formatScheduledDate(rideDetail.scheduledAt!)}
+          />
+        ) : null}
 
-        <ReservationPayment paymentMethod={reservation.paymentMethod} />
+        <ReservationPayment paymentMethod={mapPaymentMethod(rideDetail.paymentVia)} />
 
         <ReservationRoute
-          pickupAddress={reservation.pickupAddress}
-          dropoffAddress={reservation.dropoffAddress}
+          pickupAddress={rideDetail.pickup.location}
+          dropoffAddress={rideDetail.dropoff.location}
+          stopAddresses={stopAddresses}
         />
 
-        <ReservationStatus status={reservation.status} />
+        <ReservationStatus status={detailStatus} />
 
         <ReservationInfoSection
-          waitTime={reservation.waitTime}
-          cancellationPolicy={reservation.cancellationPolicy}
+          waitTime="5 minutes of wait time included to meet your ride."
+          cancellationPolicy="Free cancellation up to 1 hour before pickup."
         />
       </ScrollView>
 

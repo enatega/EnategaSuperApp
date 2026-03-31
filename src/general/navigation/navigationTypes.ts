@@ -8,9 +8,15 @@ export type SharedStackParamList = {
   Appointments: undefined;
   DeveloperMode: undefined;
   Auth: undefined;
+  ProductInfo: {
+    productId?: string;
+  } | undefined;
 };
 
-export type SharedAppRouteName = Exclude<keyof SharedStackParamList, 'Home' | 'Auth'>;
+export type SharedAppRouteName = Exclude<
+  keyof SharedStackParamList,
+  "Home" | "Auth" | "ProductInfo"
+>;
 
 export type RootStackParamList = {
   Splash: undefined;

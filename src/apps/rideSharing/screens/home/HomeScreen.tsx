@@ -1,33 +1,66 @@
 import React, { useEffect, useMemo } from 'react';
 import { BackHandler, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
 import HomeHeader from '../../../../screens/home/HomeHeader';
 import RideOptionsSection from '../../components/RideOptionsSection';
 import DeliveryServicesSection from '../../components/DeliveryServicesSection';
+
 import RecommendedSection from '../../../../screens/home/RecommendedSection';
 import HamburgerMenu from '../../components/HamburgerMenu';
 import Sidebar, { type UserProfile } from '../../components/Sidebar';
-import ActiveRideNotice from '../../components/ActiveRideNotice';
-import useBootstrapActiveRide from '../../hooks/useBootstrapActiveRide';
-import useRideSocketBootstrap from '../../hooks/useRideSocketBootstrap';
+import useInitializeRideState from '../../hooks/useInitializeRideState';
+import useRideSocketSync from '../../hooks/useRideSocketSync';
 import { useSidebarMenu } from '../../hooks/useSidebarMenu';
 import { useProfile } from '../../hooks/useProfile';
+import { useActiveRideStore } from '../../stores/useActiveRideStore';
 import { useActiveRideRequestStore } from '../../stores/useActiveRideRequestStore';
-import { mapActiveRideRequestToFindingRideViewData } from '../../utils/activeRideRequestMapper';
+import ActiveRideView from '../activeRide/components/ActiveRideView';
+import CompletedRideFeedbackSheet from '../activeRide/components/CompletedRideFeedbackSheet';
+import { useCompletedRideFeedbackController } from '../activeRide/hooks/useCompletedRideFeedbackController';
 import FindingRideView from '../findingRide/components/FindingRideView';
+import type { ActiveRidePayload, ActiveRideRequestPayload } from '../../api/types';
 
+function hasActiveRideOverlay(activeRide: ActiveRidePayload | null) {
+  return Boolean(
+    activeRide
+    && activeRide.ride_id
+    && activeRide.pickup_location
+    && activeRide.dropoff_location
+    && activeRide.pickup?.lat !== undefined
+    && activeRide.pickup?.lng !== undefined
+    && activeRide.dropoff?.lat !== undefined
+    && activeRide.dropoff?.lng !== undefined,
+  );
+}
 
+function hasFindingRideOverlay(activeRideRequest: ActiveRideRequestPayload | null) {
+  return Boolean(
+    activeRideRequest
+    && activeRideRequest.id
+    && activeRideRequest.pickup_location
+    && activeRideRequest.dropoff_location
+    && activeRideRequest.pickup?.lat !== undefined
+    && activeRideRequest.pickup?.lng !== undefined
+    && activeRideRequest.dropoff?.lat !== undefined
+    && activeRideRequest.dropoff?.lng !== undefined,
+  );
+}
 
 export default function RideSharingHomeScreen() {
   const { colors } = useTheme();
-  const { t } = useTranslation('rideSharing');
   const { sidebarVisible, openSidebar, closeSidebar, menuItems, handleLogout, handleProfilePress } = useSidebarMenu();
+  const activeRide = useActiveRideStore((state) => state.activeRide);
   const activeRideRequest = useActiveRideRequestStore((state) => state.activeRideRequest);
+  const { hasCheckedRideState } = useInitializeRideState();
+  const {
+    feedbackRide: pendingFeedbackRide,
+    isSubmitting: isFeedbackSubmitting,
+    handleClose: handleCloseFeedback,
+    handleSubmit: handleSubmitFeedback,
+  } = useCompletedRideFeedbackController();
 
-  useBootstrapActiveRide();
-  useRideSocketBootstrap();
+  useRideSocketSync({ enableActiveRideSync: hasCheckedRideState });
 
   // Real user data from the API
   const { userProfile: apiProfile } = useProfile();
@@ -40,31 +73,39 @@ export default function RideSharingHomeScreen() {
       avatarUri: apiProfile.profilePhotoUri,
     };
   }, [apiProfile]);
+  const shouldShowActiveRide = hasActiveRideOverlay(activeRide);
+  const shouldShowFindingRide = !shouldShowActiveRide && hasFindingRideOverlay(activeRideRequest);
+  const shouldShowFeedback = Boolean(pendingFeedbackRide);
+  const overlayView = useMemo(() => {
+    if (shouldShowActiveRide && activeRide) {
+      return <ActiveRideView activeRide={activeRide} />;
+    }
 
+    if (shouldShowFindingRide && activeRideRequest) {
+      return <FindingRideView activeRideRequest={activeRideRequest} />;
+    }
 
+    return null;
+  }, [activeRide, activeRideRequest, shouldShowActiveRide, shouldShowFindingRide]);
 
-  const findingRideViewData = useMemo(
-    () => (activeRideRequest ? mapActiveRideRequestToFindingRideViewData(activeRideRequest) : null),
-    [activeRideRequest],
-  );
+  const hasOverlay = shouldShowActiveRide || shouldShowFindingRide || shouldShowFeedback;
 
   useEffect(() => {
-    if (!findingRideViewData) {
+    if (!hasOverlay) {
       return undefined;
     }
 
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => true);
 
     return () => subscription.remove();
-  }, [findingRideViewData]);
+  }, [hasOverlay]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.headerContainer}>
         <HamburgerMenu onPress={openSidebar} style={styles.hamburger} />
-          <HomeHeader />
-     
+        <HomeHeader />
       </View>
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
         <ScrollView
@@ -72,7 +113,7 @@ export default function RideSharingHomeScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <ActiveRideNotice />
+         
           <RideOptionsSection />
           <DeliveryServicesSection />
           <RecommendedSection />
@@ -89,9 +130,17 @@ export default function RideSharingHomeScreen() {
         onProfilePress={handleProfilePress}
       />
 
-      {findingRideViewData ? (
-        <View style={styles.findingRideOverlay}>
-          <FindingRideView {...findingRideViewData} />
+      {hasOverlay ? (
+        <View pointerEvents="box-none" style={styles.findingRideOverlay}>
+          {overlayView}
+          {pendingFeedbackRide ? (
+            <CompletedRideFeedbackSheet
+              feedbackRide={pendingFeedbackRide}
+              isSubmitting={isFeedbackSubmitting}
+              onClose={handleCloseFeedback}
+              onSubmit={handleSubmitFeedback}
+            />
+          ) : null}
         </View>
       ) : null}
     </View>

@@ -1,129 +1,207 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import type { RideAddressSelection } from '../../../api/types';
-import type { RideOptionItem } from '../../../components/rideOptions/types';
-import FindingRideMapLayer from './FindingRideMapLayer';
+import type {
+  ActiveRideStop,
+  RideAddressSelection,
+} from '../../../api/types';
 import FindingRideBottomSheet from './FindingRideBottomSheet';
 import FindingRideBidsList from './FindingRideBidsList';
+import FindingRideMapLayer from './FindingRideMapLayer';
 import useRideRoutePath from '../../../hooks/useRideRoutePath';
 import { useTheme } from '../../../../../general/theme/theme';
-import { useCancelRideRequest } from '../../../hooks/useRideMutations';
-import { useActiveRideRequestStore } from '../../../stores/useActiveRideRequestStore';
+import { useFindingRideController } from '../hooks/useFindingRideController';
+import type { FindingRideViewProps } from '../types/view';
+import { isCourierRideRequest } from '../../../utils/courierBooking';
 import { useRideBidsStore } from '../../../stores/useRideBidsStore';
-import { showToast } from '../../../../../general/components/AppToast';
-import { getApiErrorMessage } from '../../../../../general/utils/apiError';
-import type { FindingRideBid } from '../types/bids';
 
-export type FindingRideViewData = {
-  rideRequestId?: string;
-  fromAddress: RideAddressSelection;
-  toAddress: RideAddressSelection;
-  selectedRide: RideOptionItem & {
-    fare?: number;
-    recommendedFare?: number;
+function toAddressSelection(
+  requestId: string,
+  kind: 'pickup' | 'dropoff' | 'stop',
+  description: string,
+  coordinates: { lat: number; lng: number },
+  suffix?: string,
+): RideAddressSelection {
+  return {
+    placeId: `${requestId}:${kind}${suffix ? `:${suffix}` : ''}`,
+    description,
+    structuredFormatting: {
+      mainText: description,
+    },
+    coordinates: {
+      latitude: coordinates.lat,
+      longitude: coordinates.lng,
+    },
   };
-  offeredFare?: number;
-  recommendedFare?: number;
-  bids?: FindingRideBid[];
-};
+}
 
-type Props = FindingRideViewData & {
-  onCancelSuccess?: () => void;
-};
+function toNumber(value: number | string | null | undefined) {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : undefined;
+  }
 
-const SEARCH_DURATION_SECONDS = 60;
+  if (typeof value === 'string') {
+    const parsedValue = Number.parseFloat(value);
+    return Number.isFinite(parsedValue) ? parsedValue : undefined;
+  }
+
+  return undefined;
+}
+
+function readStopCoordinates(stop: ActiveRideStop) {
+  const lat = toNumber(stop.lat);
+  const lng = toNumber(stop.lng);
+
+  if (typeof lat === 'number' && typeof lng === 'number') {
+    return { lat, lng };
+  }
+
+  const geoJsonCoordinates = stop.coordinates?.coordinates;
+
+  if (!Array.isArray(geoJsonCoordinates) || geoJsonCoordinates.length < 2) {
+    return null;
+  }
+
+  const geoLng = toNumber(geoJsonCoordinates[0]);
+  const geoLat = toNumber(geoJsonCoordinates[1]);
+
+  if (typeof geoLat !== 'number' || typeof geoLng !== 'number') {
+    return null;
+  }
+
+  return { lat: geoLat, lng: geoLng };
+}
+
+function toCurrencyNumber(value: string | number | null | undefined) {
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const parsedValue = Number.parseFloat(value);
+    return Number.isFinite(parsedValue) ? parsedValue : undefined;
+  }
+
+  return undefined;
+}
 
 export default function FindingRideView({
-  rideRequestId,
-  fromAddress,
-  toAddress,
-  selectedRide,
-  offeredFare,
-  recommendedFare,
-  bids: incomingBids,
-  onCancelSuccess,
-}: Props) {
+  activeRideRequest,
+  ...props
+}: FindingRideViewProps) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
-  const activeRideRequestId = useActiveRideRequestStore((state) => state.activeRideRequest?.id);
-  const clearActiveRideRequest = useActiveRideRequestStore((state) => state.clearActiveRideRequest);
-  const cancelRideRequestMutation = useCancelRideRequest();
-  const routeQuery = useRideRoutePath(fromAddress, toAddress);
-  const minimumFare = recommendedFare ?? selectedRide.recommendedFare ?? selectedRide.fare ?? 0;
-  const [currentFare, setCurrentFare] = useState<number>(offeredFare ?? minimumFare);
-  const [timeLeftSec, setTimeLeftSec] = useState(SEARCH_DURATION_SECONDS);
-  const resolvedRideRequestId = rideRequestId ?? activeRideRequestId;
-  const setBids = useRideBidsStore((state) => state.setBids);
-  const clearBids = useRideBidsStore((state) => state.clearBids);
+  const bidsCount = useRideBidsStore((state) => state.bids.length);
+  const fromAddress = useMemo(() => toAddressSelection(
+    activeRideRequest.id,
+    'pickup',
+    activeRideRequest.pickup_location,
+    activeRideRequest.pickup,
+  ), [
+    activeRideRequest.id,
+    activeRideRequest.pickup,
+    activeRideRequest.pickup_location,
+  ]);
+  const toAddress = useMemo(() => toAddressSelection(
+    activeRideRequest.id,
+    'dropoff',
+    activeRideRequest.dropoff_location,
+    activeRideRequest.dropoff,
+  ), [
+    activeRideRequest.dropoff,
+    activeRideRequest.dropoff_location,
+    activeRideRequest.id,
+  ]);
+  const stopAddresses = useMemo(() => (
+    (activeRideRequest.stops ?? [])
+      .map((stop, index) => {
+        const coordinates = readStopCoordinates(stop);
 
-  useEffect(() => {
-    setCurrentFare(offeredFare ?? minimumFare);
-  }, [minimumFare, offeredFare]);
+        if (!coordinates || !stop.address) {
+          return null;
+        }
 
-  useEffect(() => {
-    if (timeLeftSec <= 0) {
-      return undefined;
-    }
+        const stopKey = stop.id
+          ?? (stop.order !== null && stop.order !== undefined ? String(stop.order) : undefined)
+          ?? String(index + 1);
 
-    const timer = setInterval(() => {
-      setTimeLeftSec((previous) => Math.max(previous - 1, 0));
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeftSec]);
-
-  useEffect(() => {
-    if (incomingBids) {
-      setBids(incomingBids);
-    }
-  }, [incomingBids, setBids]);
-
-
-  const handleCancelRide = async () => {
-    if (!resolvedRideRequestId || cancelRideRequestMutation.isPending) {
-      return;
-    }
-
-    try {
-      await cancelRideRequestMutation.mutateAsync(resolvedRideRequestId);
-      clearBids();
-      clearActiveRideRequest();
-      onCancelSuccess?.();
-    } catch (error) {
-      showToast.error(t('error'), getApiErrorMessage(error, t('ride_estimate_quote_error_description')));
-    }
-  };
+        return toAddressSelection(
+          activeRideRequest.id,
+          'stop',
+          stop.address,
+          coordinates,
+          stopKey,
+        );
+      })
+      .filter((stop): stop is RideAddressSelection => stop !== null)
+  ), [
+    activeRideRequest.id,
+    activeRideRequest.stops,
+  ]);
+  const selectedRide = useMemo(() => ({
+    id: activeRideRequest.ride_type_id,
+    title: activeRideRequest.ride_type?.name ?? 'Ride',
+    icon: activeRideRequest.ride_type?.imageUrl ?? undefined,
+    seats: activeRideRequest.ride_type?.seatCount,
+    fare: toCurrencyNumber(activeRideRequest.offeredFair),
+    recommendedFare: toCurrencyNumber(activeRideRequest.baseFair),
+  }), [
+    activeRideRequest.baseFair,
+    activeRideRequest.offeredFair,
+    activeRideRequest.ride_type?.imageUrl,
+    activeRideRequest.ride_type?.name,
+    activeRideRequest.ride_type?.seatCount,
+    activeRideRequest.ride_type_id,
+  ]);
+  const isCourierFlow = isCourierRideRequest(selectedRide.title) || isCourierRideRequest(activeRideRequest.ride_type_id);
+  const routeQuery = useRideRoutePath(fromAddress, toAddress, stopAddresses);
+  const controller = useFindingRideController({
+    activeRideRequest,
+    fromAddress,
+    toAddress,
+    selectedRide,
+    ...props,
+  });
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FindingRideMapLayer
         fromAddress={fromAddress}
+        stopAddresses={stopAddresses}
         toAddress={toAddress}
         routeCoordinates={routeQuery.data ?? []}
       />
+
       <FindingRideBottomSheet
         selectedRide={{
           ...selectedRide,
-          fare: currentFare,
-          recommendedFare: minimumFare,
+          fare: controller.currentFare,
+          recommendedFare: controller.minimumFare,
         }}
-        fare={currentFare}
-        recommendedFare={minimumFare}
-        timeLeftSec={timeLeftSec}
-        onIncreaseFare={() => {
-          setCurrentFare((previous) => Number((previous + 1).toFixed(2)));
-        }}
-        onDecreaseFare={() => {
-          setCurrentFare((previous) => Number(Math.max(minimumFare, previous - 1).toFixed(2)));
-        }}
-        isDecreaseDisabled={currentFare <= minimumFare}
-        onKeepSearching={() => setTimeLeftSec(SEARCH_DURATION_SECONDS)}
-        onCancelRide={handleCancelRide}
-        isCancelLoading={cancelRideRequestMutation.isPending}
+        findingTitle={
+          bidsCount > 0
+            ? (isCourierFlow ? t('ride_finding_accept_courier_offer_title') : t('ride_finding_accept_driver_offer_title'))
+            : (isCourierFlow ? t('ride_finding_courier_title') : t('ride_finding_driver_title'))
+        }
+        cancelLabel={isCourierFlow ? t('ride_finding_cancel_courier') : t('ride_finding_cancel')}
+        fare={controller.currentFare}
+        recommendedFare={controller.minimumFare}
+        timeLeftSec={controller.timeLeftSec}
+        onIncreaseFare={controller.handleIncreaseFare}
+        onDecreaseFare={controller.handleDecreaseFare}
+        isIncreaseDisabled={controller.isIncreaseDisabled}
+        isDecreaseDisabled={controller.isDecreaseDisabled}
+        onKeepSearching={controller.handleKeepSearching}
+        isKeepSearchingLoading={controller.isKeepSearchingLoading}
+        onCancelRide={controller.handleCancelRide}
+        isCancelLoading={controller.isCancelLoading}
         floatingAccessory={(
           <FindingRideBidsList
-            onAcceptBid={(bid) => setCurrentFare(bid.amount)}
+            onAcceptBid={controller.handleAcceptBid}
+            onDeclineBid={controller.handleDeclineBid}
+            acceptingBidId={controller.acceptingBidId}
+            decliningBidId={controller.decliningBidId}
+            isInteractionLocked={controller.isBidInteractionLocked}
           />
         )}
       />

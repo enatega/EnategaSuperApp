@@ -20,6 +20,7 @@ import {
 } from '../../hooks/useStoreDetailPager';
 import StoreDetailMenuCard from './StoreDetailMenuCard';
 import StoreDetailMenuCardSkeleton from './StoreDetailMenuCardSkeleton';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 
 const STORE_DETAIL_PRODUCT_SKELETON_ITEMS = Array.from({ length: 4 }, (_, index) => ({
   id: `store-detail-product-skeleton-${index}`,
@@ -75,6 +76,7 @@ export default function StoreDetailProductsList({
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const { width } = useWindowDimensions();
+  const navigation = useNavigation();
   const pagerViewRef = React.useRef<PagerView>(null);
   const [pageHeights, setPageHeights] = React.useState<Record<string, number>>({});
   const pageCategoryIds = React.useMemo(
@@ -183,6 +185,10 @@ export default function StoreDetailProductsList({
     [],
   );
 
+  const HandleCardPress = React.useCallback((id: string) => {
+    (navigation as any).navigate('ProductInfo', {productId:id})
+  }, []);
+
   return (
     <PagerView
       initialPage={activePageIndex}
@@ -215,7 +221,7 @@ export default function StoreDetailProductsList({
                     isStoreDetailSkeletonItem(item) ? (
                       <StoreDetailMenuCardSkeleton key={item.id} />
                     ) : (
-                      <StoreDetailMenuCard item={item} key={item.id} />
+                      <StoreDetailMenuCard item={item} key={item.id} onPress={HandleCardPress} />
                     ),
                   )}
                 </View>

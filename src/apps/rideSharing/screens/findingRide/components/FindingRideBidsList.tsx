@@ -6,9 +6,19 @@ import { useRideBidsStore } from '../../../stores/useRideBidsStore';
 
 type Props = {
   onAcceptBid?: (bid: FindingRideBid) => void;
+  onDeclineBid?: (bid: FindingRideBid) => void;
+  acceptingBidId?: string | null;
+  decliningBidId?: string | null;
+  isInteractionLocked?: boolean;
 };
 
-function FindingRideBidsList({ onAcceptBid }: Props) {
+function FindingRideBidsList({
+  onAcceptBid,
+  onDeclineBid,
+  acceptingBidId,
+  decliningBidId,
+  isInteractionLocked = false,
+}: Props) {
   const bids = useRideBidsStore((state) => state.bids);
   const removeBid = useRideBidsStore((state) => state.removeBid);
 
@@ -24,8 +34,22 @@ function FindingRideBidsList({ onAcceptBid }: Props) {
         renderItem={({ item }) => (
           <FindingRideBidCard
             bid={item}
-            onPressDecline={(bid) => removeBid(bid.id)}
+            onPressDecline={(bid) => {
+              if (onDeclineBid) {
+                onDeclineBid(bid);
+                return;
+              }
+
+              removeBid(bid.id);
+            }}
             onPressAccept={onAcceptBid}
+            isAccepting={acceptingBidId === item.id}
+            isDeclining={decliningBidId === item.id}
+            isInteractionLocked={
+              isInteractionLocked
+              && acceptingBidId !== item.id
+              && decliningBidId !== item.id
+            }
           />
         )}
         contentContainerStyle={styles.contentContainer}

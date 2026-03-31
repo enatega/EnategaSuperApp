@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 
-type PackageSize = 'S' | 'M' | 'L';
+export type PackageSize = 'S' | 'M' | 'L';
 
-type ToBuildingForm = {
+export type ToBuildingForm = {
   senderPhone: string;
   recipientPhone: string;
   packageSize: PackageSize;
@@ -10,7 +10,7 @@ type ToBuildingForm = {
   comments: string;
 };
 
-type ToDoorForm = {
+export type ToDoorForm = {
   pickupStreet: string;
   pickupDetails: string;
   senderPhone: string;
@@ -22,7 +22,7 @@ type ToDoorForm = {
   comments: string;
 };
 
-type CourierBookingState = {
+export type CourierBookingState = {
   activeTab: 'building' | 'door';
   toBuilding: ToBuildingForm;
   toDoor: ToDoorForm;
