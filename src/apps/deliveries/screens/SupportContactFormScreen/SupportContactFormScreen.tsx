@@ -1,14 +1,17 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { showToast } from '../../../../general/components/AppToast';
 import Button from '../../../../general/components/Button';
 import Text from '../../../../general/components/Text';
+import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
 import { useTheme } from '../../../../general/theme/theme';
 import SupportAttachmentDropzone from '../../components/support/SupportAttachmentDropzone';
 import SupportHeader from '../../components/support/SupportHeader';
 import SupportIssueDropdown from '../../components/support/SupportIssueDropdown';
 import SupportLabeledField from '../../components/support/SupportLabeledField';
+import { useCreateSupportTicketMutation } from '../../hooks/useCreateSupportTicketMutation';
 import { SupportHomeNavigationProp, SupportNavigationParamList } from '../../navigation/supportNavigationTypes';
 
 type SupportContactFormRouteProp = RouteProp<SupportNavigationParamList, 'SupportContactForm'>;
@@ -18,10 +21,32 @@ export default function SupportContactFormScreen() {
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<SupportHomeNavigationProp>();
   const route = useRoute<SupportContactFormRouteProp>();
-  const [email, setEmail] = useState('');
+  const sessionQuery = useAuthSessionQuery();
+  const [email, setEmail] = useState(sessionQuery.data?.user?.email ?? '');
   const [issueValue, setIssueValue] = useState(route.params.issueValue);
   const [reasonValue, setReasonValue] = useState<string>();
   const [description, setDescription] = useState('');
+  const createSupportTicketMutation = useCreateSupportTicketMutation({
+    onSuccess: () => {
+      showToast.success(
+        t('support_form_submit_success_title'),
+        t('support_form_submit_success_message'),
+      );
+      navigation.goBack();
+    },
+    onError: (error) => {
+      showToast.error(
+        t('support_form_submit_error_title'),
+        error.message,
+      );
+    },
+  });
+
+  useEffect(() => {
+    if (!email && sessionQuery.data?.user?.email) {
+      setEmail(sessionQuery.data.user.email);
+    }
+  }, [email, sessionQuery.data?.user?.email]);
 
   const howCanWeHelpOptions = useMemo(
     () => [
@@ -42,10 +67,28 @@ export default function SupportContactFormScreen() {
     [t],
   );
 
-  const selectedIssueLabel =
-    howCanWeHelpOptions.find((option) => option.value === issueValue)?.label ?? route.params.issueLabel;
+  const isFormValid = Boolean(email.trim() && issueValue.trim() && reasonValue && description.trim());
 
-  const isFormValid = Boolean(email.trim() && reasonValue && description.trim());
+  const handleSubmit = () => {
+    const trimmedEmail = email.trim();
+    const trimmedDescription = description.trim();
+    const trimmedIssueValue = issueValue.trim();
+
+    if (!trimmedEmail || !trimmedIssueValue || !reasonValue || !trimmedDescription) {
+      return;
+    }
+
+    createSupportTicketMutation.mutate({
+      category: trimmedIssueValue,
+      reason: reasonValue,
+      email: trimmedEmail,
+      fullName: sessionQuery.data?.user?.name?.trim() || undefined,
+      mobileNumber: sessionQuery.data?.user?.phone?.trim() || undefined,
+      description: trimmedDescription,
+      attachmentUrls: [],
+      priority: 'low',
+    });
+  };
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -131,7 +174,9 @@ export default function SupportContactFormScreen() {
       <View style={[styles.footer, { backgroundColor: colors.background }]}>
         <Button
           label={t('support_form_send_email')}
-          disabled={!isFormValid}
+          onPress={handleSubmit}
+          disabled={!isFormValid || createSupportTicketMutation.isPending}
+          isLoading={createSupportTicketMutation.isPending}
           variant={isFormValid ? 'primary' : 'secondary'}
           style={styles.footerButton}
         />

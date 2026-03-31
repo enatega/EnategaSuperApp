@@ -6,7 +6,9 @@ import type {
   SocketAck,
   SocketAuthPayload,
   SocketEventHandler,
+  SocketReceivedMessage,
   SocketLifecycleState,
+  SocketSentMessage,
   SocketSubscriptionCleanup,
 } from './socket.types';
 
@@ -185,6 +187,34 @@ class SocketClient {
 
     socket.emit(event, payload);
     return true;
+  }
+
+  sendMessage(message: SocketSentMessage) {
+    const socket = this.socket;
+
+    if (!socket?.connected) {
+      socketLogger.warn('Send message skipped because socket is not connected', {
+        receiver: message.receiver,
+        sender: message.sender,
+      });
+      return false;
+    }
+
+    socketLogger.info('Sending socket message', {
+      receiver: message.receiver,
+      sender: message.sender,
+    });
+    socket.emit('send-message', message);
+    return true;
+  }
+
+  onReceiveMessage(
+    handler: (message: SocketReceivedMessage) => void,
+  ): SocketSubscriptionCleanup {
+    return this.subscribe<[SocketReceivedMessage]>('receive-message', (message) => {
+      console.log('Received socket message:', message);
+      handler(message);
+    });
   }
 
   subscribe<TArgs extends unknown[] = [unknown]>(

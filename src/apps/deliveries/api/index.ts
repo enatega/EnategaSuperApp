@@ -26,6 +26,11 @@ export { discoveryService } from './discoveryService';
 export { filterService } from './filterService';
 // Chat service
 export { chatService } from './chatService';
+export {
+    supportTicketService,
+    type CreateSupportTicketPayload,
+    type CreateSupportTicketResponse,
+} from './supportTicketService';
 export type {
     DeliveryChatMessageRecord,
     DeliveryChatBoxesResponse,
