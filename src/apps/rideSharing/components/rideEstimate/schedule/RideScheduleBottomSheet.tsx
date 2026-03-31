@@ -115,13 +115,10 @@ function RideScheduleBottomSheet({
         <View style={styles.header}>
           <View style={styles.headerSpacer} />
           <Text
+          variant='subtitle'
             weight="extraBold"
             style={[
               styles.headerTitle,
-              {
-                fontSize: typography.size.h5,
-                lineHeight: typography.lineHeight.h5,
-              },
             ]}
           >
             {t('ride_schedule_label')}

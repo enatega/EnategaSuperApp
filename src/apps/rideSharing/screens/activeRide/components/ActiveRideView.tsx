@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from 'react';
-import { Linking, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { LatLng } from 'react-native-maps';
@@ -222,18 +222,19 @@ function ActiveRideView({ activeRide }: Props) {
     statusCode,
   });
 
-  const handleContactDriver = useCallback(async () => {
-    if (!driverPhone) {
+  const handleContactDriver = useCallback(() => {
+    if (!driverUserId) {
       showToast.info(t('ride_active_driver_contact_unavailable'));
       return;
     }
 
-    try {
-      await Linking.openURL(`tel:${driverPhone}`);
-    } catch {
-      showToast.error(t('ride_active_dialer_unavailable'));
-    }
-  }, [driverPhone, t]);
+    navigation.navigate('RiderChat', {
+      driverAvatarUri: driverAvatarUri ?? undefined,
+      driverName: driverName || t('ride_active_driver_fallback'),
+      driverPhone: driverPhone ?? undefined,
+      driverUserId,
+    });
+  }, [driverAvatarUri, driverName, driverPhone, driverUserId, navigation, t]);
 
   const handleSafetyPress = useCallback(() => {
     showToast.info(t('ride_active_safety_coming_soon'));

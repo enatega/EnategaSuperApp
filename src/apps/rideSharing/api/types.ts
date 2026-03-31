@@ -491,6 +491,7 @@ export interface CustomerRideDetail {
         lng: number;
         location: string;
     };
+    stops?: ActiveRideStop[];
 }
 
 export interface DriverRatingBreakdown {

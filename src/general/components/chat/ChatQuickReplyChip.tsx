@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet } from 'react-native';
-import Text from '../../../../general/components/Text';
-import { useTheme } from '../../../../general/theme/theme';
+import Text from '../Text';
+import { useTheme } from '../../theme/theme';
 
 type Props = {
   disabled?: boolean;
@@ -9,7 +9,7 @@ type Props = {
   onPress: () => void;
 };
 
-export default function RiderQuickReplyChip({ disabled = false, label, onPress }: Props) {
+export default function ChatQuickReplyChip({ disabled = false, label, onPress }: Props) {
   const { colors, typography } = useTheme();
 
   return (
@@ -19,11 +19,11 @@ export default function RiderQuickReplyChip({ disabled = false, label, onPress }
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
-        styles.container,
+        styles.chip,
         {
           backgroundColor: colors.background,
           borderColor: colors.findingRidePrimary,
-          opacity: disabled ? 0.45 : pressed ? 0.82 : 1,
+          opacity: disabled ? 0.45 : pressed ? 0.85 : 1,
         },
       ]}
     >
@@ -39,10 +39,10 @@ export default function RiderQuickReplyChip({ disabled = false, label, onPress }
 }
 
 const styles = StyleSheet.create({
-  container: {
+  chip: {
     borderRadius: 10,
-    borderWidth: 1.5,
-    minHeight: 40,
+    borderWidth: 1,
+    minHeight: 44,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },

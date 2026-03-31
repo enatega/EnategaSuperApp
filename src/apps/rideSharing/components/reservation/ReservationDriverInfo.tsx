@@ -6,6 +6,20 @@ import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import ProfileAvatar from '../driverProfile/ProfileAvatar';
 
+function getDisplayValue(value?: string) {
+  const trimmedValue = value?.trim();
+
+  if (!trimmedValue) {
+    return null;
+  }
+
+  if (trimmedValue.toLowerCase() === 'n/a') {
+    return null;
+  }
+
+  return trimmedValue;
+}
+
 type Props = {
   driver: {
     name: string;
@@ -29,6 +43,11 @@ export default function ReservationDriverInfo({
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
+  const vehicleDetails = [
+    getDisplayValue(vehicleInfo?.model),
+    getDisplayValue(vehicleInfo?.color),
+    getDisplayValue(licensePlate),
+  ].filter((value): value is string => Boolean(value));
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
@@ -58,11 +77,9 @@ export default function ReservationDriverInfo({
                ({driver.rideCount} {t('reservation_rides')})
              </Text>
           </View>
-          {(vehicleInfo || licensePlate) && (
+          {vehicleDetails.length > 0 && (
              <Text variant="caption" color={colors.mutedText} style={styles.vehicleInfo}>
-               {vehicleInfo?.model}
-               {vehicleInfo?.color ? ` • ${vehicleInfo.color}` : ''}
-               {licensePlate ? ` • ${licensePlate}` : ''}
+               {vehicleDetails.join(' • ')}
              </Text>
           )}
         </View>

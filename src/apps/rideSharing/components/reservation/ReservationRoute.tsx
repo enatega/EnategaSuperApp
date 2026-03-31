@@ -7,11 +7,25 @@ import { useTheme } from '../../../../general/theme/theme';
 type Props = {
   pickupAddress: string;
   dropoffAddress: string;
+  stopAddresses?: string[];
 };
 
-export default function ReservationRoute({ pickupAddress, dropoffAddress }: Props) {
+export default function ReservationRoute({
+  pickupAddress,
+  dropoffAddress,
+  stopAddresses = [],
+}: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
+  const routePoints = [
+    { id: 'pickup', address: pickupAddress, color: colors.success },
+    ...stopAddresses.map((address, index) => ({
+      id: `stop-${index}-${address}`,
+      address,
+      color: '#F59E0B',
+    })),
+    { id: 'dropoff', address: dropoffAddress, color: colors.danger },
+  ];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
@@ -19,15 +33,15 @@ export default function ReservationRoute({ pickupAddress, dropoffAddress }: Prop
         {t('reservation_route')}
       </Text>
       <View style={styles.content}>
-        <View style={styles.routePoint}>
-          <View style={[styles.dot, { backgroundColor: colors.success }]} />
-          <Text style={styles.address}>{pickupAddress}</Text>
-        </View>
-        <View style={styles.line} />
-        <View style={styles.routePoint}>
-          <View style={[styles.dot, { backgroundColor: colors.danger }]} />
-          <Text style={styles.address}>{dropoffAddress}</Text>
-        </View>
+        {routePoints.map((point, index) => (
+          <React.Fragment key={point.id}>
+            <View style={styles.routePoint}>
+              <View style={[styles.dot, { backgroundColor: point.color }]} />
+              <Text style={styles.address}>{point.address}</Text>
+            </View>
+            {index < routePoints.length - 1 ? <View style={styles.line} /> : null}
+          </React.Fragment>
+        ))}
       </View>
     </View>
   );

@@ -35,6 +35,9 @@ export const rideKeys = {
   route: (fromPlaceId: string, toPlaceId: string) => [...rideKeys.all, 'route', fromPlaceId, toPlaceId] as const,
   nearbyDrivers: (latitude?: number, longitude?: number, radiusKm?: number) =>
       [...rideKeys.all, 'nearby-drivers', latitude ?? 'unknown', longitude ?? 'unknown', radiusKm ?? 'default'] as const,
+  chat: () => [...rideKeys.all, 'chat'] as const,
+  chatBoxes: (userId: string) => [...rideKeys.chat(), 'boxes', userId] as const,
+  chatMessages: (chatBoxId: string) => [...rideKeys.chat(), 'messages', chatBoxId] as const,
 
   // Profile / Stats
   stats: () => [...rideKeys.all, 'stats'] as const,

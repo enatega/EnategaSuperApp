@@ -11,8 +11,7 @@ import WalletCard from '../../components/profile/WalletCard';
 import ProfileMenuSection from '../../components/profile/ProfileMenuSection';
 import ProfileMenuItem from '../../components/profile/ProfileMenuItem';
 import ProfileSkeleton from '../../components/profile/ProfileSkeleton';
-import { authSession } from '../../../../../general/auth/authSession';
-import { navigationRef } from '../../../../../general/navigation/rootNavigation';
+import { useAppLogout } from '../../../../../general/hooks/useAppLogout';
 
 const ICON_SIZE = 20;
 
@@ -22,16 +21,11 @@ export default function ProfileTab() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { user, wallet, isLoading } = useProfile();
+  const logoutMutation = useAppLogout();
 
   const handleLogout = useCallback(async () => {
-    await authSession.clearSession();
-    if (navigationRef.isReady()) {
-      navigationRef.resetRoot({
-        index: 0,
-        routes: [{ name: 'Main', params: { screen: 'Auth' } }],
-      });
-    }
-  }, []);
+    await logoutMutation.mutateAsync();
+  }, [logoutMutation]);
 
   if (isLoading) {
     return (

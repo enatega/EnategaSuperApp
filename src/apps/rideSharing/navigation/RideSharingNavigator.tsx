@@ -21,6 +21,7 @@ import OfferFareScreen from '../screens/offerFare/OfferFareScreen';
 import CourierDetailsScreen from '../screens/courierDetails/CourierDetails';
 import ReservationsListScreen from '../screens/reservations/ReservationsListScreen';
 import ReservationDetailScreen from '../screens/reservations/ReservationDetailScreen';
+import RiderChatScreen from '../screens/riderChat/RiderChatScreen';
 import { useTranslation } from 'react-i18next';
 import QueryProvider from '../../../general/providers/QueryProvider';
 import type { RideAddressSelection } from '../api/types';
@@ -96,6 +97,12 @@ export type RideSharingStackParamList = {
   ReservationsList: undefined;
   ReservationDetail: {
     rideId: string;
+  };
+  RiderChat: {
+    driverAvatarUri?: string;
+    driverName: string;
+    driverPhone?: string;
+    driverUserId: string;
   };
 };
 
@@ -184,6 +191,11 @@ export default function RideSharingNavigator() {
         <Stack.Screen
           name="ReservationDetail"
           component={ReservationDetailScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="RiderChat"
+          component={RiderChatScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

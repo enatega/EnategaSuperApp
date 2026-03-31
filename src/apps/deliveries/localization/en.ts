@@ -207,6 +207,8 @@ const en = {
   rider_chat_quick_reply_where: 'Where are you?',
   rider_chat_quick_reply_eta: 'How long will you take?',
   rider_chat_input_placeholder: 'Enter your concern...',
+  rider_chat_auto_message: 'How can we help you?\n[Automessage]',
+  rider_chat_auto_time: '8:29 pm',
   rider_chat_send: 'Send',
   rider_chat_send_error: 'Could not send message.',
   rider_chat_missing_session_error: 'Please log in before sending a message.',
