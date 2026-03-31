@@ -9,9 +9,10 @@ import type { DeliveryStoreDetailsProduct } from '../../../api/types';
 
 type Props = {
   item: DeliveryStoreDetailsProduct;
+  onPress?: (id: string) => void;
 };
 
-export default function StoreDetailMenuCard({ item }: Props) {
+export default function StoreDetailMenuCard({ item, onPress }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const badgeText = item.deal ?? item.dealType ?? null;
@@ -23,7 +24,7 @@ export default function StoreDetailMenuCard({ item }: Props) {
     : colors.storeMenuAccentLime;
 
   return (
-    <View style={styles.container}>
+    <Pressable onPress={() => onPress?.(item.id)} style={styles.container}>
       <View
         style={[
           styles.card,
@@ -82,7 +83,7 @@ export default function StoreDetailMenuCard({ item }: Props) {
           </Text>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 

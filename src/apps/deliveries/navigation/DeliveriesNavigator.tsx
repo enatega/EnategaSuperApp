@@ -5,6 +5,7 @@ import SingleVendorNavigator from '../singleVendor/navigation/SingleVendorNaviga
 import MultiVendorNavigator from '../multiVendor/navigation/MultiVendorNavigator';
 import ChainNavigator from '../chain/navigation/ChainNavigator';
 import { useTranslation } from 'react-i18next';
+import ProductInfo from '../screens/ProductInfo/ProductInfo';
 import {
   DEFAULT_DELIVERY_MODE,
   getDeliveryModePreference,
@@ -73,6 +74,7 @@ export default function DeliveriesNavigator() {
       <Stack.Screen name="SingleVendor" component={SingleVendorNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="MultiVendor" component={MultiVendorNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="Chain" component={ChainNavigator} options={{ headerShown: false }} />
+      <Stack.Screen name="ProductInfo" component={ProductInfo} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
