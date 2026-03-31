@@ -12,8 +12,6 @@ import AddressDetailForm from '../../components/addresses/AddressDetailForm';
 import type { AddressDetailFormHandle } from '../../components/addresses/AddressDetailForm';
 import { addressService, AddressType } from '../../api/addressService';
 import type { MultiVendorStackParamList } from '../../multiVendor/navigation/types';
-import useAddress from '../../hooks/useAddress';
-import { createDeliveryAddress } from '../../utils/address';
 
 export default function AddressDetailScreen() {
   const nav =
@@ -25,7 +23,6 @@ export default function AddressDetailScreen() {
   const formRef = useRef<AddressDetailFormHandle>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
-  const { setSelectedAddress } = useAddress();
   const params = route.params as MultiVendorStackParamList['AddressDetail'];
   const isEditing = Boolean(params.editAddressId);
   const lat = Number(params.latitude);
@@ -54,16 +51,6 @@ export default function AddressDetailScreen() {
         await addressService.addAddress(payload);
         Toast.show({ type: 'success', text1: t('address_save_success') });
       }
-      setSelectedAddress(
-        createDeliveryAddress({
-          id: params.editAddressId,
-          address: payload.address,
-          locationName: payload.location_name,
-          latitude: payload.latitude,
-          longitude: payload.longitude,
-          type: payload.type,
-        }),
-      );
 
       if (params.origin === 'home-header') {
         nav.navigate('MultiVendorTabs');
@@ -74,7 +61,7 @@ export default function AddressDetailScreen() {
     } catch {
       Toast.show({ type: 'error', text1: t('address_save_error') });
     }
-  }, [isEditing, nav, params.editAddressId, params.origin, setSelectedAddress, t]);
+  }, [isEditing, nav, params.editAddressId, params.origin, t]);
 
   const handleButtonPress = useCallback(async () => {
     if (!formRef.current) return;

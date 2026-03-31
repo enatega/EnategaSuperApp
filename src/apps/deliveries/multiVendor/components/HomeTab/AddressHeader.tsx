@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -6,14 +6,21 @@ import Text from '../../../../../general/components/Text';
 import Icon from '../../../../../general/components/Icon';
 import { useTheme } from '../../../../../general/theme/theme';
 import useAddress from '../../../hooks/useAddress';
+import type { ProfileAddress } from '../../api/profileService';
+import {
+  createSelectedDeliveryAddress,
+  formatDeliveryAddressLabel,
+} from '../../../utils/address';
 
 type Props = {
+  addresses?: ProfileAddress[];
   onAddressPress?: () => void;
   onAddAddressPress?: () => void;
   onCartPress?: () => void;
 };
 
 export default function AddressHeader({
+  addresses = [],
   onAddressPress,
   onAddAddressPress,
   onCartPress,
@@ -22,25 +29,22 @@ export default function AddressHeader({
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
   const { selectedAddress, selectedAddressLabel } = useAddress();
-
-  useEffect(() => {
-    if (!selectedAddress) {
-      return;
-    }
-
-    console.log('selected_delivery_address_coordinates', {
-      latitude: selectedAddress.latitude,
-      longitude: selectedAddress.longitude,
-    });
-  }, [selectedAddress?.latitude, selectedAddress?.longitude]);
+  const apiSelectedAddress = useMemo(
+    () => createSelectedDeliveryAddress(addresses),
+    [addresses],
+  );
+  const resolvedSelectedAddress = apiSelectedAddress ?? selectedAddress;
+  const resolvedSelectedAddressLabel =
+    formatDeliveryAddressLabel(resolvedSelectedAddress) ??
+    selectedAddressLabel;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
-      {selectedAddress ? (
+      {resolvedSelectedAddress ? (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={
-            selectedAddressLabel ?? t('multi_vendor_address_label')
+            resolvedSelectedAddressLabel ?? t('multi_vendor_address_label')
           }
           onPress={onAddressPress}
           style={[
@@ -66,7 +70,7 @@ export default function AddressHeader({
               lineHeight: typography.lineHeight.xl,
             }}
           >
-            {selectedAddressLabel ?? t('multi_vendor_address_label')}
+            {resolvedSelectedAddressLabel ?? t('multi_vendor_address_label')}
           </Text>
           <Icon
             type="Ionicons"

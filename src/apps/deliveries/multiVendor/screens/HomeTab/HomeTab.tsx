@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../../general/theme/theme';
@@ -27,6 +27,7 @@ export default function HomeTab() {
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavProp>();
   const [isAddressSheetVisible, setIsAddressSheetVisible] = useState(false);
+  const hasAutoOpenedAddressSheetRef = useRef(false);
   const {
     addresses,
     isLoading: isAddressesLoading,
@@ -34,6 +35,30 @@ export default function HomeTab() {
   } = useSavedAddresses();
   const { selectedAddress } = useAddress();
   const { selectSavedAddress } = useSelectSavedAddress();
+
+  useFocusEffect(
+    useCallback(() => {
+      hasAutoOpenedAddressSheetRef.current = false;
+    }, []),
+  );
+
+  useEffect(() => {
+    if (isAddressesLoading || isAddressSheetVisible) {
+      return;
+    }
+
+    if (addresses.length > 0) {
+      hasAutoOpenedAddressSheetRef.current = false;
+      return;
+    }
+
+    if (hasAutoOpenedAddressSheetRef.current) {
+      return;
+    }
+
+    hasAutoOpenedAddressSheetRef.current = true;
+    setIsAddressSheetVisible(true);
+  }, [addresses.length, isAddressSheetVisible, isAddressesLoading]);
 
   const handleOpenAddressSheet = useCallback(() => {
     setIsAddressSheetVisible(true);
@@ -82,6 +107,7 @@ export default function HomeTab() {
         style={{ backgroundColor: colors.background }}
       >
         <MultiVendorAddressHeader
+          addresses={addresses}
           onAddAddressPress={handleOpenAddressSheet}
           onAddressPress={handleOpenAddressSheet}
         />
