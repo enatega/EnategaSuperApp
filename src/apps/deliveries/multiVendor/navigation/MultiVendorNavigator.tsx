@@ -265,6 +265,8 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="ProductInfo"
         component={ProductInfo}
+        options={{ headerShown: false }}
+      />
 
       <Stack.Screen
         name="Support"
