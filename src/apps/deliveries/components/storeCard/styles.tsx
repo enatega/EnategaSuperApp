@@ -2,22 +2,26 @@ import { StyleSheet } from 'react-native'
 
 export const styles = StyleSheet.create({
   container: {
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
     overflow: 'hidden',
-    marginVertical: 8,
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 1,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+  },
+  compactContainer: {
+    width: 280,
+  },
+  fullWidthContainer: {
+    width: '100%',
   },
   imageContainer: {
     position: 'relative',
     width: '100%',
-    height: 160,
+    height: 140,
   },
   image: {
     width: '100%',
@@ -29,13 +33,13 @@ export const styles = StyleSheet.create({
   },
   offerBadge: {
     position: 'absolute',
-    top: 12,
-    left: 12,
+    top: 8,
+    left: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
   offerIcon: {
     marginRight: 4,
@@ -44,7 +48,9 @@ export const styles = StyleSheet.create({
     fontSize: 12,
   },
   content: {
-    padding: 8,
+    paddingHorizontal: 8,
+    paddingTop: 6,
+    paddingBottom: 8,
   },
   nameContainer: {
     flexDirection: 'row',
@@ -54,6 +60,8 @@ export const styles = StyleSheet.create({
   },
   name: {
     flex: 1,
+    fontSize: 14,
+    lineHeight: 22,
   },
   location: {
     flexShrink: 1,
@@ -79,7 +87,7 @@ export const styles = StyleSheet.create({
   },
   line: {
     height: 1,
-    marginVertical: 12,
+    marginVertical: 4,
   },
   heartButton: {
     alignItems: 'center',
@@ -95,6 +103,7 @@ export const styles = StyleSheet.create({
   infoItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 4,
   },
   dollarSign: {
     fontSize: 16,
@@ -102,6 +111,7 @@ export const styles = StyleSheet.create({
     marginRight: 2,
   },
   infoText: {
-    marginLeft: 4,
+    fontSize: 12,
+    lineHeight: 18,
   },
 })

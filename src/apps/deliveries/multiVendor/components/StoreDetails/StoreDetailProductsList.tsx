@@ -12,6 +12,7 @@ import type {
   DeliveryStoreDetailsFilterItem,
   DeliveryStoreDetailsProduct,
 } from '../../../api/types';
+import { mapStoreDetailsProductToProductActionTarget } from '../../../cart/productActionMappers';
 import ListStateView from '../../../components/filterablePaginatedList/ListStateView';
 import {
   buildStoreDetailCategoryIds,
@@ -20,6 +21,7 @@ import {
 } from '../../hooks/useStoreDetailPager';
 import StoreDetailMenuCard from './StoreDetailMenuCard';
 import StoreDetailMenuCardSkeleton from './StoreDetailMenuCardSkeleton';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 
 const STORE_DETAIL_PRODUCT_SKELETON_ITEMS = Array.from({ length: 4 }, (_, index) => ({
   id: `store-detail-product-skeleton-${index}`,
@@ -49,6 +51,7 @@ type Props = {
   onRetry?: () => void;
   products: DeliveryStoreDetailsProduct[];
   shouldShowProductSkeletons: boolean;
+  storeId?: string | null;
 };
 
 function isStoreDetailSkeletonItem(item: StoreDetailListItem): item is StoreDetailSkeletonItem {
@@ -71,10 +74,12 @@ export default function StoreDetailProductsList({
   onRetry,
   products,
   shouldShowProductSkeletons,
+  storeId,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const { width } = useWindowDimensions();
+  const navigation = useNavigation();
   const pagerViewRef = React.useRef<PagerView>(null);
   const [pageHeights, setPageHeights] = React.useState<Record<string, number>>({});
   const pageCategoryIds = React.useMemo(
@@ -183,6 +188,10 @@ export default function StoreDetailProductsList({
     [],
   );
 
+  const HandleCardPress = React.useCallback((id: string) => {
+    (navigation as any).navigate('ProductInfo', {productId:id})
+  }, []);
+
   return (
     <PagerView
       initialPage={activePageIndex}
@@ -215,7 +224,21 @@ export default function StoreDetailProductsList({
                     isStoreDetailSkeletonItem(item) ? (
                       <StoreDetailMenuCardSkeleton key={item.id} />
                     ) : (
-                      <StoreDetailMenuCard item={item} key={item.id} />
+                      <StoreDetailMenuCard
+                        item={item}
+                        key={item.id}
+                        onPress={HandleCardPress}
+                        productAction={{
+                          target: mapStoreDetailsProductToProductActionTarget({
+                            product: item,
+                            storeId,
+                          }),
+                          onOpenProduct: (target) =>
+                            (navigation as any).navigate('ProductInfo', {
+                              productId: target.productId,
+                            }),
+                        }}
+                      />
                     ),
                   )}
                 </View>
@@ -254,6 +277,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    rowGap: 4,
   },
   stateView: {
     flex: 0,

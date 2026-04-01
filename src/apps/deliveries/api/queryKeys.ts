@@ -53,6 +53,12 @@ export const deliveryKeys = {
     search: () => [...deliveryKeys.all, 'search'] as const,
     recommendations: () => [...deliveryKeys.search(), 'recommendations'] as const,
     recentSearches: () => [...deliveryKeys.search(), 'recent-searches'] as const,
+    productInfo: (productId: string) =>
+        [...deliveryKeys.all, 'product-info', productId] as const,
+    productInfoCustomizations: (productId: string) =>
+        [...deliveryKeys.all, 'product-info-customizations', productId] as const,
+    cart: () => [...deliveryKeys.all, 'cart'] as const,
+    cartCount: () => [...deliveryKeys.all, 'cart-count'] as const,
     productSearch: (keyword: string, latitude?: number, longitude?: number) =>
         [...deliveryKeys.search(), 'products', keyword, latitude, longitude] as const,
     storeSearch: (keyword: string, latitude?: number, longitude?: number) =>

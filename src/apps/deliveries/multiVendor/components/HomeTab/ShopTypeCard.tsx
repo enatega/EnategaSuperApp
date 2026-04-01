@@ -21,8 +21,8 @@ export default function ShopTypeCard({ image, title }: Props) {
         weight="medium"
         numberOfLines={2}
         style={{
-          fontSize: typography.size.md2,
-          lineHeight: typography.lineHeight.md2,
+          fontSize: typography.size.xs2,
+          lineHeight: typography.lineHeight.sm,
           textAlign: 'center',
         }}
       >
@@ -35,20 +35,23 @@ export default function ShopTypeCard({ image, title }: Props) {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    gap: 10,
-    width: 96,
+    gap: 8,
+    width: 72,
   },
   imageWrap: {
     alignItems: 'center',
-    borderRadius: 12,
-    height: 96,
+    borderRadius: 8,
+    height: 72,
     justifyContent: 'center',
     padding: 10,
-    width: 96,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    width: 72,
   },
   image: {
-    borderRadius: 10,
-    height: 66,
-    width: 66,
+    borderRadius: 4,
+    height: 52,
+    width: 52,
   },
 });

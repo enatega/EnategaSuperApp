@@ -50,6 +50,7 @@ const StoreCardScroller = ({
         data={stores}
         renderItem={({ item }) => (
           <StoreCard
+            layout="fullWidth"
             imageUrl={item.coverImage}
             name={item.name}
             rating={item.averageRating}

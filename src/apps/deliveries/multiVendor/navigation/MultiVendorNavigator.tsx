@@ -138,6 +138,7 @@ import ChangePasswordScreen from '../screens/ChangePasswordScreen/ChangePassword
 import DeleteAccountScreen from '../screens/DeleteAccountScreen/DeleteAccountScreen';
 import ColorModeScreen from '../screens/ColorModeScreen/ColorModeScreen';
 import LanguageScreen from '../screens/LanguageScreen/LanguageScreen';
+import ProductInfo from '../../screens/ProductInfo/ProductInfo';
 import SupportScreen from '../../screens/SupportScreen/SupportScreen';
 import SupportChatScreen from '../../screens/SupportChatScreen/SupportChatScreen';
 import SupportConversationsScreen from '../../screens/SupportConversationsScreen/SupportConversationsScreen';
@@ -261,6 +262,11 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="Language"
         component={LanguageScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProductInfo"
+        component={ProductInfo}
         options={{ headerShown: false }}
       />
 

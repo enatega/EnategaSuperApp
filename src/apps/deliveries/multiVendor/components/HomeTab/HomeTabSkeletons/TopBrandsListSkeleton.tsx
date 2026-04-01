@@ -33,14 +33,14 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   card: {
-    borderRadius: 8,
+    borderRadius: 6,
     gap: 0,
     height: 140,
     overflow: 'hidden',
     width: 100,
   },
   imageWrap: {
-    borderRadius: 8,
+    borderRadius: 6,
     height: 100,
     width: 100,
   },
@@ -50,8 +50,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   content: {
-    gap: 4,
+    gap: 2,
     paddingHorizontal: 6,
-    paddingTop: 8,
+    paddingVertical: 4,
   },
 });

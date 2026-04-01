@@ -1,0 +1,116 @@
+import React from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import type { NavigationProp } from '@react-navigation/native';
+import type { DeliveryOrderAgainItem } from '../../api/types';
+import type { CartResponse } from '../../api/cartServiceTypes';
+import CartEmptyState from './CartEmptyState';
+import CartFeeInfoModal from './CartFeeInfoModal';
+import CartFooter from './CartFooter';
+import CartHeader from './CartHeader';
+import CartItemsSection from './CartItemsSection';
+import CartRecommendationsSection from './CartRecommendationsSection';
+import CartStatusBanner from './CartStatusBanner';
+import { formatCartPrice } from './cartUtils';
+
+type Props = {
+  cart: CartResponse;
+  isFeeModalVisible: boolean;
+  isUpdatingItemId?: string | null;
+  navigation: NavigationProp<Record<string, object | undefined>>;
+  onCloseFeeModal: () => void;
+  onDecrementItem: (itemId: string) => void;
+  onIncrementItem: (itemId: string) => void;
+  onOpenFeeModal: () => void;
+  onRemoveItem: (itemId: string) => void;
+  recommendations: DeliveryOrderAgainItem[];
+};
+
+export default function CartScreenContent({
+  cart,
+  isFeeModalVisible,
+  isUpdatingItemId,
+  navigation,
+  onCloseFeeModal,
+  onDecrementItem,
+  onIncrementItem,
+  onOpenFeeModal,
+  onRemoveItem,
+  recommendations,
+}: Props) {
+  const handleBack = React.useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
+  const handleStartShopping = React.useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
+  const handleRecommendationPress = React.useCallback(
+    (productId: string) => {
+      navigation.navigate('ProductInfo', { productId });
+    },
+    [navigation],
+  );
+
+  const handleCheckoutPress = React.useCallback(() => {
+    // Checkout flow will be wired in a follow-up pass.
+  }, []);
+
+  const footer = (
+    <CartFooter
+      amountLabel={formatCartPrice(cart.finalPrice)}
+      disabled={cart.isEmpty}
+      itemCount={cart.totalItems}
+      onCheckoutPress={handleCheckoutPress}
+    />
+  );
+
+  if (cart.isEmpty) {
+    return (
+      <View style={styles.container}>
+        <CartHeader onBackPress={handleBack} />
+        <CartEmptyState onStartShoppingPress={handleStartShopping} />
+        {footer}
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <CartHeader onBackPress={handleBack} />
+
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <CartStatusBanner onInfoPress={onOpenFeeModal} totalPrice={cart.finalPrice} />
+        <CartItemsSection
+          isUpdatingItemId={isUpdatingItemId}
+          items={cart.items}
+          onAddMorePress={handleStartShopping}
+          onDecrementItem={onDecrementItem}
+          onIncrementItem={onIncrementItem}
+          onRemoveItem={onRemoveItem}
+        />
+        <CartRecommendationsSection
+          items={recommendations}
+          onItemPress={handleRecommendationPress}
+        />
+      </ScrollView>
+
+      {footer}
+
+      <CartFeeInfoModal onClose={onCloseFeeModal} visible={isFeeModalVisible} />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollContent: {
+    gap: 8,
+    paddingBottom: 24,
+  },
+});

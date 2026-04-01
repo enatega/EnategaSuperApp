@@ -26,12 +26,11 @@ export default function StoreRating({
             <Icon
               type="AntDesign"
               name="star"
-              size={16}
+              size={14}
               color={colors.yellow500}
             />
             <Text
-              variant="body"
-              weight="medium"
+              weight="semiBold"
               style={[styles.rating, { color: colors.text }]}
             >
               {rating.toFixed(1)}
@@ -41,9 +40,15 @@ export default function StoreRating({
 
         {reviewCount && (
           <Text
-            variant="body"
             weight="regular"
-            style={[styles.reviewCount, { color: colors.mutedText }]}
+            style={[
+              styles.reviewCount,
+              {
+                color: colors.mutedText,
+                fontSize: 12,
+                lineHeight: 18,
+              },
+            ]}
           >
             ({reviewCount.toLocaleString()}+)
           </Text>
@@ -51,7 +56,11 @@ export default function StoreRating({
       </View>
 
       {cuisine && (
-        <Text variant="body" weight="medium" color={colors.mutedText}>
+        <Text
+          weight="medium"
+          color={colors.mutedText}
+          style={{ fontSize: 12, lineHeight: 18 }}
+        >
           {cuisine}
         </Text>
       )}

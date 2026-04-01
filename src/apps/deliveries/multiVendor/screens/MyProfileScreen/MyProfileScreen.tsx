@@ -1,53 +1,44 @@
 import React, { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ScreenHeader from '../../../../../general/components/ScreenHeader';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
 import { showToast } from '../../../../../general/components/AppToast';
 import useProfile from '../../hooks/useProfile';
 import MyProfileInfoCard from '../../components/profile/MyProfileInfoCard';
-import MyProfileAddressCard from '../../components/profile/MyProfileAddressCard';
 import MyProfileSkeleton from '../../components/profile/MyProfileSkeleton';
 import ProfilePhotoEditor from '../../components/profile/ProfilePhotoEditor';
 import AddressOptionsBottomSheet from '../../components/profile/AddressOptionsBottomSheet';
+import SavedAddressesList from '../../components/addressSelection/SavedAddressesList';
 import { ProfileAddress } from '../../api/profileService';
 import { addressService } from '../../../api/addressService';
-
-const ADDRESS_ICON_MAP: Record<string, keyof typeof Ionicons.glyphMap> = {
-  HOME: 'home-outline',
-  APARTMENT: 'business-outline',
-  OFFICE: 'briefcase-outline',
-  OTHER: 'location-outline',
-};
-
-function getAddressIcon(type: string): keyof typeof Ionicons.glyphMap {
-  return ADDRESS_ICON_MAP[type] ?? 'location-outline';
-}
-
-function getAddressTypeLabel(
-  type: string,
-  t: (key: string) => string,
-): string {
-  const labelMap: Record<string, string> = {
-    HOME: t('my_profile_address_home'),
-    APARTMENT: t('my_profile_address_apartment'),
-    WORK: t('my_profile_address_work'),
-    OTHER: t('my_profile_address_other'),
-  };
-  return labelMap[type] ?? type;
-}
+import type { MultiVendorStackParamList } from '../../navigation/types';
+import useAddress from '../../../hooks/useAddress';
+import useSelectSavedAddress from '../../../hooks/useSelectSavedAddress';
+import {
+  formatDeliveryAddressLabel,
+} from '../../../utils/address';
 
 export default function MyProfileScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<MultiVendorStackParamList>>();
+  const route = useRoute<RouteProp<MultiVendorStackParamList, 'MyProfile'>>();
   const { user, addresses, isLoading, refetch } = useProfile();
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false);
   const [imageCacheKey, setImageCacheKey] = useState(0);
-  const [selectedAddress, setSelectedAddress] = useState<ProfileAddress | null>(null);
+  const [addressMenuTarget, setAddressMenuTarget] =
+    useState<ProfileAddress | null>(null);
+  const {
+    clearSelectedAddress,
+    selectedAddress,
+  } = useAddress();
+  const { selectSavedAddress } = useSelectSavedAddress();
+  const isSelectionMode = route.params?.selectionMode ?? false;
 
   const handleUploadComplete = () => {
     setImageCacheKey((prev) => prev + 1);
@@ -69,32 +60,66 @@ export default function MyProfileScreen() {
     : null;
 
   const handleEditName = () => {
-    (navigation as { navigate: (screen: string, params: Record<string, unknown>) => void }).navigate('EditProfile', {
+    navigation.navigate('EditProfile', {
       name: user?.name ?? '',
       dateOfBirth: user?.date_of_birth ?? null,
       gender: user?.gender ?? null,
     });
   };
 
-  const handleEditAddress = useCallback(() => {
-    if (!selectedAddress) return;
-    (navigation as { navigate: (screen: string, params: Record<string, unknown>) => void }).navigate('AddressSearch', {
-      editAddressId: selectedAddress.id,
-      editType: selectedAddress.type,
-      editLocationName: selectedAddress.location_name ?? '',
+  const handleAddAddress = useCallback(() => {
+    navigation.navigate('AddressSearch', {
+      origin: isSelectionMode ? 'home-header' : 'profile',
     });
-  }, [navigation, selectedAddress]);
+  }, [isSelectionMode, navigation]);
+
+  const handleEditAddress = useCallback(() => {
+    if (!addressMenuTarget) return;
+    navigation.navigate('AddressSearch', {
+      editAddressId: addressMenuTarget.id,
+      editType: addressMenuTarget.type,
+      editLocationName: addressMenuTarget.location_name ?? '',
+      origin: isSelectionMode ? 'home-header' : 'profile',
+    });
+  }, [addressMenuTarget, isSelectionMode, navigation]);
+
+  const handleSelectAddress = useCallback(
+    async (address: ProfileAddress) => {
+      try {
+        const isSelected = await selectSavedAddress(address.id);
+
+        if (!isSelected) {
+          return;
+        }
+
+        void refetch();
+
+        if (isSelectionMode && navigation.canGoBack()) {
+          navigation.goBack();
+        }
+      } catch {
+        showToast.error(t('address_select_error'));
+      }
+    },
+    [isSelectionMode, navigation, refetch, selectSavedAddress, t],
+  );
 
   const handleDeleteAddress = useCallback(async () => {
-    if (!selectedAddress) return;
+    if (!addressMenuTarget) return;
     try {
-      await addressService.deleteAddress(String(selectedAddress.id));
+      await addressService.deleteAddress(String(addressMenuTarget.id));
+
+      if (selectedAddress?.id === addressMenuTarget.id) {
+        clearSelectedAddress();
+      }
+
       showToast.success(t('address_delete_success'));
+      setAddressMenuTarget(null);
       refetch();
     } catch {
       showToast.error(t('address_delete_error'));
     }
-  }, [selectedAddress, t, refetch]);
+  }, [addressMenuTarget, clearSelectedAddress, refetch, selectedAddress?.id, t]);
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -138,58 +163,30 @@ export default function MyProfileScreen() {
                 </Text>
               </View>
 
-              <View style={styles.addressList}>
-                {addresses?.map((addr: ProfileAddress) => (
-                  <MyProfileAddressCard
-                    key={addr.id}
-                    typeLabel={getAddressTypeLabel(addr.type, t)}
-                    address={
-                      addr.location_name
-                        ? `${addr.location_name} - ${addr.address}`
-                        : addr.address
-                    }
-                    iconName={getAddressIcon(addr.type)}
-                    onMenuPress={() => setSelectedAddress(addr)}
-                  />
-                ))}
-
-                {/* Add address button */}
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t('my_profile_add_address')}
-                  onPress={() =>
-                    (navigation as { navigate: (screen: string) => void }).navigate('AddressSearch')
-                  }
-                  style={({ pressed }) => [
-                    styles.addButton,
-                    {
-                      backgroundColor: colors.surface,
-                      borderColor: colors.border,
-                      opacity: pressed ? 0.85 : 1,
-                    },
-                  ]}
-                >
-                  <Ionicons name="add" size={20} color={colors.text} />
-                  <Text weight="medium" style={styles.addButtonText}>
-                    {t('my_profile_add_address')}
-                  </Text>
-                </Pressable>
-              </View>
+              <SavedAddressesList
+                addAddressLabel={t('my_profile_add_address')}
+                addresses={addresses}
+                onAddAddress={handleAddAddress}
+                onAddressMenuPress={setAddressMenuTarget}
+                onSelectAddress={handleSelectAddress}
+                selectedAddressId={selectedAddress?.id}
+              />
             </View>
           </>
         )}
       </ScrollView>
 
       <AddressOptionsBottomSheet
-        isVisible={selectedAddress !== null}
+        isVisible={addressMenuTarget !== null}
         addressLabel={
-          selectedAddress
-            ? selectedAddress.location_name
-              ? `${selectedAddress.location_name} - ${selectedAddress.address}`
-              : selectedAddress.address
+          addressMenuTarget
+            ? formatDeliveryAddressLabel({
+                address: addressMenuTarget.address,
+                locationName: addressMenuTarget.location_name,
+              }) ?? ''
             : ''
         }
-        onClose={() => setSelectedAddress(null)}
+        onClose={() => setAddressMenuTarget(null)}
         onEdit={handleEditAddress}
         onDelete={handleDeleteAddress}
         editLabel={t('address_edit_title')}
@@ -200,23 +197,6 @@ export default function MyProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  addButton: {
-    alignItems: 'center',
-    borderRadius: 6,
-    borderWidth: 1,
-    flexDirection: 'row',
-    gap: 8,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  addButtonText: {
-    fontSize: 14,
-    lineHeight: 22,
-  },
-  addressList: {
-    gap: 12,
-  },
   addressesSection: {
     gap: 12,
     paddingHorizontal: 16,

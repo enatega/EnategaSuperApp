@@ -49,10 +49,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
+    minHeight: 72,
   },
   indicator: {
     alignSelf: 'stretch',
-    height: 1,
-    marginBottom: 10,
+    height: 2,
+    marginBottom: 6,
   },
 });
