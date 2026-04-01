@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { showToast } from '../../../../general/components/AppToast';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import { useTheme } from '../../../../general/theme/theme';
+import { useEmergencyContactStore } from '../../../../general/stores/useEmergencyContactStore';
 import type { RideSharingStackParamList } from '../../navigation/RideSharingNavigator';
 import SafetyActionGrid from './components/SafetyActionGrid';
 import DriverVerificationCard from './components/DriverVerificationCard';
@@ -17,6 +18,7 @@ function SafetyScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
   const route = useRoute<SafetyScreenRouteProp>();
+  const emergencyContact = useEmergencyContactStore((s) => s.contact);
   const {
     driverName,
     driverAvatarUri,
@@ -36,10 +38,6 @@ function SafetyScreen() {
     showToast.info(t('safety_emergency_contacts_coming_soon'));
   }, [t]);
 
-  const handleCallEmergency = useCallback(() => {
-    showToast.info(t('ride_active_emergency_coming_soon'));
-  }, [t]);
-
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -48,10 +46,10 @@ function SafetyScreen() {
     >
       <ScreenHeader title={t('safety_screen_title')} />
       <SafetyActionGrid
+        emergencyNumber={emergencyContact?.contact_number}
         onShareRide={handleShareRide}
         onSupport={handleSupport}
         onEmergencyContacts={handleEmergencyContacts}
-        onCallEmergency={handleCallEmergency}
       />
       <DriverVerificationCard
         driverName={driverName}

@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Icon from '../../../../../general/components/Icon';
 import Text from '../../../../../general/components/Text';
@@ -28,15 +28,24 @@ function ActionTile({ iconName, label, onPress }: ActionTileProps) {
 }
 
 type Props = {
+  emergencyNumber?: string;
   onShareRide?: () => void;
   onSupport?: () => void;
   onEmergencyContacts?: () => void;
-  onCallEmergency?: () => void;
 };
 
-function SafetyActionGrid({ onShareRide, onSupport, onEmergencyContacts, onCallEmergency }: Props) {
+function SafetyActionGrid({ emergencyNumber, onShareRide, onSupport, onEmergencyContacts }: Props) {
   const { t } = useTranslation('rideSharing');
   const { colors } = useTheme();
+
+  const handleCallEmergency = () => {
+    const number = emergencyNumber ?? '15';
+    Linking.openURL(`tel:${number}`);
+  };
+
+  const callLabel = emergencyNumber
+    ? `${t('safety_call_emergency')} ${emergencyNumber}`
+    : t('safety_call_emergency');
 
   return (
     <View style={styles.container}>
@@ -58,10 +67,10 @@ function SafetyActionGrid({ onShareRide, onSupport, onEmergencyContacts, onCallE
         />
       </View>
       <Button
-        label={t('safety_call_emergency')}
+        label={callLabel}
         variant="danger"
         icon={<Icon type="Feather" name="alert-triangle" size={18} color={colors.white} />}
-        onPress={onCallEmergency}
+        onPress={handleCallEmergency}
       />
     </View>
   );

@@ -263,7 +263,7 @@ const en = {
   safety_action_share_ride: 'Share my ride',
   safety_action_support: 'Support',
   safety_action_emergency_contacts: 'Emergency contacts',
-  safety_call_emergency: 'Call 15',
+  safety_call_emergency: 'Call',
   safety_driver_verifications: "Driver's verifications",
   safety_verification_license: 'Driver license validated',
   safety_verification_photo: 'Photocontrol completed',
