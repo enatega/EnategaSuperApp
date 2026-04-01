@@ -17,6 +17,22 @@ export type {
     DeliveryShopType,
     DeliveryShopTypesApiResponse,
 } from './types';
+export type {
+    ActiveOrderDeliveryDetails,
+    ActiveOrderItems,
+    ActiveOrderProduct,
+    ActiveOrderRider,
+    ActiveOrderStore,
+    ActiveOrderSummary,
+    ActiveOrderTimelineItem,
+    ActiveOrdersResponse,
+    DeliveryOrderStatus,
+    OrderDetailsResponse,
+    PastOrderItem,
+    PastOrdersParams,
+    PastOrdersResponse,
+    ScheduledOrdersResponse,
+} from './ordersServiceTypes';
 
 // Query keys (single source of truth)
 export { deliveryKeys } from './queryKeys';
@@ -24,6 +40,7 @@ export { deliveryKeys } from './queryKeys';
 // Discovery service
 export { discoveryService } from './discoveryService';
 export { filterService } from './filterService';
+export { ordersService } from './ordersService';
 // Chat service
 export { chatService } from './chatService';
 export type {

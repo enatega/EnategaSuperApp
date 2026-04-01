@@ -80,5 +80,8 @@ export type MultiVendorStackParamList = {
   Language: undefined;
   ProductInfo: {
     productId: string
-  }
+  },
+  OrderDetailsScreen: {
+    orderId: string;
+  };
 };

@@ -11,3 +11,9 @@ export {
   useTopBrands,
 } from './useDiscoveryQueries';
 export { useFilterValues } from './useFilterValues';
+export {
+  useActiveOrders,
+  useOrderDetails,
+  usePastOrders,
+  useScheduledOrders,
+} from './useOrders';
