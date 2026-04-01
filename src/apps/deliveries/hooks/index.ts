@@ -11,3 +11,4 @@ export {
   useTopBrands,
 } from './useDiscoveryQueries';
 export { useFilterValues } from './useFilterValues';
+export { default as useAddress } from './useAddress';

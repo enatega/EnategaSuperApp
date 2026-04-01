@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { View, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "../../../../general/theme/theme";
 import type { DeliveryNearbyStore } from "../../api/types";
+import type { MultiVendorStackParamList } from "../../multiVendor/navigation/types";
 import { styles } from "./styles";
 import StoreImage from "./subComponents/StoreImage";
 import StoreInfo from "./subComponents/StoreInfo";
@@ -22,8 +25,11 @@ export interface StoreCardProps {
   distance?: number;
   actionSlot?: React.ReactNode;
   layout?: "compact" | "fullWidth";
-  onPress: () => void;
+ 
+  onPress?: () => void;
 }
+
+type NavigationProp = NativeStackNavigationProp<MultiVendorStackParamList>;
 
 export default function StoreCard({
   store,
@@ -42,6 +48,7 @@ export default function StoreCard({
   onPress,
 }: StoreCardProps) {
   const { colors } = useTheme();
+  const navigation = useNavigation<NavigationProp>();
   const resolvedImageUrl =
     imageUrl || store?.coverImage || store?.logo || "https://placehold.co/400x400.png";
   const resolvedOffer =
@@ -54,6 +61,18 @@ export default function StoreCard({
   const resolvedPrice = price ?? store?.baseFee ?? 0;
   const resolvedDeliveryTime = deliveryTime ?? store?.deliveryTime ?? 0;
   const resolvedDistance = distance ?? store?.distanceKm ?? 0;
+  const hasPressHandler = Boolean(onPress || store);
+
+  const handlePress = useCallback(() => {
+    if (onPress) {
+      onPress();
+      return;
+    }
+
+    if (store) {
+      navigation.navigate("StoreDetails", { store });
+    }
+  }, [navigation, onPress, store]);
 
   return (
     <TouchableOpacity
@@ -66,8 +85,9 @@ export default function StoreCard({
           shadowColor: colors.shadowColor,
         },
       ]}
-      onPress={onPress}
-      activeOpacity={0.7}
+      activeOpacity={hasPressHandler ? 0.7 : 1}
+      disabled={!hasPressHandler}
+      onPress={handlePress}
     >
       <StoreImage imageUrl={resolvedImageUrl} offer={resolvedOffer} actionSlot={actionSlot} />
 

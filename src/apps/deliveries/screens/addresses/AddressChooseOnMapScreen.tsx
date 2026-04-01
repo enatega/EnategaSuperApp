@@ -4,20 +4,15 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import AddressChooseOnMap from '../../components/addresses/AddressChooseOnMap';
 import type { MapAddressResult } from '../../components/addresses/AddressChooseOnMap';
-
-type RouteParams = {
-  editAddressId?: string;
-  editType?: string;
-  editLocationName?: string;
-};
+import type { MultiVendorStackParamList } from '../../multiVendor/navigation/types';
 
 export default function AddressChooseOnMapScreen() {
-  const nav = useNavigation<
-    NativeStackNavigationProp<Record<string, object | undefined>>
-  >();
+  const nav =
+    useNavigation<NativeStackNavigationProp<MultiVendorStackParamList>>();
   const route = useRoute();
   const { t } = useTranslation('deliveries');
-  const params = (route.params as RouteParams | undefined) ?? {};
+  const params =
+    (route.params as MultiVendorStackParamList['AddressChooseOnMap']) ?? {};
 
   const handleConfirm = useCallback(
     (result: MapAddressResult) => {
@@ -30,6 +25,7 @@ export default function AddressChooseOnMapScreen() {
               editAddressId: params.editAddressId,
               editType: params.editType,
               editLocationName: params.editLocationName,
+              origin: params.origin,
             }
           : {}),
       });
