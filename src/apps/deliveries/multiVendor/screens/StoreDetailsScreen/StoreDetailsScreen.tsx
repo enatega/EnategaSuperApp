@@ -4,6 +4,7 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import AppPopup from '../../../../../general/components/AppPopup';
 import Text from '../../../../../general/components/Text';
+import useDebouncedValue from '../../../../../general/hooks/useDebouncedValue';
 import { useTheme } from '../../../../../general/theme/theme';
 import { useStoreProducts, useStoreView } from '../../../hooks';
 import type {
@@ -21,7 +22,8 @@ type StoreDetailsParamList = {
   };
 };
 
-const SEARCH_DEBOUNCE_MS = 400;
+const SEARCH_DEBOUNCE_MS = 450;
+const MIN_SEARCH_QUERY_LENGTH = 2;
 
 function getTodayStoreHours(
   storeTimings?: DeliveryStoreTimings | null,
@@ -59,22 +61,23 @@ export default function StoreDetailsScreen() {
   const navigation = useNavigation();
   const route = useRoute<RouteProp<StoreDetailsParamList, 'StoreDetails'>>();
   const [searchValue, setSearchValue] = useState('');
-  const [debouncedSearchValue, setDebouncedSearchValue] = useState('');
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string | null>(null);
   const selectedStore = route.params?.store;
   const storeId = selectedStore?.storeId ?? '';
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setDebouncedSearchValue(searchValue.trim());
-    }, SEARCH_DEBOUNCE_MS);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [searchValue]);
+  const normalizedSearchValue = useMemo(
+    () => searchValue.replace(/\s+/g, ' ').trim(),
+    [searchValue],
+  );
+  const debouncedSearchValue = useDebouncedValue(
+    normalizedSearchValue,
+    SEARCH_DEBOUNCE_MS,
+  );
+  const effectiveSearchValue =
+    normalizedSearchValue.length >= MIN_SEARCH_QUERY_LENGTH
+      ? debouncedSearchValue
+      : '';
 
   const {
     data: storeData,
@@ -98,7 +101,7 @@ export default function StoreDetailsScreen() {
   } = useStoreProducts(
     storeId,
     {
-      search: debouncedSearchValue || undefined,
+      search: effectiveSearchValue || undefined,
       selectedCategoryId: selectedCategoryId ?? undefined,
       selectedSubcategoryId: selectedSubcategoryId ?? undefined,
     },
@@ -110,7 +113,6 @@ export default function StoreDetailsScreen() {
   useEffect(() => {
     setIsInfoModalVisible(false);
     setSearchValue('');
-    setDebouncedSearchValue('');
     setSelectedCategoryId(null);
     setSelectedSubcategoryId(null);
   }, [storeId]);
@@ -230,9 +232,9 @@ export default function StoreDetailsScreen() {
   const productsContentKey = [
     activeCategoryId ?? 'offers',
     activeSubcategoryId ?? 'all',
-    debouncedSearchValue || 'all',
+    effectiveSearchValue || 'all',
   ].join(':');
-  const renderHeader = useCallback(
+  const headerComponent = useMemo(
     () => (
       <StoreDetailListHeader
         activeCategoryId={activeCategoryId}
@@ -314,7 +316,7 @@ export default function StoreDetailsScreen() {
             </View>
           ) : null
         }
-        ListHeaderComponent={renderHeader}
+        ListHeaderComponent={headerComponent}
         contentContainerStyle={[styles.content, { backgroundColor: colors.background }]}
         contentInsetAdjustmentBehavior="automatic"
         data={PRODUCT_LIST_DATA}

@@ -17,19 +17,15 @@ import {
   getRecentAddressSearches,
   RecentAddressSearch,
 } from '../../storage/recentAddressSearches';
-
-type RouteParams = {
-  editAddressId?: string;
-  editType?: string;
-  editLocationName?: string;
-};
+import type { MultiVendorStackParamList } from '../../multiVendor/navigation/types';
 
 export default function AddressSearchScreen() {
-  const nav = useNavigation<NativeStackNavigationProp<Record<string, object | undefined>>>();
+  const nav =
+    useNavigation<NativeStackNavigationProp<MultiVendorStackParamList>>();
   const route = useRoute();
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
-  const params = (route.params as RouteParams | undefined) ?? {};
+  const params = (route.params as MultiVendorStackParamList['AddressSearch']) ?? {};
 
   const [query, setQuery] = useState('');
   const [recentSearches, setRecentSearches] = useState<RecentAddressSearch[]>([]);
@@ -55,8 +51,13 @@ export default function AddressSearchScreen() {
   );
 
   const editParams = params.editAddressId
-    ? { editAddressId: params.editAddressId, editType: params.editType, editLocationName: params.editLocationName }
-    : {};
+    ? {
+        editAddressId: params.editAddressId,
+        editType: params.editType,
+        editLocationName: params.editLocationName,
+        origin: params.origin,
+      }
+    : { origin: params.origin };
 
   const handleSelectPrediction = useCallback(async (placeId: string, description: string) => {
     try {

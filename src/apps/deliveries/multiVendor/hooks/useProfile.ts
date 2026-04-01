@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
+import useSyncSelectedSavedAddress from '../../hooks/useSyncSelectedSavedAddress';
 import {
   profileService,
   ProfileAddress,
@@ -23,6 +24,7 @@ export default function useProfile() {
     isLoading: true,
     error: null,
   });
+  useSyncSelectedSavedAddress(state.addresses, state.isLoading);
 
   const hasFetchedOnce = useRef(false);
 
