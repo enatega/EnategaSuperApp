@@ -59,6 +59,7 @@ export type MultiVendorStackParamList = {
   SupportFaqArticle: {
     articleId: SupportFaqArticleId;
   };
+  SupportTickets: undefined;
   SeeAllScreen: {
     queryType: SeeAllListingType;
     title: string;

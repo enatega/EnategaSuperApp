@@ -94,6 +94,16 @@ class SocketClient {
     socket.io.on('reconnect_failed', () => {
       socketLogger.error('Reconnect exhausted');
     });
+
+    socket.onAny((event, ...args) => {
+      console.log('[socket] incoming event:', event, args);
+      socketLogger.info('Incoming socket event', {
+        event,
+        args,
+        connected: socket.connected,
+        socketId: socket.id,
+      });
+    });
   }
 
   private ensureSocket(token: string | null, options?: SocketIoOptions) {
@@ -238,6 +248,17 @@ class SocketClient {
 
     existingHandlers.set(baseHandler, wrappedHandler);
     this.listenerRegistry.set(event, existingHandlers);
+    console.log('[socket] subscribing to event:', event, {
+      connected: socket.connected,
+      lifecycleState: this.lifecycleState,
+      socketId: socket.id,
+    });
+    socketLogger.info('Subscribed to socket event', {
+      event,
+      connected: socket.connected,
+      lifecycleState: this.lifecycleState,
+      socketId: socket.id,
+    });
     socket.on(event, wrappedHandler);
 
     return () => {
@@ -246,6 +267,11 @@ class SocketClient {
         return;
       }
 
+      console.log('[socket] unsubscribing from event:', event, {
+        connected: socket.connected,
+        lifecycleState: this.lifecycleState,
+        socketId: socket.id,
+      });
       socket.off(event, wrapped);
 
       const eventHandlers = this.listenerRegistry.get(event);

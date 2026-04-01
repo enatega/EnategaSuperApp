@@ -12,6 +12,9 @@ import { useRoute, type RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '../../../../general/components/AppToast';
+import { useSocketSession } from '../../../../general/hooks/useSocketSession';
+import { socketClient } from '../../../../general/services/socket';
+import type { SocketReceivedMessage } from '../../../../general/services/socket';
 import { useTheme } from '../../../../general/theme/theme';
 import type {
   DeliveryChatBoxRecord,
@@ -91,6 +94,7 @@ export default function RiderChatScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
+  useSocketSession();
   const insets = useSafeAreaInsets();
   const route = useRoute<RouteProp<RiderChatScreenParams, 'RiderChat'>>();
   const riderName = route.params.riderName;
@@ -167,6 +171,52 @@ export default function RiderChatScreen() {
       scrollViewRef.current?.scrollToEnd({ animated: messages.length > 0 });
     });
   }, [messages]);
+
+  useEffect(() => {
+    if (!senderId || !receiverId) {
+      return undefined;
+    }
+
+    return socketClient.onReceiveMessage((message: SocketReceivedMessage) => {
+      const isConversationMessage =
+        message.receiver === senderId && message.sender === receiverId;
+
+      if (!isConversationMessage) {
+        return;
+      }
+
+      setMessages((current) => {
+        const alreadyExists = current.some(
+          (item) => item.sender === 'rider' && item.text === message.text,
+        );
+
+        if (alreadyExists) {
+          return current;
+        }
+
+        return [
+          ...current,
+          {
+            id: `realtime-${Date.now()}`,
+            sender: 'rider',
+            text: message.text,
+            timeLabel: formatMessageTime(new Date().toISOString()),
+          },
+        ];
+      });
+
+      void chatBoxesQuery.refetch();
+      if (resolvedChatBoxId) {
+        void chatMessagesQuery.refetch();
+      }
+    });
+  }, [
+    chatBoxesQuery,
+    chatMessagesQuery,
+    receiverId,
+    resolvedChatBoxId,
+    senderId,
+  ]);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(

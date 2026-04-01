@@ -14,6 +14,9 @@ import { useTranslation } from 'react-i18next';
 import Text from '../../../../general/components/Text';
 import { showToast } from '../../../../general/components/AppToast';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
+import { useSocketSession } from '../../../../general/hooks/useSocketSession';
+import { socketClient } from '../../../../general/services/socket';
+import type { SocketReceivedMessage } from '../../../../general/services/socket';
 import { useTheme } from '../../../../general/theme/theme';
 import ChatComposer from '../../components/chat/ChatComposer';
 import ChatMessageBubble from '../../components/chat/ChatMessageBubble';
@@ -52,6 +55,7 @@ export default function SupportChatScreen() {
   const insets = useSafeAreaInsets();
   const route = useRoute<SupportChatRouteProp>();
   const sessionQuery = useAuthSessionQuery();
+  useSocketSession();
   const supportChatBoxesQuery = useSupportGroupedChatBoxes();
   const fallbackChatBox = useMemo(
     () => getFirstSupportChatBox(supportChatBoxesQuery.data),
@@ -65,6 +69,7 @@ export default function SupportChatScreen() {
     route.params?.chatBoxId ?? (getSupportChatBoxId(fallbackChatBox) || undefined);
   const [chatBoxId, setChatBoxId] = useState(initialChatBoxId);
   const [pendingMessages, setPendingMessages] = useState<PendingSupportMessage[]>([]);
+  const [realtimeMessages, setRealtimeMessages] = useState<PendingSupportMessage[]>([]);
   const supportChatBoxQuery = useSupportChatBox(chatBoxId);
   const supportChatSendMutation = useSendSupportChatMessage({
     onError: (error) => {
@@ -127,7 +132,11 @@ export default function SupportChatScreen() {
       timeLabel: formatSupportChatTimeLabel(message.createdAt ?? message.created_at),
     }));
 
-    if (!mappedServerMessages.length && !pendingMessages.length) {
+    if (
+      !mappedServerMessages.length
+      && !realtimeMessages.length
+      && !pendingMessages.length
+    ) {
       return [
         {
           id: 'support-auto-message',
@@ -138,8 +147,8 @@ export default function SupportChatScreen() {
       ];
     }
 
-    return [...mappedServerMessages, ...pendingMessages];
-  }, [pendingMessages, sessionQuery.data?.user?.id, supportChatBoxQuery.data, t]);
+    return [...mappedServerMessages, ...realtimeMessages, ...pendingMessages];
+  }, [pendingMessages, realtimeMessages, sessionQuery.data?.user?.id, supportChatBoxQuery.data, t]);
   const receiverId =
     route.params?.receiverId ||
     getSupportChatParticipantId(activeParticipant) ||
@@ -161,6 +170,67 @@ export default function SupportChatScreen() {
       scrollViewRef.current?.scrollToEnd({ animated: false });
     });
   }, [messages.length]);
+
+  useEffect(() => {
+    setRealtimeMessages((current) => {
+      const nextMessages = current.filter((item) => !messages.some(
+        (serverMessage) =>
+          serverMessage.id !== item.id
+          && serverMessage.isCurrentUser === item.isCurrentUser
+          && serverMessage.text === item.text,
+      ));
+
+      return nextMessages.length === current.length ? current : nextMessages;
+    });
+  }, [messages]);
+
+  useEffect(() => {
+    const currentUserId = sessionQuery.data?.user?.id;
+
+    if (!currentUserId || !receiverId) {
+      return undefined;
+    }
+
+    return socketClient.onReceiveMessage((message: SocketReceivedMessage) => {
+      const isConversationMessage =
+        message.receiver === currentUserId && message.sender === receiverId;
+
+      if (!isConversationMessage) {
+        return;
+      }
+
+      setRealtimeMessages((current) => {
+        const alreadyExists = current.some(
+          (item) => !item.isCurrentUser && item.text === message.text,
+        );
+
+        if (alreadyExists) {
+          return current;
+        }
+
+        return [
+          ...current,
+          {
+            id: `realtime-${Date.now()}`,
+            isCurrentUser: false,
+            text: message.text,
+            timeLabel: formatSupportChatTimeLabel(new Date().toISOString()),
+          },
+        ];
+      });
+
+      void supportChatBoxesQuery.refetch();
+      if (chatBoxId) {
+        void supportChatBoxQuery.refetch();
+      }
+    });
+  }, [
+    chatBoxId,
+    receiverId,
+    sessionQuery.data?.user?.id,
+    supportChatBoxQuery,
+    supportChatBoxesQuery,
+  ]);
 
   const appendMessage = (text: string) => {
     const trimmed = text.trim();
