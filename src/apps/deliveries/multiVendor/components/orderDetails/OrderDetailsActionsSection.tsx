@@ -71,7 +71,7 @@ export default function OrderDetailsActionsSection({
       {showTrackProgress ? (
         <Button
           label={t("order_details_track_progress")}
-          onPress={() => undefined}
+          onPress={() => navigation.navigate("OrderTrackingScreen", { orderId })}
         />
       ) : null}
       {isScheduledOrder ? (

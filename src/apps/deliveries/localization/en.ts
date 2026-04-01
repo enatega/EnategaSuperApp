@@ -484,7 +484,15 @@ const en = {
   order_details_tip_placeholder: '0.00',
   order_details_empty_items: 'No items',
   order_details_quantity_one: 'Qty {{count}}',
-  order_details_quantity_other: 'Qty {{count}}'
+  order_tracking_title: 'Your order',
+  order_tracking_help: 'Order tracking help',
+  order_tracking_eta_label: 'Estimated delivery time',
+  order_tracking_error_title: 'Unable to load tracking right now.',
+  order_tracking_delivery_details: 'Delivery details',
+  order_tracking_contact_title: 'Contact courier',
+  order_tracking_contact_subtitle: 'Ask for contactless delivery',
+  order_tracking_summary: 'Summary',
+  order_tracking_summary_note: 'incl. taxes (if applicable)',
 };
 
 export default en;

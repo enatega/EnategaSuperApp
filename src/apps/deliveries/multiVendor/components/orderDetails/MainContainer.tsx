@@ -10,12 +10,12 @@ import OrderDetailsErrorState from "./OrderDetailsErrorState";
 import OrderDetailsActionsSection from "./OrderDetailsActionsSection";
 import OrderDetailsHeroSection from "./OrderDetailsHeroSection";
 import IncreaseTipBottomSheet from "./IncreaseTipBottomSheet";
-import OrderDetailsItemsSection from "./OrderDetailsItemsSection";
 import OrderDetailsLoadingSkeleton from "./OrderDetailsLoadingSkeleton";
 import OrderDetailsScheduledSection from "./OrderDetailsScheduledSection";
 import OrderDetailsStatusSection from "./OrderDetailsStatusSection";
-import OrderDetailsSummarySection from "./OrderDetailsSummarySection";
+import ExtendableOrderSummary from "../orderSummary/ExtendableOrderSummary";
 import { TERMINAL_STATUSES } from "../../utils/orderDetails/orderDetailsUtils";
+import ExtendableOrderItems from "../orderItems/ExtendableOrderItems";
 
 type Props = {
   navigation: NativeStackNavigationProp<
@@ -93,13 +93,18 @@ export default function MainContainer({ navigation, orderId }: Props) {
 
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-        <OrderDetailsItemsSection orderItems={order.orderItems} />
+        <ExtendableOrderItems
+          orderItems={orderDetailsQuery.data.orderItems}
+          variant="tracking"
+        />
 
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-        <OrderDetailsSummarySection
+        <ExtendableOrderSummary
           deliveryDetails={order.deliveryDetails}
+          layout="footer"
           summary={order.summary}
+          variant="details"
         />
 
         <View style={[styles.divider, { backgroundColor: colors.border }]} />

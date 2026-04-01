@@ -73,6 +73,22 @@ export interface ActiveOrderProduct {
   note?: string | null;
   description?: string | null;
   specialInstructions?: string | null;
+  addons?: Array<ActiveOrderProductAddon | string> | null;
+  addOns?: Array<ActiveOrderProductAddon | string> | null;
+  modifiers?: Array<ActiveOrderProductAddon | string> | null;
+  options?: Array<ActiveOrderProductAddon | string> | null;
+  customizations?: Array<ActiveOrderProductAddon | string> | null;
+  [key: string]: unknown;
+}
+
+export interface ActiveOrderProductAddon {
+  id?: string;
+  name?: string | null;
+  title?: string | null;
+  label?: string | null;
+  value?: string | null;
+  quantity?: number | null;
+  price?: number | null;
   [key: string]: unknown;
 }
 

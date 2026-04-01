@@ -1,9 +1,12 @@
-import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
-import Text from '../../../../../general/components/Text';
-import { useTheme } from '../../../../../general/theme/theme';
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import React, { useState } from "react";
+import { Image, Pressable, View } from "react-native";
+import Text from "../../../../../general/components/Text";
+import { useTheme } from "../../../../../general/theme/theme";
+import { styles } from "./OrderDetailsProductCard.styles";
 
 type Props = {
+  addonLines?: string[];
   imageUri?: string | null;
   name: string;
   quantityLabel: string;
@@ -12,6 +15,7 @@ type Props = {
 };
 
 export default function OrderDetailsProductCard({
+  addonLines = [],
   imageUri,
   name,
   quantityLabel,
@@ -19,6 +23,8 @@ export default function OrderDetailsProductCard({
   subtitle,
 }: Props) {
   const { colors, typography } = useTheme();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const hasAddons = addonLines.length > 0;
 
   return (
     <View style={styles.container}>
@@ -61,20 +67,59 @@ export default function OrderDetailsProductCard({
         </Text>
 
         {subtitle ? (
-          <Text
-            numberOfLines={2}
-            style={[
-              styles.subtitle,
-              {
-                color: colors.mutedText,
-                fontSize: typography.size.xs2,
-                lineHeight: typography.lineHeight.sm,
-              },
-            ]}
-            weight="medium"
-          >
-            {subtitle}
-          </Text>
+          <View style={styles.subtitleRow}>
+            <Text
+              numberOfLines={isExpanded ? undefined : 1}
+              style={[
+                styles.subtitle,
+                {
+                  color: colors.mutedText,
+                  flex: 1,
+                  fontSize: typography.size.xs2,
+                  lineHeight: typography.lineHeight.sm,
+                },
+              ]}
+              weight="medium"
+            >
+              {subtitle}
+            </Text>
+
+            {hasAddons ? (
+              <Pressable
+                accessibilityRole="button"
+                hitSlop={8}
+                onPress={() => setIsExpanded((previousState) => !previousState)}
+                style={styles.chevronButton}
+              >
+                <MaterialCommunityIcons
+                  color={colors.iconColor}
+                  name={isExpanded ? "chevron-up" : "chevron-down"}
+                  size={18}
+                />
+              </Pressable>
+            ) : null}
+          </View>
+        ) : null}
+
+        {isExpanded && hasAddons ? (
+          <View style={styles.addonList}>
+            {addonLines.map((addonLine, index) => (
+              <Text
+                key={`${addonLine}-${index}`}
+                style={[
+                  styles.addonText,
+                  {
+                    color: colors.mutedText,
+                    fontSize: typography.size.xs2,
+                    lineHeight: typography.lineHeight.sm,
+                  },
+                ]}
+                weight="medium"
+              >
+                {addonLine}
+              </Text>
+            ))}
+          </View>
         ) : null}
 
         <View style={styles.metaRow}>
@@ -106,38 +151,3 @@ export default function OrderDetailsProductCard({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  content: {
-    flex: 1,
-    gap: 6,
-    minWidth: 0,
-  },
-  image: {
-    borderRadius: 8,
-    height: 49,
-    width: 56,
-  },
-  imageFallback: {
-    alignItems: 'center',
-    borderRadius: 8,
-    height: 49,
-    justifyContent: 'center',
-    width: 56,
-  },
-  metaRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  name: {
-    letterSpacing: 0,
-  },
-  subtitle: {
-    letterSpacing: 0,
-  },
-});

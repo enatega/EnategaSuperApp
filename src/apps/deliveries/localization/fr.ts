@@ -586,7 +586,15 @@ const fr = {
   order_details_tip_placeholder: '0.00',
   order_details_empty_items: 'Aucun article',
   order_details_quantity_one: 'Qté {{count}}',
-  order_details_quantity_other: 'Qté {{count}}'
+  order_tracking_title: 'Votre commande',
+  order_tracking_help: 'Aide au suivi de commande',
+  order_tracking_eta_label: 'Temps de livraison estimé',
+  order_tracking_error_title: 'Impossible de charger le suivi pour le moment.',
+  order_tracking_delivery_details: 'Détails de livraison',
+  order_tracking_contact_title: 'Contacter le livreur',
+  order_tracking_contact_subtitle: 'Demander une livraison sans contact',
+  order_tracking_summary: 'Résumé',
+  order_tracking_summary_note: 'taxes incluses (si applicable)',
 };
 
 export default fr;
