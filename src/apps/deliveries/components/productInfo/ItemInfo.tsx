@@ -1,6 +1,5 @@
 import React from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-import { useTranslation } from "react-i18next";
 import Text from "../../../../general/components/Text";
 import Icon from "../../../../general/components/Icon";
 import { useTheme } from "../../../../general/theme/theme";
@@ -12,7 +11,6 @@ type Props = {
 };
 
 export default function ItemInfo({ name, description, priceLabel }: Props) {
-  const { t } = useTranslation("deliveries");
   const { colors, typography } = useTheme();
 
   return (
@@ -23,7 +21,7 @@ export default function ItemInfo({ name, description, priceLabel }: Props) {
         style={[
           styles.title,
           {
-            fontSize: typography.size.xxl,
+            fontSize: typography.size.h5,
             lineHeight: 38,
           },
         ]}
@@ -43,20 +41,6 @@ export default function ItemInfo({ name, description, priceLabel }: Props) {
           >
             {priceLabel}
           </Text>
-          {/* Todo: can show isPopular, when the backend will send it in responce */}
-          {/* <View style={[styles.badge, { backgroundColor: colors.blue800 }]}>
-            <Icon color={colors.white} name="flame" size={10} type="Ionicons" />
-            <Text
-              color={colors.white}
-              weight="medium"
-              style={{
-                fontSize: typography.size.xs2,
-                lineHeight: typography.lineHeight.sm,
-              }}
-            >
-              {t("popular")}
-            </Text>
-          </View> */}
         </View>
 
         <Pressable
@@ -64,6 +48,7 @@ export default function ItemInfo({ name, description, priceLabel }: Props) {
             styles.shareButton,
             {
               backgroundColor: colors.backgroundTertiary,
+              shadowColor: colors.shadowColor,
               opacity: pressed ? 0.7 : 1,
             },
           ]}
@@ -92,18 +77,11 @@ export default function ItemInfo({ name, description, priceLabel }: Props) {
 }
 
 const styles = StyleSheet.create({
-  badge: {
-    alignItems: "center",
-    borderRadius: 6,
-    flexDirection: "row",
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
   container: {
-    gap: 12,
+    gap: 10,
     paddingHorizontal: 16,
-    paddingTop: 4,
+    paddingBottom: 12,
+    paddingTop: 8,
   },
   metaRow: {
     alignItems: "center",
@@ -120,6 +98,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     height: 32,
     justifyContent: "center",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
     width: 32,
   },
   title: {

@@ -29,7 +29,7 @@ export default function ProductOptionRow({
           : { selected: isSelected }
       }
       onPress={onPress}
-      style={({ pressed }) => [styles.container, { opacity: pressed ? 0.7 : 1 }]}
+      style={({ pressed }) => [styles.container, { opacity: pressed ? 0.72 : 1 }]}
     >
       <View style={styles.leftContent}>
         <View
@@ -38,6 +38,7 @@ export default function ProductOptionRow({
             {
               borderColor: isSelected ? colors.primary : colors.border,
               backgroundColor: colors.background,
+              shadowColor: colors.shadowColor,
             },
           ]}
         >
@@ -52,6 +53,7 @@ export default function ProductOptionRow({
         </View>
         <Text
           color={colors.text}
+          weight="medium"
           style={[
             styles.label,
             {
@@ -65,6 +67,7 @@ export default function ProductOptionRow({
       </View>
       <Text
         color={colors.mutedText}
+        weight="medium"
         style={{
           fontSize: typography.size.sm2,
           lineHeight: typography.lineHeight.md,
@@ -88,12 +91,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: 16,
     justifyContent: 'center',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
     width: 16,
   },
   container: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    minHeight: 22,
     width: '100%',
   },
   leftContent: {
@@ -112,6 +119,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: 16,
     justifyContent: 'center',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
     width: 16,
   },
   radioInner: {

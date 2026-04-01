@@ -1,17 +1,17 @@
-import React, { useCallback } from "react";
-import { StyleSheet, View } from "react-native";
-import { useTranslation } from "react-i18next";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import HorizontalList from "../../../../../general/components/HorizontalList";
-import SectionActionHeader from "../../../../../general/components/SectionActionHeader";
+import React, { useCallback } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import HorizontalList from '../../../../../general/components/HorizontalList';
+import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
 import Text from "../../../../../general/components/Text";
 import { useTheme } from "../../../../../general/theme/theme";
-import { useNearbyStores } from "../../../hooks";
-import type { DeliveryNearbyStore } from "../../../api/types";
-import StoreCard from "../../../components/storeCard/StoreCard";
-import NearbyStoreListSkeleton from "./HomeTabSkeletons/NearbyStoreListSkeleton";
-import type { MultiVendorStackParamList } from "../../navigation/types";
+import { useNearbyStores } from '../../../hooks';
+import type { DeliveryNearbyStore } from '../../../api/types';
+import StoreCard from '../../../components/storeCard/StoreCard';
+import NearbyStoreListSkeleton from './HomeTabSkeletons/NearbyStoreListSkeleton';
+import type { MultiVendorStackParamList } from '../../navigation/types';
 
 type NavProp = NativeStackNavigationProp<
   MultiVendorStackParamList,
@@ -26,10 +26,10 @@ export default function NearbyStoreList() {
   const isEmpty = !isNearbyStoresPending && nearbyStoresData.length === 0;
 
   const handleSeeAllNearbyRestaurants = useCallback(() => {
-    navigation.navigate("SeeAllScreen", {
-      queryType: "nearby-stores",
-      title: t("multi_vendor_nearby_store_title"),
-      cardType: "store",
+    navigation.navigate('SeeAllScreen', {
+      queryType: 'nearby-stores',
+      title: t('multi_vendor_nearby_store_title'),
+      cardType: 'store',
     });
   }, [navigation, t]);
 
@@ -40,8 +40,8 @@ export default function NearbyStoreList() {
   return (
     <View style={styles.section}>
       <SectionActionHeader
-        actionLabel={t("multi_vendor_see_all")}
-        title={t("multi_vendor_nearby_store_title")}
+        actionLabel={t('multi_vendor_see_all')}
+        title={t('multi_vendor_nearby_store_title')}
         onActionPress={handleSeeAllNearbyRestaurants}
       />
 

@@ -4,24 +4,37 @@ import { useTheme } from "../../../general/theme/theme";
 import Text from "../../../general/components/Text";
 import Image from "../../../general/components/Image";
 import { typography } from "../../../general/theme/typography";
+import type { DeliveryProductActionBinding } from "../cart/productActionTypes";
 
 export interface ProductMiniCardProps {
   title: string;
   imageUri?: string;
   onPress?: () => void;
+  productAction?: DeliveryProductActionBinding;
 }
 
 const ProductMiniCard = ({
   title,
   imageUri,
   onPress,
+  productAction,
 }: ProductMiniCardProps) => {
   const { colors } = useTheme();
 
-  const CardWrapper = onPress ? TouchableOpacity : View;
+  const handlePress = React.useCallback(() => {
+    if (productAction?.onOpenProduct) {
+      productAction.onOpenProduct(productAction.target);
+      return;
+    }
+
+    onPress?.();
+  }, [onPress, productAction]);
+
+  const ResolvedCardWrapper =
+    productAction?.onOpenProduct || onPress ? TouchableOpacity : View;
 
   return (
-    <CardWrapper
+    <ResolvedCardWrapper
       style={[
         styles.container,
         {
@@ -29,8 +42,8 @@ const ProductMiniCard = ({
           shadowColor: colors.shadowColor,
         },
       ]}
-      onPress={onPress}
-      activeOpacity={onPress ? 0.8 : 1}
+      onPress={handlePress}
+      activeOpacity={productAction?.onOpenProduct || onPress ? 0.8 : 1}
     >
       <View style={styles.imageContainer}>
         <Image
@@ -51,7 +64,7 @@ const ProductMiniCard = ({
       >
         {title}
       </Text>
-    </CardWrapper>
+    </ResolvedCardWrapper>
   );
 };
 

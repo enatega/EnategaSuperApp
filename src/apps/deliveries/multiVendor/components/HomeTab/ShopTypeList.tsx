@@ -55,13 +55,13 @@ export default function ShopTypeList() {
 
 const styles = StyleSheet.create({
   section: {
-    gap: 18,
-    paddingHorizontal: 20,
+    gap: 12,
+    paddingHorizontal: 16,
   },
   listContent: {
-    paddingRight: 4,
+    paddingRight: 16,
   },
   separator: {
-    width: 14,
+    width: 12,
   },
 });

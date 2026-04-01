@@ -13,6 +13,7 @@ import TopBrandsList from '../../components/HomeTab/TopBrandsList';
 import NearbyStoreList from '../../components/HomeTab/NearbyStoreList';
 import Deals from '../../components/HomeTab/Deals';
 import OrderAgain from '../../components/HomeTab/OrderAgain';
+import { useCartCount } from '../../../hooks/useCart';
 import type { ProfileAddress } from '../../api/profileService';
 import useSavedAddresses from '../../hooks/useSavedAddresses';
 import { styles } from './HomeTabStyle';
@@ -26,6 +27,7 @@ export default function HomeTab() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavProp>();
+  const { data: cartCount } = useCartCount();
   const [isAddressSheetVisible, setIsAddressSheetVisible] = useState(false);
   const hasAutoOpenedAddressSheetRef = useRef(false);
   const {
@@ -96,6 +98,10 @@ export default function HomeTab() {
     navigation.navigate('AddressChooseOnMap', { origin: 'home-header' });
   }, [navigation]);
 
+  const handleCartPress = useCallback(() => {
+    navigation.navigate('Cart');
+  }, [navigation]);
+
   return (
     <>
       <ScrollView
@@ -110,6 +116,9 @@ export default function HomeTab() {
           addresses={addresses}
           onAddAddressPress={handleOpenAddressSheet}
           onAddressPress={handleOpenAddressSheet}
+          cartCount={cartCount?.totalItems}
+       
+        onCartPress={handleCartPress}
         />
         <MultiVendorSpecialOffers />
         <ShopTypeList />

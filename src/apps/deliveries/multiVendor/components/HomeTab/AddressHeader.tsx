@@ -13,6 +13,7 @@ import {
 } from '../../../utils/address';
 
 type Props = {
+  cartCount?: number;
   addresses?: ProfileAddress[];
   onAddressPress?: () => void;
   onAddAddressPress?: () => void;
@@ -20,6 +21,7 @@ type Props = {
 };
 
 export default function AddressHeader({
+  cartCount = 0,
   addresses = [],
   onAddressPress,
   onAddAddressPress,
@@ -120,9 +122,23 @@ export default function AddressHeader({
         <Icon
           type="Ionicons"
           name="cart-outline"
-          size={28}
+          size={22}
           color={colors.text}
         />
+        {cartCount > 0 ? (
+          <View style={[styles.cartBadge, { backgroundColor: colors.primary }]}>
+            <Text
+              color={colors.white}
+              weight="semiBold"
+              style={{
+                fontSize: typography.size.xxs,
+                lineHeight: typography.lineHeight.xxs,
+              }}
+            >
+              {cartCount > 99 ? '99+' : cartCount}
+            </Text>
+          </View>
+        ) : null}
       </Pressable>
     </View>
   );
@@ -145,9 +161,9 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 12,
+    gap: 16,
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   addressButton: {
     alignItems: 'center',
@@ -155,7 +171,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flex: 1,
     flexDirection: 'row',
-    gap: 8,
+    gap: 6,
+    
     minHeight: 48,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -163,8 +180,21 @@ const styles = StyleSheet.create({
   cartButton: {
     alignItems: 'center',
     borderRadius: 100,
-    height: 56,
+    height: 40,
     justifyContent: 'center',
-    width: 56,
+    position: 'relative',
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+    width: 40,
+  },
+  cartBadge: {
+    alignItems: 'center',
+    borderRadius: 10,
+    minWidth: 18,
+    paddingHorizontal: 4,
+    position: 'absolute',
+    right: -4,
+    top: -2,
   },
 });

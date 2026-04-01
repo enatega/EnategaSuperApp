@@ -223,7 +223,7 @@ export default function StoreDetailsScreen() {
   const coverImageUrl =
     store?.coverImage ?? selectedStore?.coverImage ?? 'https://placehold.co/1400x800.png';
   const logoImageUrl = store?.logo ?? selectedStore?.logo ?? 'https://placehold.co/176x176.png';
-  const heroTitle = store?.tagLine ?? store?.description ?? t('store_details_hero_title');
+  const heroTitle = '';
   const hours = getTodayStoreHours(store?.storeTimings, t('store_details_hours_unavailable'));
   const phone = store?.contact?.phone ?? null;
   const email = store?.contact?.email ?? null;
@@ -318,7 +318,7 @@ export default function StoreDetailsScreen() {
         }
         ListHeaderComponent={headerComponent}
         contentContainerStyle={[styles.content, { backgroundColor: colors.background }]}
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="never"
         data={PRODUCT_LIST_DATA}
         keyExtractor={(item) => item.id}
         onEndReached={handleLoadMoreProducts}
@@ -338,6 +338,7 @@ export default function StoreDetailsScreen() {
             }}
             products={products}
             shouldShowProductSkeletons={shouldShowProductSkeletons}
+            storeId={storeId}
           />
         )}
         showsVerticalScrollIndicator={false}

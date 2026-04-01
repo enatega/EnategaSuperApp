@@ -1,6 +1,7 @@
 import React from 'react';
 import { ImageBackground, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SearchInput from '../../../components/search/SearchInput';
 import Image from '../../../../../general/components/Image';
 import Text from '../../../../../general/components/Text';
@@ -65,6 +66,7 @@ export default function StoreDetailListHeader({
 }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
+  const insets = useSafeAreaInsets();
   const showsCategories = categories.length > 0;
   const showsSubcategories = subcategories.length > 0;
 
@@ -75,7 +77,15 @@ export default function StoreDetailListHeader({
           source={{ uri: coverImageUrl }}
           style={[styles.heroImage, { backgroundColor: colors.storeHeroPrimary }]}
         >
-          <View style={[styles.heroContent, { backgroundColor: colors.storeHeroOverlay }]}>
+          <View
+            style={[
+              styles.heroContent,
+              {
+                backgroundColor: colors.storeHeroOverlay,
+                paddingTop: insets.top + 12,
+              },
+            ]}
+          >
             <View style={styles.headerRow}>
               <StoreDetailActionButton
                 accessibilityLabel={t('store_details_action_back')}
@@ -102,19 +112,21 @@ export default function StoreDetailListHeader({
               </View>
             </View>
 
-            <Text
-              style={[
-                styles.heroTitle,
-                {
-                  color: colors.white,
-                  fontSize: typography.size.xxl + 8,
-                  lineHeight: 40,
-                },
-              ]}
-              weight="extraBold"
-            >
-              {heroTitle}
-            </Text>
+            {heroTitle.trim() ? (
+              <Text
+                style={[
+                  styles.heroTitle,
+                  {
+                    color: colors.white,
+                    fontSize: typography.size.xxl + 8,
+                    lineHeight: 40,
+                  },
+                ]}
+                weight="extraBold"
+              >
+                {heroTitle}
+              </Text>
+            ) : null}
           </View>
         </ImageBackground>
 
@@ -199,17 +211,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   heroContainer: {
-    marginBottom: 44,
+    marginBottom: 52,
   },
   heroImage: {
-    height: 240,
+    height: 316,
     overflow: 'hidden',
   },
   heroContent: {
     flex: 1,
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: typography?.lineHeight?.xl,
+    paddingBottom: 30,
   },
   headerRow: {
     alignItems: 'center',
@@ -222,50 +234,50 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     letterSpacing: -0.8,
-    maxWidth: 220,
-    paddingBottom: 70,
+    maxWidth: 232,
+    paddingBottom: 18,
   },
   logoCard: {
     alignItems: 'center',
     alignSelf: 'center',
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1,
-    height: 88,
+    height: 96,
     justifyContent: 'center',
-    marginTop: -44,
+    marginTop: -48,
     overflow: 'hidden',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 6,
-    width: 88,
+    width: 96,
   },
   logoImage: {
     height: '100%',
     width: '100%',
   },
   content: {
-    gap: 16,
+    gap: 14,
     paddingHorizontal: 16,
-    paddingTop: 4,
+    paddingTop: 0,
   },
   storeName: {
     letterSpacing: -0.4,
     textAlign: 'center',
   },
   filters: {
-    gap: 4,
+    gap: 6,
     paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingTop: 16,
   },
   subcategoryContainer: {
-    paddingVertical: 4,
+    paddingTop: 6,
   },
   sectionHeader: {
     // paddingVertical: 6,
   },
   sectionTitle: {
     letterSpacing: -0.36,
-    paddingTop:12,
-    paddingBottom: 10,
+    paddingTop: 18,
+    paddingBottom: 12,
   },
 });

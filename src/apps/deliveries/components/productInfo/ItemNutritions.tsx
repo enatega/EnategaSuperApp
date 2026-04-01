@@ -35,7 +35,7 @@ export default function ItemNutritions({
             style={[
               styles.heading,
               {
-                fontSize: typography.size.xl,
+                fontSize: typography.size.h5,
                 lineHeight: typography.lineHeight.h5,
               },
             ]}
@@ -59,7 +59,7 @@ export default function ItemNutritions({
             style={[
               styles.heading,
               {
-                fontSize: typography.size.xl,
+                fontSize: typography.size.h5,
                 lineHeight: typography.lineHeight.h5,
               },
             ]}
@@ -83,7 +83,7 @@ export default function ItemNutritions({
             style={[
               styles.heading,
               {
-                fontSize: typography.size.xl,
+                fontSize: typography.size.h5,
                 lineHeight: typography.lineHeight.h5,
               },
             ]}
@@ -124,14 +124,14 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    marginVertical: 16,
+    marginVertical: 8,
   },
   heading: {
     fontWeight: "800",
     letterSpacing: -0.36,
   },
   nutritionList: {
-    gap: 8,
+    gap: 10,
     marginTop: 12,
   },
   nutritionRow: {
@@ -140,6 +140,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   section: {
-    gap: 6,
+    gap: 8,
+    paddingVertical: 12,
   },
 });
