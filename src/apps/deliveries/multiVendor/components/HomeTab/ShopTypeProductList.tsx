@@ -1,16 +1,16 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
-import Text from '../../../../../general/components/Text';
-import { useTheme } from '../../../../../general/theme/theme';
 import type { DeliveryShopTypeProduct } from '../../../api/types';
-import StoreCard from '../../../components/storeCard/StoreCard';
+import { mapShopTypeProductToProductActionTarget } from '../../../cart/productActionMappers';
 import ShopTypeCardSkeleton from './HomeTabSkeletons/ShopTypeCardSkeleton';
 import type { MultiVendorStackParamList } from '../../navigation/types';
+import ShopTypeProductCard from './ShopTypeProductCard';
+import HomeSectionState from './HomeSectionState';
 
 type Props = {
   errorMessage?: string;
@@ -31,59 +31,36 @@ export default function ShopTypeProductList({
 }: Props) {
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavProp>();
-  const { colors, typography } = useTheme();
   const hasError = Boolean(errorMessage);
   const isEmpty = !isLoading && !hasError && products.length === 0;
+  const handleSeeAllPress = useCallback(
+    () =>
+      navigation.navigate('SeeAllScreen', {
+        queryType: 'shop-type-products',
+        title,
+        cardType: 'store',
+        shopTypeId,
+      }),
+    [navigation, shopTypeId, title],
+  );
 
   return (
     <View style={styles.section}>
       <SectionActionHeader
         actionLabel={t('multi_vendor_see_all')}
-        onActionPress={() =>
-          navigation.navigate('SeeAllScreen', {
-            queryType: 'shop-type-products',
-            title,
-            cardType: 'store',
-            shopTypeId,
-          })
-        }
+        onActionPress={handleSeeAllPress}
         title={title}
       />
 
       {isLoading ? (
         <ShopTypeCardSkeleton />
       ) : hasError ? (
-        <View style={[styles.messageContainer, { backgroundColor: colors.blue50 }]}>
-          <Text
-            weight="medium"
-            style={[
-              styles.messageText,
-              {
-                color: colors.danger,
-                fontSize: typography.size.sm2,
-                lineHeight: typography.lineHeight.sm2,
-              },
-            ]}
-          >
-            {errorMessage ?? t('multi_vendor_shop_type_products_error')}
-          </Text>
-        </View>
+        <HomeSectionState
+          message={errorMessage ?? t('multi_vendor_shop_type_products_error')}
+          tone="error"
+        />
       ) : isEmpty ? (
-        <View style={[styles.messageContainer, { backgroundColor: colors.blue50 }]}>
-          <Text
-            weight="medium"
-            style={[
-              styles.messageText,
-              {
-                color: colors.mutedText,
-                fontSize: typography.size.sm2,
-                lineHeight: typography.lineHeight.sm2,
-              },
-            ]}
-          >
-            {t('multi_vendor_shop_type_products_empty')}
-          </Text>
-        </View>
+        <HomeSectionState message={t('multi_vendor_shop_type_products_empty')} />
       ) : (
         <HorizontalList
           data={products}
@@ -91,20 +68,13 @@ export default function ShopTypeProductList({
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           renderItem={({ item }) => (
-            <StoreCard
-              imageUrl={
-                item.productImage ??
-                item.storeImage ??
-                item.storeLogo ??
-                'https://placehold.co/400x400.png'
-              }
-              offer={item.deal ?? undefined}
-              name={item.productName}
-              cuisine={item.storeName ?? undefined}
-              price={item.price ?? 0}
-              deliveryTime=""
-              distance={0}
-              onPress={() => {}}
+            <ShopTypeProductCard
+              product={item}
+              productAction={{
+                target: mapShopTypeProductToProductActionTarget(item),
+                onOpenProduct: (target) =>
+                  navigation.navigate('ProductInfo', { productId: target.productId }),
+              }}
             />
           )}
         />
@@ -117,18 +87,10 @@ const styles = StyleSheet.create({
   section: {
     gap: 12,
   },
-  messageContainer: {
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-  },
-  messageText: {
-    textAlign: 'center',
-  },
   listContent: {
-    paddingRight: 4,
+    paddingRight: 16,
   },
   separator: {
-    width: 14,
+    width: 12,
   },
 });

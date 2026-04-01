@@ -12,6 +12,7 @@ import type {
   DeliveryStoreDetailsFilterItem,
   DeliveryStoreDetailsProduct,
 } from '../../../api/types';
+import { mapStoreDetailsProductToProductActionTarget } from '../../../cart/productActionMappers';
 import ListStateView from '../../../components/filterablePaginatedList/ListStateView';
 import {
   buildStoreDetailCategoryIds,
@@ -50,6 +51,7 @@ type Props = {
   onRetry?: () => void;
   products: DeliveryStoreDetailsProduct[];
   shouldShowProductSkeletons: boolean;
+  storeId?: string | null;
 };
 
 function isStoreDetailSkeletonItem(item: StoreDetailListItem): item is StoreDetailSkeletonItem {
@@ -72,6 +74,7 @@ export default function StoreDetailProductsList({
   onRetry,
   products,
   shouldShowProductSkeletons,
+  storeId,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
@@ -221,7 +224,21 @@ export default function StoreDetailProductsList({
                     isStoreDetailSkeletonItem(item) ? (
                       <StoreDetailMenuCardSkeleton key={item.id} />
                     ) : (
-                      <StoreDetailMenuCard item={item} key={item.id} onPress={HandleCardPress} />
+                      <StoreDetailMenuCard
+                        item={item}
+                        key={item.id}
+                        onPress={HandleCardPress}
+                        productAction={{
+                          target: mapStoreDetailsProductToProductActionTarget({
+                            product: item,
+                            storeId,
+                          }),
+                          onOpenProduct: (target) =>
+                            (navigation as any).navigate('ProductInfo', {
+                              productId: target.productId,
+                            }),
+                        }}
+                      />
                     ),
                   )}
                 </View>
@@ -260,6 +277,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    rowGap: 4,
   },
   stateView: {
     flex: 0,

@@ -4,26 +4,25 @@ import { useTranslation } from "react-i18next";
 import Text from "../../../../general/components/Text";
 import { useTheme } from "../../../../general/theme/theme";
 import ProductOptionRow from "./ProductOptionRow";
+import type { ProductSelectionSection } from "./useProductSelectionState";
 
 type Props = {
-  items: Array<{ id: string; label: string; price: number }>;
-  selectedIds: string[];
-  helperText?: string | null;
-  onToggle: (id: string) => void;
+  sections: ProductSelectionSection[];
+  selectedOptionIdsByGroup: Record<string, string[]>;
+  onToggle: (groupId: string, optionId: string) => void;
   formatPrice: (value: number) => string;
 };
 
 export default function ItemFlavour({
-  items,
-  selectedIds,
-  helperText,
+  sections,
+  selectedOptionIdsByGroup,
   onToggle,
   formatPrice,
 }: Props) {
   const { t } = useTranslation("deliveries");
   const { colors, typography } = useTheme();
 
-  if (items.length === 0) {
+  if (sections.length === 0) {
     return null;
   }
 
@@ -33,34 +32,40 @@ export default function ItemFlavour({
         color={colors.text}
         weight="extraBold"
         style={{
-          fontSize: typography.size.xl,
+          fontSize: typography.size.h5,
           letterSpacing: -0.36,
           lineHeight: typography.lineHeight.h5,
         }}
       >
         {t("choose_your_addons")}
       </Text>
-      <Text color={colors.iconDisabled} style={styles.subtitle}>
-        {helperText || t("select_one")}
-      </Text>
+      {sections.map((section) => (
+        <View key={section.groupId} style={styles.sectionBlock}>
+          <Text color={colors.iconDisabled} style={styles.subtitle}>
+            {section.helperText || t("select_one")}
+          </Text>
 
-      <View style={styles.options}>
-        <FlatList
-          data={items}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <ProductOptionRow
-              controlType="checkbox"
-              isSelected={selectedIds.includes(item.id)}
-              label={item.label}
-              onPress={() => onToggle(item.id)}
-              priceLabel={item.price === 0 ? t("free") : formatPrice(item.price)}
+          <View style={styles.options}>
+            <FlatList
+              data={section.options}
+              keyExtractor={(item) => item.optionId}
+              renderItem={({ item }) => (
+                <ProductOptionRow
+                  controlType={section.selectionType === "single" ? "radio" : "checkbox"}
+                  isSelected={
+                    (selectedOptionIdsByGroup[section.groupId] ?? []).includes(item.optionId)
+                  }
+                  label={item.label}
+                  onPress={() => onToggle(section.groupId, item.optionId)}
+                  priceLabel={item.price === 0 ? t("free") : formatPrice(item.price)}
+                />
+              )}
+              scrollEnabled={false}
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
             />
-          )}
-          scrollEnabled={false}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-        />
-      </View>
+          </View>
+        </View>
+      ))}
     </View>
   );
 }
@@ -69,13 +74,17 @@ const styles = StyleSheet.create({
   container: {
     gap: 2,
     paddingHorizontal: 16,
-    paddingTop: 22,
+    paddingBottom: 4,
+    paddingTop: 16,
+  },
+  sectionBlock: {
+    gap: 2,
   },
   options: {
-    paddingTop: 10,
+    paddingTop: 12,
   },
   separator: {
-    height: 14,
+    height: 12,
   },
   subtitle: {
     fontSize: 14,

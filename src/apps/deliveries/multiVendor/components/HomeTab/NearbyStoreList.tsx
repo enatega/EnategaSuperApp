@@ -1,28 +1,23 @@
-import React, { useCallback } from "react";
-import { StyleSheet, View } from "react-native";
-import { useTranslation } from "react-i18next";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import HorizontalList from "../../../../../general/components/HorizontalList";
-import SectionActionHeader from "../../../../../general/components/SectionActionHeader";
-import { useNearbyStores } from "../../../hooks";
-import type { DeliveryNearbyStore } from "../../../api/types";
-import StoreCard from "../../../components/storeCard/StoreCard";
-import NearbyStoreListSkeleton from "./HomeTabSkeletons/NearbyStoreListSkeleton";
-import type { MultiVendorStackParamList } from "../../navigation/types";
+import React, { useCallback } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import HorizontalList from '../../../../../general/components/HorizontalList';
+import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
+import { useNearbyStores } from '../../../hooks';
+import type { DeliveryNearbyStore } from '../../../api/types';
+import StoreCard from '../../../components/storeCard/StoreCard';
+import NearbyStoreListSkeleton from './HomeTabSkeletons/NearbyStoreListSkeleton';
+import type { MultiVendorStackParamList } from '../../navigation/types';
 
 
-type NavProp = NativeStackNavigationProp<
-  MultiVendorStackParamList,
-  "SeeAllScreen"
->;
+type NavProp = NativeStackNavigationProp<MultiVendorStackParamList, 'SeeAllScreen'>;
 
 export default function NearbyStoreList() {
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavProp>();
   const { data: nearbyStoresData = [], isPending: isNearbyStoresPending } = useNearbyStores();
-  console.log('nearby_Store_data__',JSON.stringify(nearbyStoresData,null,2));
-  
 
   const handleRestaurantPress = useCallback(
     (store: DeliveryNearbyStore) => {
@@ -31,13 +26,11 @@ export default function NearbyStoreList() {
     [navigation],
   );
 
-
-
   const handleSeeAllNearbyRestaurants = useCallback(() => {
-    navigation.navigate("SeeAllScreen", {
-      queryType: "nearby-stores",
-      title: t("multi_vendor_nearby_store_title"),
-      cardType: "store",
+    navigation.navigate('SeeAllScreen', {
+      queryType: 'nearby-stores',
+      title: t('multi_vendor_nearby_store_title'),
+      cardType: 'store',
     });
   }, [navigation, t]);
 
@@ -48,8 +41,8 @@ export default function NearbyStoreList() {
   return (
     <View style={styles.section}>
       <SectionActionHeader
-        actionLabel={t("multi_vendor_see_all")}
-        title={t("multi_vendor_nearby_store_title")}
+        actionLabel={t('multi_vendor_see_all')}
+        title={t('multi_vendor_nearby_store_title')}
         onActionPress={handleSeeAllNearbyRestaurants}
       />
 

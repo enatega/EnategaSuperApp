@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
+import Icon from '../../../../general/components/Icon';
 import Image from '../../../../general/components/Image';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
@@ -10,16 +11,14 @@ type Props = {
 };
 
 export default function TopBrandCard({ brand }: Props) {
-  console.log('brands____',brand);
-  
   const { colors, typography } = useTheme();
-  const subtitle = brand.deal ?? undefined;
   const badgeLabel =
     brand.dealAmount && brand.dealType === 'percentage'
       ? `${brand.dealAmount}%`
       : brand.dealAmount
         ? String(brand.dealAmount)
         : undefined;
+  const subtitle = badgeLabel ? undefined : brand.deal ?? undefined;
 
   return (
     <View
@@ -27,8 +26,8 @@ export default function TopBrandCard({ brand }: Props) {
         styles.card,
         {
           backgroundColor: colors.surface,
-          borderColor: colors.border,
-          shadowColor: colors.shadowColor,
+          borderColor: 'rgba(16, 24, 40, 0.08)',
+          shadowColor: '#101828',
         },
       ]}
     >
@@ -39,8 +38,9 @@ export default function TopBrandCard({ brand }: Props) {
           resizeMode="contain"
         />
 
-        {/* {badgeLabel ? (
-          <View style={[styles.badge, { backgroundColor: colors.blue800 }]}>
+        {badgeLabel ? (
+          <View style={[styles.badge, { backgroundColor: colors.blue800, shadowColor: colors.shadowColor }]}>
+            <Icon type="Feather" name="tag" size={12} color={colors.white} />
             <Text
               color={colors.white}
               weight="medium"
@@ -52,10 +52,10 @@ export default function TopBrandCard({ brand }: Props) {
               {badgeLabel}
             </Text>
           </View>
-        ) : null} */}
+        ) : null}
       </View>
 
-      <View style={styles.content}>
+      <View style={[styles.content, { borderTopColor: 'rgba(0, 0, 0, 0.04)', shadowColor: '#000000' }]}>
         <Text
           weight="semiBold"
           numberOfLines={1}
@@ -86,12 +86,12 @@ export default function TopBrandCard({ brand }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 8,
-    borderWidth: 1,
-    height: 140,
+    borderRadius: 6,
+    borderWidth: StyleSheet.hairlineWidth,
+    elevation: 3,
     overflow: 'hidden',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
+    shadowOpacity: Platform.select({ ios: 0.12, android: 0.18 }),
     shadowRadius: 3,
     width: 100,
   },
@@ -107,16 +107,27 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   badge: {
+    alignItems: 'center',
     borderRadius: 6,
+    flexDirection: 'row',
+    gap: 4,
     left: 8,
     paddingHorizontal: 8,
     paddingVertical: 2,
     position: 'absolute',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
     top: 8,
   },
   content: {
-    gap: 2,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    gap: 0,
+    minHeight: 40,
     paddingHorizontal: 6,
     paddingVertical: 4,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
 });

@@ -54,11 +54,11 @@ export default function ProductInfoCustomizationsLoadingSkeleton() {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 18,
+    gap: 16,
   },
   optionList: {
-    gap: 14,
-    paddingTop: 10,
+    gap: 12,
+    paddingTop: 12,
   },
   optionPrice: {
     marginLeft: "auto",
@@ -71,5 +71,6 @@ const styles = StyleSheet.create({
   section: {
     gap: 2,
     paddingHorizontal: 16,
+    paddingBottom: 4,
   },
 });

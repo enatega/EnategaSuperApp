@@ -6,12 +6,15 @@ import Icon from '../../../general/components/Icon';
 import Text from '../../../general/components/Text';
 import { useTheme } from '../../../general/theme/theme';
 import type { DeliveryOrderAgainItem } from '../api/types';
+import CartActionControl from './cart/CartActionControl';
+import type { DeliveryProductActionBinding } from '../cart/productActionTypes';
 
 type Props = {
   item: DeliveryOrderAgainItem;
+  productAction?: DeliveryProductActionBinding;
 };
 
-export default function StoreMiniCard({ item }: Props) {
+export default function StoreMiniCard({ item, productAction }: Props) {
   const { t } = useTranslation('deliveries');
   const { colors, typography } = useTheme();
   const imageUri =
@@ -21,9 +24,18 @@ export default function StoreMiniCard({ item }: Props) {
     'https://placehold.co/400x400.png';
   const formattedPrice =
     typeof item.price === 'number' ? `€ ${item.price.toFixed(2)}` : t('multi_vendor_order_again_price_unavailable');
+  const handleCardPress = React.useCallback(() => {
+    productAction?.onOpenProduct?.(productAction.target);
+  }, [productAction]);
+  const handleAddPress = React.useCallback(() => {
+    productAction?.onRequestCartAction?.(productAction.target);
+  }, [productAction]);
 
   return (
-    <View
+    <Pressable
+      accessibilityRole={productAction?.onOpenProduct ? 'button' : undefined}
+      disabled={!productAction?.onOpenProduct}
+      onPress={handleCardPress}
       style={[
         styles.card,
         {
@@ -52,13 +64,15 @@ export default function StoreMiniCard({ item }: Props) {
           </View>
         ) : null}
 
-        <Pressable
-          accessibilityLabel={t('multi_vendor_order_again_add_item')}
-          accessibilityRole="button"
-          style={[styles.addButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
-        >
-          <Icon type="Feather" name="plus" size={16} color={colors.text} />
-        </Pressable>
+        <View style={styles.addButton}>
+          <CartActionControl
+            accessibilityLabel={t('multi_vendor_order_again_add_item')}
+            disabled={!productAction?.onRequestCartAction}
+            mode="add"
+            onAdd={handleAddPress}
+            size="small"
+          />
+        </View>
       </View>
 
       <View style={styles.content}>
@@ -66,8 +80,8 @@ export default function StoreMiniCard({ item }: Props) {
           weight="medium"
           color={colors.primary}
           style={{
-            fontSize: typography.size.xs2,
-            lineHeight: typography.lineHeight.sm,
+            fontSize: typography.size.xxs,
+            lineHeight: typography.lineHeight.xxs,
           }}
         >
           {formattedPrice}
@@ -77,8 +91,8 @@ export default function StoreMiniCard({ item }: Props) {
           weight="semiBold"
           numberOfLines={1}
           style={{
-            fontSize: typography.size.sm2,
-            lineHeight: typography.lineHeight.md,
+            fontSize: typography.size.xs2,
+            lineHeight: typography.lineHeight.sm,
           }}
         >
           {item.productName}
@@ -89,30 +103,30 @@ export default function StoreMiniCard({ item }: Props) {
             color={colors.mutedText}
             numberOfLines={1}
             style={{
-              fontSize: typography.size.xs2,
-              lineHeight: typography.lineHeight.sm,
+              fontSize: typography.size.xxs,
+              lineHeight: typography.lineHeight.xxs,
             }}
           >
             {item.storeName}
           </Text>
         ) : null}
       </View>
-    </View>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
     overflow: 'hidden',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.1,
     shadowRadius: 3,
-    width: 160,
+    width: 120,
   },
   imageWrapper: {
-    height: 140,
+    height: 76,
     overflow: 'hidden',
     position: 'relative',
   },
@@ -122,29 +136,23 @@ const styles = StyleSheet.create({
   },
   badge: {
     alignItems: 'center',
-    borderRadius: 6,
+    borderRadius: 4,
     flexDirection: 'row',
     gap: 4,
-    left: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    left: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
     position: 'absolute',
-    top: 8,
+    top: 6,
   },
   addButton: {
-    alignItems: 'center',
-    borderRadius: 16,
-    borderWidth: 1,
-    height: 32,
-    justifyContent: 'center',
     position: 'absolute',
-    right: 8,
-    top: 8,
-    width: 32,
+    right: 6,
+    top: 6,
   },
   content: {
     gap: 2,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
   },
 });

@@ -21,6 +21,7 @@ export interface StoreCardProps {
   deliveryTime?: number | string;
   distance?: number;
   actionSlot?: React.ReactNode;
+  layout?: "compact" | "fullWidth";
   onPress: () => void;
 }
 
@@ -37,6 +38,7 @@ export default function StoreCard({
   deliveryTime,
   distance,
   actionSlot,
+  layout = "compact",
   onPress,
 }: StoreCardProps) {
   const { colors } = useTheme();
@@ -57,6 +59,7 @@ export default function StoreCard({
     <TouchableOpacity
       style={[
         styles.container,
+        layout === "fullWidth" ? styles.fullWidthContainer : styles.compactContainer,
         {
           backgroundColor: colors.surface,
           borderColor: colors.border,

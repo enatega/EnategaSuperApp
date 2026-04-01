@@ -10,6 +10,7 @@ import TopBrandsList from '../../components/HomeTab/TopBrandsList';
 import NearbyStoreList from '../../components/HomeTab/NearbyStoreList';
 import Deals from '../../components/HomeTab/Deals';
 import OrderAgain from '../../components/HomeTab/OrderAgain';
+import { useCartCount } from '../../../hooks/useCart';
 import { styles } from './HomeTabStyle';
 
 type NavProp = NativeStackNavigationProp<Record<string, object | undefined>>;
@@ -17,9 +18,14 @@ type NavProp = NativeStackNavigationProp<Record<string, object | undefined>>;
 export default function HomeTab() {
   const { colors } = useTheme();
   const navigation = useNavigation<NavProp>();
+  const { data: cartCount } = useCartCount();
 
   const handleAddressPress = useCallback(() => {
     navigation.navigate('AddressSearch', {});
+  }, [navigation]);
+
+  const handleCartPress = useCallback(() => {
+    navigation.navigate('Cart');
   }, [navigation]);
 
   return (
@@ -28,9 +34,13 @@ export default function HomeTab() {
       showsVerticalScrollIndicator={false}
       style={{ backgroundColor: colors.background }}
     >
-      <MultiVendorAddressHeader onAddressPress={handleAddressPress} />
-      <MultiVendorSpecialOffers />
+      <MultiVendorAddressHeader
+        cartCount={cartCount?.totalItems}
+        onAddressPress={handleAddressPress}
+        onCartPress={handleCartPress}
+      />
       <ShopTypeList />
+      <MultiVendorSpecialOffers />
       <TopBrandsList />
       <NearbyStoreList />
       <Deals />

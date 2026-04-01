@@ -19,6 +19,10 @@ function formatDeliveryTime(value: number | string) {
   return `${value} mins`;
 }
 
+function formatPrice(value: number) {
+  return `$${value}`;
+}
+
 export default function StoreDeliveryInfo({ price, deliveryTime, distance }: StoreDeliveryInfoProps) {
   const { colors } = useTheme();
 
@@ -28,22 +32,21 @@ export default function StoreDeliveryInfo({ price, deliveryTime, distance }: Sto
         <Icon
           type="Ionicons"
           name="bicycle"
-          size={20}
+          size={16}
           color={colors.mutedText}
         />
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Icon
             type="MaterialIcons"
             name="attach-money"
-            size={20}
+            size={16}
             color={colors.mutedText}
           />
           <Text
-            variant="body"
             weight="medium"
-            style={{ color: colors.mutedText }}
+            style={{ color: colors.mutedText, fontSize: 12, lineHeight: 18 }}
           >
-            {price}
+            {formatPrice(price)}
           </Text>
         </View>
       </View>
@@ -51,18 +54,17 @@ export default function StoreDeliveryInfo({ price, deliveryTime, distance }: Sto
       <Icon
         type="Entypo"
         name="dot-single"
-        size={20}
+        size={16}
         color={colors.border}
       />
       <View style={styles.infoItem}>
         <Icon
           type="Ionicons"
           name="time-outline"
-          size={20}
+          size={16}
           color={colors.mutedText}
         />
         <Text
-          variant="body"
           weight="medium"
           style={[styles.infoText, { color: colors.mutedText }]}
         >
@@ -73,18 +75,17 @@ export default function StoreDeliveryInfo({ price, deliveryTime, distance }: Sto
       <Icon
         type="Entypo"
         name="dot-single"
-        size={20}
+        size={16}
         color={colors.border}
       />
       <View style={styles.infoItem}>
         <Icon
           type="Ionicons"
           name="location-outline"
-          size={20}
+          size={16}
           color={colors.mutedText}
         />
         <Text
-          variant="body"
           weight="medium"
           style={[styles.infoText, { color: colors.mutedText }]}
         >
