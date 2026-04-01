@@ -73,6 +73,20 @@ export interface DeliveryShopTypeProductsParams {
     sort_by?: string;
 }
 
+export interface DeliveryShopTypeStoresParams {
+    shopTypeId: string;
+    offset?: number;
+    limit?: number;
+    search?: string;
+    latitude?: number;
+    longitude?: number;
+    stock?: string;
+    category_ids?: string[];
+    subcategory_id?: string;
+    price_tiers?: string[];
+    sort_by?: string;
+}
+
 export interface DeliveryFilterValueCategory {
     ids: string[];
     key: string;
@@ -307,6 +321,11 @@ export type DeliveryShopTypeProductsApiResponse =
     | ApiResponse<DeliveryShopTypeProduct[]>
     | PaginatedDeliveryResponse<DeliveryShopTypeProduct>
     | DeliveryShopTypeProduct[];
+
+export type DeliveryShopTypeStoresApiResponse =
+    | ApiResponse<DeliveryNearbyStore[]>
+    | PaginatedDeliveryResponse<DeliveryNearbyStore>
+    | DeliveryNearbyStore[];
 
 export type DeliveryNearbyStoresApiResponse =
     | ApiResponse<DeliveryNearbyStore[]>
