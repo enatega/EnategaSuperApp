@@ -258,6 +258,24 @@ const en = {
   reservation_card: 'Card',
   reservation_driver_details: 'Driver details',
   reservation_rides: 'rides',
+  // Safety
+  safety_screen_title: 'Safety features',
+  safety_action_share_ride: 'Share my ride',
+  safety_action_support: 'Support',
+  safety_action_emergency_contacts: 'Emergency contacts',
+  safety_call_emergency: 'Call 15',
+  safety_driver_verifications: "Driver's verifications",
+  safety_verification_license: 'Driver license validated',
+  safety_verification_photo: 'Photocontrol completed',
+  safety_verification_selfie: 'Selfie with driver license',
+  safety_how_protected: "How you're protected",
+  safety_protection_proactive: 'Proactive safety support',
+  safety_protection_verification: 'Drivers verification',
+  safety_protection_privacy: 'Protecting your privacy',
+  safety_protection_safe_ride: 'Staying safe on every ride',
+  safety_protection_accidents: 'Accidents: Steps to take',
+  safety_support_coming_soon: 'Support coming soon',
+  safety_emergency_contacts_coming_soon: 'Emergency contacts coming soon',
 };
 
 export default en;
