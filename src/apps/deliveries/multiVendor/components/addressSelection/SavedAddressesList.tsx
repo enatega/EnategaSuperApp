@@ -22,6 +22,7 @@ type Props = {
   onAddAddress: () => void;
   onAddressMenuPress?: (address: ProfileAddress) => void;
   onSelectAddress: (address: ProfileAddress) => void;
+  selectingAddressId?: string | null;
   selectedAddressId?: string;
   variant?: 'cards' | 'compact';
 };
@@ -32,6 +33,7 @@ export default function SavedAddressesList({
   onAddAddress,
   onAddressMenuPress,
   onSelectAddress,
+  selectingAddressId,
   selectedAddressId,
   variant = 'cards',
 }: Props) {
@@ -40,6 +42,7 @@ export default function SavedAddressesList({
   const isCompact = variant === 'compact';
   const resolvedSelectedAddressId =
     getSelectedSavedAddressId(addresses) ?? selectedAddressId;
+  const isSelectionPending = Boolean(selectingAddressId);
 
   return (
     <View style={isCompact ? styles.compactList : styles.cardList}>
@@ -47,6 +50,7 @@ export default function SavedAddressesList({
         const typeLabel = getSavedAddressTypeLabel(address.type, t);
         const iconName = getSavedAddressIcon(address.type);
         const isSelected = resolvedSelectedAddressId === address.id;
+        const isSelecting = selectingAddressId === address.id;
 
         if (isCompact) {
           return (
@@ -54,7 +58,9 @@ export default function SavedAddressesList({
               key={address.id}
               address={address.address}
               iconName={iconName}
+              isDisabled={isSelectionPending}
               isSelected={isSelected}
+              isSelecting={isSelecting}
               onPress={() => onSelectAddress(address)}
               typeLabel={typeLabel}
             />
@@ -69,9 +75,11 @@ export default function SavedAddressesList({
               locationName: address.location_name,
             })}
             iconName={iconName}
+            isDisabled={isSelectionPending}
             isSelected={isSelected}
+            isSelecting={isSelecting}
             onMenuPress={
-              onAddressMenuPress
+              onAddressMenuPress && !isSelectionPending
                 ? () => onAddressMenuPress(address)
                 : undefined
             }
@@ -84,13 +92,14 @@ export default function SavedAddressesList({
       <Pressable
         accessibilityLabel={addAddressLabel}
         accessibilityRole="button"
+        disabled={isSelectionPending}
         onPress={onAddAddress}
         style={({ pressed }) => [
           isCompact ? styles.compactAddButton : styles.cardAddButton,
           {
             backgroundColor: isCompact ? 'transparent' : colors.surface,
             borderColor: isCompact ? 'transparent' : colors.border,
-            opacity: pressed ? 0.85 : 1,
+            opacity: isSelectionPending ? 0.55 : pressed ? 0.85 : 1,
           },
         ]}
       >

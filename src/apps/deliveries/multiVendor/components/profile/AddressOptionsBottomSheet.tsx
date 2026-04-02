@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import BottomSheetHandle from '../../../../../general/components/BottomSheetHandle';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
 import SwipeableBottomSheet from '../../../../../general/components/SwipeableBottomSheet';
@@ -49,8 +50,7 @@ export default function AddressOptionsBottomSheet({
       onStateChange={(state) => {
         if (state === 'collapsed') onClose();
       }}
-      handle={<View style={[styles.handle, { backgroundColor: colors.border }]} />}
-      handleContainerStyle={styles.handleContainer}
+      handle={<BottomSheetHandle color={colors.border} />}
       style={[
         styles.sheet,
         { backgroundColor: colors.background, shadowColor: colors.shadowColor },

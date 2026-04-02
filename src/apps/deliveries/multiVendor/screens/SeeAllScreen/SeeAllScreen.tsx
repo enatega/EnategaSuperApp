@@ -9,6 +9,7 @@ import {
   useFilterValues,
   useNearbyStores,
   useShopTypeProducts,
+  useShopTypeStores,
 } from "../../../hooks";
 import type {
   MultiVendorStackParamList,
@@ -56,6 +57,25 @@ function useSeeAllShopTypeProducts({
   });
 }
 
+function useSeeAllShopTypeStores({
+  enabled,
+  filters,
+  search,
+  shopTypeId,
+}: {
+  enabled: boolean;
+  filters: GenericListFilters;
+  search: string;
+  shopTypeId?: string;
+}) {
+  return useShopTypeStores(shopTypeId ?? "", {
+    mode: "paginated",
+    filters,
+    search,
+    enabled: enabled && Boolean(shopTypeId),
+  });
+}
+
 type SeeAllScreenConfig = {
   useListQuery: (params: {
     enabled: boolean;
@@ -82,6 +102,19 @@ function getSeeAllScreenConfig(params: {
   queryType: MultiVendorStackParamList["SeeAllScreen"]["queryType"];
   shopTypeId?: string;
 }): SeeAllScreenConfig {
+  if (params.queryType === "shop-type-stores") {
+    return {
+      useListQuery: (queryParams) =>
+        useSeeAllShopTypeStores({
+          ...queryParams,
+          shopTypeId: params.shopTypeId,
+        }),
+      itemKeyExtractor: (item, index) => `${item.storeId}-${index}`,
+      loadingComponent: <VerticalStoreListSkeleton />,
+      paginationLoadingComponent: <VerticalStoreListSkeleton />,
+    };
+  }
+
   if (params.queryType === "shop-type-products") {
     return {
       useListQuery: (queryParams) =>

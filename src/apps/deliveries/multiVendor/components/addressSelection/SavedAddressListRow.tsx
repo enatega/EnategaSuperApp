@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
@@ -7,7 +7,9 @@ import { useTheme } from '../../../../../general/theme/theme';
 type Props = {
   address: string | null | undefined;
   iconName: keyof typeof Ionicons.glyphMap;
+  isDisabled?: boolean;
   isSelected?: boolean;
+  isSelecting?: boolean;
   onPress: () => void;
   typeLabel: string;
 };
@@ -15,7 +17,9 @@ type Props = {
 export default function SavedAddressListRow({
   address,
   iconName,
+  isDisabled = false,
   isSelected = false,
+  isSelecting = false,
   onPress,
   typeLabel,
 }: Props) {
@@ -27,12 +31,14 @@ export default function SavedAddressListRow({
     <Pressable
       accessibilityLabel={`${typeLabel}, ${resolvedAddress}`}
       accessibilityRole="button"
-      accessibilityState={{ selected: isSelected }}
+      accessibilityState={{ busy: isSelecting, disabled: isDisabled, selected: isSelected }}
+      disabled={isDisabled}
       onPress={onPress}
       style={({ pressed }) => [
         styles.row,
         {
           backgroundColor: pressed ? colors.gray100 : 'transparent',
+          opacity: isDisabled ? 0.6 : 1,
         },
       ]}
     >
@@ -70,7 +76,9 @@ export default function SavedAddressListRow({
         </Text>
       </View>
 
-      {isSelected ? (
+      {isSelecting ? (
+        <ActivityIndicator color={colors.primary} size="small" />
+      ) : isSelected ? (
         <Ionicons name="checkmark" size={24} color={colors.primary} />
       ) : null}
     </Pressable>

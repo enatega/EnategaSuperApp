@@ -48,7 +48,7 @@ function RideOptionsHeader({
         contentContainerStyle={styles.optionsRow}
       />
       <Pressable
-        onPress={onSearchPress}
+        onPress={() => onSearchPress()}
         disabled={searchDisabled}
         style={[
           styles.searchInput,

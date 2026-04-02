@@ -1,41 +1,38 @@
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import Image from '../../../general/components/Image';
-import Icon from '../../../general/components/Icon';
-import Text from '../../../general/components/Text';
-import { useTheme } from '../../../general/theme/theme';
-import type { DeliveryOrderAgainItem } from '../api/types';
-import CartActionControl from './cart/CartActionControl';
-import type { DeliveryProductActionBinding } from '../cart/productActionTypes';
+import Image from '../../../../general/components/Image';
+import Icon from '../../../../general/components/Icon';
+import Text from '../../../../general/components/Text';
+import { useTheme } from '../../../../general/theme/theme';
+import type { DeliveryOrderAgainItem } from '../../api/types';
+import CartActionControl from '../cart/CartActionControl';
+import CartCountBadge from '../cart/CartCountBadge';
+import type { ProductCardControlState } from './types';
 
 type Props = {
-  item: DeliveryOrderAgainItem;
-  productAction?: DeliveryProductActionBinding;
+  onPress: () => void;
+  product: DeliveryOrderAgainItem;
+  state: ProductCardControlState;
 };
 
-export default function StoreMiniCard({ item, productAction }: Props) {
+export default function OrderAgainProductCard({ onPress, product, state }: Props) {
   const { t } = useTranslation('deliveries');
   const { colors, typography } = useTheme();
   const imageUri =
-    item.productImage?.trim() ||
-    item.storeImage?.trim() ||
-    item.storeLogo?.trim() ||
+    product.productImage?.trim() ||
+    product.storeImage?.trim() ||
+    product.storeLogo?.trim() ||
     'https://placehold.co/400x400.png';
   const formattedPrice =
-    typeof item.price === 'number' ? `€ ${item.price.toFixed(2)}` : t('multi_vendor_order_again_price_unavailable');
-  const handleCardPress = React.useCallback(() => {
-    productAction?.onOpenProduct?.(productAction.target);
-  }, [productAction]);
-  const handleAddPress = React.useCallback(() => {
-    productAction?.onRequestCartAction?.(productAction.target);
-  }, [productAction]);
+    typeof product.price === 'number'
+      ? `€ ${product.price.toFixed(2)}`
+      : t('multi_vendor_order_again_price_unavailable');
 
   return (
     <Pressable
-      accessibilityRole={productAction?.onOpenProduct ? 'button' : undefined}
-      disabled={!productAction?.onOpenProduct}
-      onPress={handleCardPress}
+      accessibilityRole="button"
+      onPress={onPress}
       style={[
         styles.card,
         {
@@ -48,7 +45,7 @@ export default function StoreMiniCard({ item, productAction }: Props) {
       <View style={styles.imageWrapper}>
         <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
 
-        {item.deal ? (
+        {product.deal ? (
           <View style={[styles.badge, { backgroundColor: colors.blue800 }]}>
             <Icon type="Feather" name="tag" size={12} color={colors.white} />
             <Text
@@ -59,20 +56,27 @@ export default function StoreMiniCard({ item, productAction }: Props) {
                 lineHeight: typography.lineHeight.sm,
               }}
             >
-              {item.deal}
+              {product.deal}
             </Text>
           </View>
         ) : null}
 
-        <View style={styles.addButton}>
+        <View style={styles.action}>
           <CartActionControl
             accessibilityLabel={t('multi_vendor_order_again_add_item')}
-            disabled={!productAction?.onRequestCartAction}
-            mode="add"
-            onAdd={handleAddPress}
+            count={state.controlCount}
+            disabled={state.isDisabled}
+            mode={state.controlMode}
+            onAdd={state.handleAdd}
+            onDecrement={state.handleDecrement}
+            onIncrement={state.handleIncrement}
             size="small"
           />
         </View>
+
+        {state.shouldShowCountBadge ? (
+          <CartCountBadge count={state.totalQuantity} style={styles.countBadge} />
+        ) : null}
       </View>
 
       <View style={styles.content}>
@@ -95,10 +99,10 @@ export default function StoreMiniCard({ item, productAction }: Props) {
             lineHeight: typography.lineHeight.sm,
           }}
         >
-          {item.productName}
+          {product.productName}
         </Text>
 
-        {item.storeName ? (
+        {product.storeName ? (
           <Text
             color={colors.mutedText}
             numberOfLines={1}
@@ -107,7 +111,7 @@ export default function StoreMiniCard({ item, productAction }: Props) {
               lineHeight: typography.lineHeight.xxs,
             }}
           >
-            {item.storeName}
+            {product.storeName}
           </Text>
         ) : null}
       </View>
@@ -116,23 +120,10 @@ export default function StoreMiniCard({ item, productAction }: Props) {
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 8,
-    borderWidth: 1,
-    overflow: 'hidden',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    width: 120,
-  },
-  imageWrapper: {
-    height: 76,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  image: {
-    height: '100%',
-    width: '100%',
+  action: {
+    position: 'absolute',
+    right: 6,
+    top: 6,
   },
   badge: {
     alignItems: 'center',
@@ -145,14 +136,32 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 6,
   },
-  addButton: {
-    position: 'absolute',
-    right: 6,
-    top: 6,
+  card: {
+    borderRadius: 8,
+    borderWidth: 1,
+    overflow: 'hidden',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    width: 120,
   },
   content: {
     gap: 2,
     paddingHorizontal: 6,
     paddingVertical: 6,
+  },
+  countBadge: {
+    left: 6,
+    position: 'absolute',
+    top: 42,
+  },
+  image: {
+    height: '100%',
+    width: '100%',
+  },
+  imageWrapper: {
+    height: 76,
+    overflow: 'hidden',
+    position: 'relative',
   },
 });

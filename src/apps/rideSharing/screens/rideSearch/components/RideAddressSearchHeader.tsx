@@ -106,7 +106,6 @@ function RideAddressSearchHeader({
               placeholderTextColor={colors.mutedText}
               value={stopValue}
               onChangeText={onChangeStop}
-              autoFocus
               onFocus={() => {
                 setFocusedField('stop');
                 onFocusStop?.();
@@ -136,7 +135,6 @@ function RideAddressSearchHeader({
                 placeholderTextColor={colors.mutedText}
                 value={fromValue}
                 onChangeText={onChangeFrom}
-                autoFocus={activeField === 'from'}
                 onFocus={() => {
                   setFocusedField('from');
                   onFocusFrom?.();
@@ -164,7 +162,6 @@ function RideAddressSearchHeader({
                 placeholderTextColor={colors.mutedText}
                 value={toValue}
                 onChangeText={onChangeTo}
-                autoFocus={activeField === 'to'}
                 onFocus={() => {
                   setFocusedField('to');
                   onFocusTo?.();

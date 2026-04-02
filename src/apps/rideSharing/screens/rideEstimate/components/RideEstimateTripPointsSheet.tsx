@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import BottomSheetHandle from '../../../../../general/components/BottomSheetHandle';
 import SwipeableBottomSheet from '../../../../../general/components/SwipeableBottomSheet';
 import Icon from '../../../../../general/components/Icon';
 import Text from '../../../../../general/components/Text';
@@ -58,8 +59,7 @@ function RideEstimateTripPointsSheet({
           shadowColor: colors.shadowColor,
         },
       ]}
-      handle={<View style={[styles.handle, { backgroundColor: colors.border }]} />}
-      handleContainerStyle={styles.handleContainer}
+      handle={<BottomSheetHandle color={colors.border} />}
       onCollapsed={onClose}
     >
       <View style={styles.content}>

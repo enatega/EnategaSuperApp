@@ -4,7 +4,10 @@ import type {
 } from '../../api/types';
 import type { SupportFaqArticleId } from '../../utils/supportFaqArticles';
 
-export type SeeAllListingType = 'nearby-stores' | 'shop-type-products';
+export type SeeAllListingType =
+  | 'nearby-stores'
+  | 'shop-type-products'
+  | 'shop-type-stores';
 
 export type SeeAllItem = DeliveryNearbyStore | DeliveryShopTypeProduct;
 

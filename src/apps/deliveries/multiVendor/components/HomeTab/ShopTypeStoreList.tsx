@@ -5,38 +5,37 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
-import type { DeliveryShopTypeProduct } from '../../../api/types';
-import { mapShopTypeProductToProductActionTarget } from '../../../cart/productActionMappers';
-import ShopTypeCardSkeleton from './HomeTabSkeletons/ShopTypeCardSkeleton';
+import type { DeliveryNearbyStore } from '../../../api/types';
+import StoreCard from '../../../components/storeCard/StoreCard';
 import type { MultiVendorStackParamList } from '../../navigation/types';
-import ShopTypeProductCard from './ShopTypeProductCard';
 import HomeSectionState from './HomeSectionState';
+import NearbyStoreListSkeleton from './HomeTabSkeletons/NearbyStoreListSkeleton';
 
 type Props = {
   errorMessage?: string;
   isLoading: boolean;
-  products: DeliveryShopTypeProduct[];
   shopTypeId: string;
+  stores: DeliveryNearbyStore[];
   title: string;
 };
 
 type NavProp = NativeStackNavigationProp<MultiVendorStackParamList, 'SeeAllScreen'>;
 
-export default function ShopTypeProductList({
+export default function ShopTypeStoreList({
   errorMessage,
   isLoading,
-  products,
   shopTypeId,
+  stores,
   title,
 }: Props) {
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavProp>();
   const hasError = Boolean(errorMessage);
-  const isEmpty = !isLoading && !hasError && products.length === 0;
+  const isEmpty = !isLoading && !hasError && stores.length === 0;
   const handleSeeAllPress = useCallback(
     () =>
       navigation.navigate('SeeAllScreen', {
-        queryType: 'shop-type-products',
+        queryType: 'shop-type-stores',
         title,
         cardType: 'store',
         shopTypeId,
@@ -53,30 +52,21 @@ export default function ShopTypeProductList({
       />
 
       {isLoading ? (
-        <ShopTypeCardSkeleton />
+        <NearbyStoreListSkeleton />
       ) : hasError ? (
         <HomeSectionState
-          message={errorMessage ?? t('multi_vendor_shop_type_products_error')}
+          message={errorMessage ?? t('multi_vendor_shop_type_stores_error')}
           tone="error"
         />
       ) : isEmpty ? (
-        <HomeSectionState message={t('multi_vendor_shop_type_products_empty')} />
+        <HomeSectionState message={t('multi_vendor_shop_type_stores_empty')} />
       ) : (
         <HorizontalList
-          data={products}
-          keyExtractor={(item) => item.productId}
+          data={stores}
+          keyExtractor={(item) => item.storeId}
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-          renderItem={({ item }) => (
-            <ShopTypeProductCard
-              product={item}
-              productAction={{
-                target: mapShopTypeProductToProductActionTarget(item),
-                onOpenProduct: (target) =>
-                  navigation.navigate('ProductInfo', { productId: target.productId }),
-              }}
-            />
-          )}
+          renderItem={({ item }) => <StoreCard store={item} />}
         />
       )}
     </View>

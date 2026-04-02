@@ -36,7 +36,7 @@ export default function HomeTab() {
     refetch,
   } = useSavedAddresses();
   const { selectedAddress } = useAddress();
-  const { selectSavedAddress } = useSelectSavedAddress();
+  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress();
 
   useFocusEffect(
     useCallback(() => {
@@ -136,6 +136,7 @@ export default function HomeTab() {
         onClose={handleCloseAddressSheet}
         onSelectAddress={handleSelectAddress}
         onUseCurrentLocation={handleUseCurrentLocation}
+        selectingAddressId={selectingAddressId}
         selectedAddressId={selectedAddress?.id}
       />
     </>

@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import {
   ActivityIndicator,
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -11,6 +10,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Icon from '../../../../../general/components/Icon';
+import BottomSheetHandle from '../../../../../general/components/BottomSheetHandle';
 import SwipeableBottomSheet from '../../../../../general/components/SwipeableBottomSheet';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
@@ -25,6 +25,7 @@ type Props = {
   onClose: () => void;
   onSelectAddress: (address: ProfileAddress) => void;
   onUseCurrentLocation: () => void;
+  selectingAddressId?: string | null;
   selectedAddressId?: string;
 };
 
@@ -40,6 +41,7 @@ export default function AddressSelectionBottomSheet({
   onClose,
   onSelectAddress,
   onUseCurrentLocation,
+  selectingAddressId,
   selectedAddressId,
 }: Props) {
   const { colors, typography } = useTheme();
@@ -56,131 +58,119 @@ export default function AddressSelectionBottomSheet({
 
     return Math.min(height * 0.75, Math.max(280, estimatedContentHeight));
   }, [addresses.length, height, insets.bottom]);
-
   if (!isVisible) {
     return null;
   }
 
   return (
-    <Modal
-      animationType="fade"
-      onRequestClose={onClose}
-      transparent
-      visible={isVisible}
-    >
-      <View style={styles.overlay}>
-        <Pressable
-          onPress={onClose}
-          style={[styles.backdrop, { backgroundColor: colors.overlayDark20 }]}
-        />
+    <View style={styles.overlay}>
+      <Pressable
+        onPress={onClose}
+        style={[styles.backdrop, { backgroundColor: colors.overlayDark20 }]}
+      />
 
-        <SwipeableBottomSheet
-          collapsedHeight={0}
-          expandedHeight={expandedHeight}
-          handle={
-            <View
-              style={[styles.hiddenHandle, { backgroundColor: colors.border }]}
+      <SwipeableBottomSheet
+        collapsedHeight={0}
+        expandedHeight={expandedHeight}
+        handle={<BottomSheetHandle color={colors.border} variant="hidden" />}
+        initialState="expanded"
+        modal
+        onCollapsed={onClose}
+        style={[
+          styles.sheet,
+          {
+            backgroundColor: colors.background,
+            shadowColor: colors.shadowColor,
+          },
+        ]}
+      >
+        <View style={styles.header}>
+          <View style={styles.headerSpacer} />
+
+          <Text
+            weight="extraBold"
+            style={{
+              fontSize: typography.size.h5,
+              lineHeight: typography.lineHeight.h5,
+            }}
+          >
+            {t('address_selector_title')}
+          </Text>
+
+          <Pressable
+            accessibilityLabel={t('address_selector_close')}
+            accessibilityRole="button"
+            onPress={onClose}
+            style={({ pressed }) => [
+              styles.closeButton,
+              {
+                backgroundColor: colors.backgroundTertiary,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+          >
+            <Icon
+              color={colors.text}
+              name="close"
+              size={18}
+              type="Ionicons"
             />
-          }
-          handleContainerStyle={styles.handleContainer}
-          initialState="expanded"
-          modal
-          onCollapsed={onClose}
-          style={[
-            styles.sheet,
-            {
-              backgroundColor: colors.background,
-              shadowColor: colors.shadowColor,
-            },
-          ]}
-        >
-          <View style={styles.header}>
-            <View style={styles.headerSpacer} />
+          </Pressable>
+        </View>
 
+        <ScrollView
+          contentContainerStyle={[
+            styles.content,
+            { paddingBottom: Math.max(insets.bottom, 16) + 12 },
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
+          <Pressable
+            accessibilityLabel={t('address_selector_use_current_location')}
+            accessibilityRole="button"
+            onPress={onUseCurrentLocation}
+            style={({ pressed }) => [
+              styles.currentLocationRow,
+              {
+                backgroundColor: pressed ? colors.gray100 : 'transparent',
+              },
+            ]}
+          >
+            <Icon
+              color={colors.text}
+              name="map-outline"
+              size={20}
+              type="Ionicons"
+            />
             <Text
-              weight="extraBold"
+              weight="medium"
               style={{
-                fontSize: typography.size.h5,
-                lineHeight: typography.lineHeight.h5,
+                fontSize: typography.size.md,
+                lineHeight: typography.lineHeight.md,
               }}
             >
-              {t('address_selector_title')}
+              {t('address_selector_use_current_location')}
             </Text>
+          </Pressable>
 
-            <Pressable
-              accessibilityLabel={t('address_selector_close')}
-              accessibilityRole="button"
-              onPress={onClose}
-              style={({ pressed }) => [
-                styles.closeButton,
-                {
-                  backgroundColor: colors.backgroundTertiary,
-                  opacity: pressed ? 0.85 : 1,
-                },
-              ]}
-            >
-              <Icon
-                color={colors.text}
-                name="close"
-                size={18}
-                type="Ionicons"
-              />
-            </Pressable>
-          </View>
+          {isLoading ? (
+            <View style={styles.loadingState}>
+              <ActivityIndicator color={colors.primary} size="small" />
+            </View>
+          ) : null}
 
-          <ScrollView
-            contentContainerStyle={[
-              styles.content,
-              { paddingBottom: Math.max(insets.bottom, 16) + 12 },
-            ]}
-            showsVerticalScrollIndicator={false}
-          >
-            <Pressable
-              accessibilityLabel={t('address_selector_use_current_location')}
-              accessibilityRole="button"
-              onPress={onUseCurrentLocation}
-              style={({ pressed }) => [
-                styles.currentLocationRow,
-                {
-                  backgroundColor: pressed ? colors.gray100 : 'transparent',
-                },
-              ]}
-            >
-              <Icon
-                color={colors.text}
-                name="map-outline"
-                size={20}
-                type="Ionicons"
-              />
-              <Text
-                weight="medium"
-                style={{
-                  fontSize: typography.size.md,
-                  lineHeight: typography.lineHeight.md,
-                }}
-              >
-                {t('address_selector_use_current_location')}
-              </Text>
-            </Pressable>
-
-            {isLoading ? (
-              <View style={styles.loadingState}>
-                <ActivityIndicator color={colors.primary} size="small" />
-              </View>
-            ) : null}
-
-            <SavedAddressesList
-              addAddressLabel={t('address_selector_add_new')}
-              addresses={addresses}
-              onAddAddress={onAddAddress}
-              onSelectAddress={onSelectAddress}
-              selectedAddressId={selectedAddressId}
-              variant="compact"
-            />
-          </ScrollView>
-        </SwipeableBottomSheet>
-      </View>
-    </Modal>
+          <SavedAddressesList
+            addAddressLabel={t('address_selector_add_new')}
+            addresses={addresses}
+            onAddAddress={onAddAddress}
+            onSelectAddress={onSelectAddress}
+            selectingAddressId={selectingAddressId}
+            selectedAddressId={selectedAddressId}
+            variant="compact"
+          />
+        </ScrollView>
+      </SwipeableBottomSheet>
+    </View>
   );
 }
 

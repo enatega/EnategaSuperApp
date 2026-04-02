@@ -1,8 +1,11 @@
 import React from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Button from '../../../../general/components/Button';
+import BottomSheetHandle from '../../../../general/components/BottomSheetHandle';
+import SwipeableBottomSheet from '../../../../general/components/SwipeableBottomSheet';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import { CART_MINIMUM_SPEND, CART_SMALL_ORDER_FEE, formatCartPrice } from './cartUtils';
@@ -15,19 +18,55 @@ type Props = {
 export default function CartFeeInfoModal({ visible, onClose }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
+  const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
+  const expandedHeight = Math.min(height * 0.5, 460) + insets.bottom;
+
+  if (!visible) {
+    return null;
+  }
 
   return (
-    <Modal animationType="fade" onRequestClose={onClose} transparent visible={visible}>
-      <View style={[styles.overlay, { backgroundColor: 'rgba(0, 0, 0, 0.45)' }]}>
-        <View style={[styles.sheet, { backgroundColor: colors.surface }]}>
+    <View pointerEvents="box-none" style={styles.modalRoot}>
+      <Pressable
+        onPress={onClose}
+        style={[styles.overlay, { backgroundColor: 'rgba(0, 0, 0, 0.45)' }]}
+      />
+
+      <SwipeableBottomSheet
+        collapsedHeight={0}
+        expandedHeight={expandedHeight}
+        handle={<BottomSheetHandle color={colors.border} />}
+        initialState="expanded"
+        modal
+        onStateChange={(state) => {
+          if (state === 'collapsed') {
+            onClose();
+          }
+        }}
+        style={[
+          styles.sheet,
+          {
+            backgroundColor: colors.surface,
+            shadowColor: colors.shadowColor,
+          }
+        ]}
+      >
+        <View
+          style={[
+            styles.content,
+            {
+              paddingBottom: insets.bottom + 20,
+            },
+          ]}
+        >
           <View style={styles.headerRow}>
+            <View style={styles.headerSpacer} />
             <Text
+              variant="subtitle"
               weight="extraBold"
-              style={{
-                color: colors.text,
-                fontSize: typography.size.h5,
-                lineHeight: typography.lineHeight.h5,
-              }}
+              numberOfLines={1}
+              style={[styles.headerTitle, { color: colors.text }]}
             >
               {t('cart_fee_modal_title')}
             </Text>
@@ -131,8 +170,8 @@ export default function CartFeeInfoModal({ visible, onClose }: Props) {
 
           <Button label={t('store_details_close')} onPress={onClose} style={styles.cta} />
         </View>
-      </View>
-    </Modal>
+      </SwipeableBottomSheet>
+    </View>
   );
 }
 
@@ -144,22 +183,51 @@ const styles = StyleSheet.create({
     width: 28,
   },
   cta: {
-    marginTop: 6,
+    marginTop: 4,
   },
   headerRow: {
     alignItems: 'center',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 12,
   },
-  overlay: {
+  headerSpacer: {
+    height: 28,
+    width: 28,
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+  },
+  content: {
+    gap: 16,
+    paddingHorizontal: 20,
+    paddingTop: 4,
+  },
+  handle: {
+    borderRadius: 999,
+    height: 4,
+    width: 40,
+  },
+  handleContainer: {
+    alignItems: 'center',
+    paddingBottom: 12,
+    paddingTop: 4,
+  },
+  modalRoot: {
     flex: 1,
     justifyContent: 'flex-end',
-    padding: 12,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
   },
   sheet: {
-    borderRadius: 20,
-    gap: 18,
-    padding: 20,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    elevation: 8,
+    paddingTop: 12,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.16,
+    shadowRadius: 10,
   },
   table: {
     gap: 14,

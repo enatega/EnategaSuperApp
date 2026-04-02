@@ -3,6 +3,7 @@ import { Dimensions, Pressable, ScrollView, StyleSheet, View } from 'react-nativ
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../../general/theme/theme';
+import BottomSheetHandle from '../../../../../general/components/BottomSheetHandle';
 import SwipeableBottomSheet from '../../../../../general/components/SwipeableBottomSheet';
 import Text from '../../../../../general/components/Text';
 import Icon from '../../../../../general/components/Icon';
@@ -124,8 +125,7 @@ function RideEstimateBottomSheet({
           shadowColor: colors.shadowColor,
         },
       ]}
-      handle={<View style={[styles.sheetHandle, { backgroundColor: colors.border }]} />}
-      handleContainerStyle={styles.handleContainer}
+      handle={<BottomSheetHandle color={colors.border} />}
     >
       <View style={styles.content}>
         {isLoading ? (
