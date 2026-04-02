@@ -3,15 +3,15 @@ import { StyleSheet, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../../../../general/theme/theme";
 import type {
-  ActiveOrderDeliveryDetails,
-  ActiveOrderSummary,
+  DeliveryOrderDeliveryDetails,
+  DeliveryOrderSummary,
 } from "../../../api/ordersServiceTypes";
 import OrderDetailsSummaryRow from "../orderDetails/OrderDetailsSummaryRow";
 import { formatCurrency } from "../../utils/orderDetails/orderDetailsUtils";
 
 type Props = {
-  deliveryDetails: ActiveOrderDeliveryDetails;
-  summary: ActiveOrderSummary;
+  deliveryDetails: DeliveryOrderDeliveryDetails;
+  summary: DeliveryOrderSummary;
 };
 
 export default function OrderSummaryContent({

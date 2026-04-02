@@ -14,8 +14,12 @@ import OrderDetailsLoadingSkeleton from "./OrderDetailsLoadingSkeleton";
 import OrderDetailsScheduledSection from "./OrderDetailsScheduledSection";
 import OrderDetailsStatusSection from "./OrderDetailsStatusSection";
 import ExtendableOrderSummary from "../orderSummary/ExtendableOrderSummary";
-import { TERMINAL_STATUSES } from "../../utils/orderDetails/orderDetailsUtils";
+import {
+  formatCurrency,
+} from "../../utils/orderDetails/orderDetailsUtils";
 import ExtendableOrderItems from "../orderItems/ExtendableOrderItems";
+import OrderDetailsSummaryRow from "./OrderDetailsSummaryRow";
+import OrderDetailsSection from "./OrderDetailsSection";
 
 type Props = {
   navigation: NativeStackNavigationProp<
@@ -48,7 +52,9 @@ export default function MainContainer({ navigation, orderId }: Props) {
   }
 
   const order = orderDetailsQuery.data;
-  const shouldShowRateOrder = order?.status === "delivered" || order?.status === "cancelled"
+  const shouldShowRateOrder = order.status === "delivered" || order.status === "cancelled"; // in just delivered and cancelled cases for the time being
+  const shouldShowTrackProgress = true; // in all cases for the time being
+  const shouldShowOrderAgain = true // in all cases for the time being
   const statusTone =
     order.status === "delivered"
       ? "success"
@@ -92,26 +98,29 @@ export default function MainContainer({ navigation, orderId }: Props) {
 
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-        <ExtendableOrderItems
-          orderItems={orderDetailsQuery.data.orderItems}
-          variant="tracking"
-        />
+        <ExtendableOrderItems orderItems={order.orderItems} />
 
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
         <ExtendableOrderSummary
           deliveryDetails={order.deliveryDetails}
-          layout="footer"
           summary={order.summary}
-          variant="details"
         />
 
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
+        <OrderDetailsSection title={t("order_details_payment_details")}>
+          <OrderDetailsSummaryRow
+            label={order.paymentMethod || "-"}
+            value={formatCurrency(order?.summary?.totalAmount)}
+          />
+        </OrderDetailsSection>
+
         <OrderDetailsActionsSection
           shouldShowRateOrder={shouldShowRateOrder}
+          shouldShowTrackProgress={shouldShowTrackProgress}
+          shouldShowOrderAgain={shouldShowOrderAgain}
           navigation={navigation}
-          onIncreaseTipPress={() => setIsIncreaseTipVisible(true)}
           orderId={order.orderId}
           paymentMethod={order.paymentMethod}
           storeName={order.store.name}
@@ -132,7 +141,6 @@ export default function MainContainer({ navigation, orderId }: Props) {
 
 const styles = StyleSheet.create({
   content: {
-    paddingBottom: 32,
     paddingHorizontal: 16,
   },
   divider: {

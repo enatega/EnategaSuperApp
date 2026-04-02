@@ -6,16 +6,14 @@ import type {
 import type { ApiError } from '../../../general/api/apiClient';
 import type {
   ActiveOrdersResponse,
+  DeliveryOrdersListParams,
   OrderDetailsResponse,
   PastOrdersResponse,
   ScheduledOrdersResponse,
 } from '../api/ordersServiceTypes';
 import { deliveryKeys } from '../api/queryKeys';
 
-export interface UsePastOrdersParams {
-  limit?: number;
-  search?: string;
-}
+export type UseOrderListParams = Pick<DeliveryOrdersListParams, 'limit' | 'search'>;
 
 export type UsePastOrdersOptions = Omit<
   UseInfiniteQueryOptions<

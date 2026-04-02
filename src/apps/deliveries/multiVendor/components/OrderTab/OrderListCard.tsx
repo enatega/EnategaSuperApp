@@ -3,11 +3,11 @@ import React from "react";
 import { Image, Pressable, StyleSheet, View } from "react-native";
 import Text from "../../../../../general/components/Text";
 import { useTheme } from "../../../../../general/theme/theme";
-import type { PastOrderItem } from "../../../api/ordersServiceTypes";
+import type { DeliveryOrderListItem } from "../../../api/ordersServiceTypes";
 
 type Props = {
-  order: PastOrderItem;
-  onPress?: (order: PastOrderItem) => void;
+  order: DeliveryOrderListItem;
+  onPress?: (order: DeliveryOrderListItem) => void;
   title?: string;
   statusLabel?: string;
   statusTone?: "warning" | "success" | "danger";

@@ -15,6 +15,9 @@ import OrderTrackingErrorState from "./OrderTrackingErrorState";
 import OrderTrackingInfoRow from "./OrderTrackingInfoRow";
 import OrderTrackingLoadingSkeleton from "./OrderTrackingLoadingSkeleton";
 import OrderTrackingTimelineSection from "./OrderTrackingTimelineSection";
+import OrderDetailsSection from "../orderDetails/OrderDetailsSection";
+import OrderDetailsSummaryRow from "../orderDetails/OrderDetailsSummaryRow";
+import { formatCurrency } from "../../utils/orderDetails/orderDetailsUtils";
 
 type Props = {
   navigation: NativeStackNavigationProp<
@@ -118,13 +121,24 @@ export default function MainContainer({ navigation, orderId }: Props) {
 
             <ExtendableOrderItems
               orderItems={orderDetailsQuery.data.orderItems}
-              variant="tracking"
             />
             <ExtendableOrderSummary
               deliveryDetails={orderDetailsQuery.data.deliveryDetails}
               summary={orderDetailsQuery.data.summary}
-              variant="tracking"
             />
+
+            <View
+              style={[styles.divider, { backgroundColor: colors.border }]}
+            />
+
+            <OrderDetailsSection title={t("order_details_payment_details")}>
+              <OrderDetailsSummaryRow
+                label={orderDetailsQuery?.data?.paymentMethod || "-"}
+                value={formatCurrency(
+                  orderDetailsQuery?.data?.summary?.totalAmount,
+                )}
+              />
+            </OrderDetailsSection>
           </ScrollView>
         </>
       )}
@@ -134,7 +148,6 @@ export default function MainContainer({ navigation, orderId }: Props) {
 
 const styles = StyleSheet.create({
   content: {
-    paddingBottom: 24,
     paddingHorizontal: 16,
   },
   divider: {

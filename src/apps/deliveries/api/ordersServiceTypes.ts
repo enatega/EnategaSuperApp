@@ -16,7 +16,7 @@ export type DeliveryOrderStatus =
   | "failed"
   | string;
 
-export interface PastOrderItem {
+export interface DeliveryOrderListItem {
   orderId: string;
   storeId: string;
   storeName: string;
@@ -27,13 +27,13 @@ export interface PastOrderItem {
   orderStatus: DeliveryOrderStatus;
 }
 
-export interface PastOrdersParams {
+export interface DeliveryOrdersListParams {
   offset?: number;
   limit?: number;
   search?: string;
 }
 
-export interface ActiveOrderStore {
+export interface DeliveryOrderStore {
   id: string;
   name: string;
   address: string | null;
@@ -42,7 +42,7 @@ export interface ActiveOrderStore {
   logo: string | null;
 }
 
-export interface ActiveOrderDeliveryDetails {
+export interface DeliveryOrderDeliveryDetails {
   label: string | null;
   address: string | null;
   latitude: number | null;
@@ -51,7 +51,7 @@ export interface ActiveOrderDeliveryDetails {
   storeLongitude: number | null;
 }
 
-export interface ActiveOrderRider {
+export interface DeliveryOrderRider {
   id?: string;
   name?: string | null;
   phone?: string | null;
@@ -61,7 +61,7 @@ export interface ActiveOrderRider {
   [key: string]: unknown;
 }
 
-export interface ActiveOrderProduct {
+export interface DeliveryOrderProduct {
   id?: string;
   productId?: string;
   name?: string | null;
@@ -73,15 +73,15 @@ export interface ActiveOrderProduct {
   note?: string | null;
   description?: string | null;
   specialInstructions?: string | null;
-  addons?: Array<ActiveOrderProductAddon | string> | null;
-  addOns?: Array<ActiveOrderProductAddon | string> | null;
-  modifiers?: Array<ActiveOrderProductAddon | string> | null;
-  options?: Array<ActiveOrderProductAddon | string> | null;
-  customizations?: Array<ActiveOrderProductAddon | string> | null;
+  addons?: Array<DeliveryOrderProductAddon | string> | null;
+  addOns?: Array<DeliveryOrderProductAddon | string> | null;
+  modifiers?: Array<DeliveryOrderProductAddon | string> | null;
+  options?: Array<DeliveryOrderProductAddon | string> | null;
+  customizations?: Array<DeliveryOrderProductAddon | string> | null;
   [key: string]: unknown;
 }
 
-export interface ActiveOrderProductAddon {
+export interface DeliveryOrderProductAddon {
   id?: string;
   name?: string | null;
   title?: string | null;
@@ -92,14 +92,14 @@ export interface ActiveOrderProductAddon {
   [key: string]: unknown;
 }
 
-export interface ActiveOrderItems {
+export interface DeliveryOrderItems {
   summaryLabel: string;
   additionalItemsCount: number;
   previewImages: string[];
-  products: ActiveOrderProduct[];
+  products: DeliveryOrderProduct[];
 }
 
-export interface ActiveOrderSummary {
+export interface DeliveryOrderSummary {
   orderNumber: string;
   itemSubtotal: number;
   discountAmount: number;
@@ -113,7 +113,7 @@ export interface ActiveOrderSummary {
   note: string | null;
 }
 
-export interface ActiveOrderTimelineItem {
+export interface DeliveryOrderTimelineItem {
   key: string;
   title: string;
   completedAt: string | null;
@@ -131,14 +131,14 @@ export interface OrderDetailsResponse {
   paymentStatus: string;
   orderedAt: string;
   scheduledAt: string | null;
-  store: ActiveOrderStore;
-  deliveryDetails: ActiveOrderDeliveryDetails;
-  rider: ActiveOrderRider | null;
-  orderItems: ActiveOrderItems;
-  summary: ActiveOrderSummary;
-  timeline: ActiveOrderTimelineItem[];
+  store: DeliveryOrderStore;
+  deliveryDetails: DeliveryOrderDeliveryDetails;
+  rider: DeliveryOrderRider | null;
+  orderItems: DeliveryOrderItems;
+  summary: DeliveryOrderSummary;
+  timeline: DeliveryOrderTimelineItem[];
 }
 
-export type PastOrdersResponse = PaginatedDeliveryResponse<PastOrderItem>;
-export type ActiveOrdersResponse = PaginatedDeliveryResponse<PastOrderItem>;
-export type ScheduledOrdersResponse = PaginatedDeliveryResponse<PastOrderItem>;
+export type ActiveOrdersResponse = PaginatedDeliveryResponse<DeliveryOrderListItem>;
+export type PastOrdersResponse = PaginatedDeliveryResponse<DeliveryOrderListItem>;
+export type ScheduledOrdersResponse = PaginatedDeliveryResponse<DeliveryOrderListItem>;

@@ -4,7 +4,7 @@ import { FlatList, Image, Pressable, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import Text from "../../../../../general/components/Text";
 import { useTheme } from "../../../../../general/theme/theme";
-import type { ActiveOrderItems } from "../../../api/ordersServiceTypes";
+import type { DeliveryOrderItems } from "../../../api/ordersServiceTypes";
 import OrderDetailsSection from "../orderDetails/OrderDetailsSection";
 import OrderDetailsProductCard from "../orderDetails/OrderDetailsProductCard";
 import { formatCurrency } from "../../utils/orderDetails/orderDetailsUtils";
@@ -16,14 +16,13 @@ import {
 import { styles } from "./ExtendableOrderItems.styles";
 
 type Props = {
-  orderItems: ActiveOrderItems;
-  variant: "details" | "tracking";
+  orderItems: DeliveryOrderItems;
 };
 
-export default function ExtendableOrderItems({ orderItems, variant }: Props) {
+export default function ExtendableOrderItems({ orderItems }: Props) {
   const { t } = useTranslation("deliveries");
   const { colors, typography } = useTheme();
-  const [isExpanded, setIsExpanded] = useState(variant === "details");
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const previewImages = useMemo(
     () => getOrderPreviewImages(orderItems),
@@ -94,14 +93,6 @@ export default function ExtendableOrderItems({ orderItems, variant }: Props) {
         {orderItems.summaryLabel || t("order_details_empty_items")}
       </Text>
     );
-
-  if (variant === "details") {
-    return (
-      <OrderDetailsSection title={t("order_details_items")}>
-        {detailsContent}
-      </OrderDetailsSection>
-    );
-  }
 
   return (
     <OrderDetailsSection title={t("order_details_items")}>

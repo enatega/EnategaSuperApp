@@ -1,8 +1,8 @@
 import apiClient from "../../../general/api/apiClient";
 import type {
   ActiveOrdersResponse,
+  DeliveryOrdersListParams,
   OrderDetailsResponse,
-  PastOrdersParams,
   PastOrdersResponse,
   ScheduledOrdersResponse,
 } from "./ordersServiceTypes";
@@ -11,7 +11,7 @@ const ORDERS_BASE = "/api/v1/apps/deliveries/orders";
 
 export const ordersService = {
   getActiveOrders: (
-    params: PastOrdersParams = {},
+    params: DeliveryOrdersListParams = {},
   ): Promise<ActiveOrdersResponse> =>
     apiClient.get<ActiveOrdersResponse>(ORDERS_BASE, {
       offset: params.offset ?? 0,
@@ -19,7 +19,9 @@ export const ordersService = {
       search: params.search,
     }),
 
-  getPastOrders: (params: PastOrdersParams = {}): Promise<PastOrdersResponse> =>
+  getPastOrders: (
+    params: DeliveryOrdersListParams = {},
+  ): Promise<PastOrdersResponse> =>
     apiClient.get<PastOrdersResponse>(`${ORDERS_BASE}/past`, {
       offset: params.offset ?? 0,
       limit: params.limit ?? 10,
@@ -27,7 +29,7 @@ export const ordersService = {
     }),
 
   getScheduledOrders: (
-    params: PastOrdersParams = {},
+    params: DeliveryOrdersListParams = {},
   ): Promise<ScheduledOrdersResponse> =>
     apiClient.get<ScheduledOrdersResponse>(`${ORDERS_BASE}/scheduled`, {
       offset: params.offset ?? 0,

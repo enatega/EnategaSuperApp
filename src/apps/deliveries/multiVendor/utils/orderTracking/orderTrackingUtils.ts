@@ -1,4 +1,4 @@
-import type { ActiveOrderTimelineItem } from "../../../api/ordersServiceTypes";
+import type { DeliveryOrderTimelineItem } from "../../../api/ordersServiceTypes";
 
 export function formatTrackingEta(
   estimatedDeliveryTime: number | string | null | undefined,
@@ -47,7 +47,7 @@ export function formatCompletedTime(completedAt: string | null | undefined) {
   }).format(date);
 }
 
-export function getTimelineTone(item: ActiveOrderTimelineItem) {
+export function getTimelineTone(item: DeliveryOrderTimelineItem) {
   if (item.completed) {
     return "completed" as const;
   }

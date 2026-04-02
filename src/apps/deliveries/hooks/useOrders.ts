@@ -15,15 +15,15 @@ import type {
 import type {
   UseActiveOrdersOptions,
   UseOrderDetailsOptions,
+  UseOrderListParams,
   UsePastOrdersOptions,
-  UsePastOrdersParams,
   UseScheduledOrdersOptions,
 } from "./useOrdersTypes";
 
 const DEFAULT_ORDERS_LIMIT = 10;
 
 export function useActiveOrders(
-  params?: UsePastOrdersParams,
+  params?: UseOrderListParams,
   options?: UseActiveOrdersOptions,
 ) {
   const limit = params?.limit ?? DEFAULT_ORDERS_LIMIT;
@@ -52,7 +52,7 @@ export function useActiveOrders(
 }
 
 export function usePastOrders(
-  params?: UsePastOrdersParams,
+  params?: UseOrderListParams,
   options?: UsePastOrdersOptions,
 ) {
   const limit = params?.limit ?? DEFAULT_ORDERS_LIMIT;
@@ -81,7 +81,7 @@ export function usePastOrders(
 }
 
 export function useScheduledOrders(
-  params?: UsePastOrdersParams,
+  params?: UseOrderListParams,
   options?: UseScheduledOrdersOptions,
 ) {
   const limit = params?.limit ?? DEFAULT_ORDERS_LIMIT;

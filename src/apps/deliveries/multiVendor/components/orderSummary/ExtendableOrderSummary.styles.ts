@@ -15,9 +15,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     marginRight: 16,
   },
-  note: {
-    marginTop: 0,
-  },
   rightContent: {
     alignItems: "center",
     flexDirection: "row",

@@ -1,10 +1,10 @@
 import type {
-  ActiveOrderItems,
-  ActiveOrderProduct,
-  ActiveOrderProductAddon,
+  DeliveryOrderItems,
+  DeliveryOrderProduct,
+  DeliveryOrderProductAddon,
 } from "../../../api/ordersServiceTypes";
 
-export function getProductAddonLines(product: ActiveOrderProduct) {
+export function getProductAddonLines(product: DeliveryOrderProduct) {
   const addonCollections = [
     product.addons,
     product.addOns,
@@ -22,7 +22,7 @@ export function getProductAddonLines(product: ActiveOrderProduct) {
   );
 }
 
-export function getOrderPreviewImages(orderItems: ActiveOrderItems) {
+export function getOrderPreviewImages(orderItems: DeliveryOrderItems) {
   const previewImages = orderItems.previewImages.filter(Boolean);
 
   if (previewImages.length > 0) {
@@ -35,7 +35,7 @@ export function getOrderPreviewImages(orderItems: ActiveOrderItems) {
     .slice(0, 3);
 }
 
-export function getRemainingOrderItemsCount(orderItems: ActiveOrderItems) {
+export function getRemainingOrderItemsCount(orderItems: DeliveryOrderItems) {
   if (orderItems.additionalItemsCount > 0) {
     return orderItems.additionalItemsCount;
   }
@@ -43,7 +43,7 @@ export function getRemainingOrderItemsCount(orderItems: ActiveOrderItems) {
   return Math.max(orderItems.products.length - getOrderPreviewImages(orderItems).length, 0);
 }
 
-function formatAddonLine(item: ActiveOrderProductAddon | string) {
+function formatAddonLine(item: DeliveryOrderProductAddon | string) {
   if (typeof item === "string") {
     const trimmedItem = item.trim();
     return trimmedItem.length > 0 ? trimmedItem : null;

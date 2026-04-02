@@ -1,9 +1,11 @@
 import React from "react";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { FlatList, StyleSheet, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useNavigation } from "@react-navigation/native";
 import type { SvgName } from "../../../components/Svg";
-import type { PastOrderItem } from "../../../api/ordersServiceTypes";
+import type { DeliveryOrderListItem } from "../../../api/ordersServiceTypes";
+import type { MultiVendorStackParamList } from "../../navigation/types";
 import EmptyOrdersSection from "./EmptyOrdersSection";
 import OrderListCard from "./OrderListCard";
 import OrderListErrorState from "./OrderListErrorState";
@@ -14,7 +16,7 @@ import { useTheme } from "../../../../../general/theme/theme";
 
 type Props = {
   variant: "active" | "past" | "scheduled";
-  orders: PastOrderItem[];
+  orders: DeliveryOrderListItem[];
   isLoading: boolean;
   isError: boolean;
   isRetrying: boolean;
@@ -42,7 +44,8 @@ const OrdersListSection = ({
   titleWeight = "extraBold",
 }: Props) => {
   const { t } = useTranslation("deliveries");
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<MultiVendorStackParamList>>();
   const { colors, typography } = useTheme();
 
   if (isLoading) {
@@ -60,9 +63,9 @@ const OrdersListSection = ({
     );
   }
 
-  const handleOrderPress = (order: PastOrderItem) => {
-    (navigation as any).navigate("OrderDetailsScreen", {
-      orderId: order?.orderId,
+  const handleOrderPress = (order: DeliveryOrderListItem) => {
+    navigation.navigate("OrderDetailsScreen", {
+      orderId: order.orderId,
     });
   };
   return (
@@ -163,7 +166,7 @@ const getEmptyDescription = (
 };
 
 const getStatusLabel = (
-  item: PastOrderItem,
+  item: DeliveryOrderListItem,
   variant: Props["variant"],
   t: (key: string) => string,
 ) => {
@@ -180,7 +183,10 @@ const getStatusLabel = (
   }
 };
 
-const getStatusTone = (item: PastOrderItem, variant: Props["variant"]) => {
+const getStatusTone = (
+  item: DeliveryOrderListItem,
+  variant: Props["variant"],
+) => {
   switch (variant) {
     case "active":
     case "scheduled":

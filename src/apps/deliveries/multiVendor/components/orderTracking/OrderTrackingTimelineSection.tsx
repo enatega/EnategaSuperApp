@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import type { ActiveOrderTimelineItem } from "../../../api/ordersServiceTypes";
+import type { DeliveryOrderTimelineItem } from "../../../api/ordersServiceTypes";
 import {
   formatCompletedTime,
   getTimelineTone,
@@ -8,7 +8,7 @@ import {
 import OrderTrackingTimelineItem from "./OrderTrackingTimelineItem";
 
 type Props = {
-  timeline: ActiveOrderTimelineItem[];
+  timeline: DeliveryOrderTimelineItem[];
 };
 
 export default function OrderTrackingTimelineSection({ timeline }: Props) {

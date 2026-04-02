@@ -5,8 +5,8 @@ import { useTranslation } from "react-i18next";
 import Text from "../../../../../general/components/Text";
 import { useTheme } from "../../../../../general/theme/theme";
 import type {
-  ActiveOrderDeliveryDetails,
-  ActiveOrderSummary,
+  DeliveryOrderDeliveryDetails,
+  DeliveryOrderSummary,
 } from "../../../api/ordersServiceTypes";
 import OrderDetailsSection from "../orderDetails/OrderDetailsSection";
 import { formatCurrency } from "../../utils/orderDetails/orderDetailsUtils";
@@ -14,41 +14,20 @@ import OrderSummaryContent from "./OrderSummaryContent";
 import { styles } from "./ExtendableOrderSummary.styles";
 
 type Props = {
-  deliveryDetails: ActiveOrderDeliveryDetails;
-  summary: ActiveOrderSummary;
-  variant: "details" | "tracking";
-  layout?: "inline" | "footer";
+  deliveryDetails: DeliveryOrderDeliveryDetails;
+  summary: DeliveryOrderSummary;
 };
 
 export default function ExtendableOrderSummary({
   deliveryDetails,
   summary,
-  variant,
-  layout,
 }: Props) {
   const { t } = useTranslation("deliveries");
   const { colors, typography } = useTheme();
-  const resolvedLayout =
-    layout ?? (variant === "tracking" ? "footer" : "inline");
-  const [isExpanded, setIsExpanded] = useState(resolvedLayout === "inline");
-  const title =
-    variant === "tracking"
-      ? t("order_tracking_summary")
-      : t("order_details_summary");
+  const [isExpanded, setIsExpanded] = useState(false);
+  const title = t("order_details_summary");
   const note =
-    summary.note ||
-    (variant === "tracking" ? t("order_tracking_summary_note") : null);
-
-  if (resolvedLayout === "inline") {
-    return (
-      <OrderDetailsSection subtitle={note} title={title}>
-        <OrderSummaryContent
-          deliveryDetails={deliveryDetails}
-          summary={summary}
-        />
-      </OrderDetailsSection>
-    );
-  }
+    summary.note || t("order_tracking_summary_note");
 
   return (
     <OrderDetailsSection title={title}>
@@ -60,13 +39,12 @@ export default function ExtendableOrderSummary({
           styles.footer,
           {
             backgroundColor: colors.background,
-            borderColor: colors.border,
           },
         ]}
       >
         <View style={styles.leftContent}>
           {note ? (
-            <Text color={colors.mutedText} style={styles.note} weight="medium">
+            <Text color={colors.mutedText} weight="medium">
               {note}
             </Text>
           ) : null}
