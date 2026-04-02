@@ -2,6 +2,7 @@ import React, { memo, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import BottomSheetHandle from '../../../../../general/components/BottomSheetHandle';
 import SwipeableBottomSheet from '../../../../../general/components/SwipeableBottomSheet';
 import Button from '../../../../../general/components/Button';
 import Icon from '../../../../../general/components/Icon';
@@ -109,8 +110,7 @@ function RideScheduleBottomSheet({
             shadowColor: colors.shadowColor,
           },
         ]}
-        handle={<View style={[styles.handle, { backgroundColor: colors.border }]} />}
-        handleContainerStyle={styles.handleContainer}
+        handle={<BottomSheetHandle color={colors.border} />}
       >
         <View style={styles.header}>
           <View style={styles.headerSpacer} />

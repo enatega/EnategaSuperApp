@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import BottomSheetHandle from '../../../../general/components/BottomSheetHandle';
 import Text from '../../../../general/components/Text';
 import SwipeableBottomSheet from '../../../../general/components/SwipeableBottomSheet';
 import { useTheme } from '../../../../general/theme/theme';
@@ -52,8 +53,7 @@ export default function SupportAdminPickerBottomSheet({
             onClose();
           }
         }}
-        handle={<View style={[styles.handle, { backgroundColor: colors.border }]} />}
-        handleContainerStyle={styles.handleContainer}
+        handle={<BottomSheetHandle color={colors.border} />}
         style={[
           styles.sheet,
           {

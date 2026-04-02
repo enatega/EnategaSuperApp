@@ -6,6 +6,7 @@ import {
   View,
 } from "react-native";
 import Button from "../../../../../../general/components/Button";
+import BottomSheetHandle from "../../../../../../general/components/BottomSheetHandle";
 import Icon from "../../../../../../general/components/Icon";
 import Text from "../../../../../../general/components/Text";
 import SwipeableBottomSheet from "../../../../../../general/components/SwipeableBottomSheet";
@@ -50,18 +51,7 @@ export default function MapStoreBottomSheet({
           shadowColor: colors.shadowColor,
         },
       ]}
-      handle={
-        <View style={styles.handleArea}>
-          <View
-            style={[
-              styles.handle,
-              {
-                backgroundColor: colors.border,
-              },
-            ]}
-          />
-        </View>
-      }
+      handle={<BottomSheetHandle color={colors.border} />}
     >
       <View style={styles.content}>
         <View style={styles.headerRow}>

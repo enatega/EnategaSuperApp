@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CartSelectionInput } from "../../api/cartServiceTypes";
+import { isCustomizationSectionRequired } from "../../cart/cartCustomizationRules";
 import type { ProductInfoCustomizationSection } from "../../api/productInfoServiceTypes";
 
 export type ProductSelectionOption = {
@@ -12,6 +13,7 @@ export type ProductSelectionOption = {
 export type ProductSelectionSection = {
   groupId: string;
   helperText: string | null;
+  isMarkedRequired: boolean;
   label: string;
   required: boolean;
   selectionType: "single" | "multiple";
@@ -27,8 +29,9 @@ const buildSelectableSections = (
   sections.map((section) => ({
     groupId: section.groupId,
     helperText: section.helperText,
+    isMarkedRequired: section.required,
     label: section.name,
-    required: section.required,
+    required: isCustomizationSectionRequired(section),
     selectionType: normalizeSelectionType(section.selectionType),
     options: section.options.map((option) => ({
       optionId: option.optionId,

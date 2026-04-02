@@ -10,7 +10,6 @@ import type { StoreCardScrollerProps } from "./types";
 const StoreCardScroller = ({
   stores,
   onSeeAllPress,
-  onStorePress,
   onLoadMore,
   isLoadingMore,
 }: StoreCardScrollerProps) => {
@@ -49,18 +48,7 @@ const StoreCardScroller = ({
       <FlatList
         data={stores}
         renderItem={({ item }) => (
-          <StoreCard
-            layout="fullWidth"
-            imageUrl={item.coverImage}
-            name={item.name}
-            rating={item.averageRating}
-            reviewCount={item.reviewCount}
-            cuisine={item.shopTypeName}
-            price={item.baseFee}
-            deliveryTime={parseFloat(item.deliveryTime) || 0}
-            distance={item.distanceKm}
-            onPress={() => onStorePress?.(item)}
-          />
+          <StoreCard layout="fullWidth" store={item} />
         )}
         keyExtractor={(item) => item.storeId}
         showsVerticalScrollIndicator={false}

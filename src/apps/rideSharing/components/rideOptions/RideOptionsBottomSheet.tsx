@@ -3,6 +3,7 @@ import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
+import BottomSheetHandle from '../../../../general/components/BottomSheetHandle';
 import SwipeableBottomSheet from '../../../../general/components/SwipeableBottomSheet';
 import MapCurrentLocationButton from '../../../../general/components/MapCurrentLocationButton';
 import Icon from '../../../../general/components/Icon';
@@ -84,8 +85,7 @@ function RideOptionsBottomSheet({
           shadowColor: colors.shadowColor,
         },
       ]}
-      handle={<View style={[styles.sheetHandle, { backgroundColor: colors.border }]} />}
-      handleContainerStyle={styles.handleContainer}
+      handle={<BottomSheetHandle color={colors.border} />}
     >
       {isLoadingRideTypes ? (
         <RideOptionsBottomSheetSkeleton />

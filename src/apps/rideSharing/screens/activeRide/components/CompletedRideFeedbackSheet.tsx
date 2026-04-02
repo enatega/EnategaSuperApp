@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import BottomSheetHandle from '../../../../../general/components/BottomSheetHandle';
 import SwipeableBottomSheet from '../../../../../general/components/SwipeableBottomSheet';
 import Text from '../../../../../general/components/Text';
 import Image from '../../../../../general/components/Image';
@@ -79,8 +80,7 @@ function CompletedRideFeedbackSheet({
             shadowColor: colors.shadowColor,
           },
         ]}
-        handleContainerStyle={styles.handleContainer}
-        handle={<View style={[styles.handle, { backgroundColor: colors.findingRideHandle }]} />}
+        handle={<BottomSheetHandle color={colors.findingRideHandle} />}
       >
         <View style={[styles.content, { paddingBottom: insets.bottom + 18 }]}>
           <Text weight="extraBold" style={[styles.title, { color: colors.text }]}>

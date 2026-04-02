@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
@@ -8,7 +8,9 @@ type Props = {
   typeLabel: string;
   address: string | null | undefined;
   iconName: keyof typeof Ionicons.glyphMap;
+  isDisabled?: boolean;
   isSelected?: boolean;
+  isSelecting?: boolean;
   onPress?: () => void;
   onMenuPress?: () => void;
 };
@@ -17,7 +19,9 @@ export default function MyProfileAddressCard({
   typeLabel,
   address,
   iconName,
+  isDisabled = false,
   isSelected = false,
+  isSelecting = false,
   onPress,
   onMenuPress,
 }: Props) {
@@ -27,14 +31,15 @@ export default function MyProfileAddressCard({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={address || typeLabel}
+      accessibilityState={{ busy: isSelecting, disabled: !onPress || isDisabled, selected: isSelected }}
       onPress={onPress}
-      disabled={!onPress}
+      disabled={!onPress || isDisabled}
       style={({ pressed }) => [
         styles.card,
         {
           backgroundColor: isSelected ? colors.blue50 : colors.surface,
           borderColor: isSelected ? colors.primary : colors.border,
-          opacity: pressed && onPress ? 0.9 : 1,
+          opacity: isDisabled ? 0.65 : pressed && onPress ? 0.9 : 1,
         },
       ]}
     >
@@ -55,7 +60,9 @@ export default function MyProfileAddressCard({
             {address || '—'}
           </Text>
         </View>
-        {onMenuPress ? (
+        {isSelecting ? (
+          <ActivityIndicator color={colors.primary} size="small" />
+        ) : onMenuPress ? (
           <Pressable
             onPress={onMenuPress}
             accessibilityRole="button"
@@ -68,6 +75,8 @@ export default function MyProfileAddressCard({
           >
             <Ionicons name="ellipsis-vertical" size={18} color={colors.mutedText} />
           </Pressable>
+        ) : isSelected ? (
+          <Ionicons name="checkmark" size={22} color={colors.primary} />
         ) : null}
       </View>
     </Pressable>

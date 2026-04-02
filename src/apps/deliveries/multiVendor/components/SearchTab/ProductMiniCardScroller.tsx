@@ -2,10 +2,9 @@ import React from "react";
 import { StyleSheet, View, FlatList, TouchableOpacity } from "react-native";
 import { useTheme } from "../../../../../general/theme/theme";
 import Text from "../../../../../general/components/Text";
-import ProductMiniCard from "../../../components/ProductMiniCard";
+import ProductCard from "../../../components/productCard/ProductCard";
 import { useTranslation } from "react-i18next";
 import { typography } from "../../../../../general/theme/typography";
-import { mapSearchProductToProductActionTarget } from "../../../cart/productActionMappers";
 import type { ProductMiniCardScrollerProps } from "./types";
 
 const ProductMiniCardScroller = ({
@@ -50,13 +49,10 @@ const ProductMiniCardScroller = ({
       <FlatList
         data={products}
         renderItem={({ item }) => (
-          <ProductMiniCard
-            title={item.productName}
-            imageUri={item.productImage}
-            productAction={{
-              target: mapSearchProductToProductActionTarget(item),
-              onOpenProduct: () => onProductPress?.(item),
-            }}
+          <ProductCard
+            product={item}
+            variant="mini"
+            onPress={onProductPress ? () => onProductPress(item) : undefined}
           />
         )}
         keyExtractor={(item) => item.productId}

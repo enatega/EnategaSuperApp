@@ -400,6 +400,8 @@ const fr = {
   choose_size: 'Choisir la taille',
   choose_variation: 'Choisir la variation',
   select_one: 'Sélectionnez-en un',
+  required_label: 'Obligatoire',
+  optional_label: 'Optionnel',
   small: 'Petit',
   medium: 'Moyen',
   large: 'Grand',

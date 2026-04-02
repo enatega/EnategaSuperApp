@@ -6,10 +6,9 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
 import type { DeliveryShopTypeProduct } from '../../../api/types';
-import { mapShopTypeProductToProductActionTarget } from '../../../cart/productActionMappers';
 import ShopTypeCardSkeleton from './HomeTabSkeletons/ShopTypeCardSkeleton';
+import ProductCard from '../../../components/productCard/ProductCard';
 import type { MultiVendorStackParamList } from '../../navigation/types';
-import ShopTypeProductCard from './ShopTypeProductCard';
 import HomeSectionState from './HomeSectionState';
 
 type Props = {
@@ -68,13 +67,10 @@ export default function ShopTypeProductList({
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           renderItem={({ item }) => (
-            <ShopTypeProductCard
+            <ProductCard
               product={item}
-              productAction={{
-                target: mapShopTypeProductToProductActionTarget(item),
-                onOpenProduct: (target) =>
-                  navigation.navigate('ProductInfo', { productId: target.productId }),
-              }}
+              variant="rail"
+              onPress={() => navigation.navigate('ProductInfo', { productId: item.productId })}
             />
           )}
         />

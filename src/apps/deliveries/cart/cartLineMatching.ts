@@ -46,6 +46,12 @@ export function getMatchingCartItemQuantity(
   return findMatchingCartItem(items, product)?.quantity ?? 0;
 }
 
+export function getCartProductQuantity(items: CartItem[], productId: string) {
+  return items.reduce((total, item) => (
+    item.productId === productId ? total + item.quantity : total
+  ), 0);
+}
+
 export function hasCartStoreConflict(cartStoreId: string | null, storeId: string | null) {
   if (!cartStoreId || !storeId) {
     return false;

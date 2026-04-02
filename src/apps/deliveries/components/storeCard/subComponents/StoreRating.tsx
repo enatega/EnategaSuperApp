@@ -17,11 +17,14 @@ export default function StoreRating({
   cuisine,
 }: StoreRatingProps) {
   const { colors } = useTheme();
+  const hasRating = rating != null;
+  const hasReviewCount = reviewCount != null;
+  const hasCuisine = Boolean(cuisine);
 
   return (
     <View style={[styles.row, { justifyContent: "space-between" }]}>
       <View style={styles.row}>
-        {rating && (
+        {hasRating && (
           <View style={styles.ratingContainer}>
             <Icon
               type="AntDesign"
@@ -38,7 +41,7 @@ export default function StoreRating({
           </View>
         )}
 
-        {reviewCount && (
+        {hasReviewCount && (
           <Text
             weight="regular"
             style={[
@@ -55,7 +58,7 @@ export default function StoreRating({
         )}
       </View>
 
-      {cuisine && (
+      {hasCuisine && (
         <Text
           weight="medium"
           color={colors.mutedText}

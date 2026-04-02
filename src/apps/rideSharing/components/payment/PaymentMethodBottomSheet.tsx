@@ -8,6 +8,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
+import BottomSheetHandle from '../../../../general/components/BottomSheetHandle';
 import SwipeableBottomSheet from '../../../../general/components/SwipeableBottomSheet';
 import Text from '../../../../general/components/Text';
 import Icon from '../../../../general/components/Icon';
@@ -94,8 +95,7 @@ function PaymentMethodBottomSheet({
             shadowColor: colors.shadowColor,
           },
         ]}
-        handle={<View style={[styles.handle, { backgroundColor: colors.border }]} />}
-        handleContainerStyle={styles.handleContainer}
+        handle={<BottomSheetHandle color={colors.border} />}
       >
 
         {mode === 'list' ? (

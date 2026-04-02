@@ -37,7 +37,7 @@ export default function MyProfileScreen() {
     clearSelectedAddress,
     selectedAddress,
   } = useAddress();
-  const { selectSavedAddress } = useSelectSavedAddress();
+  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress();
   const isSelectionMode = route.params?.selectionMode ?? false;
 
   const handleUploadComplete = () => {
@@ -169,6 +169,7 @@ export default function MyProfileScreen() {
                 onAddAddress={handleAddAddress}
                 onAddressMenuPress={setAddressMenuTarget}
                 onSelectAddress={handleSelectAddress}
+                selectingAddressId={selectingAddressId}
                 selectedAddressId={selectedAddress?.id}
               />
             </View>

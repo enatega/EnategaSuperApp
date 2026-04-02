@@ -7,21 +7,20 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import PagerView, { type PagerViewOnPageSelectedEvent } from 'react-native-pager-view';
+import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../../../../general/theme/theme';
 import type {
   DeliveryStoreDetailsFilterItem,
   DeliveryStoreDetailsProduct,
 } from '../../../api/types';
-import { mapStoreDetailsProductToProductActionTarget } from '../../../cart/productActionMappers';
 import ListStateView from '../../../components/filterablePaginatedList/ListStateView';
+import ProductCard from '../../../components/productCard/ProductCard';
 import {
   buildStoreDetailCategoryIds,
   getStoreDetailCategoryIdAtPageIndex,
   getStoreDetailCategoryPageIndex,
 } from '../../hooks/useStoreDetailPager';
-import StoreDetailMenuCard from './StoreDetailMenuCard';
 import StoreDetailMenuCardSkeleton from './StoreDetailMenuCardSkeleton';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
 
 const STORE_DETAIL_PRODUCT_SKELETON_ITEMS = Array.from({ length: 4 }, (_, index) => ({
   id: `store-detail-product-skeleton-${index}`,
@@ -79,7 +78,6 @@ export default function StoreDetailProductsList({
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const { width } = useWindowDimensions();
-  const navigation = useNavigation();
   const pagerViewRef = React.useRef<PagerView>(null);
   const [pageHeights, setPageHeights] = React.useState<Record<string, number>>({});
   const pageCategoryIds = React.useMemo(
@@ -188,10 +186,6 @@ export default function StoreDetailProductsList({
     [],
   );
 
-  const HandleCardPress = React.useCallback((id: string) => {
-    (navigation as any).navigate('ProductInfo', {productId:id})
-  }, []);
-
   return (
     <PagerView
       initialPage={activePageIndex}
@@ -224,20 +218,11 @@ export default function StoreDetailProductsList({
                     isStoreDetailSkeletonItem(item) ? (
                       <StoreDetailMenuCardSkeleton key={item.id} />
                     ) : (
-                      <StoreDetailMenuCard
-                        item={item}
+                      <ProductCard
+                        product={item}
                         key={item.id}
-                        onPress={HandleCardPress}
-                        productAction={{
-                          target: mapStoreDetailsProductToProductActionTarget({
-                            product: item,
-                            storeId,
-                          }),
-                          onOpenProduct: (target) =>
-                            (navigation as any).navigate('ProductInfo', {
-                              productId: target.productId,
-                            }),
-                        }}
+                        storeId={storeId}
+                        variant="storeMenu"
                       />
                     ),
                   )}

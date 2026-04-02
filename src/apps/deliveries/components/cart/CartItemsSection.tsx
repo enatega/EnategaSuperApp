@@ -11,8 +11,7 @@ type Props = {
   isUpdatingItemId?: string | null;
   items: CartItem[];
   onAddMorePress: () => void;
-  onDecrementItem: (itemId: string) => void;
-  onIncrementItem: (itemId: string) => void;
+  onSetItemQuantity: (itemId: string, quantity: number) => Promise<void>;
   onRemoveItem: (itemId: string) => void;
 };
 
@@ -20,8 +19,7 @@ export default function CartItemsSection({
   isUpdatingItemId,
   items,
   onAddMorePress,
-  onDecrementItem,
-  onIncrementItem,
+  onSetItemQuantity,
   onRemoveItem,
 }: Props) {
   const { colors, typography } = useTheme();
@@ -46,8 +44,7 @@ export default function CartItemsSection({
             key={item.id}
             isUpdating={isUpdatingItemId === item.id}
             item={item}
-            onDecrement={() => onDecrementItem(item.id)}
-            onIncrement={() => onIncrementItem(item.id)}
+            onSetQuantity={(quantity) => onSetItemQuantity(item.id, quantity)}
             onRemove={() => onRemoveItem(item.id)}
           />
         ))}
