@@ -3,15 +3,18 @@ import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
-import { useShopTypeProductsSections, useShopTypes } from '../../../hooks';
+import {
+  useShopTypeStoresSections,
+  useShopTypes,
+} from '../../../hooks';
 import ShopTypeCardSkeleton from './HomeTabSkeletons/ShopTypeCardSkeleton';
 import MultiVendorShopTypeCard from './ShopTypeCard';
-import ShopTypeProductList from './ShopTypeProductList';
+import ShopTypeStoreList from './ShopTypeStoreList';
 
 export default function ShopTypeList() {
   const { t } = useTranslation('deliveries');
   const { data: shopTypes = [], isPending } = useShopTypes();
-  const shopTypeProductSections = useShopTypeProductsSections(shopTypes);
+  const shopTypeStoreSections = useShopTypeStoresSections(shopTypes);
 
   return (
     <View style={styles.section}>
@@ -37,14 +40,14 @@ export default function ShopTypeList() {
         />
       )}
 
-      {shopTypeProductSections.map(
-        ({ shopType, data = [], error, isPending: isProductsPending }) => (
-          <ShopTypeProductList
+      {shopTypeStoreSections.map(
+        ({ shopType, data = [], error, isPending: isStoresPending }) => (
+          <ShopTypeStoreList
             key={shopType.id}
             errorMessage={error?.message}
-            isLoading={isProductsPending}
-            products={data}
+            isLoading={isStoresPending}
             shopTypeId={shopType.id}
+            stores={data}
             title={shopType.name}
           />
         ),

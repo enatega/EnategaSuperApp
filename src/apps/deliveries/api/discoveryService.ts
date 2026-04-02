@@ -22,6 +22,8 @@ import type {
     DeliveryShopTypeProduct,
     DeliveryShopTypeProductsApiResponse,
     DeliveryShopTypeProductsParams,
+    DeliveryShopTypeStoresApiResponse,
+    DeliveryShopTypeStoresParams,
     DeliveryShopTypesApiResponse,
     DeliveryShopTypesParams,
     PaginatedDeliveryResponse,
@@ -49,6 +51,11 @@ const SHOP_TYPE_PRODUCTS_DEFAULTS = {
     limit: 5,
 } as const;
 
+const SHOP_TYPE_STORES_DEFAULTS = {
+    offset: 0,
+    limit: 10,
+} as const;
+
 function toShopTypeProductsQueryParams(
     params: DeliveryShopTypeProductsParams,
 ): Record<string, unknown> {
@@ -58,6 +65,36 @@ function toShopTypeProductsQueryParams(
         search = '',
         latitude = NEARBY_STORES_DEFAULTS.latitude,
         longitude = NEARBY_STORES_DEFAULTS.longitude,
+        stock,
+        category_ids,
+        subcategory_id,
+        price_tiers,
+        sort_by,
+    } = params;
+
+    return {
+        offset,
+        limit,
+        search,
+        latitude,
+        longitude,
+        stock,
+        category_ids,
+        subcategory_id,
+        price_tiers,
+        sort_by,
+    };
+}
+
+function toShopTypeStoresQueryParams(
+    params: DeliveryShopTypeStoresParams,
+): Record<string, unknown> {
+    const {
+        offset = SHOP_TYPE_STORES_DEFAULTS.offset,
+        limit = SHOP_TYPE_STORES_DEFAULTS.limit,
+        search,
+        latitude,
+        longitude,
         stock,
         category_ids,
         subcategory_id,
@@ -307,6 +344,42 @@ export const discoveryService = {
             return toPaginatedResponse(response, { offset, limit });
         } catch (error) {
             console.error('shop type products request failed', error);
+            throw error;
+        }
+    },
+
+    /** Fetch stores for a specific shop type in deliveries discovery. */
+    getShopTypeStores: async (
+        params: DeliveryShopTypeStoresParams,
+    ): Promise<DeliveryNearbyStore[]> => {
+        const response = await discoveryService.getShopTypeStoresPage(params);
+        return response.items;
+    },
+
+    /** Fetch paginated stores for a specific shop type in deliveries discovery. */
+    getShopTypeStoresPage: async (
+        params: DeliveryShopTypeStoresParams,
+    ): Promise<PaginatedDeliveryResponse<DeliveryNearbyStore>> => {
+        const { shopTypeId } = params;
+        const queryParams = toShopTypeStoresQueryParams(params);
+        const offset =
+            typeof queryParams.offset === 'number'
+                ? queryParams.offset
+                : SHOP_TYPE_STORES_DEFAULTS.offset;
+        const limit =
+            typeof queryParams.limit === 'number'
+                ? queryParams.limit
+                : SHOP_TYPE_STORES_DEFAULTS.limit;
+
+        try {
+            const response = await apiClient.get<DeliveryShopTypeStoresApiResponse>(
+                `/api/v1/apps/deliveries/discovery/shop-types/${shopTypeId}/stores`,
+                queryParams,
+            );
+
+            return toPaginatedResponse(response, { offset, limit });
+        } catch (error) {
+            console.error('shop type stores request failed', error);
             throw error;
         }
     },
