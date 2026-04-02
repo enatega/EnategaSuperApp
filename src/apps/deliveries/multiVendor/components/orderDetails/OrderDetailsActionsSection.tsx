@@ -14,10 +14,9 @@ type Props = {
     MultiVendorStackParamList,
     "OrderDetailsScreen"
   >;
-  isScheduledOrder: boolean;
+  shouldShowRateOrder: boolean;
   orderId: string;
   paymentMethod: string;
-  showTrackProgress: boolean;
   storeName: string;
   summary: ActiveOrderSummary;
   onIncreaseTipPress: () => void;
@@ -25,10 +24,9 @@ type Props = {
 
 export default function OrderDetailsActionsSection({
   navigation,
-  isScheduledOrder,
+  shouldShowRateOrder,
   orderId,
   paymentMethod,
-  showTrackProgress,
   storeName,
   summary,
   onIncreaseTipPress,
@@ -43,7 +41,7 @@ export default function OrderDetailsActionsSection({
         value={formatCurrency(summary.totalAmount)}
       />
 
-      {!isScheduledOrder ? (
+      {shouldShowRateOrder ? (
         <Button
           label={t("order_details_rate_order")}
           onPress={() => {
@@ -59,7 +57,8 @@ export default function OrderDetailsActionsSection({
           }}
         />
       ) : null}
-      <Button
+      {/* Todo: can show the increase tip section in future */}
+      {/* <Button
         label={t("order_details_increase_tip")}
         onPress={onIncreaseTipPress}
         style={{
@@ -67,19 +66,15 @@ export default function OrderDetailsActionsSection({
           backgroundColor: colors.blue100,
           borderColor: colors.blue100,
         }}
+      /> */}
+      <Button
+        label={t("order_details_track_progress")}
+        onPress={() => navigation.navigate("OrderTrackingScreen", { orderId })}
       />
-      {showTrackProgress ? (
-        <Button
-          label={t("order_details_track_progress")}
-          onPress={() => navigation.navigate("OrderTrackingScreen", { orderId })}
-        />
-      ) : null}
-      {isScheduledOrder ? (
-        <Button
-          label={t("order_details_order_again")}
-          onPress={() => undefined}
-        />
-      ) : null}
+      <Button
+        label={t("order_details_order_again")}
+        onPress={() => undefined}
+      />
     </OrderDetailsSection>
   );
 }

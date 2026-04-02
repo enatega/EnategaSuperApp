@@ -48,8 +48,7 @@ export default function MainContainer({ navigation, orderId }: Props) {
   }
 
   const order = orderDetailsQuery.data;
-  const showTrackProgress = !TERMINAL_STATUSES.has(order.status);
-  const isScheduledOrder = order.status === "scheduled";
+  const shouldShowRateOrder = order?.status === "delivered" || order?.status === "cancelled"
   const statusTone =
     order.status === "delivered"
       ? "success"
@@ -110,12 +109,11 @@ export default function MainContainer({ navigation, orderId }: Props) {
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
         <OrderDetailsActionsSection
-          isScheduledOrder={isScheduledOrder}
+          shouldShowRateOrder={shouldShowRateOrder}
           navigation={navigation}
           onIncreaseTipPress={() => setIsIncreaseTipVisible(true)}
           orderId={order.orderId}
           paymentMethod={order.paymentMethod}
-          showTrackProgress={showTrackProgress}
           storeName={order.store.name}
           summary={order.summary}
         />
