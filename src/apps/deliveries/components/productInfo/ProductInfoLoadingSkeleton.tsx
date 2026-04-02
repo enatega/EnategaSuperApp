@@ -8,7 +8,7 @@ export default function ProductInfoLoadingSkeleton() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const headerHeight = Math.min(Math.max(width * 0.9, 300), 460);
+  const headerHeight = Math.min(Math.max(width * 0.82, 300), 420);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -16,22 +16,22 @@ export default function ProductInfoLoadingSkeleton() {
         <View style={[styles.imageHeader, { height: headerHeight }]}>
           <Skeleton height={headerHeight} width="100%" borderRadius={0} />
           <Skeleton
-            borderRadius={22}
-            height={44}
+            borderRadius={20}
+            height={40}
             style={{ ...styles.closeButton, top: insets.top + 8 }}
-            width={44}
+            width={40}
           />
         </View>
 
         <View style={styles.infoSection}>
-          <Skeleton height={34} width="48%" borderRadius={8} />
+          <Skeleton height={34} width="52%" borderRadius={8} />
           <View style={styles.priceRow}>
             <Skeleton height={18} width={72} borderRadius={6} />
-            <Skeleton height={24} width={68} borderRadius={6} />
             <Skeleton height={32} width={32} borderRadius={16} style={styles.shareButton} />
           </View>
-          <Skeleton height={16} width="88%" borderRadius={6} />
-          <Skeleton height={16} width="66%" borderRadius={6} />
+          <Skeleton height={16} width="92%" borderRadius={6} />
+          <Skeleton height={16} width="82%" borderRadius={6} />
+          <Skeleton height={16} width="76%" borderRadius={6} />
         </View>
 
         <Skeleton height={1} width="100%" borderRadius={1} style={styles.mainDivider} />
@@ -130,9 +130,10 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   infoSection: {
-    gap: 12,
+    gap: 10,
     paddingHorizontal: 16,
-    paddingTop: 4,
+    paddingBottom: 12,
+    paddingTop: 8,
   },
   mainDivider: {
     marginHorizontal: 16,

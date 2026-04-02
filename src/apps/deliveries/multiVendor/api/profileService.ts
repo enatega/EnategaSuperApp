@@ -22,6 +22,7 @@ export type ProfileAddress = {
   };
   location_name: string | null;
   type: 'HOME' | 'APARTMENT' | 'OFFICE' | 'OTHER';
+  is_selected: boolean;
   createdAt: string;
   updatedAt: string;
 };

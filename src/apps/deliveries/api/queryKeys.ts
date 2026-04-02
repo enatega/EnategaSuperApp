@@ -21,6 +21,14 @@ export const deliveryKeys = {
             offset,
             limit,
         ] as const,
+    shopTypeStores: (shopTypeId: string, offset = 0, limit = 10) =>
+        [
+            ...deliveryKeys.discovery(),
+            'shop-type-stores',
+            shopTypeId,
+            offset,
+            limit,
+        ] as const,
     topBrands: () => [...deliveryKeys.discovery(), 'top-brands'] as const,
     mobileBanners: () => [...deliveryKeys.discovery(), 'mobile-banners'] as const,
     nearbyStores: () => [...deliveryKeys.discovery(), 'nearby-stores'] as const,
@@ -57,6 +65,8 @@ export const deliveryKeys = {
         [...deliveryKeys.all, 'product-info', productId] as const,
     productInfoCustomizations: (productId: string) =>
         [...deliveryKeys.all, 'product-info-customizations', productId] as const,
+    cart: () => [...deliveryKeys.all, 'cart'] as const,
+    cartCount: () => [...deliveryKeys.all, 'cart-count'] as const,
     productSearch: (keyword: string, latitude?: number, longitude?: number) =>
         [...deliveryKeys.search(), 'products', keyword, latitude, longitude] as const,
     storeSearch: (keyword: string, latitude?: number, longitude?: number) =>

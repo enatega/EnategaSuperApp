@@ -38,17 +38,19 @@ function MultiVendorBottomTabNavigator() {
         tabBarInactiveTintColor: colors.iconMuted,
         tabBarButton: (props) => <MultiVendorTabButton {...props} />,
         tabBarIconStyle: {
+          marginTop: 2,
         },
         tabBarLabelStyle: {
           fontFamily: typography.fontFamily.semiBold,
-          fontSize: typography.size.md2,
+          fontSize: typography.size.xs2,
           fontWeight: '600',
-          lineHeight: typography.lineHeight.md2,
+          lineHeight: typography.lineHeight.sm,
+          marginBottom: 8,
         },
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          height: 88,
+          height: 82,
         },
       }}
     >

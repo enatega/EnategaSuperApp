@@ -52,6 +52,7 @@ export default function FavouritesScreen() {
   const renderItem = useCallback(
     ({ item }: { item: DeliveryNearbyStore }) => (
       <StoreCard
+        layout="fullWidth"
         store={item}
         onPress={() => {
           console.log('store pressed', item.storeId);

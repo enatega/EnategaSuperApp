@@ -1,6 +1,5 @@
 import React from 'react';
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
-import Button from './Button';
+import { Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import Text from './Text';
 import { useTheme } from '../theme/theme';
 
@@ -24,25 +23,36 @@ export default function SectionActionHeader({
       <Text
         weight="extraBold"
         style={{
-          fontSize: typography.size.lg,
+          fontSize: typography.size.h5,
+          letterSpacing: -0.36,
           lineHeight: typography.lineHeight.h5,
         }}
       >
         {title}
       </Text>
 
-      <Button
-        label={actionLabel}
+      <Pressable
+        accessibilityRole="button"
         onPress={onActionPress}
         style={[
           styles.actionButton,
           {
             backgroundColor: colors.blue100,
-            borderColor: 'transparent',
+            shadowColor: colors.shadowColor,
           },
         ]}
-        variant="secondary"
-      />
+      >
+        <Text
+          weight="medium"
+          style={{
+            color: colors.text,
+            fontSize: typography.size.sm2,
+            lineHeight: 22,
+          }}
+        >
+          {actionLabel}
+        </Text>
+      </Pressable>
     </View>
   );
 }
@@ -54,9 +64,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   actionButton: {
-    borderRadius: 10,
-    minHeight: 42,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: 6,
+    justifyContent: 'center',
+    minHeight: 32,
+    minWidth: 88,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
 });

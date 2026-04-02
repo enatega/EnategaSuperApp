@@ -20,6 +20,7 @@ import type {
 import type { GenericFilterChip } from "../filters/types";
 import ListStateView from "./ListStateView";
 import SelectedFilterChips from "../filters/SelectedFilterChips";
+import { mapShopTypeProductToProductActionTarget } from "../../cart/productActionMappers";
 
 type ProductListItem = {
   title?: string;
@@ -51,6 +52,7 @@ function renderCardByType(
     if (isShopTypeProductItem(item)) {
       return (
         <StoreCard
+          layout="fullWidth"
           imageUrl={
             item.productImage ??
             item.storeImage ??
@@ -70,6 +72,7 @@ function renderCardByType(
 
     return (
       <StoreCard
+        layout="fullWidth"
         store={item as DeliveryNearbyStore}
         onPress={onPress ?? (() => {})}
       />
@@ -92,12 +95,26 @@ function renderCardByType(
   }
 
   const productItem = item as ProductListItem;
+  const shopTypeProductItem = isShopTypeProductItem(item)
+    ? mapShopTypeProductToProductActionTarget({
+        ...item,
+        source: 'productMiniCard',
+      })
+    : null;
 
   return (
     <ProductMiniCard
       title={productItem.title ?? productItem.productName ?? ""}
       imageUri={productItem.imageUri ?? productItem.productImage ?? undefined}
-      onPress={onPress}
+      onPress={shopTypeProductItem ? undefined : onPress}
+      productAction={
+        shopTypeProductItem
+          ? {
+              target: shopTypeProductItem,
+              onOpenProduct: () => onPress?.(),
+            }
+          : undefined
+      }
     />
   );
 }

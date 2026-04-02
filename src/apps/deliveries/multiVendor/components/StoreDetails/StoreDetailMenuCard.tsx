@@ -6,13 +6,16 @@ import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
 import Icon from '../../../../../general/components/Icon';
 import type { DeliveryStoreDetailsProduct } from '../../../api/types';
+import CartActionControl from '../../../components/cart/CartActionControl';
+import type { DeliveryProductActionBinding } from '../../../cart/productActionTypes';
 
 type Props = {
   item: DeliveryStoreDetailsProduct;
   onPress?: (id: string) => void;
+  productAction?: DeliveryProductActionBinding;
 };
 
-export default function StoreDetailMenuCard({ item, onPress }: Props) {
+export default function StoreDetailMenuCard({ item, onPress, productAction }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const badgeText = item.deal ?? item.dealType ?? null;
@@ -22,9 +25,20 @@ export default function StoreDetailMenuCard({ item, onPress }: Props) {
   const imageBackgroundColor = badgeText
     ? colors.storeMenuAccentOrange
     : colors.storeMenuAccentLime;
+  const handleCardPress = React.useCallback(() => {
+    if (productAction?.onOpenProduct) {
+      productAction.onOpenProduct(productAction.target);
+      return;
+    }
+
+    onPress?.(item.id);
+  }, [item.id, onPress, productAction]);
+  const handleAddPress = React.useCallback(() => {
+    productAction?.onRequestCartAction?.(productAction.target);
+  }, [productAction]);
 
   return (
-    <Pressable onPress={() => onPress?.(item.id)} style={styles.container}>
+    <Pressable onPress={handleCardPress} style={styles.container}>
       <View
         style={[
           styles.card,
@@ -54,21 +68,14 @@ export default function StoreDetailMenuCard({ item, onPress }: Props) {
               ) : null}
             </View>
 
-            <Pressable
+            <CartActionControl
               accessibilityLabel={t('store_details_add_product', { item: item.name })}
-              accessibilityRole="button"
-              onPress={() => undefined}
-              style={[
-                styles.addButton,
-                {
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                  shadowColor: colors.shadowColor,
-                },
-              ]}
-            >
-              <Icon color={colors.text} name="plus" size={18} type="Feather" />
-            </Pressable>
+              disabled={!productAction?.onRequestCartAction}
+              mode="add"
+              onAdd={handleAddPress}
+              size="medium"
+              style={styles.addButton}
+            />
           </View>
         </View>
 
@@ -133,15 +140,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   addButton: {
-    alignItems: 'center',
-    borderRadius: 16,
-    borderWidth: 1,
-    height: 32,
-    justifyContent: 'center',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    width: 32,
+    flexShrink: 0,
   },
   content: {
     gap: 6,

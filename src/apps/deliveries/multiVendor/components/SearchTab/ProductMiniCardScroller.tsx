@@ -5,6 +5,7 @@ import Text from "../../../../../general/components/Text";
 import ProductMiniCard from "../../../components/ProductMiniCard";
 import { useTranslation } from "react-i18next";
 import { typography } from "../../../../../general/theme/typography";
+import { mapSearchProductToProductActionTarget } from "../../../cart/productActionMappers";
 import type { ProductMiniCardScrollerProps } from "./types";
 
 const ProductMiniCardScroller = ({
@@ -52,7 +53,10 @@ const ProductMiniCardScroller = ({
           <ProductMiniCard
             title={item.productName}
             imageUri={item.productImage}
-            onPress={() => onProductPress?.(item)}
+            productAction={{
+              target: mapSearchProductToProductActionTarget(item),
+              onOpenProduct: () => onProductPress?.(item),
+            }}
           />
         )}
         keyExtractor={(item) => item.productId}

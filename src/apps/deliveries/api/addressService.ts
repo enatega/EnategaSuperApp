@@ -20,6 +20,26 @@ export type AddressResponse = {
   location_name: string;
 };
 
+export type SavedAddressResponse = {
+  id: string;
+  user_id: string;
+  address: string;
+  location: {
+    type: string;
+    coordinates: [number, number];
+  };
+  location_name: string | null;
+  type: AddressType;
+  is_selected: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SelectAddressResponse = {
+  message: string;
+  data: SavedAddressResponse;
+};
+
 export const addressService = {
   searchPlaces: (input: string) =>
     apiClient.post<Array<{ description: string; place_id: string }>>(
@@ -40,6 +60,9 @@ export const addressService = {
 
   updateAddress: (id: string, payload: AddressPayload) =>
     apiClient.patch<AddressResponse>(`${ADDRESS_BASE}/${id}`, payload),
+
+  selectAddress: (id: string) =>
+    apiClient.patch<SelectAddressResponse>(`${ADDRESS_BASE}/${id}/select`),
 
   deleteAddress: (id: string) =>
     apiClient.delete<void>(`${ADDRESS_BASE}/${id}`),

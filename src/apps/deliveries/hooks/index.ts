@@ -4,7 +4,8 @@ export {
   useNearbyStores,
   useOrderAgain,
   useShopTypeProducts,
-  useShopTypeProductsSections,
+  useShopTypeStores,
+  useShopTypeStoresSections,
   useShopTypes,
   useStoreProducts,
   useStoreView,
@@ -17,3 +18,4 @@ export {
   usePastOrders,
   useScheduledOrders,
 } from './useOrders';
+export { default as useAddress } from './useAddress';

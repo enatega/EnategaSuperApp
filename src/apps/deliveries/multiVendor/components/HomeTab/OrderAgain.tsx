@@ -4,11 +4,16 @@ import { useTranslation } from 'react-i18next';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
 import { useOrderAgain } from '../../../hooks';
+import { mapOrderAgainItemToProductActionTarget } from '../../../cart/productActionMappers';
 import StoreMiniCard from '../../../components/StoreMiniCard';
 import StoreMiniCardSkeleton from './HomeTabSkeletons/StoreMiniCardSkeleton';
+import HomeSectionState from './HomeSectionState';
+import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 
 export default function OrderAgain() {
   const { t } = useTranslation('deliveries');
+  const navigation = useNavigation<NavigationProp<Record<string, object | undefined>>>();
   const { data: orderAgainData = [], isPending: isOrderAgainPending } = useOrderAgain();
 
   return (
@@ -20,13 +25,24 @@ export default function OrderAgain() {
 
       {isOrderAgainPending ? (
         <StoreMiniCardSkeleton />
+      ) : orderAgainData.length === 0 ? (
+        <HomeSectionState message={t('multi_vendor_home_section_empty_order_again')} />
       ) : (
         <HorizontalList
           data={orderAgainData}
           keyExtractor={(item) => item.productId}
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-          renderItem={({ item }) => <StoreMiniCard item={item} />}
+          renderItem={({ item }) => (
+            <StoreMiniCard
+              item={item}
+              productAction={{
+                target: mapOrderAgainItemToProductActionTarget(item),
+                onOpenProduct: (target) =>
+                  navigation.navigate('ProductInfo', { productId: target.productId }),
+              }}
+            />
+          )}
         />
       )}
     </View>

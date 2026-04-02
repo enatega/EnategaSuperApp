@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minWidth: 78,
     paddingHorizontal: 24,
-    paddingVertical: 12,
+    paddingVertical: 14,
   },
   label: {
     fontSize: 14,

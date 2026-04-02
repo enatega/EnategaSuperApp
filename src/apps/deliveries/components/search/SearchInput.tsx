@@ -1,10 +1,11 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useMemo, useState } from "react";
 import {
   View,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   type TextInputProps,
+  useWindowDimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../../../general/theme/theme";
@@ -26,7 +27,25 @@ const SearchInput = forwardRef<TextInput, SearchInputProps>(
     ref,
   ) {
     const { colors, typography } = useTheme();
+    const { width } = useWindowDimensions();
     const [isFocused, setIsFocused] = useState(false);
+    const isCompactWidth = width < 360;
+    const isLargeWidth = width >= 768;
+    const metrics = useMemo(
+      () => ({
+        borderRadius: isLargeWidth ? 10 : isCompactWidth ? 6 : 8,
+        clearButtonSize: isLargeWidth ? 36 : isCompactWidth ? 28 : 32,
+        fontSize: isLargeWidth
+          ? typography.size.md
+          : isCompactWidth
+            ? typography.size.sm
+            : typography.size.sm2,
+        horizontalPadding: isLargeWidth ? 14 : isCompactWidth ? 10 : 12,
+        iconSize: isLargeWidth ? 22 : isCompactWidth ? 18 : 20,
+        minHeight: isLargeWidth ? 52 : isCompactWidth ? 44 : 48,
+      }),
+      [isCompactWidth, isLargeWidth, typography.size.md, typography.size.sm, typography.size.sm2],
+    );
 
     const handleClear = () => {
       onChangeText("");
@@ -48,7 +67,9 @@ const SearchInput = forwardRef<TextInput, SearchInputProps>(
         style={[
           styles.focusRingContainer,
           {
+            borderRadius: metrics.borderRadius + 2,
             borderColor: isFocused ? colors.primary : "transparent",
+            width: "100%",
           },
         ]}
       >
@@ -59,11 +80,18 @@ const SearchInput = forwardRef<TextInput, SearchInputProps>(
               backgroundColor: colors.surface,
               borderColor: colors.border,
               shadowColor: "#101828",
+              borderRadius: metrics.borderRadius,
+              minHeight: metrics.minHeight,
+              paddingHorizontal: metrics.horizontalPadding,
             },
           ]}
         >
           <View style={styles.searchIconContainer}>
-            <Ionicons name="search" color={colors.mutedText} size={20} />
+            <Ionicons
+              name="search"
+              color={colors.mutedText}
+              size={metrics.iconSize}
+            />
           </View>
 
           <TextInput
@@ -72,8 +100,9 @@ const SearchInput = forwardRef<TextInput, SearchInputProps>(
               styles.input,
               {
                 color: colors.text,
-                fontSize: typography.size.sm2,
+                fontSize: metrics.fontSize,
                 fontFamily: typography.fontFamily.regular,
+                lineHeight: typography.lineHeight.md,
               },
             ]}
             placeholder={placeholder}
@@ -87,21 +116,29 @@ const SearchInput = forwardRef<TextInput, SearchInputProps>(
             returnKeyType="search"
             autoCapitalize="none"
             autoCorrect={false}
+            clearButtonMode="never"
           />
 
           {value.length > 0 && (
-            <TouchableOpacity
-              style={styles.clearButton}
+            <Pressable
+              accessibilityRole="button"
+              hitSlop={8}
               onPress={handleClear}
-              hitSlop={12}
+              style={[
+                styles.clearButton,
+                {
+                  height: metrics.clearButtonSize,
+                  width: metrics.clearButtonSize,
+                },
+              ]}
             >
               <Icon
                 type="Entypo"
                 name="cross"
-                size={20}
+                size={metrics.iconSize}
                 color={colors.mutedText}
               />
-            </TouchableOpacity>
+            </Pressable>
           )}
         </View>
       </View>
@@ -114,30 +151,30 @@ export default SearchInput;
 const styles = StyleSheet.create({
   focusRingContainer: {
     borderWidth: 2,
-    borderRadius: 8,
     padding: 1,
   },
   container: {
-    flexDirection: "row",
     alignItems: "center",
-    height: 40,
     borderWidth: 1,
-    borderRadius: 6,
-    paddingHorizontal: 12,
+    flexDirection: "row",
     shadowOffset: { width: 0, height: 1 },
     shadowRadius: 2,
     elevation: 2,
+    width: "100%",
   },
   searchIconContainer: {
+    alignItems: "center",
     marginRight: 8,
+    width: 20,
   },
   input: {
     flex: 1,
-    height: "100%",
-    paddingVertical: 0,
-    lineHeight: 22,
+    minWidth: 0,
+    paddingVertical: 10,
   },
   clearButton: {
+    alignItems: "center",
+    justifyContent: "center",
     marginLeft: 8,
   },
 });

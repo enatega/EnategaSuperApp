@@ -2,7 +2,7 @@
 import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   contentContainer: {
-    gap: 28,
-    paddingBottom: 28,
+    gap: 24,
+    paddingBottom: 32,
   },
 });

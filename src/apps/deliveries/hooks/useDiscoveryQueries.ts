@@ -2,7 +2,6 @@ import {
   InfiniteData,
   useInfiniteQuery,
   useQueries,
- 
   useQuery,
   type UseInfiniteQueryOptions,
   type UseQueryOptions,
@@ -12,10 +11,12 @@ import { ApiError } from '../../../general/api/apiClient';
 import { discoveryService } from '../api/discoveryService';
 import { deliveryKeys } from '../api/queryKeys';
 import type { GenericListFilters } from '../components/filters/types';
+import useAddress from './useAddress';
 import type {
   DeliveryBanner,
   DeliveryNearbyStore,
   DeliveryOrderAgainItem,
+  DeliveryShopTypeStoresParams,
   DeliveryStoreProductsApiResponse,
   DeliveryStoreProductsParams,
   DeliveryStoreViewApiResponse,
@@ -100,8 +101,21 @@ type UseShopTypeProductsOptions = {
   >;
 };
 
-type ShopTypeProductsSectionResult = UseQueryResult<
-  DeliveryShopTypeProduct[],
+type UseShopTypeStoresMode = 'preview' | 'paginated';
+
+type UseShopTypeStoresOptions = {
+  mode?: UseShopTypeStoresMode;
+  enabled?: boolean;
+  search?: string;
+  filters?: GenericListFilters;
+  requestParams?: Omit<
+    DeliveryShopTypeStoresParams,
+    'shopTypeId' | 'offset' | 'limit' | 'search'
+  >;
+};
+
+type ShopTypeStoresSectionResult = UseQueryResult<
+  DeliveryNearbyStore[],
   ApiError
 > & {
   shopType: DeliveryShopType;
@@ -139,6 +153,15 @@ function normalizeStockValue(stockId?: string | null) {
   return stockId;
 }
 
+function useDiscoveryCoordinates() {
+  const { latitude, longitude } = useAddress();
+
+  return {
+    latitude,
+    longitude,
+  };
+}
+
 export function useShopTypes(options?: UseShopTypesOptions) {
   return useQuery<DeliveryShopType[], ApiError>({
     queryKey: deliveryKeys.shopTypes(),
@@ -154,11 +177,14 @@ export function useShopTypeProducts(
 ) {
   const mode = options?.mode ?? 'preview';
   const limit = 10;
+  const { latitude, longitude } = useDiscoveryCoordinates();
   const shopTypeProductParams: Omit<
     DeliveryShopTypeProductsParams,
     'shopTypeId' | 'offset' | 'limit' | 'search'
   > = {
     ...options?.requestParams,
+    latitude: options?.requestParams?.latitude ?? latitude,
+    longitude: options?.requestParams?.longitude ?? longitude,
     category_ids: normalizeCategoryIds(options?.filters?.category_ids),
     price_tiers: options?.filters?.price_tiers
       ? [options.filters.price_tiers]
@@ -206,22 +232,89 @@ export function useShopTypeProducts(
   };
 }
 
-export function useShopTypeProductsSections(
+export function useShopTypeStores(
+  shopTypeId: string,
+  options?: UseShopTypeStoresOptions,
+) {
+  const mode = options?.mode ?? 'preview';
+  const limit = 10;
+  const { latitude, longitude } = useDiscoveryCoordinates();
+  const shopTypeStoreParams: Omit<
+    DeliveryShopTypeStoresParams,
+    'shopTypeId' | 'offset' | 'limit' | 'search'
+  > = {
+    ...options?.requestParams,
+    latitude: options?.requestParams?.latitude ?? latitude,
+    longitude: options?.requestParams?.longitude ?? longitude,
+    category_ids: normalizeCategoryIds(options?.filters?.category_ids),
+    price_tiers: options?.filters?.price_tiers
+      ? [options.filters.price_tiers]
+      : undefined,
+    stock: normalizeStockValue(options?.filters?.stock),
+    sort_by: options?.filters?.sort_by ?? undefined,
+  };
+
+  const query = useInfiniteQuery<
+    PaginatedDeliveryResponse<DeliveryNearbyStore>,
+    ApiError
+  >({
+    queryKey: [
+      ...deliveryKeys.shopTypeStores(shopTypeId, 0, limit),
+      {
+        filters: options?.filters,
+        mode,
+        requestParams: shopTypeStoreParams,
+        search: options?.search?.trim() ?? '',
+      },
+    ],
+    queryFn: ({ pageParam = 0 }) =>
+      discoveryService.getShopTypeStoresPage({
+        shopTypeId,
+        offset: pageParam as number,
+        limit,
+        search: options?.search?.trim() || undefined,
+        ...shopTypeStoreParams,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
+    staleTime: 5 * 60 * 1000,
+    enabled: (options?.enabled ?? true) && Boolean(shopTypeId),
+  });
+
+  const items = query.data?.pages.flatMap((page) => page.items) ?? [];
+
+  return {
+    ...query,
+    data: mode === 'preview' ? items.slice(0, limit) : items,
+    totalCount: query.data?.pages.length
+      ? query.data.pages[query.data.pages.length - 1]?.total
+      : undefined,
+  };
+}
+
+export function useShopTypeStoresSections(
   shopTypes: DeliveryShopType[],
-): ShopTypeProductsSectionResult[] {
+): ShopTypeStoresSectionResult[] {
   const featuredShopTypes = shopTypes.slice(0, 5);
+  const { latitude, longitude } = useDiscoveryCoordinates();
   const results = useQueries({
     queries: featuredShopTypes.map((shopType) => ({
-      queryKey: deliveryKeys.shopTypeProducts(shopType.id, 0, 10),
+      queryKey: [
+        ...deliveryKeys.shopTypeStores(shopType.id, 0, 10),
+        { latitude, longitude },
+      ],
       queryFn: () =>
-        discoveryService.getShopTypeProducts({
+        discoveryService.getShopTypeStores({
           shopTypeId: shopType.id,
           limit: 10,
-        }),
+          latitude,
+          longitude,
+        } satisfies DeliveryShopTypeStoresParams),
       staleTime: 5 * 60 * 1000,
       enabled: Boolean(shopType.id),
     })),
-  }) as UseQueryResult<DeliveryShopTypeProduct[], ApiError>[];
+  }) as UseQueryResult<DeliveryNearbyStore[], ApiError>[];
 
   return featuredShopTypes.map((shopType, index) => ({
     shopType,
@@ -250,11 +343,14 @@ export function useTopBrands(options?: UseTopBrandsOptions) {
 export function useNearbyStores(options?: UseNearbyStoresOptions) {
   const mode = options?.mode ?? 'preview';
   const limit = 10;
+  const { latitude, longitude } = useDiscoveryCoordinates();
   const nearbyStoreParams: Omit<
     DeliveryNearbyStoresParams,
     'offset' | 'limit' | 'search'
   > = {
     ...options?.requestParams,
+    latitude: options?.requestParams?.latitude ?? latitude,
+    longitude: options?.requestParams?.longitude ?? longitude,
     category_ids: normalizeCategoryIds(options?.filters?.category_ids),
     price_tiers: options?.filters?.price_tiers
       ? [options.filters.price_tiers]
