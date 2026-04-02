@@ -22,6 +22,7 @@ import {
   setPendingAppRoute,
 } from "./pendingAppRedirect";
 import { resetToSharedRoute } from "./rootNavigation";
+import { useGlobalEmergencyContact } from "../hooks/useGlobalEmergencyContact";
 
 const Stack = createNativeStackNavigator<SharedStackParamList>();
 const APP_ROUTES: Partial<Record<MiniAppId, SharedAppRouteName>> = {
@@ -36,6 +37,8 @@ export default function SharedNavigator() {
   const [initialRouteName, setInitialRouteName] = useState<
     keyof SharedStackParamList | null
   >(null);
+
+  useGlobalEmergencyContact();
 
   useEffect(() => {
     let isMounted = true;

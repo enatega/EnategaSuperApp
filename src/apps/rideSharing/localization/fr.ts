@@ -247,6 +247,24 @@ const fr = {
   ride_finding_keep_searching: 'Continuer la recherche',
   ride_finding_cancel: 'Annuler le trajet',
   ride_finding_cancel_courier: 'Annuler le coursier',
+  // Safety
+  safety_screen_title: 'Fonctionnalités de sécurité',
+  safety_action_share_ride: 'Partager mon trajet',
+  safety_action_support: 'Assistance',
+  safety_action_emergency_contacts: 'Contacts d\'urgence',
+  safety_call_emergency: 'Appeler le 15',
+  safety_driver_verifications: 'Vérifications du chauffeur',
+  safety_verification_license: 'Permis de conduire validé',
+  safety_verification_photo: 'Contrôle photo effectué',
+  safety_verification_selfie: 'Selfie avec permis de conduire',
+  safety_how_protected: 'Comment vous êtes protégé',
+  safety_protection_proactive: 'Sécurité proactive',
+  safety_protection_verification: 'Vérification des chauffeurs',
+  safety_protection_privacy: 'Protection de votre vie privée',
+  safety_protection_safe_ride: 'Sécurité à chaque trajet',
+  safety_protection_accidents: 'Accidents : Que faire',
+  safety_support_coming_soon: 'Assistance bientôt disponible',
+  safety_emergency_contacts_coming_soon: 'Contacts d\'urgence bientôt disponibles',
 };
 
 export default fr;
