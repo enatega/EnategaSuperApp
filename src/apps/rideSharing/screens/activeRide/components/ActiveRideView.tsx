@@ -237,8 +237,13 @@ function ActiveRideView({ activeRide }: Props) {
   }, [driverAvatarUri, driverName, driverPhone, driverUserId, navigation, t]);
 
   const handleSafetyPress = useCallback(() => {
-    showToast.info(t('ride_active_safety_coming_soon'));
-  }, [t]);
+    navigation.navigate('Safety', {
+      driverName: driverName ?? undefined,
+      driverAvatarUri: driverAvatarUri ?? undefined,
+      driverRating: driverRating ?? undefined,
+      vehicleLabel: [vehicleName, vehicleColor].filter(Boolean).join(' • ') || undefined,
+    });
+  }, [driverAvatarUri, driverName, driverRating, vehicleColor, vehicleName, navigation]);
 
   const handleShareRide = useCallback(() => {
     showToast.info(t('ride_active_share_coming_soon'));
