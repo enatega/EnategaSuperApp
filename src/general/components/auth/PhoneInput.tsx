@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { View, StyleSheet, Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import PhoneInput from "react-native-phone-number-input";
 import { useTheme } from "../../theme/theme";
 
@@ -24,6 +25,7 @@ export default function PhoneNumberInput({
 }: Props) {
   const { colors } = useTheme();
   const phoneInput = useRef<PhoneInput>(null);
+  const insets = useSafeAreaInsets();
 
   return (
     <View style={styles.container}>
@@ -59,9 +61,20 @@ export default function PhoneNumberInput({
           renderFlagButton: false,
           withModal: true,
           withFilter: true,
+          withAlphaFilter: true,
           modalProps: {
             animationType: "slide",
-            statusBarTranslucent: Platform.OS === "android",
+          },
+          flatListProps: {
+            contentContainerStyle: {
+              paddingTop: insets.top,
+              paddingBottom: insets.bottom,
+            },
+          },
+          filterProps: {
+            style: {
+              marginTop: insets.top,
+            },
           },
         }}
       />
