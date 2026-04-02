@@ -117,9 +117,26 @@ export default function RideOptionsScreen() {
       return;
     }
 
+    const serializedPrefilledFromAddress = prefilledFromAddress
+      ? {
+          placeId: prefilledFromAddress.placeId,
+          description: prefilledFromAddress.description,
+          structuredFormatting: {
+            mainText: prefilledFromAddress.structuredFormatting.mainText,
+            secondaryText: prefilledFromAddress.structuredFormatting.secondaryText,
+          },
+          types: prefilledFromAddress.types,
+          coordinates: prefilledFromAddress.coordinates,
+        }
+      : undefined;
+
     navigation.navigate(
       'RideAddressSearch',
-      { rideType: resolvedRideType, rideCategory: selectedCategory, prefilledFromAddress },
+      {
+        rideType: resolvedRideType,
+        rideCategory: selectedCategory,
+        prefilledFromAddress: serializedPrefilledFromAddress,
+      },
     );
   }, [navigation, resolvedRideType, selectedCategory]);
 

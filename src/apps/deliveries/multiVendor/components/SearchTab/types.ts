@@ -14,7 +14,6 @@ export interface ProductMiniCardScrollerProps {
 export interface StoreCardScrollerProps {
   stores: SearchStoreItem[];
   onSeeAllPress?: () => void;
-  onStorePress?: (store: SearchStoreItem) => void;
   onLoadMore?: () => void;
   isLoadingMore?: boolean;
 }

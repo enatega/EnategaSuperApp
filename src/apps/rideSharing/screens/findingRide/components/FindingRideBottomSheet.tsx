@@ -3,6 +3,7 @@ import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import SwipeableBottomSheet from '../../../../../general/components/SwipeableBottomSheet';
+import BottomSheetHandle from '../../../../../general/components/BottomSheetHandle';
 import AnimatedSweepBar from '../../../../../general/components/AnimatedSweepBar';
 import Text from '../../../../../general/components/Text';
 import Button from '../../../../../general/components/Button';
@@ -73,8 +74,7 @@ function FindingRideBottomSheet({
           shadowColor: colors.shadowColor,
         },
       ]}
-      handle={<View style={[styles.handle, { backgroundColor: colors.findingRideHandle }]} />}
-      handleContainerStyle={styles.handleContainer}
+      handle={<BottomSheetHandle color={colors.findingRideHandle} />}
       floatingAccessory={floatingAccessory}
       floatingAccessoryStyle={[
         styles.floatingAccessory,

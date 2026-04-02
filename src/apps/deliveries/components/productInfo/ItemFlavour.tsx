@@ -21,6 +21,22 @@ export default function ItemFlavour({
 }: Props) {
   const { t } = useTranslation("deliveries");
   const { colors, typography } = useTheme();
+  const resolveSectionSubtitle = React.useCallback(
+    (helperText: string | null, isMarkedRequired: boolean) => {
+      const normalizedHelperText = helperText?.trim().toLowerCase() ?? "";
+
+      if (isMarkedRequired) {
+        return t("required_label");
+      }
+
+      if (normalizedHelperText === "optional") {
+        return t("optional_label");
+      }
+
+      return helperText || t("select_one");
+    },
+    [t],
+  );
 
   if (sections.length === 0) {
     return null;
@@ -42,7 +58,7 @@ export default function ItemFlavour({
       {sections.map((section) => (
         <View key={section.groupId} style={styles.sectionBlock}>
           <Text color={colors.iconDisabled} style={styles.subtitle}>
-            {section.helperText || t("select_one")}
+            {resolveSectionSubtitle(section.helperText, section.isMarkedRequired)}
           </Text>
 
           <View style={styles.options}>

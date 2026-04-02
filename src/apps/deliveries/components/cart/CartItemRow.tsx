@@ -11,21 +11,129 @@ import { formatCartPrice, getCartItemSubtitle } from './cartUtils';
 type Props = {
   item: CartItem;
   isUpdating?: boolean;
-  onDecrement: () => void;
-  onIncrement: () => void;
+  onSetQuantity: (quantity: number) => Promise<void>;
   onRemove: () => void;
 };
+
+const QUANTITY_SYNC_DEBOUNCE_MS = 500;
 
 export default function CartItemRow({
   item,
   isUpdating = false,
-  onDecrement,
-  onIncrement,
+  onSetQuantity,
   onRemove,
 }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const subtitle = getCartItemSubtitle(item);
+  const [localQuantity, setLocalQuantity] = React.useState(item.quantity);
+  const desiredQuantityRef = React.useRef(item.quantity);
+  const inflightQuantityRef = React.useRef<number | null>(null);
+  const queuedQuantityRef = React.useRef<number | null>(null);
+  const isSyncingRef = React.useRef(false);
+  const debounceTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const displayedLineTotal = item.unitPrice * localQuantity;
+
+  const clearDebounceTimeout = React.useCallback(() => {
+    if (!debounceTimeoutRef.current) {
+      return;
+    }
+
+    clearTimeout(debounceTimeoutRef.current);
+    debounceTimeoutRef.current = null;
+  }, []);
+
+  const flushQuantity = React.useCallback(
+    async (targetQuantity: number) => {
+      if (targetQuantity < 1 || targetQuantity === item.quantity) {
+        return;
+      }
+
+      isSyncingRef.current = true;
+      inflightQuantityRef.current = targetQuantity;
+
+      try {
+        await onSetQuantity(targetQuantity);
+      } finally {
+        isSyncingRef.current = false;
+
+        const queuedQuantity = queuedQuantityRef.current;
+        if (queuedQuantity != null && queuedQuantity !== targetQuantity) {
+          queuedQuantityRef.current = null;
+          void flushQuantity(queuedQuantity);
+        }
+      }
+    },
+    [item.quantity, onSetQuantity],
+  );
+
+  const scheduleQuantitySync = React.useCallback(() => {
+    clearDebounceTimeout();
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      const targetQuantity = desiredQuantityRef.current;
+
+      if (isSyncingRef.current) {
+        queuedQuantityRef.current = targetQuantity;
+        return;
+      }
+
+      void flushQuantity(targetQuantity);
+    }, QUANTITY_SYNC_DEBOUNCE_MS);
+  }, [clearDebounceTimeout, flushQuantity]);
+
+  React.useEffect(() => {
+    const desiredQuantity = desiredQuantityRef.current;
+    const inflightQuantity = inflightQuantityRef.current;
+
+    if (item.quantity === desiredQuantity) {
+      desiredQuantityRef.current = item.quantity;
+      inflightQuantityRef.current = null;
+      setLocalQuantity(item.quantity);
+      return;
+    }
+
+    if (inflightQuantity === item.quantity) {
+      return;
+    }
+
+    desiredQuantityRef.current = item.quantity;
+    inflightQuantityRef.current = null;
+    setLocalQuantity(item.quantity);
+  }, [item.quantity]);
+
+  React.useEffect(() => () => {
+    clearDebounceTimeout();
+  }, [clearDebounceTimeout]);
+
+  const updateLocalQuantity = React.useCallback(
+    (nextQuantity: number) => {
+      desiredQuantityRef.current = nextQuantity;
+      setLocalQuantity(nextQuantity);
+      scheduleQuantitySync();
+    },
+    [scheduleQuantitySync],
+  );
+
+  const handleIncrement = React.useCallback(() => {
+    updateLocalQuantity(localQuantity + 1);
+  }, [localQuantity, updateLocalQuantity]);
+
+  const handleDecrement = React.useCallback(() => {
+    if (localQuantity <= 1) {
+      return;
+    }
+
+    updateLocalQuantity(localQuantity - 1);
+  }, [localQuantity, updateLocalQuantity]);
+
+  const handleRemove = React.useCallback(() => {
+    clearDebounceTimeout();
+    desiredQuantityRef.current = item.quantity;
+    inflightQuantityRef.current = null;
+    queuedQuantityRef.current = null;
+    onRemove();
+  }, [clearDebounceTimeout, item.quantity, onRemove]);
 
   return (
     <View style={[styles.container, { borderBottomColor: colors.border }]}>
@@ -72,11 +180,10 @@ export default function CartItemRow({
             <View style={styles.quantityControls}>
               <Pressable
                 accessibilityLabel={
-                  item.quantity > 1 ? t('cart_decrement_item') : t('cart_remove_item')
+                  localQuantity > 1 ? t('cart_decrement_item') : t('cart_remove_item')
                 }
                 accessibilityRole="button"
-                disabled={isUpdating}
-                onPress={item.quantity > 1 ? onDecrement : onRemove}
+                onPress={localQuantity > 1 ? handleDecrement : handleRemove}
                 style={({ pressed }) => [
                   styles.iconButton,
                   {
@@ -88,7 +195,7 @@ export default function CartItemRow({
               >
                 <Ionicons
                   color={colors.text}
-                  name={item.quantity > 1 ? 'remove' : 'trash-outline'}
+                  name={localQuantity > 1 ? 'remove' : 'trash-outline'}
                   size={16}
                 />
               </Pressable>
@@ -101,14 +208,13 @@ export default function CartItemRow({
                   lineHeight: typography.lineHeight.md,
                 }}
               >
-                {item.quantity}
+                {localQuantity}
               </Text>
 
               <Pressable
                 accessibilityLabel={t('cart_increment_item')}
                 accessibilityRole="button"
-                disabled={isUpdating}
-                onPress={onIncrement}
+                onPress={handleIncrement}
                 style={({ pressed }) => [
                   styles.iconButton,
                   {
@@ -130,7 +236,7 @@ export default function CartItemRow({
                 lineHeight: typography.lineHeight.md,
               }}
             >
-              {formatCartPrice(item.lineTotal)}
+              {formatCartPrice(displayedLineTotal)}
             </Text>
           </View>
         </View>

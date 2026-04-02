@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import SwipeableBottomSheet from '../../../../../general/components/SwipeableBottomSheet';
+import BottomSheetHandle from '../../../../../general/components/BottomSheetHandle';
 import Text from '../../../../../general/components/Text';
 import Icon from '../../../../../general/components/Icon';
 import Image from '../../../../../general/components/Image';
@@ -147,8 +148,7 @@ function ActiveRideBottomSheet({
           shadowColor: colors.shadowColor,
         },
       ]}
-      handle={<View style={[styles.handle, { backgroundColor: colors.findingRideHandle }]} />}
-      handleContainerStyle={styles.handleContainer}
+      handle={<BottomSheetHandle color={colors.findingRideHandle} />}
     >
       <View style={styles.content}>
         <View style={styles.headerBlock}>

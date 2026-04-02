@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
+import BottomSheetHandle from '../../../../general/components/BottomSheetHandle';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import SwipeableBottomSheet from '../../../../general/components/SwipeableBottomSheet';
@@ -35,13 +36,12 @@ export default function MoreOptionsBottomSheet({
       expandedHeight={expandedHeight}
       collapsedHeight={0}
       initialState="expanded"
-      onStateChange={(state: 'expanded' | 'collapsed') => {
+      onStateChange={(state) => {
         if (state === 'collapsed') {
           onClose();
         }
       }}
-      handle={<View style={[styles.sheetHandle, { backgroundColor: colors.border }]} />}
-      handleContainerStyle={styles.handleContainer}
+      handle={<BottomSheetHandle color={colors.border} />}
       style={[
         styles.sheet,
         {

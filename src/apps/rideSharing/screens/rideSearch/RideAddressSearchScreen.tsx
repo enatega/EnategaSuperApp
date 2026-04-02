@@ -351,29 +351,6 @@ export default function RideAddressSearchScreen() {
     />
   );
 
-  const searchHeader = (
-    <RideAddressSearchHeader
-      mode={isStopMode ? 'stop' : 'trip'}
-      focusSignal={focusSignal}
-      fromValue={fromValue}
-      toValue={toValue}
-      stopValue={stopValue}
-      onChangeFrom={handleChangeFrom}
-      onChangeTo={handleChangeTo}
-      onChangeStop={handleChangeStop}
-      onFocusFrom={() => setActiveField('from')}
-      onFocusTo={() => setActiveField('to')}
-      onFocusStop={() => setActiveField('stop')}
-      onChooseOnMap={() => setScreenMode('map')}
-      activeField={activeField}
-      fromPlaceholder={t('ride_address_from_placeholder')}
-      toPlaceholder={t('ride_address_to_placeholder')}
-      stopPlaceholder={t('ride_address_stop_placeholder')}
-      chooseOnMapLabel={t('ride_address_choose_on_map')}
-      loadingField={loadingField}
-    />
-  );
-
   const activeSelectionCoordinates = activeField === 'from'
     ? selectedFromAddressRef.current?.coordinates
     : activeField === 'stop'
@@ -410,16 +387,34 @@ export default function RideAddressSearchScreen() {
             </Pressable>
           )}
         />
+        <RideAddressSearchHeader
+          mode={isStopMode ? 'stop' : 'trip'}
+          focusSignal={focusSignal}
+          fromValue={fromValue}
+          toValue={toValue}
+          stopValue={stopValue}
+          onChangeFrom={handleChangeFrom}
+          onChangeTo={handleChangeTo}
+          onChangeStop={handleChangeStop}
+          onFocusFrom={() => setActiveField('from')}
+          onFocusTo={() => setActiveField('to')}
+          onFocusStop={() => setActiveField('stop')}
+          onChooseOnMap={() => setScreenMode('map')}
+          activeField={activeField}
+          fromPlaceholder={t('ride_address_from_placeholder')}
+          toPlaceholder={t('ride_address_to_placeholder')}
+          stopPlaceholder={t('ride_address_stop_placeholder')}
+          chooseOnMapLabel={t('ride_address_choose_on_map')}
+          loadingField={loadingField}
+        />
         {shouldShowSuggestionSkeleton || shouldShowRecentSkeleton ? (
-          <View>
-            {searchHeader}
+          <View style={styles.content}>
             <RideAddressSuggestionSkeletonList />
           </View>
         ) : (
           <CachedAddressList
             data={suggestionAddresses}
             onSelect={handleSelectAddress}
-            ListHeaderComponent={searchHeader}
             contentContainerStyle={styles.listContent}
             ListEmptyComponent={emptyState}
           />
@@ -449,5 +444,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
+  },
+  content: {
+    flex: 1,
   },
 });

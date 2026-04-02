@@ -9,9 +9,8 @@ import CartScreenSkeleton from '../../components/cart/CartScreenSkeleton';
 import { useCartMutationFeedback } from '../../hooks/useCartMutationFeedback';
 import { useCart } from '../../hooks/useCart';
 import {
-  useDecrementCartItemMutation,
-  useIncrementCartItemMutation,
   useRemoveCartItemMutation,
+  useUpdateCartItemQuantityMutation,
 } from '../../hooks/useCartMutations';
 import { useOrderAgain } from '../../hooks';
 
@@ -47,34 +46,29 @@ export default function CartScreen() {
     [handleMutationSettled, showMutationError],
   );
 
-  const incrementMutation = useIncrementCartItemMutation({
-    onError: handleUpdateError,
-  });
-  const decrementMutation = useDecrementCartItemMutation({
+  const updateQuantityMutation = useUpdateCartItemQuantityMutation({
     onError: handleUpdateError,
   });
   const removeMutation = useRemoveCartItemMutation({
     onError: handleRemoveError,
   });
 
-  const handleIncrementItem = React.useCallback(
-    (itemId: string) => {
+  const handleSetItemQuantity = React.useCallback(
+    async (itemId: string, quantity: number) => {
       setUpdatingItemId(itemId);
-      incrementMutation.mutate(itemId, {
-        onSettled: handleMutationSettled,
-      });
-    },
-    [handleMutationSettled, incrementMutation],
-  );
 
-  const handleDecrementItem = React.useCallback(
-    (itemId: string) => {
-      setUpdatingItemId(itemId);
-      decrementMutation.mutate(itemId, {
-        onSettled: handleMutationSettled,
-      });
+      try {
+        await updateQuantityMutation.mutateAsync({
+          itemId,
+          input: { quantity },
+        });
+      } catch {
+        // Shared mutation feedback is handled by the mutation hook callbacks.
+      } finally {
+        handleMutationSettled();
+      }
     },
-    [decrementMutation, handleMutationSettled],
+    [handleMutationSettled, updateQuantityMutation],
   );
 
   const handleRemoveItem = React.useCallback(
@@ -118,10 +112,9 @@ export default function CartScreen() {
         isUpdatingItemId={updatingItemId}
         navigation={navigation}
         onCloseFeeModal={() => setIsFeeModalVisible(false)}
-        onDecrementItem={handleDecrementItem}
-        onIncrementItem={handleIncrementItem}
         onOpenFeeModal={() => setIsFeeModalVisible(true)}
         onRemoveItem={handleRemoveItem}
+        onSetItemQuantity={handleSetItemQuantity}
         recommendations={recommendations}
       />
     </View>

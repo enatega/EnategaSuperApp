@@ -54,9 +54,6 @@ export default function FavouritesScreen() {
       <StoreCard
         layout="fullWidth"
         store={item}
-        onPress={() => {
-          console.log('store pressed', item.storeId);
-        }}
         actionSlot={
           <FavouriteHeartButton
             isFavourite={item.isFavorite ?? false}

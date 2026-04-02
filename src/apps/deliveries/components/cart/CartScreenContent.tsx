@@ -18,8 +18,7 @@ type Props = {
   isUpdatingItemId?: string | null;
   navigation: NavigationProp<Record<string, object | undefined>>;
   onCloseFeeModal: () => void;
-  onDecrementItem: (itemId: string) => void;
-  onIncrementItem: (itemId: string) => void;
+  onSetItemQuantity: (itemId: string, quantity: number) => Promise<void>;
   onOpenFeeModal: () => void;
   onRemoveItem: (itemId: string) => void;
   recommendations: DeliveryOrderAgainItem[];
@@ -31,8 +30,7 @@ export default function CartScreenContent({
   isUpdatingItemId,
   navigation,
   onCloseFeeModal,
-  onDecrementItem,
-  onIncrementItem,
+  onSetItemQuantity,
   onOpenFeeModal,
   onRemoveItem,
   recommendations,
@@ -88,8 +86,7 @@ export default function CartScreenContent({
           isUpdatingItemId={isUpdatingItemId}
           items={cart.items}
           onAddMorePress={handleStartShopping}
-          onDecrementItem={onDecrementItem}
-          onIncrementItem={onIncrementItem}
+          onSetItemQuantity={onSetItemQuantity}
           onRemoveItem={onRemoveItem}
         />
         <CartRecommendationsSection

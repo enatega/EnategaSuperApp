@@ -445,6 +445,8 @@ const en = {
   choose_size: 'Choose Size',
   choose_variation: 'Choose Variation',
   select_one: 'Select one',
+  required_label: 'Required',
+  optional_label: 'Optional',
   small: 'Small',
   medium: 'Medium',
   large: 'Large',

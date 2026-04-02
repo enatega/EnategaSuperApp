@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "../../../../general/theme/theme";
 import type { DeliveryNearbyStore } from "../../api/types";
+import type { SearchStoreItem } from "../../api/searchServiceTypes";
 import type { MultiVendorStackParamList } from "../../multiVendor/navigation/types";
 import { styles } from "./styles";
 import StoreImage from "./subComponents/StoreImage";
@@ -11,68 +12,38 @@ import StoreInfo from "./subComponents/StoreInfo";
 import StoreRating from "./subComponents/StoreRating";
 import StoreDeliveryInfo from "./subComponents/StoreDeliveryInfo";
 
+type StoreCardData = DeliveryNearbyStore | SearchStoreItem;
+
 export interface StoreCardProps {
-  store?: DeliveryNearbyStore;
-  imageUrl?: string;
-  offer?: string;
-  name?: string;
-  location?: string;
-  rating?: number;
-  reviewCount?: number;
-  cuisine?: string;
-  price?: number;
-  deliveryTime?: number | string;
-  distance?: number;
+  store: StoreCardData;
   actionSlot?: React.ReactNode;
   layout?: "compact" | "fullWidth";
- 
-  onPress?: () => void;
 }
 
 type NavigationProp = NativeStackNavigationProp<MultiVendorStackParamList>;
 
 export default function StoreCard({
   store,
-  imageUrl,
-  offer,
-  name,
-  location,
-  rating,
-  reviewCount,
-  cuisine,
-  price,
-  deliveryTime,
-  distance,
   actionSlot,
   layout = "compact",
-  onPress,
 }: StoreCardProps) {
   const { colors } = useTheme();
   const navigation = useNavigation<NavigationProp>();
   const resolvedImageUrl =
-    imageUrl || store?.coverImage || store?.logo || "https://placehold.co/400x400.png";
-  const resolvedOffer =
-    offer || undefined;
-  const resolvedName = name || store?.name || "";
-  const resolvedLocation = location || store?.address || undefined;
-  const resolvedRating = rating ?? store?.averageRating ?? undefined;
-  const resolvedReviewCount = reviewCount ?? store?.reviewCount ?? undefined;
-  const resolvedCuisine = cuisine ?? store?.shopTypeName ?? undefined;
-  const resolvedPrice = price ?? store?.baseFee ?? 0;
-  const resolvedDeliveryTime = deliveryTime ?? store?.deliveryTime ?? 0;
-  const resolvedDistance = distance ?? store?.distanceKm ?? 0;
-  const hasPressHandler = Boolean(onPress || store);
+    store.coverImage || store.logo || "https://placehold.co/400x400.png";
+  const resolvedOffer = store.deal ?? undefined;
+  const resolvedName = store.name;
+  const resolvedLocation = store.address ?? undefined;
+  const resolvedRating = store.averageRating ?? undefined;
+  const resolvedReviewCount = store.reviewCount ?? undefined;
+  const resolvedCuisine = store.shopTypeName ?? undefined;
+  const resolvedPrice = store.baseFee ?? 0;
+  const resolvedDeliveryTime = store.deliveryTime ?? 0;
+  const resolvedDistance = store.distanceKm ?? 0;
 
   const handlePress = useCallback(() => {
-    if (onPress) {
-      onPress();
-      return;
-    }
-
-    if (store) {
-      navigation.navigate("StoreDetails", { store });
-    }
-  }, [navigation, onPress, store]);
+    navigation.navigate("StoreDetails", { store });
+  }, [navigation, store]);
 
   return (
     <TouchableOpacity
@@ -85,8 +56,7 @@ export default function StoreCard({
           shadowColor: colors.shadowColor,
         },
       ]}
-      activeOpacity={hasPressHandler ? 0.7 : 1}
-      disabled={!hasPressHandler}
+      activeOpacity={0.7}
       onPress={handlePress}
     >
       <StoreImage imageUrl={resolvedImageUrl} offer={resolvedOffer} actionSlot={actionSlot} />

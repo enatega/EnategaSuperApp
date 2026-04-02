@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import VerticalList from "../../../../general/components/VerticalList";
 import Text from "../../../../general/components/Text";
 import { useTheme } from "../../../../general/theme/theme";
-import ProductMiniCard from "../ProductMiniCard";
+import ProductCard from "../productCard/ProductCard";
 import TopBrandCard from "../storeCard/TopBrandCard";
 import StoreCard from "../storeCard/StoreCard";
 import ShopTypeCard from "../../multiVendor/components/HomeTab/ShopTypeCard";
@@ -20,14 +20,6 @@ import type {
 import type { GenericFilterChip } from "../filters/types";
 import ListStateView from "./ListStateView";
 import SelectedFilterChips from "../filters/SelectedFilterChips";
-import { mapShopTypeProductToProductActionTarget } from "../../cart/productActionMappers";
-
-type ProductListItem = {
-  title?: string;
-  productName?: string;
-  imageUri?: string;
-  productImage?: string | null;
-};
 
 type ShopTypeListItem = {
   image?: string | null;
@@ -50,31 +42,13 @@ function renderCardByType(
 ) {
   if (cardType === "store") {
     if (isShopTypeProductItem(item)) {
-      return (
-        <StoreCard
-          layout="fullWidth"
-          imageUrl={
-            item.productImage ??
-            item.storeImage ??
-            item.storeLogo ??
-            "https://placehold.co/400x400.png"
-          }
-          offer={item.deal ?? undefined}
-          name={item.productName}
-          cuisine={item.storeName ?? undefined}
-          price={item.price ?? 0}
-          deliveryTime=""
-          distance={0}
-          onPress={onPress ?? (() => {})}
-        />
-      );
+      return <ProductCard product={item} variant="rail" onPress={onPress} />;
     }
 
     return (
       <StoreCard
         layout="fullWidth"
         store={item as DeliveryNearbyStore}
-        onPress={onPress ?? (() => {})}
       />
     );
   }
@@ -94,27 +68,11 @@ function renderCardByType(
     );
   }
 
-  const productItem = item as ProductListItem;
-  const shopTypeProductItem = isShopTypeProductItem(item)
-    ? mapShopTypeProductToProductActionTarget({
-        ...item,
-        source: 'productMiniCard',
-      })
-    : null;
-
   return (
-    <ProductMiniCard
-      title={productItem.title ?? productItem.productName ?? ""}
-      imageUri={productItem.imageUri ?? productItem.productImage ?? undefined}
-      onPress={shopTypeProductItem ? undefined : onPress}
-      productAction={
-        shopTypeProductItem
-          ? {
-              target: shopTypeProductItem,
-              onOpenProduct: () => onPress?.(),
-            }
-          : undefined
-      }
+    <ProductCard
+      product={item as DeliveryShopTypeProduct}
+      variant="mini"
+      onPress={onPress}
     />
   );
 }
