@@ -9,13 +9,21 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import Icon from '../../../../../general/components/Icon';
-import BottomSheetHandle from '../../../../../general/components/BottomSheetHandle';
-import SwipeableBottomSheet from '../../../../../general/components/SwipeableBottomSheet';
-import Text from '../../../../../general/components/Text';
-import { useTheme } from '../../../../../general/theme/theme';
-import type { ProfileAddress } from '../../api/profileService';
-import SavedAddressesList from './SavedAddressesList';
+import Icon from '../../../general/components/Icon';
+import BottomSheetHandle from '../../../general/components/BottomSheetHandle';
+import SwipeableBottomSheet from '../../../general/components/SwipeableBottomSheet';
+import Text from '../../../general/components/Text';
+import { useTheme } from '../../../general/theme/theme';
+import type { ProfileAddress } from '../multiVendor/api/profileService';
+import {
+  formatDeliveryAddressLabel,
+  getSelectedSavedAddressId,
+} from '../utils/address';
+import {
+  getSavedAddressIcon,
+  getSavedAddressTypeLabel,
+} from '../utils/savedAddressPresentation';
+import SavedAddressSelectionRow from './SavedAddressSelectionRow';
 
 type Props = {
   addresses: ProfileAddress[];
@@ -48,6 +56,9 @@ export default function AddressSelectionBottomSheet({
   const { t } = useTranslation('deliveries');
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const isSelectionPending = Boolean(selectingAddressId);
+  const resolvedSelectedAddressId =
+    getSelectedSavedAddressId(addresses) ?? selectedAddressId;
 
   const expandedHeight = useMemo(() => {
     const estimatedContentHeight =
@@ -159,15 +170,56 @@ export default function AddressSelectionBottomSheet({
             </View>
           ) : null}
 
-          <SavedAddressesList
-            addAddressLabel={t('address_selector_add_new')}
-            addresses={addresses}
-            onAddAddress={onAddAddress}
-            onSelectAddress={onSelectAddress}
-            selectingAddressId={selectingAddressId}
-            selectedAddressId={selectedAddressId}
-            variant="compact"
-          />
+          <View style={styles.addressList}>
+            {addresses.map((address) => {
+              return (
+                <SavedAddressSelectionRow
+                  key={address.id}
+                  address={formatDeliveryAddressLabel({
+                    address: address.address,
+                    locationName: address.location_name,
+                  })}
+                  iconName={getSavedAddressIcon(address.type)}
+                  isDisabled={isSelectionPending}
+                  isSelected={resolvedSelectedAddressId === address.id}
+                  isSelecting={selectingAddressId === address.id}
+                  onPress={() => onSelectAddress(address)}
+                  typeLabel={getSavedAddressTypeLabel(address.type, t)}
+                />
+              );
+            })}
+
+            <Pressable
+              accessibilityLabel={t('address_selector_add_new')}
+              accessibilityRole="button"
+              disabled={isSelectionPending}
+              onPress={onAddAddress}
+              style={({ pressed }) => [
+                styles.addAddressButton,
+                {
+                  opacity: isSelectionPending ? 0.55 : pressed ? 0.85 : 1,
+                },
+              ]}
+            >
+              <Icon
+                color={colors.mutedText}
+                name="add"
+                size={20}
+                type="Ionicons"
+              />
+              <Text
+                weight="medium"
+                style={{
+                  color: colors.text,
+                  fontSize: typography.size.sm2,
+                  letterSpacing: 0,
+                  lineHeight: typography.lineHeight.md,
+                }}
+              >
+                {t('address_selector_add_new')}
+              </Text>
+            </Pressable>
+          </View>
         </ScrollView>
       </SwipeableBottomSheet>
     </View>
@@ -175,6 +227,18 @@ export default function AddressSelectionBottomSheet({
 }
 
 const styles = StyleSheet.create({
+  addAddressButton: {
+    alignItems: 'center',
+    borderRadius: 10,
+    flexDirection: 'row',
+    gap: 12,
+    minHeight: 48,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  addressList: {
+    gap: 4,
+  },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
   },
@@ -198,11 +262,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
   },
-  handleContainer: {
-    alignItems: 'center',
-    paddingBottom: 6,
-    paddingTop: 4,
-  },
   header: {
     alignItems: 'center',
     flexDirection: 'row',
@@ -213,12 +272,6 @@ const styles = StyleSheet.create({
   headerSpacer: {
     height: 32,
     width: 32,
-  },
-  hiddenHandle: {
-    borderRadius: 999,
-    height: 4,
-    opacity: 0.12,
-    width: 36,
   },
   loadingState: {
     alignItems: 'center',

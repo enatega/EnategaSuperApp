@@ -28,6 +28,9 @@ const fr = {
   multi_vendor_tab_search: 'Recherche',
   multi_vendor_tab_orders: 'Commandes',
   multi_vendor_tab_profile: 'Profil',
+  delivery_address_title: 'Adresse de livraison',
+  delivery_address_empty_state:
+    "Ajoutez une adresse pour commencer à commander dans ce magasin.",
   logout: 'Se déconnecter',
   multi_vendor_address_label: 'Sélectionner une adresse',
   multi_vendor_shop_types_title: 'Types de boutiques',

@@ -4,17 +4,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
+import SavedAddressSelectionRow from '../../../components/SavedAddressSelectionRow';
+import {
+  getSavedAddressIcon,
+  getSavedAddressTypeLabel,
+} from '../../../utils/savedAddressPresentation';
 import type { ProfileAddress } from '../../api/profileService';
 import {
   formatDeliveryAddressLabel,
   getSelectedSavedAddressId,
 } from '../../../utils/address';
 import MyProfileAddressCard from '../profile/MyProfileAddressCard';
-import SavedAddressListRow from './SavedAddressListRow';
-import {
-  getSavedAddressIcon,
-  getSavedAddressTypeLabel,
-} from '../../utils/savedAddressPresentation';
 
 type Props = {
   addAddressLabel: string;
@@ -54,9 +54,12 @@ export default function SavedAddressesList({
 
         if (isCompact) {
           return (
-            <SavedAddressListRow
+            <SavedAddressSelectionRow
               key={address.id}
-              address={address.address}
+              address={formatDeliveryAddressLabel({
+                address: address.address,
+                locationName: address.location_name,
+              })}
               iconName={iconName}
               isDisabled={isSelectionPending}
               isSelected={isSelected}

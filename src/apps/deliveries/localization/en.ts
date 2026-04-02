@@ -28,6 +28,9 @@ const en = {
   multi_vendor_tab_search: 'Search',
   multi_vendor_tab_orders: 'Orders',
   multi_vendor_tab_profile: 'Profile',
+  delivery_address_title: 'Delivery address',
+  delivery_address_empty_state:
+    'Add an address to start ordering from this store.',
   logout: 'Log out',
   multi_vendor_address_label: 'Select address',
   multi_vendor_shop_types_title: 'Shop Types',
