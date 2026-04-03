@@ -1,10 +1,120 @@
-import type { TextInputProps } from "react-native";
+import type { RefObject } from "react";
+import type {
+  SearchProductItem,
+  SearchStoreItem,
+} from "../../api/searchServiceTypes";
+import type { TextInput, TextInputProps } from "react-native";
 import type {
   RecentSearchItem,
   SearchRecommendation,
 } from "../../api/searchServiceTypes";
 
-export interface SearchInputProps {
+export type ProductMiniCardScrollerProps = {
+  products: SearchProductItem[];
+  onSeeAllPress?: () => void;
+  onProductPress?: (product: SearchProductItem) => void;
+  onLoadMore?: () => void;
+  isLoadingMore?: boolean;
+};
+
+export type StoreCardScrollerProps = {
+  stores: SearchStoreItem[];
+  onSeeAllPress?: () => void;
+  onLoadMore?: () => void;
+  isLoadingMore?: boolean;
+};
+
+export type SearchResultsProps = {
+  isSearchActive: boolean;
+  shouldSearchStores: boolean;
+  isSearchLoading: boolean;
+  hasNoResults: boolean;
+  products: SearchProductItem[];
+  stores: SearchStoreItem[];
+  isFetchingMoreProducts?: boolean;
+  isFetchingMoreStores?: boolean;
+  onLoadMoreProducts?: () => void;
+  onLoadMoreStores?: () => void;
+};
+
+export type SearchMainContainerProps = {
+  colors: {
+    background: string;
+    border: string;
+    mutedText: string;
+    surface: string;
+    text: string;
+  };
+  t: (key: string) => string;
+  inputRef: RefObject<TextInput | null>;
+  searchQuery: string;
+  recommendations: SearchRecommendation[];
+  recentSearches: RecentSearchItem[];
+  products: SearchProductItem[];
+  stores: SearchStoreItem[];
+  shouldSearchStores: boolean;
+  isSearchActive: boolean;
+  isLoadingRecommendations: boolean;
+  isSearchLoading: boolean;
+  isFetchingMoreProducts: boolean;
+  isFetchingMoreStores: boolean;
+  deletingRecentSearchId: string | null;
+  isDeletingRecentSearch: boolean;
+  isClearingRecentSearches: boolean;
+  showIdleState: boolean;
+  showRecentSearches: boolean;
+  hasNoResults: boolean;
+  handleChangeText: (text: string) => void;
+  handleFocus: () => void;
+  handleBlur: () => void;
+  handleClear: () => void;
+  dismissKeyboard: () => void;
+  handleSubmitEditing: () => void;
+  handleSuggestionPress: (term: string) => void;
+  handleRecentSearchPress: (term: string) => void;
+  handleLoadMoreProducts: () => void;
+  handleLoadMoreStores: () => void;
+  onDeleteRecentSearch: (id: string) => void;
+  onClearRecentSearches: () => void;
+  onAddressPress: () => void;
+};
+
+export type SearchResultsSkeletonProps = {
+  showStores?: boolean;
+};
+
+export type SearchSuggestionsSkeletonProps = Record<string, never>;
+
+export type EmptySearchProps = {
+  title?: string;
+  subtitle?: string;
+  showIcon?: boolean;
+};
+
+export type RecentSearchProps = {
+  search: string;
+  onDeletePress: () => void;
+  onItemPress: () => void;
+  isDeleting?: boolean;
+  isDeleteDisabled?: boolean;
+};
+
+export type RecentSearchesProps = {
+  items: RecentSearchItem[];
+  onDeletePress: (id: string) => void;
+  onDeleteAllPress: () => void;
+  onItemPress: (term: string) => void;
+  deletingRecentSearchId?: string | null;
+  isDeletingRecentSearch?: boolean;
+  isClearingRecentSearches?: boolean;
+};
+
+export type SearchChipProps = {
+  label: string;
+  onPress: (label: string) => void;
+};
+
+export type SearchInputProps = {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
@@ -13,42 +123,9 @@ export interface SearchInputProps {
   onBlur?: TextInputProps["onBlur"];
   onSubmitEditing?: TextInputProps["onSubmitEditing"];
   autoFocus?: boolean;
-}
+};
 
-export interface SearchSuggestionsProps {
+export type SearchSuggestionsProps = {
   recommendations: SearchRecommendation[];
   onSuggestionPress: (name: string) => void;
-}
-
-export interface SearchChipProps {
-  label: string;
-  onPress: (label: string) => void;
-}
-
-export interface RecentSearchProps {
-  search: string;
-  onDeletePress: () => void;
-  onItemPress: () => void;
-  isDeleting?: boolean;
-  isDeleteDisabled?: boolean;
-}
-
-export interface RecentSearchesProps {
-  items: RecentSearchItem[];
-  onDeletePress: (id: string) => void;
-  onDeleteAllPress: () => void;
-  onItemPress: (term: string) => void;
-  deletingRecentSearchId?: string | null;
-  isDeletingRecentSearch?: boolean;
-  isClearingRecentSearches?: boolean;
-}
-
-export interface EmptySearchProps {
-  title?: string;
-  subtitle?: string;
-  showIcon?: boolean;
-}
-
-export interface SearchResultsSkeletonProps {
-  showStores?: boolean;
-}
+};
