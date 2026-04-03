@@ -2,6 +2,10 @@ import type {
   DeliveryNearbyStore,
   DeliveryShopTypeProduct,
 } from "../../api/types";
+import type {
+  AddressDetailParams,
+  AddressFlowParams,
+} from '../../navigation/addressFlowTypes';
 import type { SupportFaqArticleId } from "../../utils/supportFaqArticles";
 
 export type SeeAllListingType =
@@ -17,15 +21,6 @@ export type EditProfileParams = {
   gender: string | null;
 };
 
-export type AddressFlowOrigin = 'home-header' | 'profile';
-
-export type AddressFlowParams = {
-  editAddressId?: string;
-  editType?: string;
-  editLocationName?: string;
-  origin?: AddressFlowOrigin;
-};
-
 export type MultiVendorStackParamList = {
   MultiVendorTabs: undefined;
   MyProfile:
@@ -36,15 +31,7 @@ export type MultiVendorStackParamList = {
   EditProfile: EditProfileParams;
   AddressSearch: AddressFlowParams | undefined;
   AddressChooseOnMap: AddressFlowParams | undefined;
-  AddressDetail: {
-    address: string;
-    latitude: number;
-    longitude: number;
-    editAddressId?: string;
-    editType?: string;
-    editLocationName?: string;
-    origin?: AddressFlowOrigin;
-  };
+  AddressDetail: AddressDetailParams;
   Favourites: undefined;
   RateOrder: {
     orderId: string;

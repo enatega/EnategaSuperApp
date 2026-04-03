@@ -2,29 +2,29 @@ import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import Text from '../../../../../general/components/Text';
-import Icon from '../../../../../general/components/Icon';
-import { useTheme } from '../../../../../general/theme/theme';
-import useAddress from '../../../hooks/useAddress';
-import type { ProfileAddress } from '../../api/profileService';
+import Text from '../../../general/components/Text';
+import Icon from '../../../general/components/Icon';
+import { useTheme } from '../../../general/theme/theme';
+import useAddress from '../hooks/useAddress';
+import type { ProfileAddress } from '../multiVendor/api/profileService';
 import {
   createSelectedDeliveryAddress,
   formatDeliveryAddressLabel,
-} from '../../../utils/address';
+} from '../utils/address';
 
 type Props = {
-  cartCount?: number;
   addresses?: ProfileAddress[];
-  onAddressPress?: () => void;
+  cartCount?: number;
   onAddAddressPress?: () => void;
+  onAddressPress?: () => void;
   onCartPress?: () => void;
 };
 
-export default function AddressHeader({
-  cartCount = 0,
+export default function MultiVendorAddressHeader({
   addresses = [],
-  onAddressPress,
+  cartCount = 0,
   onAddAddressPress,
+  onAddressPress,
   onCartPress,
 }: Props) {
   const { colors, typography } = useTheme();
@@ -44,65 +44,68 @@ export default function AddressHeader({
     <View style={[styles.container, { paddingTop: insets.top + 8 }]}>
       {resolvedSelectedAddress ? (
         <Pressable
-          accessibilityRole="button"
           accessibilityLabel={
             resolvedSelectedAddressLabel ?? t('multi_vendor_address_label')
           }
+          accessibilityRole="button"
           onPress={onAddressPress}
           style={({ pressed }) => [
             styles.addressButton,
             {
               backgroundColor: colors.surface,
               borderColor: 'rgba(17, 24, 39, 0.06)',
-              shadowColor: colors.shadowColor,
               opacity: pressed ? 0.92 : 1,
+              shadowColor: colors.shadowColor,
             },
           ]}
         >
           <Icon
-            type="Ionicons"
+            color={colors.iconMuted}
             name="location-outline"
             size={18}
-            color={colors.iconMuted}
+            type="Ionicons"
           />
           <Text
             numberOfLines={1}
             weight="medium"
-            style={[styles.addressText, {
-              color: colors.text,
-              fontSize: typography.size.md,
-              lineHeight: typography.lineHeight.md,
-            }]}
+            style={[
+              styles.addressText,
+              {
+                color: colors.text,
+                fontSize: typography.size.md,
+                lineHeight: typography.lineHeight.md,
+              },
+            ]}
           >
             {resolvedSelectedAddressLabel ?? t('multi_vendor_address_label')}
           </Text>
           <Icon
-            type="Ionicons"
+            color={colors.mutedText}
             name="chevron-down"
             size={14}
-            color={colors.mutedText}
+            type="Ionicons"
           />
         </Pressable>
       ) : (
         <Pressable
-          accessibilityRole="button"
           accessibilityLabel={t('my_profile_add_address')}
+          accessibilityRole="button"
           onPress={onAddAddressPress}
           style={({ pressed }) => [
             styles.addAddressButton,
             {
               backgroundColor: colors.surface,
               borderColor: 'rgba(17, 24, 39, 0.06)',
-              shadowColor: colors.shadowColor,
               opacity: pressed ? 0.92 : 1,
+              shadowColor: colors.shadowColor,
             },
           ]}
         >
           <Icon
-            type="Ionicons"
+            color={colors.primary}
             name="add"
             size={18}
-            color={colors.primary}
+            type="Ionicons"
           />
           <Text
             numberOfLines={1}
@@ -130,16 +133,16 @@ export default function AddressHeader({
           {
             backgroundColor: colors.surface,
             borderColor: 'rgba(17, 24, 39, 0.06)',
-            shadowColor: colors.shadowColor,
             opacity: pressed ? 0.92 : 1,
+            shadowColor: colors.shadowColor,
           },
         ]}
       >
         <Icon
-          type="Ionicons"
+          color={colors.text}
           name="cart-outline"
           size={21}
-          color={colors.text}
+          type="Ionicons"
         />
         {cartCount > 0 ? (
           <View style={[styles.cartBadge, { backgroundColor: colors.primary }]}>
@@ -171,24 +174,13 @@ const styles = StyleSheet.create({
     minHeight: 44,
     paddingHorizontal: 16,
     paddingVertical: 10,
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.08,
     shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
     elevation: 2,
   },
   addAddressText: {
     flexShrink: 1,
-  },
-  container: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 12,
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-  },
-  addressText: {
-    flex: 1,
-    letterSpacing: -0.1,
   },
   addressButton: {
     alignItems: 'center',
@@ -200,23 +192,14 @@ const styles = StyleSheet.create({
     minHeight: 44,
     paddingHorizontal: 14,
     paddingVertical: 10,
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.08,
     shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
     elevation: 2,
   },
-  cartButton: {
-    alignItems: 'center',
-    borderRadius: 22,
-    borderWidth: 1,
-    height: 44,
-    justifyContent: 'center',
-    position: 'relative',
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 2,
-    width: 44,
+  addressText: {
+    flex: 1,
+    letterSpacing: -0.1,
   },
   cartBadge: {
     alignItems: 'center',
@@ -227,5 +210,25 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: -3,
     top: -3,
+  },
+  cartButton: {
+    alignItems: 'center',
+    borderRadius: 22,
+    borderWidth: 1,
+    height: 44,
+    justifyContent: 'center',
+    position: 'relative',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 2,
+    width: 44,
+  },
+  container: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 12,
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
   },
 });

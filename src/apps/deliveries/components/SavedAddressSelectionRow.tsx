@@ -1,8 +1,8 @@
 import React from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Text from '../../../../../general/components/Text';
-import { useTheme } from '../../../../../general/theme/theme';
+import Text from '../../../general/components/Text';
+import { useTheme } from '../../../general/theme/theme';
 
 type Props = {
   address: string | null | undefined;
@@ -14,7 +14,7 @@ type Props = {
   typeLabel: string;
 };
 
-export default function SavedAddressListRow({
+export default function SavedAddressSelectionRow({
   address,
   iconName,
   isDisabled = false,
@@ -24,14 +24,18 @@ export default function SavedAddressListRow({
   typeLabel,
 }: Props) {
   const { colors, typography } = useTheme();
-  const resolvedAddress = address?.trim() || '—';
+  const resolvedAddress = address?.trim() || '-';
   const accentColor = isSelected ? colors.primary : colors.text;
 
   return (
     <Pressable
       accessibilityLabel={`${typeLabel}, ${resolvedAddress}`}
       accessibilityRole="button"
-      accessibilityState={{ busy: isSelecting, disabled: isDisabled, selected: isSelected }}
+      accessibilityState={{
+        busy: isSelecting,
+        disabled: isDisabled,
+        selected: isSelected,
+      }}
       disabled={isDisabled}
       onPress={onPress}
       style={({ pressed }) => [
