@@ -1,8 +1,8 @@
 import type {
   DeliveryNearbyStore,
   DeliveryShopTypeProduct,
-} from '../../api/types';
-import type { SupportFaqArticleId } from '../../utils/supportFaqArticles';
+} from "../../api/types";
+import type { SupportFaqArticleId } from "../../utils/supportFaqArticles";
 
 export type SeeAllListingType =
   | 'nearby-stores'
@@ -73,7 +73,7 @@ export type MultiVendorStackParamList = {
   SeeAllScreen: {
     queryType: SeeAllListingType;
     title: string;
-    cardType: 'store';
+    cardType: "store";
     shopTypeId?: string;
   };
   SeeAllMapView: {
@@ -90,6 +90,12 @@ export type MultiVendorStackParamList = {
   ColorMode: undefined;
   Language: undefined;
   ProductInfo: {
-    productId: string
-  }
+    productId: string;
+  };
+  OrderDetailsScreen: {
+    orderId: string;
+  };
+  OrderTrackingScreen: {
+    orderId: string;
+  };
 };
