@@ -3,7 +3,10 @@ import { ScrollView, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import {
+  useNavigation,
+  type NavigationProp,
+} from '@react-navigation/native';
 import { useTheme } from '../../../../../general/theme/theme';
 import useProfile from '../../hooks/useProfile';
 import ProfileHeader from '../../components/profile/ProfileHeader';
@@ -12,20 +15,49 @@ import ProfileMenuSection from '../../components/profile/ProfileMenuSection';
 import ProfileMenuItem from '../../components/profile/ProfileMenuItem';
 import ProfileSkeleton from '../../components/profile/ProfileSkeleton';
 import { useAppLogout } from '../../../../../general/hooks/useAppLogout';
+import type { DeliveriesAccountStackParamList } from '../../navigation/types';
 
 const ICON_SIZE = 20;
 
-export default function ProfileTab() {
+type Props = {
+  favoritesBehavior: 'enabled' | 'disabled';
+  onOpenFavourites?: () => void;
+};
+
+export default function ProfileTabScreen({
+  favoritesBehavior,
+  onOpenFavourites,
+}: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<DeliveriesAccountStackParamList>>();
   const { user, wallet, isLoading } = useProfile();
   const logoutMutation = useAppLogout();
 
   const handleLogout = useCallback(async () => {
     await logoutMutation.mutateAsync();
   }, [logoutMutation]);
+
+  const handleOpenProfile = useCallback(() => {
+    navigation.navigate('MyProfile');
+  }, [navigation]);
+
+  const handleOpenSettings = useCallback(() => {
+    navigation.navigate('Settings');
+  }, [navigation]);
+
+  const handleOpenSupport = useCallback(() => {
+    navigation.navigate('Support');
+  }, [navigation]);
+
+  const handleOpenColorMode = useCallback(() => {
+    navigation.navigate('ColorMode');
+  }, [navigation]);
+
+  const handleOpenLanguage = useCallback(() => {
+    navigation.navigate('Language');
+  }, [navigation]);
 
   if (isLoading) {
     return (
@@ -62,7 +94,7 @@ export default function ProfileTab() {
         <ProfileMenuItem
           icon={<Ionicons name="person-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_profile')}
-          onPress={() => navigation.navigate('MyProfile' as never)}
+          onPress={handleOpenProfile}
         />
         <ProfileMenuItem
           icon={<Ionicons name="notifications-outline" size={ICON_SIZE} color={iconColor} />}
@@ -71,7 +103,9 @@ export default function ProfileTab() {
         <ProfileMenuItem
           icon={<Ionicons name="heart-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_favorites')}
-          onPress={() => navigation.navigate('Favourites' as never)}
+          onPress={
+            favoritesBehavior === 'enabled' ? onOpenFavourites : undefined
+          }
         />
         <ProfileMenuItem
           icon={<Ionicons name="pricetag-outline" size={ICON_SIZE} color={iconColor} />}
@@ -80,7 +114,7 @@ export default function ProfileTab() {
         <ProfileMenuItem
           icon={<Ionicons name="settings-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_settings')}
-          onPress={() => navigation.navigate('Settings' as never)}
+          onPress={handleOpenSettings}
         />
       </ProfileMenuSection>
 
@@ -88,17 +122,17 @@ export default function ProfileTab() {
         <ProfileMenuItem
           icon={<Ionicons name="help-buoy-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_support')}
-          onPress={() => navigation.navigate('Support' as never)}
+          onPress={handleOpenSupport}
         />
         <ProfileMenuItem
           icon={<Ionicons name="moon-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_color_mode')}
-          onPress={() => navigation.navigate('ColorMode' as never)}
+          onPress={handleOpenColorMode}
         />
         <ProfileMenuItem
           icon={<Ionicons name="globe-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_language')}
-          onPress={() => navigation.navigate('Language' as never)}
+          onPress={handleOpenLanguage}
         />
       </ProfileMenuSection>
 

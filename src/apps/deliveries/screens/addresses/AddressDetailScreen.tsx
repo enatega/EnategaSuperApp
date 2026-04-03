@@ -11,15 +11,12 @@ import Button from '../../../../general/components/Button';
 import AddressDetailForm from '../../components/addresses/AddressDetailForm';
 import type { AddressDetailFormHandle } from '../../components/addresses/AddressDetailForm';
 import { addressService, AddressType } from '../../api/addressService';
+import type { DeliveriesAccountStackParamList } from '../../account/navigation/types';
 import type { DeliveriesAddressFlowParamList } from '../../navigation/addressFlowTypes';
 
-type AddressDetailNavigationParamList = DeliveriesAddressFlowParamList & {
+type AddressDetailNavigationParamList = DeliveriesAddressFlowParamList &
+  Pick<DeliveriesAccountStackParamList, 'MyProfile'> & {
   MultiVendorTabs: undefined;
-  MyProfile:
-    | {
-        selectionMode?: boolean;
-      }
-    | undefined;
   SingleVendorTabs: undefined;
 };
 

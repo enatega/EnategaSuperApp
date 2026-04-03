@@ -1,5 +1,5 @@
 import type { AddressType } from '../api/addressService';
-import type { ProfileAddress } from '../multiVendor/api/profileService';
+import type { ProfileAddress } from '../account/api/profileService';
 import type { DeliveryAddress } from '../stores/useAddressStore';
 
 type DeliveryAddressInput = {

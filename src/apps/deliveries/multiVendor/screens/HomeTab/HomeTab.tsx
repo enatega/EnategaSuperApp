@@ -15,7 +15,7 @@ import Deals from '../../components/HomeTab/Deals';
 import OrderAgain from '../../components/HomeTab/OrderAgain';
 import { useCartCount } from '../../../hooks/useCart';
 import useAddressSelectionSheet from '../../../hooks/useAddressSelectionSheet';
-import type { ProfileAddress } from '../../api/profileService';
+import type { ProfileAddress } from '../../../account/api/profileService';
 import useSavedAddresses from '../../../hooks/useSavedAddresses';
 import { styles } from './HomeTabStyle';
 import type { MultiVendorStackParamList } from '../../navigation/types';

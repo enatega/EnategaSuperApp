@@ -25,7 +25,7 @@ export default function DeleteAccountReasonStep({ selectedReason, onSelectReason
       <Text variant="caption" color={colors.mutedText} style={styles.label}>
         {t('delete_account_step_label')}
       </Text>
-      <Text variant="h3" weight="bold" color={colors.text} style={styles.heading}>
+      <Text variant="title" weight="bold" color={colors.text} style={styles.heading}>
         {t('delete_account_sorry_heading')}
       </Text>
       <Text variant="body" color={colors.mutedText} style={styles.subtext}>

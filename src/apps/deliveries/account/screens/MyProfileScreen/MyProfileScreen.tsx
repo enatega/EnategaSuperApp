@@ -1,8 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import {
+  useNavigation,
+  useRoute,
+  type NavigationProp,
+  type RouteProp,
+} from '@react-navigation/native';
 import ScreenHeader from '../../../../../general/components/ScreenHeader';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
@@ -13,11 +17,14 @@ import MyProfileSkeleton from '../../components/profile/MyProfileSkeleton';
 import ProfilePhotoEditor from '../../components/profile/ProfilePhotoEditor';
 import AddressOptionsBottomSheet from '../../components/profile/AddressOptionsBottomSheet';
 import SavedAddressesList from '../../components/addressSelection/SavedAddressesList';
-import { ProfileAddress } from '../../api/profileService';
+import type { ProfileAddress } from '../../api/profileService';
 import { addressService } from '../../../api/addressService';
-import type { MultiVendorStackParamList } from '../../navigation/types';
 import useAddress from '../../../hooks/useAddress';
 import useSelectSavedAddress from '../../../hooks/useSelectSavedAddress';
+import type {
+  DeliveriesAccountNavigationParamList,
+  DeliveriesAccountStackParamList,
+} from '../../navigation/types';
 import {
   formatDeliveryAddressLabel,
 } from '../../../utils/address';
@@ -26,8 +33,9 @@ export default function MyProfileScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const navigation =
-    useNavigation<NativeStackNavigationProp<MultiVendorStackParamList>>();
-  const route = useRoute<RouteProp<MultiVendorStackParamList, 'MyProfile'>>();
+    useNavigation<NavigationProp<DeliveriesAccountNavigationParamList>>();
+  const route =
+    useRoute<RouteProp<DeliveriesAccountStackParamList, 'MyProfile'>>();
   const { user, addresses, isLoading, refetch } = useProfile();
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false);
   const [imageCacheKey, setImageCacheKey] = useState(0);
@@ -71,7 +79,7 @@ export default function MyProfileScreen() {
     navigation.navigate('AddressSearch', {
       origin: isSelectionMode
         ? 'multi-vendor-home'
-        : 'multi-vendor-profile',
+        : 'profile',
     });
   }, [isSelectionMode, navigation]);
 
@@ -83,7 +91,7 @@ export default function MyProfileScreen() {
       editLocationName: addressMenuTarget.location_name ?? '',
       origin: isSelectionMode
         ? 'multi-vendor-home'
-        : 'multi-vendor-profile',
+        : 'profile',
     });
   }, [addressMenuTarget, isSelectionMode, navigation]);
 

@@ -19,7 +19,6 @@ const fr = {
   single_vendor_tab_profile: 'Profil',
   single_vendor_tab_search_placeholder: 'Les résultats de recherche et les outils de découverte apparaîtront bientôt ici.',
   single_vendor_tab_orders_placeholder: 'Vos commandes vendeur unique apparaîtront bientôt ici.',
-  single_vendor_tab_profile_placeholder: 'Les options de compte et de profil apparaîtront bientôt ici.',
   single_vendor_logout_error_title: 'Erreur',
   single_vendor_logout_error_message: 'Impossible de vous déconnecter pour le moment.',
   multi_vendor_home_subtitle: 'Parcourez plusieurs magasins',

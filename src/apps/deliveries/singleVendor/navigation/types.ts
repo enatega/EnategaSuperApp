@@ -2,6 +2,7 @@ import type {
   AddressDetailParams,
   AddressFlowParams,
 } from '../../navigation/addressFlowTypes';
+import type { DeliveriesAccountStackParamList } from '../../account/navigation/types';
 
 export type SingleVendorBottomTabParamList = {
   SingleVendorTabHome: undefined;
@@ -10,7 +11,7 @@ export type SingleVendorBottomTabParamList = {
   SingleVendorTabProfile: undefined;
 };
 
-export type SingleVendorStackParamList = {
+export type SingleVendorStackParamList = DeliveriesAccountStackParamList & {
   SingleVendorTabs: undefined;
   SingleVendorDetails: undefined;
   AddressSearch: AddressFlowParams | undefined;

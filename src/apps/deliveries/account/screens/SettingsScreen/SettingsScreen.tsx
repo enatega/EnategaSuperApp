@@ -3,13 +3,17 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import {
+  useNavigation,
+  type NavigationProp,
+} from '@react-navigation/native';
 import { useTheme } from '../../../../../general/theme/theme';
 import ScreenHeader from '../../../../../general/components/ScreenHeader';
 import Text from '../../../../../general/components/Text';
 import Button from '../../../../../general/components/Button';
 import ProfileMenuSection from '../../components/profile/ProfileMenuSection';
 import ProfileMenuItem from '../../components/profile/ProfileMenuItem';
+import type { DeliveriesAccountStackParamList } from '../../navigation/types';
 
 const ICON_SIZE = 20;
 
@@ -17,12 +21,12 @@ export default function SettingsScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<DeliveriesAccountStackParamList>>();
 
   const iconColor = colors.text;
 
   const handleDeleteAccount = () => {
-    navigation.navigate('DeleteAccount' as never);
+    navigation.navigate('DeleteAccount');
   };
 
   return (
@@ -38,27 +42,27 @@ export default function SettingsScreen() {
           <ProfileMenuItem
             icon={<Ionicons name="notifications-outline" size={ICON_SIZE} color={iconColor} />}
             label={t('settings_notifications')}
-            onPress={() => navigation.navigate('NotificationSettings' as never)}
+            onPress={() => navigation.navigate('NotificationSettings')}
           />
           <ProfileMenuItem
             icon={<Ionicons name="key-outline" size={ICON_SIZE} color={iconColor} />}
             label={t('settings_change_password')}
-            onPress={() => navigation.navigate('ChangePassword' as never)}
+            onPress={() => navigation.navigate('ChangePassword')}
           />
           <ProfileMenuItem
             icon={<Ionicons name="shield-outline" size={ICON_SIZE} color={iconColor} />}
             label={t('settings_privacy_policy')}
-            onPress={() => navigation.navigate('PrivacyPolicy' as never)}
+            onPress={() => navigation.navigate('PrivacyPolicy')}
           />
           <ProfileMenuItem
             icon={<Ionicons name="document-text-outline" size={ICON_SIZE} color={iconColor} />}
             label={t('settings_terms_of_service')}
-            onPress={() => navigation.navigate('TermsOfService' as never)}
+            onPress={() => navigation.navigate('TermsOfService')}
           />
           <ProfileMenuItem
             icon={<Ionicons name="document-outline" size={ICON_SIZE} color={iconColor} />}
             label={t('settings_terms_of_use')}
-            onPress={() => navigation.navigate('TermsOfUse' as never)}
+            onPress={() => navigation.navigate('TermsOfUse')}
           />
         </ProfileMenuSection>
       </ScrollView>
