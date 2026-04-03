@@ -4,18 +4,20 @@ import { useTranslation } from "react-i18next";
 import Text from "../../../../general/components/Text";
 import { useTheme } from "../../../../general/theme/theme";
 import ProductOptionRow from "./ProductOptionRow";
-import type { ProductSelectionSection } from "./useProductSelectionState";
+import type { ProductVariationOption } from "./useProductSelectionState";
 
 type Props = {
-  variations: ProductSelectionSection[];
-  selectedOptionIdsByGroup: Record<string, string>;
+  helperText?: string | null;
+  selectedVariationKey: string | null;
   onSelect: (groupId: string, optionId: string) => void;
   formatPrice: (value: number) => string;
+  variations: ProductVariationOption[];
 };
 
 export default function ItemSizes({
+  helperText,
   variations,
-  selectedOptionIdsByGroup,
+  selectedVariationKey,
   onSelect,
   formatPrice,
 }: Props) {
@@ -39,33 +41,29 @@ export default function ItemSizes({
       >
         {t("choose_variation")}
       </Text>
-      {variations.map((variationSection) => (
-        <View key={variationSection.groupId} style={styles.sectionBlock}>
-          <Text color={colors.iconDisabled} style={styles.subtitle}>
-            {variationSection.helperText || t("select_one")}
-          </Text>
+      <Text color={colors.iconDisabled} style={styles.subtitle}>
+        {helperText || t("select_one")}
+      </Text>
 
-          <View accessibilityRole="radiogroup" style={styles.options}>
-            <FlatList
-              data={variationSection.options}
-              keyExtractor={(item) => item.optionId}
-              renderItem={({ item }) => (
-                <ProductOptionRow
-                  controlType="radio"
-                  isSelected={
-                    selectedOptionIdsByGroup[variationSection.groupId] === item.optionId
-                  }
-                  label={item.label}
-                  onPress={() => onSelect(variationSection.groupId, item.optionId)}
-                  priceLabel={item.price === 0 ? t("free") : formatPrice(item.price ?? 0)}
-                />
-              )}
-              scrollEnabled={false}
-              ItemSeparatorComponent={() => <View style={styles.separator} />}
+      <View accessibilityRole="radiogroup" style={styles.options}>
+        <FlatList
+          data={variations}
+          keyExtractor={(item) => item.groupId}
+          renderItem={({ item }) => (
+            <ProductOptionRow
+              controlType="radio"
+              isSelected={
+                selectedVariationKey === `${item.groupId}:${item.optionId}`
+              }
+              label={item.label}
+              onPress={() => onSelect(item.groupId, item.optionId)}
+              priceLabel={item.price === 0 ? t("free") : formatPrice(item.price ?? 0)}
             />
-          </View>
-        </View>
-      ))}
+          )}
+          scrollEnabled={false}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+        />
+      </View>
     </View>
   );
 }
@@ -76,9 +74,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 4,
     paddingTop: 16,
-  },
-  sectionBlock: {
-    gap: 2,
   },
   options: {
     paddingTop: 12,

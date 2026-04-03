@@ -7,6 +7,7 @@ import ChainNavigator from '../chain/navigation/ChainNavigator';
 import { useTranslation } from 'react-i18next';
 import ProductInfo from '../screens/ProductInfo/ProductInfo';
 import CartScreen from '../screens/CartScreen/CartScreen';
+import CheckoutScreen from '../screens/CheckoutScreen/CheckoutScreen';
 import {
   DEFAULT_DELIVERY_MODE,
   getDeliveryModePreference,
@@ -77,6 +78,7 @@ export default function DeliveriesNavigator() {
       <Stack.Screen name="Chain" component={ChainNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="ProductInfo" component={ProductInfo} options={{ headerShown: false }} />
       <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }

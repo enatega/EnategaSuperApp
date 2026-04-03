@@ -1,0 +1,68 @@
+export type CheckoutOrderType = 'delivery' | 'pickup';
+
+export type CheckoutPreviewInput = {
+  storeId: string;
+  bucketId: string;
+  orderType: CheckoutOrderType;
+  addressId?: string;
+  scheduledAt?: string;
+  riderTip?: number;
+};
+
+export type CheckoutPreviewStore = {
+  id: string;
+  name: string;
+  address: string | null;
+  image: string | null;
+  logo: string | null;
+  pickupAllowed: boolean;
+  deliveryAllowed: boolean;
+  scheduleAllowed: boolean;
+  codAllowed: boolean;
+  stripeAllowed: boolean;
+};
+
+export type CheckoutPreviewPickup = {
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+};
+
+export type CheckoutPreviewDelivery = {
+  addressId: string;
+  label: string | null;
+  address: string;
+  latitude: number;
+  longitude: number;
+};
+
+export type CheckoutPreviewPricing = {
+  subtotal: number;
+  discount: number;
+  tax: number;
+  packingCharges: number;
+  deliveryFee: number;
+  riderTip: number;
+  totalAmount: number;
+};
+
+export type CheckoutPreviewBucketItem = Record<string, unknown>;
+
+export type CheckoutPreviewResponse = {
+  store: CheckoutPreviewStore;
+  fulfillment: {
+    orderType: CheckoutOrderType;
+    pickup: CheckoutPreviewPickup | null;
+    delivery: CheckoutPreviewDelivery | null;
+  };
+  schedule: {
+    isScheduled: boolean;
+    scheduledAt: string | null;
+    scheduleAllowed: boolean;
+  };
+  pricing: CheckoutPreviewPricing;
+  bucket: {
+    itemCount: number;
+    items: CheckoutPreviewBucketItem[];
+  };
+};

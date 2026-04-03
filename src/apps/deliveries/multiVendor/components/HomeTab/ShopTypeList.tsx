@@ -44,7 +44,7 @@ export default function ShopTypeList() {
         ({ shopType, data = [], error, isPending: isStoresPending }) => (
           <ShopTypeStoreList
             key={shopType.id}
-            errorMessage={error?.message}
+            hasError={Boolean(error)}
             isLoading={isStoresPending}
             shopTypeId={shopType.id}
             stores={data}
