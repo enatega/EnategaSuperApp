@@ -4,6 +4,7 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import AppPopup from '../../../../../general/components/AppPopup';
 import Text from '../../../../../general/components/Text';
+import { showToast } from '../../../../../general/components/AppToast';
 import useDebouncedValue from '../../../../../general/hooks/useDebouncedValue';
 import { useTheme } from '../../../../../general/theme/theme';
 import { useStoreProducts, useStoreView } from '../../../hooks';
@@ -14,6 +15,7 @@ import type {
 import StoreDetailListHeader from '../../components/StoreDetails/StoreDetailListHeader';
 import StoreDetailProductsList from '../../components/StoreDetails/StoreDetailProductsList';
 import StoreDetailsScreenSkeleton from '../../components/StoreDetails/StoreDetailsScreenSkeleton';
+import { useToggleFavouriteMutation } from '../../hooks/useToggleFavouriteMutation';
 // import { data } from './storedetaiolsData';
 
 type StoreDetailsParamList = {
@@ -66,29 +68,46 @@ export default function StoreDetailsScreen() {
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string | null>(null);
   const selectedStore = route.params?.store;
   const storeId = selectedStore?.storeId ?? '';
+  const [optimisticFav, setOptimisticFav] = useState<boolean | null>(null);
+
+  const { mutate: toggleFavourite, isPending: isTogglingFavourite } = useToggleFavouriteMutation({
+    storeId,
+    onSuccess: (data) => {
+      // Clear optimistic state — storeView refetch will provide truth
+      setOptimisticFav(null);
+      showToast.success(
+        data.isFavorite
+          ? t('favourites_toggle_added')
+          : t('favourites_toggle_removed'),
+      );
+    },
+    onError: () => {
+      setOptimisticFav(null);
+      showToast.error(t('favourites_toggle_error'));
+    },
+  });
+
   const normalizedSearchValue = useMemo(
     () => searchValue.replace(/\s+/g, ' ').trim(),
     [searchValue],
   );
-  const debouncedSearchValue = useDebouncedValue(
-    normalizedSearchValue,
-    SEARCH_DEBOUNCE_MS,
-  );
+  const debouncedSearchValue = useDebouncedValue(normalizedSearchValue, SEARCH_DEBOUNCE_MS);
   const effectiveSearchValue =
-    normalizedSearchValue.length >= MIN_SEARCH_QUERY_LENGTH
-      ? debouncedSearchValue
-      : '';
+    normalizedSearchValue.length >= MIN_SEARCH_QUERY_LENGTH ? debouncedSearchValue : '';
 
   const {
     data: storeData,
     error: storeError,
     isPending: isStorePending,
-  } = useStoreView(
-    storeId,
-    {
-      enabled: Boolean(storeId),
-    },
-  );
+  } = useStoreView(storeId, { enabled: Boolean(storeId) });
+
+  const handleFavouritePress = useCallback(() => {
+    setOptimisticFav((prev) => {
+      const current = prev ?? storeData?.isFavorited ?? selectedStore?.isFavorite ?? false;
+      return !current;
+    });
+    toggleFavourite({ storeId });
+  }, [storeId, storeData, selectedStore, toggleFavourite]);
 
   const {
     data: productsData,
@@ -249,12 +268,15 @@ export default function StoreDetailsScreen() {
         logoImageUrl={logoImageUrl}
         onBackPress={handleBackPress}
         onCategorySelect={handleCategorySelect}
+        onFavouritePress={handleFavouritePress}
         onInfoPress={handleOpenInfoModal}
         onSearchChange={setSearchValue}
         onSubcategorySelect={handleSubcategorySelect}
         phone={phone}
         rating={rating}
         reviewCount={reviewCount}
+        isFavourite={optimisticFav ?? storeData?.isFavorited ?? selectedStore?.isFavorite ?? false}
+        isFavouriteLoading={isTogglingFavourite}
         searchValue={searchValue}
         sectionTitle={sectionTitle}
         storeName={storeName}
@@ -274,11 +296,14 @@ export default function StoreDetailsScreen() {
       logoImageUrl,
       handleBackPress,
       handleCategorySelect,
+      handleFavouritePress,
       handleOpenInfoModal,
       handleSubcategorySelect,
       phone,
       rating,
       reviewCount,
+      optimisticFav,
+      isTogglingFavourite,
       searchValue,
       sectionTitle,
       storeName,
