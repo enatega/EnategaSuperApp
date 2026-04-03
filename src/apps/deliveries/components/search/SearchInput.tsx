@@ -10,7 +10,8 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../../../general/theme/theme";
 import Icon from "../../../../general/components/Icon";
-import type { SearchInputProps } from "./types";
+import { SearchInputProps } from "./types";
+
 
 const SearchInput = forwardRef<TextInput, SearchInputProps>(
   function SearchInput(

@@ -2,7 +2,8 @@ import React from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
 import Text from "../../../../general/components/Text";
 import { useTheme } from "../../../../general/theme/theme";
-import type { SearchChipProps } from "./types";
+import { SearchChipProps } from "./types";
+
 
 export default function SearchChip({ label, onPress }: SearchChipProps) {
   const { colors, typography } = useTheme();
