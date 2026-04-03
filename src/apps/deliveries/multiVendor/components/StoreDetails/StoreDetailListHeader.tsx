@@ -7,6 +7,7 @@ import Image from '../../../../../general/components/Image';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
 import StoreDetailActionButton from './StoreDetailActionButton';
+import FavouriteHeartButton from '../favourites/FavouriteHeartButton';
 import StoreDetailInfoRow from './StoreDetailInfoRow';
 import StoreDetailSubcategory from './StoreDetailSubcategory';
 import StoreDetailTabs from './StoreDetailTabs';
@@ -28,11 +29,14 @@ type Props = {
   logoImageUrl: string;
   onBackPress: () => void;
   onCategorySelect: (categoryId: string | null) => void;
+  onFavouritePress: () => void;
   onInfoPress: () => void;
   onSubcategorySelect: (subcategoryId: string) => void;
   phone?: string | null;
   rating?: number | null;
   reviewCount?: number | null;
+  isFavourite?: boolean;
+  isFavouriteLoading?: boolean;
   searchValue: string;
   sectionTitle: string;
   storeName: string;
@@ -53,12 +57,15 @@ export default function StoreDetailListHeader({
   logoImageUrl,
   onBackPress,
   onCategorySelect,
+  onFavouritePress,
   onInfoPress,
   onSearchChange,
   onSubcategorySelect,
   phone,
   rating,
   reviewCount,
+  isFavourite = false,
+  isFavouriteLoading = false,
   searchValue,
   sectionTitle,
   storeName,
@@ -100,9 +107,12 @@ export default function StoreDetailListHeader({
                   iconType="Feather"
                   onPress={onInfoPress}
                 />
-                <StoreDetailActionButton
+                <FavouriteHeartButton
                   accessibilityLabel={t('store_details_action_favorite')}
-                  iconName="heart-outline"
+                  isFavourite={isFavourite}
+                  isLoading={isFavouriteLoading}
+                  onPress={onFavouritePress}
+                  style={styles.favButton}
                 />
                 <StoreDetailActionButton
                   accessibilityLabel={t('store_details_action_share')}
@@ -231,6 +241,15 @@ const styles = StyleSheet.create({
   actionGroup: {
     flexDirection: 'row',
     gap: 12,
+  },
+  favButton: {
+    position: 'relative',
+    top: undefined,
+    right: undefined,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,
   },
   heroTitle: {
     letterSpacing: -0.8,
