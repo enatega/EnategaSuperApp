@@ -1,24 +1,44 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import SingleVendorHomeScreen from '../screens/HomeScreen';
-import SingleVendorDeliveryDetails from '../screens/DeliveryDetails';
 import { useTranslation } from 'react-i18next';
+import AddressChooseOnMapScreen from '../../screens/addresses/AddressChooseOnMapScreen';
+import AddressDetailScreen from '../../screens/addresses/AddressDetailScreen';
+import AddressSearchScreen from '../../screens/addresses/AddressSearchScreen';
+import SingleVendorDeliveryDetails from '../screens/DeliveryDetails';
+import SinglevendorBottomTabNavigator from './SinglevendorBottomTabNavigator';
+import type { SingleVendorStackParamList } from './types';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<SingleVendorStackParamList>();
 
 export default function SingleVendorNavigator() {
   const { t } = useTranslation('deliveries');
+
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="SingleVendorHome"
-        component={SingleVendorHomeScreen}
-        options={{ title: t('single_vendor_title') }}
+        name="SingleVendorTabs"
+        component={SinglevendorBottomTabNavigator}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="SingleVendorDetails"
         component={SingleVendorDeliveryDetails}
         options={{ title: t('details_title') }}
+      />
+      <Stack.Screen
+        name="AddressSearch"
+        component={AddressSearchScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="AddressChooseOnMap"
+        component={AddressChooseOnMapScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="AddressDetail"
+        component={AddressDetailScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

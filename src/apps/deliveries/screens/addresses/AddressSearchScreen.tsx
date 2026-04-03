@@ -17,15 +17,16 @@ import {
   getRecentAddressSearches,
   RecentAddressSearch,
 } from '../../storage/recentAddressSearches';
-import type { MultiVendorStackParamList } from '../../multiVendor/navigation/types';
+import type { DeliveriesAddressFlowParamList } from '../../navigation/addressFlowTypes';
 
 export default function AddressSearchScreen() {
   const nav =
-    useNavigation<NativeStackNavigationProp<MultiVendorStackParamList>>();
+    useNavigation<NativeStackNavigationProp<DeliveriesAddressFlowParamList>>();
   const route = useRoute();
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
-  const params = (route.params as MultiVendorStackParamList['AddressSearch']) ?? {};
+  const params =
+    (route.params as DeliveriesAddressFlowParamList['AddressSearch']) ?? {};
 
   const [query, setQuery] = useState('');
   const [recentSearches, setRecentSearches] = useState<RecentAddressSearch[]>([]);

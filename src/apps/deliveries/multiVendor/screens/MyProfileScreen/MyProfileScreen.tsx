@@ -69,7 +69,9 @@ export default function MyProfileScreen() {
 
   const handleAddAddress = useCallback(() => {
     navigation.navigate('AddressSearch', {
-      origin: isSelectionMode ? 'home-header' : 'profile',
+      origin: isSelectionMode
+        ? 'multi-vendor-home'
+        : 'multi-vendor-profile',
     });
   }, [isSelectionMode, navigation]);
 
@@ -79,7 +81,9 @@ export default function MyProfileScreen() {
       editAddressId: addressMenuTarget.id,
       editType: addressMenuTarget.type,
       editLocationName: addressMenuTarget.location_name ?? '',
-      origin: isSelectionMode ? 'home-header' : 'profile',
+      origin: isSelectionMode
+        ? 'multi-vendor-home'
+        : 'multi-vendor-profile',
     });
   }, [addressMenuTarget, isSelectionMode, navigation]);
 
