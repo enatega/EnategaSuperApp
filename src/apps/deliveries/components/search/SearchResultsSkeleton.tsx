@@ -8,52 +8,55 @@ export default function SearchResultsSkeleton({
 }: SearchResultsSkeletonProps) {
   return (
     <View style={styles.container}>
-      <View style={styles.section}>
-        <View style={styles.headerRow}>
-          <Skeleton width={110} height={28} borderRadius={6} />
-          <Skeleton width={74} height={32} borderRadius={6} />
-        </View>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.productRow}
-        >
-          {Array.from({ length: 4 }).map((_, index) => (
-            <View key={`product-skeleton-${index}`} style={styles.productCard}>
-              <Skeleton width={100} height={100} borderRadius={6} />
-              <Skeleton width={68} height={10} borderRadius={4} />
-            </View>
-          ))}
-        </ScrollView>
-      </View>
-
       {showStores && (
         <View style={styles.section}>
-          <View style={styles.storeHeader}>
-            <Skeleton width={88} height={28} borderRadius={6} />
+          <View style={styles.headerRow}>
+            <Skeleton width={110} height={28} borderRadius={6} />
+            <Skeleton width={74} height={32} borderRadius={6} />
           </View>
 
-          {Array.from({ length: 2 }).map((_, index) => (
-            <View key={`store-skeleton-${index}`} style={styles.storeCard}>
-              <Skeleton width="100%" height={140} borderRadius={8} />
-              <View style={styles.storeContent}>
-                <Skeleton width="55%" height={14} borderRadius={4} />
-                <View style={styles.metaRow}>
-                  <Skeleton width={76} height={12} borderRadius={4} />
-                  <Skeleton width={60} height={12} borderRadius={4} />
-                </View>
-                <Skeleton width="100%" height={1} borderRadius={1} />
-                <View style={styles.infoRow}>
-                  <Skeleton width={52} height={12} borderRadius={4} />
-                  <Skeleton width={64} height={12} borderRadius={4} />
-                  <Skeleton width={54} height={12} borderRadius={4} />
-                </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.productRow}
+          >
+            {Array.from({ length: 4 }).map((_, index) => (
+              <View
+                key={`product-skeleton-${index}`}
+                style={styles.productCard}
+              >
+                <Skeleton width={100} height={100} borderRadius={6} />
+                <Skeleton width={68} height={10} borderRadius={4} />
               </View>
-            </View>
-          ))}
+            ))}
+          </ScrollView>
         </View>
       )}
+
+      <View style={styles.section}>
+        <View style={styles.storeHeader}>
+          <Skeleton width={88} height={28} borderRadius={6} />
+        </View>
+
+        {Array.from({ length: 2 }).map((_, index) => (
+          <View key={`store-skeleton-${index}`} style={styles.storeCard}>
+            <Skeleton width="100%" height={140} borderRadius={8} />
+            <View style={styles.storeContent}>
+              <Skeleton width="55%" height={14} borderRadius={4} />
+              <View style={styles.metaRow}>
+                <Skeleton width={76} height={12} borderRadius={4} />
+                <Skeleton width={60} height={12} borderRadius={4} />
+              </View>
+              <Skeleton width="100%" height={1} borderRadius={1} />
+              <View style={styles.infoRow}>
+                <Skeleton width={52} height={12} borderRadius={4} />
+                <Skeleton width={64} height={12} borderRadius={4} />
+                <Skeleton width={54} height={12} borderRadius={4} />
+              </View>
+            </View>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }

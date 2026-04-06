@@ -9,53 +9,51 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Text from "../../../../../general/components/Text";
-import SearchInput from "../../../components/search/SearchInput";
-import SearchSuggestionsSkeleton from "../../../components/search/SearchSuggestionsSkeleton";
-import SearchSuggestions from "../../../components/search/SearchSuggestions";
-import RecentSearches from "../../../components/search/RecentSearches";
-import Icon from "../../../../../general/components/Icon";
-import { typography } from "../../../../../general/theme/typography";
-import useMainSearchFlow from "./useMainSearchFlow";
+import Icon from "../../../../general/components/Icon";
+import Text from "../../../../general/components/Text";
+import { typography } from "../../../../general/theme/typography";
+import SearchInput from "./SearchInput";
+import RecentSearches from "./RecentSearches";
+import SearchSuggestions from "./SearchSuggestions";
+import SearchSuggestionsSkeleton from "./SearchSuggestionsSkeleton";
 import SearchResults from "./SearchResults";
+import type { SearchMainContainerProps } from "./types";
 
-export default function MainSearch() {
-  const {
-    colors,
-    t,
-    inputRef,
-    searchQuery,
-    recommendations,
-    recentSearches,
-    products,
-    stores,
-    shouldSearchStores,
-    isSearchActive,
-    isLoadingRecommendations,
-    isSearchLoading,
-    isFetchingMoreProducts,
-    isFetchingMoreStores,
-    deletingRecentSearchId,
-    isDeletingRecentSearch,
-    isClearingRecentSearches,
-    showIdleState,
-    showRecentSearches,
-    hasNoResults,
-    handleChangeText,
-    handleFocus,
-    handleBlur,
-    handleClear,
-    dismissKeyboard,
-    handleSubmitEditing,
-    handleSuggestionPress,
-    handleRecentSearchPress,
-    handleLoadMoreProducts,
-    handleLoadMoreStores,
-    onDeleteRecentSearch,
-    onClearRecentSearches,
-    onAddressPress,
-  } = useMainSearchFlow();
-
+export default function SearchMainContainer({
+  colors,
+  t,
+  inputRef,
+  searchQuery,
+  recommendations,
+  recentSearches,
+  products,
+  stores,
+  shouldSearchStores,
+  isSearchActive,
+  isLoadingRecommendations,
+  isSearchLoading,
+  isFetchingMoreProducts,
+  isFetchingMoreStores,
+  deletingRecentSearchId,
+  isDeletingRecentSearch,
+  isClearingRecentSearches,
+  showIdleState,
+  showRecentSearches,
+  hasNoResults,
+  handleChangeText,
+  handleFocus,
+  handleBlur,
+  handleClear,
+  dismissKeyboard,
+  handleSubmitEditing,
+  handleSuggestionPress,
+  handleRecentSearchPress,
+  handleLoadMoreProducts,
+  handleLoadMoreStores,
+  onDeleteRecentSearch,
+  onClearRecentSearches,
+  onAddressPress,
+}: SearchMainContainerProps) {
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <SafeAreaView
@@ -85,19 +83,19 @@ export default function MainSearch() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
           >
-            {showRecentSearches && (
+            {showRecentSearches ? (
               <RecentSearches
                 items={recentSearches}
                 onItemPress={handleRecentSearchPress}
                 onDeletePress={onDeleteRecentSearch}
-                onDeleteAllPress={() => onClearRecentSearches()}
+                onDeleteAllPress={onClearRecentSearches}
                 deletingRecentSearchId={deletingRecentSearchId}
                 isDeletingRecentSearch={isDeletingRecentSearch}
                 isClearingRecentSearches={isClearingRecentSearches}
               />
-            )}
+            ) : null}
 
-            {showIdleState && (
+            {showIdleState ? (
               <View style={styles.idleState}>
                 <Pressable
                   accessibilityRole="button"
@@ -136,7 +134,8 @@ export default function MainSearch() {
                   />
                 )}
               </View>
-            )}
+            ) : null}
+
             <SearchResults
               isSearchActive={isSearchActive}
               shouldSearchStores={shouldSearchStores}
