@@ -8,6 +8,16 @@ export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
   SingleVendor: NavigatorScreenParams<SingleVendorStackParamList> | undefined;
   MultiVendor: NavigatorScreenParams<MultiVendorStackParamList> | undefined;
   Chain: undefined;
+  RateOrder: {
+    orderId: string;
+    storeName: string;
+  };
+  OrderDetailsScreen: {
+    orderId: string;
+  };
+  OrderTrackingScreen: {
+    orderId: string;
+  };
   ProductInfo: {
     productId: string;
   };

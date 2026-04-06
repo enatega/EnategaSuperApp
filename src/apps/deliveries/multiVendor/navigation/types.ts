@@ -13,10 +13,6 @@ export type SeeAllItem = DeliveryNearbyStore | DeliveryShopTypeProduct;
 export type MultiVendorStackParamList = {
   MultiVendorTabs: undefined;
   Favourites: undefined;
-  RateOrder: {
-    orderId: string;
-    storeName: string;
-  };
   StoreDetails: {
     store?: DeliveryNearbyStore;
   };
@@ -32,11 +28,5 @@ export type MultiVendorStackParamList = {
   };
   ProductInfo: {
     productId: string;
-  };
-  OrderDetailsScreen: {
-    orderId: string;
-  };
-  OrderTrackingScreen: {
-    orderId: string;
   };
 };

@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
 import SingleVendorTabButton from '../components/navigation/SingleVendorTabButton';
 import HomeScreen from '../screens/HomeScreen/HomeScreen';
-import OrderScreen from '../screens/OrderScreen/OrderScreen';
 import SearchScreen from '../screens/SearchScreen/SearchScreen';
 import SingleVendorProfileTabScreen from '../../account/screens/ProfileTab/SingleVendorProfileTabScreen';
+import OrdersScreen from '../../screens/OrdersScreen/OrdersScreen';
 import type { SingleVendorBottomTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<SingleVendorBottomTabParamList>();
@@ -81,7 +81,7 @@ export default function SinglevendorBottomTabNavigator() {
         }}
       />
       <Tab.Screen
-        component={OrderScreen}
+        component={OrdersScreen}
         name="SingleVendorTabOrders"
         options={{
           tabBarIcon: ({ color, size }: TabIconProps) => (

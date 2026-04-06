@@ -3,11 +3,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTranslation } from 'react-i18next';
 import HomeTab from '../screens/HomeTab/HomeTab';
-import OrdersTab from '../screens/OrderTab/OrdersTab';
 import SearchTab from '../screens/SearchTab/SearchTab';
 import { useTheme } from '../../../../general/theme/theme';
 import MultiVendorTabButton from '../components/TabButton';
 import MultiVendorProfileTabScreen from '../../account/screens/ProfileTab/MultiVendorProfileTabScreen';
+import OrdersScreen from '../../screens/OrdersScreen/OrdersScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -73,7 +73,7 @@ function MultiVendorBottomTabNavigator() {
         }}
       />
       <Tab.Screen
-        component={OrdersTab}
+        component={OrdersScreen}
         name="MultiVendorTabOrders"
         options={{
           tabBarIcon: renderIcon('receipt-text-outline'),
