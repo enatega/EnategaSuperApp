@@ -125,6 +125,7 @@ export type SendSupportChatMessagePayload = {
   senderId: string;
   receiverId: string;
   text: string;
+  chatBoxId?: string;
 };
 
 export type SendSupportChatMessageResponse = {

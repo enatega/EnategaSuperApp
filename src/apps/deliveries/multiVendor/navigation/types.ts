@@ -3,6 +3,7 @@ import type {
   DeliveryShopTypeProduct,
 } from '../../api/types';
 import type { SupportFaqArticleId } from '../../utils/supportFaqArticles';
+import type { SupportTicketListItemModel } from '../../utils/supportTicketMappers';
 
 export type SeeAllListingType =
   | 'nearby-stores'
@@ -71,6 +72,9 @@ export type MultiVendorStackParamList = {
     articleId: SupportFaqArticleId;
   };
   SupportTickets: undefined;
+  SupportTicketDetail: {
+    ticket: SupportTicketListItemModel;
+  };
   SeeAllScreen: {
     queryType: SeeAllListingType;
     title: string;

@@ -1,5 +1,6 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -10,12 +11,24 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Text from '../../../general/components/Text';
+import { showToast } from '../../../general/components/AppToast';
+import { useAuthSessionQuery } from '../../../general/hooks/useAuthQueries';
 import { useTheme } from '../../../general/theme/theme';
 import ChatComposer from '../components/chat/ChatComposer';
 import ChatMessageBubble from '../components/chat/ChatMessageBubble';
 import ChatQuickReplyChip from '../components/chat/ChatQuickReplyChip';
 import SupportHeader from '../components/support/SupportHeader';
+import { useSendSupportChatMessage } from '../hooks/useSupportChatMutations';
+import { useSupportChatBox } from '../hooks/useSupportChatQueries';
 import type { SupportNavigationParamList } from '../navigation/supportNavigationTypes';
+import {
+  formatSupportChatTimeLabel,
+  getSupportChatBox,
+  getSupportChatMessages,
+  getSupportChatMessageId,
+  getSupportChatOtherParticipant,
+  getSupportChatParticipantId,
+} from '../utils/supportChatMappers';
 
 type SupportTicketDetailRouteProp = RouteProp<SupportNavigationParamList, 'SupportTicketDetail'>;
 
@@ -33,15 +46,111 @@ export default function SupportTicketDetailScreen() {
   const insets = useSafeAreaInsets();
   const route = useRoute<SupportTicketDetailRouteProp>();
   const { ticket } = route.params;
+  const sessionQuery = useAuthSessionQuery();
+  const [chatBoxId, setChatBoxId] = useState(ticket.chatBoxId);
   const [draftMessage, setDraftMessage] = useState('');
-  const [messages, setMessages] = useState<TicketChatMessage[]>([
-    {
-      id: 'support-auto-message',
-      isCurrentUser: false,
-      text: t('support_chat_auto_message'),
-      timeLabel: t('support_chat_auto_time'),
+  const [pendingMessages, setPendingMessages] = useState<TicketChatMessage[]>([]);
+  const supportChatBoxQuery = useSupportChatBox(chatBoxId);
+  const supportChatSendMutation = useSendSupportChatMessage({
+    onError: (error) => {
+      setPendingMessages((current) => current.slice(0, -1));
+      showToast.error(
+        t('support_chat_send_error_title'),
+        error.message || t('support_chat_send_error_message'),
+      );
     },
+    onSuccess: (response) => {
+      const nextChatBoxId =
+        response.chatBoxId ??
+        response.data?.chatBoxId ??
+        response.detail?.chatBoxId ??
+        response.detail?.chat_box_id;
+
+      if (nextChatBoxId) {
+        setChatBoxId(nextChatBoxId);
+      }
+
+      setDraftMessage('');
+    },
+  });
+
+  useEffect(() => {
+    if (!chatBoxId && ticket.chatBoxId) {
+      setChatBoxId(ticket.chatBoxId);
+    }
+  }, [chatBoxId, ticket.chatBoxId]);
+
+  useEffect(() => {
+    console.log('SupportTicketDetailScreen route ticket', {
+      ticketChatBoxId: ticket.chatBoxId,
+      ticketId: ticket.id,
+      ticketTitle: ticket.title,
+    });
+  }, [ticket.chatBoxId, ticket.id, ticket.title]);
+
+  useEffect(() => {
+    const serverMessages = getSupportChatMessages(supportChatBoxQuery.data);
+
+    if (serverMessages.length > 0 && pendingMessages.length > 0) {
+      setPendingMessages([]);
+    }
+  }, [pendingMessages.length, supportChatBoxQuery.data]);
+
+  const activeChatBox = useMemo(
+    () => getSupportChatBox(supportChatBoxQuery.data),
+    [supportChatBoxQuery.data],
+  );
+  const receiverId = useMemo(
+    () =>
+      getSupportChatParticipantId(
+        getSupportChatOtherParticipant(activeChatBox, sessionQuery.data?.user?.id),
+      ),
+    [activeChatBox, sessionQuery.data?.user?.id],
+  );
+
+  useEffect(() => {
+    console.log('SupportTicketDetailScreen chat setup', {
+      activeChatBox,
+      chatBoxId,
+      receiverId,
+      supportChatBoxData: supportChatBoxQuery.data,
+      ticketChatBoxId: ticket.chatBoxId,
+      userId: sessionQuery.data?.user?.id,
+    });
+  }, [
+    activeChatBox,
+    chatBoxId,
+    receiverId,
+    sessionQuery.data?.user?.id,
+    supportChatBoxQuery.data,
+    ticket.chatBoxId,
   ]);
+
+  const messages = useMemo(() => {
+    const currentUserId = sessionQuery.data?.user?.id;
+    const serverMessages = getSupportChatMessages(supportChatBoxQuery.data);
+    const mappedServerMessages = serverMessages.map((message) => ({
+      id: getSupportChatMessageId(message),
+      isCurrentUser:
+        (message.senderId ?? message.sender_id ?? getSupportChatParticipantId(message.sender)) ===
+        currentUserId,
+      text: message.text ?? message.message ?? '',
+      timeLabel: formatSupportChatTimeLabel(message.createdAt ?? message.created_at),
+    }));
+
+    if (!mappedServerMessages.length && !pendingMessages.length) {
+      return [
+        {
+          id: 'support-auto-message',
+          isCurrentUser: false,
+          text: t('support_chat_auto_message'),
+          timeLabel: t('support_chat_auto_time'),
+        },
+      ];
+    }
+
+    return [...mappedServerMessages, ...pendingMessages];
+  }, [pendingMessages, sessionQuery.data?.user?.id, supportChatBoxQuery.data, t]);
 
   const quickReplies = useMemo(
     () => [
@@ -61,16 +170,41 @@ export default function SupportTicketDetailScreen() {
       return;
     }
 
-    setMessages((current) => [
+    const senderId = sessionQuery.data?.user?.id;
+
+    if (!senderId) {
+      showToast.error(t('support_chat_send_error_title'), t('support_chat_missing_session_error'));
+      return;
+    }
+
+    if (!receiverId) {
+      console.log('SupportTicketDetailScreen missing receiver', {
+        activeChatBox,
+        chatBoxId,
+        supportChatBoxData: supportChatBoxQuery.data,
+        ticketChatBoxId: ticket.chatBoxId,
+        userId: sessionQuery.data?.user?.id,
+      });
+      showToast.error(t('support_chat_send_error_title'), t('support_chat_missing_receiver_error'));
+      return;
+    }
+
+    setPendingMessages((current) => [
       ...current,
       {
-        id: `local-${Date.now()}`,
+        id: `pending-${Date.now()}`,
         isCurrentUser: true,
         text: trimmedValue,
-        timeLabel: t('support_chat_auto_time'),
+        timeLabel: formatSupportChatTimeLabel(new Date().toISOString()),
       },
     ]);
-    setDraftMessage('');
+
+    supportChatSendMutation.mutate({
+      senderId,
+      receiverId,
+      text: trimmedValue,
+      chatBoxId,
+    });
 
     requestAnimationFrame(() => {
       scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -137,16 +271,27 @@ export default function SupportTicketDetailScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.messageSection}>
-            {messages.map((message) => (
-              <ChatMessageBubble
-                key={message.id}
-                isCurrentUser={message.isCurrentUser}
-                text={message.text}
-                timeLabel={message.timeLabel}
-              />
-            ))}
-          </View>
+          {chatBoxId && supportChatBoxQuery.isPending ? (
+            <View style={styles.centerState}>
+              <ActivityIndicator size="large" color={colors.primary} />
+              <Text color={colors.mutedText}>{t('support_chat_loading')}</Text>
+            </View>
+          ) : supportChatBoxQuery.isError ? (
+            <View style={styles.centerState}>
+              <Text color={colors.danger}>{supportChatBoxQuery.error.message}</Text>
+            </View>
+          ) : (
+            <View style={styles.messageSection}>
+              {messages.map((message) => (
+                <ChatMessageBubble
+                  key={message.id}
+                  isCurrentUser={message.isCurrentUser}
+                  text={message.text}
+                  timeLabel={message.timeLabel}
+                />
+              ))}
+            </View>
+          )}
         </ScrollView>
 
         <View style={[styles.quickReplyRail, { borderTopColor: colors.border }]}>
@@ -178,7 +323,7 @@ export default function SupportTicketDetailScreen() {
         >
           <ChatComposer
             attachmentAccessibilityLabel={t('support_chat_add_attachment')}
-            isSending={false}
+            isSending={supportChatSendMutation.isPending}
             messageAccessibilityLabel={t('support_chat_send_message')}
             onAttachmentPress={() => undefined}
             onChangeText={setDraftMessage}
@@ -193,6 +338,13 @@ export default function SupportTicketDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+  centerState: {
+    alignItems: 'center',
+    gap: 12,
+    justifyContent: 'center',
+    minHeight: 240,
+    paddingHorizontal: 24,
+  },
   chatLayout: {
     flex: 1,
   },
