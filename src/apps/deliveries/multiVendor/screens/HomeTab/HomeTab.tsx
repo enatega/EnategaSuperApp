@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback } from 'react';
 import { ScrollView } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../../general/theme/theme';
 import { showToast } from '../../../../../general/components/AppToast';
-import MultiVendorAddressHeader from '../../components/HomeTab/AddressHeader';
-import AddressSelectionBottomSheet from '../../components/addressSelection/AddressSelectionBottomSheet';
+import AddressSelectionBottomSheet from '../../../components/AddressSelectionBottomSheet';
+import MultiVendorAddressHeader from '../../../components/MultiVendorAddressHeader';
 import ShopTypeList from '../../components/HomeTab/ShopTypeList';
 import MultiVendorSpecialOffers from '../../components/HomeTab/SpecialOffersBanner';
 import TopBrandsList from '../../components/HomeTab/TopBrandsList';
@@ -14,22 +14,25 @@ import NearbyStoreList from '../../components/HomeTab/NearbyStoreList';
 import Deals from '../../components/HomeTab/Deals';
 import OrderAgain from '../../components/HomeTab/OrderAgain';
 import { useCartCount } from '../../../hooks/useCart';
+import useAddressSelectionSheet from '../../../hooks/useAddressSelectionSheet';
 import type { ProfileAddress } from '../../api/profileService';
-import useSavedAddresses from '../../hooks/useSavedAddresses';
+import useSavedAddresses from '../../../hooks/useSavedAddresses';
 import { styles } from './HomeTabStyle';
 import type { MultiVendorStackParamList } from '../../navigation/types';
 import useAddress from '../../../hooks/useAddress';
 import useSelectSavedAddress from '../../../hooks/useSelectSavedAddress';
 
-type NavProp = NativeStackNavigationProp<MultiVendorStackParamList>;
+type HomeTabNavigationParamList = MultiVendorStackParamList & {
+  Cart: undefined;
+};
+
+type NavProp = NativeStackNavigationProp<HomeTabNavigationParamList>;
 
 export default function HomeTab() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavProp>();
   const { data: cartCount } = useCartCount();
-  const [isAddressSheetVisible, setIsAddressSheetVisible] = useState(false);
-  const hasAutoOpenedAddressSheetRef = useRef(false);
   const {
     addresses,
     isLoading: isAddressesLoading,
@@ -37,38 +40,14 @@ export default function HomeTab() {
   } = useSavedAddresses();
   const { selectedAddress } = useAddress();
   const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress();
-
-  useFocusEffect(
-    useCallback(() => {
-      hasAutoOpenedAddressSheetRef.current = false;
-    }, []),
-  );
-
-  useEffect(() => {
-    if (isAddressesLoading || isAddressSheetVisible) {
-      return;
-    }
-
-    if (addresses.length > 0) {
-      hasAutoOpenedAddressSheetRef.current = false;
-      return;
-    }
-
-    if (hasAutoOpenedAddressSheetRef.current) {
-      return;
-    }
-
-    hasAutoOpenedAddressSheetRef.current = true;
-    setIsAddressSheetVisible(true);
-  }, [addresses.length, isAddressSheetVisible, isAddressesLoading]);
-
-  const handleOpenAddressSheet = useCallback(() => {
-    setIsAddressSheetVisible(true);
-  }, []);
-
-  const handleCloseAddressSheet = useCallback(() => {
-    setIsAddressSheetVisible(false);
-  }, []);
+  const {
+    isVisible: isAddressSheetVisible,
+    open: handleOpenAddressSheet,
+    close: handleCloseAddressSheet,
+  } = useAddressSelectionSheet({
+    addressesCount: addresses.length,
+    isLoading: isAddressesLoading,
+  });
 
   const handleSelectAddress = useCallback(
     async (address: ProfileAddress) => {
@@ -80,23 +59,23 @@ export default function HomeTab() {
         }
 
         void refetch();
-        setIsAddressSheetVisible(false);
+        handleCloseAddressSheet();
       } catch {
         showToast.error(t('address_select_error'));
       }
     },
-    [refetch, selectSavedAddress, t],
+    [handleCloseAddressSheet, refetch, selectSavedAddress, t],
   );
 
   const handleAddAddressPress = useCallback(() => {
-    setIsAddressSheetVisible(false);
-    navigation.navigate('AddressSearch', { origin: 'home-header' });
-  }, [navigation]);
+    handleCloseAddressSheet();
+    navigation.navigate('AddressSearch', { origin: 'multi-vendor-home' });
+  }, [handleCloseAddressSheet, navigation]);
 
   const handleUseCurrentLocation = useCallback(() => {
-    setIsAddressSheetVisible(false);
-    navigation.navigate('AddressChooseOnMap', { origin: 'home-header' });
-  }, [navigation]);
+    handleCloseAddressSheet();
+    navigation.navigate('AddressChooseOnMap', { origin: 'multi-vendor-home' });
+  }, [handleCloseAddressSheet, navigation]);
 
   const handleCartPress = useCallback(() => {
     navigation.navigate('Cart');
@@ -117,8 +96,7 @@ export default function HomeTab() {
           onAddAddressPress={handleOpenAddressSheet}
           onAddressPress={handleOpenAddressSheet}
           cartCount={cartCount?.totalItems}
-       
-        onCartPress={handleCartPress}
+          onCartPress={handleCartPress}
         />
         <MultiVendorSpecialOffers />
         <ShopTypeList />

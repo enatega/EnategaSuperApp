@@ -147,6 +147,8 @@ import SupportFaqScreen from '../../screens/SupportFaqScreen/SupportFaqScreen';
 import SupportFaqArticleScreen from '../../screens/SupportFaqArticleScreen/SupportFaqArticleScreen';
 import SupportTicketDetailScreen from '../../screens/SupportTicketDetailScreen';
 import SupportTicketsScreen from '../../screens/SupportTicketsScreen/SupportTicketsScreen';
+import OrderDetailsScreen from '../screens/OrderDetailsScreen/OrderDetailsScreen';
+import OrderTrackingScreen from '../screens/OrderTrackingScreen/OrderTrackingScreen';
 
 const Stack = createNativeStackNavigator<MultiVendorStackParamList>();
 
@@ -308,6 +310,13 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="SupportTicketDetail"
         component={SupportTicketDetailScreen}
+        name="OrderDetailsScreen"
+        component={OrderDetailsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="OrderTrackingScreen"
+        component={OrderTrackingScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

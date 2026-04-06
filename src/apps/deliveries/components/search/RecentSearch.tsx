@@ -4,7 +4,7 @@ import Icon from "../../../../general/components/Icon";
 import { useTheme } from "../../../../general/theme/theme";
 import Text from "../../../../general/components/Text";
 import { typography } from "../../../../general/theme/typography";
-import type { RecentSearchProps } from "./types";
+import { RecentSearchProps } from "./types";
 
 const RecentSearch = ({
   search,

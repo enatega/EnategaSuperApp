@@ -1,9 +1,6 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import MainSearch from '../../components/SearchTab/MainSearch';
+import React from "react";
+import MultiVendorSearchContainer from "../../components/SearchTab/MultiVendorSearchContainer";
 
 export default function SearchTab() {
-  const { t } = useTranslation('deliveries');
-
-  return <MainSearch />
+  return <MultiVendorSearchContainer />;
 }

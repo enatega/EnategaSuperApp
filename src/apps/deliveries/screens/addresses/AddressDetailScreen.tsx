@@ -11,11 +11,21 @@ import Button from '../../../../general/components/Button';
 import AddressDetailForm from '../../components/addresses/AddressDetailForm';
 import type { AddressDetailFormHandle } from '../../components/addresses/AddressDetailForm';
 import { addressService, AddressType } from '../../api/addressService';
-import type { MultiVendorStackParamList } from '../../multiVendor/navigation/types';
+import type { DeliveriesAddressFlowParamList } from '../../navigation/addressFlowTypes';
+
+type AddressDetailNavigationParamList = DeliveriesAddressFlowParamList & {
+  MultiVendorTabs: undefined;
+  MyProfile:
+    | {
+        selectionMode?: boolean;
+      }
+    | undefined;
+  SingleVendorTabs: undefined;
+};
 
 export default function AddressDetailScreen() {
   const nav =
-    useNavigation<NativeStackNavigationProp<MultiVendorStackParamList>>();
+    useNavigation<NativeStackNavigationProp<AddressDetailNavigationParamList>>();
   const route = useRoute();
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
@@ -23,7 +33,7 @@ export default function AddressDetailScreen() {
   const formRef = useRef<AddressDetailFormHandle>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
-  const params = route.params as MultiVendorStackParamList['AddressDetail'];
+  const params = route.params as DeliveriesAddressFlowParamList['AddressDetail'];
   const isEditing = Boolean(params.editAddressId);
   const lat = Number(params.latitude);
   const lng = Number(params.longitude);
@@ -52,8 +62,13 @@ export default function AddressDetailScreen() {
         Toast.show({ type: 'success', text1: t('address_save_success') });
       }
 
-      if (params.origin === 'home-header') {
+      if (params.origin === 'multi-vendor-home') {
         nav.navigate('MultiVendorTabs');
+        return;
+      }
+
+      if (params.origin === 'single-vendor-home') {
+        nav.navigate('SingleVendorTabs');
         return;
       }
 

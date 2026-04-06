@@ -1,9 +1,16 @@
 import type {
   DeliveryNearbyStore,
   DeliveryShopTypeProduct,
+
 } from '../../api/types';
 import type { SupportFaqArticleId } from '../../utils/supportFaqArticles';
 import type { SupportTicketListItemModel } from '../../utils/supportTicketMappers';
+
+import type {
+  AddressDetailParams,
+  AddressFlowParams,
+} from '../../navigation/addressFlowTypes';
+
 
 export type SeeAllListingType =
   | 'nearby-stores'
@@ -18,34 +25,17 @@ export type EditProfileParams = {
   gender: string | null;
 };
 
-export type AddressFlowOrigin = 'home-header' | 'profile';
-
-export type AddressFlowParams = {
-  editAddressId?: string;
-  editType?: string;
-  editLocationName?: string;
-  origin?: AddressFlowOrigin;
-};
-
 export type MultiVendorStackParamList = {
   MultiVendorTabs: undefined;
   MyProfile:
-    | {
-        selectionMode?: boolean;
-      }
-    | undefined;
+  | {
+    selectionMode?: boolean;
+  }
+  | undefined;
   EditProfile: EditProfileParams;
   AddressSearch: AddressFlowParams | undefined;
   AddressChooseOnMap: AddressFlowParams | undefined;
-  AddressDetail: {
-    address: string;
-    latitude: number;
-    longitude: number;
-    editAddressId?: string;
-    editType?: string;
-    editLocationName?: string;
-    origin?: AddressFlowOrigin;
-  };
+  AddressDetail: AddressDetailParams;
   Favourites: undefined;
   RateOrder: {
     orderId: string;
@@ -56,12 +46,12 @@ export type MultiVendorStackParamList = {
   };
   Support: undefined;
   SupportChat:
-    | {
-        agentName?: string;
-        chatBoxId?: string;
-        receiverId?: string;
-      }
-    | undefined;
+  | {
+    agentName?: string;
+    chatBoxId?: string;
+    receiverId?: string;
+  }
+  | undefined;
   SupportFaq: undefined;
   SupportConversations: undefined;
   SupportContactForm: {
@@ -78,7 +68,7 @@ export type MultiVendorStackParamList = {
   SeeAllScreen: {
     queryType: SeeAllListingType;
     title: string;
-    cardType: 'store';
+    cardType: "store";
     shopTypeId?: string;
   };
   SeeAllMapView: {
@@ -95,6 +85,12 @@ export type MultiVendorStackParamList = {
   ColorMode: undefined;
   Language: undefined;
   ProductInfo: {
-    productId: string
-  }
+    productId: string;
+  };
+  OrderDetailsScreen: {
+    orderId: string;
+  };
+  OrderTrackingScreen: {
+    orderId: string;
+  };
 };

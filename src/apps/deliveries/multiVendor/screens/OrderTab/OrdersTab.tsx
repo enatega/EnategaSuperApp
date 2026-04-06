@@ -1,9 +1,6 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import TabPlaceholder from '../../components/TabPlaceholder';
+import React from "react";
+import MainOrdersContainer from "../../components/OrderTab/MainContainer";
 
 export default function MultiVendorOrdersTabScreen() {
-  const { t } = useTranslation('deliveries');
-
-  return <TabPlaceholder label={t('multi_vendor_tab_orders')} />;
+  return <MainOrdersContainer />;
 }

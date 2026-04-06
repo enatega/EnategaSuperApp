@@ -95,6 +95,17 @@ export const deliveryKeys = {
         [...deliveryKeys.all, 'support-ticket-form-config'] as const,
     supportMyTickets: () =>
         [...deliveryKeys.all, 'support-my-tickets'] as const,
+
+    // Orders
+    orders: () => [...deliveryKeys.all, 'orders'] as const,
+    activeOrders: (filters: { limit: number; search?: string }) =>
+        [...deliveryKeys.orders(), 'active', filters] as const,
+    orderDetail: (orderId: string) =>
+        [...deliveryKeys.orders(), 'detail', orderId] as const,
+    pastOrders: (filters: { limit: number; search?: string }) =>
+        [...deliveryKeys.orders(), 'past', filters] as const,
+    scheduledOrders: (filters: { limit: number; search?: string }) =>
+        [...deliveryKeys.orders(), 'scheduled', filters] as const,
 };
 
 export const addressKeys = {
