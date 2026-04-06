@@ -121,7 +121,10 @@ export function useSidebarMenu() {
       titleKey: 'sidebar_wallet',
       subtitleKey: 'sidebar_wallet_subtitle',
       showChevron: true,
-      onPress: () => console.log('Wallet pressed'),
+      onPress: () => {
+        closeSidebar();
+        navigation.navigate('WalletHome' as any);
+      },
     },
     {
       id: 'support',
