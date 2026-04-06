@@ -65,6 +65,14 @@ export type MultiVendorStackParamList = {
   SupportTicketDetail: {
     ticket: SupportTicketListItemModel;
   };
+  RiderChat: {
+    chatBoxId?: string;
+    estimatedMinutes: number;
+    orderCode: string;
+    receiverId: string;
+    riderAvatarUri?: string;
+    riderName: string;
+  };
   SeeAllScreen: {
     queryType: SeeAllListingType;
     title: string;

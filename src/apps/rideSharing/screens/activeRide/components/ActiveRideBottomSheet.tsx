@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -133,6 +133,44 @@ function ActiveRideBottomSheet({
   const insets = useSafeAreaInsets();
   const resolvedVehicleSubtitle = [vehicleName, vehicleColor].filter(Boolean).join(' • ');
   const shouldShowCancelAction = canCancelRide && statusCode !== 'IN_PROGRESS';
+
+  useEffect(() => {
+    console.log('ActiveRideBottomSheet data', {
+      canCancelRide,
+      driverAvatarUri,
+      driverName,
+      driverRating,
+      fromAddress,
+      isCourierFlow,
+      licensePlate,
+      onContactDriverExists: Boolean(onContactDriver),
+      paymentMethodLabel,
+      statusCode,
+      statusLabel,
+      stopAddresses,
+      title,
+      toAddress,
+      vehicleColor,
+      vehicleName,
+    });
+  }, [
+    canCancelRide,
+    driverAvatarUri,
+    driverName,
+    driverRating,
+    fromAddress,
+    isCourierFlow,
+    licensePlate,
+    onContactDriver,
+    paymentMethodLabel,
+    statusCode,
+    statusLabel,
+    stopAddresses,
+    title,
+    toAddress,
+    vehicleColor,
+    vehicleName,
+  ]);
 
   return (
     <SwipeableBottomSheet

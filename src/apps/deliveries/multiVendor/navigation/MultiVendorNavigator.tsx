@@ -147,6 +147,7 @@ import SupportFaqScreen from '../../screens/SupportFaqScreen/SupportFaqScreen';
 import SupportFaqArticleScreen from '../../screens/SupportFaqArticleScreen/SupportFaqArticleScreen';
 import SupportTicketDetailScreen from '../../screens/SupportTicketDetailScreen';
 import SupportTicketsScreen from '../../screens/SupportTicketsScreen/SupportTicketsScreen';
+import RiderChatScreen from '../../screens/RiderChatScreen/RiderChatScreen';
 import OrderDetailsScreen from '../screens/OrderDetailsScreen/OrderDetailsScreen';
 import OrderTrackingScreen from '../screens/OrderTrackingScreen/OrderTrackingScreen';
 
@@ -310,6 +311,14 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="SupportTicketDetail"
         component={SupportTicketDetailScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="RiderChat"
+        component={RiderChatScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="OrderDetailsScreen"
         component={OrderDetailsScreen}
         options={{ headerShown: false }}

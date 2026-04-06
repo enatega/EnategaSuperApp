@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
@@ -31,6 +31,35 @@ export default function MainContainer({ navigation, orderId }: Props) {
   const { t } = useTranslation("deliveries");
   const { colors } = useTheme();
   const orderDetailsQuery = useOrderDetails(orderId);
+  const riderId =
+    typeof orderDetailsQuery.data?.rider?.userId === "string"
+      ? orderDetailsQuery.data.rider.userId
+      : orderDetailsQuery.data?.rider?.id;
+  const riderName =
+    orderDetailsQuery.data?.rider?.name
+    || t("ride_active_driver_fallback", { ns: "rideSharing", defaultValue: "Rider" });
+  const riderAvatarUri =
+    typeof orderDetailsQuery.data?.rider?.profile === "string"
+      ? orderDetailsQuery.data.rider.profile
+      : typeof orderDetailsQuery.data?.rider?.image === "string"
+        ? orderDetailsQuery.data.rider.image
+        : undefined;
+  const chatBoxId = orderDetailsQuery.data?.chatBoxId;
+  const estimatedMinutes = Number(orderDetailsQuery.data?.store.estimatedDeliveryTime) || 0;
+
+  useEffect(() => {
+    console.log("OrderTracking MainContainer data", {
+      orderId,
+      orderData: orderDetailsQuery.data,
+      rider: orderDetailsQuery.data?.rider,
+      riderId: orderDetailsQuery.data?.rider?.id,
+      riderUserId: orderDetailsQuery.data?.rider?.userId,
+      chatReceiverId: riderId,
+      chatBoxId,
+      deliveryDetails: orderDetailsQuery.data?.deliveryDetails,
+      status: orderDetailsQuery.data?.status,
+    });
+  }, [chatBoxId, orderDetailsQuery.data, orderId, riderId]);
 
   const helpButton = (
     <Pressable
@@ -110,7 +139,24 @@ export default function MainContainer({ navigation, orderId }: Props) {
 
             <OrderTrackingInfoRow
               iconName="chatbubbles-outline"
-              onPress={() => navigation.navigate("Support")}
+              onPress={() => {
+                if (!riderId) {
+                  console.log("OrderTracking missing riderId for chat", {
+                    orderId,
+                    rider: orderDetailsQuery.data?.rider,
+                  });
+                  return;
+                }
+
+                navigation.navigate("RiderChat", {
+                  chatBoxId,
+                  estimatedMinutes,
+                  orderCode: orderDetailsQuery.data?.summary.orderNumber || orderId,
+                  receiverId: riderId,
+                  riderAvatarUri,
+                  riderName,
+                });
+              }}
               subtitle={t("order_tracking_contact_subtitle")}
               title={t("order_tracking_contact_title")}
             />
