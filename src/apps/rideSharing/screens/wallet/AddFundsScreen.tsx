@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
@@ -59,7 +59,12 @@ export default function AddFundsScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader title={t('wallet_add_funds_title')} />
 
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.titleSection}>
           <Text
             variant="title"
@@ -118,7 +123,7 @@ export default function AddFundsScreen() {
           card={selectedCard}
           onPress={() => setPaymentSheetVisible(true)}
         />
-      </View>
+      </ScrollView>
 
       <View style={styles.footer}>
         <Button
@@ -160,6 +165,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
   titleSection: {
     gap: 6,

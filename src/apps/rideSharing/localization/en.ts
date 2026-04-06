@@ -295,8 +295,8 @@ const en = {
   wallet_choose_payment_method: 'Choose payment method',
   wallet_add_payment_method: 'Add payment method',
   wallet_card_number: 'Card number',
-  wallet_expiry: 'Expiration date (MM / YY)',
-  wallet_security_code: 'Security code',
+  wallet_expiry: 'MM / YY',
+  wallet_security_code: 'CVV',
   wallet_save: 'Save',
 };
 

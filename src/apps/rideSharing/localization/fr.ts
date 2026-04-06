@@ -284,8 +284,8 @@ const fr = {
   wallet_choose_payment_method: 'Choisir le mode de paiement',
   wallet_add_payment_method: 'Ajouter un mode de paiement',
   wallet_card_number: 'Numéro de carte',
-  wallet_expiry: 'Date d\'expiration (MM / AA)',
-  wallet_security_code: 'Code de sécurité',
+  wallet_expiry: 'MM / AA',
+  wallet_security_code: 'CVV',
   wallet_save: 'Enregistrer',
 };
 
