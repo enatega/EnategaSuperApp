@@ -10,6 +10,13 @@ export type ProductSelectionOption = {
   price: number;
 };
 
+export type ProductVariationOption = ProductSelectionOption & {
+  helperText: string | null;
+  isMarkedRequired: boolean;
+  pricingMode: "additive" | "replace_base";
+  required: boolean;
+};
+
 export type ProductSelectionSection = {
   groupId: string;
   helperText: string | null;
@@ -41,27 +48,62 @@ const buildSelectableSections = (
     })),
   }));
 
-const buildDefaultSingleSelections = (sections: ProductSelectionSection[]) =>
-  sections.reduce<Record<string, string>>((current, section) => {
-    if (section.selectionType === "single" && section.required && section.options[0]) {
-      current[section.groupId] = section.options[0].optionId;
-    }
-
-    return current;
-  }, {});
-
-const areStringMapsEqual = (
-  left: Record<string, string>,
-  right: Record<string, string>,
+const isOptionlessVariationSection = (
+  section: ProductInfoCustomizationSection,
 ) => {
-  const leftKeys = Object.keys(left);
-  const rightKeys = Object.keys(right);
+  const firstOption = section.options[0];
 
-  if (leftKeys.length !== rightKeys.length) {
-    return false;
+  return (
+    section.options.length === 1 &&
+    firstOption?.optionId === section.groupId
+  );
+};
+
+const buildVariationOptions = (
+  sections: ProductInfoCustomizationSection[],
+): ProductVariationOption[] => {
+  if (sections.length === 0) {
+    return [];
   }
 
-  return leftKeys.every((key) => left[key] === right[key]);
+  const shouldUseOptionlessVariationMode = sections.every(isOptionlessVariationSection);
+
+  if (shouldUseOptionlessVariationMode) {
+    const options = sections
+      .map((section) => {
+        const firstOption = section.options[0];
+
+        if (!firstOption) {
+          return null;
+        }
+
+        return {
+          groupId: section.groupId,
+          helperText: section.helperText,
+          isMarkedRequired: section.required,
+          label: section.name,
+          optionId: firstOption.optionId,
+          price: firstOption.price,
+          pricingMode: "replace_base" as const,
+          required: isCustomizationSectionRequired(section),
+        };
+      });
+
+    return options.filter((option): option is NonNullable<typeof option> => option != null);
+  }
+
+  const primarySection = sections[0];
+
+  return primarySection.options.map((option) => ({
+    groupId: primarySection.groupId,
+    helperText: primarySection.helperText,
+    isMarkedRequired: primarySection.required,
+    label: option.title,
+    optionId: option.optionId,
+    price: option.price,
+    pricingMode: "replace_base" as const,
+    required: isCustomizationSectionRequired(primarySection),
+  }));
 };
 
 const areStringArrayMapsEqual = (
@@ -93,34 +135,38 @@ type Props = {
 };
 
 export default function useProductSelectionState({ variations, addons }: Props) {
-  const variationSections = useMemo(
-    () => buildSelectableSections(variations),
-    [variations],
-  );
+  const variationOptions = useMemo(() => buildVariationOptions(variations), [variations]);
   const addonSections = useMemo(() => buildSelectableSections(addons), [addons]);
-  const [selectedVariationOptionIdsByGroup, setSelectedVariationOptionIdsByGroup] =
-    useState<Record<string, string>>(() => buildDefaultSingleSelections(variationSections));
+  const [selectedVariationKey, setSelectedVariationKey] = useState<string | null>(
+    () =>
+      variationOptions[0]
+        ? `${variationOptions[0].groupId}:${variationOptions[0].optionId}`
+        : null,
+  );
   const [selectedAddonOptionIdsByGroup, setSelectedAddonOptionIdsByGroup] =
     useState<Record<string, string[]>>({});
 
   useEffect(() => {
-    setSelectedVariationOptionIdsByGroup((current) => {
-      const nextSelections = { ...buildDefaultSingleSelections(variationSections) };
+    setSelectedVariationKey((current) => {
+      if (variationOptions.length === 0) {
+        return null;
+      }
 
-      variationSections.forEach((section) => {
-        const currentOptionId = current[section.groupId];
-        const hasCurrentOption = section.options.some(
-          (option) => option.optionId === currentOptionId,
-        );
+      if (
+        current &&
+        variationOptions.some(
+          (option) => `${option.groupId}:${option.optionId}` === current,
+        )
+      ) {
+        return current;
+      }
 
-        if (hasCurrentOption && currentOptionId) {
-          nextSelections[section.groupId] = currentOptionId;
-        }
-      });
-
-      return areStringMapsEqual(current, nextSelections) ? current : nextSelections;
+      const firstVariation = variationOptions[0];
+      return firstVariation
+        ? `${firstVariation.groupId}:${firstVariation.optionId}`
+        : null;
     });
-  }, [variationSections]);
+  }, [variationOptions]);
 
   useEffect(() => {
     setSelectedAddonOptionIdsByGroup((current) => {
@@ -142,16 +188,23 @@ export default function useProductSelectionState({ variations, addons }: Props) 
     });
   }, [addonSections]);
 
-  const selectedVariationPrice = useMemo(() => {
-    return variationSections.reduce((sum, section) => {
-      const selectedOptionId = selectedVariationOptionIdsByGroup[section.groupId];
-      const selectedOption = section.options.find(
-        (option) => option.optionId === selectedOptionId,
-      );
+  const selectedVariation = useMemo(
+    () =>
+      variationOptions.find(
+        (option) => `${option.groupId}:${option.optionId}` === selectedVariationKey,
+      ) ?? null,
+    [selectedVariationKey, variationOptions],
+  );
 
-      return sum + (selectedOption?.price ?? 0);
-    }, 0);
-  }, [selectedVariationOptionIdsByGroup, variationSections]);
+  const variationHelperText = useMemo(
+    () => variationOptions.find((option) => option.helperText)?.helperText ?? null,
+    [variationOptions],
+  );
+
+  const selectedVariationPrice = useMemo(
+    () => selectedVariation?.price ?? 0,
+    [selectedVariation],
+  );
 
   const selectedAddonsTotal = useMemo(
     () =>
@@ -174,12 +227,14 @@ export default function useProductSelectionState({ variations, addons }: Props) 
 
   const cartSelectionInputs = useMemo<CartSelectionInput[]>(
     () => [
-      ...Object.entries(selectedVariationOptionIdsByGroup)
-        .filter(([, optionId]) => optionId.length > 0)
-        .map(([groupId, optionId]) => ({
-          groupId,
-          optionId,
-        })),
+      ...(selectedVariation
+        ? [
+            {
+              groupId: selectedVariation.groupId,
+              optionId: selectedVariation.optionId,
+            },
+          ]
+        : []),
       ...Object.entries(selectedAddonOptionIdsByGroup).flatMap(([groupId, optionIds]) =>
         optionIds.map((optionId) => ({
           groupId,
@@ -187,14 +242,11 @@ export default function useProductSelectionState({ variations, addons }: Props) 
         })),
       ),
     ],
-    [selectedAddonOptionIdsByGroup, selectedVariationOptionIdsByGroup],
+    [selectedAddonOptionIdsByGroup, selectedVariation],
   );
 
   const selectVariationOption = useCallback((groupId: string, optionId: string) => {
-    setSelectedVariationOptionIdsByGroup((current) => ({
-      ...current,
-      [groupId]: optionId,
-    }));
+    setSelectedVariationKey(`${groupId}:${optionId}`);
   }, []);
 
   const toggleAddonOption = useCallback((groupId: string, optionId: string) => {
@@ -234,10 +286,12 @@ export default function useProductSelectionState({ variations, addons }: Props) 
     cartSelectionInputs,
     selectedAddonsTotal,
     selectedAddonOptionIdsByGroup,
+    selectedVariation,
     selectedVariationPrice,
-    selectedVariationOptionIdsByGroup,
+    selectedVariationKey,
     selectVariationOption,
     toggleAddonOption,
-    variationSections,
+    variationHelperText,
+    variationOptions,
   };
 }

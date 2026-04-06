@@ -182,9 +182,7 @@ export default function GenericFilterablePaginatedListScreen<
           <ListStateView
             variant="error"
             title={t("generic_list_error_title")}
-            description={
-              error?.message ?? t("generic_list_error_description")
-            }
+            description={t("generic_list_error_description")}
             actionLabel={t("generic_list_retry")}
             onActionPress={() => {
               void refetch();

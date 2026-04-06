@@ -1,30 +1,30 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import Text from '../../../../../general/components/Text';
-import { useTheme } from '../../../../../general/theme/theme';
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import Text from "../../../../../general/components/Text";
+import { useTheme } from "../../../../../general/theme/theme";
 
 type Props = {
   label: string;
-  tone: 'warning' | 'success' | 'danger';
+  tone: "warning" | "success" | "danger";
 };
 
 export default function OrderDetailsStatusBadge({ label, tone }: Props) {
   const { colors, typography } = useTheme();
 
   const palette =
-    tone === 'success'
+    tone === "success"
       ? {
           backgroundColor: colors.successSoft,
           textColor: colors.successText,
         }
-      : tone === 'danger'
+      : tone === "danger"
         ? {
             backgroundColor: colors.dangerSoft,
             textColor: colors.dangerText,
           }
         : {
-            backgroundColor: colors.warningSoft,
-            textColor: colors.warningText,
+            backgroundColor: colors.blue50,
+            textColor: colors.primary,
           };
 
   return (
@@ -45,10 +45,10 @@ export default function OrderDetailsStatusBadge({ label, tone }: Props) {
 
 const styles = StyleSheet.create({
   badge: {
-    alignItems: 'center',
-    alignSelf: 'flex-start',
+    alignItems: "center",
+    alignSelf: "flex-start",
     borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
 });

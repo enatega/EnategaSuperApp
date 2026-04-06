@@ -3,10 +3,11 @@ import React, { useState } from "react";
 import { Image, Pressable, View } from "react-native";
 import Text from "../../../../../general/components/Text";
 import { useTheme } from "../../../../../general/theme/theme";
+import type { OrderProductAddonLine } from "../../utils/orderItems/orderItemsUtils";
 import { styles } from "./OrderDetailsProductCard.styles";
 
 type Props = {
-  addonLines?: string[];
+  addonLines?: OrderProductAddonLine[];
   imageUri?: string | null;
   name: string;
   quantityLabel: string;
@@ -25,6 +26,8 @@ export default function OrderDetailsProductCard({
   const { colors, typography } = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
   const hasAddons = addonLines.length > 0;
+  const detailsPreview =
+    subtitle || (hasAddons ? addonLines.map((item) => item.label).join(", ") : null);
 
   return (
     <View style={styles.container}>
@@ -66,7 +69,7 @@ export default function OrderDetailsProductCard({
           {name}
         </Text>
 
-        {subtitle ? (
+        {detailsPreview ? (
           <View style={styles.subtitleRow}>
             <Text
               numberOfLines={isExpanded ? undefined : 1}
@@ -81,7 +84,7 @@ export default function OrderDetailsProductCard({
               ]}
               weight="medium"
             >
-              {subtitle}
+              {detailsPreview}
             </Text>
 
             {hasAddons ? (
@@ -104,20 +107,38 @@ export default function OrderDetailsProductCard({
         {isExpanded && hasAddons ? (
           <View style={styles.addonList}>
             {addonLines.map((addonLine, index) => (
-              <Text
-                key={`${addonLine}-${index}`}
-                style={[
-                  styles.addonText,
-                  {
-                    color: colors.mutedText,
-                    fontSize: typography.size.xs2,
-                    lineHeight: typography.lineHeight.sm,
-                  },
-                ]}
-                weight="medium"
-              >
-                {addonLine}
-              </Text>
+              <View key={`${addonLine.label}-${index}`} style={styles.addonRow}>
+                <Text
+                  style={[
+                    styles.addonText,
+                    styles.addonLabel,
+                    {
+                      color: colors.mutedText,
+                      fontSize: typography.size.xs2,
+                      lineHeight: typography.lineHeight.sm,
+                    },
+                  ]}
+                  weight="medium"
+                >
+                  {addonLine.label}
+                </Text>
+                {addonLine.priceLabel ? (
+                  <Text
+                    style={[
+                      styles.addonText,
+                      styles.addonPrice,
+                      {
+                        color: colors.mutedText,
+                        fontSize: typography.size.xs2,
+                        lineHeight: typography.lineHeight.sm,
+                      },
+                    ]}
+                    weight="medium"
+                  >
+                    {addonLine.priceLabel}
+                  </Text>
+                ) : null}
+              </View>
             ))}
           </View>
         ) : null}

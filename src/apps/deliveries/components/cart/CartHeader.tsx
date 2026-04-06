@@ -7,10 +7,16 @@ import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 
 type Props = {
+  clearDisabled?: boolean;
   onBackPress: () => void;
+  onClearPress?: () => void;
 };
 
-export default function CartHeader({ onBackPress }: Props) {
+export default function CartHeader({
+  clearDisabled = false,
+  onBackPress,
+  onClearPress,
+}: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
@@ -37,12 +43,38 @@ export default function CartHeader({ onBackPress }: Props) {
         {t('cart_title')}
       </Text>
 
-      <View style={styles.trailingSpace} />
+      {onClearPress ? (
+        <Pressable
+          accessibilityLabel={t('cart_clear_action')}
+          accessibilityRole="button"
+          accessibilityState={{ disabled: clearDisabled }}
+          disabled={clearDisabled}
+          onPress={onClearPress}
+          style={[
+            styles.actionButton,
+            {
+              backgroundColor: colors.surfaceSoft,
+              opacity: clearDisabled ? 0.55 : 1,
+            },
+          ]}
+        >
+          <Ionicons color={colors.danger} name="trash-outline" size={18} />
+        </Pressable>
+      ) : (
+        <View style={styles.trailingSpace} />
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  actionButton: {
+    alignItems: 'center',
+    borderRadius: 20,
+    height: 40,
+    justifyContent: 'center',
+    width: 40,
+  },
   container: {
     alignItems: 'center',
     flexDirection: 'row',

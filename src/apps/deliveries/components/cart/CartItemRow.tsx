@@ -11,6 +11,7 @@ import { formatCartPrice, getCartItemSubtitle } from './cartUtils';
 type Props = {
   item: CartItem;
   isUpdating?: boolean;
+  onPendingChange?: (itemId: string, isPending: boolean) => void;
   onSetQuantity: (quantity: number) => Promise<void>;
   onRemove: () => void;
 };
@@ -20,6 +21,7 @@ const QUANTITY_SYNC_DEBOUNCE_MS = 500;
 export default function CartItemRow({
   item,
   isUpdating = false,
+  onPendingChange,
   onSetQuantity,
   onRemove,
 }: Props) {
@@ -32,7 +34,9 @@ export default function CartItemRow({
   const queuedQuantityRef = React.useRef<number | null>(null);
   const isSyncingRef = React.useRef(false);
   const debounceTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastPendingRef = React.useRef(false);
   const displayedLineTotal = item.unitPrice * localQuantity;
+  const hasPendingState = isUpdating || localQuantity !== item.quantity;
 
   const clearDebounceTimeout = React.useCallback(() => {
     if (!debounceTimeoutRef.current) {
@@ -105,6 +109,24 @@ export default function CartItemRow({
   React.useEffect(() => () => {
     clearDebounceTimeout();
   }, [clearDebounceTimeout]);
+
+  React.useEffect(() => {
+    if (!onPendingChange || lastPendingRef.current === hasPendingState) {
+      return;
+    }
+
+    lastPendingRef.current = hasPendingState;
+    onPendingChange(item.id, hasPendingState);
+  }, [hasPendingState, item.id, onPendingChange]);
+
+  React.useEffect(
+    () => () => {
+      if (onPendingChange && lastPendingRef.current) {
+        onPendingChange(item.id, false);
+      }
+    },
+    [item.id, onPendingChange],
+  );
 
   const updateLocalQuantity = React.useCallback(
     (nextQuantity: number) => {

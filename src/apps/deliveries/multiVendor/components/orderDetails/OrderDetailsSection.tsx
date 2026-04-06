@@ -23,11 +23,11 @@ export default function OrderDetailsSection({
           styles.title,
           {
             color: colors.text,
-            fontSize: typography.size.h5,
+            fontSize: typography.size.xl,
             lineHeight: typography.lineHeight.h5,
           },
         ]}
-        weight="extraBold"
+        weight="bold"
       >
         {title}
       </Text>
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.36,
   },
   wrapper: {
-    gap: 6,
-    paddingVertical: 12,
+    gap: 10,
+    paddingVertical: 20,
   },
 });

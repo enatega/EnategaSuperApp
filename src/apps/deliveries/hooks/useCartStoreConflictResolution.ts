@@ -1,17 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CartStoreConflictPrompt } from '../cart/cartStoreConflictTypes';
-import { useCartMutationFeedback } from './useCartMutationFeedback';
-import { useClearCartMutation } from './useCartMutations';
+import { useClearCartAction } from './useClearCartAction';
 
 export function useCartStoreConflictResolution() {
   const resolveRef = useRef<((value: boolean) => void) | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [prompt, setPrompt] = useState<CartStoreConflictPrompt | null>(null);
-  const clearCartMutation = useClearCartMutation();
-  const { showMutationError } = useCartMutationFeedback();
+  const { clearCart, isClearing } = useClearCartAction();
 
   const resetPrompt = useCallback(() => {
-    setErrorMessage(null);
     setPrompt(null);
   }, []);
 
@@ -28,32 +24,25 @@ export function useCartStoreConflictResolution() {
     return new Promise<boolean>((resolve) => {
       resolveRef.current?.(false);
       resolveRef.current = resolve;
-      setErrorMessage(null);
       setPrompt(nextPrompt);
     });
   }, []);
 
   const cancelResolution = useCallback(() => {
-    if (clearCartMutation.isPending) {
+    if (isClearing) {
       return;
     }
 
     settle(false);
-  }, [clearCartMutation.isPending, settle]);
+  }, [isClearing, settle]);
 
   const confirmResolution = useCallback(async () => {
-    try {
-      await clearCartMutation.mutateAsync();
+    const didClearCart = await clearCart();
+
+    if (didClearCart) {
       settle(true);
-    } catch (error) {
-      showMutationError('clear', error);
-      setErrorMessage(
-        error instanceof Error && error.message.trim().length > 0
-          ? error.message
-          : null,
-      );
     }
-  }, [clearCartMutation, settle, showMutationError]);
+  }, [clearCart, settle]);
 
   useEffect(() => {
     return () => {
@@ -67,8 +56,7 @@ export function useCartStoreConflictResolution() {
   return {
     cancelResolution,
     confirmResolution,
-    errorMessage,
-    isResolving: clearCartMutation.isPending,
+    isResolving: isClearing,
     isVisible: prompt != null,
     prompt,
     requestResolution,

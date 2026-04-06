@@ -12,4 +12,5 @@ export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
     productId: string;
   };
   Cart: undefined;
+  Checkout: undefined
 };

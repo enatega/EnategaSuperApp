@@ -39,11 +39,11 @@ export default function OrderDetailsHeroSection({
           styles.storeName,
           {
             color: colors.text,
-            fontSize: typography.size.xxl,
+            fontSize: typography.size.xl,
             lineHeight: 34,
           },
         ]}
-        weight="extraBold"
+        weight="bold"
       >
         {title}
       </Text>
@@ -53,8 +53,9 @@ export default function OrderDetailsHeroSection({
 
 const styles = StyleSheet.create({
   hero: {
-    gap: 8,
-    paddingVertical: 12,
+    gap: 10,
+    paddingBottom: 24,
+    paddingTop: 8,
   },
   metaText: {
     letterSpacing: 0,

@@ -21,7 +21,7 @@ export default function ItemFlavour({
 }: Props) {
   const { t } = useTranslation("deliveries");
   const { colors, typography } = useTheme();
-  const resolveSectionSubtitle = React.useCallback(
+  const resolveSectionStatus = React.useCallback(
     (helperText: string | null, isMarkedRequired: boolean) => {
       const normalizedHelperText = helperText?.trim().toLowerCase() ?? "";
 
@@ -33,7 +33,7 @@ export default function ItemFlavour({
         return t("optional_label");
       }
 
-      return helperText || t("select_one");
+      return t("optional_label");
     },
     [t],
   );
@@ -57,8 +57,21 @@ export default function ItemFlavour({
       </Text>
       {sections.map((section) => (
         <View key={section.groupId} style={styles.sectionBlock}>
-          <Text color={colors.iconDisabled} style={styles.subtitle}>
-            {resolveSectionSubtitle(section.helperText, section.isMarkedRequired)}
+          <Text
+            color={colors.text}
+            weight="semiBold"
+            style={[
+              styles.sectionTitle,
+              {
+                fontSize: typography.size.sm2,
+                lineHeight: typography.lineHeight.md,
+              },
+            ]}
+          >
+            {`${section.label} (${resolveSectionStatus(
+              section.helperText,
+              section.isMarkedRequired,
+            ).toLowerCase()})`}
           </Text>
 
           <View style={styles.options}>
@@ -67,7 +80,7 @@ export default function ItemFlavour({
               keyExtractor={(item) => item.optionId}
               renderItem={({ item }) => (
                 <ProductOptionRow
-                  controlType={section.selectionType === "single" ? "radio" : "checkbox"}
+                  controlType="checkbox"
                   isSelected={
                     (selectedOptionIdsByGroup[section.groupId] ?? []).includes(item.optionId)
                   }
@@ -88,22 +101,22 @@ export default function ItemFlavour({
 
 const styles = StyleSheet.create({
   container: {
-    gap: 2,
+    gap: 8,
     paddingHorizontal: 16,
     paddingBottom: 4,
-    paddingTop: 16,
+    paddingTop: 20,
   },
   sectionBlock: {
-    gap: 2,
+    gap: 0,
+    paddingTop: 8,
   },
   options: {
-    paddingTop: 12,
+    paddingTop: 10,
+  },
+  sectionTitle: {
+    marginBottom: 2,
   },
   separator: {
     height: 12,
-  },
-  subtitle: {
-    fontSize: 14,
-    lineHeight: 22,
   },
 });

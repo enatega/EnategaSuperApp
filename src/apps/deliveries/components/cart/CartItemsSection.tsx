@@ -11,6 +11,7 @@ type Props = {
   isUpdatingItemId?: string | null;
   items: CartItem[];
   onAddMorePress: () => void;
+  onItemPendingChange?: (itemId: string, isPending: boolean) => void;
   onSetItemQuantity: (itemId: string, quantity: number) => Promise<void>;
   onRemoveItem: (itemId: string) => void;
 };
@@ -19,6 +20,7 @@ export default function CartItemsSection({
   isUpdatingItemId,
   items,
   onAddMorePress,
+  onItemPendingChange,
   onSetItemQuantity,
   onRemoveItem,
 }: Props) {
@@ -44,6 +46,7 @@ export default function CartItemsSection({
             key={item.id}
             isUpdating={isUpdatingItemId === item.id}
             item={item}
+            onPendingChange={onItemPendingChange}
             onSetQuantity={(quantity) => onSetItemQuantity(item.id, quantity)}
             onRemove={() => onRemoveItem(item.id)}
           />
