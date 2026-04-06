@@ -23,6 +23,8 @@ import ReservationsListScreen from '../screens/reservations/ReservationsListScre
 import ReservationDetailScreen from '../screens/reservations/ReservationDetailScreen';
 import RiderChatScreen from '../screens/riderChat/RiderChatScreen';
 import SafetyScreen from '../screens/safety/SafetyScreen';
+import WalletHomeScreen from '../screens/wallet/WalletHomeScreen';
+import AddFundsScreen from '../screens/wallet/AddFundsScreen';
 import { useTranslation } from 'react-i18next';
 import QueryProvider from '../../../general/providers/QueryProvider';
 import type { RideAddressSelection } from '../api/types';
@@ -111,6 +113,8 @@ export type RideSharingStackParamList = {
     driverRating?: number;
     vehicleLabel?: string;
   };
+  WalletHome: undefined;
+  WalletAddFunds: undefined;
 };
 
 const Stack = createNativeStackNavigator();
@@ -208,6 +212,17 @@ export default function RideSharingNavigator() {
         <Stack.Screen
           name="Safety"
           component={SafetyScreen}
+          options={{ headerShown: false }}
+        />
+        {/* Wallet Screens */}
+        <Stack.Screen
+          name="WalletHome"
+          component={WalletHomeScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="WalletAddFunds"
+          component={AddFundsScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

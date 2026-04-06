@@ -265,6 +265,28 @@ const fr = {
   safety_protection_accidents: 'Accidents : Que faire',
   safety_support_coming_soon: 'Assistance bientôt disponible',
   safety_emergency_contacts_coming_soon: 'Contacts d\'urgence bientôt disponibles',
+  // Wallet
+  wallet_title: 'Portefeuille',
+  wallet_subtitle: 'Consultez et gérez votre solde et vos transactions.',
+  wallet_your_balance: 'Votre solde',
+  wallet_add_funds: 'Ajouter des fonds',
+  wallet_transactions: 'Transactions',
+  wallet_tab_all: 'Tout',
+  wallet_tab_money_in: 'Entrées',
+  wallet_tab_money_out: 'Sorties',
+  wallet_add_funds_title: 'Ajouter des fonds',
+  wallet_add_funds_subtitle: 'Ajoutez une carte de crédit ou de débit pour effectuer rapidement des achats.',
+  wallet_offer_your_fare: 'Proposez votre tarif',
+  wallet_offer_fare_required: '*',
+  wallet_offer_fare_hint: 'Entrez un montant entre QAR 10,00 et QAR 500',
+  wallet_currency_prefix: 'QAR',
+  wallet_amount_placeholder: '0,00',
+  wallet_choose_payment_method: 'Choisir le mode de paiement',
+  wallet_add_payment_method: 'Ajouter un mode de paiement',
+  wallet_card_number: 'Numéro de carte',
+  wallet_expiry: 'MM / AA',
+  wallet_security_code: 'CVV',
+  wallet_save: 'Enregistrer',
 };
 
 export default fr;
