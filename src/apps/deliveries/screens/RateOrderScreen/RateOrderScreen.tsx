@@ -12,13 +12,7 @@ import RatingStars from '../../components/rateOrder/RatingStars';
 import RatingTagList from '../../components/rateOrder/RatingTagList';
 import RatingCommentInput from '../../components/rateOrder/RatingCommentInput';
 import { useSubmitReviewMutation } from '../../hooks/useSubmitReviewMutation';
-
-export type RateOrderScreenParams = {
-  RateOrder: {
-    orderId: string;
-    storeName: string;
-  };
-};
+import type { DeliveriesStackParamList } from '../../navigation/types';
 
 const RATING_TAGS_BY_SCORE: Record<number, string[]> = {
   1: ['Wrong items', 'Missing items', 'Poor packaging', 'Very late', 'Rude delivery'],
@@ -33,7 +27,7 @@ export default function RateOrderScreen() {
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const route = useRoute<RouteProp<RateOrderScreenParams, 'RateOrder'>>();
+  const route = useRoute<RouteProp<DeliveriesStackParamList, 'RateOrder'>>();
   const { orderId, storeName } = route.params;
 
   const [rating, setRating] = useState(0);

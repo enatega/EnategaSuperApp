@@ -8,6 +8,9 @@ import { useTranslation } from "react-i18next";
 import ProductInfo from "../screens/ProductInfo/ProductInfo";
 import CartScreen from "../screens/CartScreen/CartScreen";
 import CheckoutScreen from "../screens/CheckoutScreen/CheckoutScreen";
+import RateOrderScreen from '../screens/RateOrderScreen/RateOrderScreen';
+import OrderDetailsScreen from '../screens/OrderDetailsScreen/OrderDetailsScreen';
+import OrderTrackingScreen from '../screens/OrderTrackingScreen/OrderTrackingScreen';
 import MyProfileScreen from "../account/screens/MyProfileScreen/MyProfileScreen";
 import EditProfileScreen from "../account/screens/EditProfileScreen/EditProfileScreen";
 import SettingsScreen from "../account/screens/SettingsScreen/SettingsScreen";
@@ -219,6 +222,21 @@ export default function DeliveriesNavigator() {
       <Stack.Screen
         name="Cart"
         component={CartScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="RateOrder"
+        component={RateOrderScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="OrderDetailsScreen"
+        component={OrderDetailsScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="OrderTrackingScreen"
+        component={OrderTrackingScreen}
         options={sharedScreenOptions}
       />
 

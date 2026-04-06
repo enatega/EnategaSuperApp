@@ -3,14 +3,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import MultiVendorBottomTabNavigator from './MultiVendorBottomTabNavigator';
 import FavouritesScreen from '../screens/FavouritesScreen/FavouritesScreen';
-import RateOrderScreen from '../../screens/RateOrderScreen/RateOrderScreen';
 import StoreDetailsScreen from '../screens/StoreDetailsScreen/StoreDetailsScreen';
 import SeeAllScreen from '../screens/SeeAllScreen/SeeAllScreen';
 import type { MultiVendorStackParamList } from './types';
 import SeeAllMapView from '../screens/SeeAllScreen/components/SeeAllMapView';
 import ProductInfo from '../../screens/ProductInfo/ProductInfo';
-import OrderDetailsScreen from '../screens/OrderDetailsScreen/OrderDetailsScreen';
-import OrderTrackingScreen from '../screens/OrderTrackingScreen/OrderTrackingScreen';
 
 const Stack = createNativeStackNavigator<MultiVendorStackParamList>();
 
@@ -32,11 +29,6 @@ export default function MultiVendorNavigator() {
         options={hiddenHeaderOptions}
       />
       <Stack.Screen
-        name="RateOrder"
-        component={RateOrderScreen}
-        options={hiddenHeaderOptions}
-      />
-      <Stack.Screen
         name="StoreDetails"
         component={StoreDetailsScreen}
         options={hiddenHeaderOptions}
@@ -54,16 +46,6 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="ProductInfo"
         component={ProductInfo}
-        options={hiddenHeaderOptions}
-      />
-      <Stack.Screen
-        name="OrderDetailsScreen"
-        component={OrderDetailsScreen}
-        options={hiddenHeaderOptions}
-      />
-      <Stack.Screen
-        name="OrderTrackingScreen"
-        component={OrderTrackingScreen}
         options={hiddenHeaderOptions}
       />
     </Stack.Navigator>
