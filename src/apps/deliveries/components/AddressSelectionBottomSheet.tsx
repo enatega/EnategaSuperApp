@@ -14,7 +14,7 @@ import BottomSheetHandle from '../../../general/components/BottomSheetHandle';
 import SwipeableBottomSheet from '../../../general/components/SwipeableBottomSheet';
 import Text from '../../../general/components/Text';
 import { useTheme } from '../../../general/theme/theme';
-import type { ProfileAddress } from '../multiVendor/api/profileService';
+import type { ProfileAddress } from '../account/api/profileService';
 import {
   formatDeliveryAddressLabel,
   getSelectedSavedAddressId,

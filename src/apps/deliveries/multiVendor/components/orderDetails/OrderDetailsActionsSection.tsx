@@ -5,11 +5,15 @@ import Button from "../../../../../general/components/Button";
 import { useTheme } from "../../../../../general/theme/theme";
 import type { DeliveryOrderSummary } from "../../../api/ordersServiceTypes";
 import type { MultiVendorStackParamList } from "../../navigation/types";
+import type { DeliveriesStackParamList } from "../../../navigation/types";
 import { View } from "react-native";
+
+type OrderDetailsNavigationParamList =
+  DeliveriesStackParamList & MultiVendorStackParamList;
 
 type Props = {
   navigation: NativeStackNavigationProp<
-    MultiVendorStackParamList,
+    OrderDetailsNavigationParamList,
     "OrderDetailsScreen"
   >;
   shouldShowRateOrder: boolean;

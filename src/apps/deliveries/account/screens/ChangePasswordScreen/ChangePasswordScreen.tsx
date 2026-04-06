@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Keyboard, ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from '@react-navigation/native';
+import {
+  useNavigation,
+  type NavigationProp,
+} from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ScreenHeader from '../../../../../general/components/ScreenHeader';
 import Button from '../../../../../general/components/Button';
@@ -16,6 +19,7 @@ import {
   useVerifyOtpMutation,
   useUpdatePasswordMutation,
 } from '../../../hooks/useChangePasswordMutations';
+import type { DeliveriesAccountStackParamList } from '../../navigation/types';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -24,7 +28,7 @@ type Step = 1 | 2 | 3;
 export default function ChangePasswordScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<DeliveriesAccountStackParamList>>();
   const insets = useSafeAreaInsets();
 
   const [step, setStep] = useState<Step>(1);

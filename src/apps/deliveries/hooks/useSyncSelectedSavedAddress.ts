@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import type { ProfileAddress } from '../multiVendor/api/profileService';
+import type { ProfileAddress } from '../account/api/profileService';
 import {
   areDeliveryAddressesEqual,
   createSelectedDeliveryAddress,

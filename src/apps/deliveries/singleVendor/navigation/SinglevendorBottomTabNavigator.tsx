@@ -6,8 +6,8 @@ import { useTheme } from '../../../../general/theme/theme';
 import SingleVendorTabButton from '../components/navigation/SingleVendorTabButton';
 import HomeScreen from '../screens/HomeScreen/HomeScreen';
 import OrderScreen from '../screens/OrderScreen/OrderScreen';
-import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
 import SearchScreen from '../screens/SearchScreen/SearchScreen';
+import SingleVendorProfileTabScreen from '../../account/screens/ProfileTab/SingleVendorProfileTabScreen';
 import type { SingleVendorBottomTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<SingleVendorBottomTabParamList>();
@@ -96,7 +96,7 @@ export default function SinglevendorBottomTabNavigator() {
         }}
       />
       <Tab.Screen
-        component={ProfileScreen}
+        component={SingleVendorProfileTabScreen}
         name="SingleVendorTabProfile"
         options={{
           tabBarIcon: ({ color, size }: TabIconProps) => (
