@@ -4,18 +4,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
-
-type DeliveryTimeMode = 'standard' | 'schedule';
+import type { CheckoutDeliveryTimeMode } from './checkoutScheduleUtils';
 
 type Props = {
   isScheduleEnabled: boolean;
-  selectedMode: DeliveryTimeMode;
-  onSelectMode: (mode: DeliveryTimeMode) => void;
+  onSchedulePress: () => void;
+  onSelectMode: (mode: CheckoutDeliveryTimeMode) => void;
+  scheduledLabel?: string | null;
+  selectedMode: CheckoutDeliveryTimeMode;
 };
 
 export default function CheckoutDeliveryTimeSection({
   isScheduleEnabled,
+  onSchedulePress,
   selectedMode,
+  scheduledLabel,
   onSelectMode,
 }: Props) {
   const { colors, typography } = useTheme();
@@ -79,7 +82,10 @@ export default function CheckoutDeliveryTimeSection({
         accessibilityRole="radio"
         accessibilityState={{ selected: selectedMode === 'schedule', disabled: !isScheduleEnabled }}
         disabled={!isScheduleEnabled}
-        onPress={() => onSelectMode('schedule')}
+        onPress={() => {
+          onSelectMode('schedule');
+          onSchedulePress();
+        }}
         style={[
           styles.option,
           {
@@ -113,7 +119,9 @@ export default function CheckoutDeliveryTimeSection({
               lineHeight: typography.lineHeight.sm,
             }}
           >
-            {t('checkout_delivery_time_schedule_hint')}
+            {selectedMode === 'schedule' && scheduledLabel
+              ? scheduledLabel
+              : t('checkout_delivery_time_schedule_hint')}
           </Text>
         </View>
       </Pressable>

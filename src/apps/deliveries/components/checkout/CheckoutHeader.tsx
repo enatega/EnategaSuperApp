@@ -7,10 +7,16 @@ import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 
 type Props = {
+  backIconName?: React.ComponentProps<typeof Ionicons>['name'];
   onBackPress: () => void;
+  title?: string;
 };
 
-export default function CheckoutHeader({ onBackPress }: Props) {
+export default function CheckoutHeader({
+  backIconName = 'chevron-back',
+  onBackPress,
+  title,
+}: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
@@ -23,7 +29,7 @@ export default function CheckoutHeader({ onBackPress }: Props) {
         onPress={onBackPress}
         style={[styles.backButton, { backgroundColor: colors.surfaceSoft }]}
       >
-        <Ionicons color={colors.text} name="chevron-back" size={20} />
+        <Ionicons color={colors.text} name={backIconName} size={20} />
       </Pressable>
 
       <Text
@@ -34,7 +40,7 @@ export default function CheckoutHeader({ onBackPress }: Props) {
           lineHeight: typography.lineHeight.lg,
         }}
       >
-        {t('checkout_title')}
+        {title ?? t('checkout_title')}
       </Text>
 
       <View style={styles.trailingSpace} />

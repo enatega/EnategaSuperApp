@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     flexGrow: 1,
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 24,
   },

@@ -17,7 +17,6 @@ export default function OrderTrackingTimelineSection({ timeline }: Props) {
       {timeline.map((item, index) => (
         <OrderTrackingTimelineItem
           completedAt={formatCompletedTime(item.completedAt)}
-          isLastItem={index === timeline.length - 1}
           key={`${item.key}-${index}`}
           stepKey={item.key}
           title={item.title}
@@ -30,6 +29,6 @@ export default function OrderTrackingTimelineSection({ timeline }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 6,
+    paddingVertical: 8,
   },
 });

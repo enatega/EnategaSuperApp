@@ -15,32 +15,22 @@ export default function OrderDetailsSummaryRow({
   isEmphasized = false,
 }: Props) {
   const { colors, typography } = useTheme();
+  const textColor = isEmphasized ? colors.text : colors.mutedText;
+  const fontSize = isEmphasized ? typography.size.md2 : typography.size.sm2;
+  const lineHeight = isEmphasized
+    ? typography.lineHeight.md2
+    : typography.lineHeight.md;
 
   return (
     <View style={styles.row}>
       <Text
-        style={{
-          color: isEmphasized ? colors.text : colors.mutedText,
-          flex: 1,
-          fontSize: isEmphasized ? typography.size.md2 : typography.size.sm2,
-          lineHeight: isEmphasized
-            ? typography.lineHeight.md2
-            : typography.lineHeight.md,
-        }}
+        style={[styles.label, { color: textColor, fontSize, lineHeight }]}
         weight={isEmphasized ? 'semiBold' : 'medium'}
       >
         {label}
       </Text>
       <Text
-        style={{
-          color: isEmphasized ? colors.text : colors.mutedText,
-          fontSize: isEmphasized ? typography.size.md2 : typography.size.sm2,
-          lineHeight: isEmphasized
-            ? typography.lineHeight.md2
-            : typography.lineHeight.md,
-          marginLeft: 16,
-          textAlign: 'right',
-        }}
+        style={[styles.value, { color: textColor, fontSize, lineHeight }]}
         weight={isEmphasized ? 'semiBold' : 'medium'}
       >
         {value}
@@ -50,9 +40,19 @@ export default function OrderDetailsSummaryRow({
 }
 
 const styles = StyleSheet.create({
+  label: {
+    flexShrink: 0,
+    maxWidth: 120,
+    minWidth: 104,
+  },
   row: {
     alignItems: 'flex-start',
     flexDirection: 'row',
+    gap: 16,
     justifyContent: 'space-between',
+  },
+  value: {
+    flex: 1,
+    textAlign: 'right',
   },
 });

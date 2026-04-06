@@ -22,7 +22,7 @@ export default function OrderSummaryContent({
   const { colors } = useTheme();
 
   return (
-    <>
+    <View style={styles.container}>
       <OrderDetailsSummaryRow
         label={t("order_details_order_number")}
         value={summary.orderNumber}
@@ -63,13 +63,16 @@ export default function OrderSummaryContent({
         label={t("order_details_total_amount")}
         value={formatCurrency(summary.totalAmount)}
       />
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    gap: 10,
+  },
   divider: {
     height: 1,
-    marginVertical: 8,
+    marginVertical: 4,
   },
 });

@@ -4,6 +4,11 @@ import type {
   DeliveryOrderProductAddon,
 } from "../../../api/ordersServiceTypes";
 
+export type OrderProductAddonLine = {
+  label: string;
+  priceLabel: string | null;
+};
+
 export function getProductAddonLines(product: DeliveryOrderProduct) {
   const addonCollections = [
     product.addons,
@@ -11,13 +16,14 @@ export function getProductAddonLines(product: DeliveryOrderProduct) {
     product.modifiers,
     product.options,
     product.customizations,
+    product.selectedOptions,
   ];
 
   return addonCollections.flatMap((collection) =>
     Array.isArray(collection)
       ? collection
           .map((item) => formatAddonLine(item))
-          .filter((item): item is string => Boolean(item))
+          .filter((item): item is OrderProductAddonLine => Boolean(item))
       : [],
   );
 }
@@ -43,25 +49,44 @@ export function getRemainingOrderItemsCount(orderItems: DeliveryOrderItems) {
   return Math.max(orderItems.products.length - getOrderPreviewImages(orderItems).length, 0);
 }
 
-function formatAddonLine(item: DeliveryOrderProductAddon | string) {
+function formatAddonLine(
+  item: DeliveryOrderProductAddon | string,
+): OrderProductAddonLine | null {
   if (typeof item === "string") {
     const trimmedItem = item.trim();
-    return trimmedItem.length > 0 ? trimmedItem : null;
+    return trimmedItem.length > 0
+      ? {
+          label: trimmedItem,
+          priceLabel: null,
+        }
+      : null;
   }
 
-  const baseLabel =
+  const optionLabel =
+    item.optionName?.trim() ||
     item.name?.trim() ||
     item.title?.trim() ||
     item.label?.trim() ||
     item.value?.trim();
+  const groupLabel = item.groupName?.trim();
+  const baseLabel =
+    groupLabel && optionLabel && groupLabel !== optionLabel
+      ? `${groupLabel}: ${optionLabel}`
+      : optionLabel;
 
   if (!baseLabel) {
     return null;
   }
 
-  if (typeof item.quantity === "number" && item.quantity > 1) {
-    return `${baseLabel} x${item.quantity}`;
-  }
+  const lineLabel =
+    typeof item.quantity === "number" && item.quantity > 1
+      ? `${baseLabel} x${item.quantity}`
+      : baseLabel;
+  const priceLabel =
+    typeof item.price === "number" && item.price > 0 ? `US$${item.price.toFixed(2)}` : null;
 
-  return baseLabel;
+  return {
+    label: lineLabel,
+    priceLabel,
+  };
 }

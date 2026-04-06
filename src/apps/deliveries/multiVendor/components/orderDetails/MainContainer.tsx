@@ -117,14 +117,13 @@ export default function MainContainer({ navigation, orderId }: Props) {
         </OrderDetailsSection>
 
         <OrderDetailsActionsSection
+          onIncreaseTip={() => setIsIncreaseTipVisible(true)}
           shouldShowRateOrder={shouldShowRateOrder}
           shouldShowTrackProgress={shouldShowTrackProgress}
           shouldShowOrderAgain={shouldShowOrderAgain}
           navigation={navigation}
           orderId={order.orderId}
-          paymentMethod={order.paymentMethod}
           storeName={order.store.name}
-          summary={order.summary}
         />
       </ScrollView>
 
@@ -141,6 +140,7 @@ export default function MainContainer({ navigation, orderId }: Props) {
 
 const styles = StyleSheet.create({
   content: {
+    paddingBottom: 32,
     paddingHorizontal: 16,
   },
   divider: {

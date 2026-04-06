@@ -17,14 +17,14 @@ export function usePlaceOrder(options?: Options) {
 
   return useMutation<PlaceOrderResponse, ApiError, PlaceOrderInput>({
     mutationFn: orderService.placeOrder,
-    onSuccess: async (data) => {
-      await Promise.all([
+    onSuccess: (data) => {
+      options?.onSuccess?.(data);
+
+      void Promise.all([
         queryClient.invalidateQueries({ queryKey: deliveryKeys.cart() }),
         queryClient.invalidateQueries({ queryKey: deliveryKeys.cartCount() }),
         queryClient.invalidateQueries({ queryKey: deliveryKeys.orders() }),
       ]);
-
-      options?.onSuccess?.(data);
     },
     onError: options?.onError,
   });

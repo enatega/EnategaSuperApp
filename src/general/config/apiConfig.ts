@@ -1,12 +1,12 @@
 export type ApiEnvironment = 'development' | 'staging' | 'production' | 'local';
 
-const DEFAULT_ENV: ApiEnvironment = 'local';//'local' 
+const DEFAULT_ENV: ApiEnvironment = 'production';//'local' 
 
 const API_BASE_URLS: Record<ApiEnvironment, string> = {
   development: 'https://enatega-super-app-production.up.railway.app',
   staging: 'https://enatega-super-app-production.up.railway.app',
   production: 'https://enatega-super-app-production.up.railway.app',
-  local: 'http://192.168.1.110:3000',
+  local: 'http://192.168.1.233:3000',
 };
 
 const envOverride = process.env.EXPO_PUBLIC_API_ENV as ApiEnvironment | undefined;

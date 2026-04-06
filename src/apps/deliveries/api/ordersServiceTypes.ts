@@ -78,6 +78,7 @@ export interface DeliveryOrderProduct {
   modifiers?: Array<DeliveryOrderProductAddon | string> | null;
   options?: Array<DeliveryOrderProductAddon | string> | null;
   customizations?: Array<DeliveryOrderProductAddon | string> | null;
+  selectedOptions?: Array<DeliveryOrderProductAddon | string> | null;
   [key: string]: unknown;
 }
 
@@ -87,6 +88,8 @@ export interface DeliveryOrderProductAddon {
   title?: string | null;
   label?: string | null;
   value?: string | null;
+  groupName?: string | null;
+  optionName?: string | null;
   quantity?: number | null;
   price?: number | null;
   [key: string]: unknown;

@@ -14,10 +14,12 @@ import CheckoutModeTabs from './CheckoutModeTabs';
 import CheckoutPaymentSection from './CheckoutPaymentSection';
 import CheckoutSummaryFooter from './CheckoutSummaryFooter';
 import CheckoutTipSection from './CheckoutTipSection';
+import { getCheckoutMessagePreview } from './checkoutMessageUtils';
+import { formatCheckoutScheduledAt, type CheckoutDeliveryTimeMode } from './checkoutScheduleUtils';
 
 type Props = {
   cashSubtitle?: string;
-  deliveryTimeMode: 'standard' | 'schedule';
+  deliveryTimeMode: CheckoutDeliveryTimeMode;
   hasAddressRequirement: boolean;
   isPickupEnabled: boolean;
   isPlacingOrder?: boolean;
@@ -28,16 +30,22 @@ type Props = {
   leaveAtDoor: boolean;
   onAddressPress: () => void;
   onBackPress: () => void;
-  onDeliveryTimeModeChange: (mode: 'standard' | 'schedule') => void;
+  onCourierMessagePress: () => void;
+  onDeliveryTimeModeChange: (mode: CheckoutDeliveryTimeMode) => void;
   onLeaveAtDoorChange: (value: boolean) => void;
   onOrderTypeChange: (mode: CheckoutOrderType) => void;
   onPlaceOrderPress: () => void;
   onPromoPress: () => void;
+  onRestaurantMessagePress: () => void;
+  onSchedulePress: () => void;
   onRetryPreview: () => void;
   onTipChange: (amount: number) => void;
   orderType: CheckoutOrderType;
   paymentErrorMessage?: string | null;
   preview: CheckoutPreviewResponse | null;
+  courierMessage: string;
+  restaurantMessage: string;
+  scheduledAt?: string | null;
   selectedAddressLabel?: string | null;
   selectedTip: number;
   totalLabel: string;
@@ -56,16 +64,22 @@ export default function CheckoutScreenContent({
   leaveAtDoor,
   onAddressPress,
   onBackPress,
+  onCourierMessagePress,
   onDeliveryTimeModeChange,
   onLeaveAtDoorChange,
   onOrderTypeChange,
   onPlaceOrderPress,
   onPromoPress,
+  onRestaurantMessagePress,
+  onSchedulePress,
   onRetryPreview,
   onTipChange,
   orderType,
   paymentErrorMessage,
   preview,
+  courierMessage,
+  restaurantMessage,
+  scheduledAt,
   selectedAddressLabel,
   selectedTip,
   totalLabel,
@@ -81,6 +95,17 @@ export default function CheckoutScreenContent({
     : selectedAddressLabel
       ? preview?.fulfillment.delivery?.address ?? t('checkout_address_selected_subtitle')
       : t('checkout_address_subtitle');
+  const restaurantMessageSubtitle = getCheckoutMessagePreview(
+    restaurantMessage,
+    t('checkout_message_restaurant_subtitle'),
+  );
+  const courierMessageSubtitle = getCheckoutMessagePreview(
+    courierMessage,
+    t('checkout_message_courier_subtitle'),
+  );
+  const scheduledLabel = scheduledAt
+    ? formatCheckoutScheduledAt(scheduledAt)
+    : null;
 
   return (
     <View style={styles.container}>
@@ -119,18 +144,22 @@ export default function CheckoutScreenContent({
 
         <CheckoutInfoRow
           title={t('checkout_message_restaurant_title')}
-          subtitle={t('checkout_message_restaurant_subtitle')}
+          subtitle={restaurantMessageSubtitle}
           iconName="chatbox-ellipses-outline"
+          onPress={onRestaurantMessagePress}
         />
 
         <CheckoutInfoRow
           title={t('checkout_message_courier_title')}
-          subtitle={t('checkout_message_courier_subtitle')}
+          subtitle={courierMessageSubtitle}
           iconName="chatbox-ellipses-outline"
+          onPress={onCourierMessagePress}
         />
 
         <CheckoutDeliveryTimeSection
           isScheduleEnabled={preview?.schedule.scheduleAllowed ?? false}
+          onSchedulePress={onSchedulePress}
+          scheduledLabel={scheduledLabel}
           selectedMode={deliveryTimeMode}
           onSelectMode={onDeliveryTimeModeChange}
         />
