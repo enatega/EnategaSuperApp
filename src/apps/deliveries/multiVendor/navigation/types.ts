@@ -2,11 +2,6 @@ import type {
   DeliveryNearbyStore,
   DeliveryShopTypeProduct,
 } from "../../api/types";
-import type {
-  AddressDetailParams,
-  AddressFlowParams,
-} from '../../navigation/addressFlowTypes';
-import type { DeliveriesAccountStackParamList } from '../../account/navigation/types';
 
 export type SeeAllListingType =
   | 'nearby-stores'
@@ -15,11 +10,8 @@ export type SeeAllListingType =
 
 export type SeeAllItem = DeliveryNearbyStore | DeliveryShopTypeProduct;
 
-export type MultiVendorStackParamList = DeliveriesAccountStackParamList & {
+export type MultiVendorStackParamList = {
   MultiVendorTabs: undefined;
-  AddressSearch: AddressFlowParams | undefined;
-  AddressChooseOnMap: AddressFlowParams | undefined;
-  AddressDetail: AddressDetailParams;
   Favourites: undefined;
   RateOrder: {
     orderId: string;

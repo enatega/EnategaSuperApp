@@ -7,6 +7,7 @@ import ScreenHeader from "../../../../../general/components/ScreenHeader";
 import { useTheme } from "../../../../../general/theme/theme";
 import { useOrderDetails } from "../../../hooks";
 import type { MultiVendorStackParamList } from "../../navigation/types";
+import type { DeliveriesStackParamList } from "../../../navigation/types";
 import ExtendableOrderItems from "../orderItems/ExtendableOrderItems";
 import ExtendableOrderSummary from "../orderSummary/ExtendableOrderSummary";
 import { formatTrackingEta } from "../../utils/orderTracking/orderTrackingUtils";
@@ -19,9 +20,12 @@ import OrderDetailsSection from "../orderDetails/OrderDetailsSection";
 import OrderDetailsSummaryRow from "../orderDetails/OrderDetailsSummaryRow";
 import { formatCurrency } from "../../utils/orderDetails/orderDetailsUtils";
 
+type OrderTrackingNavigationParamList =
+  DeliveriesStackParamList & MultiVendorStackParamList;
+
 type Props = {
   navigation: NativeStackNavigationProp<
-    MultiVendorStackParamList,
+    OrderTrackingNavigationParamList,
     "OrderTrackingScreen"
   >;
   orderId: string;

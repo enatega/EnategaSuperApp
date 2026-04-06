@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Keyboard, ScrollView, StyleSheet, View } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,26 +11,19 @@ import Button from '../../../../general/components/Button';
 import AddressDetailForm from '../../components/addresses/AddressDetailForm';
 import type { AddressDetailFormHandle } from '../../components/addresses/AddressDetailForm';
 import { addressService, AddressType } from '../../api/addressService';
-import type { DeliveriesAccountStackParamList } from '../../account/navigation/types';
-import type { DeliveriesAddressFlowParamList } from '../../navigation/addressFlowTypes';
-
-type AddressDetailNavigationParamList = DeliveriesAddressFlowParamList &
-  Pick<DeliveriesAccountStackParamList, 'MyProfile'> & {
-  MultiVendorTabs: undefined;
-  SingleVendorTabs: undefined;
-};
+import type { DeliveriesStackParamList } from '../../navigation/types';
 
 export default function AddressDetailScreen() {
   const nav =
-    useNavigation<NativeStackNavigationProp<AddressDetailNavigationParamList>>();
-  const route = useRoute();
+    useNavigation<NativeStackNavigationProp<DeliveriesStackParamList>>();
+  const route = useRoute<RouteProp<DeliveriesStackParamList, 'AddressDetail'>>();
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
   const formRef = useRef<AddressDetailFormHandle>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
-  const params = route.params as DeliveriesAddressFlowParamList['AddressDetail'];
+  const params = route.params;
   const isEditing = Boolean(params.editAddressId);
   const lat = Number(params.latitude);
   const lng = Number(params.longitude);
@@ -60,12 +53,12 @@ export default function AddressDetailScreen() {
       }
 
       if (params.origin === 'multi-vendor-home') {
-        nav.navigate('MultiVendorTabs');
+        nav.navigate('MultiVendor', { screen: 'MultiVendorTabs' });
         return;
       }
 
       if (params.origin === 'single-vendor-home') {
-        nav.navigate('SingleVendorTabs');
+        nav.navigate('SingleVendor', { screen: 'SingleVendorTabs' });
         return;
       }
 

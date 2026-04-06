@@ -7,6 +7,7 @@ import { useTheme } from '../../../../../general/theme/theme';
 import { showToast } from '../../../../../general/components/AppToast';
 import AddressSelectionBottomSheet from '../../../components/AddressSelectionBottomSheet';
 import MultiVendorAddressHeader from '../../../components/MultiVendorAddressHeader';
+import type { DeliveriesStackParamList } from '../../../navigation/types';
 import ShopTypeList from '../../components/HomeTab/ShopTypeList';
 import MultiVendorSpecialOffers from '../../components/HomeTab/SpecialOffersBanner';
 import TopBrandsList from '../../components/HomeTab/TopBrandsList';
@@ -18,15 +19,10 @@ import useAddressSelectionSheet from '../../../hooks/useAddressSelectionSheet';
 import type { ProfileAddress } from '../../../account/api/profileService';
 import useSavedAddresses from '../../../hooks/useSavedAddresses';
 import { styles } from './HomeTabStyle';
-import type { MultiVendorStackParamList } from '../../navigation/types';
 import useAddress from '../../../hooks/useAddress';
 import useSelectSavedAddress from '../../../hooks/useSelectSavedAddress';
 
-type HomeTabNavigationParamList = MultiVendorStackParamList & {
-  Cart: undefined;
-};
-
-type NavProp = NativeStackNavigationProp<HomeTabNavigationParamList>;
+type NavProp = NativeStackNavigationProp<DeliveriesStackParamList>;
 
 export default function HomeTab() {
   const { colors } = useTheme();

@@ -7,16 +7,47 @@ import ChainNavigator from '../chain/navigation/ChainNavigator';
 import { useTranslation } from 'react-i18next';
 import ProductInfo from '../screens/ProductInfo/ProductInfo';
 import CartScreen from '../screens/CartScreen/CartScreen';
+import MyProfileScreen from '../account/screens/MyProfileScreen/MyProfileScreen';
+import EditProfileScreen from '../account/screens/EditProfileScreen/EditProfileScreen';
+import SettingsScreen from '../account/screens/SettingsScreen/SettingsScreen';
+import NotificationSettingsScreen from '../account/screens/NotificationSettingsScreen/NotificationSettingsScreen';
+import PrivacyPolicyScreen from '../account/screens/PrivacyPolicyScreen/PrivacyPolicyScreen';
+import TermsOfServiceScreen from '../account/screens/TermsOfServiceScreen/TermsOfServiceScreen';
+import TermsOfUseScreen from '../account/screens/TermsOfUseScreen/TermsOfUseScreen';
+import ChangePasswordScreen from '../account/screens/ChangePasswordScreen/ChangePasswordScreen';
+import DeleteAccountScreen from '../account/screens/DeleteAccountScreen/DeleteAccountScreen';
+import ColorModeScreen from '../account/screens/ColorModeScreen/ColorModeScreen';
+import LanguageScreen from '../account/screens/LanguageScreen/LanguageScreen';
+import AddressSearchScreen from '../screens/addresses/AddressSearchScreen';
+import AddressChooseOnMapScreen from '../screens/addresses/AddressChooseOnMapScreen';
+import AddressDetailScreen from '../screens/addresses/AddressDetailScreen';
+import SupportScreen from '../screens/SupportScreen/SupportScreen';
+import SupportChatScreen from '../screens/SupportChatScreen/SupportChatScreen';
+import SupportConversationsScreen from '../screens/SupportConversationsScreen/SupportConversationsScreen';
+import SupportContactFormScreen from '../screens/SupportContactFormScreen/SupportContactFormScreen';
+import SupportFaqScreen from '../screens/SupportFaqScreen/SupportFaqScreen';
+import SupportFaqArticleScreen from '../screens/SupportFaqArticleScreen/SupportFaqArticleScreen';
 import {
   DEFAULT_DELIVERY_MODE,
   getDeliveryModePreference,
   setDeliveryModePreference,
   type DeliveryMode,
 } from './deliveryModePreference';
+import type { DeliveriesStackParamList } from './types';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<DeliveriesStackParamList>();
 
-function mapDeliveryModeToRoute(mode: DeliveryMode) {
+type DeliveriesEntryRouteName =
+  | 'DeliveriesHome'
+  | 'SingleVendor'
+  | 'MultiVendor'
+  | 'Chain';
+
+const sharedScreenOptions = { headerShown: false } as const;
+
+function mapDeliveryModeToRoute(
+  mode: DeliveryMode,
+): Exclude<DeliveriesEntryRouteName, 'DeliveriesHome'> {
   switch (mode) {
     case 'multiVendor':
       return 'MultiVendor';
@@ -30,7 +61,8 @@ function mapDeliveryModeToRoute(mode: DeliveryMode) {
 
 export default function DeliveriesNavigator() {
   const { t } = useTranslation('deliveries');
-  const [initialRouteName, setInitialRouteName] = useState<'DeliveriesHome' | 'SingleVendor' | 'MultiVendor' | 'Chain' | null>(null);
+  const [initialRouteName, setInitialRouteName] =
+    useState<DeliveriesEntryRouteName | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -61,7 +93,10 @@ export default function DeliveriesNavigator() {
 
   return (
     <Stack.Navigator initialRouteName={initialRouteName}>
-      <Stack.Screen name="DeliveriesHome" options={{ title: t('header_title') }}>
+      <Stack.Screen
+        name="DeliveriesHome"
+        options={{ title: t('header_title') }}
+      >
         {(props) => (
           <DeliveriesHomeScreen
             {...props}
@@ -72,11 +107,131 @@ export default function DeliveriesNavigator() {
           />
         )}
       </Stack.Screen>
-      <Stack.Screen name="SingleVendor" component={SingleVendorNavigator} options={{ headerShown: false }} />
-      <Stack.Screen name="MultiVendor" component={MultiVendorNavigator} options={{ headerShown: false }} />
-      <Stack.Screen name="Chain" component={ChainNavigator} options={{ headerShown: false }} />
-      <Stack.Screen name="ProductInfo" component={ProductInfo} options={{ headerShown: false }} />
-      <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="SingleVendor"
+        component={SingleVendorNavigator}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="MultiVendor"
+        component={MultiVendorNavigator}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="Chain"
+        component={ChainNavigator}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="MyProfile"
+        component={MyProfileScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfileScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="AddressSearch"
+        component={AddressSearchScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="AddressChooseOnMap"
+        component={AddressChooseOnMapScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="AddressDetail"
+        component={AddressDetailScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="NotificationSettings"
+        component={NotificationSettingsScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicyScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="TermsOfService"
+        component={TermsOfServiceScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="TermsOfUse"
+        component={TermsOfUseScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="ChangePassword"
+        component={ChangePasswordScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="DeleteAccount"
+        component={DeleteAccountScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="ColorMode"
+        component={ColorModeScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="Language"
+        component={LanguageScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="Support"
+        component={SupportScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SupportChat"
+        component={SupportChatScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SupportFaq"
+        component={SupportFaqScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SupportConversations"
+        component={SupportConversationsScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SupportContactForm"
+        component={SupportContactFormScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SupportFaqArticle"
+        component={SupportFaqArticleScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="ProductInfo"
+        component={ProductInfo}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="Cart"
+        component={CartScreen}
+        options={sharedScreenOptions}
+      />
     </Stack.Navigator>
   );
 }
