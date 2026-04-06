@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Keyboard, ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import {
+  useNavigation,
+  useRoute,
+  type NavigationProp,
+  type RouteProp,
+} from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ScreenHeader from '../../../../../general/components/ScreenHeader';
 import Button from '../../../../../general/components/Button';
@@ -9,14 +14,7 @@ import { useTheme } from '../../../../../general/theme/theme';
 import { showToast } from '../../../../../general/components/AppToast';
 import { profileService, UpdateProfilePayload } from '../../api/profileService';
 import EditProfileForm from '../../components/profile/EditProfileForm';
-
-type RouteParams = {
-  EditProfile: {
-    name: string;
-    dateOfBirth: string | null;
-    gender: string | null;
-  };
-};
+import type { DeliveriesAccountStackParamList } from '../../navigation/types';
 
 function parseDob(iso: string | null) {
   if (!iso) return { day: '', month: '', year: '' };
@@ -39,8 +37,8 @@ function buildDobString(day: string, month: string, year: string): string {
 export default function EditProfileScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
-  const navigation = useNavigation();
-  const route = useRoute<RouteProp<RouteParams, 'EditProfile'>>();
+  const navigation = useNavigation<NavigationProp<DeliveriesAccountStackParamList>>();
+  const route = useRoute<RouteProp<DeliveriesAccountStackParamList, 'EditProfile'>>();
   const insets = useSafeAreaInsets();
 
   const { name: initialName, dateOfBirth: initialDob, gender: initialGender } = route.params;

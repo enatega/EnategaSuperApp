@@ -3,38 +3,7 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
-
-type InfoRowProps = {
-  label: string;
-  value: string | null | undefined;
-  isEditable?: boolean;
-  editLabel?: string;
-  onEdit?: () => void;
-};
-
-function InfoRow({ label, value, isEditable, editLabel, onEdit }: InfoRowProps) {
-  const { colors } = useTheme();
-
-  return (
-    <View style={styles.infoRow}>
-      <View style={styles.infoRowHeader}>
-        <Text weight="bold" style={styles.infoLabel}>
-          {label}
-        </Text>
-        {isEditable && editLabel && (
-          <Pressable onPress={onEdit} accessibilityRole="button">
-            <Text weight="medium" color={colors.text} style={styles.editText}>
-              {editLabel}
-            </Text>
-          </Pressable>
-        )}
-      </View>
-      <Text weight="medium" color={colors.mutedText} style={styles.infoValue}>
-        {value || '—'}
-      </Text>
-    </View>
-  );
-}
+import MyProfileInfoRow from './MyProfileInfoRow';
 
 type Props = {
   imageUri: string | null | undefined;
@@ -106,16 +75,16 @@ export default function MyProfileInfoCard({
 
       {/* Info rows */}
       <View style={styles.infoSection}>
-        <InfoRow
+        <MyProfileInfoRow
           label={nameLabel}
           value={fullName}
           isEditable
           editLabel={editLabel}
           onEdit={onEditName}
         />
-        <InfoRow label={dateOfBirthLabel} value={dateOfBirth} />
-        <InfoRow label={phoneLabel} value={phone} />
-        <InfoRow label={emailLabel} value={email} />
+        <MyProfileInfoRow label={dateOfBirthLabel} value={dateOfBirth} />
+        <MyProfileInfoRow label={phoneLabel} value={phone} />
+        <MyProfileInfoRow label={emailLabel} value={email} />
       </View>
     </View>
   );
@@ -167,30 +136,8 @@ const styles = StyleSheet.create({
     right: -4,
     width: 24,
   },
-  editText: {
-    fontSize: 14,
-    lineHeight: 22,
-  },
-  infoLabel: {
-    fontSize: 14,
-    lineHeight: 22,
-  },
-  infoRow: {
-    gap: 4,
-    height: 44,
-    justifyContent: 'center',
-  },
-  infoRowHeader: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   infoSection: {
     gap: 12,
-  },
-  infoValue: {
-    fontSize: 12,
-    lineHeight: 18,
   },
   name: {
     fontSize: 18,

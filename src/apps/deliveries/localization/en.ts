@@ -19,7 +19,6 @@ const en = {
   single_vendor_tab_profile: 'Profile',
   single_vendor_tab_search_placeholder: 'Search results and discovery tools will appear here soon.',
   single_vendor_tab_orders_placeholder: 'Your single-vendor orders will appear here soon.',
-  single_vendor_tab_profile_placeholder: 'Account and profile tools will appear here soon.',
   single_vendor_logout_error_title: 'Error',
   single_vendor_logout_error_message: 'Unable to log out right now.',
   multi_vendor_home_subtitle: 'Browse multiple stores',
