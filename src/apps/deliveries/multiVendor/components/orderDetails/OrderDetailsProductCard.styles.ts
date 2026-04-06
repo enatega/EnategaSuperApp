@@ -2,7 +2,18 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   addonList: {
-    gap: 2,
+    gap: 4,
+  },
+  addonLabel: {
+    flex: 1,
+  },
+  addonPrice: {
+    marginLeft: 12,
+    textAlign: "right",
+  },
+  addonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   addonText: {
     letterSpacing: 0,
@@ -18,7 +29,7 @@ export const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    gap: 6,
+    gap: 8,
     minWidth: 0,
   },
   image: {
@@ -37,6 +48,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingTop: 2,
   },
   name: {
     letterSpacing: 0,
@@ -45,7 +57,7 @@ export const styles = StyleSheet.create({
     letterSpacing: 0,
   },
   subtitleRow: {
-    alignItems: "flex-start",
+    alignItems: "center",
     flexDirection: "row",
   },
   divider: {

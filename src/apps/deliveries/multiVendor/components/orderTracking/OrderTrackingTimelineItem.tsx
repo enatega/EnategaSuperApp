@@ -10,7 +10,6 @@ type Props = {
   title: string;
   completedAt?: string | null;
   tone: "completed" | "active" | "upcoming";
-  isLastItem: boolean;
 };
 
 export default function OrderTrackingTimelineItem({
@@ -18,7 +17,6 @@ export default function OrderTrackingTimelineItem({
   title,
   completedAt,
   tone,
-  isLastItem,
 }: Props) {
   const { colors, typography } = useTheme();
   const iconBackgroundColor =
@@ -44,16 +42,6 @@ export default function OrderTrackingTimelineItem({
         >
           {icon}
         </View>
-        {!isLastItem ? (
-          <View
-            style={[
-              styles.connector,
-              {
-                backgroundColor: colors.border,
-              },
-            ]}
-          />
-        ) : null}
       </View>
 
       <View style={styles.content}>
@@ -63,7 +51,7 @@ export default function OrderTrackingTimelineItem({
             fontSize: typography.size.md2,
             lineHeight: typography.lineHeight.md,
           }}
-          weight={tone === "active" ? "bold" : "semiBold"}
+          weight="medium"
         >
           {title}
         </Text>
@@ -83,22 +71,19 @@ export default function OrderTrackingTimelineItem({
 
 const styles = StyleSheet.create({
   completedAt: {
-    marginTop: 4,
-  },
-  connector: {
-    flex: 1,
-    marginTop: 8,
-    width: 1,
+    marginLeft: 12,
   },
   content: {
+    alignItems: "center",
     flex: 1,
-    paddingBottom: 20,
-    paddingTop: 6,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    minHeight: 40,
   },
   iconColumn: {
     alignItems: "center",
-    marginRight: 14,
-    minHeight: 60,
+    marginRight: 12,
+    minHeight: 40,
   },
   iconWrapper: {
     alignItems: "center",
@@ -108,7 +93,10 @@ const styles = StyleSheet.create({
     width: 40,
   },
   row: {
+    alignItems: "center",
     flexDirection: "row",
+    // paddingHorizontal: 16,
+    paddingVertical: 12,
   },
 });
 
@@ -119,9 +107,9 @@ function getTimelineIcon(stepKey: string, tone: Props["tone"], color: string) {
     case "confirmed":
       return <Ionicons color={color} name="checkmark" size={size} />;
     case "packed":
-      return <Ionicons color={color} name="sync-outline" size={size} />;
-    case "picked_up":
       return <Ionicons color={color} name="checkmark" size={size} />;
+    case "picked_up":
+      return <Ionicons color={color} name="refresh-outline" size={size} />;
     case "on_the_way":
       return (
         <MaterialCommunityIcons color={color} name="bike-fast" size={size} />

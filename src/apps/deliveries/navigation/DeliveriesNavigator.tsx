@@ -1,66 +1,54 @@
-import React, { useEffect, useState } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import DeliveriesHomeScreen from '../screens/HomeScreen';
-import SingleVendorNavigator from '../singleVendor/navigation/SingleVendorNavigator';
-import MultiVendorNavigator from '../multiVendor/navigation/MultiVendorNavigator';
-import ChainNavigator from '../chain/navigation/ChainNavigator';
-import { useTranslation } from 'react-i18next';
-import ProductInfo from '../screens/ProductInfo/ProductInfo';
-import CartScreen from '../screens/CartScreen/CartScreen';
-import MyProfileScreen from '../account/screens/MyProfileScreen/MyProfileScreen';
-import EditProfileScreen from '../account/screens/EditProfileScreen/EditProfileScreen';
-import SettingsScreen from '../account/screens/SettingsScreen/SettingsScreen';
-import NotificationSettingsScreen from '../account/screens/NotificationSettingsScreen/NotificationSettingsScreen';
-import PrivacyPolicyScreen from '../account/screens/PrivacyPolicyScreen/PrivacyPolicyScreen';
-import TermsOfServiceScreen from '../account/screens/TermsOfServiceScreen/TermsOfServiceScreen';
-import TermsOfUseScreen from '../account/screens/TermsOfUseScreen/TermsOfUseScreen';
-import ChangePasswordScreen from '../account/screens/ChangePasswordScreen/ChangePasswordScreen';
-import DeleteAccountScreen from '../account/screens/DeleteAccountScreen/DeleteAccountScreen';
-import ColorModeScreen from '../account/screens/ColorModeScreen/ColorModeScreen';
-import LanguageScreen from '../account/screens/LanguageScreen/LanguageScreen';
-import AddressSearchScreen from '../screens/addresses/AddressSearchScreen';
-import AddressChooseOnMapScreen from '../screens/addresses/AddressChooseOnMapScreen';
-import AddressDetailScreen from '../screens/addresses/AddressDetailScreen';
-import SupportScreen from '../screens/SupportScreen/SupportScreen';
-import SupportChatScreen from '../screens/SupportChatScreen/SupportChatScreen';
-import SupportConversationsScreen from '../screens/SupportConversationsScreen/SupportConversationsScreen';
-import SupportContactFormScreen from '../screens/SupportContactFormScreen/SupportContactFormScreen';
-import SupportFaqScreen from '../screens/SupportFaqScreen/SupportFaqScreen';
-import SupportFaqArticleScreen from '../screens/SupportFaqArticleScreen/SupportFaqArticleScreen';
+import React, { useEffect, useState } from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import DeliveriesHomeScreen from "../screens/HomeScreen";
+import SingleVendorNavigator from "../singleVendor/navigation/SingleVendorNavigator";
+import MultiVendorNavigator from "../multiVendor/navigation/MultiVendorNavigator";
+import ChainNavigator from "../chain/navigation/ChainNavigator";
+import { useTranslation } from "react-i18next";
+import ProductInfo from "../screens/ProductInfo/ProductInfo";
+import CartScreen from "../screens/CartScreen/CartScreen";
+import CheckoutScreen from "../screens/CheckoutScreen/CheckoutScreen";
+import MyProfileScreen from "../account/screens/MyProfileScreen/MyProfileScreen";
+import EditProfileScreen from "../account/screens/EditProfileScreen/EditProfileScreen";
+import SettingsScreen from "../account/screens/SettingsScreen/SettingsScreen";
+import NotificationSettingsScreen from "../account/screens/NotificationSettingsScreen/NotificationSettingsScreen";
+import PrivacyPolicyScreen from "../account/screens/PrivacyPolicyScreen/PrivacyPolicyScreen";
+import TermsOfServiceScreen from "../account/screens/TermsOfServiceScreen/TermsOfServiceScreen";
+import TermsOfUseScreen from "../account/screens/TermsOfUseScreen/TermsOfUseScreen";
+import ChangePasswordScreen from "../account/screens/ChangePasswordScreen/ChangePasswordScreen";
+import DeleteAccountScreen from "../account/screens/DeleteAccountScreen/DeleteAccountScreen";
+import ColorModeScreen from "../account/screens/ColorModeScreen/ColorModeScreen";
+import LanguageScreen from "../account/screens/LanguageScreen/LanguageScreen";
+import AddressSearchScreen from "../screens/addresses/AddressSearchScreen";
+import AddressChooseOnMapScreen from "../screens/addresses/AddressChooseOnMapScreen";
+import AddressDetailScreen from "../screens/addresses/AddressDetailScreen";
+import SupportScreen from "../screens/SupportScreen/SupportScreen";
+import SupportChatScreen from "../screens/SupportChatScreen/SupportChatScreen";
+import SupportConversationsScreen from "../screens/SupportConversationsScreen/SupportConversationsScreen";
+import SupportContactFormScreen from "../screens/SupportContactFormScreen/SupportContactFormScreen";
+import SupportFaqScreen from "../screens/SupportFaqScreen/SupportFaqScreen";
+import SupportFaqArticleScreen from "../screens/SupportFaqArticleScreen/SupportFaqArticleScreen";
 import {
   DEFAULT_DELIVERY_MODE,
   getDeliveryModePreference,
+  mapDeliveryModeToRoute,
   setDeliveryModePreference,
-  type DeliveryMode,
-} from './deliveryModePreference';
-import type { DeliveriesStackParamList } from './types';
+  
+} from "./deliveryModePreference";
+import type { DeliveriesStackParamList } from "./types";
 
 const Stack = createNativeStackNavigator<DeliveriesStackParamList>();
 
 type DeliveriesEntryRouteName =
-  | 'DeliveriesHome'
-  | 'SingleVendor'
-  | 'MultiVendor'
-  | 'Chain';
+  | "DeliveriesHome"
+  | "SingleVendor"
+  | "MultiVendor"
+  | "Chain";
 
 const sharedScreenOptions = { headerShown: false } as const;
 
-function mapDeliveryModeToRoute(
-  mode: DeliveryMode,
-): Exclude<DeliveriesEntryRouteName, 'DeliveriesHome'> {
-  switch (mode) {
-    case 'multiVendor':
-      return 'MultiVendor';
-    case 'chain':
-      return 'Chain';
-    case 'singleVendor':
-    default:
-      return 'SingleVendor';
-  }
-}
-
 export default function DeliveriesNavigator() {
-  const { t } = useTranslation('deliveries');
+  const { t } = useTranslation("deliveries");
   const [initialRouteName, setInitialRouteName] =
     useState<DeliveriesEntryRouteName | null>(null);
 
@@ -95,7 +83,7 @@ export default function DeliveriesNavigator() {
     <Stack.Navigator initialRouteName={initialRouteName}>
       <Stack.Screen
         name="DeliveriesHome"
-        options={{ title: t('header_title') }}
+        options={{ title: t("header_title") }}
       >
         {(props) => (
           <DeliveriesHomeScreen
@@ -107,6 +95,7 @@ export default function DeliveriesNavigator() {
           />
         )}
       </Stack.Screen>
+
       <Stack.Screen
         name="SingleVendor"
         component={SingleVendorNavigator}
@@ -230,6 +219,12 @@ export default function DeliveriesNavigator() {
       <Stack.Screen
         name="Cart"
         component={CartScreen}
+        options={sharedScreenOptions}
+      />
+
+      <Stack.Screen
+        name="Checkout"
+        component={CheckoutScreen}
         options={sharedScreenOptions}
       />
     </Stack.Navigator>

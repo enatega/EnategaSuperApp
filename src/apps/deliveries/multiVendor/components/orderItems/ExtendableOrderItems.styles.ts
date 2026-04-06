@@ -1,6 +1,11 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
+  compactSection: {
+    gap: 12,
+    paddingBottom: 12,
+    paddingTop: 16,
+  },
   countBadge: {
     alignItems: "center",
     borderRadius: 18,
@@ -9,10 +14,15 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     width: 36,
   },
+  countBadgeCompact: {
+    borderRadius: 20,
+    height: 40,
+    width: 40,
+  },
   expandedContent: {
     borderTopWidth: 1,
-    marginTop: 16,
-    paddingTop: 16,
+    marginTop: 14,
+    paddingTop: 14,
   },
   headerContent: {
     flex: 1,
@@ -33,14 +43,27 @@ export const styles = StyleSheet.create({
     height: 36,
     width: 36,
   },
+  previewImageCompact: {
+    borderRadius: 20,
+    height: 40,
+    width: 40,
+  },
   separator: {
     height: 1,
-    marginVertical: 12,
+    marginVertical: 14,
+  },
+  staticContent: {
+    paddingTop: 2,
   },
   trackingHeader: {
     alignItems: "center",
     flexDirection: "row",
-    paddingVertical: 8,
+    paddingBottom: 2,
+    paddingTop: 4,
+  },
+  trackingHeaderCompact: {
+    paddingBottom: 8,
+    paddingTop: 8,
   },
   trackingWrapper: {
     paddingVertical: 0,

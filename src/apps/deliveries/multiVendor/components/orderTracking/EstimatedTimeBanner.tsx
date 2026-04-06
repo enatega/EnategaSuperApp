@@ -14,9 +14,9 @@ export default function EstimatedTimeBanner({ etaLabel, etaValue }: Props) {
 
   return (
     <LinearGradient
-      colors={[colors.bannerGradientStart, colors.bannerGradientEnd]}
+      colors={[colors.blue800, colors.primary]}
       start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
+      end={{ x: 0, y: 1 }}
       style={styles.container}
     >
       <Text color={colors.white} style={styles.label} weight="medium">
@@ -44,17 +44,18 @@ export default function EstimatedTimeBanner({ etaLabel, etaValue }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
-    paddingHorizontal: 18,
-    paddingVertical: 18,
+    alignItems: "center",
+    marginHorizontal: -16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
   content: {
-    marginTop: 6,
+    marginTop: 2,
   },
   label: {
     opacity: 0.92,
   },
   value: {
-    letterSpacing: -0.4,
+    letterSpacing: -0.48,
   },
 });

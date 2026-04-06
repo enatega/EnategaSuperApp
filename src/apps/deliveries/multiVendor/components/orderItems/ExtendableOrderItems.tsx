@@ -16,13 +16,21 @@ import {
 import { styles } from "./ExtendableOrderItems.styles";
 
 type Props = {
+  collapsedVariant?: "default" | "tracking";
+  defaultExpanded?: boolean;
+  isCollapsible?: boolean;
   orderItems: DeliveryOrderItems;
 };
 
-export default function ExtendableOrderItems({ orderItems }: Props) {
+export default function ExtendableOrderItems({
+  collapsedVariant = "default",
+  defaultExpanded = false,
+  isCollapsible = true,
+  orderItems,
+}: Props) {
   const { t } = useTranslation("deliveries");
   const { colors, typography } = useTheme();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   const previewImages = useMemo(
     () => getOrderPreviewImages(orderItems),
@@ -94,83 +102,140 @@ export default function ExtendableOrderItems({ orderItems }: Props) {
       </Text>
     );
 
+  const sectionContent = (
+    <>
+      {isCollapsible ? (
+        <View style={styles.trackingWrapper}>
+          <Pressable
+            accessibilityRole="button"
+            hitSlop={8}
+            onPress={() => setIsExpanded((previousState) => !previousState)}
+            style={[
+              styles.trackingHeader,
+              collapsedVariant === "tracking" && styles.trackingHeaderCompact,
+            ]}
+          >
+            <View style={styles.previewGroup}>
+              {previewImages.map((imageUri, index) => (
+                <Image
+                  key={`${imageUri}-${index}`}
+                  source={{ uri: imageUri }}
+                  style={[
+                    styles.previewImage,
+                    collapsedVariant === "tracking" && styles.previewImageCompact,
+                    {
+                      borderColor: colors.background,
+                      marginLeft:
+                        index === 0
+                          ? 0
+                          : collapsedVariant === "tracking"
+                            ? -12
+                            : -10,
+                    },
+                  ]}
+                />
+              ))}
+              {remainingCount > 0 ? (
+                <View
+                  style={[
+                    styles.countBadge,
+                    collapsedVariant === "tracking" && styles.countBadgeCompact,
+                    {
+                      backgroundColor: colors.backgroundTertiary,
+                      borderColor: colors.background,
+                      marginLeft:
+                        previewImages.length === 0
+                          ? 0
+                          : collapsedVariant === "tracking"
+                            ? -12
+                            : -10,
+                    },
+                  ]}
+                >
+                  <Text
+                    color={colors.text}
+                    style={{
+                      fontSize: typography.size.xs2,
+                      lineHeight: typography.lineHeight.sm,
+                    }}
+                    weight="semiBold"
+                  >
+                    +{remainingCount}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
+
+            <View style={styles.headerContent}>
+              <Text
+                color={colors.text}
+                numberOfLines={1}
+                style={{
+                  fontSize:
+                    collapsedVariant === "tracking"
+                      ? typography.size.md2
+                      : typography.size.md2,
+                  lineHeight: typography.lineHeight.md,
+                }}
+                weight={collapsedVariant === "tracking" ? "medium" : "semiBold"}
+              >
+                {orderItems.summaryLabel || t("order_details_empty_items")}
+              </Text>
+            </View>
+
+            <Ionicons
+              color={colors.iconMuted}
+              name={
+                collapsedVariant === "tracking"
+                  ? isExpanded
+                    ? "chevron-down"
+                    : "chevron-forward"
+                  : isExpanded
+                    ? "chevron-up"
+                    : "chevron-down"
+              }
+              size={20}
+            />
+          </Pressable>
+
+          {isExpanded ? (
+            <View
+              style={[
+                styles.expandedContent,
+                { borderTopColor: colors.border },
+              ]}
+            >
+              {detailsContent}
+            </View>
+          ) : null}
+        </View>
+      ) : (
+        <View style={styles.staticContent}>{detailsContent}</View>
+      )}
+    </>
+  );
+
+  if (collapsedVariant === "tracking") {
+    return (
+      <View style={styles.compactSection}>
+        <Text
+          color={colors.text}
+          style={{
+            fontSize: typography.size.xl2,
+            lineHeight: typography.lineHeight.xl2,
+          }}
+          weight="semiBold"
+        >
+          {t("order_details_items")}
+        </Text>
+        {sectionContent}
+      </View>
+    );
+  }
+
   return (
     <OrderDetailsSection title={t("order_details_items")}>
-      <View style={styles.trackingWrapper}>
-        <Pressable
-          accessibilityRole="button"
-          hitSlop={8}
-          onPress={() => setIsExpanded((previousState) => !previousState)}
-          style={styles.trackingHeader}
-        >
-          <View style={styles.previewGroup}>
-            {previewImages.map((imageUri, index) => (
-              <Image
-                key={`${imageUri}-${index}`}
-                source={{ uri: imageUri }}
-                style={[
-                  styles.previewImage,
-                  {
-                    borderColor: colors.background,
-                    marginLeft: index === 0 ? 0 : -10,
-                  },
-                ]}
-              />
-            ))}
-            {remainingCount > 0 ? (
-              <View
-                style={[
-                  styles.countBadge,
-                  {
-                    backgroundColor: colors.backgroundTertiary,
-                    borderColor: colors.background,
-                    marginLeft: previewImages.length === 0 ? 0 : -10,
-                  },
-                ]}
-              >
-                <Text
-                  color={colors.text}
-                  style={{
-                    fontSize: typography.size.xs2,
-                    lineHeight: typography.lineHeight.sm,
-                  }}
-                  weight="semiBold"
-                >
-                  +{remainingCount}
-                </Text>
-              </View>
-            ) : null}
-          </View>
-
-          <View style={styles.headerContent}>
-            <Text
-              color={colors.text}
-              numberOfLines={1}
-              style={{
-                fontSize: typography.size.md2,
-                lineHeight: typography.lineHeight.md,
-              }}
-              weight="semiBold"
-            >
-              {orderItems.summaryLabel || t("order_details_empty_items")}
-            </Text>
-          </View>
-
-          <Ionicons
-            color={colors.iconMuted}
-            name={isExpanded ? "chevron-up" : "chevron-down"}
-            size={20}
-          />
-        </Pressable>
-
-        {isExpanded ? (
-          <View
-            style={[styles.expandedContent, { borderTopColor: colors.border }]}
-          >
-            {detailsContent}
-          </View>
-        ) : null}
-      </View>
+      {sectionContent}
     </OrderDetailsSection>
   );
 }

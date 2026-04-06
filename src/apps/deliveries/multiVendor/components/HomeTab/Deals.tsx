@@ -6,15 +6,17 @@ import SectionActionHeader from '../../../../../general/components/SectionAction
 import type { DeliveryNearbyStore } from '../../../api/types';
 import { useDeals } from '../../../hooks';
 import StoreCard from '../../../components/storeCard/StoreCard';
+import HomeSectionState from './HomeSectionState';
 import NearbyStoreListSkeleton from './HomeTabSkeletons/NearbyStoreListSkeleton';
 
-type Props = {
-  onRestaurantPress?: (store: DeliveryNearbyStore) => void;
-};
-
-export default function Deals({ onRestaurantPress }: Props) {
+export default function Deals() {
   const { t } = useTranslation('deliveries');
-  const { data: dealsData = [], isPending: isDealsPending } = useDeals();
+  const {
+    data: dealsData = [],
+    isPending: isDealsPending,
+    isError: hasDealsError,
+  } = useDeals();
+  const isEmpty = !isDealsPending && !hasDealsError && dealsData.length === 0;
 
   const renderItem = ({ item }: { item: DeliveryNearbyStore }) => (
     <StoreCard store={item} />
@@ -29,6 +31,10 @@ export default function Deals({ onRestaurantPress }: Props) {
 
       {isDealsPending ? (
         <NearbyStoreListSkeleton />
+      ) : hasDealsError ? (
+        <HomeSectionState tone="error" />
+      ) : isEmpty ? (
+        <HomeSectionState />
       ) : (
         <HorizontalList
           data={dealsData}

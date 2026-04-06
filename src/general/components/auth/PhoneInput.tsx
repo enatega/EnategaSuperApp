@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { View, StyleSheet, Platform } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import PhoneInput from "react-native-phone-number-input";
 import { useTheme } from "../../theme/theme";
@@ -64,12 +64,15 @@ export default function PhoneNumberInput({
           withAlphaFilter: true,
           modalProps: {
             animationType: "slide",
+            statusBarTranslucent: true,
           },
           flatListProps: {
             contentContainerStyle: {
-              paddingTop: insets.top,
               paddingBottom: insets.bottom,
             },
+          },
+          closeButtonStyle: {
+            marginTop: insets.top,
           },
           filterProps: {
             style: {

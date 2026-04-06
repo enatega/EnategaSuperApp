@@ -66,12 +66,14 @@ export default function MainContainer({
     addonSections,
     cartSelectionInputs,
     selectedAddonsTotal,
+    selectedVariation,
+    selectedVariationKey,
     selectedVariationPrice,
     selectedAddonOptionIdsByGroup,
-    selectedVariationOptionIdsByGroup,
     selectVariationOption,
     toggleAddonOption,
-    variationSections,
+    variationHelperText,
+    variationOptions,
   } = useProductSelectionState({ addons, variations });
   const { conflictResolution, handleAddToCart, isAddDisabled, isSubmitting } =
     useProductInfoCartFlow({
@@ -92,14 +94,16 @@ export default function MainContainer({
   const hasCustomizationSection = hasSizes || hasFlavours;
   const hasDetailSections =
     hasNutritionSection || hasCustomizationSection || isCustomizationsLoading;
+  const effectiveBasePrice = variationOptions.length > 0
+    ? selectedVariationPrice
+    : productInfoData.price;
+  const configuredUnitPrice = effectiveBasePrice + selectedAddonsTotal;
 
   const totalPrice = useMemo(
-    () => (productInfoData.price + selectedVariationPrice + selectedAddonsTotal) * quantity,
+    () => configuredUnitPrice * quantity,
     [
-      productInfoData.price,
+      configuredUnitPrice,
       quantity,
-      selectedAddonsTotal,
-      selectedVariationPrice,
     ],
   );
 
@@ -149,7 +153,7 @@ export default function MainContainer({
         <ItemInfo
           description={productInfoData.description}
           name={productInfoData.name}
-          priceLabel={formatPrice(productInfoData.price)}
+          priceLabel={formatPrice(configuredUnitPrice)}
         />
 
         {hasDetailSections ? (
@@ -174,8 +178,9 @@ export default function MainContainer({
           <ItemSizes
             formatPrice={formatPrice}
             onSelect={selectVariationOption}
-            selectedOptionIdsByGroup={selectedVariationOptionIdsByGroup}
-            variations={variationSections}
+            helperText={variationHelperText}
+            selectedVariationKey={selectedVariationKey}
+            variations={variationOptions}
           />
         ) : null}
 
@@ -230,7 +235,6 @@ export default function MainContainer({
       />
 
       <CartStoreConflictModal
-        errorMessage={conflictResolution.errorMessage}
         isSubmitting={conflictResolution.isResolving}
         onCancel={conflictResolution.cancelResolution}
         onConfirm={() => {
