@@ -20,6 +20,7 @@ type Props = {
   deliveryTimeMode: 'standard' | 'schedule';
   hasAddressRequirement: boolean;
   isPickupEnabled: boolean;
+  isPlacingOrder?: boolean;
   isPaymentBlocked?: boolean;
   isPreviewEnabled: boolean;
   isPreviewError: boolean;
@@ -47,6 +48,7 @@ export default function CheckoutScreenContent({
   deliveryTimeMode,
   hasAddressRequirement,
   isPickupEnabled,
+  isPlacingOrder = false,
   isPaymentBlocked = false,
   isPreviewEnabled,
   isPreviewError,
@@ -70,7 +72,7 @@ export default function CheckoutScreenContent({
 }: Props) {
   const { t } = useTranslation('deliveries');
   const { colors } = useTheme();
-  const canPlaceOrder = Boolean(preview) && !hasAddressRequirement && !isPreviewPending && !isPaymentBlocked;
+  const canPlaceOrder = Boolean(preview) && !hasAddressRequirement && !isPreviewPending && !isPaymentBlocked && !isPlacingOrder;
   const addressTitle = orderType === 'pickup'
     ? preview?.store.name ?? t('checkout_pickup_title')
     : selectedAddressLabel ?? preview?.fulfillment.delivery?.label ?? t('checkout_address_title');
@@ -165,7 +167,7 @@ export default function CheckoutScreenContent({
 
       <CheckoutSummaryFooter
         isDisabled={!canPlaceOrder}
-        isLoading={false}
+        isLoading={isPlacingOrder}
         onPlaceOrderPress={onPlaceOrderPress}
         orderType={orderType}
         pricing={preview?.pricing ?? null}

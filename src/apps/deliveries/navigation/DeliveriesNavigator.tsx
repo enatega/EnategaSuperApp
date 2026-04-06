@@ -11,23 +11,11 @@ import CheckoutScreen from '../screens/CheckoutScreen/CheckoutScreen';
 import {
   DEFAULT_DELIVERY_MODE,
   getDeliveryModePreference,
+  mapDeliveryModeToRoute,
   setDeliveryModePreference,
-  type DeliveryMode,
 } from './deliveryModePreference';
 
 const Stack = createNativeStackNavigator();
-
-function mapDeliveryModeToRoute(mode: DeliveryMode) {
-  switch (mode) {
-    case 'multiVendor':
-      return 'MultiVendor';
-    case 'chain':
-      return 'Chain';
-    case 'singleVendor':
-    default:
-      return 'SingleVendor';
-  }
-}
 
 export default function DeliveriesNavigator() {
   const { t } = useTranslation('deliveries');

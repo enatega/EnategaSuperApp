@@ -5,7 +5,7 @@ import type { NavigationProp } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '../../../../general/components/AppToast';
 import { useTheme } from '../../../../general/theme/theme';
-import AddressSelectionBottomSheet from '../../multiVendor/components/addressSelection/AddressSelectionBottomSheet';
+import AddressSelectionBottomSheet from '../../components/AddressSelectionBottomSheet';
 import useSavedAddresses from '../../multiVendor/hooks/useSavedAddresses';
 import type { CheckoutOrderType } from '../../api/orderServiceTypes';
 import type { CartResponse } from '../../api/cartServiceTypes';
@@ -18,6 +18,7 @@ import { useCart } from '../../hooks/useCart';
 import { useCheckoutPreview } from '../../hooks/useCheckoutPreview';
 import { formatCartPrice } from '../../components/cart/cartUtils';
 import { formatDeliveryAddressLabel } from '../../utils/address';
+import { usePlaceOrder } from '../../hooks/usePlaceOrder';
 
 function getPreviewInput(
   cart: CartResponse | undefined,
@@ -75,6 +76,14 @@ export default function CheckoutScreen() {
     isError: isPreviewError,
     refetch: refetchPreview,
   } = useCheckoutPreview(previewInput);
+  const placeOrderMutation = usePlaceOrder({
+    onError: () => {
+      showToast.error(t('checkout_place_order_error'));
+    },
+    onSuccess: () => {
+      showToast.success(t('checkout_place_order_success'));
+    },
+  });
 
   React.useEffect(() => {
     if (!preview?.store) {
@@ -133,8 +142,52 @@ export default function CheckoutScreen() {
   }, [navigation]);
 
   const handlePlaceOrderPress = React.useCallback(() => {
-    showToast.info(t('checkout_place_order_pending'));
-  }, [t]);
+    if (!cart?.bucketId || !cart.storeId) {
+      return;
+    }
+
+    if (orderType === 'delivery' && !selectedAddress?.id) {
+      showToast.error(t('checkout_address_required'));
+      return;
+    }
+
+    const payload = {
+      storeId: cart.storeId,
+      bucketId: cart.bucketId,
+      orderType,
+      paymentMethod: 'cod' as const,
+      addressId: orderType === 'delivery' ? selectedAddress?.id : undefined,
+      riderTip: selectedTip > 0 ? selectedTip : undefined,
+    };
+
+    void placeOrderMutation.mutateAsync(payload).then((response) => {
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'MultiVendor',
+            params: {
+              screen: 'OrderTrackingScreen',
+              params: {
+                orderId: response.orderId,
+              },
+            },
+          },
+        ],
+      });
+    }).catch(() => {
+      // Toast feedback is handled by the mutation callbacks.
+    });
+  }, [
+    cart?.bucketId,
+    cart?.storeId,
+    navigation,
+    orderType,
+    placeOrderMutation,
+    selectedAddress?.id,
+    selectedTip,
+    t,
+  ]);
 
   const handlePromoPress = React.useCallback(() => {
     showToast.info(t('checkout_promo_pending'));
@@ -172,7 +225,8 @@ export default function CheckoutScreen() {
         deliveryTimeMode={deliveryTimeMode}
         hasAddressRequirement={orderType === 'delivery' && !selectedAddress?.id}
         isPickupEnabled={preview?.store.pickupAllowed ?? true}
-        isPaymentBlocked={isCodUnavailable}
+        isPlacingOrder={placeOrderMutation.isPending}
+        isPaymentBlocked={false}
         isPreviewEnabled={Boolean(previewInput)}
         isPreviewError={isPreviewError}
         isPreviewPending={isPreviewPending}

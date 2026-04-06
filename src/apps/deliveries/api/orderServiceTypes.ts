@@ -1,5 +1,7 @@
 export type CheckoutOrderType = 'delivery' | 'pickup';
 
+export type CheckoutPaymentMethod = 'cod' | 'stripe';
+
 export type CheckoutPreviewInput = {
   storeId: string;
   bucketId: string;
@@ -65,4 +67,27 @@ export type CheckoutPreviewResponse = {
     itemCount: number;
     items: CheckoutPreviewBucketItem[];
   };
+};
+
+export type PlaceOrderInput = {
+  storeId: string;
+  bucketId: string;
+  orderType: CheckoutOrderType;
+  paymentMethod: CheckoutPaymentMethod;
+  addressId?: string;
+  customerNote?: string;
+  riderTip?: number;
+  scheduledAt?: string;
+};
+
+export type PlaceOrderResponse = {
+  mode: CheckoutPaymentMethod;
+  orderId: string;
+  status: string;
+  paymentStatus: string;
+  paymentMethod: 'cash' | 'card';
+  orderType: CheckoutOrderType;
+  totalAmount: number;
+  scheduledAt: string | null;
+  createdAt: string;
 };
