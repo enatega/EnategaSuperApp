@@ -11,6 +11,35 @@ export type CheckoutPreviewInput = {
   riderTip?: number;
 };
 
+export type CheckoutScheduleSlotsInput = {
+  dateTime?: string;
+  days?: number;
+  slotMinutes?: number;
+};
+
+export type CheckoutScheduleApiSlot = {
+  start: string;
+  end: string;
+  isAvailable?: boolean;
+  maxOrders?: number;
+};
+
+export type CheckoutScheduleApiDay = {
+  date: string;
+  label: string;
+  dayName: string;
+  isActive: boolean;
+  hasSlots: boolean;
+  slots: CheckoutScheduleApiSlot[];
+};
+
+export type CheckoutScheduleSlotsResponse = {
+  allowScheduleBooking: boolean;
+  selectedDate: string;
+  days: CheckoutScheduleApiDay[];
+  slots: CheckoutScheduleApiSlot[];
+};
+
 export type CheckoutPreviewStore = {
   id: string;
   name: string;

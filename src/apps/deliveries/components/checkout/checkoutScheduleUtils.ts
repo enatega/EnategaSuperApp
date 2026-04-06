@@ -1,131 +1,174 @@
+import type {
+  CheckoutScheduleApiDay,
+  CheckoutScheduleApiSlot,
+  CheckoutScheduleSlotsResponse,
+} from '../../api/orderServiceTypes';
+
 export type CheckoutDeliveryTimeMode = 'standard' | 'schedule';
-export type CheckoutScheduleDayKey = 'today' | 'tomorrow';
+export type CheckoutScheduleDayKey = string;
 
 export type CheckoutScheduleDayOption = {
   key: CheckoutScheduleDayKey;
   label: string;
+  hasSlots: boolean;
+  isActive: boolean;
 };
 
 export type CheckoutScheduleSlot = {
   id: string;
+  isAvailable: boolean;
   label: string;
   scheduledAt: string;
 };
 
-const TODAY_SLOT_START_HOURS = [17, 18, 19, 20, 21];
-const TOMORROW_SLOT_START_HOURS = [8, 9, 10, 11, 12, 13];
+function parseApiDate(dateString: string) {
+  const [year, month, day] = dateString.split('-').map(Number);
 
-function buildDateAtHour(baseDate: Date, dayOffset: number, hour: number) {
-  return new Date(
-    baseDate.getFullYear(),
-    baseDate.getMonth(),
-    baseDate.getDate() + dayOffset,
-    hour,
-    0,
-    0,
-    0,
-  );
+  if (!year || !month || !day) {
+    return null;
+  }
+
+  return new Date(year, month - 1, day);
 }
 
-function formatSlotLabel(startHour: number) {
-  const startLabel = String(startHour).padStart(2, '0');
-  const endLabel = String(startHour + 1).padStart(2, '0');
+function formatDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
 
-  return `${startLabel}:00 - ${endLabel}:00`;
+  return `${year}-${month}-${day}`;
 }
 
-function formatTabDateLabel(
-  date: Date,
-  prefix: string,
+function formatScheduleDayLabel(
+  day: CheckoutScheduleApiDay,
+  labels: {
+    today: string;
+    tomorrow: string;
+  },
 ) {
+  const parsedDate = parseApiDate(day.date);
+
+  if (!parsedDate) {
+    return day.label;
+  }
+
   const dateLabel = new Intl.DateTimeFormat(undefined, {
     day: 'numeric',
     month: 'short',
-  }).format(date);
+  }).format(parsedDate);
+  const normalizedLabel = day.label.trim().toLowerCase();
 
-  return `${prefix}, ${dateLabel}`;
+  if (normalizedLabel === 'today') {
+    return `${labels.today}, ${dateLabel}`;
+  }
+
+  if (normalizedLabel === 'tomorrow') {
+    return `${labels.tomorrow}, ${dateLabel}`;
+  }
+
+  return `${day.dayName}, ${dateLabel}`;
 }
 
-export function buildCheckoutScheduleDayOptions(labels: {
-  today: string;
-  tomorrow: string;
-}) {
-  const now = new Date();
-  const today = new Date(now);
-  const tomorrow = new Date(now);
+function formatScheduleSlotLabel(slot: CheckoutScheduleApiSlot) {
+  return `${slot.start} - ${slot.end}`;
+}
 
-  tomorrow.setDate(now.getDate() + 1);
+function buildScheduledAt(dateString: string, timeString: string) {
+  const [year, month, day] = dateString.split('-').map(Number);
+  const [hours, minutes] = timeString.split(':').map(Number);
 
-  return [
-    {
-      key: 'today',
-      label: formatTabDateLabel(today, labels.today),
-    },
-    {
-      key: 'tomorrow',
-      label: formatTabDateLabel(tomorrow, labels.tomorrow),
-    },
-  ] satisfies CheckoutScheduleDayOption[];
+  if (!year || !month || !day || Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return dateString;
+  }
+
+  return new Date(year, month - 1, day, hours, minutes, 0, 0).toISOString();
+}
+
+export function isCheckoutScheduledAtInFuture(scheduledAt: string) {
+  const parsedDate = new Date(scheduledAt);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return false;
+  }
+
+  return parsedDate.getTime() > Date.now();
+}
+
+export function buildCheckoutScheduleDayOptions(
+  response: CheckoutScheduleSlotsResponse | undefined,
+  labels: {
+    today: string;
+    tomorrow: string;
+  },
+) {
+  if (!response) {
+    return [] satisfies CheckoutScheduleDayOption[];
+  }
+
+  return response.days.map((day) => ({
+    key: day.date,
+    label: formatScheduleDayLabel(day, labels),
+    hasSlots: day.hasSlots,
+    isActive: day.isActive,
+  })) satisfies CheckoutScheduleDayOption[];
 }
 
 export function buildCheckoutScheduleSlots(
-  dayKey: CheckoutScheduleDayKey,
-  labels: { asap: string },
+  response: CheckoutScheduleSlotsResponse | undefined,
+  selectedDayKey: CheckoutScheduleDayKey,
 ) {
-  const now = new Date();
-  const slots: CheckoutScheduleSlot[] = [];
-
-  if (dayKey === 'today') {
-    const asapDate = new Date(now.getTime() + (30 * 60 * 1000));
-
-    slots.push({
-      id: 'today-asap',
-      label: labels.asap,
-      scheduledAt: asapDate.toISOString(),
-    });
+  if (!response) {
+    return [] satisfies CheckoutScheduleSlot[];
   }
 
-  const startHours = dayKey === 'today'
-    ? TODAY_SLOT_START_HOURS
-    : TOMORROW_SLOT_START_HOURS;
-  const dayOffset = dayKey === 'today' ? 0 : 1;
+  const selectedDay = response.days.find((day) => day.date === selectedDayKey);
+  const slotsSource = selectedDay?.slots ?? [];
 
-  for (const startHour of startHours) {
-    const startDate = buildDateAtHour(now, dayOffset, startHour);
-
-    if (startDate.getTime() <= now.getTime()) {
-      continue;
-    }
-
-    slots.push({
-      id: `${dayKey}-${startHour}`,
-      label: formatSlotLabel(startHour),
-      scheduledAt: startDate.toISOString(),
-    });
-  }
-
-  return slots;
+  return slotsSource
+    .filter((slot) => slot.isAvailable !== false)
+    .map((slot, index) => ({
+      id: `${selectedDayKey}-${slot.start}-${slot.end}-${index}`,
+      isAvailable: slot.isAvailable !== false,
+      label: formatScheduleSlotLabel(slot),
+      scheduledAt: buildScheduledAt(selectedDayKey, slot.start),
+    }))
+    .filter((slot) => isCheckoutScheduledAtInFuture(slot.scheduledAt)) satisfies CheckoutScheduleSlot[];
 }
 
 export function findCheckoutScheduleDayKey(
+  response: CheckoutScheduleSlotsResponse | undefined,
   scheduledAt?: string | null,
 ) {
+  if (response?.days.length) {
+    if (scheduledAt) {
+      const parsedDate = new Date(scheduledAt);
+
+      if (!Number.isNaN(parsedDate.getTime())) {
+        const targetDate = formatDateKey(parsedDate);
+        const matchedDay = response.days.find((day) => day.date === targetDate);
+
+        if (matchedDay) {
+          return matchedDay.date;
+        }
+      }
+    }
+
+    const activeDay = response.days.find((day) => day.isActive);
+
+    return activeDay?.date ?? response.selectedDate ?? response.days[0].date;
+  }
+
   if (!scheduledAt) {
-    return 'today' as const;
+    return null;
   }
 
   const parsedDate = new Date(scheduledAt);
 
   if (Number.isNaN(parsedDate.getTime())) {
-    return 'today' as const;
+    return null;
   }
 
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const target = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
-  const diffInDays = Math.round((target.getTime() - today.getTime()) / (24 * 60 * 60 * 1000));
-
-  return diffInDays >= 1 ? 'tomorrow' : 'today';
+  return formatDateKey(parsedDate);
 }
 
 export function formatCheckoutScheduledAt(dateString: string) {

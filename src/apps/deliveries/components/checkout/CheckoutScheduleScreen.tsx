@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import Button from '../../../../general/components/Button';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
+import { useCheckoutSchedule } from '../../hooks';
+import ListStateView from '../filterablePaginatedList/ListStateView';
 import CheckoutHeader from './CheckoutHeader';
 import {
   buildCheckoutScheduleDayOptions,
@@ -17,34 +19,62 @@ type Props = {
   onBackPress: () => void;
   onConfirm: (scheduledAt: string) => void;
   selectedScheduledAt?: string | null;
+  storeId: string | null;
 };
 
 export default function CheckoutScheduleScreen({
   onBackPress,
   onConfirm,
   selectedScheduledAt,
+  storeId,
 }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
-  const [selectedDayKey, setSelectedDayKey] = React.useState<CheckoutScheduleDayKey>(
-    findCheckoutScheduleDayKey(selectedScheduledAt),
+  const scheduleInput = React.useMemo(
+    () => ({
+      dateTime: new Date().toISOString(),
+      days: 2,
+      slotMinutes: 60,
+    }),
+    [selectedScheduledAt],
+  );
+  const {
+    data: schedule,
+    isError,
+    isPending,
+    refetch,
+  } = useCheckoutSchedule(storeId, scheduleInput);
+  const [selectedDayKey, setSelectedDayKey] = React.useState<CheckoutScheduleDayKey | null>(
+    findCheckoutScheduleDayKey(schedule, selectedScheduledAt),
   );
 
+  React.useEffect(() => {
+    const nextDayKey = findCheckoutScheduleDayKey(schedule, selectedScheduledAt);
+
+    setSelectedDayKey((currentValue) => {
+      if (currentValue && schedule?.days.some((day) => day.date === currentValue)) {
+        return currentValue;
+      }
+
+      return nextDayKey;
+    });
+  }, [schedule, selectedScheduledAt]);
+
   const dayOptions = React.useMemo(
-    () => buildCheckoutScheduleDayOptions({
+    () => buildCheckoutScheduleDayOptions(schedule, {
       today: t('checkout_schedule_today'),
       tomorrow: t('checkout_schedule_tomorrow'),
     }),
-    [t],
+    [schedule, t],
   );
   const slots = React.useMemo(
-    () => buildCheckoutScheduleSlots(selectedDayKey, {
-      asap: t('checkout_schedule_asap'),
-    }),
-    [selectedDayKey, t],
+    () => selectedDayKey
+      ? buildCheckoutScheduleSlots(schedule, selectedDayKey)
+      : [],
+    [schedule, selectedDayKey],
   );
   const [selectedScheduledSlot, setSelectedScheduledSlot] = React.useState<string | null>(
-    selectedScheduledAt ?? slots[0]?.scheduledAt ?? null,
+    selectedScheduledAt ?? null,
   );
 
   React.useEffect(() => {
@@ -53,11 +83,11 @@ export default function CheckoutScheduleScreen({
         return currentValue;
       }
 
-      return selectedDayKey === 'today'
-        ? slots[0]?.scheduledAt ?? null
-        : null;
+      return slots[0]?.scheduledAt ?? null;
     });
-  }, [selectedDayKey, slots]);
+  }, [slots]);
+
+  const isConfirmDisabled = !selectedScheduledSlot || isPending || !schedule?.allowScheduleBooking;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -70,78 +100,116 @@ export default function CheckoutScheduleScreen({
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <View
-          style={[
-            styles.dayTabs,
-            { backgroundColor: colors.backgroundTertiary },
-          ]}
-        >
-          {dayOptions.map((option) => {
-            const isSelected = option.key === selectedDayKey;
+        {isPending ? (
+          <ListStateView
+            containerStyle={styles.stateBlock}
+            variant="loading"
+          />
+        ) : isError ? (
+          <ListStateView
+            actionLabel={t('generic_list_retry')}
+            containerStyle={styles.stateBlock}
+            description={t('checkout_schedule_error_message')}
+            onActionPress={() => {
+              void refetch();
+            }}
+            title={t('checkout_schedule_error_title')}
+            variant="error"
+          />
+        ) : !schedule?.allowScheduleBooking || dayOptions.length === 0 ? (
+          <ListStateView
+            containerStyle={styles.stateBlock}
+            description={t('checkout_schedule_empty_message')}
+            title={t('checkout_schedule_empty_title')}
+            variant="empty"
+          />
+        ) : (
+          <>
+            <View
+              style={[
+                styles.dayTabs,
+                { backgroundColor: colors.backgroundTertiary },
+              ]}
+            >
+              {dayOptions.map((option) => {
+                const isSelected = option.key === selectedDayKey;
 
-            return (
-              <Pressable
-                accessibilityRole="button"
-                key={option.key}
-                onPress={() => {
-                  setSelectedDayKey(option.key);
-                }}
-                style={[
-                  styles.dayTab,
-                  isSelected && {
-                    backgroundColor: colors.surface,
-                    shadowColor: colors.shadowColor,
-                  },
-                ]}
-              >
-                <Text
-                  weight="medium"
-                  style={{
-                    color: isSelected ? colors.text : colors.mutedText,
-                    fontSize: typography.size.sm2,
-                    lineHeight: typography.lineHeight.md,
-                  }}
-                >
-                  {option.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+                return (
+                  <Pressable
+                    accessibilityRole="button"
+                    disabled={!option.hasSlots}
+                    key={option.key}
+                    onPress={() => {
+                      setSelectedDayKey(option.key);
+                    }}
+                    style={[
+                      styles.dayTab,
+                      isSelected && {
+                        backgroundColor: colors.surface,
+                        shadowColor: colors.shadowColor,
+                      },
+                    ]}
+                  >
+                    <Text
+                      weight="medium"
+                      style={{
+                        color: isSelected ? colors.text : colors.mutedText,
+                        fontSize: typography.size.sm2,
+                        lineHeight: typography.lineHeight.md,
+                        opacity: option.hasSlots ? 1 : 0.5,
+                      }}
+                    >
+                      {option.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
 
-        <View style={styles.slotList}>
-          {slots.map((slot) => {
-            const isSelected = slot.scheduledAt === selectedScheduledSlot;
+            {slots.length === 0 ? (
+              <ListStateView
+                containerStyle={styles.stateBlock}
+                description={t('checkout_schedule_empty_message')}
+                title={t('checkout_schedule_empty_title')}
+                variant="empty"
+              />
+            ) : (
+              <View style={styles.slotList}>
+                {slots.map((slot) => {
+                  const isSelected = slot.scheduledAt === selectedScheduledSlot;
 
-            return (
-              <Pressable
-                accessibilityRole="button"
-                key={slot.id}
-                onPress={() => {
-                  setSelectedScheduledSlot(slot.scheduledAt);
-                }}
-                style={[
-                  styles.slotButton,
-                  {
-                    backgroundColor: isSelected ? colors.blue100 : colors.surface,
-                    borderColor: colors.border,
-                  },
-                ]}
-              >
-                <Text
-                  weight="medium"
-                  style={{
-                    color: isSelected ? colors.blue800 : colors.mutedText,
-                    fontSize: typography.size.sm2,
-                    lineHeight: typography.lineHeight.md,
-                  }}
-                >
-                  {slot.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+                  return (
+                    <Pressable
+                      accessibilityRole="button"
+                      key={slot.id}
+                      onPress={() => {
+                        setSelectedScheduledSlot(slot.scheduledAt);
+                      }}
+                      style={[
+                        styles.slotButton,
+                        {
+                          backgroundColor: isSelected ? colors.blue100 : colors.surface,
+                          borderColor: colors.border,
+                        },
+                      ]}
+                    >
+                      <Text
+                        weight="medium"
+                        style={{
+                          color: isSelected ? colors.blue800 : colors.mutedText,
+                          fontSize: typography.size.sm2,
+                          lineHeight: typography.lineHeight.md,
+                        }}
+                      >
+                        {slot.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            )}
+          </>
+        )}
       </ScrollView>
 
       <View style={styles.footer}>
@@ -159,7 +227,7 @@ export default function CheckoutScheduleScreen({
         </View>
 
         <Button
-          disabled={!selectedScheduledSlot}
+          disabled={isConfirmDisabled}
           label={t('checkout_schedule_confirm')}
           onPress={() => {
             if (!selectedScheduledSlot) {
@@ -217,6 +285,9 @@ const styles = StyleSheet.create({
   },
   screen: {
     flex: 1,
+  },
+  stateBlock: {
+    minHeight: 240,
   },
   slotButton: {
     alignItems: 'center',

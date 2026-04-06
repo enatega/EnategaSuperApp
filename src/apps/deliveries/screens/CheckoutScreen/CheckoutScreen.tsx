@@ -27,7 +27,28 @@ import {
   type CheckoutMessageTarget,
 } from '../../components/checkout/checkoutMessageUtils';
 import CheckoutScheduleScreen from '../../components/checkout/CheckoutScheduleScreen';
-import type { CheckoutDeliveryTimeMode } from '../../components/checkout/checkoutScheduleUtils';
+import {
+  isCheckoutScheduledAtInFuture,
+  type CheckoutDeliveryTimeMode,
+} from '../../components/checkout/checkoutScheduleUtils';
+
+const DELIVERY_ROOT_ROUTES = ['SingleVendor', 'MultiVendor', 'Chain'] as const;
+
+function getCheckoutRootRoute(
+  navigation: NavigationProp<Record<string, object | undefined>>,
+): (typeof DELIVERY_ROOT_ROUTES)[number] {
+  const routes = navigation.getState().routes;
+
+  for (let index = routes.length - 1; index >= 0; index -= 1) {
+    const routeName = routes[index]?.name;
+
+    if (DELIVERY_ROOT_ROUTES.includes(routeName as (typeof DELIVERY_ROOT_ROUTES)[number])) {
+      return routeName as (typeof DELIVERY_ROOT_ROUTES)[number];
+    }
+  }
+
+  return 'MultiVendor';
+}
 
 function getPreviewInput(
   cart: CartResponse | undefined,
@@ -101,29 +122,22 @@ export default function CheckoutScreen() {
     },
     onSuccess: (response) => {
       showToast.success(t('checkout_place_order_success'));
+      const rootRouteName = getCheckoutRootRoute(navigation);
 
       navigation.reset({
-        index: 0,
+        index: 1,
         routes: [
           {
-            name: 'MultiVendor',
-            state: {
-              index: 1,
-              routes: [
-                {
-                  name: 'MultiVendorTabs',
-                },
-                {
-                  name: 'OrderDetailsScreen',
-                  params: {
-                    orderId: response.orderId,
-                  },
-                },
-              ],
+            name: rootRouteName,
+          },
+          {
+            name: 'OrderDetailsScreen',
+            params: {
+              orderId: response.orderId,
             },
           },
         ],
-      });
+      } as never);
     },
   });
 
@@ -138,11 +152,44 @@ export default function CheckoutScreen() {
   }, [orderType, preview?.store]);
 
   React.useEffect(() => {
+    if (orderType !== 'pickup') {
+      return;
+    }
+
+    setLeaveAtDoor(false);
+    setSelectedTip(0);
+    setMessages((currentMessages) => {
+      if (!currentMessages.courier) {
+        return currentMessages;
+      }
+
+      return {
+        ...currentMessages,
+        courier: '',
+      };
+    });
+  }, [orderType]);
+
+  React.useEffect(() => {
     if (preview?.schedule.scheduleAllowed === false && deliveryTimeMode === 'schedule') {
       setDeliveryTimeMode('standard');
       setScheduledAt(null);
     }
   }, [deliveryTimeMode, preview?.schedule.scheduleAllowed]);
+
+  React.useEffect(() => {
+    if (
+      deliveryTimeMode !== 'schedule' ||
+      !scheduledAt ||
+      !previewError?.message?.toLowerCase().includes('scheduledat must be in the future')
+    ) {
+      return;
+    }
+
+    setDeliveryTimeMode('standard');
+    setScheduledAt(null);
+    showToast.info(t('checkout_schedule_slot_expired'));
+  }, [deliveryTimeMode, previewError?.message, scheduledAt, t]);
 
   const handleBackPress = React.useCallback(() => {
     navigation.goBack();
@@ -206,8 +253,11 @@ export default function CheckoutScreen() {
       orderType,
       paymentMethod: 'cod' as const,
       addressId: orderType === 'delivery' ? selectedAddress?.id : undefined,
-      customerNote: buildCustomerNote(messages),
-      riderTip: selectedTip > 0 ? selectedTip : undefined,
+      customerNote: buildCustomerNote({
+        restaurant: messages.restaurant,
+        courier: orderType === 'delivery' ? messages.courier : '',
+      }),
+      riderTip: orderType === 'delivery' && selectedTip > 0 ? selectedTip : undefined,
       scheduledAt: deliveryTimeMode === 'schedule' ? scheduledAt ?? undefined : undefined,
     };
 
@@ -241,10 +291,15 @@ export default function CheckoutScreen() {
   }, []);
 
   const handleScheduleConfirm = React.useCallback((nextScheduledAt: string) => {
+    if (!isCheckoutScheduledAtInFuture(nextScheduledAt)) {
+      showToast.info(t('checkout_schedule_slot_expired'));
+      return;
+    }
+
     setScheduledAt(nextScheduledAt);
     setDeliveryTimeMode('schedule');
     setIsScheduleScreenVisible(false);
-  }, []);
+  }, [t]);
 
   const handleMessagePress = React.useCallback((target: CheckoutMessageTarget) => {
     setActiveMessageTarget(target);
@@ -297,6 +352,7 @@ export default function CheckoutScreen() {
         }}
         onConfirm={handleScheduleConfirm}
         selectedScheduledAt={scheduledAt}
+        storeId={cart.storeId}
       />
     );
   }
