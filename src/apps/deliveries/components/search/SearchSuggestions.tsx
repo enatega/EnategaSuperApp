@@ -1,7 +1,9 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import SearchChip from "./SearchChip";
-import type { SearchSuggestionsProps } from "./types";
+import type { SearchRecommendation } from "../../api/searchServiceTypes";
+import { SearchSuggestionsProps } from "./types";
+
 
 export default function SearchSuggestions({
   recommendations,

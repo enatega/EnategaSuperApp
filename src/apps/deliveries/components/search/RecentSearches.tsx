@@ -5,7 +5,7 @@ import RecentSearch from "./RecentSearch";
 import { useTranslation } from "react-i18next";
 import Text from "../../../../general/components/Text";
 import { useTheme } from "../../../../general/theme/theme";
-import type { RecentSearchesProps } from "./types";
+import { RecentSearchesProps } from "./types";
 
 const RecentSearches = ({
   items,
