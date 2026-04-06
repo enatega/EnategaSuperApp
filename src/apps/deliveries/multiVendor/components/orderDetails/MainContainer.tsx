@@ -6,6 +6,7 @@ import ScreenHeader from "../../../../../general/components/ScreenHeader";
 import { useTheme } from "../../../../../general/theme/theme";
 import { useOrderDetails } from "../../../hooks";
 import type { MultiVendorStackParamList } from "../../navigation/types";
+import type { DeliveriesStackParamList } from "../../../navigation/types";
 import OrderDetailsErrorState from "./OrderDetailsErrorState";
 import OrderDetailsActionsSection from "./OrderDetailsActionsSection";
 import OrderDetailsHeroSection from "./OrderDetailsHeroSection";
@@ -21,9 +22,12 @@ import ExtendableOrderItems from "../orderItems/ExtendableOrderItems";
 import OrderDetailsSummaryRow from "./OrderDetailsSummaryRow";
 import OrderDetailsSection from "./OrderDetailsSection";
 
+type OrderDetailsNavigationParamList =
+  DeliveriesStackParamList & MultiVendorStackParamList;
+
 type Props = {
   navigation: NativeStackNavigationProp<
-    MultiVendorStackParamList,
+    OrderDetailsNavigationParamList,
     "OrderDetailsScreen"
   >;
   orderId: string;

@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from '@react-navigation/native';
+import {
+  useNavigation,
+  type NavigationProp,
+} from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import ScreenHeader from '../../../../../general/components/ScreenHeader';
@@ -15,6 +18,7 @@ import DeleteAccountStepIndicator from '../../components/deleteAccount/DeleteAcc
 import DeleteAccountReasonStep from '../../components/deleteAccount/DeleteAccountReasonStep';
 import DeleteAccountConfirmStep from '../../components/deleteAccount/DeleteAccountConfirmStep';
 import DeleteAccountEmailStep from '../../components/deleteAccount/DeleteAccountEmailStep';
+import type { DeliveriesAccountStackParamList } from '../../navigation/types';
 
 const TOTAL_STEPS = 3;
 
@@ -23,7 +27,7 @@ type Step = 1 | 2 | 3;
 export default function DeleteAccountScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<DeliveriesAccountStackParamList>>();
   const insets = useSafeAreaInsets();
   const deleteAccountMutation = useDeleteAccountMutation();
   const logoutMutation = useAppLogout();

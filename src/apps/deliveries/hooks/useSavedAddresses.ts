@@ -4,7 +4,7 @@ import useSyncSelectedSavedAddress from './useSyncSelectedSavedAddress';
 import {
   profileService,
   ProfileAddress,
-} from '../multiVendor/api/profileService';
+} from '../account/api/profileService';
 
 type SavedAddressesState = {
   addresses: ProfileAddress[];

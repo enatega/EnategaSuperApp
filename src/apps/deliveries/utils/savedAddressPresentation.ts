@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import type { ProfileAddress } from '../multiVendor/api/profileService';
+import type { ProfileAddress } from '../account/api/profileService';
 
 const ADDRESS_ICON_MAP: Record<
   ProfileAddress['type'],

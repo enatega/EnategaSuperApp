@@ -1,9 +1,9 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import useDeliverySearchFlow from "../../hooks/searchFlow/useDeliverySearchFlow";
-import type { MultiVendorStackParamList } from '../navigation/types';
+import type { DeliveriesStackParamList } from '../../navigation/types';
 
-type NavigationProp = NativeStackNavigationProp<MultiVendorStackParamList>;
+type NavigationProp = NativeStackNavigationProp<DeliveriesStackParamList>;
 
 export default function useMainSearchFlow() {
   const navigation = useNavigation<NavigationProp>();

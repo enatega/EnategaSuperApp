@@ -1,8 +1,3 @@
-import type {
-  AddressDetailParams,
-  AddressFlowParams,
-} from '../../navigation/addressFlowTypes';
-
 export type SingleVendorBottomTabParamList = {
   SingleVendorTabHome: undefined;
   SingleVendorTabSearch: undefined;
@@ -13,7 +8,4 @@ export type SingleVendorBottomTabParamList = {
 export type SingleVendorStackParamList = {
   SingleVendorTabs: undefined;
   SingleVendorDetails: undefined;
-  AddressSearch: AddressFlowParams | undefined;
-  AddressChooseOnMap: AddressFlowParams | undefined;
-  AddressDetail: AddressDetailParams;
 };
