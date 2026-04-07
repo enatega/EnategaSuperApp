@@ -25,13 +25,22 @@ import type {
   DeliveryShopTypeProduct,
   DeliveryShopType,
   DeliveryTopBrand,
+  DeliveryTopBrandsParams,
   DeliveryShopTypeProductsParams,
+  DeliveryVendorStoresParams,
 } from '../api/types';
 
 type UseShopTypesOptions = Omit<
   UseQueryOptions<DeliveryShopType[], ApiError>,
   'queryKey' | 'queryFn'
 >;
+
+type UseShopTypesMode = 'preview' | 'paginated';
+
+type UsePaginatedShopTypesOptions = {
+  mode?: UseShopTypesMode;
+  enabled?: boolean;
+};
 
 type UseMobileBannersOptions = Omit<
   UseQueryOptions<DeliveryBanner[], ApiError>,
@@ -42,6 +51,15 @@ type UseTopBrandsOptions = Omit<
   UseQueryOptions<DeliveryTopBrand[], ApiError>,
   'queryKey' | 'queryFn'
 >;
+
+type UseTopBrandsMode = 'preview' | 'paginated';
+
+type UsePaginatedTopBrandsOptions = {
+  mode?: UseTopBrandsMode;
+  enabled?: boolean;
+  search?: string;
+  requestParams?: Omit<DeliveryTopBrandsParams, 'offset' | 'limit' | 'search'>;
+};
 
 type UseNearbyStoresMode = 'preview' | 'paginated';
 
@@ -114,6 +132,19 @@ type UseShopTypeStoresOptions = {
   >;
 };
 
+type UseVendorStoresMode = 'preview' | 'paginated';
+
+type UseVendorStoresOptions = {
+  mode?: UseVendorStoresMode;
+  enabled?: boolean;
+  search?: string;
+  filters?: GenericListFilters;
+  requestParams?: Omit<
+    DeliveryVendorStoresParams,
+    'vendorId' | 'offset' | 'limit' | 'search'
+  >;
+};
+
 type ShopTypeStoresSectionResult = UseQueryResult<
   DeliveryNearbyStore[],
   ApiError
@@ -169,6 +200,39 @@ export function useShopTypes(options?: UseShopTypesOptions) {
     staleTime: 5 * 60 * 1000,
     ...options,
   });
+}
+
+export function usePaginatedShopTypes(
+  options?: UsePaginatedShopTypesOptions,
+) {
+  const mode = options?.mode ?? 'preview';
+  const limit = 10;
+  const query = useInfiniteQuery<
+    PaginatedDeliveryResponse<DeliveryShopType>,
+    ApiError
+  >({
+    queryKey: deliveryKeys.shopTypes({ limit }),
+    queryFn: ({ pageParam = 0 }) =>
+      discoveryService.getShopTypesPage({
+        offset: pageParam as number,
+        limit,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
+    staleTime: 5 * 60 * 1000,
+    enabled: options?.enabled ?? true,
+  });
+
+  const items = query.data?.pages.flatMap((page) => page.items) ?? [];
+
+  return {
+    ...query,
+    data: mode === 'preview' ? items.slice(0, limit) : items,
+    totalCount: query.data?.pages.length
+      ? query.data.pages[query.data.pages.length - 1]?.total
+      : undefined,
+  };
 }
 
 export function useShopTypeProducts(
@@ -293,6 +357,67 @@ export function useShopTypeStores(
   };
 }
 
+export function useVendorStores(
+  vendorId: string,
+  options?: UseVendorStoresOptions,
+) {
+  const mode = options?.mode ?? 'preview';
+  const limit = 10;
+  const { latitude, longitude } = useDiscoveryCoordinates();
+  const vendorStoreParams: Omit<
+    DeliveryVendorStoresParams,
+    'vendorId' | 'offset' | 'limit' | 'search'
+  > = {
+    ...options?.requestParams,
+    latitude: options?.requestParams?.latitude ?? latitude,
+    longitude: options?.requestParams?.longitude ?? longitude,
+    category_ids: normalizeCategoryIds(options?.filters?.category_ids),
+    price_tiers: options?.filters?.price_tiers
+      ? [options.filters.price_tiers]
+      : undefined,
+    stock: normalizeStockValue(options?.filters?.stock),
+    sort_by: options?.filters?.sort_by ?? undefined,
+  };
+
+  const query = useInfiniteQuery<
+    PaginatedDeliveryResponse<DeliveryNearbyStore>,
+    ApiError
+  >({
+    queryKey: [
+      ...deliveryKeys.vendorStores(vendorId, 0, limit),
+      {
+        filters: options?.filters,
+        mode,
+        requestParams: vendorStoreParams,
+        search: options?.search?.trim() ?? '',
+      },
+    ],
+    queryFn: ({ pageParam = 0 }) =>
+      discoveryService.getVendorStoresPage({
+        vendorId,
+        offset: pageParam as number,
+        limit,
+        search: options?.search?.trim() || undefined,
+        ...vendorStoreParams,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
+    staleTime: 5 * 60 * 1000,
+    enabled: (options?.enabled ?? true) && Boolean(vendorId),
+  });
+
+  const items = query.data?.pages.flatMap((page) => page.items) ?? [];
+
+  return {
+    ...query,
+    data: mode === 'preview' ? items.slice(0, limit) : items,
+    totalCount: query.data?.pages.length
+      ? query.data.pages[query.data.pages.length - 1]?.total
+      : undefined,
+  };
+}
+
 export function useShopTypeStoresSections(
   shopTypes: DeliveryShopType[],
 ): ShopTypeStoresSectionResult[] {
@@ -338,6 +463,52 @@ export function useTopBrands(options?: UseTopBrandsOptions) {
     staleTime: 5 * 60 * 1000,
     ...options,
   });
+}
+
+export function usePaginatedTopBrands(
+  options?: UsePaginatedTopBrandsOptions,
+) {
+  const mode = options?.mode ?? 'preview';
+  const limit = 10;
+  const normalizedSearch = options?.search?.trim() ?? '';
+
+  const query = useInfiniteQuery<
+    PaginatedDeliveryResponse<DeliveryTopBrand>,
+    ApiError
+  >({
+    queryKey: [
+      ...deliveryKeys.topBrands({
+        limit,
+        search: normalizedSearch,
+      }),
+      {
+        mode,
+        requestParams: options?.requestParams,
+      },
+    ],
+    queryFn: ({ pageParam = 0 }) =>
+      discoveryService.getTopBrandsPage({
+        offset: pageParam as number,
+        limit,
+        search: normalizedSearch || undefined,
+        ...options?.requestParams,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
+    staleTime: 5 * 60 * 1000,
+    enabled: options?.enabled ?? true,
+  });
+
+  const items = query.data?.pages.flatMap((page) => page.items) ?? [];
+
+  return {
+    ...query,
+    data: mode === 'preview' ? items.slice(0, limit) : items,
+    totalCount: query.data?.pages.length
+      ? query.data.pages[query.data.pages.length - 1]?.total
+      : undefined,
+  };
 }
 
 export function useNearbyStores(options?: UseNearbyStoresOptions) {

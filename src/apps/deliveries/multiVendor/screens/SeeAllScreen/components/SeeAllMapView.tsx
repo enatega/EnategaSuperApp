@@ -11,12 +11,12 @@ import { useTheme } from "../../../../../../general/theme/theme";
 import type { MultiVendorStackParamList } from "../../../navigation/types";
 import MapStoreBottomSheet from "./MapStoreBottomSheet";
 import MapStoreMarker from "./MapStoreMarker";
-import SeeAllMapLoadingState from "./SeeAllMapLoadingState";
 import {
   SEE_ALL_DEFAULT_USER_COORDINATE,
   toSeeAllMapStore,
   type SeeAllMapStore,
 } from "./mapStoreUtils";
+import SeeAllMapLoadingState from "./SeeAllMapLoadingState";
 
 const DEFAULT_REGION: Region = {
   latitude: 24.8607,
