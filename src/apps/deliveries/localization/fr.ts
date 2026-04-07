@@ -27,6 +27,12 @@ const fr = {
   multi_vendor_tab_search: 'Recherche',
   multi_vendor_tab_orders: 'Commandes',
   multi_vendor_tab_profile: 'Profil',
+  chain_tab_home: 'Accueil',
+  chain_tab_search: 'Recherche',
+  chain_tab_orders: 'Commandes',
+  chain_tab_profile: 'Profil',
+  chain_logout_error_title: 'Erreur',
+  chain_logout_error_message: 'Impossible de vous déconnecter pour le moment.',
   delivery_address_title: 'Adresse de livraison',
   delivery_address_empty_state:
     "Ajoutez une adresse pour commencer à commander dans ce magasin.",
