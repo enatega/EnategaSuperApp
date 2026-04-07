@@ -20,6 +20,10 @@ export function usePlaceOrder(options?: Options) {
     onSuccess: (data) => {
       options?.onSuccess?.(data);
 
+      if (data.mode === 'stripe') {
+        return;
+      }
+
       void Promise.all([
         queryClient.invalidateQueries({ queryKey: deliveryKeys.cart() }),
         queryClient.invalidateQueries({ queryKey: deliveryKeys.cartCount() }),

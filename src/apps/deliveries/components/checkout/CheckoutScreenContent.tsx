@@ -18,7 +18,6 @@ import { getCheckoutMessagePreview } from './checkoutMessageUtils';
 import { formatCheckoutScheduledAt, type CheckoutDeliveryTimeMode } from './checkoutScheduleUtils';
 
 type Props = {
-  cashSubtitle?: string;
   deliveryTimeMode: CheckoutDeliveryTimeMode;
   hasAddressRequirement: boolean;
   isPickupEnabled: boolean;
@@ -35,6 +34,7 @@ type Props = {
   onLeaveAtDoorChange: (value: boolean) => void;
   onOrderTypeChange: (mode: CheckoutOrderType) => void;
   onPlaceOrderPress: () => void;
+  onPaymentPress: () => void;
   onPromoPress: () => void;
   onRestaurantMessagePress: () => void;
   onSchedulePress: () => void;
@@ -42,6 +42,9 @@ type Props = {
   onTipChange: (amount: number) => void;
   orderType: CheckoutOrderType;
   paymentErrorMessage?: string | null;
+  paymentIconName: React.ComponentProps<typeof CheckoutInfoRow>['iconName'];
+  paymentSubtitle?: string | null;
+  paymentTitle: string;
   preview: CheckoutPreviewResponse | null;
   courierMessage: string;
   restaurantMessage: string;
@@ -52,7 +55,6 @@ type Props = {
 };
 
 export default function CheckoutScreenContent({
-  cashSubtitle,
   deliveryTimeMode,
   hasAddressRequirement,
   isPickupEnabled,
@@ -69,6 +71,7 @@ export default function CheckoutScreenContent({
   onLeaveAtDoorChange,
   onOrderTypeChange,
   onPlaceOrderPress,
+  onPaymentPress,
   onPromoPress,
   onRestaurantMessagePress,
   onSchedulePress,
@@ -76,6 +79,9 @@ export default function CheckoutScreenContent({
   onTipChange,
   orderType,
   paymentErrorMessage,
+  paymentIconName,
+  paymentSubtitle,
+  paymentTitle,
   preview,
   courierMessage,
   restaurantMessage,
@@ -170,9 +176,12 @@ export default function CheckoutScreenContent({
         />
 
         <CheckoutPaymentSection
-          cashSubtitle={cashSubtitle}
           errorMessage={paymentErrorMessage}
+          onPaymentPress={onPaymentPress}
           onPromoPress={onPromoPress}
+          paymentIconName={paymentIconName}
+          paymentSubtitle={paymentSubtitle}
+          paymentTitle={paymentTitle}
         />
 
         {isDeliveryOrder ? (
