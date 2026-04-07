@@ -13,7 +13,6 @@ export default function useSearchKeyboardState() {
     const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
       setIsKeyboardVisible(false);
       setIsFocused(false);
-      inputRef.current?.blur();
     });
 
     return () => {

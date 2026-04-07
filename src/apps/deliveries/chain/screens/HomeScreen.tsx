@@ -1,27 +1,30 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Header from '../../../../general/components/Header';
+import { useTranslation } from 'react-i18next';
+import { showToast } from '../../../../general/components/AppToast';
 import Button from '../../../../general/components/Button';
 import Text from '../../../../general/components/Text';
-import { showToast } from '../../../../general/components/AppToast';
 import { useAppLogout } from '../../../../general/hooks/useAppLogout';
 import { useTheme } from '../../../../general/theme/theme';
-import { useTranslation } from 'react-i18next';
 
-export default function ChainHomeScreen() {
+type Props = Record<string, never>;
+
+export default function HomeScreen({}: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const logoutMutation = useAppLogout({
     onError: (error) => {
-      showToast.error('Error', error?.message ?? 'Unable to logout right now');
+      showToast.error(
+        t('chain_logout_error_title'),
+        error?.message ?? t('chain_logout_error_message'),
+      );
     },
   });
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}> 
-      <Header title={t('chain_title')} subtitle={t('chain_home_subtitle')} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
-        <Text>{t('chain_home_body')}</Text>
+        {/* <Text>{t('chain_tab_home')}</Text> */}
         <Button
           label={t('logout')}
           variant="danger"
@@ -36,10 +39,13 @@ export default function ChainHomeScreen() {
 
 const styles = StyleSheet.create({
   container: {
+    alignItems: 'center',
     flex: 1,
+    justifyContent: 'center',
     padding: 20,
   },
   content: {
     gap: 16,
+    width: '100%',
   },
 });
