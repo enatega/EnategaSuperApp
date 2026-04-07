@@ -222,6 +222,103 @@ const en = {
   rate_order_subheading: 'Your feedback helps us improve our delivery.',
   rate_order_comment_placeholder: 'Write your experience here...',
   rate_order_submit: 'Submit',
+  // Settings screen
+  settings_title: 'Settings',
+  settings_notifications: 'Notification Settings',
+  settings_change_password: 'Change Password',
+  settings_privacy_policy: 'Privacy Policy',
+  settings_terms_of_service: 'Terms of Service',
+  settings_terms_of_use: 'Terms of Use',
+  settings_delete_account: 'Delete Account',
+  settings_app_version: 'App Version 1.0.0',
+  // Notification settings screen
+  notif_settings_title: 'Notification Settings',
+  notif_settings_food_delivery: 'Food Delivery',
+  notif_settings_marketing: 'Marketing',
+  notif_settings_email: 'Email',
+  notif_settings_sms: 'SMS',
+  notif_settings_whatsapp: 'WhatsApp',
+  notif_settings_success_title: 'Saved',
+  notif_settings_success_message: 'Notification preference updated.',
+  notif_settings_error_title: 'Error',
+  // Privacy Policy screen
+  privacy_title: 'Privacy Policy',
+  privacy_last_updated: 'Last updated 2 months ago',
+  privacy_intro:
+    'This privacy policy explains how we handle your personal information while using the food delivery app. By registering or accessing the app, you consent to the practices described in this policy.',
+  privacy_section_app_title: 'Privacy policy for the app',
+  privacy_section_app_body:
+    'The food delivery app is committed to protecting and managing your personal data and orders securely. You are authorized to use the app for personal and business purposes, subject to compliance with this policy and all applicable laws.',
+  privacy_section_responsibilities_title: 'User responsibilities',
+  privacy_section_responsibilities_body:
+    'Users are responsible for keeping their delivery addresses and payment information accurate. It is important to keep this information up to date to avoid issues during the ordering process.',
+  privacy_section_data_title: 'Data collection',
+  privacy_section_data_body:
+    'The food delivery app collects essential data to improve your experience, including your location, order history, and preferences.',
+  privacy_section_modifications_title: 'Order modifications',
+  privacy_section_modifications_body:
+    'You may modify or cancel your orders through the app before they are processed. Once an order is confirmed, changes may no longer be possible.',
+  privacy_section_payment_title: 'Payment security',
+  privacy_section_payment_body:
+    'We prioritize the security of your payment information. All transactions made through the app are processed using standard encryption technology.',
+  privacy_section_contact_title: 'Contact us',
+  privacy_section_contact_body:
+    'If you have any questions about these terms, please feel free to contact us:',
+  privacy_contact_email: 'Email: contact@fooddelivery.com',
+  privacy_contact_address: 'Address: Doha, Qatar',
+  // Terms of Service screen
+  tos_title: 'Terms of Service',
+  tos_last_updated: 'Last updated 2 months ago',
+  tos_intro:
+    'These terms of service define your access to and use of the food delivery app.',
+  tos_section_usage_title: 'Use of the service',
+  tos_section_usage_body:
+    'The food delivery app provides a reliable platform for placing orders and managing your meal deliveries.',
+  tos_section_orders_title: 'Order management',
+  tos_section_orders_body:
+    'The app allows you to track your orders easily, modify details, or cancel them within the allowed timeframe.',
+  tos_section_payment_title: 'Payment security',
+  tos_section_payment_body:
+    'Payments made through the app are processed securely using encryption technology.',
+  tos_section_delivery_title: 'Delivery policies',
+  tos_section_delivery_body:
+    'Users are encouraged to provide accurate delivery addresses to support fast and efficient service.',
+  tos_section_support_title: 'Customer support',
+  tos_section_support_body:
+    'The app provides a robust support system to address any questions or issues.',
+  tos_section_contact_title: 'Contact us',
+  tos_section_contact_body:
+    'If you have any questions about these terms, please feel free to contact us:',
+  tos_contact_email: 'Email: contact@fooddelivery.com',
+  tos_contact_address: 'Address: Doha, Qatar',
+  // Terms of Use screen
+  tou_title: 'Terms of Use',
+  tou_last_updated: 'Updated 2 months ago',
+  tou_intro:
+    'These terms of use define your rights and responsibilities when using the app.',
+  tou_section_guidelines_title: 'Usage guidelines',
+  tou_section_guidelines_body:
+    'The app provides secure management of your orders and customer data.',
+  tou_section_etiquette_title: 'Delivery etiquette',
+  tou_section_etiquette_body:
+    'Users should remain respectful and courteous toward delivery staff.',
+  tou_section_payment_title: 'Payment methods',
+  tou_section_payment_body:
+    'The app supports multiple payment methods, including credit cards and digital wallets.',
+  tou_section_cancellation_title: 'Cancellation policy',
+  tou_section_cancellation_body:
+    'Orders may be cancelled within 10 minutes after being placed.',
+  tou_section_feedback_title: 'Feedback and ratings',
+  tou_section_feedback_body:
+    'Users are encouraged to share feedback about their delivery experience.',
+  tou_section_promotions_title: 'Promotions and offers',
+  tou_section_promotions_body:
+    'The app may offer promotions and discounts that are subject to specific conditions.',
+  tou_section_contact_title: 'Contact us',
+  tou_section_contact_body:
+    'If you have any questions, please feel free to contact us:',
+  tou_contact_email: 'Email: contact@fooddelivery.com',
+  tou_contact_address: 'Address: Doha, Qatar',
   rider_chat_title: 'Chat with Rider',
   rider_chat_subtitle: 'Live delivery updates',
   rider_chat_status_online: 'Online now',
