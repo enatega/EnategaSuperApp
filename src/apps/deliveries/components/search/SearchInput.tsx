@@ -82,7 +82,7 @@ const SearchInput = forwardRef<TextInput, SearchInputProps>(
               borderColor: colors.border,
               shadowColor: "#101828",
               borderRadius: metrics.borderRadius,
-              minHeight: metrics.minHeight,
+              height: metrics.minHeight,
               paddingHorizontal: metrics.horizontalPadding,
             },
           ]}
@@ -103,7 +103,7 @@ const SearchInput = forwardRef<TextInput, SearchInputProps>(
                 color: colors.text,
                 fontSize: metrics.fontSize,
                 fontFamily: typography.fontFamily.regular,
-                lineHeight: typography.lineHeight.md,
+                textAlignVertical: "center",
               },
             ]}
             placeholder={placeholder}
@@ -165,13 +165,14 @@ const styles = StyleSheet.create({
   },
   searchIconContainer: {
     alignItems: "center",
+    justifyContent: "center",
     marginRight: 8,
     width: 20,
   },
   input: {
     flex: 1,
     minWidth: 0,
-    paddingVertical: 10,
+    paddingVertical: 0,
   },
   clearButton: {
     alignItems: "center",
