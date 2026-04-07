@@ -75,6 +75,14 @@ export const deliveryKeys = {
         scheduledAt?: string;
         riderTip?: number;
     }) => [...deliveryKeys.all, 'checkout-preview', input] as const,
+    checkoutSchedule: (
+        storeId: string,
+        input: {
+            dateTime?: string;
+            days?: number;
+            slotMinutes?: number;
+        },
+    ) => [...deliveryKeys.all, 'checkout-schedule', storeId, input] as const,
     productSearch: (keyword: string, latitude?: number, longitude?: number) =>
         [...deliveryKeys.search(), 'products', keyword, latitude, longitude] as const,
     storeSearch: (keyword: string, latitude?: number, longitude?: number) =>

@@ -126,9 +126,9 @@ export default OrdersListSection;
 const getTitle = (variant: Props["variant"], t: (key: string) => string) => {
   switch (variant) {
     case "active":
-      return t("orders_tab_active");
+      return t("orders_history_active_heading");
     case "scheduled":
-      return t("orders_tab_scheduled");
+      return t("orders_history_scheduled_heading");
     case "past":
     default:
       return t("orders_history_past_heading");

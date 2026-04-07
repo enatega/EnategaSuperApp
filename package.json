@@ -41,6 +41,7 @@
     "react-native-svg": "15.12.1",
     "react-native-swiper-flatlist": "^3.2.5",
     "react-native-toast-message": "^2.3.3",
+    "react-native-webview": "^13.16.1",
     "socket.io-client": "^4.8.3",
     "zustand": "^5.0.11"
   },
