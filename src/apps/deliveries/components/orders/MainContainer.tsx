@@ -12,7 +12,7 @@ const MainOrdersContainer = () => {
   const { t } = useTranslation("deliveries");
   const TABS = [
     { key: "activeOrders", label: t("orders_tab_active") },
-    { key: "orderHistory", label: t("orders_history_past_heading") },
+  { key: "orderHistory", label: t("orders_tab_history") },
     { key: "scheduleDeliveries", label: t("orders_tab_scheduled") },
   ];
   const { colors } = useTheme();

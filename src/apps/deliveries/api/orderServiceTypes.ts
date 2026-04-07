@@ -11,6 +11,35 @@ export type CheckoutPreviewInput = {
   riderTip?: number;
 };
 
+export type CheckoutScheduleSlotsInput = {
+  dateTime?: string;
+  days?: number;
+  slotMinutes?: number;
+};
+
+export type CheckoutScheduleApiSlot = {
+  start: string;
+  end: string;
+  isAvailable?: boolean;
+  maxOrders?: number;
+};
+
+export type CheckoutScheduleApiDay = {
+  date: string;
+  label: string;
+  dayName: string;
+  isActive: boolean;
+  hasSlots: boolean;
+  slots: CheckoutScheduleApiSlot[];
+};
+
+export type CheckoutScheduleSlotsResponse = {
+  allowScheduleBooking: boolean;
+  selectedDate: string;
+  days: CheckoutScheduleApiDay[];
+  slots: CheckoutScheduleApiSlot[];
+};
+
 export type CheckoutPreviewStore = {
   id: string;
   name: string;
@@ -78,10 +107,12 @@ export type PlaceOrderInput = {
   customerNote?: string;
   riderTip?: number;
   scheduledAt?: string;
+  successUrl?: string;
+  cancelUrl?: string;
 };
 
-export type PlaceOrderResponse = {
-  mode: CheckoutPaymentMethod;
+export type PlaceOrderCashResponse = {
+  mode: 'cod';
   orderId: string;
   status: string;
   paymentStatus: string;
@@ -91,3 +122,15 @@ export type PlaceOrderResponse = {
   scheduledAt: string | null;
   createdAt: string;
 };
+
+export type PlaceOrderStripeResponse = {
+  mode: 'stripe';
+  draftId: string;
+  checkoutUrl: string | null;
+  sessionId: string;
+  paymentStatus: string;
+};
+
+export type PlaceOrderResponse =
+  | PlaceOrderCashResponse
+  | PlaceOrderStripeResponse;

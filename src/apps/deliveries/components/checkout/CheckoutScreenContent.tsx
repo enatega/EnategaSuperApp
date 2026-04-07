@@ -18,7 +18,6 @@ import { getCheckoutMessagePreview } from './checkoutMessageUtils';
 import { formatCheckoutScheduledAt, type CheckoutDeliveryTimeMode } from './checkoutScheduleUtils';
 
 type Props = {
-  cashSubtitle?: string;
   deliveryTimeMode: CheckoutDeliveryTimeMode;
   hasAddressRequirement: boolean;
   isPickupEnabled: boolean;
@@ -35,6 +34,7 @@ type Props = {
   onLeaveAtDoorChange: (value: boolean) => void;
   onOrderTypeChange: (mode: CheckoutOrderType) => void;
   onPlaceOrderPress: () => void;
+  onPaymentPress: () => void;
   onPromoPress: () => void;
   onRestaurantMessagePress: () => void;
   onSchedulePress: () => void;
@@ -42,6 +42,9 @@ type Props = {
   onTipChange: (amount: number) => void;
   orderType: CheckoutOrderType;
   paymentErrorMessage?: string | null;
+  paymentIconName: React.ComponentProps<typeof CheckoutInfoRow>['iconName'];
+  paymentSubtitle?: string | null;
+  paymentTitle: string;
   preview: CheckoutPreviewResponse | null;
   courierMessage: string;
   restaurantMessage: string;
@@ -52,7 +55,6 @@ type Props = {
 };
 
 export default function CheckoutScreenContent({
-  cashSubtitle,
   deliveryTimeMode,
   hasAddressRequirement,
   isPickupEnabled,
@@ -69,6 +71,7 @@ export default function CheckoutScreenContent({
   onLeaveAtDoorChange,
   onOrderTypeChange,
   onPlaceOrderPress,
+  onPaymentPress,
   onPromoPress,
   onRestaurantMessagePress,
   onSchedulePress,
@@ -76,6 +79,9 @@ export default function CheckoutScreenContent({
   onTipChange,
   orderType,
   paymentErrorMessage,
+  paymentIconName,
+  paymentSubtitle,
+  paymentTitle,
   preview,
   courierMessage,
   restaurantMessage,
@@ -86,6 +92,7 @@ export default function CheckoutScreenContent({
 }: Props) {
   const { t } = useTranslation('deliveries');
   const { colors } = useTheme();
+  const isDeliveryOrder = orderType === 'delivery';
   const canPlaceOrder = Boolean(preview) && !hasAddressRequirement && !isPreviewPending && !isPaymentBlocked && !isPlacingOrder;
   const addressTitle = orderType === 'pickup'
     ? preview?.store.name ?? t('checkout_pickup_title')
@@ -129,18 +136,20 @@ export default function CheckoutScreenContent({
           onPress={orderType === 'delivery' ? onAddressPress : undefined}
         />
 
-        <CheckoutInfoRow
-          title={t('checkout_leave_at_door_title')}
-          iconName="home-outline"
-          rightAccessory={(
-            <Switch
-              onValueChange={onLeaveAtDoorChange}
-              thumbColor={colors.white}
-              trackColor={{ false: colors.border, true: colors.blue800 }}
-              value={leaveAtDoor}
-            />
-          )}
-        />
+        {isDeliveryOrder ? (
+          <CheckoutInfoRow
+            title={t('checkout_leave_at_door_title')}
+            iconName="home-outline"
+            rightAccessory={(
+              <Switch
+                onValueChange={onLeaveAtDoorChange}
+                thumbColor={colors.white}
+                trackColor={{ false: colors.border, true: colors.blue800 }}
+                value={leaveAtDoor}
+              />
+            )}
+          />
+        ) : null}
 
         <CheckoutInfoRow
           title={t('checkout_message_restaurant_title')}
@@ -149,12 +158,14 @@ export default function CheckoutScreenContent({
           onPress={onRestaurantMessagePress}
         />
 
-        <CheckoutInfoRow
-          title={t('checkout_message_courier_title')}
-          subtitle={courierMessageSubtitle}
-          iconName="chatbox-ellipses-outline"
-          onPress={onCourierMessagePress}
-        />
+        {isDeliveryOrder ? (
+          <CheckoutInfoRow
+            title={t('checkout_message_courier_title')}
+            subtitle={courierMessageSubtitle}
+            iconName="chatbox-ellipses-outline"
+            onPress={onCourierMessagePress}
+          />
+        ) : null}
 
         <CheckoutDeliveryTimeSection
           isScheduleEnabled={preview?.schedule.scheduleAllowed ?? false}
@@ -165,15 +176,20 @@ export default function CheckoutScreenContent({
         />
 
         <CheckoutPaymentSection
-          cashSubtitle={cashSubtitle}
           errorMessage={paymentErrorMessage}
+          onPaymentPress={onPaymentPress}
           onPromoPress={onPromoPress}
+          paymentIconName={paymentIconName}
+          paymentSubtitle={paymentSubtitle}
+          paymentTitle={paymentTitle}
         />
 
-        <CheckoutTipSection
-          selectedTip={selectedTip}
-          onSelectTip={onTipChange}
-        />
+        {isDeliveryOrder ? (
+          <CheckoutTipSection
+            selectedTip={selectedTip}
+            onSelectTip={onTipChange}
+          />
+        ) : null}
 
         {isPreviewEnabled && isPreviewPending ? (
           <ListStateView

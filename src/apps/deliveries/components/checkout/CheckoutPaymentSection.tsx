@@ -6,17 +6,21 @@ import { useTheme } from '../../../../general/theme/theme';
 import CheckoutInfoRow from './CheckoutInfoRow';
 
 type Props = {
-  cashSubtitle?: string;
   errorMessage?: string | null;
   onPaymentPress?: () => void;
   onPromoPress?: () => void;
+  paymentIconName: React.ComponentProps<typeof CheckoutInfoRow>['iconName'];
+  paymentSubtitle?: string | null;
+  paymentTitle: string;
 };
 
 export default function CheckoutPaymentSection({
-  cashSubtitle,
   errorMessage,
   onPaymentPress,
   onPromoPress,
+  paymentIconName,
+  paymentSubtitle,
+  paymentTitle,
 }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
@@ -37,9 +41,9 @@ export default function CheckoutPaymentSection({
       </View>
 
       <CheckoutInfoRow
-        title={t('checkout_payment_cash_title')}
-        subtitle={cashSubtitle ?? t('checkout_payment_cash_subtitle')}
-        iconName="cash-outline"
+        title={paymentTitle}
+        subtitle={paymentSubtitle}
+        iconName={paymentIconName}
         onPress={onPaymentPress}
       />
 

@@ -3,11 +3,15 @@ import { View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { showToast } from '../../../../general/components/AppToast';
 import { useTheme } from '../../../../general/theme/theme';
 import AddressSelectionBottomSheet from '../../components/AddressSelectionBottomSheet';
 import useSavedAddresses from '../../multiVendor/hooks/useSavedAddresses';
-import type { CheckoutOrderType } from '../../api/orderServiceTypes';
+import type {
+  CheckoutOrderType,
+  CheckoutPaymentMethod,
+} from '../../api/orderServiceTypes';
 import type { CartResponse } from '../../api/cartServiceTypes';
 import CheckoutScreenContent from '../../components/checkout/CheckoutScreenContent';
 import CartScreenErrorState from '../../components/cart/CartScreenErrorState';
@@ -27,7 +31,44 @@ import {
   type CheckoutMessageTarget,
 } from '../../components/checkout/checkoutMessageUtils';
 import CheckoutScheduleScreen from '../../components/checkout/CheckoutScheduleScreen';
-import type { CheckoutDeliveryTimeMode } from '../../components/checkout/checkoutScheduleUtils';
+import {
+  isCheckoutScheduledAtInFuture,
+  type CheckoutDeliveryTimeMode,
+} from '../../components/checkout/checkoutScheduleUtils';
+import CheckoutPaymentMethodScreen from '../../components/checkout/CheckoutPaymentMethodScreen';
+import {
+  getCheckoutPaymentMethodSubtitle,
+  getCheckoutPaymentMethodTitle,
+  getPreferredCheckoutPaymentMethod,
+  isCheckoutPaymentMethodAvailable,
+} from '../../components/checkout/checkoutPaymentUtils';
+import StripePaymentWebView from '../../../../general/components/StripePaymentWebView';
+import {
+  CHECKOUT_STRIPE_CANCEL_URL,
+  CHECKOUT_STRIPE_CANCEL_MATCHER,
+  CHECKOUT_STRIPE_SUCCESS_URL,
+  CHECKOUT_STRIPE_SUCCESS_MATCHER,
+  getLatestStripeCheckoutOrderId,
+} from '../../components/checkout/checkoutStripeOrderUtils';
+import { deliveryKeys } from '../../api/queryKeys';
+
+const DELIVERY_ROOT_ROUTES = ['SingleVendor', 'MultiVendor', 'Chain'] as const;
+
+function getCheckoutRootRoute(
+  navigation: NavigationProp<Record<string, object | undefined>>,
+): (typeof DELIVERY_ROOT_ROUTES)[number] {
+  const routes = navigation.getState().routes;
+
+  for (let index = routes.length - 1; index >= 0; index -= 1) {
+    const routeName = routes[index]?.name;
+
+    if (DELIVERY_ROOT_ROUTES.includes(routeName as (typeof DELIVERY_ROOT_ROUTES)[number])) {
+      return routeName as (typeof DELIVERY_ROOT_ROUTES)[number];
+    }
+  }
+
+  return 'MultiVendor';
+}
 
 function getPreviewInput(
   cart: CartResponse | undefined,
@@ -57,10 +98,15 @@ function getPreviewInput(
 export default function CheckoutScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
+  const queryClient = useQueryClient();
   const navigation = useNavigation<NavigationProp<Record<string, object | undefined>>>();
   const [activeMessageTarget, setActiveMessageTarget] = React.useState<CheckoutMessageTarget | null>(null);
   const [isAddressSheetVisible, setIsAddressSheetVisible] = React.useState(false);
+  const [isPaymentMethodScreenVisible, setIsPaymentMethodScreenVisible] = React.useState(false);
   const [isScheduleScreenVisible, setIsScheduleScreenVisible] = React.useState(false);
+  const [stripeCheckout, setStripeCheckout] = React.useState<{
+    checkoutUrl: string;
+  } | null>(null);
   const { selectedAddress } = useAddress();
   const {
     addresses,
@@ -72,6 +118,7 @@ export default function CheckoutScreen() {
   const [leaveAtDoor, setLeaveAtDoor] = React.useState(false);
   const [deliveryTimeMode, setDeliveryTimeMode] = React.useState<CheckoutDeliveryTimeMode>('standard');
   const [scheduledAt, setScheduledAt] = React.useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = React.useState<CheckoutPaymentMethod>('cod');
   const [messages, setMessages] = React.useState<CheckoutMessages>({
     restaurant: '',
     courier: '',
@@ -95,35 +142,45 @@ export default function CheckoutScreen() {
     isError: isPreviewError,
     refetch: refetchPreview,
   } = useCheckoutPreview(previewInput);
+
+  const navigateToOrderDetails = React.useCallback((orderId: string) => {
+    const rootRouteName = getCheckoutRootRoute(navigation);
+
+    navigation.reset({
+      index: 1,
+      routes: [
+        {
+          name: rootRouteName,
+        },
+        {
+          name: 'OrderDetailsScreen',
+          params: {
+            orderId,
+          },
+        },
+      ],
+    } as never);
+  }, [navigation]);
+
   const placeOrderMutation = usePlaceOrder({
     onError: () => {
       showToast.error(t('checkout_place_order_error'));
     },
     onSuccess: (response) => {
-      showToast.success(t('checkout_place_order_success'));
+      if (response.mode === 'stripe') {
+        if (!response.checkoutUrl) {
+          showToast.error(t('checkout_payment_card_redirect_error'));
+          return;
+        }
 
-      navigation.reset({
-        index: 0,
-        routes: [
-          {
-            name: 'MultiVendor',
-            state: {
-              index: 1,
-              routes: [
-                {
-                  name: 'MultiVendorTabs',
-                },
-                {
-                  name: 'OrderDetailsScreen',
-                  params: {
-                    orderId: response.orderId,
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      });
+        setStripeCheckout({
+          checkoutUrl: response.checkoutUrl,
+        });
+        return;
+      }
+
+      showToast.success(t('checkout_place_order_success'));
+      navigateToOrderDetails(response.orderId);
     },
   });
 
@@ -138,11 +195,56 @@ export default function CheckoutScreen() {
   }, [orderType, preview?.store]);
 
   React.useEffect(() => {
+    if (!preview?.store) {
+      return;
+    }
+
+    if (isCheckoutPaymentMethodAvailable(paymentMethod, preview.store)) {
+      return;
+    }
+
+    setPaymentMethod(getPreferredCheckoutPaymentMethod(preview.store));
+  }, [paymentMethod, preview?.store]);
+
+  React.useEffect(() => {
+    if (orderType !== 'pickup') {
+      return;
+    }
+
+    setLeaveAtDoor(false);
+    setSelectedTip(0);
+    setMessages((currentMessages) => {
+      if (!currentMessages.courier) {
+        return currentMessages;
+      }
+
+      return {
+        ...currentMessages,
+        courier: '',
+      };
+    });
+  }, [orderType]);
+
+  React.useEffect(() => {
     if (preview?.schedule.scheduleAllowed === false && deliveryTimeMode === 'schedule') {
       setDeliveryTimeMode('standard');
       setScheduledAt(null);
     }
   }, [deliveryTimeMode, preview?.schedule.scheduleAllowed]);
+
+  React.useEffect(() => {
+    if (
+      deliveryTimeMode !== 'schedule' ||
+      !scheduledAt ||
+      !previewError?.message?.toLowerCase().includes('scheduledat must be in the future')
+    ) {
+      return;
+    }
+
+    setDeliveryTimeMode('standard');
+    setScheduledAt(null);
+    showToast.info(t('checkout_schedule_slot_expired'));
+  }, [deliveryTimeMode, previewError?.message, scheduledAt, t]);
 
   const handleBackPress = React.useCallback(() => {
     navigation.goBack();
@@ -204,11 +306,16 @@ export default function CheckoutScreen() {
       storeId: cart.storeId,
       bucketId: cart.bucketId,
       orderType,
-      paymentMethod: 'cod' as const,
+      paymentMethod,
       addressId: orderType === 'delivery' ? selectedAddress?.id : undefined,
-      customerNote: buildCustomerNote(messages),
-      riderTip: selectedTip > 0 ? selectedTip : undefined,
+      customerNote: buildCustomerNote({
+        restaurant: messages.restaurant,
+        courier: orderType === 'delivery' ? messages.courier : '',
+      }),
+      riderTip: orderType === 'delivery' && selectedTip > 0 ? selectedTip : undefined,
       scheduledAt: deliveryTimeMode === 'schedule' ? scheduledAt ?? undefined : undefined,
+      successUrl: paymentMethod === 'stripe' ? CHECKOUT_STRIPE_SUCCESS_URL : undefined,
+      cancelUrl: paymentMethod === 'stripe' ? CHECKOUT_STRIPE_CANCEL_URL : undefined,
     };
 
     void placeOrderMutation.mutateAsync(payload).catch(() => {
@@ -218,6 +325,7 @@ export default function CheckoutScreen() {
     cart?.bucketId,
     cart?.storeId,
     orderType,
+    paymentMethod,
     placeOrderMutation,
     selectedAddress?.id,
     messages,
@@ -231,6 +339,55 @@ export default function CheckoutScreen() {
     showToast.info(t('checkout_promo_pending'));
   }, [t]);
 
+  const handleStripeCheckoutBackPress = React.useCallback(() => {
+    setStripeCheckout(null);
+  }, []);
+
+  const handleStripeCheckoutCancel = React.useCallback(() => {
+    setStripeCheckout(null);
+    showToast.info(t('checkout_payment_cancelled'));
+  }, [t]);
+
+  const handleStripeCheckoutSuccess = React.useCallback(async () => {
+    try {
+      const orderId = await getLatestStripeCheckoutOrderId(
+        deliveryTimeMode === 'schedule',
+      );
+
+      if (orderId) {
+        showToast.success(t('checkout_place_order_success'));
+        navigateToOrderDetails(orderId);
+        void Promise.all([
+          queryClient.invalidateQueries({ queryKey: deliveryKeys.cart() }),
+          queryClient.invalidateQueries({ queryKey: deliveryKeys.cartCount() }),
+          queryClient.invalidateQueries({ queryKey: deliveryKeys.orders() }),
+        ]);
+        return;
+      }
+    } catch {
+      // Fall back to the delivery root if the latest order cannot be resolved.
+    }
+
+    setStripeCheckout(null);
+    navigation.reset({
+      index: 0,
+      routes: [
+        {
+          name: getCheckoutRootRoute(navigation),
+        },
+      ],
+    } as never);
+  }, [deliveryTimeMode, navigateToOrderDetails, navigation, queryClient, t]);
+
+  const handlePaymentMethodPress = React.useCallback(() => {
+    setIsPaymentMethodScreenVisible(true);
+  }, []);
+
+  const handlePaymentMethodConfirm = React.useCallback((nextPaymentMethod: CheckoutPaymentMethod) => {
+    setPaymentMethod(nextPaymentMethod);
+    setIsPaymentMethodScreenVisible(false);
+  }, []);
+
   const handleDeliveryTimeModeChange = React.useCallback((mode: CheckoutDeliveryTimeMode) => {
     if (mode === 'schedule') {
       setIsScheduleScreenVisible(true);
@@ -241,10 +398,15 @@ export default function CheckoutScreen() {
   }, []);
 
   const handleScheduleConfirm = React.useCallback((nextScheduledAt: string) => {
+    if (!isCheckoutScheduledAtInFuture(nextScheduledAt)) {
+      showToast.info(t('checkout_schedule_slot_expired'));
+      return;
+    }
+
     setScheduledAt(nextScheduledAt);
     setDeliveryTimeMode('schedule');
     setIsScheduleScreenVisible(false);
-  }, []);
+  }, [t]);
 
   const handleMessagePress = React.useCallback((target: CheckoutMessageTarget) => {
     setActiveMessageTarget(target);
@@ -286,8 +448,49 @@ export default function CheckoutScreen() {
 
   const previewTotal = preview?.pricing.totalAmount ?? cart.finalPrice;
   const selectedAddressLabel = formatDeliveryAddressLabel(selectedAddress);
-  const previewErrorMessage = previewError?.message?.trim() ?? '';
-  const isCodUnavailable = previewErrorMessage.toLowerCase().includes('cash on delivery');
+  const paymentIconName = paymentMethod === 'stripe' ? 'card-outline' : 'cash-outline';
+  const paymentTitle = getCheckoutPaymentMethodTitle(paymentMethod, t);
+  const paymentSubtitle = getCheckoutPaymentMethodSubtitle(paymentMethod, t);
+  const isPaymentAvailable = isCheckoutPaymentMethodAvailable(
+    paymentMethod,
+    preview?.store,
+  );
+  const paymentErrorMessage = !isPaymentAvailable
+    ? paymentMethod === 'stripe'
+      ? t('checkout_payment_card_unavailable_error')
+      : t('checkout_payment_cod_unavailable_error')
+    : null;
+
+  if (stripeCheckout) {
+    return (
+      <StripePaymentWebView
+        cancelUrlMatcher={CHECKOUT_STRIPE_CANCEL_MATCHER}
+        checkoutUrl={stripeCheckout.checkoutUrl}
+        onBackPress={handleStripeCheckoutBackPress}
+        onPaymentCancel={handleStripeCheckoutCancel}
+        onPaymentFailure={() => {
+          showToast.error(t('checkout_payment_failed'));
+        }}
+        onPaymentSuccess={handleStripeCheckoutSuccess}
+        successUrlMatcher={CHECKOUT_STRIPE_SUCCESS_MATCHER}
+        title={t('checkout_payment_webview_title')}
+      />
+    );
+  }
+
+  if (isPaymentMethodScreenVisible) {
+    return (
+      <CheckoutPaymentMethodScreen
+        isCardEnabled={preview?.store.stripeAllowed ?? false}
+        isCashEnabled={preview?.store.codAllowed ?? true}
+        onBackPress={() => {
+          setIsPaymentMethodScreenVisible(false);
+        }}
+        onConfirm={handlePaymentMethodConfirm}
+        selectedMethod={paymentMethod}
+      />
+    );
+  }
 
   if (isScheduleScreenVisible) {
     return (
@@ -297,6 +500,7 @@ export default function CheckoutScreen() {
         }}
         onConfirm={handleScheduleConfirm}
         selectedScheduledAt={scheduledAt}
+        storeId={cart.storeId}
       />
     );
   }
@@ -329,13 +533,12 @@ export default function CheckoutScreen() {
   return (
     <View style={{ backgroundColor: colors.background, flex: 1 }}>
       <CheckoutScreenContent
-        cashSubtitle={isCodUnavailable ? t('checkout_payment_cash_unavailable') : undefined}
         courierMessage={messages.courier}
         deliveryTimeMode={deliveryTimeMode}
         hasAddressRequirement={orderType === 'delivery' && !selectedAddress?.id}
         isPickupEnabled={preview?.store.pickupAllowed ?? true}
         isPlacingOrder={placeOrderMutation.isPending}
-        isPaymentBlocked={false}
+        isPaymentBlocked={!isPaymentAvailable}
         isPreviewEnabled={Boolean(previewInput)}
         isPreviewError={isPreviewError}
         isPreviewPending={isPreviewPending}
@@ -349,6 +552,7 @@ export default function CheckoutScreen() {
         onLeaveAtDoorChange={setLeaveAtDoor}
         onOrderTypeChange={setOrderType}
         onPlaceOrderPress={handlePlaceOrderPress}
+        onPaymentPress={handlePaymentMethodPress}
         onPromoPress={handlePromoPress}
         onRestaurantMessagePress={() => {
           handleMessagePress('restaurant');
@@ -361,7 +565,10 @@ export default function CheckoutScreen() {
         }}
         onTipChange={setSelectedTip}
         orderType={orderType}
-        paymentErrorMessage={isCodUnavailable ? t('checkout_payment_cod_unavailable_error') : null}
+        paymentErrorMessage={paymentErrorMessage}
+        paymentIconName={paymentIconName}
+        paymentSubtitle={paymentSubtitle}
+        paymentTitle={paymentTitle}
         preview={preview ?? null}
         restaurantMessage={messages.restaurant}
         scheduledAt={scheduledAt}
