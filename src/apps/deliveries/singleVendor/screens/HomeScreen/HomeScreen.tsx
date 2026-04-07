@@ -17,18 +17,14 @@ import useAddress from '../../../hooks/useAddress';
 import useAddressSelectionSheet from '../../../hooks/useAddressSelectionSheet';
 import useSavedAddresses from '../../../hooks/useSavedAddresses';
 import useSelectSavedAddress from '../../../hooks/useSelectSavedAddress';
-import type { SingleVendorStackParamList } from '../../navigation/types';
-
-type HomeScreenNavigationParamList = SingleVendorStackParamList & {
-  Cart: undefined;
-};
+import type { DeliveriesStackParamList } from '../../../navigation/types';
 
 export default function HomeScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
   const navigation =
-    useNavigation<NativeStackNavigationProp<HomeScreenNavigationParamList>>();
+    useNavigation<NativeStackNavigationProp<DeliveriesStackParamList>>();
   const {
     addresses,
     isLoading: isAddressesLoading,

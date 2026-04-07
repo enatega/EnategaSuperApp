@@ -1,6 +1,6 @@
 export type AddressFlowOrigin =
   | 'multi-vendor-home'
-  | 'multi-vendor-profile'
+  | 'profile'
   | 'single-vendor-home';
 
 export type AddressFlowParams = {

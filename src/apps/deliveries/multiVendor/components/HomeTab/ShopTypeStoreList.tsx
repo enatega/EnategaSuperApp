@@ -12,7 +12,7 @@ import HomeSectionState from './HomeSectionState';
 import NearbyStoreListSkeleton from './HomeTabSkeletons/NearbyStoreListSkeleton';
 
 type Props = {
-  errorMessage?: string;
+  hasError: boolean;
   isLoading: boolean;
   shopTypeId: string;
   stores: DeliveryNearbyStore[];
@@ -22,7 +22,7 @@ type Props = {
 type NavProp = NativeStackNavigationProp<MultiVendorStackParamList, 'SeeAllScreen'>;
 
 export default function ShopTypeStoreList({
-  errorMessage,
+  hasError,
   isLoading,
   shopTypeId,
   stores,
@@ -30,7 +30,6 @@ export default function ShopTypeStoreList({
 }: Props) {
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavProp>();
-  const hasError = Boolean(errorMessage);
   const isEmpty = !isLoading && !hasError && stores.length === 0;
   const handleSeeAllPress = useCallback(
     () =>
@@ -54,10 +53,7 @@ export default function ShopTypeStoreList({
       {isLoading ? (
         <NearbyStoreListSkeleton />
       ) : hasError ? (
-        <HomeSectionState
-          message={errorMessage ?? t('multi_vendor_shop_type_stores_error')}
-          tone="error"
-        />
+        <HomeSectionState tone="error" />
       ) : isEmpty ? (
         <HomeSectionState message={t('multi_vendor_shop_type_stores_empty')} />
       ) : (

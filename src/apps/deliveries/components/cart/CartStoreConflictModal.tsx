@@ -7,7 +7,6 @@ import { useTheme } from '../../../../general/theme/theme';
 import type { CartStoreConflictPrompt } from '../../cart/cartStoreConflictTypes';
 
 type Props = {
-  errorMessage?: string | null;
   isSubmitting?: boolean;
   onCancel: () => void;
   onConfirm: () => void;
@@ -16,7 +15,6 @@ type Props = {
 };
 
 export default function CartStoreConflictModal({
-  errorMessage,
   isSubmitting = false,
   onCancel,
   onConfirm,
@@ -33,14 +31,11 @@ export default function CartStoreConflictModal({
     : t('cart_store_conflict_message', {
         incomingStore: prompt?.incomingStoreName || t('cart_store_conflict_store_fallback'),
       });
-  const description = errorMessage
-    ? `${baseDescription}\n\n${errorMessage}`
-    : baseDescription;
 
   return (
     <AppPopup
       containerStyle={[styles.popup, { backgroundColor: colors.surface }]}
-      description={description}
+      description={baseDescription}
       dismissOnOverlayPress={!isSubmitting}
       illustration={
         <View style={[styles.illustration, { backgroundColor: colors.blue100 }]}>

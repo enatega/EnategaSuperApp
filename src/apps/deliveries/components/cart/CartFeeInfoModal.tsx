@@ -214,11 +214,12 @@ const styles = StyleSheet.create({
     paddingTop: 4,
   },
   modalRoot: {
-    flex: 1,
-    justifyContent: 'flex-end',
+    // flex: 1,
+    // justifyContent: 'flex-end',
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
+    zIndex:999999
   },
   sheet: {
     borderTopLeftRadius: 24,

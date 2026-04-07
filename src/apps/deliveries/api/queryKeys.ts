@@ -67,6 +67,14 @@ export const deliveryKeys = {
         [...deliveryKeys.all, 'product-info-customizations', productId] as const,
     cart: () => [...deliveryKeys.all, 'cart'] as const,
     cartCount: () => [...deliveryKeys.all, 'cart-count'] as const,
+    checkoutPreview: (input: {
+        storeId: string;
+        bucketId: string;
+        orderType: 'delivery' | 'pickup';
+        addressId?: string;
+        scheduledAt?: string;
+        riderTip?: number;
+    }) => [...deliveryKeys.all, 'checkout-preview', input] as const,
     productSearch: (keyword: string, latitude?: number, longitude?: number) =>
         [...deliveryKeys.search(), 'products', keyword, latitude, longitude] as const,
     storeSearch: (keyword: string, latitude?: number, longitude?: number) =>
