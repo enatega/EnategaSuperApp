@@ -40,6 +40,7 @@ const en = {
   multi_vendor_address_label: 'Select address',
   multi_vendor_shop_types_title: 'Shop Types',
   multi_vendor_top_brands_title: 'Top Brands',
+  multi_vendor_all_brands_title: 'All brands',
   multi_vendor_nearby_store_title: 'Nearby Store',
   multi_vendor_deals_title: 'Deals',
   multi_vendor_order_again_title: 'Order Again 😋',

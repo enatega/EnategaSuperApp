@@ -26,6 +26,8 @@ import type {
     DeliveryShopTypeStoresParams,
     DeliveryShopTypesApiResponse,
     DeliveryShopTypesParams,
+    DeliveryVendorStoresApiResponse,
+    DeliveryVendorStoresParams,
     PaginatedDeliveryResponse,
 } from './types';
 
@@ -52,6 +54,11 @@ const SHOP_TYPE_PRODUCTS_DEFAULTS = {
 } as const;
 
 const SHOP_TYPE_STORES_DEFAULTS = {
+    offset: 0,
+    limit: 10,
+} as const;
+
+const TOP_BRANDS_DEFAULTS = {
     offset: 0,
     limit: 10,
 } as const;
@@ -116,6 +123,36 @@ function toShopTypeStoresQueryParams(
     };
 }
 
+function toVendorStoresQueryParams(
+    params: DeliveryVendorStoresParams,
+): Record<string, unknown> {
+    const {
+        offset = SHOP_TYPE_STORES_DEFAULTS.offset,
+        limit = SHOP_TYPE_STORES_DEFAULTS.limit,
+        search,
+        latitude,
+        longitude,
+        stock,
+        category_ids,
+        subcategory_id,
+        price_tiers,
+        sort_by,
+    } = params;
+
+    return {
+        offset,
+        limit,
+        search,
+        latitude,
+        longitude,
+        stock,
+        category_ids,
+        subcategory_id,
+        price_tiers,
+        sort_by,
+    };
+}
+
 function toNearbyStoresQueryParams(
     params: DeliveryNearbyStoresParams,
 ): Record<string, unknown> {
@@ -143,6 +180,22 @@ function toNearbyStoresQueryParams(
         subcategory_id,
         price_tiers,
         sort_by,
+    };
+}
+
+function toTopBrandsQueryParams(
+    params: DeliveryTopBrandsParams = {},
+): Record<string, unknown> {
+    const {
+        offset = TOP_BRANDS_DEFAULTS.offset,
+        limit = TOP_BRANDS_DEFAULTS.limit,
+        search,
+    } = params;
+
+    return {
+        offset,
+        limit,
+        search,
     };
 }
 
@@ -312,6 +365,25 @@ export const discoveryService = {
         }
     },
 
+    /** Fetch paginated deliveries shop types for app discovery. */
+    getShopTypesPage: async (
+        params: DeliveryShopTypesParams = {},
+    ): Promise<PaginatedDeliveryResponse<DeliveryShopType>> => {
+        const { offset = 0, limit = 10 } = params;
+
+        try {
+            const response = await apiClient.get<DeliveryShopTypesApiResponse>(
+                '/api/v1/apps/deliveries/discovery/shop-types',
+                { offset, limit },
+            );
+
+            return toPaginatedResponse(response, { offset, limit });
+        } catch (error) {
+            console.error('shop types request failed', error);
+            throw error;
+        }
+    },
+
     /** Fetch products for a specific shop type in deliveries discovery. */
     getShopTypeProducts: async (
         params: DeliveryShopTypeProductsParams,
@@ -384,6 +456,42 @@ export const discoveryService = {
         }
     },
 
+    /** Fetch stores for a specific vendor in deliveries discovery. */
+    getVendorStores: async (
+        params: DeliveryVendorStoresParams,
+    ): Promise<DeliveryNearbyStore[]> => {
+        const response = await discoveryService.getVendorStoresPage(params);
+        return response.items;
+    },
+
+    /** Fetch paginated stores for a specific vendor in deliveries discovery. */
+    getVendorStoresPage: async (
+        params: DeliveryVendorStoresParams,
+    ): Promise<PaginatedDeliveryResponse<DeliveryNearbyStore>> => {
+        const { vendorId } = params;
+        const queryParams = toVendorStoresQueryParams(params);
+        const offset =
+            typeof queryParams.offset === 'number'
+                ? queryParams.offset
+                : SHOP_TYPE_STORES_DEFAULTS.offset;
+        const limit =
+            typeof queryParams.limit === 'number'
+                ? queryParams.limit
+                : SHOP_TYPE_STORES_DEFAULTS.limit;
+
+        try {
+            const response = await apiClient.get<DeliveryVendorStoresApiResponse>(
+                `/api/v1/apps/deliveries/discovery/vendors/${vendorId}/stores`,
+                queryParams,
+            );
+
+            return toPaginatedResponse(response, { offset, limit });
+        } catch (error) {
+            console.error('vendor stores request failed', error);
+            throw error;
+        }
+    },
+
     /** Fetch mobile banners for deliveries home discovery. */
     getMobileBanners: async (
         params: DeliveryBannersParams = {},
@@ -418,11 +526,11 @@ export const discoveryService = {
     getTopBrands: async (
         params: DeliveryTopBrandsParams = {},
     ): Promise<DeliveryTopBrand[]> => {
-        const { offset = 0, limit = 10 } = params;
+        const queryParams = toTopBrandsQueryParams(params);
         try {
             const response = await apiClient.get<DeliveryTopBrandsApiResponse>(
                 '/api/v1/apps/deliveries/discovery/top-brands',
-                { offset, limit },
+                queryParams,
             );
 
             if (Array.isArray(response)) {
@@ -438,6 +546,33 @@ export const discoveryService = {
             }
 
             return [];
+        } catch (error) {
+            console.error('top brands request failed', error);
+            throw error;
+        }
+    },
+
+    /** Fetch paginated top brands for deliveries discovery. */
+    getTopBrandsPage: async (
+        params: DeliveryTopBrandsParams = {},
+    ): Promise<PaginatedDeliveryResponse<DeliveryTopBrand>> => {
+        const queryParams = toTopBrandsQueryParams(params);
+        const offset =
+            typeof queryParams.offset === 'number'
+                ? queryParams.offset
+                : TOP_BRANDS_DEFAULTS.offset;
+        const limit =
+            typeof queryParams.limit === 'number'
+                ? queryParams.limit
+                : TOP_BRANDS_DEFAULTS.limit;
+
+        try {
+            const response = await apiClient.get<DeliveryTopBrandsApiResponse>(
+                '/api/v1/apps/deliveries/discovery/top-brands',
+                queryParams,
+            );
+
+            return toPaginatedResponse(response, { offset, limit });
         } catch (error) {
             console.error('top brands request failed', error);
             throw error;

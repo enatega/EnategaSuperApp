@@ -67,7 +67,7 @@ export default function FilterSheet({
   if (!visible) {
     return null;
   }
-  const decodeFilterLabel = (label: string) => label.replaceAll("&amp;", "&");
+  const decodeFilterLabel = (label: string) => label?.replaceAll("&amp;", "&");
 
   return (
     <Modal
