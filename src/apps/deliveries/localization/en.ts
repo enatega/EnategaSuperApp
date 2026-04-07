@@ -27,6 +27,12 @@ const en = {
   multi_vendor_tab_search: 'Search',
   multi_vendor_tab_orders: 'Orders',
   multi_vendor_tab_profile: 'Profile',
+  chain_tab_home: 'Home',
+  chain_tab_search: 'Search',
+  chain_tab_orders: 'Orders',
+  chain_tab_profile: 'Profile',
+  chain_logout_error_title: 'Error',
+  chain_logout_error_message: 'Unable to log out right now.',
   delivery_address_title: 'Delivery address',
   delivery_address_empty_state:
     'Add an address to start ordering from this store.',

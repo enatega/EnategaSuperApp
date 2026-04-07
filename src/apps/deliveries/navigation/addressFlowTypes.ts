@@ -1,7 +1,8 @@
 export type AddressFlowOrigin =
   | 'multi-vendor-home'
   | 'profile'
-  | 'single-vendor-home';
+  | 'single-vendor-home'
+  | 'chain-home';
 
 export type AddressFlowParams = {
   editAddressId?: string;
