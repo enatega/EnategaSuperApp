@@ -9,8 +9,9 @@ import { useTheme } from '../../../../general/theme/theme';
 import BalanceCard from '../../components/wallet/BalanceCard';
 import TransactionFilterTabs from '../../components/wallet/TransactionFilterTabs';
 import TransactionItem from '../../components/wallet/TransactionItem';
-import { MOCK_BALANCE, MOCK_TRANSACTIONS } from '../../data/walletMockData';
+import { MOCK_TRANSACTIONS } from '../../data/walletMockData';
 import type { TransactionFilter, Transaction } from '../../types/wallet';
+import { useWalletBalance } from '../../hooks/useUserQueries';
 import type { RideSharingStackParamList } from '../../navigation/RideSharingNavigator';
 
 export default function WalletHomeScreen() {
@@ -18,12 +19,22 @@ export default function WalletHomeScreen() {
   const { t } = useTranslation('rideSharing');
   const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
   const [activeFilter, setActiveFilter] = useState<TransactionFilter>('all');
+  const walletBalanceQuery = useWalletBalance();
 
   const tabs = useMemo(() => [
     { key: 'all' as const, label: t('wallet_tab_all') },
     { key: 'money_in' as const, label: t('wallet_tab_money_in') },
     { key: 'money_out' as const, label: t('wallet_tab_money_out') },
   ], [t]);
+
+  const walletBalance = useMemo(() => {
+    const parsedAmount = Number(walletBalanceQuery.data?.totalBalanceInWallet);
+
+    return {
+      amount: Number.isFinite(parsedAmount) ? parsedAmount : 0,
+      currency: t('wallet_currency_prefix'),
+    };
+  }, [t, walletBalanceQuery.data?.totalBalanceInWallet]);
 
   const filteredTransactions = useMemo(() => {
     if (activeFilter === 'money_in') {
@@ -72,7 +83,7 @@ export default function WalletHomeScreen() {
 
             <View style={styles.balanceSection}>
               <BalanceCard
-                balance={MOCK_BALANCE}
+                balance={walletBalance}
                 balanceLabel={t('wallet_your_balance')}
                 addFundsLabel={t('wallet_add_funds')}
                 onAddFunds={handleAddFunds}

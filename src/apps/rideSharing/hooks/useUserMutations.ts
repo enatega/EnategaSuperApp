@@ -1,7 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { userKeys } from '../api/queryKeys';
 import { userService } from '../api/userService';
-import type { UpdateUserPayload, UpdateProfileImagePayload, UpdatePasswordPayload } from '../api/userService';
+import type {
+    UpdateUserPayload,
+    UpdateProfileImagePayload,
+    UpdatePasswordPayload,
+    WalletTopUpPayload,
+    WalletTopUpResponse,
+} from '../api/userService';
 import type { UserApiData } from '../api/types';
 import { ApiError } from '../../../general/api/apiClient';
 
@@ -55,3 +61,16 @@ export function useUpdatePassword() {
     });
 }
 
+export function useWalletTopUp() {
+    const queryClient = useQueryClient();
+
+    return useMutation<WalletTopUpResponse, ApiError, WalletTopUpPayload>({
+        mutationFn: (payload) => userService.topUpWallet(payload),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: userKeys.walletBalance() });
+        },
+        onError: (error) => {
+            console.error('[useWalletTopUp] Failed:', error.message);
+        },
+    });
+}

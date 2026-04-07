@@ -126,6 +126,7 @@ export interface DeliveryOrderTimelineItem {
 
 export interface OrderDetailsResponse {
   orderId: string;
+  chatBoxId?: string;
   status: DeliveryOrderStatus;
   statusTitle: string;
   statusMessage: string;

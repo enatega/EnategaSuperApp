@@ -53,6 +53,7 @@ export type SupportTicketListStatus = {
 
 export type SupportTicketListItemResponse = {
   id: string;
+  assignedAdminId?: string | null;
   chatBoxId?: string;
   title: string;
   subtitle: string;

@@ -57,6 +57,7 @@ export const userKeys = {
 
   /** Current authenticated user profile. */
   profile: () => [...userKeys.all, 'profile'] as const,
+  walletBalance: () => [...userKeys.all, 'wallet-balance'] as const,
 
 };
 

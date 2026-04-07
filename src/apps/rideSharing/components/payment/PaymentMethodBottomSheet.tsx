@@ -143,7 +143,7 @@ function PaymentMethodBottomSheet({
                 );
               })}
 
-              <Pressable
+              {/* <Pressable
                 onPress={() => setMode('addCard')}
                 style={styles.optionRow}
               >
@@ -153,7 +153,7 @@ function PaymentMethodBottomSheet({
                 <View style={styles.optionText}>
                   <Text weight="medium">{t('ride_payment_add_method')}</Text>
                 </View>
-              </Pressable>
+              </Pressable> */}
             </View>
           </>
         ) : (

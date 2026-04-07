@@ -3,6 +3,7 @@ import type { SupportTicketListItemResponse } from '../api/supportTicketService'
 export type SupportTicketStatusTone = 'success' | 'info' | 'danger';
 
 export type SupportTicketListItemModel = {
+  assignedAdminId?: string;
   chatBoxId?: string;
   dayNumber: string;
   dateLabel: string;
@@ -42,6 +43,7 @@ export function mapSupportTicketToListItem(
   orderIdTemplate: (orderId: string) => string,
 ): SupportTicketListItemModel {
   return {
+    assignedAdminId: ticket.assignedAdminId ?? undefined,
     chatBoxId: ticket.chatBoxId,
     id: ticket.id,
     title: toReadableText(ticket.title),

@@ -13,17 +13,22 @@ import { useTranslation } from 'react-i18next';
 import Text from '../../../general/components/Text';
 import { showToast } from '../../../general/components/AppToast';
 import { useAuthSessionQuery } from '../../../general/hooks/useAuthQueries';
+import { useSocketSession } from '../../../general/hooks/useSocketSession';
+import { socketClient } from '../../../general/services/socket';
+import type { SocketReceivedMessage } from '../../../general/services/socket';
 import { useTheme } from '../../../general/theme/theme';
 import ChatComposer from '../components/chat/ChatComposer';
 import ChatMessageBubble from '../components/chat/ChatMessageBubble';
 import ChatQuickReplyChip from '../components/chat/ChatQuickReplyChip';
 import SupportHeader from '../components/support/SupportHeader';
 import { useSendSupportChatMessage } from '../hooks/useSupportChatMutations';
-import { useSupportChatBox } from '../hooks/useSupportChatQueries';
+import { useSupportChatBox, useSupportConversations } from '../hooks/useSupportChatQueries';
 import type { SupportNavigationParamList } from '../navigation/supportNavigationTypes';
 import {
   formatSupportChatTimeLabel,
   getSupportChatBox,
+  getSupportChatBoxId,
+  getSupportChatConversationGroups,
   getSupportChatMessages,
   getSupportChatMessageId,
   getSupportChatOtherParticipant,
@@ -47,10 +52,42 @@ export default function SupportTicketDetailScreen() {
   const route = useRoute<SupportTicketDetailRouteProp>();
   const { ticket } = route.params;
   const sessionQuery = useAuthSessionQuery();
-  const [chatBoxId, setChatBoxId] = useState(ticket.chatBoxId);
+  useSocketSession();
+  const supportConversationsQuery = useSupportConversations();
+  const fallbackChatBoxId = useMemo(() => {
+    if (ticket.chatBoxId || !ticket.assignedAdminId) {
+      return ticket.chatBoxId;
+    }
+
+    const conversationGroups = getSupportChatConversationGroups(
+      supportConversationsQuery.data,
+    );
+    const allConversations = [
+      ...conversationGroups.recent,
+      ...conversationGroups.past,
+    ];
+    const matchedConversation = allConversations.find((chatBox) => {
+      const participant = getSupportChatOtherParticipant(
+        chatBox,
+        sessionQuery.data?.user?.id,
+      );
+
+      return getSupportChatParticipantId(participant) === ticket.assignedAdminId;
+    });
+
+    return getSupportChatBoxId(matchedConversation) || undefined;
+  }, [
+    sessionQuery.data?.user?.id,
+    supportConversationsQuery.data,
+    ticket.assignedAdminId,
+    ticket.chatBoxId,
+  ]);
+  const [chatBoxId, setChatBoxId] = useState(fallbackChatBoxId);
   const [draftMessage, setDraftMessage] = useState('');
   const [pendingMessages, setPendingMessages] = useState<TicketChatMessage[]>([]);
+  const [realtimeMessages, setRealtimeMessages] = useState<TicketChatMessage[]>([]);
   const supportChatBoxQuery = useSupportChatBox(chatBoxId);
+  const refetchSupportChatBox = supportChatBoxQuery.refetch;
   const supportChatSendMutation = useSendSupportChatMessage({
     onError: (error) => {
       setPendingMessages((current) => current.slice(0, -1));
@@ -75,10 +112,10 @@ export default function SupportTicketDetailScreen() {
   });
 
   useEffect(() => {
-    if (!chatBoxId && ticket.chatBoxId) {
-      setChatBoxId(ticket.chatBoxId);
+    if (!chatBoxId && fallbackChatBoxId) {
+      setChatBoxId(fallbackChatBoxId);
     }
-  }, [chatBoxId, ticket.chatBoxId]);
+  }, [chatBoxId, fallbackChatBoxId]);
 
   useEffect(() => {
     console.log('SupportTicketDetailScreen route ticket', {
@@ -104,8 +141,8 @@ export default function SupportTicketDetailScreen() {
     () =>
       getSupportChatParticipantId(
         getSupportChatOtherParticipant(activeChatBox, sessionQuery.data?.user?.id),
-      ),
-    [activeChatBox, sessionQuery.data?.user?.id],
+      ) || ticket.assignedAdminId || undefined,
+    [activeChatBox, sessionQuery.data?.user?.id, ticket.assignedAdminId],
   );
 
   useEffect(() => {
@@ -113,6 +150,7 @@ export default function SupportTicketDetailScreen() {
       activeChatBox,
       chatBoxId,
       receiverId,
+      ticketAssignedAdminId: ticket.assignedAdminId,
       supportChatBoxData: supportChatBoxQuery.data,
       ticketChatBoxId: ticket.chatBoxId,
       userId: sessionQuery.data?.user?.id,
@@ -123,6 +161,7 @@ export default function SupportTicketDetailScreen() {
     receiverId,
     sessionQuery.data?.user?.id,
     supportChatBoxQuery.data,
+    ticket.assignedAdminId,
     ticket.chatBoxId,
   ]);
 
@@ -138,7 +177,7 @@ export default function SupportTicketDetailScreen() {
       timeLabel: formatSupportChatTimeLabel(message.createdAt ?? message.created_at),
     }));
 
-    if (!mappedServerMessages.length && !pendingMessages.length) {
+    if (!mappedServerMessages.length && !realtimeMessages.length && !pendingMessages.length) {
       return [
         {
           id: 'support-auto-message',
@@ -149,8 +188,8 @@ export default function SupportTicketDetailScreen() {
       ];
     }
 
-    return [...mappedServerMessages, ...pendingMessages];
-  }, [pendingMessages, sessionQuery.data?.user?.id, supportChatBoxQuery.data, t]);
+    return [...mappedServerMessages, ...realtimeMessages, ...pendingMessages];
+  }, [pendingMessages, realtimeMessages, sessionQuery.data?.user?.id, supportChatBoxQuery.data, t]);
 
   const quickReplies = useMemo(
     () => [
@@ -162,6 +201,71 @@ export default function SupportTicketDetailScreen() {
     ],
     [t],
   );
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: false });
+    });
+  }, [messages.length]);
+
+  useEffect(() => {
+    setRealtimeMessages((current) => {
+      const nextMessages = current.filter((item) => !messages.some(
+        (serverMessage) =>
+          serverMessage.id !== item.id
+          && serverMessage.isCurrentUser === item.isCurrentUser
+          && serverMessage.text === item.text,
+      ));
+
+      return nextMessages.length === current.length ? current : nextMessages;
+    });
+  }, [messages]);
+
+  useEffect(() => {
+    const currentUserId = sessionQuery.data?.user?.id;
+
+    if (!currentUserId || !receiverId) {
+      return undefined;
+    }
+
+    return socketClient.onReceiveMessage((message: SocketReceivedMessage) => {
+      const isConversationMessage =
+        message.receiver === currentUserId && message.sender === receiverId;
+
+      if (!isConversationMessage) {
+        return;
+      }
+
+      setRealtimeMessages((current) => {
+        const alreadyExists = current.some(
+          (item) => !item.isCurrentUser && item.text === message.text,
+        );
+
+        if (alreadyExists) {
+          return current;
+        }
+
+        return [
+          ...current,
+          {
+            id: `realtime-${Date.now()}`,
+            isCurrentUser: false,
+            text: message.text,
+            timeLabel: formatSupportChatTimeLabel(new Date().toISOString()),
+          },
+        ];
+      });
+
+      if (chatBoxId) {
+        void refetchSupportChatBox();
+      }
+    });
+  }, [
+    chatBoxId,
+    receiverId,
+    refetchSupportChatBox,
+    sessionQuery.data?.user?.id,
+  ]);
 
   const handleAppendMessage = (value: string) => {
     const trimmedValue = value.trim();
@@ -182,6 +286,7 @@ export default function SupportTicketDetailScreen() {
         activeChatBox,
         chatBoxId,
         supportChatBoxData: supportChatBoxQuery.data,
+        ticketAssignedAdminId: ticket.assignedAdminId,
         ticketChatBoxId: ticket.chatBoxId,
         userId: sessionQuery.data?.user?.id,
       });

@@ -1,7 +1,7 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { userKeys } from '../api/queryKeys';
 
-import { userService } from '../api/userService';
+import { userService, type WalletBalanceResponse } from '../api/userService';
 import type { UserApiData } from '../api/types';
 import { ApiError } from '../../../general/api/apiClient';
 
@@ -20,6 +20,20 @@ export function useUser(options?: UseUserOptions) {
         queryKey: userKeys.profile(),
         queryFn: () => userService.getUser(),
         staleTime: 5 * 60 * 1000, // 5 minutes
+        ...options,
+    });
+}
+
+type UseWalletBalanceOptions = Omit<
+    UseQueryOptions<WalletBalanceResponse, ApiError>,
+    'queryKey' | 'queryFn'
+>;
+
+export function useWalletBalance(options?: UseWalletBalanceOptions) {
+    return useQuery<WalletBalanceResponse, ApiError>({
+        queryKey: userKeys.walletBalance(),
+        queryFn: () => userService.getWalletBalance(),
+        staleTime: 60 * 1000,
         ...options,
     });
 }

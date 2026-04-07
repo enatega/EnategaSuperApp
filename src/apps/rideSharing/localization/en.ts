@@ -139,6 +139,10 @@ const en = {
   success: 'Success',
   error: 'Error',
   ok: 'OK',
+  insufficient_wallet_balance: 'You do not have enough balance in your wallet for this ride.',
+  wallet_top_up_prompt_title: 'Insufficient wallet balance',
+  wallet_top_up_prompt_message: 'You do not have enough balance for this ride. Do you want to top up your wallet now?',
+  wallet_top_up_prompt_confirm: 'Top up',
   ride_address_title: 'Your Route',
   ride_address_stop_title: 'Add stop',
   ride_address_close: 'Close',
@@ -298,6 +302,9 @@ const en = {
   wallet_expiry: 'MM / YY',
   wallet_security_code: 'CVV',
   wallet_save: 'Save',
+  wallet_topup_error_title: 'Unable to add funds',
+  wallet_topup_error_message: 'We could not start the top-up checkout right now.',
+  wallet_topup_checkout_error_message: 'We could not open the Stripe checkout page.',
 };
 
 export default en;

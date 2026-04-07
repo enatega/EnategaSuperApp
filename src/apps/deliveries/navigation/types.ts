@@ -1,6 +1,7 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import type { DeliveriesAccountNavigationParamList } from '../account/navigation/types';
 import type { MultiVendorStackParamList } from '../multiVendor/navigation/types';
+import type { RiderChatScreenParams } from '../screens/RiderChatScreen/RiderChatScreen';
 import type { SingleVendorStackParamList } from '../singleVendor/navigation/types';
 
 export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
@@ -18,6 +19,7 @@ export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
   OrderTrackingScreen: {
     orderId: string;
   };
+  RiderChat: RiderChatScreenParams['RiderChat'];
   ProductInfo: {
     productId: string;
   };

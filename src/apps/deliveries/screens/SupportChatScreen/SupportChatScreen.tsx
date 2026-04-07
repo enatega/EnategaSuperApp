@@ -71,6 +71,8 @@ export default function SupportChatScreen() {
   const [pendingMessages, setPendingMessages] = useState<PendingSupportMessage[]>([]);
   const [realtimeMessages, setRealtimeMessages] = useState<PendingSupportMessage[]>([]);
   const supportChatBoxQuery = useSupportChatBox(chatBoxId);
+  const refetchSupportChatBox = supportChatBoxQuery.refetch;
+  const refetchSupportChatBoxes = supportChatBoxesQuery.refetch;
   const supportChatSendMutation = useSendSupportChatMessage({
     onError: (error) => {
       setPendingMessages((current) => current.slice(0, -1));
@@ -219,17 +221,17 @@ export default function SupportChatScreen() {
         ];
       });
 
-      void supportChatBoxesQuery.refetch();
+      void refetchSupportChatBoxes();
       if (chatBoxId) {
-        void supportChatBoxQuery.refetch();
+        void refetchSupportChatBox();
       }
     });
   }, [
     chatBoxId,
+    refetchSupportChatBox,
+    refetchSupportChatBoxes,
     receiverId,
     sessionQuery.data?.user?.id,
-    supportChatBoxQuery,
-    supportChatBoxesQuery,
   ]);
 
   const appendMessage = (text: string) => {
