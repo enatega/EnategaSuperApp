@@ -12,7 +12,7 @@ import Map, { type MapMarker, type MapPolyline } from "../../../../general/compo
 
 import ScreenHeader from "../../../../general/components/ScreenHeader";
 import { useTheme } from "../../../../general/theme/theme";
-import { useOrderDetails } from "../../hooks";
+import { useOrderDetails, useOrderStatusSocketSync } from "../../hooks";
 import type { DeliveriesStackParamList } from "../../navigation/types";
 import ExtendableOrderItems from "../orderItems/ExtendableOrderItems";
 import ExtendableOrderSummary from "../orderSummary/ExtendableOrderSummary";
@@ -35,6 +35,7 @@ type Props = {
 export default function MainContainer({ navigation, orderId }: Props) {
   const { t } = useTranslation("deliveries");
   const { colors } = useTheme();
+  useOrderStatusSocketSync(orderId);
   const orderDetailsQuery = useOrderDetails(orderId);
 
   const helpButton = (

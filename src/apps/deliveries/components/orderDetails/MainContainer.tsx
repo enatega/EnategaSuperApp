@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import ScreenHeader from "../../../../general/components/ScreenHeader";
 import { useTheme } from "../../../../general/theme/theme";
-import { useOrderDetails } from "../../hooks";
+import { useOrderDetails, useOrderStatusSocketSync } from "../../hooks";
 import type { DeliveriesStackParamList } from "../../navigation/types";
 import OrderDetailsErrorState from "./OrderDetailsErrorState";
 import OrderDetailsActionsSection from "./OrderDetailsActionsSection";
@@ -32,6 +32,7 @@ type Props = {
 export default function MainContainer({ navigation, orderId }: Props) {
   const { t } = useTranslation("deliveries");
   const { colors } = useTheme();
+  useOrderStatusSocketSync(orderId);
   const orderDetailsQuery = useOrderDetails(orderId);
   const [isIncreaseTipVisible, setIsIncreaseTipVisible] = useState(false);
   const [tipAmount, setTipAmount] = useState("5.00");
