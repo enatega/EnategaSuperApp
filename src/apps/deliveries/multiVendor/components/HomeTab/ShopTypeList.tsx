@@ -1,26 +1,37 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import HorizontalList from '../../../../../general/components/HorizontalList';
-import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
-import {
-  useShopTypeStoresSections,
-  useShopTypes,
-} from '../../../hooks';
-import ShopTypeCardSkeleton from './HomeTabSkeletons/ShopTypeCardSkeleton';
-import MultiVendorShopTypeCard from './ShopTypeCard';
-import ShopTypeStoreList from './ShopTypeStoreList';
+import React, { useCallback } from "react";
+import { StyleSheet, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import HorizontalList from "../../../../../general/components/HorizontalList";
+import SectionActionHeader from "../../../../../general/components/SectionActionHeader";
+import { useShopTypeStoresSections, useShopTypes } from "../../../hooks";
+import ShopTypeCardSkeleton from "./HomeTabSkeletons/ShopTypeCardSkeleton";
+import MultiVendorShopTypeCard from "./ShopTypeCard";
+import ShopTypeStoreList from "./ShopTypeStoreList";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { MultiVendorStackParamList } from "../../navigation/types";
+
+type NavProp = NativeStackNavigationProp<
+  MultiVendorStackParamList,
+  "ShopTypesSeeAll"
+>;
 
 export default function ShopTypeList() {
-  const { t } = useTranslation('deliveries');
+  const { t } = useTranslation("deliveries");
+  const navigation = useNavigation<NavProp>();
   const { data: shopTypes = [], isPending } = useShopTypes();
   const shopTypeStoreSections = useShopTypeStoresSections(shopTypes);
+
+  const handleSeeAll = useCallback(() => {
+    navigation.navigate("ShopTypesSeeAll");
+  }, [navigation, t]);
 
   return (
     <View style={styles.section}>
       <SectionActionHeader
-        actionLabel={t('multi_vendor_see_all')}
-        title={t('multi_vendor_shop_types_title')}
+        actionLabel={t("multi_vendor_see_all")}
+        title={t("multi_vendor_shop_types_title")}
+        onActionPress={handleSeeAll}
       />
 
       {isPending ? (
@@ -33,7 +44,7 @@ export default function ShopTypeList() {
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           renderItem={({ item }) => (
             <MultiVendorShopTypeCard
-              image={{ uri: item.image ?? '' }}
+              image={{ uri: item.image ?? "" }}
               title={item.name}
             />
           )}

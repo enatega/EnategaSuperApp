@@ -87,6 +87,20 @@ export interface DeliveryShopTypeStoresParams {
     sort_by?: string;
 }
 
+export interface DeliveryVendorStoresParams {
+    vendorId: string;
+    offset?: number;
+    limit?: number;
+    search?: string;
+    latitude?: number;
+    longitude?: number;
+    stock?: string;
+    category_ids?: string[];
+    subcategory_id?: string;
+    price_tiers?: string[];
+    sort_by?: string;
+}
+
 export interface DeliveryFilterValueCategory {
     ids: string[];
     key: string;
@@ -134,6 +148,7 @@ export interface DeliveryProductFilterValues {
 }
 
 export interface DeliveryTopBrand {
+    vendorId?: string;
     name: string;
     logo?: string | null;
     deal?: string | null;
@@ -144,6 +159,7 @@ export interface DeliveryTopBrand {
 export interface DeliveryTopBrandsParams {
     offset?: number;
     limit?: number;
+    search?: string;
 }
 
 export interface DeliveryNearbyStore {
@@ -329,6 +345,11 @@ export type DeliveryShopTypeStoresApiResponse =
     | DeliveryNearbyStore[];
 
 export type DeliveryNearbyStoresApiResponse =
+    | ApiResponse<DeliveryNearbyStore[]>
+    | PaginatedDeliveryResponse<DeliveryNearbyStore>
+    | DeliveryNearbyStore[];
+
+export type DeliveryVendorStoresApiResponse =
     | ApiResponse<DeliveryNearbyStore[]>
     | PaginatedDeliveryResponse<DeliveryNearbyStore>
     | DeliveryNearbyStore[];

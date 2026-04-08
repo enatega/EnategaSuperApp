@@ -1,5 +1,12 @@
 import React from 'react';
-import { ImageSourcePropType, StyleSheet, View } from 'react-native';
+import type {
+  ImageSourcePropType,
+  ImageStyle,
+  StyleProp,
+  TextStyle,
+  ViewStyle,
+} from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Text from '../../../../../general/components/Text';
 import Image from '../../../../../general/components/Image';
 import { useTheme } from '../../../../../general/theme/theme';
@@ -7,24 +14,44 @@ import { useTheme } from '../../../../../general/theme/theme';
 type Props = {
   image: ImageSourcePropType;
   title: string;
+  containerStyle?: StyleProp<ViewStyle>;
+  imageWrapStyle?: StyleProp<ViewStyle>;
+  imageStyle?: StyleProp<ImageStyle>;
+  titleStyle?: StyleProp<TextStyle>;
 };
 
-export default function ShopTypeCard({ image, title }: Props) {
+export default function ShopTypeCard({
+  image,
+  title,
+  containerStyle,
+  imageWrapStyle,
+  imageStyle,
+  titleStyle,
+}: Props) {
   const { colors, typography } = useTheme();
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.imageWrap, { backgroundColor: colors.blue100 }]}>
-        <Image source={image} style={styles.image} />
+    <View style={[styles.container, containerStyle]}>
+      <View
+        style={[
+          styles.imageWrap,
+          { backgroundColor: colors.blue100 },
+          imageWrapStyle,
+        ]}
+      >
+        <Image source={image} style={[styles.image, imageStyle]} />
       </View>
       <Text
         weight="medium"
         numberOfLines={2}
-        style={{
-          fontSize: typography.size.xs2,
-          lineHeight: typography.lineHeight.sm,
-          textAlign: 'center',
-        }}
+        style={[
+          {
+            fontSize: typography.size.xs2,
+            lineHeight: typography.lineHeight.sm,
+            textAlign: 'center',
+          },
+          titleStyle,
+        ]}
       >
         {title}
       </Text>

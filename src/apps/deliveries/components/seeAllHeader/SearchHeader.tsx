@@ -15,8 +15,8 @@ type Props = {
   backAccessibilityLabel: string;
   filterAccessibilityLabel: string;
   mapAccessibilityLabel: string;
-  onOpenFilters: () => void;
-  onMapPress: () => void;
+  onOpenFilters?: () => void;
+  onMapPress?: () => void;
   isSearchVisible: boolean;
   isFilterVisible: boolean;
   isMapVisible: boolean;

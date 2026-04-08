@@ -3,6 +3,8 @@ export {
   useMobileBanners,
   useNearbyStores,
   useOrderAgain,
+  usePaginatedTopBrands,
+  usePaginatedShopTypes,
   useShopTypeProducts,
   useShopTypeStores,
   useShopTypeStoresSections,
@@ -10,6 +12,7 @@ export {
   useStoreProducts,
   useStoreView,
   useTopBrands,
+  useVendorStores,
 } from './useDiscoveryQueries';
 export { useFilterValues } from './useFilterValues';
 export {
