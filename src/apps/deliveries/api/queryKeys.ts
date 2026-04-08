@@ -14,6 +14,20 @@ export const deliveryKeys = {
     discovery: () => [...deliveryKeys.all, 'discovery'] as const,
     shopTypes: (filters?: { limit?: number }) =>
         [...deliveryKeys.discovery(), 'shop-types', filters] as const,
+    singleVendorCategories: (filters?: { limit?: number }) =>
+        [...deliveryKeys.discovery(), 'single-vendor-categories', filters] as const,
+    singleVendorCategoryProducts: (
+        categoryId: string,
+        offset = 0,
+        limit = 10,
+    ) =>
+        [
+            ...deliveryKeys.discovery(),
+            'single-vendor-category-products',
+            categoryId,
+            offset,
+            limit,
+        ] as const,
     shopTypeProducts: (shopTypeId: string, offset = 0, limit = 10) =>
         [
             ...deliveryKeys.discovery(),

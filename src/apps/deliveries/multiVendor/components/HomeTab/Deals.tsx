@@ -4,10 +4,12 @@ import { useTranslation } from 'react-i18next';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
 import type { DeliveryNearbyStore } from '../../../api/types';
+import {
+  DiscoveryResultsSkeleton,
+  DiscoverySectionState,
+} from '../../../components/discovery';
 import { useDeals } from '../../../hooks';
 import StoreCard from '../../../components/storeCard/StoreCard';
-import HomeSectionState from './HomeSectionState';
-import NearbyStoreListSkeleton from './HomeTabSkeletons/NearbyStoreListSkeleton';
 
 export default function Deals() {
   const { t } = useTranslation('deliveries');
@@ -30,11 +32,11 @@ export default function Deals() {
       />
 
       {isDealsPending ? (
-        <NearbyStoreListSkeleton />
+        <DiscoveryResultsSkeleton />
       ) : hasDealsError ? (
-        <HomeSectionState tone="error" />
+        <DiscoverySectionState tone="error" />
       ) : isEmpty ? (
-        <HomeSectionState />
+        <DiscoverySectionState />
       ) : (
         <HorizontalList
           data={dealsData}

@@ -1,20 +1,16 @@
 import React, { useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import HorizontalList from "../../../../../general/components/HorizontalList";
-import SectionActionHeader from "../../../../../general/components/SectionActionHeader";
 import { useShopTypeStoresSections, useShopTypes } from "../../../hooks";
-import ShopTypeCardSkeleton from "./HomeTabSkeletons/ShopTypeCardSkeleton";
-import MultiVendorShopTypeCard from "./ShopTypeCard";
-import ShopTypeStoreList from "./ShopTypeStoreList";
+import {
+  DiscoveryCategoryResultsSection,
+  DiscoveryCategorySection,
+} from "../../../components/discovery";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { MultiVendorStackParamList } from "../../navigation/types";
 
-type NavProp = NativeStackNavigationProp<
-  MultiVendorStackParamList,
-  "ShopTypesSeeAll"
->;
+type NavProp = NativeStackNavigationProp<MultiVendorStackParamList>;
 
 export default function ShopTypeList() {
   const { t } = useTranslation("deliveries");
@@ -24,43 +20,50 @@ export default function ShopTypeList() {
 
   const handleSeeAll = useCallback(() => {
     navigation.navigate("ShopTypesSeeAll");
-  }, [navigation, t]);
+  }, [navigation]);
+
+  const handleShopTypeSeeAll = useCallback(
+    (shopTypeId: string, title: string) => {
+      navigation.navigate('SeeAllScreen', {
+        queryType: 'shop-type-stores',
+        title,
+        cardType: 'store',
+        shopTypeId,
+      });
+    },
+    [navigation],
+  );
 
   return (
-    <View style={styles.section}>
-      <SectionActionHeader
+    <View style={styles.content}>
+      <DiscoveryCategorySection
         actionLabel={t("multi_vendor_see_all")}
-        title={t("multi_vendor_shop_types_title")}
+        items={shopTypes.map((shopType) => ({
+          id: shopType.id,
+          name: shopType.name,
+          imageUrl: shopType.image ?? null,
+        }))}
+        isPending={isPending}
         onActionPress={handleSeeAll}
+        title={t("multi_vendor_shop_types_title")}
       />
-
-      {isPending ? (
-        <ShopTypeCardSkeleton />
-      ) : (
-        <HorizontalList
-          data={shopTypes}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          renderItem={({ item }) => (
-            <MultiVendorShopTypeCard
-              image={{ uri: item.image ?? "" }}
-              title={item.name}
-            />
-          )}
-        />
-      )}
 
       {shopTypeStoreSections.map(
         ({ shopType, data = [], error, isPending: isStoresPending }) => (
-          <ShopTypeStoreList
-            key={shopType.id}
-            hasError={Boolean(error)}
-            isLoading={isStoresPending}
-            shopTypeId={shopType.id}
-            stores={data}
-            title={shopType.name}
-          />
+          <View key={shopType.id} style={styles.storeSection}>
+            <DiscoveryCategoryResultsSection
+              actionLabel={t('multi_vendor_see_all')}
+              cardType="store"
+              emptyMessage={t('multi_vendor_shop_type_stores_empty')}
+              hasError={Boolean(error)}
+              isLoading={isStoresPending}
+              items={data}
+              onActionPress={() =>
+                handleShopTypeSeeAll(shopType.id, shopType.name)
+              }
+              title={shopType.name}
+            />
+          </View>
         ),
       )}
     </View>
@@ -68,14 +71,10 @@ export default function ShopTypeList() {
 }
 
 const styles = StyleSheet.create({
-  section: {
+  content: {
     gap: 12,
+  },
+  storeSection: {
     paddingHorizontal: 16,
-  },
-  listContent: {
-    paddingRight: 16,
-  },
-  separator: {
-    width: 12,
   },
 });

@@ -9,8 +9,8 @@ import Text from "../../../../../general/components/Text";
 import { useTheme } from "../../../../../general/theme/theme";
 import { useNearbyStores } from '../../../hooks';
 import type { DeliveryNearbyStore } from '../../../api/types';
+import { DiscoveryResultsSkeleton } from '../../../components/discovery';
 import StoreCard from '../../../components/storeCard/StoreCard';
-import NearbyStoreListSkeleton from './HomeTabSkeletons/NearbyStoreListSkeleton';
 import type { MultiVendorStackParamList } from '../../navigation/types';
 
 type NavProp = NativeStackNavigationProp<
@@ -46,7 +46,7 @@ export default function NearbyStoreList() {
       />
 
       {isNearbyStoresPending ? (
-        <NearbyStoreListSkeleton />
+        <DiscoveryResultsSkeleton />
       ) : isEmpty ? (
         <View
           style={[

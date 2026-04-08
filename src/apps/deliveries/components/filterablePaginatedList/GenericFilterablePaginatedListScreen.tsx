@@ -7,7 +7,7 @@ import { useTheme } from "../../../../general/theme/theme";
 import ProductCard from "../productCard/ProductCard";
 import TopBrandCard from "../storeCard/TopBrandCard";
 import StoreCard from "../storeCard/StoreCard";
-import ShopTypeCard from "../../multiVendor/components/HomeTab/ShopTypeCard";
+import { DiscoveryCategoryCard } from "../discovery";
 import type {
   DeliveryNearbyStore,
   DeliveryShopTypeProduct,
@@ -23,6 +23,7 @@ import SelectedFilterChips from "../filters/SelectedFilterChips";
 
 type ShopTypeListItem = {
   image?: string | null;
+  imageUrl?: string | null;
   name?: string;
 };
 
@@ -61,9 +62,10 @@ function renderCardByType(
     const shopTypeItem = item as ShopTypeListItem;
 
     return (
-      <ShopTypeCard
-        image={{ uri: shopTypeItem.image ?? "" }}
+      <DiscoveryCategoryCard
+        imageUrl={shopTypeItem.imageUrl ?? shopTypeItem.image ?? null}
         title={shopTypeItem.name ?? ""}
+        onPress={onPress}
       />
     );
   }

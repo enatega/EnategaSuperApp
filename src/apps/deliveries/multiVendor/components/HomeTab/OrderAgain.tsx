@@ -3,10 +3,10 @@ import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
+import { DiscoverySectionState } from '../../../components/discovery';
 import { useOrderAgain } from '../../../hooks';
 import ProductCard from '../../../components/productCard/ProductCard';
 import StoreMiniCardSkeleton from './HomeTabSkeletons/StoreMiniCardSkeleton';
-import HomeSectionState from './HomeSectionState';
 
 export default function OrderAgain() {
   const { t } = useTranslation('deliveries');
@@ -22,7 +22,9 @@ export default function OrderAgain() {
       {isOrderAgainPending ? (
         <StoreMiniCardSkeleton />
       ) : orderAgainData.length === 0 ? (
-        <HomeSectionState message={t('multi_vendor_home_section_empty_order_again')} />
+        <DiscoverySectionState
+          message={t('multi_vendor_home_section_empty_order_again')}
+        />
       ) : (
         <HorizontalList
           data={orderAgainData}

@@ -11,6 +11,8 @@ const fr = {
   chain_desc: 'Commandez auprès de vos chaînes préférées.',
   explore_button: 'Explorer',
   details_title: 'Détails de Livraison',
+  single_vendor_categories_title: 'Catégories',
+  single_vendor_category_products_empty: 'Aucun produit trouvé pour cette catégorie.',
   single_vendor_home_subtitle: 'Votre magasin préféré',
   single_vendor_home_body: 'Explorez les vendeurs et services ici.',
   single_vendor_tab_home: 'Accueil',

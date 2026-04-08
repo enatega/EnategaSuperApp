@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet } from "react-native";
 import type { DeliveryShopType } from "../../../api/types";
-import ShopTypeCard from "../HomeTab/ShopTypeCard";
+import { DiscoveryCategoryCard } from "../../../components/discovery";
 import { useTheme } from "../../../../../general/theme/theme";
 
 type Props = {
@@ -19,8 +19,8 @@ export default function ShopTypesSeeAllItem({ item, onPress }: Props) {
       onPress={() => onPress(item)}
       style={styles.item}
     >
-      <ShopTypeCard
-        image={{ uri: item.image ?? "" }}
+      <DiscoveryCategoryCard
+        imageUrl={item.image ?? null}
         title={item.name}
         containerStyle={styles.cardContainer}
         imageWrapStyle={styles.imageWrap}
