@@ -3,14 +3,23 @@ export type SearchLocation = {
   longitude?: number;
 };
 
+export type SearchAddressSheetConfig = {
+  addresses: import("../../account/api/profileService").ProfileAddress[];
+  isLoading?: boolean;
+  isVisible: boolean;
+  onOpen: () => void;
+  onAddAddress: () => void;
+  onClose: () => void;
+  onSelectAddress: (
+    address: import("../../account/api/profileService").ProfileAddress,
+  ) => void;
+  onUseCurrentLocation: () => void;
+  selectingAddressId?: string | null;
+  selectedAddressId?: string;
+};
+
 export type DeliverySearchFlowOptions = {
   location?: SearchLocation;
   searchStores?: boolean;
   debounceMs?: number;
-  onAddressPress?: () => void;
 };
-
-export const DEFAULT_SEARCH_LOCATION: SearchLocation = {
-  latitude: 31.5766,
-  longitude: 74.33625,
-}
