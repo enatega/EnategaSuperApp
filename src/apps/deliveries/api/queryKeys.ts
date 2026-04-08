@@ -12,7 +12,8 @@ export const deliveryKeys = {
 
     // Discovery
     discovery: () => [...deliveryKeys.all, 'discovery'] as const,
-    shopTypes: () => [...deliveryKeys.discovery(), 'shop-types'] as const,
+    shopTypes: (filters?: { limit?: number }) =>
+        [...deliveryKeys.discovery(), 'shop-types', filters] as const,
     shopTypeProducts: (shopTypeId: string, offset = 0, limit = 10) =>
         [
             ...deliveryKeys.discovery(),
@@ -29,7 +30,16 @@ export const deliveryKeys = {
             offset,
             limit,
         ] as const,
-    topBrands: () => [...deliveryKeys.discovery(), 'top-brands'] as const,
+    vendorStores: (vendorId: string, offset = 0, limit = 10) =>
+        [
+            ...deliveryKeys.discovery(),
+            'vendor-stores',
+            vendorId,
+            offset,
+            limit,
+        ] as const,
+    topBrands: (filters?: { limit?: number; search?: string }) =>
+        [...deliveryKeys.discovery(), 'top-brands', filters] as const,
     mobileBanners: () => [...deliveryKeys.discovery(), 'mobile-banners'] as const,
     nearbyStores: () => [...deliveryKeys.discovery(), 'nearby-stores'] as const,
     storeView: (storeId: string) =>

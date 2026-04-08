@@ -1,4 +1,5 @@
 import React from 'react';
+import type { ImageStyle, StyleProp, TextStyle, ViewStyle } from 'react-native';
 import { Platform, StyleSheet, View } from 'react-native';
 import Icon from '../../../../general/components/Icon';
 import Image from '../../../../general/components/Image';
@@ -8,9 +9,25 @@ import type { DeliveryTopBrand } from '../../api/types';
 
 type Props = {
   brand: DeliveryTopBrand;
+  cardStyle?: StyleProp<ViewStyle>;
+  imageContainerStyle?: StyleProp<ViewStyle>;
+  imageStyle?: StyleProp<ImageStyle>;
+  contentStyle?: StyleProp<ViewStyle>;
+  badgeStyle?: StyleProp<ViewStyle>;
+  titleStyle?: StyleProp<TextStyle>;
+  subtitleStyle?: StyleProp<TextStyle>;
 };
 
-export default function TopBrandCard({ brand }: Props) {
+export default function TopBrandCard({
+  brand,
+  cardStyle,
+  imageContainerStyle,
+  imageStyle,
+  contentStyle,
+  badgeStyle,
+  titleStyle,
+  subtitleStyle,
+}: Props) {
   const { colors, typography } = useTheme();
   const badgeLabel =
     brand.dealAmount && brand.dealType === 'percentage'
@@ -29,17 +46,30 @@ export default function TopBrandCard({ brand }: Props) {
           borderColor: 'rgba(16, 24, 40, 0.08)',
           shadowColor: '#101828',
         },
+        cardStyle,
       ]}
     >
-      <View style={[styles.imageContainer, { backgroundColor: colors.surfaceSoft }]}>
+      <View
+        style={[
+          styles.imageContainer,
+          { backgroundColor: colors.surfaceSoft },
+          imageContainerStyle,
+        ]}
+      >
         <Image
           source={{ uri: brand.logo ?? '' }}
-          style={styles.image}
+          style={[styles.image, imageStyle]}
           resizeMode="contain"
         />
 
         {badgeLabel ? (
-          <View style={[styles.badge, { backgroundColor: colors.blue800, shadowColor: colors.shadowColor }]}>
+          <View
+            style={[
+              styles.badge,
+              { backgroundColor: colors.blue800, shadowColor: colors.shadowColor },
+              badgeStyle,
+            ]}
+          >
             <Icon type="Feather" name="tag" size={12} color={colors.white} />
             <Text
               color={colors.white}
@@ -55,14 +85,23 @@ export default function TopBrandCard({ brand }: Props) {
         ) : null}
       </View>
 
-      <View style={[styles.content, { borderTopColor: 'rgba(0, 0, 0, 0.04)', shadowColor: '#000000' }]}>
+      <View
+        style={[
+          styles.content,
+          { borderTopColor: 'rgba(0, 0, 0, 0.04)', shadowColor: '#000000' },
+          contentStyle,
+        ]}
+      >
         <Text
           weight="semiBold"
           numberOfLines={1}
-          style={{
-            fontSize: typography.size.xxs,
-            lineHeight: typography.lineHeight.xxs,
-          }}
+          style={[
+            {
+              fontSize: typography.size.xxs,
+              lineHeight: typography.lineHeight.xxs,
+            },
+            titleStyle,
+          ]}
         >
           {brand.name}
         </Text>
@@ -71,10 +110,13 @@ export default function TopBrandCard({ brand }: Props) {
           <Text
             color={colors.mutedText}
             numberOfLines={1}
-            style={{
-              fontSize: typography.size.xxs,
-              lineHeight: typography.lineHeight.xxs,
-            }}
+            style={[
+              {
+                fontSize: typography.size.xxs,
+                lineHeight: typography.lineHeight.xxs,
+              },
+              subtitleStyle,
+            ]}
           >
             {subtitle}
           </Text>

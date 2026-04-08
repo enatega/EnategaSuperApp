@@ -40,6 +40,7 @@ const fr = {
   multi_vendor_address_label: 'Sélectionner une adresse',
   multi_vendor_shop_types_title: 'Types de boutiques',
   multi_vendor_top_brands_title: 'Marques populaires',
+  multi_vendor_all_brands_title: 'Toutes les marques',
   multi_vendor_nearby_store_title: 'Magasin a proximite',
   multi_vendor_deals_title: 'Offres',
   multi_vendor_order_again_title: 'Commander a nouveau 😋',

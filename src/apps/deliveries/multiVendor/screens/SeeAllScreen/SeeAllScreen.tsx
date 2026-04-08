@@ -1,144 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import { Keyboard, Pressable, StyleSheet } from "react-native";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { GenericFilterablePaginatedListScreen } from "../../../components/filterablePaginatedList";
-import type { GenericListFilters } from "../../../components/filters";
-import {
-  useFilterValues,
-  useNearbyStores,
-  useShopTypeProducts,
-  useShopTypeStores,
-} from "../../../hooks";
 import type {
   MultiVendorStackParamList,
   SeeAllItem,
 } from "../../navigation/types";
-import VerticalStoreListSkeleton from "../../components/HomeTab/HomeTabSkeletons/VerticalStoreListSkeleton";
 import SeeAllHeader from "./components/SeeAllHeader";
 import SeeAllFilterSheet from "./components/SeeAllFilterSheet";
-import useDebouncedValue from "../../../../../general/hooks/useDebouncedValue";
-import useGenericListFilters from "../../../hooks/filterablePaginatedList/useGenericListFilters";
-
-function useSeeAllNearbyStores({
-  enabled,
-  filters,
-  search,
-}: {
-  enabled: boolean;
-  filters: GenericListFilters;
-  search: string;
-}) {
-  return useNearbyStores({
-    mode: "paginated",
-    enabled,
-    filters,
-    search,
-  });
-}
-
-function useSeeAllShopTypeProducts({
-  enabled,
-  filters,
-  search,
-  shopTypeId,
-}: {
-  enabled: boolean;
-  filters: GenericListFilters;
-  search: string;
-  shopTypeId?: string;
-}) {
-  return useShopTypeProducts(shopTypeId ?? "", {
-    mode: "paginated",
-    filters,
-    search,
-    enabled: enabled && Boolean(shopTypeId),
-  });
-}
-
-function useSeeAllShopTypeStores({
-  enabled,
-  filters,
-  search,
-  shopTypeId,
-}: {
-  enabled: boolean;
-  filters: GenericListFilters;
-  search: string;
-  shopTypeId?: string;
-}) {
-  return useShopTypeStores(shopTypeId ?? "", {
-    mode: "paginated",
-    filters,
-    search,
-    enabled: enabled && Boolean(shopTypeId),
-  });
-}
-
-type SeeAllScreenConfig = {
-  useListQuery: (params: {
-    enabled: boolean;
-    filters: GenericListFilters;
-    search: string;
-  }) => {
-    data: SeeAllItem[];
-    totalCount?: number;
-    isPending: boolean;
-    isError: boolean;
-    error?: Error | null;
-    refetch: () => Promise<unknown> | unknown;
-    hasNextPage?: boolean;
-    isFetchingNextPage: boolean;
-    fetchNextPage: () => Promise<unknown> | unknown;
-    isRefetching: boolean;
-  };
-  itemKeyExtractor: (item: SeeAllItem, index: number) => string;
-  loadingComponent: React.ReactNode;
-  paginationLoadingComponent: React.ReactNode;
-};
-
-function getSeeAllScreenConfig(params: {
-  queryType: MultiVendorStackParamList["SeeAllScreen"]["queryType"];
-  shopTypeId?: string;
-}): SeeAllScreenConfig {
-  if (params.queryType === "shop-type-stores") {
-    return {
-      useListQuery: (queryParams) =>
-        useSeeAllShopTypeStores({
-          ...queryParams,
-          shopTypeId: params.shopTypeId,
-        }),
-      itemKeyExtractor: (item, index) => `${item.storeId}-${index}`,
-      loadingComponent: <VerticalStoreListSkeleton />,
-      paginationLoadingComponent: <VerticalStoreListSkeleton />,
-    };
-  }
-
-  if (params.queryType === "shop-type-products") {
-    return {
-      useListQuery: (queryParams) =>
-        useSeeAllShopTypeProducts({
-          ...queryParams,
-          shopTypeId: params.shopTypeId,
-        }),
-      itemKeyExtractor: (item, index) =>
-        "productId" in item
-          ? `${item.productId}-${item.storeId}-${index}`
-          : `${item.storeId}-${index}`,
-      loadingComponent: <VerticalStoreListSkeleton />,
-      paginationLoadingComponent: <VerticalStoreListSkeleton />,
-    };
-  }
-
-  return {
-    useListQuery: useSeeAllNearbyStores,
-    itemKeyExtractor: (item, index) =>
-      "productId" in item ? `${item.productId}-${index}` : item.storeId,
-    loadingComponent: <VerticalStoreListSkeleton />,
-    paginationLoadingComponent: <VerticalStoreListSkeleton />,
-  };
-}
+import useSeeAllScreenConfig from "./useSeeAllScreenConfig";
+import useSeeAllScreenState from "./useSeeAllScreenState";
 
 export default function SeeAllScreen() {
   const { t } = useTranslation("deliveries");
@@ -146,15 +19,12 @@ export default function SeeAllScreen() {
     useNavigation<NativeStackNavigationProp<MultiVendorStackParamList>>();
   const route =
     useRoute<RouteProp<MultiVendorStackParamList, "SeeAllScreen">>();
-  const { queryType, title, shopTypeId } = route.params;
-  const screenConfig = getSeeAllScreenConfig({
-    queryType,
-    shopTypeId,
-  });
-  const { data: filterValues } = useFilterValues();
-  const [searchText, setSearchText] = useState("");
-  const debouncedSearch = useDebouncedValue(searchText.trim(), 500);
+  const { queryType, title, shopTypeId, vendorId } = route.params;
   const {
+    filterValues,
+    searchText,
+    setSearchText,
+    debouncedSearch,
     appliedFilters,
     draftFilters,
     isFilterSheetVisible,
@@ -172,54 +42,23 @@ export default function SeeAllScreen() {
     chips,
     hasAppliedFilters,
     hasDraftFilters,
-  } = useGenericListFilters({
-    filterData: filterValues?.filters,
-  });
-  const listQuery = screenConfig.useListQuery({
+  } = useSeeAllScreenState();
+  const {
+    listQuery,
+    itemKeyExtractor,
+    loadingComponent,
+    paginationLoadingComponent,
+  } = useSeeAllScreenConfig({
     enabled: true,
     filters: appliedFilters,
     search: debouncedSearch,
+    queryType,
+    shopTypeId,
+    vendorId,
   });
   const items = listQuery.data ?? [];
   const isMapVisible =
     listQuery.isPending || listQuery.isRefetching || items.length > 0;
-
-  const header = (
-    <SeeAllHeader
-      searchPlaceholder={t("generic_list_search_placeholder")}
-      searchValue={searchText}
-      onSearchChangeText={setSearchText}
-      isSearchEditable={true}
-      onOpenFilters={openFilters}
-      onMapPress={() => {
-        if (!items.length) return;
-        navigation.navigate("SeeAllMapView", {
-          items,
-          title,
-        });
-      }}
-      isSearchVisible={true}
-      isFilterVisible={true}
-      isMapVisible={isMapVisible}
-    />
-  );
-
-  const filterSheet = (
-    <SeeAllFilterSheet
-      visible={isFilterSheetVisible}
-      draftFilters={draftFilters}
-      isApplyDisabled={!hasDraftFilters && !hasAppliedFilters}
-      onClose={closeFilters}
-      onApply={applyFilters}
-      onClear={clearDraftFilters}
-      onToggleCategory={toggleCategory}
-      onSelectPrice={selectPrice}
-      onSelectAddress={selectAddress}
-      onSelectStock={selectStock}
-      onSelectSort={selectSort}
-      filters={filterValues?.filters}
-    />
-  );
 
   return (
     <Pressable style={styles.screen} onPress={() => Keyboard.dismiss()}>
@@ -236,17 +75,50 @@ export default function SeeAllScreen() {
         isFetchingNextPage={listQuery.isFetchingNextPage}
         fetchNextPage={listQuery.fetchNextPage}
         isRefetching={listQuery.isRefetching}
-        itemKeyExtractor={screenConfig.itemKeyExtractor}
+        itemKeyExtractor={itemKeyExtractor}
         chips={chips}
         clearAllLabel={t("clear_all")}
         onRemoveChip={removeChip}
         onClearAll={clearAllFilters}
-        header={header}
-        filterSheet={filterSheet}
+        header={
+          <SeeAllHeader
+            searchPlaceholder={t("generic_list_search_placeholder")}
+            searchValue={searchText}
+            onSearchChangeText={setSearchText}
+            isSearchEditable={true}
+            onOpenFilters={openFilters}
+            onMapPress={() => {
+              if (!items.length) return;
+              navigation.navigate("SeeAllMapView", {
+                items,
+                title,
+              });
+            }}
+            isSearchVisible={true}
+            isFilterVisible={true}
+            isMapVisible={isMapVisible}
+          />
+        }
+        filterSheet={
+          <SeeAllFilterSheet
+            visible={isFilterSheetVisible}
+            draftFilters={draftFilters}
+            isApplyDisabled={!hasDraftFilters && !hasAppliedFilters}
+            onClose={closeFilters}
+            onApply={applyFilters}
+            onClear={clearDraftFilters}
+            onToggleCategory={toggleCategory}
+            onSelectPrice={selectPrice}
+            onSelectAddress={selectAddress}
+            onSelectStock={selectStock}
+            onSelectSort={selectSort}
+            filters={filterValues?.filters}
+          />
+        }
         emptyTitle={t("generic_list_empty_title")}
         emptyDescription={t("generic_list_empty_description")}
-        loadingComponent={screenConfig.loadingComponent}
-        paginationLoadingComponent={screenConfig.paginationLoadingComponent}
+        loadingComponent={loadingComponent}
+        paginationLoadingComponent={paginationLoadingComponent}
       />
     </Pressable>
   );

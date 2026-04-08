@@ -35,7 +35,7 @@ export function createGenericListFilters(
 }
 
 function decodeFilterLabel(label: string) {
-  return label.replaceAll('&amp;', '&');
+  return label?.replaceAll('&amp;', '&');
 }
 
 function findCategoryLabel(filters: GenericListFilterData | undefined, id: string) {
