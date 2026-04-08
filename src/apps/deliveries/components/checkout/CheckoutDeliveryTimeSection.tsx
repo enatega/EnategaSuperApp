@@ -4,12 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
+import type { CheckoutOrderType } from '../../api/orderServiceTypes';
 import type { CheckoutDeliveryTimeMode } from './checkoutScheduleUtils';
 
 type Props = {
   isScheduleEnabled: boolean;
   onSchedulePress: () => void;
   onSelectMode: (mode: CheckoutDeliveryTimeMode) => void;
+  orderType: CheckoutOrderType;
   scheduledLabel?: string | null;
   selectedMode: CheckoutDeliveryTimeMode;
 };
@@ -17,6 +19,7 @@ type Props = {
 export default function CheckoutDeliveryTimeSection({
   isScheduleEnabled,
   onSchedulePress,
+  orderType,
   selectedMode,
   scheduledLabel,
   onSelectMode,
@@ -34,7 +37,9 @@ export default function CheckoutDeliveryTimeSection({
           lineHeight: typography.lineHeight.h5,
         }}
       >
-        {t('checkout_delivery_time_title')}
+        {t(orderType === 'pickup'
+          ? 'checkout_collection_time_title'
+          : 'checkout_delivery_time_title')}
       </Text>
 
       <Pressable

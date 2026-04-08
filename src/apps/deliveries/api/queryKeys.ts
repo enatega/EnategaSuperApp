@@ -66,6 +66,8 @@ export const deliveryKeys = {
     deals: () => [...deliveryKeys.discovery(), 'deals'] as const,
     filterValues: (storeId?: string) =>
         [...deliveryKeys.discovery(), 'filter-values', storeId ?? 'all'] as const,
+    route: (fromKey: string, toKey: string) =>
+        [...deliveryKeys.discovery(), 'route', fromKey, toKey] as const,
 
     // Search
     search: () => [...deliveryKeys.all, 'search'] as const,

@@ -170,6 +170,7 @@ export default function CheckoutScreenContent({
         <CheckoutDeliveryTimeSection
           isScheduleEnabled={preview?.schedule.scheduleAllowed ?? false}
           onSchedulePress={onSchedulePress}
+          orderType={orderType}
           scheduledLabel={scheduledLabel}
           selectedMode={deliveryTimeMode}
           onSelectMode={onDeliveryTimeModeChange}
