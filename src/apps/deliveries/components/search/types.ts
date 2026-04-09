@@ -8,6 +8,7 @@ import type {
   RecentSearchItem,
   SearchRecommendation,
 } from "../../api/searchServiceTypes";
+import type { SearchAddressSheetConfig } from "../../hooks/searchFlow/types";
 
 export type ProductMiniCardScrollerProps = {
   products: SearchProductItem[];
@@ -52,6 +53,7 @@ export type SearchMainContainerProps = {
   recentSearches: RecentSearchItem[];
   products: SearchProductItem[];
   stores: SearchStoreItem[];
+  selectedAddressLabel?: string | null;
   shouldSearchStores: boolean;
   isSearchActive: boolean;
   isLoadingRecommendations: boolean;
@@ -76,7 +78,7 @@ export type SearchMainContainerProps = {
   handleLoadMoreStores: () => void;
   onDeleteRecentSearch: (id: string) => void;
   onClearRecentSearches: () => void;
-  onAddressPress: () => void;
+  addressSheet: SearchAddressSheetConfig;
 };
 
 export type SearchResultsSkeletonProps = {

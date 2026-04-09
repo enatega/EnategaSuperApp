@@ -1,29 +1,93 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import {
+  useNavigation,
+  useRoute,
+  type RouteProp,
+} from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
+import { showToast } from "../../../../general/components/AppToast";
 import { useTheme } from "../../../../general/theme/theme";
 import useDebouncedValue from "../../../../general/hooks/useDebouncedValue";
+import type { ProfileAddress } from "../../account/api/profileService";
+import type { AddressFlowOrigin } from "../../navigation/addressFlowTypes";
+import type { DeliveriesStackParamList } from "../../navigation/types";
 import {
   useProductSearch,
   useRecentSearches,
   useSearchRecommendations,
   useStoreSearch,
 } from "../useSearchQueries";
+import useAddress from "../useAddress";
+import useAddressSelectionSheet from "../useAddressSelectionSheet";
 import useRecentSearchActions from "./useRecentSearchActions";
+import useSavedAddresses from "../useSavedAddresses";
 import useSearchKeyboardState from "./useSearchKeyboardState";
-import {
-  DEFAULT_SEARCH_LOCATION,
-  type DeliverySearchFlowOptions,
-} from "./types";
+import useSelectSavedAddress from "../useSelectSavedAddress";
+import { type DeliverySearchFlowOptions } from "./types";
+
+type DeliveriesNavigationProp =
+  NativeStackNavigationProp<DeliveriesStackParamList>;
+
+type SearchRouteName =
+  | "MultiVendorTabSearch"
+  | "SingleVendorTabSearch"
+  | "ChainTabSearch";
+
+function getAddressFlowOrigin(routeName: string): AddressFlowOrigin {
+  if (routeName === "MultiVendorTabSearch") {
+    return "multi-vendor-home";
+  }
+
+  if (routeName === "ChainTabSearch") {
+    return "chain-home";
+  }
+
+  return "single-vendor-home";
+}
 
 export default function useDeliverySearchFlow(
   options?: DeliverySearchFlowOptions,
 ) {
+  const navigation = useNavigation<DeliveriesNavigationProp>();
+  const route =
+    useRoute<
+      RouteProp<Record<SearchRouteName, object | undefined>, SearchRouteName>
+    >();
   const { colors } = useTheme();
   const { t } = useTranslation("deliveries");
   const { inputRef, isFocused, dismissKeyboard, handleFocus, handleBlur } =
     useSearchKeyboardState();
+  const origin = getAddressFlowOrigin(route.name);
+  const { latitude, longitude, selectedAddress, selectedAddressLabel } =
+    useAddress();
+  const {
+    addresses,
+    isLoading: isAddressesLoading,
+    refetch,
+  } = useSavedAddresses();
+  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress();
+  const {
+    isVisible: isAddressSheetVisible,
+    open: handleOpenAddressSheet,
+    close: handleCloseAddressSheet,
+  } = useAddressSelectionSheet({
+    addressesCount: addresses.length,
+    isLoading: isAddressesLoading,
+  });
 
-  const location = options?.location ?? DEFAULT_SEARCH_LOCATION;
+  const location = useMemo(
+    () => ({
+      latitude: options?.location?.latitude ?? latitude,
+      longitude: options?.location?.longitude ?? longitude,
+    }),
+    [
+      latitude,
+      longitude,
+      options?.location?.latitude,
+      options?.location?.longitude,
+    ],
+  );
   const shouldSearchStores = options?.searchStores ?? false;
   const debounceMs = options?.debounceMs ?? 600;
 
@@ -141,9 +205,33 @@ export default function useDeliverySearchFlow(
     shouldSearchStores,
   ]);
 
-  const handleAddressPress = useCallback(() => {
-    options?.onAddressPress?.();
-  }, [options]);
+  const handleSelectAddress = useCallback(
+    async (address: ProfileAddress) => {
+      try {
+        const isSelected = await selectSavedAddress(address.id);
+
+        if (!isSelected) {
+          return;
+        }
+
+        void refetch();
+        handleCloseAddressSheet();
+      } catch {
+        showToast.error(t("address_select_error"));
+      }
+    },
+    [handleCloseAddressSheet, refetch, selectSavedAddress, t],
+  );
+
+  const handleAddAddressPress = useCallback(() => {
+    handleCloseAddressSheet();
+    navigation.navigate("AddressSearch", { origin });
+  }, [handleCloseAddressSheet, navigation, origin]);
+
+  const handleUseCurrentLocation = useCallback(() => {
+    handleCloseAddressSheet();
+    navigation.navigate("AddressChooseOnMap", { origin });
+  }, [handleCloseAddressSheet, navigation, origin]);
 
   return {
     colors,
@@ -154,6 +242,7 @@ export default function useDeliverySearchFlow(
     recentSearches,
     products,
     stores,
+    selectedAddressLabel,
     isSearchActive,
     isLoadingRecommendations,
     isSearchLoading,
@@ -178,6 +267,17 @@ export default function useDeliverySearchFlow(
     handleLoadMoreStores,
     onDeleteRecentSearch: handleDeleteRecentSearch,
     onClearRecentSearches: handleClearRecentSearches,
-    onAddressPress: handleAddressPress,
+    addressSheet: {
+      addresses,
+      isLoading: isAddressesLoading,
+      isVisible: isAddressSheetVisible,
+      onAddAddress: handleAddAddressPress,
+      onClose: handleCloseAddressSheet,
+      onSelectAddress: handleSelectAddress,
+      onUseCurrentLocation: handleUseCurrentLocation,
+      selectingAddressId,
+      selectedAddressId: selectedAddress?.id,
+      onOpen: handleOpenAddressSheet,
+    },
   };
 }
