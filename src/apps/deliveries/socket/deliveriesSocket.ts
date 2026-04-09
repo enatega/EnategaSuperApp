@@ -43,6 +43,8 @@ class DeliveriesSocketClient {
     return token ? { token } : {};
   }
 
+
+  
   private emitAddUser(socket: Socket) {
     if (!this.currentUserId) {
       return;
