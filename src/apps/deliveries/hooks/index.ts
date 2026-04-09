@@ -24,6 +24,7 @@ export {
 export { default as useAddress } from './useAddress';
 export { useCheckoutSchedule } from './useCheckoutSchedule';
 export { useDeliveryRoutePath } from './useDeliveryRoutePath';
+export { useDeliveriesSocketSession } from './useDeliveriesSocketSession';
 export { useOrderAgainAction } from './useOrderAgainAction';
 export { useOrderRiderLocationSync } from './useOrderRiderLocationSync';
 export { useOrderStatusSocketSync } from './useOrderStatusSocketSync';

@@ -14,17 +14,17 @@ import { useTranslation } from 'react-i18next';
 import Text from '../../../../general/components/Text';
 import { showToast } from '../../../../general/components/AppToast';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
-import { useSocketSession } from '../../../../general/hooks/useSocketSession';
-import { socketClient } from '../../../../general/services/socket';
 import type { SocketReceivedMessage } from '../../../../general/services/socket';
 import { useTheme } from '../../../../general/theme/theme';
 import ChatComposer from '../../components/chat/ChatComposer';
 import ChatMessageBubble from '../../components/chat/ChatMessageBubble';
 import ChatQuickReplyChip from '../../components/chat/ChatQuickReplyChip';
 import SupportHeader from '../../components/support/SupportHeader';
+import { useDeliveriesSocketSession } from '../../hooks';
 import { useSendSupportChatMessage } from '../../hooks/useSupportChatMutations';
 import { useSupportChatBox, useSupportGroupedChatBoxes } from '../../hooks/useSupportChatQueries';
 import { SupportNavigationParamList } from '../../navigation/supportNavigationTypes';
+import { subscribeDeliveriesEvent } from '../../socket/deliveriesSocket';
 import {
   formatSupportChatTimeLabel,
   getFirstSupportChatBox,
@@ -55,7 +55,7 @@ export default function SupportChatScreen() {
   const insets = useSafeAreaInsets();
   const route = useRoute<SupportChatRouteProp>();
   const sessionQuery = useAuthSessionQuery();
-  useSocketSession();
+  useDeliveriesSocketSession();
   const supportChatBoxesQuery = useSupportGroupedChatBoxes();
   const fallbackChatBox = useMemo(
     () => getFirstSupportChatBox(supportChatBoxesQuery.data),
@@ -193,7 +193,7 @@ export default function SupportChatScreen() {
       return undefined;
     }
 
-    return socketClient.onReceiveMessage((message: SocketReceivedMessage) => {
+    return subscribeDeliveriesEvent('receive-message', (message: SocketReceivedMessage) => {
       const isConversationMessage =
         message.receiver === currentUserId && message.sender === receiverId;
 

@@ -5,6 +5,14 @@ import {
   socketPath,
   websocketFirstSocketOptions,
 } from "../../../general/services/socket/socket.config";
+import type { SocketSubscriptionCleanup } from "../../../general/services/socket";
+import type {
+  DeliveriesClientEventMap,
+  DeliveriesClientEventName,
+  DeliveriesServerEventMap,
+  DeliveriesServerEventName,
+  DeliveriesSocketAck,
+} from "./deliveriesSocket.types";
 
 type DeliveriesSocketOptions = Partial<ManagerOptions & SocketOptions>;
 
@@ -94,12 +102,24 @@ class DeliveriesSocketClient {
     return socket;
   }
 
+  isConnected() {
+    return Boolean(this.socket?.connected);
+  }
+
   disconnect() {
     if (!this.socket?.connected) {
       return;
     }
 
     this.socket.disconnect();
+  }
+
+  disconnectIfIdle() {
+    if (this.hasActiveConsumers()) {
+      return;
+    }
+
+    this.disconnect();
   }
 
   retain() {
@@ -147,10 +167,38 @@ class DeliveriesSocketClient {
     }
   }
 
+  emit<TPayload = unknown, TAck = unknown>(
+    event: string,
+    payload?: TPayload,
+    ack?: DeliveriesSocketAck<TAck>,
+  ) {
+    if (!this.socket) {
+      return false;
+    }
+
+    if (payload === undefined && ack) {
+      this.socket.emit(event, ack);
+      return true;
+    }
+
+    if (payload === undefined) {
+      this.socket.emit(event);
+      return true;
+    }
+
+    if (ack) {
+      this.socket.emit(event, payload, ack);
+      return true;
+    }
+
+    this.socket.emit(event, payload);
+    return true;
+  }
+
   subscribe<TArgs extends unknown[] = [unknown]>(
     event: string,
     handler: DeliveriesSocketEventHandler<TArgs>,
-  ) {
+  ): SocketSubscriptionCleanup {
     const baseHandler = handler as unknown as DeliveriesSocketEventHandler;
     const existingHandlers =
       this.listenerRegistry.get(event)
@@ -201,6 +249,68 @@ class DeliveriesSocketClient {
       }
     };
   }
+
+  off(event: string, handler?: DeliveriesSocketEventHandler) {
+    if (!this.socket) {
+      if (!handler) {
+        this.listenerRegistry.delete(event);
+      } else {
+        this.listenerRegistry.get(event)?.delete(handler);
+      }
+      return;
+    }
+
+    if (!handler) {
+      this.socket.off(event);
+      this.listenerRegistry.delete(event);
+      return;
+    }
+
+    const wrapped = this.listenerRegistry.get(event)?.get(handler);
+
+    if (!wrapped) {
+      return;
+    }
+
+    this.socket.off(event, wrapped);
+
+    const eventHandlers = this.listenerRegistry.get(event);
+    eventHandlers?.delete(handler);
+
+    if (eventHandlers && eventHandlers.size === 0) {
+      this.listenerRegistry.delete(event);
+    }
+  }
 }
 
 export const deliveriesSocketClient = new DeliveriesSocketClient();
+
+export function emitDeliveriesEvent<TEvent extends DeliveriesClientEventName>(
+  event: TEvent,
+  payload: DeliveriesClientEventMap[TEvent],
+  ack?: DeliveriesSocketAck,
+) {
+  return deliveriesSocketClient.emit(event, payload, ack);
+}
+
+export function subscribeDeliveriesEvent<TEvent extends DeliveriesServerEventName>(
+  event: TEvent,
+  handler: (payload: DeliveriesServerEventMap[TEvent]) => void,
+): SocketSubscriptionCleanup {
+  return deliveriesSocketClient.subscribe<[DeliveriesServerEventMap[TEvent]]>(
+    event,
+    handler,
+  );
+}
+
+export function offDeliveriesEvent<TEvent extends DeliveriesServerEventName>(
+  event: TEvent,
+  handler?: (payload: DeliveriesServerEventMap[TEvent]) => void,
+) {
+  if (!handler) {
+    deliveriesSocketClient.off(event);
+    return;
+  }
+
+  deliveriesSocketClient.off(event, handler as DeliveriesSocketEventHandler);
+}

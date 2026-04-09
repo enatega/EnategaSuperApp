@@ -13,8 +13,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '../../../../general/components/AppToast';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
-import { useSocketSession } from '../../../../general/hooks/useSocketSession';
-import { socketClient } from '../../../../general/services/socket';
 import type { SocketReceivedMessage } from '../../../../general/services/socket';
 import { useTheme } from '../../../../general/theme/theme';
 import type {
@@ -28,8 +26,10 @@ import RiderChatHeader from '../../components/riderChat/RiderChatHeader';
 import RiderChatMessageList from '../../components/riderChat/RiderChatMessageList';
 import RiderChatQuickReplies from '../../components/riderChat/RiderChatQuickReplies';
 import type { RiderChatMessage } from '../../components/riderChat/types';
+import { useDeliveriesSocketSession } from '../../hooks';
 import { useSendDeliveryChatMessage } from '../../hooks/useChatMutations';
 import { useDeliveryChatBoxes, useDeliveryChatMessages } from '../../hooks/useChatQueries';
+import { subscribeDeliveriesEvent } from '../../socket/deliveriesSocket';
 
 export type RiderChatScreenParams = {
   RiderChat: {
@@ -96,7 +96,7 @@ export default function RiderChatScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const sessionQuery = useAuthSessionQuery();
-  useSocketSession();
+  useDeliveriesSocketSession();
   const insets = useSafeAreaInsets();
   const route = useRoute<RouteProp<RiderChatScreenParams, 'RiderChat'>>();
   const initialChatBoxId = route.params.chatBoxId;
@@ -185,7 +185,7 @@ export default function RiderChatScreen() {
       return undefined;
     }
 
-    return socketClient.onReceiveMessage((message: SocketReceivedMessage) => {
+    return subscribeDeliveriesEvent('receive-message', (message: SocketReceivedMessage) => {
       const isConversationMessage =
         message.receiver === senderId && message.sender === receiverId;
 
