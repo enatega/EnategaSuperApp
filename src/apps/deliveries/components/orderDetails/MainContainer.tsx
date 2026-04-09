@@ -4,7 +4,11 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import ScreenHeader from "../../../../general/components/ScreenHeader";
 import { useTheme } from "../../../../general/theme/theme";
-import { useOrderDetails } from "../../hooks";
+import {
+  useOrderAgainAction,
+  useOrderDetails,
+  useOrderStatusSocketSync,
+} from "../../hooks";
 import type { DeliveriesStackParamList } from "../../navigation/types";
 import OrderDetailsErrorState from "./OrderDetailsErrorState";
 import OrderDetailsActionsSection from "./OrderDetailsActionsSection";
@@ -20,6 +24,7 @@ import {
 import ExtendableOrderItems from "../orderItems/ExtendableOrderItems";
 import OrderDetailsSummaryRow from "./OrderDetailsSummaryRow";
 import OrderDetailsSection from "./OrderDetailsSection";
+import CartStoreConflictModal from "../cart/CartStoreConflictModal";
 
 type Props = {
   navigation: NativeStackNavigationProp<
@@ -32,7 +37,9 @@ type Props = {
 export default function MainContainer({ navigation, orderId }: Props) {
   const { t } = useTranslation("deliveries");
   const { colors } = useTheme();
+  useOrderStatusSocketSync(orderId);
   const orderDetailsQuery = useOrderDetails(orderId);
+  const orderAgainAction = useOrderAgainAction(orderDetailsQuery.data);
   const [isIncreaseTipVisible, setIsIncreaseTipVisible] = useState(false);
   const [tipAmount, setTipAmount] = useState("5.00");
 
@@ -118,7 +125,11 @@ export default function MainContainer({ navigation, orderId }: Props) {
         </OrderDetailsSection>
 
         <OrderDetailsActionsSection
+          isOrderAgainLoading={orderAgainAction.isSubmitting}
           onIncreaseTip={() => setIsIncreaseTipVisible(true)}
+          onOrderAgain={() => {
+            void orderAgainAction.handleOrderAgain();
+          }}
           shouldShowRateOrder={shouldShowRateOrder}
           shouldShowTrackProgress={shouldShowTrackProgress}
           shouldShowOrderAgain={shouldShowOrderAgain}
@@ -134,6 +145,16 @@ export default function MainContainer({ navigation, orderId }: Props) {
         onClose={() => setIsIncreaseTipVisible(false)}
         onDone={() => setIsIncreaseTipVisible(false)}
         tipAmount={tipAmount}
+      />
+
+      <CartStoreConflictModal
+        isSubmitting={orderAgainAction.conflictResolution.isResolving}
+        onCancel={orderAgainAction.conflictResolution.cancelResolution}
+        onConfirm={() => {
+          void orderAgainAction.conflictResolution.confirmResolution();
+        }}
+        prompt={orderAgainAction.conflictResolution.prompt}
+        visible={orderAgainAction.conflictResolution.isVisible}
       />
     </View>
   );
