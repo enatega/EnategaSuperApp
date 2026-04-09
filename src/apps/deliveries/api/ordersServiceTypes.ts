@@ -53,11 +53,17 @@ export interface DeliveryOrderDeliveryDetails {
 
 export interface DeliveryOrderRider {
   id?: string;
+  userId?: string | null;
   name?: string | null;
   phone?: string | null;
   image?: string | null;
+  profile?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  currentLocation?: {
+    latitude: number | null;
+    longitude: number | null;
+  } | null;
   [key: string]: unknown;
 }
 
@@ -124,6 +130,13 @@ export interface DeliveryOrderTimelineItem {
   active: boolean;
 }
 
+export interface DeliveryOrderLogItem {
+  status: DeliveryOrderStatus;
+  actor: string | null;
+  timestamp: string;
+  message: string | null;
+}
+
 export interface OrderDetailsResponse {
   orderId: string;
   chatBoxId?: string;
@@ -140,7 +153,9 @@ export interface OrderDetailsResponse {
   rider: DeliveryOrderRider | null;
   orderItems: DeliveryOrderItems;
   summary: DeliveryOrderSummary;
+  chatBoxId?: string | null;
   timeline: DeliveryOrderTimelineItem[];
+  orderLogs?: DeliveryOrderLogItem[];
 }
 
 export type ActiveOrdersResponse = PaginatedDeliveryResponse<DeliveryOrderListItem>;

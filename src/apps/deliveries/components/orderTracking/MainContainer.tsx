@@ -5,14 +5,22 @@ import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import type { LatLng, Region } from "react-native-maps";
 import { useTranslation } from "react-i18next";
 
-import Map, { type MapMarker, type MapPolyline } from "../../../../general/components/Map";
-
-
-
-
+import Map, {
+  type MapMarker,
+  type MapPolyline,
+} from "../../../../general/components/Map";
 import ScreenHeader from "../../../../general/components/ScreenHeader";
 import { useTheme } from "../../../../general/theme/theme";
-import { useOrderDetails } from "../../hooks";
+import type {
+  DeliveryOrderRider,
+  OrderDetailsResponse,
+} from "../../api/ordersServiceTypes";
+import {
+  useDeliveryRoutePath,
+  useOrderDetails,
+  useOrderRiderLocationSync,
+  useOrderStatusSocketSync,
+} from "../../hooks";
 import type { DeliveriesStackParamList } from "../../navigation/types";
 import ExtendableOrderItems from "../orderItems/ExtendableOrderItems";
 import ExtendableOrderSummary from "../orderSummary/ExtendableOrderSummary";
@@ -32,9 +40,23 @@ type Props = {
   orderId: string;
 };
 
+type TrackingCoordinates = {
+  destination: LatLng | null;
+  pickup: LatLng | null;
+  rider: LatLng | null;
+};
+
+type RiderLocation = {
+  latitude: number;
+  longitude: number;
+};
+
 export default function MainContainer({ navigation, orderId }: Props) {
   const { t } = useTranslation("deliveries");
   const { colors } = useTheme();
+
+  useOrderStatusSocketSync(orderId);
+
   const orderDetailsQuery = useOrderDetails(orderId);
   const riderId =
     typeof orderDetailsQuery.data?.rider?.userId === "string"
@@ -69,6 +91,12 @@ export default function MainContainer({ navigation, orderId }: Props) {
       status: orderDetailsQuery.data?.status,
     });
   }, [chatBoxId, orderDetailsQuery.data, orderId, riderId]);
+  const order = orderDetailsQuery.data;
+  const riderLocation = useOrderRiderLocationSync(
+    order?.orderType === "delivery" ? order?.rider?.userId ?? null : null,
+    getOrderRiderLocation(order?.rider),
+    { enabled: order?.orderType === "delivery" },
+  );
 
   const helpButton = (
     <Pressable
@@ -88,24 +116,23 @@ export default function MainContainer({ navigation, orderId }: Props) {
     </Pressable>
   );
 
-  const order = orderDetailsQuery.data;
   const mapCoordinates = useMemo(
     () =>
       getTrackingCoordinates(
-        order?.deliveryDetails.latitude!,
-        order?.deliveryDetails.longitude!,
-        order?.deliveryDetails.storeLatitude!,
-        order?.deliveryDetails.storeLongitude!,
-        order?.rider?.latitude!,
-        order?.rider?.longitude!,
+        order?.orderType,
+        order?.deliveryDetails.latitude ?? null,
+        order?.deliveryDetails.longitude ?? null,
+        order?.deliveryDetails.storeLatitude ?? null,
+        order?.deliveryDetails.storeLongitude ?? null,
+        riderLocation,
       ),
     [
+      order?.orderType,
       order?.deliveryDetails.latitude,
       order?.deliveryDetails.longitude,
       order?.deliveryDetails.storeLatitude,
       order?.deliveryDetails.storeLongitude,
-      order?.rider?.latitude,
-      order?.rider?.longitude,
+      riderLocation,
     ],
   );
   const mapRegion = useMemo(
@@ -113,12 +140,27 @@ export default function MainContainer({ navigation, orderId }: Props) {
     [mapCoordinates],
   );
   const mapMarkers = useMemo<MapMarker[]>(
-    () => getTrackingMapMarkers(mapCoordinates, colors),
-    [colors, mapCoordinates],
+    () => getTrackingMapMarkers(order?.orderType, mapCoordinates, colors),
+    [colors, mapCoordinates, order?.orderType],
   );
+  const routeOrigin =
+    order?.orderType === "delivery"
+      ? mapCoordinates.rider
+      : mapCoordinates.pickup;
+  const routeDestination = mapCoordinates.destination;
+  const routePathQuery = useDeliveryRoutePath(routeOrigin, routeDestination, {
+    enabled: Boolean(routeOrigin && routeDestination),
+    staleTime: order?.orderType === "delivery" ? 15 * 1000 : 5 * 60 * 1000,
+  });
   const mapPolylines = useMemo<MapPolyline[]>(
-    () => getTrackingMapPolylines(mapCoordinates, colors.primary),
-    [colors.primary, mapCoordinates],
+    () =>
+      getTrackingMapPolylines(
+        order?.orderType,
+        mapCoordinates,
+        routePathQuery.data,
+        colors.primary,
+      ),
+    [colors.primary, mapCoordinates, order?.orderType, routePathQuery.data],
   );
 
   return (
@@ -153,11 +195,20 @@ export default function MainContainer({ navigation, orderId }: Props) {
               )}
             />
 
-            <OrderTrackingTimelineSection timeline={order.timeline} />
+            <OrderTrackingTimelineSection
+              orderLogs={order.orderLogs}
+              timeline={order.timeline}
+            />
 
             <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-            <OrderDetailsSection title={t("order_tracking_delivery_details")}>
+            <OrderDetailsSection
+              title={t(
+                order.orderType === "pickup"
+                  ? "order_tracking_collection_details"
+                  : "order_tracking_delivery_details",
+              )}
+            >
               <View
                 style={[
                   styles.mapCard,
@@ -169,13 +220,16 @@ export default function MainContainer({ navigation, orderId }: Props) {
               >
                 {mapRegion ? (
                   <Map
-                    initialRegion={mapRegion}
+                    loadingEnabled
                     markers={mapMarkers}
                     polylines={mapPolylines}
+                    region={mapRegion}
                     rotateEnabled={false}
-                    scrollEnabled={false}
+                    scrollEnabled
                     style={styles.map}
-                    zoomEnabled={false}
+                    useGoogleProvider
+                    zoomEnabled
+                    zoomTapEnabled
                   />
                 ) : null}
 
@@ -191,18 +245,26 @@ export default function MainContainer({ navigation, orderId }: Props) {
                 >
                   <OrderTrackingInfoRow
                     containerStyle={styles.mapInfoRow}
-                    iconName="home-outline"
+                    iconName={
+                      order.orderType === "pickup"
+                        ? "storefront-outline"
+                        : "home-outline"
+                    }
                     iconWrapperStyle={styles.mapInfoIcon}
                     isCompact
                     isIconContained={false}
                     onPress={() =>
                       navigation.navigate("OrderDetailsScreen", { orderId })
                     }
-                    subtitle={order.deliveryDetails.address ?? undefined}
-                    title={
-                      order.deliveryDetails.label ||
-                      t("order_tracking_delivery_details")
-                    }
+                    subtitle={getMapSubtitle(order)}
+                    title={getMapTitle(
+                      order,
+                      t(
+                        order.orderType === "pickup"
+                          ? "order_tracking_collection_details"
+                          : "order_tracking_delivery_details",
+                      ),
+                    )}
                     trailingIconName="chevron-up"
                   />
                 </View>
@@ -258,13 +320,239 @@ export default function MainContainer({ navigation, orderId }: Props) {
   );
 }
 
+function getTrackingCoordinates(
+  orderType: string | null | undefined,
+  deliveryLatitude: number | null,
+  deliveryLongitude: number | null,
+  storeLatitude: number | null,
+  storeLongitude: number | null,
+  riderLocation: RiderLocation | null,
+): TrackingCoordinates {
+  return {
+    destination:
+      typeof deliveryLatitude === "number" &&
+        typeof deliveryLongitude === "number"
+        ? {
+          latitude: deliveryLatitude,
+          longitude: deliveryLongitude,
+        }
+        : null,
+    pickup:
+      typeof storeLatitude === "number" && typeof storeLongitude === "number"
+        ? {
+          latitude: storeLatitude,
+          longitude: storeLongitude,
+        }
+        : null,
+    rider:
+      orderType === "delivery" && riderLocation
+        ? {
+          latitude: riderLocation.latitude,
+          longitude: riderLocation.longitude,
+        }
+        : null,
+  };
+}
+
+function getTrackingMapRegion(coordinates: TrackingCoordinates): Region | null {
+  const points = [coordinates.destination, coordinates.pickup, coordinates.rider].filter(
+    Boolean,
+  ) as LatLng[];
+
+  if (points.length === 0) {
+    return null;
+  }
+
+  if (points.length === 1) {
+    return {
+      latitude: points[0].latitude,
+      longitude: points[0].longitude,
+      latitudeDelta: 0.02,
+      longitudeDelta: 0.02,
+    };
+  }
+
+  const latitudes = points.map((point) => point.latitude);
+  const longitudes = points.map((point) => point.longitude);
+  const minLatitude = Math.min(...latitudes);
+  const maxLatitude = Math.max(...latitudes);
+  const minLongitude = Math.min(...longitudes);
+  const maxLongitude = Math.max(...longitudes);
+
+  return {
+    latitude: (minLatitude + maxLatitude) / 2,
+    longitude: (minLongitude + maxLongitude) / 2,
+    latitudeDelta: Math.max(maxLatitude - minLatitude, 0.02) * 1.7,
+    longitudeDelta: Math.max(maxLongitude - minLongitude, 0.02) * 1.7,
+  };
+}
+
+function getTrackingMapMarkers(
+  orderType: string | null | undefined,
+  coordinates: TrackingCoordinates,
+  colors: ReturnType<typeof useTheme>["colors"],
+): MapMarker[] {
+  const markers: MapMarker[] = [];
+  const shouldShowPickupMarker = orderType === "pickup" || !coordinates.rider;
+
+  if (shouldShowPickupMarker && coordinates.pickup) {
+    markers.push({
+      coordinate: coordinates.pickup,
+      id: "pickup",
+      render: (
+        <View
+          style={[
+            styles.markerBase,
+            {
+              backgroundColor: colors.surface,
+              borderColor: colors.blue100,
+            },
+          ]}
+        >
+          <Ionicons color={colors.primary} name="storefront-outline" size={14} />
+        </View>
+      ),
+      zIndex: 1,
+    });
+  }
+
+  if (coordinates.destination) {
+    markers.push({
+      coordinate: coordinates.destination,
+      id: "destination",
+      render: (
+        <View
+          style={[
+            styles.markerBase,
+            styles.deliveryMarker,
+            {
+              backgroundColor: colors.primary,
+              borderColor: colors.blue100,
+            },
+          ]}
+        >
+          <Ionicons
+            color={colors.white}
+            name={orderType === "pickup" ? "location-outline" : "home-outline"}
+            size={14}
+          />
+        </View>
+      ),
+      zIndex: 3,
+    });
+  }
+
+  if (coordinates.rider) {
+    markers.push({
+      coordinate: coordinates.rider,
+      id: "rider",
+      render: (
+        <View
+          style={[
+            styles.riderMarker,
+            {
+              backgroundColor: colors.surface,
+              borderColor: colors.background,
+              shadowColor: colors.shadowColor,
+            },
+          ]}
+        >
+          <Ionicons color={colors.primary} name="bicycle-outline" size={14} />
+        </View>
+      ),
+      zIndex: 2,
+    });
+  }
+
+  return markers;
+}
+
+function getTrackingMapPolylines(
+  orderType: string | null | undefined,
+  coordinates: TrackingCoordinates,
+  routePath: Array<{ latitude: number; longitude: number }> | undefined,
+  strokeColor: string,
+): MapPolyline[] {
+  if (orderType === "delivery" && coordinates.rider && coordinates.destination) {
+    return [
+      {
+        coordinates:
+          (routePath?.length ?? 0) >= 2
+            ? routePath!
+            : [coordinates.rider, coordinates.destination],
+        id: "delivery-route",
+        strokeColor,
+        strokeWidth: 4,
+      },
+    ];
+  }
+
+  if (coordinates.pickup && coordinates.destination) {
+    return [
+      {
+        coordinates:
+          (routePath?.length ?? 0) >= 2
+            ? routePath!
+            : [coordinates.pickup, coordinates.destination],
+        id: "pickup-route",
+        strokeColor,
+        strokeWidth: 4,
+      },
+    ];
+  }
+
+  return [];
+}
+
+function getOrderRiderLocation(rider: DeliveryOrderRider | null | undefined) {
+  const latitude = rider?.currentLocation?.latitude ?? rider?.latitude ?? null;
+  const longitude = rider?.currentLocation?.longitude ?? rider?.longitude ?? null;
+
+  if (typeof latitude !== "number" || typeof longitude !== "number") {
+    return null;
+  }
+
+  return {
+    latitude,
+    longitude,
+  };
+}
+
+function getMapTitle(order: OrderDetailsResponse, fallbackTitle: string) {
+  if (order.orderType === "pickup") {
+    return order.store.name || fallbackTitle;
+  }
+
+  return order.deliveryDetails.label || fallbackTitle;
+}
+
+function getMapSubtitle(order: OrderDetailsResponse) {
+  if (order.orderType === "pickup") {
+    return order.store.address ?? undefined;
+  }
+
+  return order.deliveryDetails.address ?? undefined;
+}
+
 const styles = StyleSheet.create({
   content: {
     paddingBottom: 120,
     paddingHorizontal: 16,
   },
+  deliveryMarker: {
+    borderRadius: 20,
+    height: 40,
+    width: 40,
+  },
   divider: {
     height: 1,
+  },
+  helpButton: {
+    alignItems: "center",
+    borderRadius: 22,
+    height: 44,
+    justifyContent: "center",
+    width: 44,
   },
   map: {
     borderRadius: 6,
@@ -306,18 +594,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 24,
   },
-  deliveryMarker: {
-    borderRadius: 20,
-    height: 40,
-    width: 40,
-  },
-  helpButton: {
-    alignItems: "center",
-    borderRadius: 22,
-    height: 44,
-    justifyContent: "center",
-    width: 44,
-  },
   riderMarker: {
     alignItems: "center",
     borderRadius: 14,
@@ -337,182 +613,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-
-type TrackingCoordinates = {
-  delivery: LatLng | null;
-  rider: LatLng | null;
-  store: LatLng | null;
-};
-
-function getTrackingCoordinates(
-  deliveryLatitude: number | null,
-  deliveryLongitude: number | null,
-  storeLatitude: number | null,
-  storeLongitude: number | null,
-  riderLatitude: number | null | undefined,
-  riderLongitude: number | null | undefined,
-): TrackingCoordinates {
-  return {
-    delivery:
-      typeof deliveryLatitude === "number" &&
-      typeof deliveryLongitude === "number"
-        ? {
-            latitude: deliveryLatitude,
-            longitude: deliveryLongitude,
-          }
-        : null,
-    rider:
-      typeof riderLatitude === "number" &&
-      typeof riderLongitude === "number"
-        ? {
-            latitude: riderLatitude,
-            longitude: riderLongitude,
-          }
-        : null,
-    store:
-      typeof storeLatitude === "number" && typeof storeLongitude === "number"
-        ? {
-            latitude: storeLatitude,
-            longitude: storeLongitude,
-          }
-        : null,
-  };
-}
-
-function getTrackingMapRegion(
-  coordinates: TrackingCoordinates,
-): Region | null {
-  const points = [coordinates.delivery, coordinates.rider, coordinates.store].filter(
-    Boolean,
-  ) as LatLng[];
-
-  if (points.length === 0) {
-    return null;
-  }
-
-  if (points.length === 1) {
-    return {
-      latitude: points[0].latitude,
-      longitude: points[0].longitude,
-      latitudeDelta: 0.02,
-      longitudeDelta: 0.02,
-    };
-  }
-
-  const latitudes = points.map((point) => point.latitude);
-  const longitudes = points.map((point) => point.longitude);
-  const minLatitude = Math.min(...latitudes);
-  const maxLatitude = Math.max(...latitudes);
-  const minLongitude = Math.min(...longitudes);
-  const maxLongitude = Math.max(...longitudes);
-
-  return {
-    latitude: (minLatitude + maxLatitude) / 2,
-    longitude: (minLongitude + maxLongitude) / 2,
-    latitudeDelta: Math.max(maxLatitude - minLatitude, 0.02) * 1.7,
-    longitudeDelta: Math.max(maxLongitude - minLongitude, 0.02) * 1.7,
-  };
-}
-
-function getTrackingMapMarkers(
-  coordinates: TrackingCoordinates,
-  colors: ReturnType<typeof useTheme>["colors"],
-): MapMarker[] {
-  const markers: MapMarker[] = [];
-
-  if (coordinates.store) {
-    markers.push({
-      coordinate: coordinates.store,
-      id: "store",
-      render: (
-        <View
-          style={[
-            styles.markerBase,
-            {
-              backgroundColor: colors.surface,
-              borderColor: colors.blue100,
-            },
-          ]}
-        >
-          <Ionicons color={colors.primary} name="storefront-outline" size={14} />
-        </View>
-      ),
-      zIndex: 1,
-    });
-  }
-
-  if (coordinates.delivery) {
-    markers.push({
-      coordinate: coordinates.delivery,
-      id: "delivery",
-      render: (
-        <View
-          style={[
-            styles.markerBase,
-            styles.deliveryMarker,
-            {
-              backgroundColor: colors.primary,
-              borderColor: colors.blue100,
-            },
-          ]}
-        >
-          <Ionicons color={colors.white} name="home-outline" size={14} />
-        </View>
-      ),
-      zIndex: 3,
-    });
-  }
-
-  if (coordinates.rider) {
-    markers.push({
-      coordinate: coordinates.rider,
-      id: "rider",
-      render: (
-        <View
-          style={[
-            styles.riderMarker,
-            {
-              backgroundColor: colors.surface,
-              borderColor: colors.background,
-              shadowColor: colors.shadowColor,
-            },
-          ]}
-        >
-          <Ionicons color={colors.primary} name="bicycle-outline" size={14} />
-        </View>
-      ),
-      zIndex: 2,
-    });
-  }
-
-  return markers;
-}
-
-function getTrackingMapPolylines(
-  coordinates: TrackingCoordinates,
-  strokeColor: string,
-): MapPolyline[] {
-  if (coordinates.rider && coordinates.delivery) {
-    return [
-      {
-        coordinates: [coordinates.rider, coordinates.delivery],
-        id: "delivery-route",
-        strokeColor,
-        strokeWidth: 4,
-      },
-    ];
-  }
-
-  if (coordinates.store && coordinates.delivery) {
-    return [
-      {
-        coordinates: [coordinates.store, coordinates.delivery],
-        id: "store-route",
-        strokeColor,
-        strokeWidth: 4,
-      },
-    ];
-  }
-
-  return [];
-}
