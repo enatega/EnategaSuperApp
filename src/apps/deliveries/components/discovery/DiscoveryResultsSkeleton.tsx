@@ -1,13 +1,13 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import HorizontalList from '../../../../../../general/components/HorizontalList';
-import Skeleton from '../../../../../../general/components/Skeleton';
+import HorizontalList from '../../../../general/components/HorizontalList';
+import Skeleton from '../../../../general/components/Skeleton';
 
 const SKELETON_ITEMS = Array.from({ length: 3 }, (_, index) => ({
-  id: `nearby-store-skeleton-${index}`,
+  id: `discovery-results-skeleton-${index}`,
 }));
 
-export default function NearbyStoreListSkeleton() {
+export default function DiscoveryResultsSkeleton() {
   return (
     <HorizontalList
       data={SKELETON_ITEMS}
@@ -30,12 +30,6 @@ export default function NearbyStoreListSkeleton() {
 }
 
 const styles = StyleSheet.create({
-  listContent: {
-    paddingRight: 16,
-  },
-  separator: {
-    width: 12,
-  },
   card: {
     borderRadius: 12,
     overflow: 'hidden',
@@ -45,5 +39,11 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingHorizontal: 8,
     paddingTop: 8,
+  },
+  listContent: {
+    paddingRight: 16,
+  },
+  separator: {
+    width: 12,
   },
 });

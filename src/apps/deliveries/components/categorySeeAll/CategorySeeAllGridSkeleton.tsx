@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Skeleton from '../../../../../general/components/Skeleton';
+import Skeleton from '../../../../general/components/Skeleton';
 
 const SKELETON_ITEMS = 9;
 
-export default function ShopTypesSeeAllSkeleton() {
+export default function CategorySeeAllGridSkeleton() {
   return (
     <View style={styles.grid}>
       {Array.from({ length: SKELETON_ITEMS }).map((_, index) => (

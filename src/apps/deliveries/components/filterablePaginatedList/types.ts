@@ -4,6 +4,7 @@ import type {
   GenericFilterChip,
   GenericListFilters,
 } from '../filters/types';
+import { ProductCardVariant } from '../productCard/types';
 
 export type QueryBuilderContext<TPageParam> = {
   filters: GenericListFilters;
@@ -16,6 +17,8 @@ export type SupportedCardType =
   | 'product'
   | 'top-brand'
   | 'shop-type';
+
+  
 
 export type GenericListQueryConfig<
   TItem,
@@ -108,4 +111,5 @@ export type GenericFilterablePaginatedListScreenProps<
   listContentContainerStyle?: StyleProp<ViewStyle>;
   onItemPress?: (item: TItem) => void;
   estimatedItemSize?: number;
+  cardVariant?: ProductCardVariant;
 };

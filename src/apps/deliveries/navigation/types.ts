@@ -4,12 +4,17 @@ import type { DeliveriesAccountNavigationParamList } from "../account/navigation
 import type { ChainStackParamList } from "../chain/navigation/types";
 import type { MultiVendorStackParamList } from "../multiVendor/navigation/types";
 import type { SingleVendorStackParamList } from "../singleVendor/navigation/types";
+import { SupportedCardType } from "../components/filterablePaginatedList";
+import { ProductCardVariant } from "../components/productCard/types";
 
 export type SeeAllListingType =
   | "nearby-stores"
   | "shop-type-products"
   | "shop-type-stores"
-  | "top-brand-stores";
+  | "top-brand-stores"
+  | "single-vendor-category-products";
+
+export type DealsSeeAllSource = "multi-vendor" | "single-vendor";
 
 export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
   DeliveriesHome: undefined;
@@ -32,12 +37,23 @@ export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
   };
   Cart: undefined;
   Checkout: undefined;
+  SingleVendorCategoriesSeeAll: undefined;
+  SingleVendorCategoryProductsSeeAll: {
+    categoryId: string;
+    title: string;
+  };
   SeeAllScreen: {
     queryType: SeeAllListingType;
     title: string;
-    cardType: "store";
+    cardType: SupportedCardType;
     shopTypeId?: string;
     vendorId?: string;
+    categoryId?: string;
+    cardVariant?: ProductCardVariant;
   };
-  DealsSeeAll: undefined
+  DealsSeeAll:
+    | {
+        source?: DealsSeeAllSource;
+      }
+    | undefined;
 };

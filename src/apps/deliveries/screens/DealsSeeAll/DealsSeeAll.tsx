@@ -1,22 +1,32 @@
-import React, { useState } from "react";
+import React from "react";
 import { StyleSheet, View } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
-import useDebouncedValue from "../../../../general/hooks/useDebouncedValue";
 import { useTheme } from "../../../../general/theme/theme";
 import DealsSeeAllContainer from "../../components/DealsSeeAll/DealsSeeAllContainer";
 import SeeAllHeader from "../SeeAllScreen/components/SeeAllHeader";
 import SeeAllFilterSheet from "../SeeAllScreen/components/SeeAllFilterSheet";
-import { useFilterValues } from "../../hooks";
-import useGenericListFilters from "../../hooks/filterablePaginatedList/useGenericListFilters";
-import type { DeliveryDealsTabType, DeliveryDealItem } from "../../api/dealsServiceTypes";
-import type { DeliveriesStackParamList } from "../../navigation/types";
+import type {
+  DeliveryDealsTabType,
+  DeliveryDealItem,
+} from "../../api/dealsServiceTypes";
+import type {
+  DealsSeeAllSource,
+  DeliveriesStackParamList,
+} from "../../navigation/types";
+import useDealsSeeAllScreenConfig from "./useDealsSeeAllScreenConfig";
+import useDealsSeeAllScreenState from "./useDealsSeeAllScreenState";
 
 function getDealsSectionTitle(
+  source: DealsSeeAllSource,
   selectedTab: DeliveryDealsTabType,
   t: (key: string) => string,
 ) {
+  if (source === "single-vendor") {
+    return t("multi_vendor_deals_title");
+  }
+
   switch (selectedTab) {
     case "limited":
       return t("deals_see_all_section_title_limited");
@@ -33,11 +43,15 @@ export default function DealsSeeAll() {
   const { t } = useTranslation("deliveries");
   const navigation =
     useNavigation<NativeStackNavigationProp<DeliveriesStackParamList>>();
-  const { data: filterValues } = useFilterValues();
-  const [searchText, setSearchText] = useState("");
-  const [selectedTab, setSelectedTab] = useState<DeliveryDealsTabType>("all");
-  const debouncedSearch = useDebouncedValue(searchText.trim(), 450);
+  const route = useRoute<RouteProp<DeliveriesStackParamList, "DealsSeeAll">>();
+  const source = route.params?.source ?? "multi-vendor";
   const {
+    filterValues,
+    searchText,
+    setSearchText,
+    selectedTab,
+    setSelectedTab,
+    debouncedSearch,
     appliedFilters,
     draftFilters,
     isFilterSheetVisible,
@@ -52,8 +66,23 @@ export default function DealsSeeAll() {
     selectSort,
     hasAppliedFilters,
     hasDraftFilters,
-  } = useGenericListFilters({
-    filterData: filterValues?.filters,
+    isMultiVendorSource,
+  } = useDealsSeeAllScreenState(source);
+  const {
+    data,
+    isPending,
+    isError,
+    isRefetching,
+    isFetchingNextPage,
+    hasNextPage,
+    refetch,
+    fetchNextPage,
+    isTabsVisible,
+  } = useDealsSeeAllScreenConfig({
+    source,
+    filters: appliedFilters,
+    search: debouncedSearch,
+    selectedTab,
   });
 
   const handleDealPress = (deal: DeliveryDealItem) => {
@@ -72,31 +101,40 @@ export default function DealsSeeAll() {
         onOpenFilters={openFilters}
         onMapPress={() => {}}
         isSearchVisible={true}
-        isFilterVisible={true}
+        isFilterVisible={isMultiVendorSource}
         isMapVisible={false}
       />
       <DealsSeeAllContainer
-        filters={appliedFilters}
+        data={data}
+        fetchNextPage={fetchNextPage}
+        hasNextPage={hasNextPage}
+        isError={isError}
+        isFetchingNextPage={isFetchingNextPage}
         onDealPress={handleDealPress}
         onTabChange={setSelectedTab}
-        search={debouncedSearch}
+        isPending={isPending}
+        isRefetching={isRefetching}
+        isTabsVisible={isTabsVisible}
+        refetch={refetch}
         selectedTab={selectedTab}
-        title={getDealsSectionTitle(selectedTab, t)}
+        title={getDealsSectionTitle(source, selectedTab, t)}
       />
-      <SeeAllFilterSheet
-        visible={isFilterSheetVisible}
-        draftFilters={draftFilters}
-        isApplyDisabled={!hasDraftFilters && !hasAppliedFilters}
-        onClose={closeFilters}
-        onApply={applyFilters}
-        onClear={clearDraftFilters}
-        onToggleCategory={toggleCategory}
-        onSelectPrice={selectPrice}
-        onSelectAddress={selectAddress}
-        onSelectStock={selectStock}
-        onSelectSort={selectSort}
-        filters={filterValues?.filters}
-      />
+      {isMultiVendorSource ? (
+        <SeeAllFilterSheet
+          visible={isFilterSheetVisible}
+          draftFilters={draftFilters}
+          isApplyDisabled={!hasDraftFilters && !hasAppliedFilters}
+          onClose={closeFilters}
+          onApply={applyFilters}
+          onClear={clearDraftFilters}
+          onToggleCategory={toggleCategory}
+          onSelectPrice={selectPrice}
+          onSelectAddress={selectAddress}
+          onSelectStock={selectStock}
+          onSelectSort={selectSort}
+          filters={filterValues?.filters}
+        />
+      ) : null}
     </View>
   );
 }

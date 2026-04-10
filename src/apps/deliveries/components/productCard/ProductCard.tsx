@@ -9,7 +9,8 @@ import type {
   DeliveryShopTypeProduct,
   DeliveryStoreDetailsProduct,
 } from '../../api/types';
-import type { DeliveriesProductInfoParamList } from '../../navigation/sharedTypes';
+import type { DeliveriesStackParamList } from '../../navigation/types';
+
 import MiniProductCard from './MiniProductCard';
 import OrderAgainProductCard from './OrderAgainProductCard';
 import RailProductCard from './RailProductCard';
@@ -23,13 +24,13 @@ import { isStoreDetailsProduct } from './types';
 
 type Props = {
   product: ProductCardData;
-  variant: ProductCardVariant;
+  variant?: ProductCardVariant;
   storeId?: string | null;
   onPress?: () => void;
   productAction?: ProductCardActionOverrides;
 };
 
-type NavigationProp = NativeStackNavigationProp<DeliveriesProductInfoParamList>;
+type NavigationProp = NativeStackNavigationProp<DeliveriesStackParamList>;
 
 function buildTarget(
   product: ProductCardData,

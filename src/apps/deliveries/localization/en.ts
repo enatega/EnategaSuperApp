@@ -11,6 +11,8 @@ const en = {
   chain_desc: 'Order from your favorite chains.',
   explore_button: 'Explore',
   details_title: 'Delivery Details',
+  single_vendor_categories_title: 'Categories',
+  single_vendor_category_products_empty: 'No products found for this category.',
   single_vendor_home_subtitle: 'Your preferred store',
   single_vendor_home_body: 'Explore vendors and services here.',
   single_vendor_tab_home: 'Home',

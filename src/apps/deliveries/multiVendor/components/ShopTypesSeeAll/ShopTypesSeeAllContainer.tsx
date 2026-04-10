@@ -1,19 +1,14 @@
 import React, { useCallback } from "react";
-import { FlatList, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
+import CategorySeeAllGrid from "../../../components/categorySeeAll/CategorySeeAllGrid";
+import type { DeliveryDiscoveryCategoryItem } from "../../../components/discovery";
 import { usePaginatedShopTypes } from "../../../hooks";
-import type { DeliveryShopType } from "../../../api/types";
-import type { MultiVendorStackParamList } from "../../navigation/types";
-import ShopTypesSeeAllEmptyState from "./ShopTypesSeeAllEmptyState";
-import ShopTypesSeeAllErrorState from "./ShopTypesSeeAllErrorState";
-import ShopTypesSeeAllItem from "./ShopTypesSeeAllItem";
-import ShopTypesSeeAllListHeader from "./ShopTypesSeeAllListHeader";
-import ShopTypesSeeAllSkeleton from "./ShopTypesSeeAllSkeleton";
+import type { DeliveriesStackParamList } from "../../../navigation/types";
 
 type NavigationProp = NativeStackNavigationProp<
-  MultiVendorStackParamList,
+  DeliveriesStackParamList,
   "SeeAllScreen"
 >;
 
@@ -34,7 +29,7 @@ const ShopTypesSeeAllContainer = () => {
   });
 
   const handleShopTypePress = useCallback(
-    (shopType: DeliveryShopType) => {
+    (shopType: DeliveryDiscoveryCategoryItem) => {
       navigation.navigate("SeeAllScreen", {
         queryType: "shop-type-stores",
         title: shopType.name,
@@ -45,59 +40,24 @@ const ShopTypesSeeAllContainer = () => {
     [navigation],
   );
 
-  const handleLoadMore = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      void fetchNextPage();
-    }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-
-  if (isPending) {
-    return <ShopTypesSeeAllSkeleton />;
-  }
-
-  if (isError) {
-    return (
-      <ShopTypesSeeAllErrorState
-        isRetrying={isRefetching}
-        onRetry={() => {
-          void refetch();
-        }}
-      />
-    );
-  }
-
   return (
-    <FlatList
-      data={shopTypes}
-      numColumns={3}
-      keyExtractor={(item) => item.id}
-      ListHeaderComponent={
-        <ShopTypesSeeAllListHeader title={t("multi_vendor_shop_types_title")} />
-      }
-      ListEmptyComponent={<ShopTypesSeeAllEmptyState />}
-      renderItem={({ item }) => (
-        <ShopTypesSeeAllItem item={item} onPress={handleShopTypePress} />
-      )}
-      onEndReached={handleLoadMore}
-      onEndReachedThreshold={0.4}
-      contentContainerStyle={styles.listContent}
-      columnWrapperStyle={styles.row}
-      showsVerticalScrollIndicator={false}
+    <CategorySeeAllGrid
+      data={shopTypes.map((shopType) => ({
+        id: shopType.id,
+        name: shopType.name,
+        imageUrl: shopType.image ?? null,
+      }))}
+      fetchNextPage={fetchNextPage}
+      hasNextPage={hasNextPage}
+      isError={isError}
+      isFetchingNextPage={isFetchingNextPage}
+      isPending={isPending}
+      isRefetching={isRefetching}
+      onItemPress={handleShopTypePress}
+      refetch={refetch}
+      title={t("multi_vendor_shop_types_title")}
     />
   );
 };
 
 export default ShopTypesSeeAllContainer;
-
-const styles = StyleSheet.create({
-  listContent: {
-    flexGrow: 1,
-    paddingHorizontal: 16,
-    paddingTop: 4,
-    paddingBottom: 24,
-  },
-  row: {
-    justifyContent: "space-between",
-    marginBottom: 28,
-  },
-});

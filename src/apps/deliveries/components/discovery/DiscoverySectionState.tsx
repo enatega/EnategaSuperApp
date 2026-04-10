@@ -1,9 +1,9 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import Icon from '../../../../../general/components/Icon';
-import Text from '../../../../../general/components/Text';
-import { useTheme } from '../../../../../general/theme/theme';
+import Icon from '../../../../general/components/Icon';
+import Text from '../../../../general/components/Text';
+import { useTheme } from '../../../../general/theme/theme';
 
 type Tone = 'empty' | 'error';
 
@@ -13,7 +13,7 @@ type Props = {
   title?: string;
 };
 
-export default function HomeSectionState({
+export default function DiscoverySectionState({
   message,
   tone = 'empty',
   title,
@@ -21,20 +21,28 @@ export default function HomeSectionState({
   const { t } = useTranslation('deliveries');
   const { colors, typography } = useTheme();
   const isError = tone === 'error';
-  const resolvedTitle = title ?? (isError
-    ? t('multi_vendor_home_section_error_title')
-    : t('multi_vendor_home_section_empty_title'));
-  const resolvedMessage = message ?? (isError
-    ? t('multi_vendor_home_section_error_message')
-    : t('multi_vendor_home_section_empty_message'));
+  const resolvedTitle =
+    title ??
+    (isError
+      ? t('multi_vendor_home_section_error_title')
+      : t('multi_vendor_home_section_empty_title'));
+  const resolvedMessage =
+    message ??
+    (isError
+      ? t('multi_vendor_home_section_error_message')
+      : t('multi_vendor_home_section_empty_message'));
 
   return (
     <View
       style={[
         styles.container,
         {
-          backgroundColor: isError ? 'rgba(239, 68, 68, 0.06)' : colors.backgroundTertiary,
-          borderColor: isError ? 'rgba(239, 68, 68, 0.12)' : 'rgba(17, 24, 39, 0.06)',
+          backgroundColor: isError
+            ? 'rgba(239, 68, 68, 0.06)'
+            : colors.backgroundTertiary,
+          borderColor: isError
+            ? 'rgba(239, 68, 68, 0.12)'
+            : 'rgba(17, 24, 39, 0.06)',
           shadowColor: colors.shadowColor,
         },
       ]}
@@ -43,7 +51,9 @@ export default function HomeSectionState({
         style={[
           styles.iconWrap,
           {
-            backgroundColor: isError ? 'rgba(239, 68, 68, 0.1)' : colors.surface,
+            backgroundColor: isError
+              ? 'rgba(239, 68, 68, 0.1)'
+              : colors.surface,
           },
         ]}
       >

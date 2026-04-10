@@ -1,12 +1,12 @@
-import React from "react";
-import { StyleSheet, View } from "react-native";
-import { useTranslation } from "react-i18next";
-import Svg from "../../../components/Svg";
-import Text from "../../../../../general/components/Text";
-import { useTheme } from "../../../../../general/theme/theme";
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import Text from '../../../../general/components/Text';
+import { useTheme } from '../../../../general/theme/theme';
+import Svg from '../Svg';
 
-export default function ShopTypesSeeAllEmptyState() {
-  const { t } = useTranslation("deliveries");
+export default function CategorySeeAllGridEmptyState() {
+  const { t } = useTranslation('deliveries');
   const { colors, typography } = useTheme();
 
   return (
@@ -26,7 +26,7 @@ export default function ShopTypesSeeAllEmptyState() {
           },
         ]}
       >
-        {t("generic_list_empty_title")}
+        {t('generic_list_empty_title')}
       </Text>
     </View>
   );
@@ -34,20 +34,16 @@ export default function ShopTypesSeeAllEmptyState() {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
+    alignItems: 'center',
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
     paddingHorizontal: 24,
     paddingVertical: 32,
-  },
-  description: {
-    marginTop: 8,
-    textAlign: "center",
   },
   iconContainer: {
     marginBottom: 16,
   },
   title: {
-    textAlign: "center",
+    textAlign: 'center',
   },
 });

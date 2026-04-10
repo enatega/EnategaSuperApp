@@ -42,6 +42,8 @@ export interface DeliveryShopTypeProduct {
     storeId: string;
     productName: string;
     storeName?: string | null;
+    shopTypeId?: string | null;
+    shopTypeName?: string | null;
     storeAddress?: string | null;
     productImage?: string | null;
     storeLogo?: string | null;
