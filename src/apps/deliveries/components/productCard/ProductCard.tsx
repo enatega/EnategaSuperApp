@@ -10,6 +10,7 @@ import type {
   DeliveryStoreDetailsProduct,
 } from '../../api/types';
 import type { DeliveriesStackParamList } from '../../navigation/types';
+
 import MiniProductCard from './MiniProductCard';
 import OrderAgainProductCard from './OrderAgainProductCard';
 import RailProductCard from './RailProductCard';

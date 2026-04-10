@@ -23,3 +23,8 @@ export {
 } from './useOrders';
 export { default as useAddress } from './useAddress';
 export { useCheckoutSchedule } from './useCheckoutSchedule';
+export { default as useDealsListing } from './useDeals';
+export { useDeliveryRoutePath } from './useDeliveryRoutePath';
+export { useOrderAgainAction } from './useOrderAgainAction';
+export { useOrderRiderLocationSync } from './useOrderRiderLocationSync';
+export { useOrderStatusSocketSync } from './useOrderStatusSocketSync';

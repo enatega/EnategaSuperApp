@@ -6,6 +6,7 @@ import {
   DiscoveryCategoryResultsSection,
   DiscoveryCategorySection,
 } from "../../../components/discovery";
+
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { MultiVendorStackParamList } from "../../navigation/types";

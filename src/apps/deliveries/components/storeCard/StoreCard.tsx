@@ -8,7 +8,7 @@ import type {
   DeliveryShopTypeProduct,
 } from "../../api/types";
 import type { SearchStoreItem } from "../../api/searchServiceTypes";
-import type { MultiVendorStackParamList } from "../../multiVendor/navigation/types";
+import type { DeliveriesStoreDetailsParamList } from "../../navigation/sharedTypes";
 import { styles } from "./styles";
 import StoreImage from "./subComponents/StoreImage";
 import StoreInfo from "./subComponents/StoreInfo";
@@ -27,7 +27,7 @@ export interface StoreCardProps {
   onPress?: () => void;
 }
 
-type NavigationProp = NativeStackNavigationProp<MultiVendorStackParamList>;
+type NavigationProp = NativeStackNavigationProp<DeliveriesStoreDetailsParamList>;
 
 function isProductStoreCardData(
   store: StoreCardData,

@@ -12,7 +12,12 @@ export default function useSearchKeyboardState() {
     });
     const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
       setIsKeyboardVisible(false);
-      setIsFocused(false);
+
+      // A pending keyboard hide event can arrive after the input has already
+      // regained focus. Only clear focus when the input is actually blurred.
+      if (!inputRef.current?.isFocused()) {
+        setIsFocused(false);
+      }
     });
 
     return () => {

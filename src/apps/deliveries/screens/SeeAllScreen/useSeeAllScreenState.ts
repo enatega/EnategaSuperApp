@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import useDebouncedValue from '../../../../../general/hooks/useDebouncedValue';
-import { useFilterValues } from '../../../hooks';
-import useGenericListFilters from '../../../hooks/filterablePaginatedList/useGenericListFilters';
+import useDebouncedValue from '../../../../general/hooks/useDebouncedValue';
+import { useFilterValues } from '../../hooks';
+import useGenericListFilters from '../../hooks/filterablePaginatedList/useGenericListFilters';
 
 export default function useSeeAllScreenState() {
   const { data: filterValues } = useFilterValues();

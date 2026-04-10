@@ -1,17 +1,17 @@
 import React from 'react';
-import type { ApiError } from '../../../../../general/api/apiClient';
-import type { GenericListFilters } from '../../../components/filters';
+import type { ApiError } from '../../../../general/api/apiClient';
+import type { GenericListFilters } from '../../components/filters';
 import {
   useNearbyStores,
   useShopTypeProducts,
   useShopTypeStores,
   useVendorStores,
-} from '../../../hooks';
-import VerticalStoreListSkeleton from '../../components/HomeTab/HomeTabSkeletons/VerticalStoreListSkeleton';
+} from '../../hooks';
+import VerticalStoreListSkeleton from '../../components/VerticalStoreListSkeleton';
 import type {
-  MultiVendorStackParamList,
+  DeliveriesSeeAllParamList,
   SeeAllItem,
-} from '../../navigation/types';
+} from '../../navigation/sharedTypes';
 
 type SeeAllRawQueryResult =
   | ReturnType<typeof useNearbyStores>
@@ -36,7 +36,7 @@ type UseSeeAllScreenConfigParams = {
   enabled: boolean;
   filters: GenericListFilters;
   search: string;
-  queryType: MultiVendorStackParamList['SeeAllScreen']['queryType'];
+  queryType: DeliveriesSeeAllParamList['SeeAllScreen']['queryType'];
   shopTypeId?: string;
   vendorId?: string;
 };

@@ -5,10 +5,12 @@ import type {
   TextStyle,
   ViewStyle,
 } from 'react-native';
+
 import { Pressable, StyleSheet, View } from 'react-native';
-import Image from '../../../../general/components/Image';
 import Text from '../../../../general/components/Text';
+import Image from '../../../../general/components/Image';
 import { useTheme } from '../../../../general/theme/theme';
+
 
 type Props = {
   imageUrl?: string | null;

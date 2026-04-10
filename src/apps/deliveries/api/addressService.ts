@@ -55,6 +55,31 @@ export const addressService = {
       { skipAuth: true },
     ),
 
+  getRoutePath: async (
+    origin: { lat: number; lng: number },
+    destination: { lat: number; lng: number },
+  ) => {
+    const response = await apiClient.get<{ path?: [number, number][] }>(
+      '/api/v1/maps/route',
+      {
+        originLat: origin.lat,
+        originLng: origin.lng,
+        destinationLat: destination.lat,
+        destinationLng: destination.lng,
+      },
+      { skipAuth: true },
+    );
+
+    if (!Array.isArray(response.path)) {
+      return [];
+    }
+
+    return response.path.map(([latitude, longitude]) => ({
+      latitude,
+      longitude,
+    }));
+  },
+
   addAddress: (payload: AddressPayload) =>
     apiClient.post<AddressResponse>(ADDRESS_BASE, payload),
 
