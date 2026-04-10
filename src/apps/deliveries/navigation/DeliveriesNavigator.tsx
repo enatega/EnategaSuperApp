@@ -31,6 +31,9 @@ import SupportConversationsScreen from "../screens/SupportConversationsScreen/Su
 import SupportContactFormScreen from "../screens/SupportContactFormScreen/SupportContactFormScreen";
 import SupportFaqScreen from "../screens/SupportFaqScreen/SupportFaqScreen";
 import SupportFaqArticleScreen from "../screens/SupportFaqArticleScreen/SupportFaqArticleScreen";
+import SupportTicketsScreen from "../screens/SupportTicketsScreen/SupportTicketsScreen";
+import SupportTicketDetailScreen from "../screens/SupportTicketDetailScreen";
+import RiderChatScreen from "../screens/RiderChatScreen/RiderChatScreen";
 import {
   DEFAULT_DELIVERY_MODE,
   getDeliveryModePreference,
@@ -217,6 +220,16 @@ export default function DeliveriesNavigator() {
         options={sharedScreenOptions}
       />
       <Stack.Screen
+        name="SupportTickets"
+        component={SupportTicketsScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SupportTicketDetail"
+        component={SupportTicketDetailScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
         name="ProductInfo"
         component={ProductInfo}
         options={sharedScreenOptions}
@@ -239,6 +252,11 @@ export default function DeliveriesNavigator() {
       <Stack.Screen
         name="OrderTrackingScreen"
         component={OrderTrackingScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="RiderChat"
+        component={RiderChatScreen}
         options={sharedScreenOptions}
       />
 

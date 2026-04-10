@@ -14,6 +14,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '../../../../general/components/AppToast';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
+import { useSocketSession } from '../../../../general/hooks/useSocketSession';
+import { socketClient } from '../../../../general/services/socket';
+import type { SocketReceivedMessage } from '../../../../general/services/socket';
 import { useTheme } from '../../../../general/theme/theme';
 import { useSendRideChatMessage } from '../../hooks/useRideChatMutations';
 import { useRideChatBoxes, useRideChatMessages } from '../../hooks/useRideChatQueries';
@@ -40,10 +43,12 @@ export default function RiderChatScreen() {
   const insets = useSafeAreaInsets();
   const route = useRoute<RiderChatRouteProp>();
   const sessionQuery = useAuthSessionQuery();
+  useSocketSession();
   const { driverAvatarUri, driverName, driverPhone, driverUserId } = route.params;
   const senderId = sessionQuery.data?.user?.id;
   const [draftMessage, setDraftMessage] = useState('');
   const [pendingMessages, setPendingMessages] = useState<RideChatMessageItem[]>([]);
+  const [realtimeMessages, setRealtimeMessages] = useState<RideChatMessageItem[]>([]);
   const [chatBoxId, setChatBoxId] = useState<string | undefined>();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
@@ -116,7 +121,22 @@ export default function RiderChatScreen() {
     });
   }, [chatMessagesQuery.data, senderId]);
 
-  const hasRealMessages = conversationMessages.length > 0 || pendingMessages.length > 0;
+  useEffect(() => {
+    setRealtimeMessages((current) => {
+      const nextMessages = current.filter((item) => !conversationMessages.some(
+        (serverMessage) =>
+          serverMessage.isCurrentUser === item.isCurrentUser
+          && serverMessage.text === item.text,
+      ));
+
+      return nextMessages.length === current.length ? current : nextMessages;
+    });
+  }, [conversationMessages]);
+
+  const hasRealMessages =
+    conversationMessages.length > 0
+    || realtimeMessages.length > 0
+    || pendingMessages.length > 0;
 
   const messages = useMemo(() => {
     if (!hasRealMessages) {
@@ -130,8 +150,8 @@ export default function RiderChatScreen() {
       ];
     }
 
-    return [...conversationMessages, ...pendingMessages];
-  }, [conversationMessages, hasRealMessages, pendingMessages, t]);
+    return [...conversationMessages, ...realtimeMessages, ...pendingMessages];
+  }, [conversationMessages, hasRealMessages, pendingMessages, realtimeMessages, t]);
 
   const quickReplies = useMemo(
     () => [
@@ -165,6 +185,52 @@ export default function RiderChatScreen() {
       hideSubscription.remove();
     };
   }, []);
+
+  useEffect(() => {
+    if (!senderId || !driverUserId) {
+      return undefined;
+    }
+
+    return socketClient.onReceiveMessage((message: SocketReceivedMessage) => {
+      const isConversationMessage =
+        message.receiver === senderId && message.sender === driverUserId;
+
+      if (!isConversationMessage) {
+        return;
+      }
+
+      setRealtimeMessages((current) => {
+        const alreadyExists = current.some(
+          (item) => !item.isCurrentUser && item.text === message.text,
+        );
+
+        if (alreadyExists) {
+          return current;
+        }
+
+        return [
+          ...current,
+          {
+            id: `realtime-${Date.now()}`,
+            isCurrentUser: false,
+            text: message.text,
+            timeLabel: formatRideChatTimeLabel(new Date().toISOString()),
+          },
+        ];
+      });
+
+      void chatBoxesQuery.refetch();
+      if (resolvedChatBoxId) {
+        void chatMessagesQuery.refetch();
+      }
+    });
+  }, [
+    chatBoxesQuery,
+    chatMessagesQuery,
+    driverUserId,
+    resolvedChatBoxId,
+    senderId,
+  ]);
 
   const appendMessage = useCallback((messageText: string) => {
     const trimmed = messageText.trim();

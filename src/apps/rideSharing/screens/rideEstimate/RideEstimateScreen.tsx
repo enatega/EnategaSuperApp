@@ -12,6 +12,7 @@ import RideEstimateAddressSummaryCard from './components/RideEstimateAddressSumm
 import RideEstimateBottomSheet from './components/RideEstimateBottomSheet';
 import RideEstimateMapLayer from './components/RideEstimateMapLayer';
 import RideEstimateTripPointsSheet from './components/RideEstimateTripPointsSheet';
+import WalletTopUpPromptModal from './components/WalletTopUpPromptModal';
 import { useTheme } from '../../../../general/theme/theme';
 import { getApiErrorMessage } from '../../../../general/utils/apiError';
 import { socketClient } from '../../../../general/services/socket';
@@ -107,7 +108,7 @@ export default function RideEstimateScreen() {
     stops = [],
     rideCategory,
     offeredFare: initialOfferedFare,
-    paymentMethodId: initialPaymentMethodId = 'cash',
+    paymentMethodId: initialPaymentMethodId = 'wallet',
     offerMode: initialOfferMode,
     hourlyHours: initialHourlyHours,
   } = route.params as RouteParams;
@@ -135,6 +136,7 @@ export default function RideEstimateScreen() {
   const [wantsScheduledRide, setWantsScheduledRide] = useState(rideType === 'schedule');
   const [isSchedulePickerVisible, setIsSchedulePickerVisible] = useState(false);
   const [isTripPointsVisible, setIsTripPointsVisible] = useState(false);
+  const [isWalletTopUpPromptVisible, setIsWalletTopUpPromptVisible] = useState(false);
   const hasPresentedHourlyOfferRef = useRef(false);
   const createRideMutation = useCreateRide();
   const setActiveRideRequest = useActiveRideRequestStore((state) => state.setActiveRideRequest);
@@ -161,13 +163,13 @@ export default function RideEstimateScreen() {
   const options = mappedOptions.length
     ? mappedOptions
     : [
-        {
-          id: 'ride',
-          title: t('ride_option_now_title'),
-          icon: rideEstimateIcons.ride,
-          seats: 4,
-        },
-      ];
+      {
+        id: 'ride',
+        title: t('ride_option_now_title'),
+        icon: rideEstimateIcons.ride,
+        seats: 4,
+      },
+    ];
 
   const resolvedSelectedOptionId = options.some((item) => item.id === selectedOptionId)
     ? selectedOptionId
@@ -186,8 +188,8 @@ export default function RideEstimateScreen() {
   const courierComment = getCourierComment(courierBooking);
   const hourlyMetaLabel = isHourlyRide && typeof initialHourlyHours === 'number'
     ? (initialHourlyHours === 1
-        ? t('ride_offer_fare_hour_single', { count: initialHourlyHours })
-        : t('ride_offer_fare_hour_plural', { count: initialHourlyHours }))
+      ? t('ride_offer_fare_hour_single', { count: initialHourlyHours })
+      : t('ride_offer_fare_hour_plural', { count: initialHourlyHours }))
     : undefined;
   const scheduleLabel = scheduledAt
     ? formatScheduledRideSummary(scheduledAt)
@@ -195,10 +197,10 @@ export default function RideEstimateScreen() {
   const displayOptions = options.map((item) => (
     item.id === resolvedSelectedOptionId
       ? {
-          ...item,
-          fare: selectedOptionCurrentFare,
-          recommendedFare: item.fare,
-        }
+        ...item,
+        fare: selectedOptionCurrentFare,
+        recommendedFare: item.fare,
+      }
       : item
   ));
   const bottomSheetOptions = isCourierFlow
@@ -353,10 +355,10 @@ export default function RideEstimateScreen() {
       ...(scheduledAt ? { scheduled_at: toApiScheduledDateString(scheduledAt) ?? scheduledAt.toISOString() } : {}),
       ...(isCourierFlow
         ? buildCourierCreateRidePayload({
-            snapshot: courierBooking,
-            fromAddress,
-            toAddress,
-          })
+          snapshot: courierBooking,
+          fromAddress,
+          toAddress,
+        })
         : {}),
     };
 
@@ -397,9 +399,26 @@ export default function RideEstimateScreen() {
       setActiveRideRequest(createdRideRequest);
       navigation.popToTop();
     } catch (error) {
+      console.log("Error creating ride:", error);
+
+      const errorMessage = error?.message || "";
+      console.log("Error message:", errorMessage);
+
+      // Case: Not enough wallet balance
+      if (errorMessage.includes("enough amount in your wallet")) {
+        // showToast.error(
+        //   t("error"),
+        //   t("insufficient_wallet_balance") // create this translation key
+        // );
+        setIsWalletTopUpPromptVisible(true);
+
+        return;
+      }
+
+      // Default error handling
       showToast.error(
-        t('error'),
-        getApiErrorMessage(error, t('ride_create_error_description')),
+        t("error"),
+        getApiErrorMessage(error, t("ride_create_error_description"))
       );
     }
   };
@@ -524,6 +543,19 @@ export default function RideEstimateScreen() {
           setPaymentMethodId(nextPaymentMethodId);
           setIsPaymentMethodVisible(false);
         }}
+      />
+
+      <WalletTopUpPromptModal
+        cancelLabel={t('cancel_button')}
+        message={t('wallet_top_up_prompt_message')}
+        onCancel={() => setIsWalletTopUpPromptVisible(false)}
+        onTopUp={() => {
+          setIsWalletTopUpPromptVisible(false);
+          navigation.navigate('WalletHome');
+        }}
+        title={t('wallet_top_up_prompt_title')}
+        topUpLabel={t('wallet_top_up_prompt_confirm')}
+        visible={isWalletTopUpPromptVisible}
       />
 
       {!isCourierFlow ? (

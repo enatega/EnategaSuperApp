@@ -1,6 +1,7 @@
 import React, { memo, useCallback } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '../../../../general/components/AppToast';
@@ -18,6 +19,7 @@ function SafetyScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
   const route = useRoute<SafetyScreenRouteProp>();
+  const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
   const emergencyContact = useEmergencyContactStore((s) => s.contact);
   const {
     driverName,
@@ -31,8 +33,8 @@ function SafetyScreen() {
   }, [t]);
 
   const handleSupport = useCallback(() => {
-    showToast.info(t('safety_support_coming_soon'));
-  }, [t]);
+    navigation.navigate('RideSupportChat');
+  }, [navigation]);
 
   const handleEmergencyContacts = useCallback(() => {
     showToast.info(t('safety_emergency_contacts_coming_soon'));

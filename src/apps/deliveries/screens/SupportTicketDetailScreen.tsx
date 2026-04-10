@@ -7,76 +7,94 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import Text from '../../../../general/components/Text';
-import { showToast } from '../../../../general/components/AppToast';
-import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
-import type { SocketReceivedMessage } from '../../../../general/services/socket';
-import { useTheme } from '../../../../general/theme/theme';
-import ChatComposer from '../../components/chat/ChatComposer';
-import ChatMessageBubble from '../../components/chat/ChatMessageBubble';
-import ChatQuickReplyChip from '../../components/chat/ChatQuickReplyChip';
-import SupportHeader from '../../components/support/SupportHeader';
-import { useDeliveriesSocketSession } from '../../hooks';
-import { useSendSupportChatMessage } from '../../hooks/useSupportChatMutations';
-import { useSupportChatBox, useSupportGroupedChatBoxes } from '../../hooks/useSupportChatQueries';
-import { SupportNavigationParamList } from '../../navigation/supportNavigationTypes';
-import { subscribeDeliveriesEvent } from '../../socket/deliveriesSocket';
+import Text from '../../../general/components/Text';
+import { showToast } from '../../../general/components/AppToast';
+import { useAuthSessionQuery } from '../../../general/hooks/useAuthQueries';
+import type { SocketReceivedMessage } from '../../../general/services/socket';
+import { useTheme } from '../../../general/theme/theme';
+import ChatComposer from '../components/chat/ChatComposer';
+import ChatMessageBubble from '../components/chat/ChatMessageBubble';
+import ChatQuickReplyChip from '../components/chat/ChatQuickReplyChip';
+import SupportHeader from '../components/support/SupportHeader';
+import { useDeliveriesSocketSession } from '../hooks';
+import { useSendSupportChatMessage } from '../hooks/useSupportChatMutations';
+import { useSupportChatBox, useSupportConversations } from '../hooks/useSupportChatQueries';
+import type { SupportNavigationParamList } from '../navigation/supportNavigationTypes';
+import { subscribeDeliveriesEvent } from '../socket/deliveriesSocket';
 import {
   formatSupportChatTimeLabel,
-  getFirstSupportChatBox,
   getSupportChatBox,
   getSupportChatBoxId,
+  getSupportChatConversationGroups,
   getSupportChatMessages,
   getSupportChatMessageId,
   getSupportChatOtherParticipant,
   getSupportChatParticipantId,
-  getSupportChatParticipantName,
-} from '../../utils/supportChatMappers';
+} from '../utils/supportChatMappers';
 
-type SupportChatRouteProp = RouteProp<SupportNavigationParamList, 'SupportChat'>;
+type SupportTicketDetailRouteProp = RouteProp<SupportNavigationParamList, 'SupportTicketDetail'>;
 
-const TEMP_SUPPORT_RECEIVER_ID = '79f6cbfa-2b05-49b8-9b31-01e84bc540d9';
-
-type PendingSupportMessage = {
+type TicketChatMessage = {
   id: string;
   isCurrentUser: boolean;
   text: string;
   timeLabel: string;
 };
 
-export default function SupportChatScreen() {
+export default function SupportTicketDetailScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
-  const { colors } = useTheme();
+  const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
-  const route = useRoute<SupportChatRouteProp>();
+  const route = useRoute<SupportTicketDetailRouteProp>();
+  const { ticket } = route.params;
   const sessionQuery = useAuthSessionQuery();
   useDeliveriesSocketSession();
-  const supportChatBoxesQuery = useSupportGroupedChatBoxes();
-  const fallbackChatBox = useMemo(
-    () => getFirstSupportChatBox(supportChatBoxesQuery.data),
-    [supportChatBoxesQuery.data],
-  );
-  const fallbackParticipant = useMemo(
-    () => getSupportChatOtherParticipant(fallbackChatBox, sessionQuery.data?.user?.id),
-    [fallbackChatBox, sessionQuery.data?.user?.id],
-  );
-  const initialChatBoxId =
-    route.params?.chatBoxId ?? (getSupportChatBoxId(fallbackChatBox) || undefined);
-  const [chatBoxId, setChatBoxId] = useState(initialChatBoxId);
-  const [pendingMessages, setPendingMessages] = useState<PendingSupportMessage[]>([]);
-  const [realtimeMessages, setRealtimeMessages] = useState<PendingSupportMessage[]>([]);
+  const supportConversationsQuery = useSupportConversations();
+  const fallbackChatBoxId = useMemo(() => {
+    if (ticket.chatBoxId || !ticket.assignedAdminId) {
+      return ticket.chatBoxId;
+    }
+
+    const conversationGroups = getSupportChatConversationGroups(
+      supportConversationsQuery.data,
+    );
+    const allConversations = [
+      ...conversationGroups.recent,
+      ...conversationGroups.past,
+    ];
+    const matchedConversation = allConversations.find((chatBox) => {
+      const participant = getSupportChatOtherParticipant(
+        chatBox,
+        sessionQuery.data?.user?.id,
+      );
+
+      return getSupportChatParticipantId(participant) === ticket.assignedAdminId;
+    });
+
+    return getSupportChatBoxId(matchedConversation) || undefined;
+  }, [
+    sessionQuery.data?.user?.id,
+    supportConversationsQuery.data,
+    ticket.assignedAdminId,
+    ticket.chatBoxId,
+  ]);
+  const [chatBoxId, setChatBoxId] = useState(fallbackChatBoxId);
+  const [draftMessage, setDraftMessage] = useState('');
+  const [pendingMessages, setPendingMessages] = useState<TicketChatMessage[]>([]);
+  const [realtimeMessages, setRealtimeMessages] = useState<TicketChatMessage[]>([]);
   const supportChatBoxQuery = useSupportChatBox(chatBoxId);
   const refetchSupportChatBox = supportChatBoxQuery.refetch;
-  const refetchSupportChatBoxes = supportChatBoxesQuery.refetch;
   const supportChatSendMutation = useSendSupportChatMessage({
     onError: (error) => {
       setPendingMessages((current) => current.slice(0, -1));
-      showToast.error(t('support_chat_send_error_title'), error.message || t('support_chat_send_error_message'));
+      showToast.error(
+        t('support_chat_send_error_title'),
+        error.message || t('support_chat_send_error_message'),
+      );
     },
     onSuccess: (response) => {
       const nextChatBoxId =
@@ -92,13 +110,20 @@ export default function SupportChatScreen() {
       setDraftMessage('');
     },
   });
-  const [draftMessage, setDraftMessage] = useState('');
 
   useEffect(() => {
-    if (!chatBoxId && initialChatBoxId) {
-      setChatBoxId(initialChatBoxId);
+    if (!chatBoxId && fallbackChatBoxId) {
+      setChatBoxId(fallbackChatBoxId);
     }
-  }, [chatBoxId, initialChatBoxId]);
+  }, [chatBoxId, fallbackChatBoxId]);
+
+  useEffect(() => {
+    console.log('SupportTicketDetailScreen route ticket', {
+      ticketChatBoxId: ticket.chatBoxId,
+      ticketId: ticket.id,
+      ticketTitle: ticket.title,
+    });
+  }, [ticket.chatBoxId, ticket.id, ticket.title]);
 
   useEffect(() => {
     const serverMessages = getSupportChatMessages(supportChatBoxQuery.data);
@@ -109,19 +134,37 @@ export default function SupportChatScreen() {
   }, [pendingMessages.length, supportChatBoxQuery.data]);
 
   const activeChatBox = useMemo(
-    () => getSupportChatBox(supportChatBoxQuery.data) ?? fallbackChatBox,
-    [fallbackChatBox, supportChatBoxQuery.data],
+    () => getSupportChatBox(supportChatBoxQuery.data),
+    [supportChatBoxQuery.data],
   );
-  const activeParticipant = useMemo(
+  const receiverId = useMemo(
     () =>
-      getSupportChatOtherParticipant(activeChatBox, sessionQuery.data?.user?.id) ??
-      fallbackParticipant,
-    [activeChatBox, fallbackParticipant, sessionQuery.data?.user?.id],
+      getSupportChatParticipantId(
+        getSupportChatOtherParticipant(activeChatBox, sessionQuery.data?.user?.id),
+      ) || ticket.assignedAdminId || undefined,
+    [activeChatBox, sessionQuery.data?.user?.id, ticket.assignedAdminId],
   );
-  const agentName =
-    route.params?.agentName ||
-    getSupportChatParticipantName(activeParticipant) ||
-    t('support_chat_agent_name');
+
+  useEffect(() => {
+    console.log('SupportTicketDetailScreen chat setup', {
+      activeChatBox,
+      chatBoxId,
+      receiverId,
+      ticketAssignedAdminId: ticket.assignedAdminId,
+      supportChatBoxData: supportChatBoxQuery.data,
+      ticketChatBoxId: ticket.chatBoxId,
+      userId: sessionQuery.data?.user?.id,
+    });
+  }, [
+    activeChatBox,
+    chatBoxId,
+    receiverId,
+    sessionQuery.data?.user?.id,
+    supportChatBoxQuery.data,
+    ticket.assignedAdminId,
+    ticket.chatBoxId,
+  ]);
+
   const messages = useMemo(() => {
     const currentUserId = sessionQuery.data?.user?.id;
     const serverMessages = getSupportChatMessages(supportChatBoxQuery.data);
@@ -134,11 +177,7 @@ export default function SupportChatScreen() {
       timeLabel: formatSupportChatTimeLabel(message.createdAt ?? message.created_at),
     }));
 
-    if (
-      !mappedServerMessages.length
-      && !realtimeMessages.length
-      && !pendingMessages.length
-    ) {
+    if (!mappedServerMessages.length && !realtimeMessages.length && !pendingMessages.length) {
       return [
         {
           id: 'support-auto-message',
@@ -151,10 +190,6 @@ export default function SupportChatScreen() {
 
     return [...mappedServerMessages, ...realtimeMessages, ...pendingMessages];
   }, [pendingMessages, realtimeMessages, sessionQuery.data?.user?.id, supportChatBoxQuery.data, t]);
-  const receiverId =
-    route.params?.receiverId ||
-    getSupportChatParticipantId(activeParticipant) ||
-    TEMP_SUPPORT_RECEIVER_ID;
 
   const quickReplies = useMemo(
     () => [
@@ -221,23 +256,21 @@ export default function SupportChatScreen() {
         ];
       });
 
-      void refetchSupportChatBoxes();
       if (chatBoxId) {
         void refetchSupportChatBox();
       }
     });
   }, [
     chatBoxId,
-    refetchSupportChatBox,
-    refetchSupportChatBoxes,
     receiverId,
+    refetchSupportChatBox,
     sessionQuery.data?.user?.id,
   ]);
 
-  const appendMessage = (text: string) => {
-    const trimmed = text.trim();
+  const handleAppendMessage = (value: string) => {
+    const trimmedValue = value.trim();
 
-    if (!trimmed) {
+    if (!trimmedValue) {
       return;
     }
 
@@ -249,6 +282,14 @@ export default function SupportChatScreen() {
     }
 
     if (!receiverId) {
+      console.log('SupportTicketDetailScreen missing receiver', {
+        activeChatBox,
+        chatBoxId,
+        supportChatBoxData: supportChatBoxQuery.data,
+        ticketAssignedAdminId: ticket.assignedAdminId,
+        ticketChatBoxId: ticket.chatBoxId,
+        userId: sessionQuery.data?.user?.id,
+      });
       showToast.error(t('support_chat_send_error_title'), t('support_chat_missing_receiver_error'));
       return;
     }
@@ -258,54 +299,29 @@ export default function SupportChatScreen() {
       {
         id: `pending-${Date.now()}`,
         isCurrentUser: true,
-        text: trimmed,
+        text: trimmedValue,
         timeLabel: formatSupportChatTimeLabel(new Date().toISOString()),
       },
     ]);
 
     supportChatSendMutation.mutate({
-      receiverId,
       senderId,
-      text: trimmed,
-    });
-  };
-
-  const handleAttachmentPress = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (status !== 'granted') {
-      showToast.error(
-        t('support_chat_attachment_permission_title'),
-        t('support_chat_attachment_permission_message'),
-      );
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: false,
-      quality: 0.8,
+      receiverId,
+      text: trimmedValue,
+      chatBoxId,
     });
 
-    if (result.canceled || result.assets.length === 0) {
-      return;
-    }
-
-    const asset = result.assets[0];
-
-    showToast.success(
-      t('support_chat_attachment_selected_title'),
-      t('support_chat_attachment_selected_message', {
-        fileName: asset.fileName ?? asset.uri.split('/').pop() ?? 'image',
-      }),
-    );
+    requestAnimationFrame(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    });
   };
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <SupportHeader
-        title={agentName}
-        rightAccessibilityLabel={t('support_call_action')}
+        title={t('support_tickets_title')}
+        rightAccessibilityLabel={t('support_tickets_search_action')}
+        rightIconName="search-outline"
       />
 
       <KeyboardAvoidingView
@@ -313,6 +329,46 @@ export default function SupportChatScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 20 : 0}
       >
+        <View style={[styles.ticketHero, { backgroundColor: colors.supportTicketHeaderBackground }]}>
+          <Text
+            color={colors.white}
+            weight="semiBold"
+            style={[styles.ticketTitle, { fontSize: typography.size.xl2, lineHeight: typography.lineHeight.xl2 }]}
+            numberOfLines={2}
+          >
+            {ticket.title}
+          </Text>
+
+          <View style={[styles.statusChip, { backgroundColor: colors.green100 }]}>
+            <Text
+              color={colors.success}
+              weight="medium"
+              style={{ fontSize: typography.size.xs2, lineHeight: 18 }}
+            >
+              {ticket.statusLabel}
+            </Text>
+          </View>
+        </View>
+
+        <View style={[styles.ticketMeta, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+          <Text
+            color={colors.mutedText}
+            style={{ fontSize: typography.size.sm2, lineHeight: typography.lineHeight.md }}
+            numberOfLines={1}
+          >
+            {ticket.preview}
+          </Text>
+          {ticket.orderIdLabel ? (
+            <Text
+              color={colors.text}
+              weight="semiBold"
+              style={{ fontSize: typography.size.xl2, lineHeight: typography.lineHeight.xl2 }}
+            >
+              {ticket.orderIdLabel}
+            </Text>
+          ) : null}
+        </View>
+
         <ScrollView
           ref={scrollViewRef}
           style={styles.scrollView}
@@ -320,14 +376,10 @@ export default function SupportChatScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {supportChatBoxesQuery.isPending || (chatBoxId && supportChatBoxQuery.isPending) ? (
+          {chatBoxId && supportChatBoxQuery.isPending ? (
             <View style={styles.centerState}>
               <ActivityIndicator size="large" color={colors.primary} />
               <Text color={colors.mutedText}>{t('support_chat_loading')}</Text>
-            </View>
-          ) : !chatBoxId && pendingMessages.length === 0 ? (
-            <View style={styles.centerState}>
-              <Text color={colors.mutedText}>{t('support_chat_empty')}</Text>
             </View>
           ) : supportChatBoxQuery.isError ? (
             <View style={styles.centerState}>
@@ -358,7 +410,7 @@ export default function SupportChatScreen() {
               <ChatQuickReplyChip
                 key={reply}
                 label={reply}
-                onPress={() => appendMessage(reply)}
+                onPress={() => handleAppendMessage(reply)}
               />
             ))}
           </ScrollView>
@@ -369,6 +421,7 @@ export default function SupportChatScreen() {
             styles.composer,
             {
               backgroundColor: colors.background,
+              borderTopColor: colors.border,
               paddingBottom: insets.bottom + 12,
             },
           ]}
@@ -377,9 +430,9 @@ export default function SupportChatScreen() {
             attachmentAccessibilityLabel={t('support_chat_add_attachment')}
             isSending={supportChatSendMutation.isPending}
             messageAccessibilityLabel={t('support_chat_send_message')}
-            onAttachmentPress={handleAttachmentPress}
+            onAttachmentPress={() => undefined}
             onChangeText={setDraftMessage}
-            onSend={() => appendMessage(draftMessage)}
+            onSend={() => handleAppendMessage(draftMessage)}
             placeholder={t('support_chat_input_placeholder')}
             value={draftMessage}
           />
@@ -407,27 +460,49 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'flex-end',
     paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingTop: 18,
     paddingBottom: 24,
   },
   messageSection: {
     gap: 20,
-    paddingBottom: 8,
+    paddingBottom: 18,
   },
   quickReplyRail: {
     borderTopWidth: StyleSheet.hairlineWidth,
   },
   quickReplyRow: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 10,
     paddingHorizontal: 16,
-    paddingBottom: 12,
     paddingTop: 12,
+    paddingBottom: 12,
   },
   screen: {
     flex: 1,
   },
   scrollView: {
     flex: 1,
+  },
+  statusChip: {
+    alignSelf: 'flex-start',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  ticketHero: {
+    gap: 10,
+    paddingHorizontal: 22,
+    paddingTop: 22,
+    paddingBottom: 20,
+  },
+  ticketMeta: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    gap: 4,
+    paddingHorizontal: 22,
+    paddingTop: 18,
+    paddingBottom: 20,
+  },
+  ticketTitle: {
+    maxWidth: '100%',
   },
 });

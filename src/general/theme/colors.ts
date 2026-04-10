@@ -32,7 +32,9 @@ export const lightColors = {
   homeHeaderGradientEnd: 'rgba(203, 215, 255, 0.4)',
   blue50: '#EFF6FF',
   blue100: '#DBEAFE',
+  blue500: '#3B82F6',
   blue800: '#1E40AF',
+  green100: '#D1FAE5',
   iconMuted: '#71717A',
   iconDisabled: '#A1A1AA',
   overlayDark20: 'rgba(0, 0, 0, 0.2)',
@@ -55,11 +57,13 @@ export const lightColors = {
   findingRideCenterHalo: 'rgba(175, 231, 247, 0.72)',
   findingRideMapOverlay: 'rgba(255, 255, 255, 0.2)',
   yellow500: '#EAB308',
+  red100: '#FEE2E2',
   storeHeroPrimary: '#009A2B',
   storeHeroSecondary: '#005A2B',
   storeHeroOverlay: 'rgba(0, 90, 43, 0.22)',
   storeMenuAccentLime: '#A9D329',
   storeMenuAccentOrange: '#F86A33',
+  supportTicketHeaderBackground: '#111827',
 };
 
 export const darkColors: typeof lightColors = {
@@ -96,7 +100,9 @@ export const darkColors: typeof lightColors = {
   homeHeaderGradientEnd: 'rgba(203, 215, 255, 0.15)',
   blue50: '#1A2337',
   blue100: '#1E2A44',
+  blue500: '#60A5FA',
   blue800: '#1E40AF',
+  green100: '#173A33',
   iconMuted: '#9CA3AF',
   iconDisabled: '#6B7280',
   overlayDark20: 'rgba(0, 0, 0, 0.2)',
@@ -119,11 +125,13 @@ export const darkColors: typeof lightColors = {
   findingRideCenterHalo: 'rgba(22, 145, 191, 0.22)',
   findingRideMapOverlay: 'rgba(15, 17, 23, 0.22)',
   yellow500: '#EAB308',
+  red100: '#3B1F1F',
   storeHeroPrimary: '#007E27',
   storeHeroSecondary: '#044A25',
   storeHeroOverlay: 'rgba(4, 74, 37, 0.3)',
   storeMenuAccentLime: '#88B11F',
   storeMenuAccentOrange: '#D85B2D',
+  supportTicketHeaderBackground: '#111827',
 };
 
 export type ThemeColors = typeof lightColors;

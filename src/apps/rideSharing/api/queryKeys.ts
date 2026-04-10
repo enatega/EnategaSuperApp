@@ -38,6 +38,8 @@ export const rideKeys = {
   chat: () => [...rideKeys.all, 'chat'] as const,
   chatBoxes: (userId: string) => [...rideKeys.chat(), 'boxes', userId] as const,
   chatMessages: (chatBoxId: string) => [...rideKeys.chat(), 'messages', chatBoxId] as const,
+  supportChat: () => [...rideKeys.all, 'support-chat'] as const,
+  supportChatMessages: (chatBoxId: string) => [...rideKeys.supportChat(), 'messages', chatBoxId] as const,
 
   // Profile / Stats
   stats: () => [...rideKeys.all, 'stats'] as const,
@@ -57,6 +59,7 @@ export const userKeys = {
 
   /** Current authenticated user profile. */
   profile: () => [...userKeys.all, 'profile'] as const,
+  walletBalance: () => [...userKeys.all, 'wallet-balance'] as const,
 
 };
 
