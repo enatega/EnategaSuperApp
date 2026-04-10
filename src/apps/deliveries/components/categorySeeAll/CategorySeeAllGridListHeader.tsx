@@ -1,13 +1,13 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import Text from '../../../../../general/components/Text';
-import { useTheme } from '../../../../../general/theme/theme';
+import Text from '../../../../general/components/Text';
+import { useTheme } from '../../../../general/theme/theme';
 
 type Props = {
   title: string;
 };
 
-export default function ShopTypesSeeAllListHeader({ title }: Props) {
+export default function CategorySeeAllGridListHeader({ title }: Props) {
   const { colors, typography } = useTheme();
 
   return (

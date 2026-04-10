@@ -12,7 +12,7 @@ import ShopTypeList from '../../components/HomeTab/ShopTypeList';
 import MultiVendorSpecialOffers from '../../components/HomeTab/SpecialOffersBanner';
 import TopBrandsList from '../../components/HomeTab/TopBrandsList';
 import NearbyStoreList from '../../components/HomeTab/NearbyStoreList';
-import Deals from '../../components/HomeTab/Deals';
+import MultiVendorDealsSection from '../../components/HomeTab/MultiVendorDealsSection';
 import OrderAgain from '../../components/HomeTab/OrderAgain';
 import { useCartCount } from '../../../hooks/useCart';
 import useAddressSelectionSheet from '../../../hooks/useAddressSelectionSheet';
@@ -98,7 +98,7 @@ export default function HomeTab() {
         <ShopTypeList />
         <TopBrandsList />
         <NearbyStoreList />
-        <Deals />
+        <MultiVendorDealsSection />
         <OrderAgain />
       </ScrollView>
 

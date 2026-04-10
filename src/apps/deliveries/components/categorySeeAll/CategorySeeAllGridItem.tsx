@@ -1,15 +1,15 @@
-import React from "react";
-import { Pressable, StyleSheet } from "react-native";
-import type { DeliveryShopType } from "../../../api/types";
-import ShopTypeCard from "../../../components/ShopTypeCard";
-import { useTheme } from "../../../../../general/theme/theme";
+import React from 'react';
+import { Pressable, StyleSheet } from 'react-native';
+import { useTheme } from '../../../../general/theme/theme';
+import { DiscoveryCategoryCard } from '../discovery';
+import type { DeliveryDiscoveryCategoryItem } from '../discovery';
 
 type Props = {
-  item: DeliveryShopType;
-  onPress: (shopType: DeliveryShopType) => void;
+  item: DeliveryDiscoveryCategoryItem;
+  onPress: (item: DeliveryDiscoveryCategoryItem) => void;
 };
 
-export default function ShopTypesSeeAllItem({ item, onPress }: Props) {
+export default function CategorySeeAllGridItem({ item, onPress }: Props) {
   const { typography } = useTheme();
 
   return (
@@ -19,8 +19,8 @@ export default function ShopTypesSeeAllItem({ item, onPress }: Props) {
       onPress={() => onPress(item)}
       style={styles.item}
     >
-      <ShopTypeCard
-        image={{ uri: item.image ?? "" }}
+      <DiscoveryCategoryCard
+        imageUrl={item.imageUrl}
         title={item.name}
         containerStyle={styles.cardContainer}
         imageWrapStyle={styles.imageWrap}
@@ -37,12 +37,12 @@ export default function ShopTypesSeeAllItem({ item, onPress }: Props) {
 const styles = StyleSheet.create({
   cardContainer: {
     gap: 10,
-    width: "100%",
+    width: '100%',
   },
   image: {
     borderRadius: 8,
-    height: "100%",
-    width: "100%",
+    height: '100%',
+    width: '100%',
   },
   imageWrap: {
     borderRadius: 14,
@@ -51,6 +51,6 @@ const styles = StyleSheet.create({
     width: 112,
   },
   item: {
-    width: "31%",
+    width: '31%',
   },
 });

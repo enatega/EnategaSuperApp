@@ -49,3 +49,4 @@ yarn-error.*
 # IDE
 .idea/
 .vscode/
+src/apps/deliveries/multiVendor/components/HomeTab/ShopTypeCard.tsx

@@ -1,8 +1,6 @@
 import React, { useCallback } from "react";
 import { FlatList, StyleSheet } from "react-native";
-import { useDealsListing } from "../../hooks";
 import type { DeliveryDealItem, DeliveryDealsTabType } from "../../api/dealsServiceTypes";
-import type { GenericListFilters } from "../filters/types";
 import DealsSeeAllEmptyState from "./DealsSeeAllEmptyState";
 import DealsSeeAllErrorState from "./DealsSeeAllErrorState";
 import DealsSeeAllItem from "./DealsSeeAllItem";
@@ -10,38 +8,36 @@ import DealsSeeAllListHeader from "./DealsSeeAllListHeader";
 import DealsSeeAllSkeleton from "./DealsSeeAllSkeleton";
 
 type DealsSeeAllContainerProps = {
-  filters: GenericListFilters;
+  data: DeliveryDealItem[];
+  fetchNextPage: () => Promise<unknown> | unknown;
+  hasNextPage?: boolean;
+  isError: boolean;
+  isFetchingNextPage: boolean;
   onDealPress: (deal: DeliveryDealItem) => void;
   onTabChange: (tab: DeliveryDealsTabType) => void;
-  search: string;
+  isPending: boolean;
+  isRefetching: boolean;
+  isTabsVisible?: boolean;
+  refetch: () => Promise<unknown> | unknown;
   selectedTab: DeliveryDealsTabType;
   title: string;
 };
 
 const DealsSeeAllContainer = ({
-  filters,
+  data,
+  fetchNextPage,
+  hasNextPage,
+  isError,
+  isFetchingNextPage,
   onDealPress,
   onTabChange,
-  search,
+  isPending,
+  isRefetching,
+  isTabsVisible = true,
+  refetch,
   selectedTab,
   title,
 }: DealsSeeAllContainerProps) => {
-  const {
-    data: deals = [],
-    isPending,
-    isError,
-    isRefetching,
-    isFetchingNextPage,
-    hasNextPage,
-    refetch,
-    fetchNextPage,
-  } = useDealsListing({
-    mode: "paginated",
-    filters,
-    search,
-    tab: selectedTab,
-  });
-
   const handleLoadMore = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
       void fetchNextPage();
@@ -49,7 +45,7 @@ const DealsSeeAllContainer = ({
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   if (isPending) {
-    return <DealsSeeAllSkeleton />;
+    return <DealsSeeAllSkeleton isTabsVisible={isTabsVisible} />;
   }
 
   if (isError) {
@@ -65,11 +61,12 @@ const DealsSeeAllContainer = ({
 
   return (
     <FlatList
-      data={deals}
+      data={data}
       numColumns={2}
       keyExtractor={(item) => item.dealId}
       ListHeaderComponent={
         <DealsSeeAllListHeader
+          isTabsVisible={isTabsVisible}
           onTabChange={onTabChange}
           selectedTab={selectedTab}
           title={title}

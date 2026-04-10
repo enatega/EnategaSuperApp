@@ -2,16 +2,16 @@ import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import Button from '../../../../../general/components/Button';
-import Text from '../../../../../general/components/Text';
-import { useTheme } from '../../../../../general/theme/theme';
+import Button from '../../../../general/components/Button';
+import Text from '../../../../general/components/Text';
+import { useTheme } from '../../../../general/theme/theme';
 
 type Props = {
   isRetrying?: boolean;
   onRetry: () => void;
 };
 
-export default function ShopTypesSeeAllErrorState({
+export default function CategorySeeAllGridErrorState({
   isRetrying = false,
   onRetry,
 }: Props) {

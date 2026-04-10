@@ -1,28 +1,31 @@
 import React from 'react';
 import type {
-  ImageSourcePropType,
   ImageStyle,
   StyleProp,
   TextStyle,
   ViewStyle,
 } from 'react-native';
-import { StyleSheet, View } from 'react-native';
-import Text from '../../../general/components/Text';
-import Image from '../../../general/components/Image';
-import { useTheme } from '../../../general/theme/theme';
+
+import { Pressable, StyleSheet, View } from 'react-native';
+import Text from '../../../../general/components/Text';
+import Image from '../../../../general/components/Image';
+import { useTheme } from '../../../../general/theme/theme';
+
 
 type Props = {
-  image: ImageSourcePropType;
+  imageUrl?: string | null;
   title: string;
+  onPress?: () => void;
   containerStyle?: StyleProp<ViewStyle>;
   imageWrapStyle?: StyleProp<ViewStyle>;
   imageStyle?: StyleProp<ImageStyle>;
   titleStyle?: StyleProp<TextStyle>;
 };
 
-export default function ShopTypeCard({
-  image,
+export default function DiscoveryCategoryCard({
+  imageUrl,
   title,
+  onPress,
   containerStyle,
   imageWrapStyle,
   imageStyle,
@@ -31,7 +34,13 @@ export default function ShopTypeCard({
   const { colors, typography } = useTheme();
 
   return (
-    <View style={[styles.container, containerStyle]}>
+    <Pressable
+      accessibilityLabel={title}
+      accessibilityRole={onPress ? 'button' : undefined}
+      disabled={!onPress}
+      onPress={onPress}
+      style={[styles.container, containerStyle]}
+    >
       <View
         style={[
           styles.imageWrap,
@@ -39,23 +48,23 @@ export default function ShopTypeCard({
           imageWrapStyle,
         ]}
       >
-        <Image source={image} style={[styles.image, imageStyle]} />
+        <Image source={{ uri: imageUrl ?? '' }} style={[styles.image, imageStyle]} />
       </View>
       <Text
         weight="medium"
         numberOfLines={2}
         style={[
+          styles.title,
           {
             fontSize: typography.size.xs2,
             lineHeight: typography.lineHeight.sm,
-            textAlign: 'center',
           },
           titleStyle,
         ]}
       >
         {title}
       </Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -64,6 +73,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     width: 72,
+  },
+  image: {
+    borderRadius: 4,
+    height: 52,
+    width: 52,
   },
   imageWrap: {
     alignItems: 'center',
@@ -76,9 +90,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     width: 72,
   },
-  image: {
-    borderRadius: 4,
-    height: 52,
-    width: 52,
+  title: {
+    textAlign: 'center',
   },
 });
