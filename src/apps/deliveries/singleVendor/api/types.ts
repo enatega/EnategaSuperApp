@@ -20,8 +20,16 @@ export interface SingleVendorCategoryProductsParams {
   limit?: number;
 }
 
+export interface SingleVendorDealsParams {
+  offset?: number;
+  limit?: number;
+}
+
 export type SingleVendorCategoriesApiResponse =
   PaginatedDeliveryResponse<SingleVendorCategory>;
 
 export type SingleVendorCategoryProductsApiResponse =
+  PaginatedDeliveryResponse<DeliveryShopTypeProduct>;
+
+export type SingleVendorDealsApiResponse =
   PaginatedDeliveryResponse<DeliveryShopTypeProduct>;

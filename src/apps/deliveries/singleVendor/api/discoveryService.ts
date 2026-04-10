@@ -4,6 +4,8 @@ import type {
   SingleVendorCategoryProductsApiResponse,
   SingleVendorCategoryProductsParams,
   SingleVendorCategoriesParams,
+  SingleVendorDealsApiResponse,
+  SingleVendorDealsParams,
 } from './types';
 
 const SINGLE_VENDOR_CATEGORIES_DEFAULTS = {
@@ -12,6 +14,11 @@ const SINGLE_VENDOR_CATEGORIES_DEFAULTS = {
 } as const;
 
 const SINGLE_VENDOR_CATEGORY_PRODUCTS_DEFAULTS = {
+  offset: 0,
+  limit: 10,
+} as const;
+
+const SINGLE_VENDOR_DEALS_DEFAULTS = {
   offset: 0,
   limit: 10,
 } as const;
@@ -60,6 +67,32 @@ export const singleVendorDiscoveryService = {
       );
     } catch (error) {
       console.error('single vendor category products request failed', error);
+      throw error;
+    }
+  },
+
+  getDeals: async (
+    params: SingleVendorDealsParams = {},
+  ) => {
+    const response = await singleVendorDiscoveryService.getDealsPage(params);
+    return response.items;
+  },
+
+  getDealsPage: async (
+    params: SingleVendorDealsParams = {},
+  ): Promise<SingleVendorDealsApiResponse> => {
+    const {
+      offset = SINGLE_VENDOR_DEALS_DEFAULTS.offset,
+      limit = SINGLE_VENDOR_DEALS_DEFAULTS.limit,
+    } = params;
+
+    try {
+      return await apiClient.get<SingleVendorDealsApiResponse>(
+        '/api/v1/apps/deliveries/discovery/single-vendor/deals',
+        { offset, limit },
+      );
+    } catch (error) {
+      console.error('single vendor deals request failed', error);
       throw error;
     }
   },

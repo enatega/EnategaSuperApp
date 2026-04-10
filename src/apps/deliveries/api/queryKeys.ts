@@ -28,6 +28,8 @@ export const deliveryKeys = {
             offset,
             limit,
         ] as const,
+    singleVendorDeals: (filters?: { limit?: number }) =>
+        [...deliveryKeys.discovery(), 'single-vendor-deals', filters] as const,
     shopTypeProducts: (shopTypeId: string, offset = 0, limit = 10) =>
         [
             ...deliveryKeys.discovery(),

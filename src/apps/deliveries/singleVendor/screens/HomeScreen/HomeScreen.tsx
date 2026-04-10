@@ -16,6 +16,7 @@ import useSavedAddresses from '../../../hooks/useSavedAddresses';
 import useSelectSavedAddress from '../../../hooks/useSelectSavedAddress';
 import type { DeliveriesStackParamList } from '../../../navigation/types';
 import SingleVendorCategorySection from '../../components/HomeScreen/SingleVendorCategorySection';
+import SingleVendorDealsSection from '../../components/HomeScreen/SingleVendorDealsSection';
 
 export default function HomeScreen() {
   const { colors } = useTheme();
@@ -98,6 +99,7 @@ export default function HomeScreen() {
           />
         </View>
 
+        <SingleVendorDealsSection />
         <SingleVendorCategorySection />
       </ScrollView>
 
