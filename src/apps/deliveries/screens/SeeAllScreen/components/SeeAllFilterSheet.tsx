@@ -1,10 +1,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import FilterSheet from '../../../../components/filters/FilterSheet';
+import FilterSheet from '../../../components/filters/FilterSheet';
 import type {
   GenericListFilterData,
   GenericListFilterSheetRenderProps,
-} from '../../../../components/filters';
+} from '../../../components/filters';
 
 type Props = GenericListFilterSheetRenderProps & {
   filters?: GenericListFilterData;

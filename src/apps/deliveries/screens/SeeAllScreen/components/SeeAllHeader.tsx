@@ -2,10 +2,10 @@ import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import SearchInput from '../../../../components/search/SearchInput';
-import Icon from '../../../../../../general/components/Icon';
-import { useTheme } from '../../../../../../general/theme/theme';
-import type { GenericListHeaderRenderProps } from '../../../../components/filterablePaginatedList';
+import SearchInput from '../../../components/search/SearchInput';
+import Icon from '../../../../../general/components/Icon';
+import { useTheme } from '../../../../../general/theme/theme';
+import type { GenericListHeaderRenderProps } from '../../../components/filterablePaginatedList';
 
 export default function SeeAllHeader({
   searchPlaceholder,

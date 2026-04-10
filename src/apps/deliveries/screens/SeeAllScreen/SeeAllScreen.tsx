@@ -3,11 +3,11 @@ import { Keyboard, Pressable, StyleSheet } from "react-native";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
-import { GenericFilterablePaginatedListScreen } from "../../../components/filterablePaginatedList";
+import { GenericFilterablePaginatedListScreen } from "../../components/filterablePaginatedList";
 import type {
-  MultiVendorStackParamList,
+  DeliveriesSeeAllParamList,
   SeeAllItem,
-} from "../../navigation/types";
+} from "../../navigation/sharedTypes";
 import SeeAllHeader from "./components/SeeAllHeader";
 import SeeAllFilterSheet from "./components/SeeAllFilterSheet";
 import useSeeAllScreenConfig from "./useSeeAllScreenConfig";
@@ -16,9 +16,9 @@ import useSeeAllScreenState from "./useSeeAllScreenState";
 export default function SeeAllScreen() {
   const { t } = useTranslation("deliveries");
   const navigation =
-    useNavigation<NativeStackNavigationProp<MultiVendorStackParamList>>();
+    useNavigation<NativeStackNavigationProp<DeliveriesSeeAllParamList>>();
   const route =
-    useRoute<RouteProp<MultiVendorStackParamList, "SeeAllScreen">>();
+    useRoute<RouteProp<DeliveriesSeeAllParamList, "SeeAllScreen">>();
   const { queryType, title, shopTypeId, vendorId } = route.params;
   const {
     filterValues,

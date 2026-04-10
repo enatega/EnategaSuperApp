@@ -5,12 +5,12 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import Button from "../../../../../../general/components/Button";
-import BottomSheetHandle from "../../../../../../general/components/BottomSheetHandle";
-import Icon from "../../../../../../general/components/Icon";
-import Text from "../../../../../../general/components/Text";
-import SwipeableBottomSheet from "../../../../../../general/components/SwipeableBottomSheet";
-import { useTheme } from "../../../../../../general/theme/theme";
+import Button from "../../../../../general/components/Button";
+import BottomSheetHandle from "../../../../../general/components/BottomSheetHandle";
+import Icon from "../../../../../general/components/Icon";
+import Text from "../../../../../general/components/Text";
+import SwipeableBottomSheet from "../../../../../general/components/SwipeableBottomSheet";
+import { useTheme } from "../../../../../general/theme/theme";
 import MapStoreCard from "./MapStoreCard";
 import type { SeeAllMapStore } from "./mapStoreUtils";
 

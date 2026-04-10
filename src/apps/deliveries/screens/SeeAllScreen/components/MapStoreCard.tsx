@@ -1,9 +1,9 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import Image from "../../../../../../general/components/Image";
-import Icon from "../../../../../../general/components/Icon";
-import Text from "../../../../../../general/components/Text";
-import { useTheme } from "../../../../../../general/theme/theme";
+import Image from "../../../../../general/components/Image";
+import Icon from "../../../../../general/components/Icon";
+import Text from "../../../../../general/components/Text";
+import { useTheme } from "../../../../../general/theme/theme";
 import type { SeeAllMapStore } from "./mapStoreUtils";
 
 type Props = {
