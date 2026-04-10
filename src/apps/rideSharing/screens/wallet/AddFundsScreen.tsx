@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { showToast } from '../../../../general/components/AppToast';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import Button from '../../../../general/components/Button';
@@ -10,11 +11,13 @@ import PaymentMethodRow from '../../components/wallet/PaymentMethodRow';
 import ChoosePaymentSheet from '../../components/wallet/ChoosePaymentSheet';
 import AddPaymentMethodSheet from '../../components/wallet/AddPaymentMethodSheet';
 import { MOCK_PAYMENT_CARDS, QUICK_AMOUNTS } from '../../data/walletMockData';
+import { useWalletTopUp } from '../../hooks/useUserMutations';
 import type { PaymentCard } from '../../types/wallet';
 
 export default function AddFundsScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
+  const walletTopUpMutation = useWalletTopUp();
 
   const [amount, setAmount] = useState('');
   const [selectedQuickAmount, setSelectedQuickAmount] = useState<number | null>(null);
@@ -51,9 +54,42 @@ export default function AddFundsScreen() {
   }, []);
 
   const handleAddFunds = useCallback(() => {
-    // API integration placeholder
-    console.log('Add funds:', { amount: parsedAmount, cardId: selectedCard.id });
-  }, [parsedAmount, selectedCard]);
+    walletTopUpMutation.mutate(
+      {
+        amount: parsedAmount,
+        currency: t('wallet_currency_prefix'),
+      },
+      {
+        onError: (error) => {
+          showToast.error(
+            t('wallet_topup_error_title'),
+            error.message || t('wallet_topup_error_message'),
+          );
+        },
+        onSuccess: async (response) => {
+          if (!response.checkoutUrl) {
+            showToast.error(
+              t('wallet_topup_error_title'),
+              t('wallet_topup_error_message'),
+            );
+            return;
+          }
+
+          const canOpenCheckout = await Linking.canOpenURL(response.checkoutUrl);
+
+          if (!canOpenCheckout) {
+            showToast.error(
+              t('wallet_topup_error_title'),
+              t('wallet_topup_checkout_error_message'),
+            );
+            return;
+          }
+
+          await Linking.openURL(response.checkoutUrl);
+        },
+      },
+    );
+  }, [parsedAmount, t, walletTopUpMutation]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -130,6 +166,7 @@ export default function AddFundsScreen() {
           label={t('wallet_add_funds')}
           onPress={handleAddFunds}
           disabled={!isValid}
+          isLoading={walletTopUpMutation.isPending}
           style={styles.addButton}
         />
       </View>
@@ -203,12 +240,15 @@ const styles = StyleSheet.create({
   },
   currencyPrefix: {
     fontSize: 16,
-    lineHeight: 24,
+    lineHeight: 20,
+    paddingTop: 1,
   },
   amountInput: {
     flex: 1,
     fontSize: 16,
-    lineHeight: 24,
+    lineHeight: 20,
+    paddingVertical: 0,
+    textAlignVertical: 'center',
   },
   spacer: {
     flex: 1,

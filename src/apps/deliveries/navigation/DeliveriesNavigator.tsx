@@ -31,6 +31,9 @@ import SupportConversationsScreen from "../screens/SupportConversationsScreen/Su
 import SupportContactFormScreen from "../screens/SupportContactFormScreen/SupportContactFormScreen";
 import SupportFaqScreen from "../screens/SupportFaqScreen/SupportFaqScreen";
 import SupportFaqArticleScreen from "../screens/SupportFaqArticleScreen/SupportFaqArticleScreen";
+import SupportTicketsScreen from "../screens/SupportTicketsScreen/SupportTicketsScreen";
+import SupportTicketDetailScreen from "../screens/SupportTicketDetailScreen";
+import RiderChatScreen from "../screens/RiderChatScreen/RiderChatScreen";
 import {
   DEFAULT_DELIVERY_MODE,
   getDeliveryModePreference,
@@ -39,6 +42,8 @@ import {
   
 } from "./deliveryModePreference";
 import type { DeliveriesStackParamList } from "./types";
+import SeeAllScreen from "../screens/SeeAllScreen/SeeAllScreen";
+import DealsSeeAll from "../screens/DealsSeeAll/DealsSeeAll";
 
 const Stack = createNativeStackNavigator<DeliveriesStackParamList>();
 
@@ -215,6 +220,16 @@ export default function DeliveriesNavigator() {
         options={sharedScreenOptions}
       />
       <Stack.Screen
+        name="SupportTickets"
+        component={SupportTicketsScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SupportTicketDetail"
+        component={SupportTicketDetailScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
         name="ProductInfo"
         component={ProductInfo}
         options={sharedScreenOptions}
@@ -239,10 +254,25 @@ export default function DeliveriesNavigator() {
         component={OrderTrackingScreen}
         options={sharedScreenOptions}
       />
+      <Stack.Screen
+        name="RiderChat"
+        component={RiderChatScreen}
+        options={sharedScreenOptions}
+      />
 
       <Stack.Screen
         name="Checkout"
         component={CheckoutScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SeeAllScreen"
+        component={SeeAllScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="DealsSeeAll"
+        component={DealsSeeAll}
         options={sharedScreenOptions}
       />
     </Stack.Navigator>

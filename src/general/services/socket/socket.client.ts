@@ -6,7 +6,9 @@ import type {
   SocketAck,
   SocketAuthPayload,
   SocketEventHandler,
+  SocketReceivedMessage,
   SocketLifecycleState,
+  SocketSentMessage,
   SocketSubscriptionCleanup,
 } from './socket.types';
 
@@ -91,6 +93,16 @@ class SocketClient {
 
     socket.io.on('reconnect_failed', () => {
       socketLogger.error('Reconnect exhausted');
+    });
+
+    socket.onAny((event, ...args) => {
+      console.log('[socket] incoming event:', event, args);
+      socketLogger.info('Incoming socket event', {
+        event,
+        args,
+        connected: socket.connected,
+        socketId: socket.id,
+      });
     });
   }
 
@@ -187,6 +199,34 @@ class SocketClient {
     return true;
   }
 
+  sendMessage(message: SocketSentMessage) {
+    const socket = this.socket;
+
+    if (!socket?.connected) {
+      socketLogger.warn('Send message skipped because socket is not connected', {
+        receiver: message.receiver,
+        sender: message.sender,
+      });
+      return false;
+    }
+
+    socketLogger.info('Sending socket message', {
+      receiver: message.receiver,
+      sender: message.sender,
+    });
+    socket.emit('send-message', message);
+    return true;
+  }
+
+  onReceiveMessage(
+    handler: (message: SocketReceivedMessage) => void,
+  ): SocketSubscriptionCleanup {
+    return this.subscribe<[SocketReceivedMessage]>('receive-message', (message) => {
+      console.log('Received socket message:', message);
+      handler(message);
+    });
+  }
+
   subscribe<TArgs extends unknown[] = [unknown]>(
     event: string,
     handler: SocketEventHandler<TArgs>,
@@ -208,6 +248,17 @@ class SocketClient {
 
     existingHandlers.set(baseHandler, wrappedHandler);
     this.listenerRegistry.set(event, existingHandlers);
+    console.log('[socket] subscribing to event:', event, {
+      connected: socket.connected,
+      lifecycleState: this.lifecycleState,
+      socketId: socket.id,
+    });
+    socketLogger.info('Subscribed to socket event', {
+      event,
+      connected: socket.connected,
+      lifecycleState: this.lifecycleState,
+      socketId: socket.id,
+    });
     socket.on(event, wrappedHandler);
 
     return () => {
@@ -216,6 +267,11 @@ class SocketClient {
         return;
       }
 
+      console.log('[socket] unsubscribing from event:', event, {
+        connected: socket.connected,
+        lifecycleState: this.lifecycleState,
+        socketId: socket.id,
+      });
       socket.off(event, wrapped);
 
       const eventHandlers = this.listenerRegistry.get(event);

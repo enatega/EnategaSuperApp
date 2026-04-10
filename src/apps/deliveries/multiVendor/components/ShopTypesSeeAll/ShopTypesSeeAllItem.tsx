@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet } from "react-native";
 import type { DeliveryShopType } from "../../../api/types";
-import ShopTypeCard from "../HomeTab/ShopTypeCard";
+import ShopTypeCard from "../../../components/ShopTypeCard";
 import { useTheme } from "../../../../../general/theme/theme";
 
 type Props = {

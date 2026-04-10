@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
@@ -58,6 +58,39 @@ export default function MainContainer({ navigation, orderId }: Props) {
   useOrderStatusSocketSync(orderId);
 
   const orderDetailsQuery = useOrderDetails(orderId);
+  const riderId =
+    typeof orderDetailsQuery.data?.rider?.userId === "string"
+      ? orderDetailsQuery.data.rider.userId
+      : orderDetailsQuery.data?.rider?.id;
+  const riderName =
+    orderDetailsQuery.data?.rider?.name ||
+    t("ride_active_driver_fallback", {
+      ns: "rideSharing",
+      defaultValue: "Rider",
+    });
+  const riderAvatarUri =
+    typeof orderDetailsQuery.data?.rider?.profile === "string"
+      ? orderDetailsQuery.data.rider.profile
+      : typeof orderDetailsQuery.data?.rider?.image === "string"
+        ? orderDetailsQuery.data.rider.image
+        : undefined;
+  const chatBoxId = orderDetailsQuery.data?.chatBoxId;
+  const estimatedMinutes =
+    Number(orderDetailsQuery.data?.store.estimatedDeliveryTime) || 0;
+
+  useEffect(() => {
+    console.log("OrderTracking MainContainer data", {
+      chatBoxId,
+      chatReceiverId: riderId,
+      deliveryDetails: orderDetailsQuery.data?.deliveryDetails,
+      orderData: orderDetailsQuery.data,
+      orderId,
+      rider: orderDetailsQuery.data?.rider,
+      riderId: orderDetailsQuery.data?.rider?.id,
+      riderUserId: orderDetailsQuery.data?.rider?.userId,
+      status: orderDetailsQuery.data?.status,
+    });
+  }, [chatBoxId, orderDetailsQuery.data, orderId, riderId]);
   const order = orderDetailsQuery.data;
   const riderLocation = useOrderRiderLocationSync(
     order?.orderType === "delivery" ? order?.rider?.userId ?? null : null,
@@ -244,7 +277,24 @@ export default function MainContainer({ navigation, orderId }: Props) {
               iconName="chatbox-ellipses-outline"
               isCompact
               isIconContained={false}
-              onPress={() => navigation.navigate("Support")}
+              onPress={() => {
+                if (!riderId) {
+                  console.log("OrderTracking missing riderId for chat", {
+                    orderId,
+                    rider: orderDetailsQuery.data?.rider,
+                  });
+                  return;
+                }
+
+                navigation.navigate("RiderChat", {
+                  chatBoxId,
+                  estimatedMinutes,
+                  orderCode: order.summary.orderNumber || orderId,
+                  receiverId: riderId,
+                  riderAvatarUri,
+                  riderName,
+                });
+              }}
               subtitle={t("order_tracking_contact_subtitle")}
               title={t("order_tracking_contact_title")}
             />
@@ -281,25 +331,25 @@ function getTrackingCoordinates(
   return {
     destination:
       typeof deliveryLatitude === "number" &&
-      typeof deliveryLongitude === "number"
+        typeof deliveryLongitude === "number"
         ? {
-            latitude: deliveryLatitude,
-            longitude: deliveryLongitude,
-          }
+          latitude: deliveryLatitude,
+          longitude: deliveryLongitude,
+        }
         : null,
     pickup:
       typeof storeLatitude === "number" && typeof storeLongitude === "number"
         ? {
-            latitude: storeLatitude,
-            longitude: storeLongitude,
-          }
+          latitude: storeLatitude,
+          longitude: storeLongitude,
+        }
         : null,
     rider:
       orderType === "delivery" && riderLocation
         ? {
-            latitude: riderLocation.latitude,
-            longitude: riderLocation.longitude,
-          }
+          latitude: riderLocation.latitude,
+          longitude: riderLocation.longitude,
+        }
         : null,
   };
 }

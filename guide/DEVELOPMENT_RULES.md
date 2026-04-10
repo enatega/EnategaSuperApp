@@ -74,3 +74,11 @@ These rules define the recommended approaches for clean, reusable, and maintaina
 ## 13. Tests and Quality
 - Prefer unit tests for helpers and UI snapshot tests for stable UI blocks when feasible.
 - Keep `package.json` dependencies minimal and intentional.
+
+## 14. Socket Event Conventions
+- Do not inline socket event names in screens or feature code. Centralize event names in a typed socket map or app socket wrapper first.
+- Keep generic socket clients transport-only. App-specific events belong in app socket files such as `src/apps/rideSharing/socket/rideSharingSocket.ts` and `src/apps/deliveries/socket/deliveriesSocket.ts`.
+- Prefer wrapper helpers such as `emitRideSharingEvent(...)`, `subscribeRideSharingEvent(...)`, `emitDeliveriesEvent(...)`, and `subscribeDeliveriesEvent(...)` instead of calling raw `socket.emit(...)` or `socket.on(...)` in screens.
+- Reuse the same shared event name and payload type for emit and subscribe so backend contract changes only need to be updated in one place.
+- Screen-scoped socket use cases like chat should connect only while the screen is active. Retained keep-alive socket behavior should be reserved for live tracking or other intentionally persistent flows.
+- Use structured logging for socket flows and avoid ad hoc `console.log` debugging in production code.

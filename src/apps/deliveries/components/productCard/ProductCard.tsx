@@ -3,13 +3,13 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { DeliveryProductActionTarget } from '../../cart/productActionTypes';
 import { useProductCardCartState } from '../../hooks/useProductCardCartState';
-import type { MultiVendorStackParamList } from '../../multiVendor/navigation/types';
 import type { SearchProductItem } from '../../api/searchServiceTypes';
 import type {
   DeliveryOrderAgainItem,
   DeliveryShopTypeProduct,
   DeliveryStoreDetailsProduct,
 } from '../../api/types';
+import type { DeliveriesProductInfoParamList } from '../../navigation/sharedTypes';
 import MiniProductCard from './MiniProductCard';
 import OrderAgainProductCard from './OrderAgainProductCard';
 import RailProductCard from './RailProductCard';
@@ -29,7 +29,7 @@ type Props = {
   productAction?: ProductCardActionOverrides;
 };
 
-type NavigationProp = NativeStackNavigationProp<MultiVendorStackParamList>;
+type NavigationProp = NativeStackNavigationProp<DeliveriesProductInfoParamList>;
 
 function buildTarget(
   product: ProductCardData,

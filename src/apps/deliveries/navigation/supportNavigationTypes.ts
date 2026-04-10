@@ -1,5 +1,6 @@
 import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import type { SupportFaqArticleId } from '../utils/supportFaqArticles';
+import type { SupportTicketListItemModel } from '../utils/supportTicketMappers';
 
 export type SupportNavigationParamList = {
   SupportChat:
@@ -17,6 +18,10 @@ export type SupportNavigationParamList = {
   SupportFaq: undefined;
   SupportFaqArticle: {
     articleId: SupportFaqArticleId;
+  };
+  SupportTickets: undefined;
+  SupportTicketDetail: {
+    ticket: SupportTicketListItemModel;
   };
 };
 

@@ -105,6 +105,12 @@ const fr = {
   phone_screen_subtitle: 'Un code de vérification sera envoyé à ce numéro',
   update_button: 'Mettre à jour',
   back_button: 'Retour',
+  error: 'Erreur',
+  ok: 'OK',
+  insufficient_wallet_balance: 'Vous n’avez pas assez de solde dans votre portefeuille pour ce trajet.',
+  wallet_top_up_prompt_title: 'Solde du portefeuille insuffisant',
+  wallet_top_up_prompt_message: 'Vous n’avez pas assez de solde pour ce trajet. Voulez-vous recharger votre portefeuille maintenant ?',
+  wallet_top_up_prompt_confirm: 'Recharger',
   // Settings
   settings_title: 'Sécurité et paramètres',
   settings_subtitle: 'Mettez à jour votre mot de passe et modifiez les préférences.',
@@ -190,6 +196,15 @@ const fr = {
   ride_chat_attachment_selected_title: 'Pièce jointe sélectionnée',
   ride_chat_attachment_selected_message: '{{fileName}} est prêt à être joint.',
   ride_chat_call_action: 'Appeler le chauffeur',
+  ride_support_chat_title: 'Assistance',
+  ride_support_chat_auto_message: 'Comment pouvons-nous vous aider aujourd’hui ?',
+  ride_support_chat_input_placeholder: 'Entrez votre demande...',
+  ride_support_chat_send_error_title: 'Envoi impossible',
+  ride_support_chat_send_error_message: 'Nous n’avons pas pu envoyer votre message d’assistance pour le moment.',
+  ride_support_chat_quick_reply_help: 'J’ai besoin d’aide',
+  ride_support_chat_quick_reply_issue: 'J’ai un problème',
+  ride_support_chat_quick_reply_payment: 'Problème de paiement',
+  ride_support_chat_quick_reply_driver: 'Problème avec le chauffeur',
   ride_active_safety: 'Sécurité',
   ride_active_payment: 'Paiement',
   ride_active_current_trip: 'Votre trajet actuel',
@@ -287,6 +302,9 @@ const fr = {
   wallet_expiry: 'MM / AA',
   wallet_security_code: 'CVV',
   wallet_save: 'Enregistrer',
+  wallet_topup_error_title: 'Impossible d’ajouter des fonds',
+  wallet_topup_error_message: 'Nous n’avons pas pu lancer le paiement de recharge pour le moment.',
+  wallet_topup_checkout_error_message: 'Nous n’avons pas pu ouvrir la page de paiement Stripe.',
 };
 
 export default fr;

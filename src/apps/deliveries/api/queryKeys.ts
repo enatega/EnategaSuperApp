@@ -64,6 +64,11 @@ export const deliveryKeys = {
             filters,
         ] as const,
     deals: () => [...deliveryKeys.discovery(), 'deals'] as const,
+    dealsListing: (filters?: {
+        limit?: number;
+        search?: string;
+        tab?: string;
+    }) => [...deliveryKeys.discovery(), 'deals-listing', filters] as const,
     filterValues: (storeId?: string) =>
         [...deliveryKeys.discovery(), 'filter-values', storeId ?? 'all'] as const,
     route: (fromKey: string, toKey: string) =>
@@ -119,6 +124,10 @@ export const deliveryKeys = {
         [...deliveryKeys.supportChat(), 'box', chatBoxId] as const,
     supportChatMessages: (chatBoxId: string) =>
         [...deliveryKeys.supportChat(), 'messages', chatBoxId] as const,
+    supportTicketFormConfig: () =>
+        [...deliveryKeys.all, 'support-ticket-form-config'] as const,
+    supportMyTickets: () =>
+        [...deliveryKeys.all, 'support-my-tickets'] as const,
 
     // Orders
     orders: () => [...deliveryKeys.all, 'orders'] as const,

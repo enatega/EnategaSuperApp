@@ -1,4 +1,5 @@
 export type SendDeliveryChatMessagePayload = {
+  chatBoxId?: string;
   senderId: string;
   receiverId: string;
   text: string;

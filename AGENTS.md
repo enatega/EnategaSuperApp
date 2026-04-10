@@ -70,3 +70,9 @@ This guide aligns with `guide/DEVELOPMENT_RULES.md`. When in doubt, follow those
 ## Testing and Quality
 - Prefer unit tests for helpers and UI snapshot tests for stable UI blocks.
 - Keep dependencies minimal and intentional.
+
+## Socket Conventions
+- Keep `src/general/services/socket/` transport-focused. Do not add app-specific event names or feature-specific wrappers to the generic socket client.
+- Each app should own its typed socket wrapper, such as `src/apps/rideSharing/socket/rideSharingSocket.ts` or `src/apps/deliveries/socket/deliveriesSocket.ts`.
+- Do not inline socket event names in screens or hooks. Add the event and payload type to the app socket layer first, then emit or subscribe through wrapper helpers.
+- Use screen-scoped socket session hooks for chat and short-lived flows. Reserve retained keep-alive socket behavior for live tracking and other long-lived real-time features.

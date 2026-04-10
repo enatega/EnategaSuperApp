@@ -5,7 +5,7 @@ import HorizontalList from "../../../../../general/components/HorizontalList";
 import SectionActionHeader from "../../../../../general/components/SectionActionHeader";
 import { useShopTypeStoresSections, useShopTypes } from "../../../hooks";
 import ShopTypeCardSkeleton from "./HomeTabSkeletons/ShopTypeCardSkeleton";
-import MultiVendorShopTypeCard from "./ShopTypeCard";
+import MultiVendorShopTypeCard from "../../../components/ShopTypeCard";
 import ShopTypeStoreList from "./ShopTypeStoreList";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";

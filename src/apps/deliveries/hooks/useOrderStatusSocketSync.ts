@@ -3,19 +3,14 @@ import { useEffect, useRef } from "react";
 import { AppState, type AppStateStatus } from "react-native";
 import { useAuthSessionQuery } from "../../../general/hooks/useAuthQueries";
 import { deliveryKeys } from "../api/queryKeys";
-import type { DeliveryOrderStatus } from "../api/ordersServiceTypes";
-import { deliveriesSocketClient } from "../socket/deliveriesSocket";
+import { deliveriesSocketClient, subscribeDeliveriesEvent } from "../socket/deliveriesSocket";
+import type { DeliveriesServerEventMap } from "../socket/deliveriesSocket.types";
 
 type Options = {
   enabled?: boolean;
 };
 
-type OrderStatusUpdatedEventPayload = {
-  orderId?: string;
-  riderId?: string | null;
-  status?: DeliveryOrderStatus;
-  updatedAt?: string;
-};
+type OrderStatusUpdatedEventPayload = DeliveriesServerEventMap["order-status-updated"];
 
 function isOrderStatusUpdatedEventPayload(
   value: unknown,
@@ -94,7 +89,7 @@ export function useOrderStatusSocketSync(orderId?: string, options?: Options) {
       return undefined;
     }
 
-    return deliveriesSocketClient.subscribe<[unknown]>(
+    return subscribeDeliveriesEvent(
       "order-status-updated",
       (payload) => {
         console.log("[deliveries][socket] order-status-updated received", {

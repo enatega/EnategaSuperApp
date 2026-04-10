@@ -7,9 +7,9 @@ export type PaymentMethodOption = {
 };
 
 export const PAYMENT_METHOD_OPTIONS: PaymentMethodOption[] = [
-  { id: 'wallet', label: 'Wallet', value: 'QAR 120.00' },
+  { id: 'wallet', label: 'Wallet', value: 'Wallet' },
   { id: 'cash', label: 'Cash' },
-  { id: 'visa', label: 'Visa', value: '**** 9432' },
+  // { id: 'visa', label: 'Visa', value: '**** 9432' },
 ];
 
 export function getPaymentMethodOption(paymentMethodId: PaymentMethodId) {

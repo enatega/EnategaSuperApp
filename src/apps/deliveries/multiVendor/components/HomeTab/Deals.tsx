@@ -8,9 +8,11 @@ import { useDeals } from '../../../hooks';
 import StoreCard from '../../../components/storeCard/StoreCard';
 import HomeSectionState from './HomeSectionState';
 import NearbyStoreListSkeleton from './HomeTabSkeletons/NearbyStoreListSkeleton';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Deals() {
   const { t } = useTranslation('deliveries');
+  const navigation = useNavigation()
   const {
     data: dealsData = [],
     isPending: isDealsPending,
@@ -27,6 +29,7 @@ export default function Deals() {
       <SectionActionHeader
         actionLabel={t('multi_vendor_see_all')}
         title={t('multi_vendor_deals_title')}
+        onActionPress={()=> navigation.navigate("DealsSeeAll")}
       />
 
       {isDealsPending ? (

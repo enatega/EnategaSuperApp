@@ -7,9 +7,9 @@ import type {
   ViewStyle,
 } from 'react-native';
 import { StyleSheet, View } from 'react-native';
-import Text from '../../../../../general/components/Text';
-import Image from '../../../../../general/components/Image';
-import { useTheme } from '../../../../../general/theme/theme';
+import Text from '../../../general/components/Text';
+import Image from '../../../general/components/Image';
+import { useTheme } from '../../../general/theme/theme';
 
 type Props = {
   image: ImageSourcePropType;
