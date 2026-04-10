@@ -43,6 +43,10 @@ export type RideSharingStackParamList = {
   ReservationDetail: {
     rideId: string;
   };
+  RideSupportChat: {
+    chatBoxId?: string;
+    receiverId?: string;
+  } | undefined;
 };
 
 export type ProfileStackParamList = {
@@ -133,7 +137,10 @@ export function useSidebarMenu() {
       titleKey: 'sidebar_support',
       subtitleKey: 'sidebar_support_subtitle',
       showChevron: true,
-      onPress: () => console.log('Support pressed'),
+      onPress: () => {
+        closeSidebar();
+        navigation.navigate('RideSupportChat');
+      },
     },
     {
       id: 'security',
