@@ -58,12 +58,13 @@ export const singleVendorDiscoveryService = {
     const {
       offset = SINGLE_VENDOR_CATEGORY_PRODUCTS_DEFAULTS.offset,
       limit = SINGLE_VENDOR_CATEGORY_PRODUCTS_DEFAULTS.limit,
+      search
     } = params;
 
     try {
       return await apiClient.get<SingleVendorCategoryProductsApiResponse>(
         `/api/v1/apps/deliveries/discovery/single-vendor/categories/${categoryId}/products`,
-        { offset, limit },
+        { offset, limit, search: search?.trim() || undefined },
       );
     } catch (error) {
       console.error('single vendor category products request failed', error);

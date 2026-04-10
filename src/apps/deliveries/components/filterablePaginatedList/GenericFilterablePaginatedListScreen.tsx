@@ -21,6 +21,7 @@ import type {
 import type { GenericFilterChip } from "../filters/types";
 import ListStateView from "./ListStateView";
 import SelectedFilterChips from "../filters/SelectedFilterChips";
+import { ProductCardVariant } from "../productCard/types";
 
 type ShopTypeListItem = {
   image?: string | null;
@@ -40,6 +41,7 @@ function isShopTypeProductItem(item: unknown): item is DeliveryShopTypeProduct {
 function renderCardByType(
   cardType: SupportedCardType,
   item: unknown,
+  cardVariant?: ProductCardVariant,
   onPress?: () => void,
 ) {
   if (cardType === "store") {
@@ -74,7 +76,7 @@ function renderCardByType(
   return (
     <ProductCard
       product={item as DeliveryShopTypeProduct}
-      variant="mini"
+      variant={cardVariant}
       onPress={onPress}
     />
   );
@@ -109,6 +111,7 @@ export default function GenericFilterablePaginatedListScreen<
   filterSheet,
   listContentContainerStyle,
   onItemPress,
+  cardVariant,
 }: GenericFilterablePaginatedListScreenProps<
   TItem,
   TCardType
@@ -138,9 +141,10 @@ export default function GenericFilterablePaginatedListScreen<
       renderCardByType(
         cardType,
         item,
+        cardVariant,
         onItemPress ? () => onItemPress(item) : undefined,
       ),
-    [cardType, onItemPress],
+    [cardType, cardVariant, onItemPress],
   );
 
   const keyExtractor = useCallback(

@@ -7,16 +7,22 @@ import { DiscoverySectionState } from '../../../components/discovery';
 import { useOrderAgain } from '../../../hooks';
 import ProductCard from '../../../components/productCard/ProductCard';
 import StoreMiniCardSkeleton from './HomeTabSkeletons/StoreMiniCardSkeleton';
+import { useNavigation } from '@react-navigation/native';
 
 export default function OrderAgain() {
   const { t } = useTranslation('deliveries');
   const { data: orderAgainData = [], isPending: isOrderAgainPending } = useOrderAgain();
+  const navigation = useNavigation();
 
+  const handleSeeAllPress = () => {
+      navigation.navigate('MultiVendorTabOrders' );
+  }
   return (
     <View style={styles.section}>
       <SectionActionHeader
         actionLabel={t('multi_vendor_see_all')}
         title={t('multi_vendor_order_again_title')}
+        onActionPress={handleSeeAllPress}
       />
 
       {isOrderAgainPending ? (

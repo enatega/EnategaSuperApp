@@ -12,6 +12,7 @@ type UseSingleVendorCategoryProductsMode = 'preview' | 'paginated';
 type UseSingleVendorCategoryProductsOptions = {
   mode?: UseSingleVendorCategoryProductsMode;
   enabled?: boolean;
+  search?: string;
 };
 
 const SINGLE_VENDOR_CATEGORY_PRODUCTS_LIMIT = 10;
@@ -31,13 +32,17 @@ export default function useSingleVendorCategoryProducts(
         0,
         SINGLE_VENDOR_CATEGORY_PRODUCTS_LIMIT,
       ),
-      { mode },
+      { mode,
+        search: options?.search?.trim() ?? ''
+        
+       },
     ],
     queryFn: ({ pageParam = 0 }) =>
       singleVendorDiscoveryService.getCategoryProductsPage({
         categoryId,
         offset: pageParam as number,
         limit: SINGLE_VENDOR_CATEGORY_PRODUCTS_LIMIT,
+        search: options?.search?.trim() || undefined,
       }),
     initialPageParam: 0,
     getNextPageParam: (lastPage) =>

@@ -18,9 +18,25 @@ export default function SingleVendorCategorySection() {
   const navigation = useNavigation<NavigationProp>();
   const { data = [], isPending } = useSingleVendorCategories();
   const productSections = useSingleVendorCategoryProductSections(data);
+  
   const handleSeeAllPress = useCallback(() => {
     navigation.navigate('SingleVendorCategoriesSeeAll');
   }, [navigation]);
+
+  const handleCategorySeeAllPress = useCallback(
+    (categoryId: string, categoryName: string) => {
+      navigation.navigate('SeeAllScreen', {
+        queryType: 'single-vendor-category-products',
+        title: categoryName,
+        cardType: 'product',
+        categoryId,
+        cardVariant:'rail',
+        
+      
+      });
+    },
+    [navigation],
+  );
 
   return (
     <View style={styles.content}>
@@ -36,11 +52,13 @@ export default function SingleVendorCategorySection() {
         ({ category, data: products = [], error, isPending: isProductsPending }) => (
           <View key={category.id} style={styles.resultSection}>
             <DiscoveryCategoryResultsSection
+              actionLabel={t('multi_vendor_see_all')}
               cardType="product"
               emptyMessage={t('single_vendor_category_products_empty')}
               hasError={Boolean(error)}
               isLoading={isProductsPending}
               items={products}
+              onActionPress={() => handleCategorySeeAllPress(category.id, category.name)}
               title={category.name}
             />
           </View>

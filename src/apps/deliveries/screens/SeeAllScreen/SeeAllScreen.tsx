@@ -3,7 +3,7 @@ import { Keyboard, Pressable, StyleSheet } from "react-native";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
-import { GenericFilterablePaginatedListScreen } from "../../components/filterablePaginatedList";
+import { GenericFilterablePaginatedListScreen, SupportedCardType } from "../../components/filterablePaginatedList";
 import type {
   DeliveriesSeeAllParamList,
   SeeAllItem,
@@ -19,7 +19,7 @@ export default function SeeAllScreen() {
     useNavigation<NativeStackNavigationProp<DeliveriesSeeAllParamList>>();
   const route =
     useRoute<RouteProp<DeliveriesSeeAllParamList, "SeeAllScreen">>();
-  const { queryType, title, shopTypeId, vendorId } = route.params;
+  const { queryType, title, shopTypeId, vendorId, categoryId, cardType, cardVariant } = route.params;
   const {
     filterValues,
     searchText,
@@ -55,16 +55,17 @@ export default function SeeAllScreen() {
     queryType,
     shopTypeId,
     vendorId,
+    categoryId,
   });
+  console.log("SeeAllScreen render",categoryId)
   const items = listQuery.data ?? [];
-  const isMapVisible =
-    listQuery.isPending || listQuery.isRefetching || items.length > 0;
+  const isMapVisible = cardType === 'product' ? false: listQuery.isPending || listQuery.isRefetching || items.length > 0;
 
   return (
     <Pressable style={styles.screen} onPress={() => Keyboard.dismiss()}>
-      <GenericFilterablePaginatedListScreen<SeeAllItem, "store">
+      <GenericFilterablePaginatedListScreen<SeeAllItem, SupportedCardType>
         title={title}
-        cardType="store"
+        cardType={cardType}
         data={items}
         totalCount={listQuery.totalCount}
         isPending={listQuery.isPending}
@@ -80,6 +81,7 @@ export default function SeeAllScreen() {
         clearAllLabel={t("clear_all")}
         onRemoveChip={removeChip}
         onClearAll={clearAllFilters}
+        cardVariant={cardVariant}
         header={
           <SeeAllHeader
             searchPlaceholder={t("generic_list_search_placeholder")}

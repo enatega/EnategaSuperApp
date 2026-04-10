@@ -24,7 +24,7 @@ import { isStoreDetailsProduct } from './types';
 
 type Props = {
   product: ProductCardData;
-  variant: ProductCardVariant;
+  variant?: ProductCardVariant;
   storeId?: string | null;
   onPress?: () => void;
   productAction?: ProductCardActionOverrides;

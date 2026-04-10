@@ -19,7 +19,9 @@ export interface SingleVendorCategoryProductsParams {
   categoryId: string;
   offset?: number;
   limit?: number;
+  search?: string;
 }
+
 
 export interface SingleVendorDealsParams {
   offset?: number;
