@@ -1,26 +1,31 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import type { DeliveryOrderTimelineItem } from "../../api/ordersServiceTypes";
+import type {
+  DeliveryOrderLogItem,
+  DeliveryOrderTimelineItem,
+} from "../../api/ordersServiceTypes";
 import {
-  formatCompletedTime,
-  getTimelineTone,
+  getOrderTrackingTimelineEntries,
 } from "../../utils/orderTracking/orderTrackingUtils";
 import OrderTrackingTimelineItem from "./OrderTrackingTimelineItem";
 
 type Props = {
   timeline: DeliveryOrderTimelineItem[];
+  orderLogs?: DeliveryOrderLogItem[] | null;
 };
 
-export default function OrderTrackingTimelineSection({ timeline }: Props) {
+export default function OrderTrackingTimelineSection({ timeline, orderLogs }: Props) {
+  const entries = getOrderTrackingTimelineEntries(timeline, orderLogs);
+
   return (
     <View style={styles.container}>
-      {timeline.map((item, index) => (
+      {entries.map((item) => (
         <OrderTrackingTimelineItem
-          completedAt={formatCompletedTime(item.completedAt)}
-          key={`${item.key}-${index}`}
-          stepKey={item.key}
+          completedAt={item.completedAt}
+          key={item.key}
+          stepKey={item.stepKey}
           title={item.title}
-          tone={getTimelineTone(item)}
+          tone={item.tone}
         />
       ))}
     </View>

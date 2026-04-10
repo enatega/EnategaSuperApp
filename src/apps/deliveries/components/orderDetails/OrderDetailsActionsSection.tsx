@@ -20,6 +20,8 @@ type Props = {
   onIncreaseTip?: () => void;
   orderId: string;
   storeName: string;
+  isOrderAgainLoading?: boolean;
+  onOrderAgain: () => void;
 };
 
 export default function OrderDetailsActionsSection({
@@ -28,6 +30,8 @@ export default function OrderDetailsActionsSection({
   shouldShowTrackProgress,
   shouldShowOrderAgain,
   onIncreaseTip,
+  isOrderAgainLoading = false,
+  onOrderAgain,
   orderId,
   storeName,
 }: Props) {
@@ -70,8 +74,9 @@ export default function OrderDetailsActionsSection({
       ) : null}
       {shouldShowOrderAgain ? (
         <Button
+          isLoading={isOrderAgainLoading}
           label={t("order_details_order_again")}
-          onPress={() => undefined}
+          onPress={onOrderAgain}
           style={styles.primaryButton}
         />
       ) : null}

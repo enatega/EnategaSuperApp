@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "../../../../general/components/Icon";
 import Text from "../../../../general/components/Text";
 import { typography } from "../../../../general/theme/typography";
+import AddressSelectionBottomSheet from "../AddressSelectionBottomSheet";
 import SearchInput from "./SearchInput";
 import RecentSearches from "./RecentSearches";
 import SearchSuggestions from "./SearchSuggestions";
@@ -28,6 +29,7 @@ export default function SearchMainContainer({
   recentSearches,
   products,
   stores,
+  selectedAddressLabel,
   shouldSearchStores,
   isSearchActive,
   isLoadingRecommendations,
@@ -52,106 +54,120 @@ export default function SearchMainContainer({
   handleLoadMoreStores,
   onDeleteRecentSearch,
   onClearRecentSearches,
-  onAddressPress,
+  addressSheet,
 }: SearchMainContainerProps) {
   return (
-    <TouchableWithoutFeedback onPress={dismissKeyboard}>
-      <SafeAreaView
-        style={[styles.safeArea, { backgroundColor: colors.background }]}
-      >
-        <KeyboardAvoidingView
-          style={styles.content}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
+    <>
+      <TouchableWithoutFeedback onPress={dismissKeyboard}>
+        <SafeAreaView
+          style={[styles.safeArea, { backgroundColor: colors.background }]}
         >
-          <SearchInput
-            ref={inputRef}
-            value={searchQuery}
-            onChangeText={handleChangeText}
-            placeholder={t("search_input_placeholder")}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            onClear={handleClear}
-            onSubmitEditing={handleSubmitEditing}
-          />
-
-          <ScrollView
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode={
-              Platform.OS === "ios" ? "interactive" : "on-drag"
-            }
-            onScrollBeginDrag={dismissKeyboard}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
+          <KeyboardAvoidingView
+            style={styles.content}
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
           >
-            {showRecentSearches ? (
-              <RecentSearches
-                items={recentSearches}
-                onItemPress={handleRecentSearchPress}
-                onDeletePress={onDeleteRecentSearch}
-                onDeleteAllPress={onClearRecentSearches}
-                deletingRecentSearchId={deletingRecentSearchId}
-                isDeletingRecentSearch={isDeletingRecentSearch}
-                isClearingRecentSearches={isClearingRecentSearches}
-              />
-            ) : null}
-
-            {showIdleState ? (
-              <View style={styles.idleState}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t("multi_vendor_address_label")}
-                  onPress={onAddressPress}
-                  style={styles.addressButton}
-                >
-                  <Text
-                    color={colors.mutedText}
-                    variant="caption"
-                    style={styles.addressPrefix}
-                  >
-                    {t("searching_near")}
-                  </Text>
-                  <Text
-                    numberOfLines={1}
-                    weight="medium"
-                    style={styles.addressValue}
-                  >
-                    {t("multi_vendor_address_label")}
-                  </Text>
-                  <Icon
-                    type="Ionicons"
-                    name="chevron-down"
-                    size={16}
-                    color={colors.text}
-                  />
-                </Pressable>
-
-                {isLoadingRecommendations ? (
-                  <SearchSuggestionsSkeleton />
-                ) : (
-                  <SearchSuggestions
-                    recommendations={recommendations}
-                    onSuggestionPress={handleSuggestionPress}
-                  />
-                )}
-              </View>
-            ) : null}
-
-            <SearchResults
-              isSearchActive={isSearchActive}
-              shouldSearchStores={shouldSearchStores}
-              isSearchLoading={isSearchLoading}
-              hasNoResults={hasNoResults}
-              products={products}
-              stores={stores}
-              isFetchingMoreProducts={isFetchingMoreProducts}
-              isFetchingMoreStores={isFetchingMoreStores}
-              onLoadMoreProducts={handleLoadMoreProducts}
-              onLoadMoreStores={handleLoadMoreStores}
+            <SearchInput
+              ref={inputRef}
+              value={searchQuery}
+              onChangeText={handleChangeText}
+              placeholder={t("search_input_placeholder")}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              onClear={handleClear}
+              onSubmitEditing={handleSubmitEditing}
             />
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
+
+            <ScrollView
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode={
+                Platform.OS === "ios" ? "interactive" : "on-drag"
+              }
+              onScrollBeginDrag={dismissKeyboard}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
+            >
+              {showRecentSearches ? (
+                <RecentSearches
+                  items={recentSearches}
+                  onItemPress={handleRecentSearchPress}
+                  onDeletePress={onDeleteRecentSearch}
+                  onDeleteAllPress={onClearRecentSearches}
+                  deletingRecentSearchId={deletingRecentSearchId}
+                  isDeletingRecentSearch={isDeletingRecentSearch}
+                  isClearingRecentSearches={isClearingRecentSearches}
+                />
+              ) : null}
+
+              {showIdleState ? (
+                <View style={styles.idleState}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={t("multi_vendor_address_label")}
+                    onPress={addressSheet.onOpen}
+                    style={styles.addressButton}
+                  >
+                    <Text
+                      color={colors.mutedText}
+                      variant="caption"
+                      style={styles.addressPrefix}
+                    >
+                      {t("searching_near")}
+                    </Text>
+                    <Text
+                      numberOfLines={1}
+                      weight="medium"
+                      style={styles.addressValue}
+                    >
+                      {selectedAddressLabel ?? t("multi_vendor_address_label")}
+                    </Text>
+                    <Icon
+                      type="Ionicons"
+                      name="chevron-down"
+                      size={16}
+                      color={colors.text}
+                    />
+                  </Pressable>
+
+                  {isLoadingRecommendations ? (
+                    <SearchSuggestionsSkeleton />
+                  ) : (
+                    <SearchSuggestions
+                      recommendations={recommendations}
+                      onSuggestionPress={handleSuggestionPress}
+                    />
+                  )}
+                </View>
+              ) : null}
+
+              <SearchResults
+                isSearchActive={isSearchActive}
+                shouldSearchStores={shouldSearchStores}
+                isSearchLoading={isSearchLoading}
+                hasNoResults={hasNoResults}
+                products={products}
+                stores={stores}
+                isFetchingMoreProducts={isFetchingMoreProducts}
+                isFetchingMoreStores={isFetchingMoreStores}
+                onLoadMoreProducts={handleLoadMoreProducts}
+                onLoadMoreStores={handleLoadMoreStores}
+              />
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
+
+      <AddressSelectionBottomSheet
+        addresses={addressSheet.addresses}
+        isLoading={addressSheet.isLoading}
+        isVisible={addressSheet.isVisible}
+        onAddAddress={addressSheet.onAddAddress}
+        onClose={addressSheet.onClose}
+        onSelectAddress={addressSheet.onSelectAddress}
+        onUseCurrentLocation={addressSheet.onUseCurrentLocation}
+        selectingAddressId={addressSheet.selectingAddressId}
+        selectedAddressId={addressSheet.selectedAddressId}
+      />
+    </>
   );
 }
 

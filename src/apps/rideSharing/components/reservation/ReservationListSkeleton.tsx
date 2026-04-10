@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderRadius: 12,
-    marginHorizontal: 16,
+    // marginHorizontal: 16,
     marginBottom: 8,
   },
   iconSkeleton: {
