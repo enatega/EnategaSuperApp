@@ -5,6 +5,7 @@ import Image from '../../../../general/components/Image';
 import Icon from '../../../../general/components/Icon';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
+import type { DeliveryDealItem } from '../../api/dealsServiceTypes';
 import type { DeliveryStoreDetailsProduct } from '../../api/types';
 import CartActionControl from '../cart/CartActionControl';
 import CartCountBadge from '../cart/CartCountBadge';
@@ -12,7 +13,7 @@ import type { ProductCardControlState } from './types';
 
 type Props = {
   onPress: () => void;
-  product: DeliveryStoreDetailsProduct;
+  product: DeliveryStoreDetailsProduct | DeliveryDealItem;
   state: ProductCardControlState;
 };
 

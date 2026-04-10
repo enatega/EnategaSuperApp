@@ -42,6 +42,8 @@ import {
   
 } from "./deliveryModePreference";
 import type { DeliveriesStackParamList } from "./types";
+import SeeAllScreen from "../screens/SeeAllScreen/SeeAllScreen";
+import DealsSeeAll from "../screens/DealsSeeAll/DealsSeeAll";
 
 const Stack = createNativeStackNavigator<DeliveriesStackParamList>();
 
@@ -261,6 +263,16 @@ export default function DeliveriesNavigator() {
       <Stack.Screen
         name="Checkout"
         component={CheckoutScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SeeAllScreen"
+        component={SeeAllScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="DealsSeeAll"
+        component={DealsSeeAll}
         options={sharedScreenOptions}
       />
     </Stack.Navigator>

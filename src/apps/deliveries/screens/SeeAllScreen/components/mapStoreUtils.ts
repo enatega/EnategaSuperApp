@@ -2,7 +2,7 @@ import type { LatLng } from "react-native-maps";
 import type {
   DeliveryNearbyStore,
   DeliveryShopTypeProduct,
-} from "../../../../api/types";
+} from "../../../api/types";
 
 export type SeeAllMapStore = {
   id: string;

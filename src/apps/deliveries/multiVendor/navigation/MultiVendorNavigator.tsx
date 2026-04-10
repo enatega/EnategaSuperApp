@@ -4,9 +4,8 @@ import { useTranslation } from 'react-i18next';
 import MultiVendorBottomTabNavigator from './MultiVendorBottomTabNavigator';
 import FavouritesScreen from '../screens/FavouritesScreen/FavouritesScreen';
 import StoreDetailsScreen from '../screens/StoreDetailsScreen/StoreDetailsScreen';
-import SeeAllScreen from '../screens/SeeAllScreen/SeeAllScreen';
 import type { MultiVendorStackParamList } from './types';
-import SeeAllMapView from '../screens/SeeAllScreen/components/SeeAllMapView';
+import SeeAllMapView from '../../screens/SeeAllScreen/components/SeeAllMapView';
 import ProductInfo from '../../screens/ProductInfo/ProductInfo';
 import ShopTypesSeeAll from '../screens/ShopTypesSeeAll/ShopTypesSeeAll';
 import TopBrandsSeeAll from '../screens/TopBrandsSeeAll/TopBrandsSeeAll';
@@ -33,11 +32,6 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="StoreDetails"
         component={StoreDetailsScreen}
-        options={hiddenHeaderOptions}
-      />
-      <Stack.Screen
-        name="SeeAllScreen"
-        component={SeeAllScreen}
         options={hiddenHeaderOptions}
       />
       <Stack.Screen

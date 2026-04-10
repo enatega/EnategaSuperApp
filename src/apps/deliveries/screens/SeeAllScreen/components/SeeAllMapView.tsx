@@ -2,13 +2,15 @@ import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MapView, { LatLng, Region } from "react-native-maps";
-import Icon from "../../../../../../general/components/Icon";
-import Map, { MapMarker } from "../../../../../../general/components/Map";
-import { useTheme } from "../../../../../../general/theme/theme";
-import type { MultiVendorStackParamList } from "../../../navigation/types";
+import Icon from "../../../../../general/components/Icon";
+import Map, { MapMarker } from "../../../../../general/components/Map";
+import { useTheme } from "../../../../../general/theme/theme";
+import type {
+  DeliveriesSeeAllParamList,
+  SeeAllItem,
+} from "../../../navigation/sharedTypes";
 import MapStoreBottomSheet from "./MapStoreBottomSheet";
 import MapStoreMarker from "./MapStoreMarker";
 import {
@@ -40,10 +42,9 @@ function getRegionFromCoordinates(coordinate: LatLng): Region {
 
 function SeeAllMapView() {
   const { t } = useTranslation("deliveries");
-  const navigation =
-    useNavigation<NativeStackNavigationProp<MultiVendorStackParamList>>();
+  const navigation = useNavigation();
   const route =
-    useRoute<RouteProp<MultiVendorStackParamList, "SeeAllMapView">>();
+    useRoute<RouteProp<DeliveriesSeeAllParamList, "SeeAllMapView">>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView | null>(null);

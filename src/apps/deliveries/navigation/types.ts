@@ -1,9 +1,15 @@
-import type { NavigatorScreenParams } from '@react-navigation/native';
-import type { DeliveriesAccountNavigationParamList } from '../account/navigation/types';
-import type { ChainStackParamList } from '../chain/navigation/types';
-import type { MultiVendorStackParamList } from '../multiVendor/navigation/types';
 import type { RiderChatScreenParams } from '../screens/RiderChatScreen/RiderChatScreen';
-import type { SingleVendorStackParamList } from '../singleVendor/navigation/types';
+import type { NavigatorScreenParams } from "@react-navigation/native";
+import type { DeliveriesAccountNavigationParamList } from "../account/navigation/types";
+import type { ChainStackParamList } from "../chain/navigation/types";
+import type { MultiVendorStackParamList } from "../multiVendor/navigation/types";
+import type { SingleVendorStackParamList } from "../singleVendor/navigation/types";
+
+export type SeeAllListingType =
+  | "nearby-stores"
+  | "shop-type-products"
+  | "shop-type-stores"
+  | "top-brand-stores";
 
 export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
   DeliveriesHome: undefined;
@@ -26,4 +32,12 @@ export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
   };
   Cart: undefined;
   Checkout: undefined;
+  SeeAllScreen: {
+    queryType: SeeAllListingType;
+    title: string;
+    cardType: "store";
+    shopTypeId?: string;
+    vendorId?: string;
+  };
+  DealsSeeAll: undefined
 };
