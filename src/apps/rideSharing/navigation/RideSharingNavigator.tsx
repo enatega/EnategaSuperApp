@@ -25,6 +25,7 @@ import RiderChatScreen from '../screens/riderChat/RiderChatScreen';
 import SafetyScreen from '../screens/safety/SafetyScreen';
 import WalletHomeScreen from '../screens/wallet/WalletHomeScreen';
 import AddFundsScreen from '../screens/wallet/AddFundsScreen';
+import RideSupportChatScreen from '../screens/support/RideSupportChatScreen';
 import { useTranslation } from 'react-i18next';
 import QueryProvider from '../../../general/providers/QueryProvider';
 import type { RideAddressSelection } from '../api/types';
@@ -113,6 +114,10 @@ export type RideSharingStackParamList = {
     driverRating?: number;
     vehicleLabel?: string;
   };
+  RideSupportChat: {
+    chatBoxId?: string;
+    receiverId?: string;
+  } | undefined;
   WalletHome: undefined;
   WalletAddFunds: undefined;
 };
@@ -212,6 +217,11 @@ export default function RideSharingNavigator() {
         <Stack.Screen
           name="Safety"
           component={SafetyScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="RideSupportChat"
+          component={RideSupportChatScreen}
           options={{ headerShown: false }}
         />
         {/* Wallet Screens */}

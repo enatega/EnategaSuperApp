@@ -43,6 +43,11 @@ export { filterService } from './filterService';
 export { ordersService } from './ordersService';
 // Chat service
 export { chatService } from './chatService';
+export {
+    supportTicketService,
+    type CreateSupportTicketPayload,
+    type CreateSupportTicketResponse,
+} from './supportTicketService';
 export type {
     DeliveryChatMessageRecord,
     DeliveryChatBoxesResponse,

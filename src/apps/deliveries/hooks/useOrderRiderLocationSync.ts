@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { AppState, type AppStateStatus } from "react-native";
 import { useAuthSessionQuery } from "../../../general/hooks/useAuthQueries";
-import { deliveriesSocketClient } from "../socket/deliveriesSocket";
+import { deliveriesSocketClient, subscribeDeliveriesEvent } from "../socket/deliveriesSocket";
+import type { DeliveriesServerEventMap } from "../socket/deliveriesSocket.types";
 
 type Options = {
   enabled?: boolean;
@@ -12,12 +13,7 @@ type RiderLocation = {
   longitude: number;
 };
 
-type RiderLocationEventPayload = {
-  customerUserId?: string;
-  riderUserId?: string;
-  latitude?: number;
-  longitude?: number;
-};
+type RiderLocationEventPayload = DeliveriesServerEventMap["get-rider-location"];
 
 function asRiderLocation(value: unknown): RiderLocation | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -122,7 +118,7 @@ export function useOrderRiderLocationSync(
       return undefined;
     }
 
-    return deliveriesSocketClient.subscribe<[unknown]>(
+    return subscribeDeliveriesEvent(
       "get-rider-location",
       (payload) => {
         const nextLocation = asRiderLocation(payload);

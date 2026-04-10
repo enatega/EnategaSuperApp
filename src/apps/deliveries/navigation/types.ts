@@ -1,3 +1,4 @@
+import type { RiderChatScreenParams } from '../screens/RiderChatScreen/RiderChatScreen';
 import type { NavigatorScreenParams } from "@react-navigation/native";
 import type { DeliveriesAccountNavigationParamList } from "../account/navigation/types";
 import type { ChainStackParamList } from "../chain/navigation/types";
@@ -30,6 +31,7 @@ export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
   OrderTrackingScreen: {
     orderId: string;
   };
+  RiderChat: RiderChatScreenParams['RiderChat'];
   ProductInfo: {
     productId: string;
   };

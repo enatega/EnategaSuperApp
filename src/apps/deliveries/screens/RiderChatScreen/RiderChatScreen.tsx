@@ -12,6 +12,8 @@ import { useRoute, type RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '../../../../general/components/AppToast';
+import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
+import type { SocketReceivedMessage } from '../../../../general/services/socket';
 import { useTheme } from '../../../../general/theme/theme';
 import type {
   DeliveryChatBoxRecord,
@@ -24,20 +26,22 @@ import RiderChatHeader from '../../components/riderChat/RiderChatHeader';
 import RiderChatMessageList from '../../components/riderChat/RiderChatMessageList';
 import RiderChatQuickReplies from '../../components/riderChat/RiderChatQuickReplies';
 import type { RiderChatMessage } from '../../components/riderChat/types';
+import { useDeliveriesSocketSession } from '../../hooks';
 import { useSendDeliveryChatMessage } from '../../hooks/useChatMutations';
 import { useDeliveryChatBoxes, useDeliveryChatMessages } from '../../hooks/useChatQueries';
+import { subscribeDeliveriesEvent } from '../../socket/deliveriesSocket';
 
 export type RiderChatScreenParams = {
   RiderChat: {
+    chatBoxId?: string;
     estimatedMinutes: number;
     orderCode: string;
     receiverId: string;
+    riderAvatarUri?: string;
     riderName: string;
   };
 };
 
-const HARDCODED_SENDER_ID = 'b0e84890-0d23-4aac-93af-41568f49638a';
-const HARDCODED_RECEIVER_ID = '4825e24a-6100-4c00-9f45-d5b8bb31d7ac';
 function getResponseItems<T>(
   response?: T[] | { messages?: T[]; data?: T[] | { items?: T[] } },
 ): T[] {
@@ -91,11 +95,15 @@ export default function RiderChatScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
+  const sessionQuery = useAuthSessionQuery();
+  useDeliveriesSocketSession();
   const insets = useSafeAreaInsets();
   const route = useRoute<RouteProp<RiderChatScreenParams, 'RiderChat'>>();
+  const initialChatBoxId = route.params.chatBoxId;
   const riderName = route.params.riderName;
-  const senderId = HARDCODED_SENDER_ID;
-  const receiverId = route.params.receiverId || HARDCODED_RECEIVER_ID;
+  const riderAvatarUri = route.params.riderAvatarUri;
+  const senderId = sessionQuery.data?.user?.id;
+  const receiverId = route.params.receiverId;
 
   const [draftMessage, setDraftMessage] = useState('');
   const [messages, setMessages] = useState<RiderChatMessage[]>([]);
@@ -114,6 +122,10 @@ export default function RiderChatScreen() {
   );
 
   const resolvedChatBoxId = useMemo(() => {
+    if (initialChatBoxId) {
+      return initialChatBoxId;
+    }
+
     return (
       resolveChatBoxId(
         chatBoxes.find((chatBox) => {
@@ -136,7 +148,7 @@ export default function RiderChatScreen() {
       ) ??
       null
     );
-  }, [chatBoxes, receiverId, senderId]);
+  }, [chatBoxes, initialChatBoxId, receiverId, senderId]);
 
   const chatMessagesQuery = useDeliveryChatMessages(resolvedChatBoxId ?? undefined);
 
@@ -167,6 +179,52 @@ export default function RiderChatScreen() {
       scrollViewRef.current?.scrollToEnd({ animated: messages.length > 0 });
     });
   }, [messages]);
+
+  useEffect(() => {
+    if (!senderId || !receiverId) {
+      return undefined;
+    }
+
+    return subscribeDeliveriesEvent('receive-message', (message: SocketReceivedMessage) => {
+      const isConversationMessage =
+        message.receiver === senderId && message.sender === receiverId;
+
+      if (!isConversationMessage) {
+        return;
+      }
+
+      setMessages((current) => {
+        const alreadyExists = current.some(
+          (item) => item.sender === 'rider' && item.text === message.text,
+        );
+
+        if (alreadyExists) {
+          return current;
+        }
+
+        return [
+          ...current,
+          {
+            id: `realtime-${Date.now()}`,
+            sender: 'rider',
+            text: message.text,
+            timeLabel: formatMessageTime(new Date().toISOString()),
+          },
+        ];
+      });
+
+      void chatBoxesQuery.refetch();
+      if (resolvedChatBoxId) {
+        void chatMessagesQuery.refetch();
+      }
+    });
+  }, [
+    chatBoxesQuery,
+    chatMessagesQuery,
+    receiverId,
+    resolvedChatBoxId,
+    senderId,
+  ]);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(
@@ -203,6 +261,7 @@ export default function RiderChatScreen() {
 
     sendMessageMutation.mutate(
       {
+        chatBoxId: resolvedChatBoxId ?? initialChatBoxId,
         senderId,
         receiverId,
         text: trimmedMessage,
@@ -315,7 +374,11 @@ export default function RiderChatScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
-      <RiderChatHeader riderName={riderName} onCallPress={() => {}} />
+      <RiderChatHeader
+        riderAvatarUri={riderAvatarUri}
+        riderName={riderName}
+        onCallPress={() => {}}
+      />
 
       <View style={styles.chatLayout}>
         <RiderChatMessageList

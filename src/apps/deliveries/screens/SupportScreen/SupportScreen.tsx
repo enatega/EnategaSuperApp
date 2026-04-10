@@ -11,24 +11,37 @@ import SupportHeader from '../../components/support/SupportHeader';
 import SupportIssueDropdown from '../../components/support/SupportIssueDropdown';
 import SupportTopicItem from '../../components/support/SupportTopicItem';
 import { useSupportAdmins } from '../../hooks/useSupportChatQueries';
+import { useSupportTicketFormConfigQuery } from '../../hooks/useSupportTicketFormConfigQuery';
 import { SupportHomeNavigationProp } from '../../navigation/supportNavigationTypes';
+import { buildSupportOptions, orderSupportCategoryKeys } from '../../utils/supportFormOptions';
 
 export default function SupportScreen() {
   const { colors, typography } = useTheme();
-  const { t } = useTranslation('deliveries');
+  const { t, i18n } = useTranslation('deliveries');
   const navigation = useNavigation<SupportHomeNavigationProp>();
   const sessionQuery = useAuthSessionQuery();
   const supportAdminsQuery = useSupportAdmins();
+  const supportTicketFormConfigQuery = useSupportTicketFormConfigQuery();
   const [isAdminPickerVisible, setIsAdminPickerVisible] = useState(false);
   const displayName = sessionQuery.data?.user?.name ?? t('support_guest_name');
   const issueOptions = useMemo(
-    () => [
-      { value: 'order', label: t('support_issue_order') },
-      { value: 'payment', label: t('support_issue_payment') },
-      { value: 'delivery', label: t('support_issue_delivery') },
-      { value: 'account', label: t('support_issue_account') },
-    ],
-    [t],
+    () => {
+      const categoryKeys = orderSupportCategoryKeys(
+        supportTicketFormConfigQuery.data?.categories.map((category) => category.key) ?? [
+          'business_support',
+          'joining_as_a_business',
+          'appointment_support',
+        ],
+      );
+
+      return buildSupportOptions(
+        categoryKeys,
+        'support_issue_',
+        t,
+        (key) => i18n.exists(key, { ns: 'deliveries' }),
+      );
+    },
+    [i18n, supportTicketFormConfigQuery.data?.categories, t],
   );
 
   const handleOpenAdminPicker = () => {
@@ -82,6 +95,11 @@ export default function SupportScreen() {
             iconName="chatbox-outline"
             label={t('support_topic_conversations')}
             onPress={() => navigation.navigate('SupportConversations')}
+          />
+          <SupportTopicItem
+            iconName="alert-circle-outline"
+            label={t('support_topic_tickets')}
+            onPress={() => navigation.navigate('SupportTickets')}
           />
         </View>
 

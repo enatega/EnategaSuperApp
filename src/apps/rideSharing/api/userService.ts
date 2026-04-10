@@ -24,6 +24,21 @@ export type UpdatePasswordPayload = {
     new_password: string;
 };
 
+export type WalletBalanceResponse = {
+    totalBalanceInWallet: string;
+};
+
+export type WalletTopUpPayload = {
+    amount: number;
+    currency: string;
+};
+
+export type WalletTopUpResponse = {
+    checkoutUrl: string;
+    sessionId: string;
+    mode: string;
+};
+
 export const userService = {
     // ── Queries ───────────────────────────────────────────────────────────
 
@@ -32,6 +47,14 @@ export const userService = {
         const response = await apiClient.get<UserApiResponse>('api/v1/users');
         return response.user;
     },
+
+    /** Fetch the current authenticated customer's wallet balance. */
+    getWalletBalance: async (): Promise<WalletBalanceResponse> =>
+        apiClient.get<WalletBalanceResponse>('/api/v1/apps/ride-hailing/wallet/balance/customer'),
+
+    /** Create a Stripe checkout session for wallet top-up. */
+    topUpWallet: async (payload: WalletTopUpPayload): Promise<WalletTopUpResponse> =>
+        apiClient.post<WalletTopUpResponse>('/api/v1/wallet/topup', payload),
 
     // ── Mutations ─────────────────────────────────────────────────────────
 
@@ -68,4 +91,3 @@ export const userService = {
         return response;
     },
 };
-

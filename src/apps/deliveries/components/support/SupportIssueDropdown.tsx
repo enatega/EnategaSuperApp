@@ -95,7 +95,7 @@ export default function SupportIssueDropdown({
                       style={({ pressed }) => [
                         styles.option,
                         {
-                          backgroundColor: colors.background,
+                          backgroundColor: isSelected ? colors.surfaceSoft : colors.background,
                           opacity: pressed ? 0.72 : 1,
                         },
                       ]}
@@ -110,7 +110,12 @@ export default function SupportIssueDropdown({
                         {option.label}
                       </Text>
 
-                      <View style={[styles.radioOuter, { borderColor: colors.border }]}>
+                      <View
+                        style={[
+                          styles.radioOuter,
+                          { borderColor: isSelected ? colors.primary : colors.border },
+                        ]}
+                      >
                         {isSelected ? (
                           <View style={[styles.radioInner, { backgroundColor: colors.primary }]} />
                         ) : null}
