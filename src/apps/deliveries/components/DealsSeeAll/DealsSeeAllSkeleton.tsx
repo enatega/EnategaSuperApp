@@ -4,14 +4,22 @@ import Skeleton from '../../../../general/components/Skeleton';
 
 const SKELETON_ITEMS = 6;
 
-export default function DealsSeeAllSkeleton() {
+type Props = {
+  isTabsVisible?: boolean;
+};
+
+export default function DealsSeeAllSkeleton({
+  isTabsVisible = true,
+}: Props) {
   return (
     <View style={styles.container}>
-      <View style={styles.tabsRow}>
-        <Skeleton width="20%" height={20} borderRadius={6} />
-        <Skeleton width="34%" height={20} borderRadius={6} />
-        <Skeleton width="24%" height={20} borderRadius={6} />
-      </View>
+      {isTabsVisible ? (
+        <View style={styles.tabsRow}>
+          <Skeleton width="20%" height={20} borderRadius={6} />
+          <Skeleton width="34%" height={20} borderRadius={6} />
+          <Skeleton width="24%" height={20} borderRadius={6} />
+        </View>
+      ) : null}
       <Skeleton width="100%" height={72} borderRadius={8} />
       <Skeleton width="52%" height={28} borderRadius={8} />
       <View style={styles.grid}>

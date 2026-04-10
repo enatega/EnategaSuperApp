@@ -2,6 +2,7 @@ import type {
   DeliveryShopTypeProduct,
   PaginatedDeliveryResponse,
 } from '../../api/types';
+import type { DeliveryDealsTabType } from '../../api/dealsServiceTypes';
 
 export interface SingleVendorCategory {
   id: string;
@@ -23,6 +24,8 @@ export interface SingleVendorCategoryProductsParams {
 export interface SingleVendorDealsParams {
   offset?: number;
   limit?: number;
+  search?: string;
+  tab?: DeliveryDealsTabType;
 }
 
 export type SingleVendorCategoriesApiResponse =

@@ -37,12 +37,17 @@ export default function SingleVendorDealsSection() {
     },
     [navigation],
   );
+  const handleSeeAllPress = useCallback(() => {
+    navigation.navigate('DealsSeeAll', { source: 'single-vendor' });
+  }, [navigation]);
 
   return (
     <Deals
+      actionLabel={t('multi_vendor_see_all')}
       isError={hasDealsError}
       isPending={isDealsPending}
       items={dealsData}
+      onActionPress={handleSeeAllPress}
       onItemPress={handleItemPress}
       title={t('multi_vendor_deals_title')}
     />

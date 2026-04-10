@@ -1,5 +1,6 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import type { ApiError } from '../../../../general/api/apiClient';
+import type { DeliveryDealsTabType } from '../../api/dealsServiceTypes';
 import { deliveryKeys } from '../../api/queryKeys';
 import type {
   DeliveryShopTypeProduct,
@@ -12,6 +13,8 @@ type UseSingleVendorDealsMode = 'preview' | 'paginated';
 type UseSingleVendorDealsOptions = {
   mode?: UseSingleVendorDealsMode;
   enabled?: boolean;
+  search?: string;
+  tab?: DeliveryDealsTabType;
 };
 
 const SINGLE_VENDOR_DEALS_LIMIT = 10;
@@ -20,6 +23,8 @@ export default function useSingleVendorDeals(
   options?: UseSingleVendorDealsOptions,
 ) {
   const mode = options?.mode ?? 'preview';
+  const normalizedSearch = options?.search?.trim() ?? '';
+  const tab = options?.tab ?? 'all';
   const query = useInfiniteQuery<
     PaginatedDeliveryResponse<DeliveryShopTypeProduct>,
     ApiError
@@ -27,6 +32,8 @@ export default function useSingleVendorDeals(
     queryKey: [
       ...deliveryKeys.singleVendorDeals({
         limit: SINGLE_VENDOR_DEALS_LIMIT,
+        search: normalizedSearch,
+        tab,
       }),
       { mode },
     ],
@@ -34,6 +41,8 @@ export default function useSingleVendorDeals(
       singleVendorDiscoveryService.getDealsPage({
         offset: pageParam as number,
         limit: SINGLE_VENDOR_DEALS_LIMIT,
+        search: normalizedSearch || undefined,
+        tab,
       }),
     initialPageParam: 0,
     getNextPageParam: (lastPage) =>

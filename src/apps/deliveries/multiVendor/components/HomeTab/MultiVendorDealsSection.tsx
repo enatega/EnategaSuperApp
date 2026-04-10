@@ -1,8 +1,12 @@
 import React from 'react';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import Deals from '../../../components/deals/Deals';
 import { useDeals } from '../../../hooks';
-import { useNavigation } from '@react-navigation/native';
+import type { DeliveriesStackParamList } from '../../../navigation/types';
+
+type NavigationProp = NativeStackNavigationProp<DeliveriesStackParamList>;
 
 export default function MultiVendorDealsSection() {
   const { t } = useTranslation('deliveries');
@@ -11,7 +15,7 @@ export default function MultiVendorDealsSection() {
     isPending: isDealsPending,
     isError: hasDealsError,
   } = useDeals();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
 
   return (
     <Deals
@@ -19,8 +23,10 @@ export default function MultiVendorDealsSection() {
       isError={hasDealsError}
       isPending={isDealsPending}
       items={dealsData}
+      onActionPress={() => {
+        navigation.navigate('DealsSeeAll');
+      }}
       title={t('multi_vendor_deals_title')}
-      onActionPress={() => {navigation.navigate('DealsSeeAll')}}
     />
   );
 }

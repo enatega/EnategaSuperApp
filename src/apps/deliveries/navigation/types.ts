@@ -10,6 +10,8 @@ export type SeeAllListingType =
   | "shop-type-stores"
   | "top-brand-stores";
 
+export type DealsSeeAllSource = "multi-vendor" | "single-vendor";
+
 export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
   DeliveriesHome: undefined;
   SingleVendor: NavigatorScreenParams<SingleVendorStackParamList> | undefined;
@@ -37,5 +39,9 @@ export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
     shopTypeId?: string;
     vendorId?: string;
   };
-  DealsSeeAll: undefined
+  DealsSeeAll:
+    | {
+        source?: DealsSeeAllSource;
+      }
+    | undefined;
 };

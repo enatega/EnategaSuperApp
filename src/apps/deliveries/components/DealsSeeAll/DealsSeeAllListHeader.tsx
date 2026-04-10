@@ -6,12 +6,14 @@ import { useTheme } from "../../../../general/theme/theme";
 import type { DeliveryDealsTabType } from "../../api/dealsServiceTypes";
 
 type Props = {
+  isTabsVisible?: boolean;
   onTabChange: (tab: DeliveryDealsTabType) => void;
   selectedTab: DeliveryDealsTabType;
   title: string;
 };
 
 export default function DealsSeeAllListHeader({
+  isTabsVisible = true,
   onTabChange,
   selectedTab,
   title,
@@ -26,44 +28,48 @@ export default function DealsSeeAllListHeader({
 
   return (
     <View style={styles.container}>
-      <View style={styles.tabsRow}>
-        {tabs.map((tab, index) => {
-          const isSelected = selectedTab === tab?.key;
+      {isTabsVisible ? (
+        <View style={styles.tabsRow}>
+          {tabs.map((tab, index) => {
+            const isSelected = selectedTab === tab?.key;
 
-          return (
-            <Pressable
-              key={tab.key}
-              accessibilityRole="button"
-              onPress={() => onTabChange(tab.key)}
-              style={[
-                styles.tabButton,
-                index === 0
-                  ? styles.tabButtonFirst
-                  : index === 1
-                    ? styles.tabButtonMiddle
-                    : styles.tabButtonLast,
-                {
-                  borderBottomColor: isSelected
-                    ? colors.blue800
-                    : "transparent",
-                  backgroundColor: isSelected ? colors.blue100 : "transparent",
-                },
-              ]}
-            >
-              <Text
-                weight={isSelected ? "semiBold" : "regular"}
-                style={{
-                  color: isSelected ? colors.blue800 : colors.mutedText,
-                  fontSize: typography.size.md,
-                  lineHeight: typography.lineHeight.md,
-                }}
+            return (
+              <Pressable
+                key={tab.key}
+                accessibilityRole="button"
+                onPress={() => onTabChange(tab.key)}
+                style={[
+                  styles.tabButton,
+                  index === 0
+                    ? styles.tabButtonFirst
+                    : index === 1
+                      ? styles.tabButtonMiddle
+                      : styles.tabButtonLast,
+                  {
+                    borderBottomColor: isSelected
+                      ? colors.blue800
+                      : "transparent",
+                    backgroundColor: isSelected
+                      ? colors.blue100
+                      : "transparent",
+                  },
+                ]}
               >
-                {tab.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+                <Text
+                  weight={isSelected ? "semiBold" : "regular"}
+                  style={{
+                    color: isSelected ? colors.blue800 : colors.mutedText,
+                    fontSize: typography.size.md,
+                    lineHeight: typography.lineHeight.md,
+                  }}
+                >
+                  {tab.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      ) : null}
 
       <Text
         weight="bold"

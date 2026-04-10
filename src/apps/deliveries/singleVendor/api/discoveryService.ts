@@ -84,12 +84,14 @@ export const singleVendorDiscoveryService = {
     const {
       offset = SINGLE_VENDOR_DEALS_DEFAULTS.offset,
       limit = SINGLE_VENDOR_DEALS_DEFAULTS.limit,
+      search,
+      tab,
     } = params;
 
     try {
       return await apiClient.get<SingleVendorDealsApiResponse>(
         '/api/v1/apps/deliveries/discovery/single-vendor/deals',
-        { offset, limit },
+        { offset, limit, search, tab },
       );
     } catch (error) {
       console.error('single vendor deals request failed', error);
