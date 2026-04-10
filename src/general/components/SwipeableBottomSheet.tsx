@@ -22,6 +22,7 @@ type Props = {
   onStateChange?: (state: BottomSheetState) => void;
   handle?: ReactNode;
   handleContainerStyle?: StyleProp<ViewStyle>;
+  handleGestureInset?: number;
   floatingAccessory?: ReactNode;
   floatingAccessoryStyle?: StyleProp<ViewStyle>;
   onCollapsed?: () => void;
@@ -53,6 +54,7 @@ export default function SwipeableBottomSheet({
   onStateChange,
   handle,
   handleContainerStyle,
+  handleGestureInset = 24,
   floatingAccessory,
   floatingAccessoryStyle,
   onCollapsed,
@@ -221,8 +223,21 @@ export default function SwipeableBottomSheet({
         </View>
       ) : null}
       {handle ? (
-        <View style={handleContainerStyle} {...panResponder.panHandlers}>
-          {handle}
+        <View
+          style={[
+            styles.handleGestureArea,
+            {
+              paddingTop: handleGestureInset,
+              paddingBottom: handleGestureInset,
+              paddingHorizontal: handleGestureInset,
+              marginTop: -handleGestureInset,
+              marginBottom: -handleGestureInset,
+              marginHorizontal: -handleGestureInset,
+            },
+          ]}
+          {...panResponder.panHandlers}
+        >
+          <View style={handleContainerStyle}>{handle}</View>
         </View>
       ) : null}
       {children}
@@ -239,5 +254,11 @@ const styles = StyleSheet.create({
   },
   floatingAccessory: {
     position: 'absolute',
+  },
+  handleGestureArea: {
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
   },
 });
