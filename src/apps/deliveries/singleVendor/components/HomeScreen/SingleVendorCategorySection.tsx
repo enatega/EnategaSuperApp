@@ -1,23 +1,34 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import {
   DiscoveryCategoryResultsSection,
   DiscoveryCategorySection,
 } from '../../../components/discovery';
+import type { DeliveriesStackParamList } from '../../../navigation/types';
 import useSingleVendorCategories from '../../hooks/useSingleVendorCategories';
 import useSingleVendorCategoryProductSections from '../../hooks/useSingleVendorCategoryProductSections';
 
+type NavigationProp = NativeStackNavigationProp<DeliveriesStackParamList>;
+
 export default function SingleVendorCategorySection() {
   const { t } = useTranslation('deliveries');
+  const navigation = useNavigation<NavigationProp>();
   const { data = [], isPending } = useSingleVendorCategories();
   const productSections = useSingleVendorCategoryProductSections(data);
+  const handleSeeAllPress = useCallback(() => {
+    navigation.navigate('SingleVendorCategoriesSeeAll');
+  }, [navigation]);
 
   return (
     <View style={styles.content}>
       <DiscoveryCategorySection
+        actionLabel={t('multi_vendor_see_all')}
         items={data}
         isPending={isPending}
+        onActionPress={handleSeeAllPress}
         title={t('single_vendor_categories_title')}
       />
 

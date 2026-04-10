@@ -32,6 +32,11 @@ export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
   };
   Cart: undefined;
   Checkout: undefined;
+  SingleVendorCategoriesSeeAll: undefined;
+  SingleVendorCategoryProductsSeeAll: {
+    categoryId: string;
+    title: string;
+  };
   SeeAllScreen: {
     queryType: SeeAllListingType;
     title: string;

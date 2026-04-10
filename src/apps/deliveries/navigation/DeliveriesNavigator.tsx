@@ -41,6 +41,8 @@ import {
 import type { DeliveriesStackParamList } from "./types";
 import SeeAllScreen from "../screens/SeeAllScreen/SeeAllScreen";
 import DealsSeeAll from "../screens/DealsSeeAll/DealsSeeAll";
+import SingleVendorCategoriesSeeAll from "../screens/SingleVendorCategoriesSeeAll/SingleVendorCategoriesSeeAll";
+import SingleVendorCategoryProductsSeeAll from "../screens/SingleVendorCategoryProductsSeeAll/SingleVendorCategoryProductsSeeAll";
 
 const Stack = createNativeStackNavigator<DeliveriesStackParamList>();
 
@@ -245,6 +247,16 @@ export default function DeliveriesNavigator() {
       <Stack.Screen
         name="Checkout"
         component={CheckoutScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SingleVendorCategoriesSeeAll"
+        component={SingleVendorCategoriesSeeAll}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SingleVendorCategoryProductsSeeAll"
+        component={SingleVendorCategoryProductsSeeAll}
         options={sharedScreenOptions}
       />
       <Stack.Screen
