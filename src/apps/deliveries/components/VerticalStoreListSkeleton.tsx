@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Skeleton from '../../../../../../general/components/Skeleton';
-import { useTheme } from '../../../../../../general/theme/theme';
+import Skeleton from '../../../general/components/Skeleton';
+import { useTheme } from '../../../general/theme/theme';
 
 const SKELETON_ITEMS = Array.from({ length: 4 }, (_, index) => ({
   id: `vertical-store-skeleton-${index}`,

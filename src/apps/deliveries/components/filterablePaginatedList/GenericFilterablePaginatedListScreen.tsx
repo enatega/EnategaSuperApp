@@ -7,7 +7,7 @@ import { useTheme } from "../../../../general/theme/theme";
 import ProductCard from "../productCard/ProductCard";
 import TopBrandCard from "../storeCard/TopBrandCard";
 import StoreCard from "../storeCard/StoreCard";
-import ShopTypeCard from "../../multiVendor/components/HomeTab/ShopTypeCard";
+import ShopTypeCard from "../ShopTypeCard";
 import type {
   DeliveryNearbyStore,
   DeliveryShopTypeProduct,

@@ -5,7 +5,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "../../../../general/theme/theme";
 import type { DeliveryNearbyStore } from "../../api/types";
 import type { SearchStoreItem } from "../../api/searchServiceTypes";
-import type { MultiVendorStackParamList } from "../../multiVendor/navigation/types";
+import type { DeliveriesStoreDetailsParamList } from "../../navigation/sharedTypes";
 import { styles } from "./styles";
 import StoreImage from "./subComponents/StoreImage";
 import StoreInfo from "./subComponents/StoreInfo";
@@ -20,7 +20,7 @@ export interface StoreCardProps {
   layout?: "compact" | "fullWidth";
 }
 
-type NavigationProp = NativeStackNavigationProp<MultiVendorStackParamList>;
+type NavigationProp = NativeStackNavigationProp<DeliveriesStoreDetailsParamList>;
 
 export default function StoreCard({
   store,
