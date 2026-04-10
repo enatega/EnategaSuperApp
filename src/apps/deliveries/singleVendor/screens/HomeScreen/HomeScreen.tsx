@@ -99,8 +99,8 @@ export default function HomeScreen() {
           />
         </View>
 
-        <SingleVendorDealsSection />
         <SingleVendorCategorySection />
+        <SingleVendorDealsSection />
       </ScrollView>
 
       <AddressSelectionBottomSheet
