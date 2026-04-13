@@ -15,6 +15,7 @@ import type { DeliveriesStackParamList } from '../../navigation/types';
 import { showToast } from '../../../../general/components/AppToast';
 import { useTheme } from '../../../../general/theme/theme';
 import ChainCategorySection from '../components/homeScreen/ChainCategorySection';
+import ChainDealsSection from '../components/homeScreen/ChainDealsSection';
 import ChainMenuTemplateDropdown from '../components/homeScreen/ChainMenuTemplateDropdown';
 import type { ChainMenuTemplate } from '../api/types';
 import useChainMenuTemplates from '../hooks/useChainMenuTemplates';
@@ -140,6 +141,7 @@ export default function HomeScreen({}: Props) {
         />
 
         <ChainCategorySection isTemplatePending={isMenuTemplatesLoading} />
+        <ChainDealsSection isTemplatePending={isMenuTemplatesLoading} />
       </ScrollView>
 
       <AddressSelectionBottomSheet

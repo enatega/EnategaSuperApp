@@ -32,6 +32,15 @@ export type ChainMenuCategoryProductsParams = {
   limit?: number;
 };
 
+export type ChainMenuDealsParams = {
+  menuTemplateId: string;
+  offset?: number;
+  limit?: number;
+  search?: string;
+  tab?: string;
+  sort_by?: string;
+};
+
 export type ChainMenuTemplatesApiResponse =
   PaginatedDeliveryResponse<ChainMenuTemplate>;
 
@@ -39,4 +48,7 @@ export type ChainMenuCategoriesApiResponse =
   PaginatedDeliveryResponse<ChainMenuCategory>;
 
 export type ChainMenuCategoryProductsApiResponse =
+  PaginatedDeliveryResponse<DeliveryShopTypeProduct>;
+
+export type ChainMenuDealsApiResponse =
   PaginatedDeliveryResponse<DeliveryShopTypeProduct>;

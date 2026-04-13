@@ -60,6 +60,14 @@ export const deliveryKeys = {
             offset,
             limit,
         ] as const,
+    chainMenuDeals: (filters: {
+        menuTemplateId: string;
+        limit?: number;
+        search?: string;
+        tab?: string;
+        sort_by?: string;
+    }) =>
+        [...deliveryKeys.discovery(), 'chain-menu-deals', filters] as const,
     shopTypeProducts: (shopTypeId: string, offset = 0, limit = 10) =>
         [
             ...deliveryKeys.discovery(),

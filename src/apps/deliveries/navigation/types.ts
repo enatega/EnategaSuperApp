@@ -14,7 +14,7 @@ export type SeeAllListingType =
   | "top-brand-stores"
   | "single-vendor-category-products";
 
-export type DealsSeeAllSource = "multi-vendor" | "single-vendor";
+export type DealsSeeAllSource = "multi-vendor" | "single-vendor" | "chain-vendor";
 
 export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
   DeliveriesHome: undefined;

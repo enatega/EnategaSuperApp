@@ -2,6 +2,8 @@ import apiClient from '../../../../general/api/apiClient';
 import type {
   ChainMenuCategoriesApiResponse,
   ChainMenuCategoriesParams,
+  ChainMenuDealsApiResponse,
+  ChainMenuDealsParams,
   ChainMenuCategoryProductsApiResponse,
   ChainMenuCategoryProductsParams,
   ChainMenuTemplatesApiResponse,
@@ -19,6 +21,11 @@ const CHAIN_MENU_CATEGORIES_DEFAULTS = {
 } as const;
 
 const CHAIN_MENU_CATEGORY_PRODUCTS_DEFAULTS = {
+  offset: 0,
+  limit: 10,
+} as const;
+
+const CHAIN_MENU_DEALS_DEFAULTS = {
   offset: 0,
   limit: 10,
 } as const;
@@ -86,6 +93,40 @@ export const chainMenuTemplateService = {
       );
     } catch (error) {
       console.error('chain menu category products request failed', error);
+      throw error;
+    }
+  },
+
+  getDeals: async (params: ChainMenuDealsParams) => {
+    const response = await chainMenuTemplateService.getDealsPage(params);
+    return response.items;
+  },
+
+  getDealsPage: async (
+    params: ChainMenuDealsParams,
+  ): Promise<ChainMenuDealsApiResponse> => {
+    const {
+      menuTemplateId,
+      offset = CHAIN_MENU_DEALS_DEFAULTS.offset,
+      limit = CHAIN_MENU_DEALS_DEFAULTS.limit,
+      search,
+      tab,
+      sort_by,
+    } = params;
+
+    try {
+      return await apiClient.get<ChainMenuDealsApiResponse>(
+        `/api/v1/apps/deliveries/discovery/store-chain/menus/${menuTemplateId}/deals`,
+        {
+          offset,
+          limit,
+          search: search?.trim() || undefined,
+          tab,
+          sort_by,
+        },
+      );
+    } catch (error) {
+      console.error('chain menu deals request failed', error);
       throw error;
     }
   },
