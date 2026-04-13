@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -18,6 +18,7 @@ import ChainCategorySection from '../components/homeScreen/ChainCategorySection'
 import ChainMenuTemplateDropdown from '../components/homeScreen/ChainMenuTemplateDropdown';
 import type { ChainMenuTemplate } from '../api/types';
 import useChainMenuTemplates from '../hooks/useChainMenuTemplates';
+import { useChainMenuStore } from '../stores/useChainMenuStore';
 
 type Props = Record<string, never>;
 
@@ -39,8 +40,14 @@ export default function HomeScreen({}: Props) {
     isError: hasMenuTemplatesError,
     isLoading: isMenuTemplatesLoading,
   } = useChainMenuTemplates();
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
-    null,
+  const selectedMenuTemplateId = useChainMenuStore(
+    (state) => state.selectedMenuTemplateId,
+  );
+  const setSelectedMenuTemplateId = useChainMenuStore(
+    (state) => state.setSelectedMenuTemplateId,
+  );
+  const clearSelectedMenuTemplateId = useChainMenuStore(
+    (state) => state.clearSelectedMenuTemplateId,
   );
   const {
     isVisible: isAddressSheetVisible,
@@ -53,19 +60,24 @@ export default function HomeScreen({}: Props) {
 
   useEffect(() => {
     if (menuTemplates.length === 0) {
-      setSelectedTemplateId(null);
+      clearSelectedMenuTemplateId();
       return;
     }
 
     if (
-      selectedTemplateId &&
-      menuTemplates.some((template) => template.id === selectedTemplateId)
+      selectedMenuTemplateId &&
+      menuTemplates.some((template) => template.id === selectedMenuTemplateId)
     ) {
       return;
     }
 
-    setSelectedTemplateId(menuTemplates[0].id);
-  }, [menuTemplates, selectedTemplateId]);
+    setSelectedMenuTemplateId(menuTemplates[0].id);
+  }, [
+    clearSelectedMenuTemplateId,
+    menuTemplates,
+    selectedMenuTemplateId,
+    setSelectedMenuTemplateId,
+  ]);
 
   const handleSelectAddress = useCallback(
     async (address: ProfileAddress) => {
@@ -96,8 +108,8 @@ export default function HomeScreen({}: Props) {
   }, [handleCloseAddressSheet, navigation]);
 
   const handleTemplateSelect = useCallback((template: ChainMenuTemplate) => {
-    setSelectedTemplateId(template.id);
-  }, []);
+    setSelectedMenuTemplateId(template.id);
+  }, [setSelectedMenuTemplateId]);
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -121,16 +133,13 @@ export default function HomeScreen({}: Props) {
               isLoading={isMenuTemplatesLoading}
               items={menuTemplates}
               onSelectTemplate={handleTemplateSelect}
-              selectedTemplateId={selectedTemplateId}
+              selectedTemplateId={selectedMenuTemplateId}
             />
           }
           showCartButton={false}
         />
 
-        <ChainCategorySection
-          isTemplatePending={isMenuTemplatesLoading}
-          menuTemplateId={selectedTemplateId}
-        />
+        <ChainCategorySection isTemplatePending={isMenuTemplatesLoading} />
       </ScrollView>
 
       <AddressSelectionBottomSheet

@@ -1,4 +1,7 @@
-import type { PaginatedDeliveryResponse } from '../../api/types';
+import type {
+  DeliveryShopTypeProduct,
+  PaginatedDeliveryResponse,
+} from '../../api/types';
 
 export type ChainMenuTemplate = {
   id: string;
@@ -22,8 +25,18 @@ export type ChainMenuCategoriesParams = {
   limit?: number;
 };
 
+export type ChainMenuCategoryProductsParams = {
+  menuTemplateId: string;
+  categoryId: string;
+  offset?: number;
+  limit?: number;
+};
+
 export type ChainMenuTemplatesApiResponse =
   PaginatedDeliveryResponse<ChainMenuTemplate>;
 
 export type ChainMenuCategoriesApiResponse =
   PaginatedDeliveryResponse<ChainMenuCategory>;
+
+export type ChainMenuCategoryProductsApiResponse =
+  PaginatedDeliveryResponse<DeliveryShopTypeProduct>;

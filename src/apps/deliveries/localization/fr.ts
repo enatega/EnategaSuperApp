@@ -36,6 +36,7 @@ const fr = {
   chain_logout_error_title: 'Erreur',
   chain_logout_error_message: 'Impossible de vous déconnecter pour le moment.',
   chain_categories_title: 'Catégories',
+  chain_category_products_empty: 'Aucun produit trouvé pour cette catégorie.',
   chain_menu_template_selector_label: 'Sélectionner le menu de la chaîne',
   chain_menu_template_loading: 'Chargement des menus',
   chain_menu_template_empty: 'Aucun menu',

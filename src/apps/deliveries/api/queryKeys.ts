@@ -46,6 +46,20 @@ export const deliveryKeys = {
             menuTemplateId,
             filters,
         ] as const,
+    chainMenuCategoryProducts: (
+        menuTemplateId: string,
+        categoryId: string,
+        offset = 0,
+        limit = 10,
+    ) =>
+        [
+            ...deliveryKeys.discovery(),
+            'chain-menu-category-products',
+            menuTemplateId,
+            categoryId,
+            offset,
+            limit,
+        ] as const,
     shopTypeProducts: (shopTypeId: string, offset = 0, limit = 10) =>
         [
             ...deliveryKeys.discovery(),
