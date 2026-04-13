@@ -244,11 +244,21 @@ export default function AddCardScreen() {
             {t('wallet_pay_securely')}
           </Text>
           <View style={styles.brandIcons}>
-            <Text style={styles.brandEmoji}>🟠</Text>
-            <Text style={styles.brandEmoji}>G</Text>
-            <Text style={styles.brandEmoji}>🍎</Text>
-            <Text style={styles.brandEmoji}>💳</Text>
-            <Text style={styles.brandEmoji}>P</Text>
+            {/* <View style={[styles.payBadge, { backgroundColor: '#EB001B' }]}>
+              <Text weight="bold" color="#FFFFFF" style={styles.payBadgeText}>MC</Text>
+            </View> */}
+            <View style={[styles.payBadge, { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }]}>
+              <Text weight="bold" color={colors.text} style={styles.payBadgeText}>GPay</Text>
+            </View>
+            <View style={[styles.payBadge, { backgroundColor: '#000000' }]}>
+              <Text weight="bold" color="#FFFFFF" style={styles.payBadgeText}>Pay</Text>
+            </View>
+            <View style={[styles.payBadge, { backgroundColor: '#1A1F71' }]}>
+              <Text weight="bold" color="#FFFFFF" style={styles.payBadgeText}>VISA</Text>
+            </View>
+            {/* <View style={[styles.payBadge, { backgroundColor: '#003087' }]}>
+              <Text weight="bold" color="#FFFFFF" style={styles.payBadgeText}>PP</Text>
+            </View> */}
           </View>
         </View>
         <Button
@@ -307,6 +317,13 @@ const styles = StyleSheet.create({
   },
   secureText: { fontSize: 13, lineHeight: 18 },
   brandIcons: { flexDirection: 'row', gap: 6 },
-  brandEmoji: { fontSize: 16 },
+  payBadge: {
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  payBadgeText: { fontSize: 10, lineHeight: 14 },
   saveButton: { borderRadius: 8 },
 });
