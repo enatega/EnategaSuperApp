@@ -34,6 +34,18 @@ export const deliveryKeys = {
         tab?: string;
     }) =>
         [...deliveryKeys.discovery(), 'single-vendor-deals', filters] as const,
+    chainMenuTemplates: (filters?: { offset?: number; limit?: number }) =>
+        [...deliveryKeys.discovery(), 'chain-menu-templates', filters] as const,
+    chainMenuCategories: (
+        menuTemplateId: string,
+        filters?: { offset?: number; limit?: number },
+    ) =>
+        [
+            ...deliveryKeys.discovery(),
+            'chain-menu-categories',
+            menuTemplateId,
+            filters,
+        ] as const,
     shopTypeProducts: (shopTypeId: string, offset = 0, limit = 10) =>
         [
             ...deliveryKeys.discovery(),

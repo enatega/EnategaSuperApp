@@ -1,0 +1,29 @@
+import type { PaginatedDeliveryResponse } from '../../api/types';
+
+export type ChainMenuTemplate = {
+  id: string;
+  name: string;
+};
+
+export type ChainMenuCategory = {
+  id: string;
+  name: string;
+  imageUrl?: string | null;
+};
+
+export type ChainMenuTemplatesParams = {
+  offset?: number;
+  limit?: number;
+};
+
+export type ChainMenuCategoriesParams = {
+  menuTemplateId: string;
+  offset?: number;
+  limit?: number;
+};
+
+export type ChainMenuTemplatesApiResponse =
+  PaginatedDeliveryResponse<ChainMenuTemplate>;
+
+export type ChainMenuCategoriesApiResponse =
+  PaginatedDeliveryResponse<ChainMenuCategory>;
