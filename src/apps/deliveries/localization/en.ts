@@ -851,6 +851,21 @@ const en = {
   order_tracking_contact_subtitle: 'Ask for contactless delivery',
   order_tracking_summary: 'Summary',
   order_tracking_summary_note: 'incl. taxes (if applicable)',
+  // Wallet
+  wallet_balance_label: 'Wallet balance',
+  wallet_cards_title: 'Cards',
+  wallet_add_card: 'Add debit/credit card',
+  wallet_recent_transactions: 'Recent Transactions',
+  wallet_see_all: 'See all',
+  wallet_add_card_title: 'Add card',
+  wallet_name_on_card: 'Name on card',
+  wallet_name_placeholder: 'Add card holder full name',
+  wallet_card_number_label: 'Card number',
+  wallet_card_number_placeholder: 'Credit or debit card number',
+  wallet_expiry_label: 'Expiry date',
+  wallet_security_code_label: 'Security code',
+  wallet_pay_securely: 'Pay securely with',
+  wallet_save_card: 'Save',
 };
 
 export default en;

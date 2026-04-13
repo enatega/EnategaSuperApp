@@ -22,6 +22,9 @@ import ChangePasswordScreen from "../account/screens/ChangePasswordScreen/Change
 import DeleteAccountScreen from "../account/screens/DeleteAccountScreen/DeleteAccountScreen";
 import ColorModeScreen from "../account/screens/ColorModeScreen/ColorModeScreen";
 import LanguageScreen from "../account/screens/LanguageScreen/LanguageScreen";
+import WalletScreen from "../account/screens/wallet/WalletScreen/WalletScreen";
+import AddCardScreen from "../account/screens/wallet/AddCardScreen/AddCardScreen";
+import WalletTransactionsScreen from "../account/screens/wallet/WalletTransactionsScreen/WalletTransactionsScreen";
 import AddressSearchScreen from "../screens/addresses/AddressSearchScreen";
 import AddressChooseOnMapScreen from "../screens/addresses/AddressChooseOnMapScreen";
 import AddressDetailScreen from "../screens/addresses/AddressDetailScreen";
@@ -189,6 +192,21 @@ export default function DeliveriesNavigator() {
       <Stack.Screen
         name="Language"
         component={LanguageScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="Wallet"
+        component={WalletScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="AddCard"
+        component={AddCardScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="WalletTransactions"
+        component={WalletTransactionsScreen}
         options={sharedScreenOptions}
       />
       <Stack.Screen
