@@ -102,13 +102,16 @@ export default function useSeeAllScreenConfig({
     filters,
     search,
   });
-  console.log("useSeeAllScreenConfig render",categoryId)
   const singleVendorCategoryProductsQuery = useSingleVendorCategoryProducts(
     categoryId ?? '',
     {
       mode: 'paginated',
-      enabled: enabled && queryType === 'single-vendor-category-products' && Boolean(categoryId),
-      search
+      enabled:
+        enabled &&
+        queryType === 'single-vendor-category-products' &&
+        Boolean(categoryId),
+      filters,
+      search,
     },
   );
 

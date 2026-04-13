@@ -11,12 +11,18 @@ import { styles as storeCardStyles } from '../storeCard/styles';
 import type { ProductCardControlState } from './types';
 
 type Props = {
+  isFullWidth?: boolean;
   onPress: () => void;
   product: DeliveryShopTypeProduct;
   state: ProductCardControlState;
 };
 
-export default function RailProductCard({ onPress, product, state }: Props) {
+export default function RailProductCard({
+  isFullWidth = false,
+  onPress,
+  product,
+  state,
+}: Props) {
   const { colors } = useTheme();
   const imageUrl =
     product.productImage ??
@@ -30,7 +36,9 @@ export default function RailProductCard({ onPress, product, state }: Props) {
       onPress={onPress}
       style={[
         storeCardStyles.container,
-        storeCardStyles.compactContainer,
+        isFullWidth
+          ? storeCardStyles.fullWidthContainer
+          : storeCardStyles.compactContainer,
         {
           backgroundColor: colors.surface,
           borderColor: colors.border,

@@ -20,8 +20,13 @@ export interface SingleVendorCategoryProductsParams {
   offset?: number;
   limit?: number;
   search?: string;
+  latitude?: number;
+  longitude?: number;
+  stock?: string;
+  subcategory_id?: string;
+  price_tiers?: string | string[];
+  sort_by?: string;
 }
-
 
 export interface SingleVendorDealsParams {
   offset?: number;

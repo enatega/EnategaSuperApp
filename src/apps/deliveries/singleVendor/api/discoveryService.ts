@@ -23,6 +23,30 @@ const SINGLE_VENDOR_DEALS_DEFAULTS = {
   limit: 10,
 } as const;
 
+function toCategoryProductsQueryParams(
+  params: SingleVendorCategoryProductsParams,
+): Record<string, unknown> {
+  const {
+    offset = SINGLE_VENDOR_CATEGORY_PRODUCTS_DEFAULTS.offset,
+    limit = SINGLE_VENDOR_CATEGORY_PRODUCTS_DEFAULTS.limit,
+    search,
+    stock,
+    subcategory_id,
+    price_tiers,
+    sort_by,
+  } = params;
+
+  return {
+    offset,
+    limit,
+    search: search?.trim() || undefined,
+    stock,
+    subcategory_id,
+    price_tiers: Array.isArray(price_tiers) ? price_tiers[0] : price_tiers,
+    sort_by,
+  };
+}
+
 export const singleVendorDiscoveryService = {
   getCategoriesPage: async (
     params: SingleVendorCategoriesParams = {},
@@ -55,16 +79,11 @@ export const singleVendorDiscoveryService = {
     params: SingleVendorCategoryProductsParams,
   ): Promise<SingleVendorCategoryProductsApiResponse> => {
     const { categoryId } = params;
-    const {
-      offset = SINGLE_VENDOR_CATEGORY_PRODUCTS_DEFAULTS.offset,
-      limit = SINGLE_VENDOR_CATEGORY_PRODUCTS_DEFAULTS.limit,
-      search
-    } = params;
 
     try {
       return await apiClient.get<SingleVendorCategoryProductsApiResponse>(
         `/api/v1/apps/deliveries/discovery/single-vendor/categories/${categoryId}/products`,
-        { offset, limit, search: search?.trim() || undefined },
+        toCategoryProductsQueryParams(params),
       );
     } catch (error) {
       console.error('single vendor category products request failed', error);
