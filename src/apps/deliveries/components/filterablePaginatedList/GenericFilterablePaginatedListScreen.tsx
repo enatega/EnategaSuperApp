@@ -42,6 +42,7 @@ function renderCardByType(
   cardType: SupportedCardType,
   item: unknown,
   cardVariant?: ProductCardVariant,
+  isRailProductCardFullWidth?: boolean,
   onPress?: () => void,
 ) {
   if (cardType === "store") {
@@ -77,6 +78,7 @@ function renderCardByType(
     <ProductCard
       product={item as DeliveryShopTypeProduct}
       variant={cardVariant}
+      isFullWidth={isRailProductCardFullWidth}
       onPress={onPress}
     />
   );
@@ -112,6 +114,7 @@ export default function GenericFilterablePaginatedListScreen<
   listContentContainerStyle,
   onItemPress,
   cardVariant,
+  isRailProductCardFullWidth,
 }: GenericFilterablePaginatedListScreenProps<
   TItem,
   TCardType
@@ -142,9 +145,10 @@ export default function GenericFilterablePaginatedListScreen<
         cardType,
         item,
         cardVariant,
+        isRailProductCardFullWidth,
         onItemPress ? () => onItemPress(item) : undefined,
       ),
-    [cardType, cardVariant, onItemPress],
+    [cardType, cardVariant, isRailProductCardFullWidth, onItemPress],
   );
 
   const keyExtractor = useCallback(

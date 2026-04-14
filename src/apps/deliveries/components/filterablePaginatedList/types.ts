@@ -112,4 +112,5 @@ export type GenericFilterablePaginatedListScreenProps<
   onItemPress?: (item: TItem) => void;
   estimatedItemSize?: number;
   cardVariant?: ProductCardVariant;
+  isRailProductCardFullWidth?: boolean;
 };

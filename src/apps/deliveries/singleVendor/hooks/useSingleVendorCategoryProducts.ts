@@ -5,6 +5,8 @@ import type {
   DeliveryShopTypeProduct,
   PaginatedDeliveryResponse,
 } from '../../api/types';
+import type { GenericListFilters } from '../../components/filters/types';
+import useAddress from '../../hooks/useAddress';
 import { singleVendorDiscoveryService } from '../api/discoveryService';
 
 type UseSingleVendorCategoryProductsMode = 'preview' | 'paginated';
@@ -12,16 +14,58 @@ type UseSingleVendorCategoryProductsMode = 'preview' | 'paginated';
 type UseSingleVendorCategoryProductsOptions = {
   mode?: UseSingleVendorCategoryProductsMode;
   enabled?: boolean;
+  filters?: GenericListFilters;
   search?: string;
 };
 
 const SINGLE_VENDOR_CATEGORY_PRODUCTS_LIMIT = 10;
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function normalizeSubcategoryId(categorySelections?: string[]) {
+  if (!categorySelections?.length) {
+    return undefined;
+  }
+
+  return categorySelections
+    .map((categorySelection) => categorySelection.trim())
+    .filter(Boolean)
+    .find((categoryId) => UUID_PATTERN.test(categoryId));
+}
+
+function normalizeStockValue(stockId?: string | null) {
+  if (!stockId) {
+    return undefined;
+  }
+
+  if (stockId === 'in_stock') {
+    return 'instock';
+  }
+
+  if (stockId === 'out_of_stock') {
+    return 'outofstock';
+  }
+
+  return stockId;
+}
 
 export default function useSingleVendorCategoryProducts(
   categoryId: string,
   options?: UseSingleVendorCategoryProductsOptions,
 ) {
   const mode = options?.mode ?? 'preview';
+  const normalizedSearch = options?.search?.trim() ?? '';
+  const { latitude, longitude } = useAddress();
+  const requestParams = {
+    latitude,
+    longitude,
+    stock: normalizeStockValue(options?.filters?.stock),
+    subcategory_id: normalizeSubcategoryId(options?.filters?.category_ids),
+    price_tiers: options?.filters?.price_tiers
+      ? [options.filters.price_tiers]
+      : undefined,
+    sort_by: options?.filters?.sort_by ?? undefined,
+  };
   const query = useInfiniteQuery<
     PaginatedDeliveryResponse<DeliveryShopTypeProduct>,
     ApiError
@@ -32,17 +76,20 @@ export default function useSingleVendorCategoryProducts(
         0,
         SINGLE_VENDOR_CATEGORY_PRODUCTS_LIMIT,
       ),
-      { mode,
-        search: options?.search?.trim() ?? ''
-        
-       },
+      {
+        filters: options?.filters,
+        mode,
+        requestParams,
+        search: normalizedSearch,
+      },
     ],
     queryFn: ({ pageParam = 0 }) =>
       singleVendorDiscoveryService.getCategoryProductsPage({
         categoryId,
         offset: pageParam as number,
         limit: SINGLE_VENDOR_CATEGORY_PRODUCTS_LIMIT,
-        search: options?.search?.trim() || undefined,
+        search: normalizedSearch || undefined,
+        ...requestParams,
       }),
     initialPageParam: 0,
     getNextPageParam: (lastPage) =>

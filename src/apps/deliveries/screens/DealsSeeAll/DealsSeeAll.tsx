@@ -23,7 +23,7 @@ function getDealsSectionTitle(
   selectedTab: DeliveryDealsTabType,
   t: (key: string) => string,
 ) {
-  if (source === "single-vendor") {
+  if (source === "single-vendor" || source === "chain-vendor") {
     return t("multi_vendor_deals_title");
   }
 
