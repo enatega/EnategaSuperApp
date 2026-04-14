@@ -25,6 +25,9 @@ import LanguageScreen from "../account/screens/LanguageScreen/LanguageScreen";
 import AddressSearchScreen from "../../../general/screens/address/AddressSearchScreen";
 import AddressChooseOnMapScreen from "../../../general/screens/address/AddressChooseOnMapScreen";
 import AddressDetailScreen from "../../../general/screens/address/AddressDetailScreen";
+import WalletScreen from "../account/screens/wallet/WalletScreen/WalletScreen";
+import AddCardScreen from "../account/screens/wallet/AddCardScreen/AddCardScreen";
+import WalletTransactionsScreen from "../account/screens/wallet/WalletTransactionsScreen/WalletTransactionsScreen";
 import SupportScreen from "../screens/SupportScreen/SupportScreen";
 import SupportChatScreen from "../screens/SupportChatScreen/SupportChatScreen";
 import SupportConversationsScreen from "../screens/SupportConversationsScreen/SupportConversationsScreen";
@@ -191,6 +194,21 @@ export default function DeliveriesNavigator() {
       <Stack.Screen
         name="Language"
         component={LanguageScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="Wallet"
+        component={WalletScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="AddCard"
+        component={AddCardScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="WalletTransactions"
+        component={WalletTransactionsScreen}
         options={sharedScreenOptions}
       />
       <Stack.Screen

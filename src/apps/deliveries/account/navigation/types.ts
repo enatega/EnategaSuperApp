@@ -24,6 +24,9 @@ export type DeliveriesAccountStackParamList = SupportNavigationParamList & {
   ColorMode: undefined;
   Language: undefined;
   Support: undefined;
+  Wallet: undefined;
+  AddCard: undefined;
+  WalletTransactions: undefined;
 };
 
 export type DeliveriesAccountNavigationParamList =
