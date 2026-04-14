@@ -88,6 +88,7 @@ export default function ProfileTabScreen({
         balance={wallet?.wallet_balance}
         balanceLabel={t('profile_wallet_balance')}
         buttonLabel={t('profile_view_wallet')}
+        onPressWallet={() => navigation.navigate('Wallet')}
       />
 
       <ProfileMenuSection>
