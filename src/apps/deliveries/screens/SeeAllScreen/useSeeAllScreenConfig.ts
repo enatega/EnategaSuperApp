@@ -122,6 +122,7 @@ export default function useSeeAllScreenConfig({
       enabled &&
       queryType === 'chain-category-products' &&
       Boolean(categoryId),
+    filters,
     search,
   });
 
