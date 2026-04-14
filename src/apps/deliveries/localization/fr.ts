@@ -857,6 +857,21 @@ const fr = {
   order_tracking_contact_subtitle: 'Demander une livraison sans contact',
   order_tracking_summary: 'Résumé',
   order_tracking_summary_note: 'taxes incluses (si applicable)',
+  // Wallet
+  wallet_balance_label: 'Solde du portefeuille',
+  wallet_cards_title: 'Cartes',
+  wallet_add_card: 'Ajouter une carte de débit/crédit',
+  wallet_recent_transactions: 'Transactions récentes',
+  wallet_see_all: 'Voir tout',
+  wallet_add_card_title: 'Ajouter une carte',
+  wallet_name_on_card: 'Nom sur la carte',
+  wallet_name_placeholder: 'Nom complet du titulaire',
+  wallet_card_number_label: 'Numéro de carte',
+  wallet_card_number_placeholder: 'Numéro de carte de crédit ou débit',
+  wallet_expiry_label: 'Date d\'expiration',
+  wallet_security_code_label: 'Code de sécurité',
+  wallet_pay_securely: 'Paiement sécurisé avec',
+  wallet_save_card: 'Enregistrer',
 };
 
 export default fr;
