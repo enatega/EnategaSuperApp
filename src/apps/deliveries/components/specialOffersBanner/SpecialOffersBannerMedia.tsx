@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import Image from '../../../../../general/components/Image';
-import { homePatterns } from '../../../../../general/assets/images';
-import type { DeliveryBanner } from '../../../api/types';
+import Image from '../../../../general/components/Image';
+import { homePatterns } from '../../../../general/assets/images';
+import type { DeliveryBanner } from '../../api/types';
 
 type Props = {
   banner: DeliveryBanner;

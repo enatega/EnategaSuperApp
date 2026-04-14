@@ -7,6 +7,7 @@ import type { DeliveryShopTypeProduct } from '../../api/types';
 import type { GenericListFilters } from '../../components/filters/types';
 import { useDealsListing } from '../../hooks';
 import type { DealsSeeAllSource } from '../../navigation/types';
+import useChainDeals from '../../chain/hooks/useChainDeals';
 import useSingleVendorDeals from '../../singleVendor/hooks/useSingleVendorDeals';
 
 type DealsSeeAllListQueryResult = {
@@ -83,6 +84,23 @@ function normalizeSingleVendorQuery(
   };
 }
 
+function normalizeChainVendorQuery(
+  query: ReturnType<typeof useChainDeals>,
+): DealsSeeAllListQueryResult {
+  return {
+    data: (query.data ?? []).map(normalizeSingleVendorDealItem),
+    totalCount: query.totalCount,
+    isPending: query.isPending,
+    isError: query.isError,
+    error: query.error,
+    refetch: query.refetch,
+    hasNextPage: query.hasNextPage,
+    isFetchingNextPage: query.isFetchingNextPage,
+    fetchNextPage: query.fetchNextPage,
+    isRefetching: query.isRefetching,
+  };
+}
+
 export default function useDealsSeeAllScreenConfig({
   source,
   filters,
@@ -102,10 +120,23 @@ export default function useDealsSeeAllScreenConfig({
     tab: 'all',
     enabled: source === 'single-vendor',
   });
+  const chainVendorQuery = useChainDeals({
+    mode: 'paginated',
+    search,
+    tab: 'all',
+    enabled: source === 'chain-vendor',
+  });
 
   if (source === 'single-vendor') {
     return {
       ...normalizeSingleVendorQuery(singleVendorQuery),
+      isTabsVisible: false,
+    };
+  }
+
+  if (source === 'chain-vendor') {
+    return {
+      ...normalizeChainVendorQuery(chainVendorQuery),
       isTabsVisible: false,
     };
   }

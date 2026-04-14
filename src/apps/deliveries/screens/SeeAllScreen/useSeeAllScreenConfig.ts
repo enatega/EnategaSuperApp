@@ -7,6 +7,7 @@ import {
   useShopTypeStores,
   useVendorStores,
 } from '../../hooks';
+import useChainCategoryProducts from '../../chain/hooks/useChainCategoryProducts';
 import useSingleVendorCategoryProducts from '../../singleVendor/hooks/useSingleVendorCategoryProducts';
 import VerticalStoreListSkeleton from '../../components/VerticalStoreListSkeleton';
 import type {
@@ -16,6 +17,7 @@ import type {
 
 type SeeAllRawQueryResult =
   | ReturnType<typeof useNearbyStores>
+  | ReturnType<typeof useChainCategoryProducts>
   | ReturnType<typeof useShopTypeProducts>
   | ReturnType<typeof useShopTypeStores>
   | ReturnType<typeof useVendorStores>
@@ -102,15 +104,27 @@ export default function useSeeAllScreenConfig({
     filters,
     search,
   });
-  console.log("useSeeAllScreenConfig render",categoryId)
   const singleVendorCategoryProductsQuery = useSingleVendorCategoryProducts(
     categoryId ?? '',
     {
       mode: 'paginated',
-      enabled: enabled && queryType === 'single-vendor-category-products' && Boolean(categoryId),
-      search
+      enabled:
+        enabled &&
+        queryType === 'single-vendor-category-products' &&
+        Boolean(categoryId),
+      filters,
+      search,
     },
   );
+  const chainCategoryProductsQuery = useChainCategoryProducts(categoryId ?? '', {
+    mode: 'paginated',
+    enabled:
+      enabled &&
+      queryType === 'chain-category-products' &&
+      Boolean(categoryId),
+    filters,
+    search,
+  });
 
   if (queryType === 'shop-type-stores') {
     return {
@@ -149,6 +163,18 @@ export default function useSeeAllScreenConfig({
           ? `${item.productId}-${item.storeId}-${index}`
           : `${item.storeId}-${index}`,
       listQuery: normalizeListQuery(singleVendorCategoryProductsQuery),
+      loadingComponent: STORE_LIST_SKELETON,
+      paginationLoadingComponent: STORE_LIST_SKELETON,
+    };
+  }
+
+  if (queryType === 'chain-category-products') {
+    return {
+      itemKeyExtractor: (item, index) =>
+        'productId' in item
+          ? `${item.productId}-${item.storeId}-${index}`
+          : `${item.storeId}-${index}`,
+      listQuery: normalizeListQuery(chainCategoryProductsQuery),
       loadingComponent: STORE_LIST_SKELETON,
       paginationLoadingComponent: STORE_LIST_SKELETON,
     };

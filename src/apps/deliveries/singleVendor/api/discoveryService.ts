@@ -1,5 +1,12 @@
 import apiClient from '../../../../general/api/apiClient';
 import type {
+  ApiResponse,
+  DeliveryBanner,
+  DeliveryBannersApiResponse,
+  DeliveryBannersParams,
+  PaginatedDeliveryResponse,
+} from '../../api/types';
+import type {
   SingleVendorCategoriesApiResponse,
   SingleVendorCategoryProductsApiResponse,
   SingleVendorCategoryProductsParams,
@@ -23,7 +30,85 @@ const SINGLE_VENDOR_DEALS_DEFAULTS = {
   limit: 10,
 } as const;
 
+const SINGLE_VENDOR_BANNERS_DEFAULTS = {
+  offset: 0,
+  limit: 10,
+} as const;
+
+function isPaginatedBannersResponse(
+  response:
+    | ApiResponse<DeliveryBanner[]>
+    | PaginatedDeliveryResponse<DeliveryBanner>,
+): response is PaginatedDeliveryResponse<DeliveryBanner> {
+  return 'items' in response && Array.isArray(response.items);
+}
+
+function isWrappedBannersResponse(
+  response:
+    | ApiResponse<DeliveryBanner[]>
+    | PaginatedDeliveryResponse<DeliveryBanner>,
+): response is ApiResponse<DeliveryBanner[]> {
+  return 'data' in response && Array.isArray(response.data);
+}
+
+function toCategoryProductsQueryParams(
+  params: SingleVendorCategoryProductsParams,
+): Record<string, unknown> {
+  const {
+    offset = SINGLE_VENDOR_CATEGORY_PRODUCTS_DEFAULTS.offset,
+    limit = SINGLE_VENDOR_CATEGORY_PRODUCTS_DEFAULTS.limit,
+    search,
+    stock,
+    subcategory_id,
+    price_tiers,
+    sort_by,
+  } = params;
+
+  return {
+    offset,
+    limit,
+    search: search?.trim() || undefined,
+    stock,
+    subcategory_id,
+    price_tiers: Array.isArray(price_tiers) ? price_tiers[0] : price_tiers,
+    sort_by,
+  };
+}
+
 export const singleVendorDiscoveryService = {
+  getBanners: async (
+    params: DeliveryBannersParams = {},
+  ): Promise<DeliveryBanner[]> => {
+    const {
+      offset = SINGLE_VENDOR_BANNERS_DEFAULTS.offset,
+      limit = SINGLE_VENDOR_BANNERS_DEFAULTS.limit,
+    } = params;
+
+    try {
+      const response = await apiClient.get<DeliveryBannersApiResponse>(
+        '/api/v1/apps/deliveries/discovery/single-vendor/banners',
+        { offset, limit },
+      );
+
+      if (Array.isArray(response)) {
+        return response;
+      }
+
+      if (isPaginatedBannersResponse(response)) {
+        return response.items;
+      }
+
+      if (isWrappedBannersResponse(response)) {
+        return response.data;
+      }
+
+      return [];
+    } catch (error) {
+      console.error('single vendor banners request failed', error);
+      throw error;
+    }
+  },
+
   getCategoriesPage: async (
     params: SingleVendorCategoriesParams = {},
   ): Promise<SingleVendorCategoriesApiResponse> => {
@@ -55,16 +140,11 @@ export const singleVendorDiscoveryService = {
     params: SingleVendorCategoryProductsParams,
   ): Promise<SingleVendorCategoryProductsApiResponse> => {
     const { categoryId } = params;
-    const {
-      offset = SINGLE_VENDOR_CATEGORY_PRODUCTS_DEFAULTS.offset,
-      limit = SINGLE_VENDOR_CATEGORY_PRODUCTS_DEFAULTS.limit,
-      search
-    } = params;
 
     try {
       return await apiClient.get<SingleVendorCategoryProductsApiResponse>(
         `/api/v1/apps/deliveries/discovery/single-vendor/categories/${categoryId}/products`,
-        { offset, limit, search: search?.trim() || undefined },
+        toCategoryProductsQueryParams(params),
       );
     } catch (error) {
       console.error('single vendor category products request failed', error);

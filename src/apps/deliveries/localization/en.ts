@@ -35,6 +35,12 @@ const en = {
   chain_tab_profile: 'Profile',
   chain_logout_error_title: 'Error',
   chain_logout_error_message: 'Unable to log out right now.',
+  chain_categories_title: 'Categories',
+  chain_category_products_empty: 'No products found for this category.',
+  chain_menu_template_selector_label: 'Select chain menu',
+  chain_menu_template_loading: 'Loading menus',
+  chain_menu_template_empty: 'No menus',
+  chain_menu_template_unavailable: 'Menu unavailable',
   delivery_address_title: 'Delivery address',
   delivery_address_empty_state:
     'Add an address to start ordering from this store.',

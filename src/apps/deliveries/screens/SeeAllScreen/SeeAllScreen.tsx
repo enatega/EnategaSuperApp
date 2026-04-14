@@ -57,9 +57,11 @@ export default function SeeAllScreen() {
     vendorId,
     categoryId,
   });
-  console.log("SeeAllScreen render",categoryId)
   const items = listQuery.data ?? [];
-  const isMapVisible = cardType === 'product' ? false: listQuery.isPending || listQuery.isRefetching || items.length > 0;
+  const isMapVisible =
+    cardType === 'product'
+      ? false
+      : listQuery.isPending || listQuery.isRefetching || items.length > 0;
 
   return (
     <Pressable style={styles.screen} onPress={() => Keyboard.dismiss()}>
@@ -121,6 +123,7 @@ export default function SeeAllScreen() {
         emptyDescription={t("generic_list_empty_description")}
         loadingComponent={loadingComponent}
         paginationLoadingComponent={paginationLoadingComponent}
+        isRailProductCardFullWidth={true}
       />
     </Pressable>
   );

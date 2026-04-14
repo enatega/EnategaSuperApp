@@ -35,6 +35,12 @@ const fr = {
   chain_tab_profile: 'Profil',
   chain_logout_error_title: 'Erreur',
   chain_logout_error_message: 'Impossible de vous déconnecter pour le moment.',
+  chain_categories_title: 'Catégories',
+  chain_category_products_empty: 'Aucun produit trouvé pour cette catégorie.',
+  chain_menu_template_selector_label: 'Sélectionner le menu de la chaîne',
+  chain_menu_template_loading: 'Chargement des menus',
+  chain_menu_template_empty: 'Aucun menu',
+  chain_menu_template_unavailable: 'Menu indisponible',
   delivery_address_title: 'Adresse de livraison',
   delivery_address_empty_state:
     "Ajoutez une adresse pour commencer à commander dans ce magasin.",

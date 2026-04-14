@@ -62,6 +62,11 @@ export default function AddressDetailScreen() {
         return;
       }
 
+      if (params.origin === 'chain-home') {
+        nav.navigate('Chain', { screen: 'ChainTabs' });
+        return;
+      }
+
       nav.navigate('MyProfile');
     } catch {
       Toast.show({ type: 'error', text1: t('address_save_error') });

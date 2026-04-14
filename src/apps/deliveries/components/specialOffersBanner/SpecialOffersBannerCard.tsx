@@ -1,9 +1,9 @@
 import React from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View } from 'react-native';
-import Text from '../../../../../general/components/Text';
-import { useTheme } from '../../../../../general/theme/theme';
-import type { DeliveryBanner } from '../../../api/types';
+import Text from '../../../../general/components/Text';
+import { useTheme } from '../../../../general/theme/theme';
+import type { DeliveryBanner } from '../../api/types';
 import SpecialOffersBannerMedia from './SpecialOffersBannerMedia';
 import SpecialOffersBannerVideo from './SpecialOffersBannerVideo';
 
@@ -13,7 +13,11 @@ type Props = {
   sidePadding: number;
 };
 
-export default function SpecialOffersBannerCard({ banner, width, sidePadding }: Props) {
+export default function SpecialOffersBannerCard({
+  banner,
+  width,
+  sidePadding,
+}: Props) {
   const { colors, typography } = useTheme();
   const videoUri = banner.bannerVideoLink?.trim() ?? '';
   const storeAddress = banner.store?.address?.trim() ?? '';
@@ -21,13 +25,13 @@ export default function SpecialOffersBannerCard({ banner, width, sidePadding }: 
 
   return (
     <View style={[styles.container, { marginHorizontal: sidePadding, width }]}>
-        {videoUri ? (
-          <SpecialOffersBannerVideo videoUri={videoUri} />
-        ) : (
-          <SpecialOffersBannerMedia banner={banner} />
-        )}
-      <View style={styles.bannerCard}>
+      {videoUri ? (
+        <SpecialOffersBannerVideo videoUri={videoUri} />
+      ) : (
+        <SpecialOffersBannerMedia banner={banner} />
+      )}
 
+      <View style={styles.bannerCard}>
         <LinearGradient
           colors={['rgba(0, 0, 0, 0.08)', 'rgba(0, 0, 0, 0.72)']}
           end={{ x: 0.9, y: 1 }}

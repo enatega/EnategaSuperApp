@@ -26,6 +26,7 @@ type Props = {
   product: ProductCardData;
   variant?: ProductCardVariant;
   storeId?: string | null;
+  isFullWidth?: boolean;
   onPress?: () => void;
   productAction?: ProductCardActionOverrides;
 };
@@ -74,6 +75,7 @@ export default function ProductCard({
   product,
   variant,
   storeId,
+  isFullWidth = false,
   onPress,
   productAction,
 }: Props) {
@@ -137,6 +139,7 @@ export default function ProductCard({
 
   return (
     <RailProductCard
+      isFullWidth={isFullWidth}
       onPress={handleCardPress}
       product={product as DeliveryShopTypeProduct}
       state={state}
