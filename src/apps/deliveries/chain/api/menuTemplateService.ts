@@ -30,6 +30,30 @@ const CHAIN_MENU_DEALS_DEFAULTS = {
   limit: 10,
 } as const;
 
+function toMenuCategoryProductsQueryParams(
+  params: ChainMenuCategoryProductsParams,
+): Record<string, unknown> {
+  const {
+    offset = CHAIN_MENU_CATEGORY_PRODUCTS_DEFAULTS.offset,
+    limit = CHAIN_MENU_CATEGORY_PRODUCTS_DEFAULTS.limit,
+    search,
+    stock,
+    subcategory_id,
+    price_tiers,
+    sort_by,
+  } = params;
+
+  return {
+    offset,
+    limit,
+    search: search?.trim() || undefined,
+    stock,
+    subcategory_id,
+    price_tiers,
+    sort_by,
+  };
+}
+
 export const chainMenuTemplateService = {
   getMenuTemplatesPage: async (
     params: ChainMenuTemplatesParams = {},
@@ -82,19 +106,12 @@ export const chainMenuTemplateService = {
     const {
       menuTemplateId,
       categoryId,
-      offset = CHAIN_MENU_CATEGORY_PRODUCTS_DEFAULTS.offset,
-      limit = CHAIN_MENU_CATEGORY_PRODUCTS_DEFAULTS.limit,
-      search,
     } = params;
 
     try {
       return await apiClient.get<ChainMenuCategoryProductsApiResponse>(
         `/api/v1/apps/deliveries/discovery/store-chain/menus/${menuTemplateId}/categories/${categoryId}/products`,
-        {
-          offset,
-          limit,
-          search: search?.trim() || undefined,
-        },
+        toMenuCategoryProductsQueryParams(params),
       );
     } catch (error) {
       console.error('chain menu category products request failed', error);
