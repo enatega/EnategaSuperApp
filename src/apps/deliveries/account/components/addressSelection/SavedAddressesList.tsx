@@ -4,16 +4,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
-import SavedAddressSelectionRow from '../../../components/SavedAddressSelectionRow';
+import SavedAddressSelectionRow from '../../../../../general/components/address/SavedAddressSelectionRow';
 import {
   getSavedAddressIcon,
   getSavedAddressTypeLabel,
-} from '../../../utils/savedAddressPresentation';
+} from '../../../../../general/utils/savedAddressPresentation';
 import type { ProfileAddress } from '../../api/profileService';
-import {
-  formatDeliveryAddressLabel,
-  getSelectedSavedAddressId,
-} from '../../../utils/address';
+import { formatDeliveryAddressLabel, getSelectedSavedAddressId } from '../../../../../general/utils/address';
 import MyProfileAddressCard from '../profile/MyProfileAddressCard';
 
 type Props = {

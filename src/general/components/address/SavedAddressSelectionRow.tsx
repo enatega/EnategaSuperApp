@@ -1,8 +1,8 @@
 import React from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Text from '../../../general/components/Text';
-import { useTheme } from '../../../general/theme/theme';
+import Text from '../Text';
+import { useTheme } from '../../theme/theme';
 
 type Props = {
   address: string | null | undefined;

@@ -3,14 +3,14 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import * as Location from 'expo-location';
 import MapView, { LatLng, Region } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '../../../../general/theme/theme';
-import Map from '../../../../general/components/Map';
-import MapCurrentLocationButton from '../../../../general/components/MapCurrentLocationButton';
-import Button from '../../../../general/components/Button';
-import Icon from '../../../../general/components/Icon';
-import Text from '../../../../general/components/Text';
-import useCurrentLocation from '../../../../general/hooks/useCurrentLocation';
-import useDebouncedValue from '../../../../general/hooks/useDebouncedValue';
+import { useTheme } from '../../theme/theme';
+import Map from '../../components/Map';
+import MapCurrentLocationButton from '../../components/MapCurrentLocationButton';
+import Button from '../../components/Button';
+import Icon from '../../components/Icon';
+import Text from '../../components/Text';
+import useCurrentLocation from '../../hooks/useCurrentLocation';
+import useDebouncedValue from '../../hooks/useDebouncedValue';
 
 export type MapAddressResult = {
   description: string;

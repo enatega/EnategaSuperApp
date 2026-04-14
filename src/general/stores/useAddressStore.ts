@@ -1,15 +1,6 @@
 import { create } from 'zustand';
-import type { AddressType } from '../api/addressService';
+import type { DeliveryAddress } from '../api/addressService';
 import { areDeliveryAddressesEqual } from '../utils/address';
-
-export type DeliveryAddress = {
-  id?: string;
-  address: string;
-  locationName?: string | null;
-  latitude: number;
-  longitude: number;
-  type?: AddressType;
-};
 
 type AddressState = {
   selectedAddress: DeliveryAddress | null;
@@ -20,13 +11,13 @@ type AddressState = {
 export const useAddressStore = create<AddressState>((set) => ({
   selectedAddress: null,
   setSelectedAddress: (address) =>
-    set((state) => (
+    set((state) =>
       areDeliveryAddressesEqual(state.selectedAddress, address)
         ? state
-        : { selectedAddress: address }
-    )),
+        : { selectedAddress: address },
+    ),
   clearSelectedAddress: () =>
-    set((state) => (
-      state.selectedAddress === null ? state : { selectedAddress: null }
-    )),
+    set((state) =>
+      state.selectedAddress === null ? state : { selectedAddress: null },
+    ),
 }));

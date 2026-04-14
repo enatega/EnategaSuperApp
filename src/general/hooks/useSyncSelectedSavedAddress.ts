@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import type { ProfileAddress } from '../account/api/profileService';
+import type { SavedAddress } from '../api/addressService';
 import {
   areDeliveryAddressesEqual,
   createSelectedDeliveryAddress,
@@ -7,7 +7,7 @@ import {
 import { useAddressStore } from '../stores/useAddressStore';
 
 export default function useSyncSelectedSavedAddress(
-  addresses: ProfileAddress[],
+  addresses: SavedAddress[],
   isLoading: boolean,
 ) {
   const apiSelectedAddress = useMemo(

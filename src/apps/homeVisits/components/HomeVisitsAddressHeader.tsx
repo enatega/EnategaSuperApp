@@ -6,7 +6,7 @@ import Text from '../../../general/components/Text';
 import Icon from '../../../general/components/Icon';
 import { useTheme } from '../../../general/theme/theme';
 import useAddress from '../../../general/hooks/useAddress';
-import type { ProfileAddress } from '../account/api/profileService';
+import type { ProfileAddress } from '../../deliveries/account/api/profileService';
 import {
   createSelectedDeliveryAddress,
   formatDeliveryAddressLabel,
@@ -15,26 +15,20 @@ import {
 type Props = {
   addresses?: ProfileAddress[];
   addressVariant?: 'button' | 'label';
-  cartCount?: number;
   onAddAddressPress?: () => void;
   onAddressPress?: () => void;
-  onCartPress?: () => void;
   rightAccessory?: ReactNode;
-  showCartButton?: boolean;
 };
 
-export default function MultiVendorAddressHeader({
+export default function HomeVisitsAddressHeader({
   addresses = [],
   addressVariant = 'button',
-  cartCount = 0,
   onAddAddressPress,
   onAddressPress,
-  onCartPress,
   rightAccessory,
-  showCartButton = true,
 }: Props) {
   const { colors, typography } = useTheme();
-  const { t } = useTranslation('deliveries');
+  const { t } = useTranslation('homeVisits');
   const insets = useSafeAreaInsets();
   const { selectedAddress, selectedAddressLabel } = useAddress();
   const apiSelectedAddress = useMemo(
@@ -51,7 +45,7 @@ export default function MultiVendorAddressHeader({
       {resolvedSelectedAddress && addressVariant === 'label' ? (
         <Pressable
           accessibilityLabel={
-            resolvedSelectedAddressLabel ?? t('multi_vendor_address_label')
+            resolvedSelectedAddressLabel ?? t('home_visits_address_label')
           }
           accessibilityRole="button"
           disabled={!onAddressPress}
@@ -75,13 +69,13 @@ export default function MultiVendorAddressHeader({
               },
             ]}
           >
-            {resolvedSelectedAddressLabel ?? t('multi_vendor_address_label')}
+            {resolvedSelectedAddressLabel ?? t('home_visits_address_label')}
           </Text>
         </Pressable>
       ) : resolvedSelectedAddress ? (
         <Pressable
           accessibilityLabel={
-            resolvedSelectedAddressLabel ?? t('multi_vendor_address_label')
+            resolvedSelectedAddressLabel ?? t('home_visits_address_label')
           }
           accessibilityRole="button"
           onPress={onAddressPress}
@@ -97,7 +91,7 @@ export default function MultiVendorAddressHeader({
         >
           <Icon
             color={colors.iconMuted}
-            name="location-outline"
+            name="home-outline"
             size={18}
             type="Ionicons"
           />
@@ -113,7 +107,7 @@ export default function MultiVendorAddressHeader({
               },
             ]}
           >
-            {resolvedSelectedAddressLabel ?? t('multi_vendor_address_label')}
+            {resolvedSelectedAddressLabel ?? t('home_visits_address_label')}
           </Text>
           <Icon
             color={colors.mutedText}
@@ -124,7 +118,7 @@ export default function MultiVendorAddressHeader({
         </Pressable>
       ) : (
         <Pressable
-          accessibilityLabel={t('my_profile_add_address')}
+          accessibilityLabel={t('add_service_address')}
           accessibilityRole="button"
           onPress={onAddAddressPress}
           style={({ pressed }) => [
@@ -155,51 +149,12 @@ export default function MultiVendorAddressHeader({
               },
             ]}
           >
-            {t('my_profile_add_address')}
+            {t('add_service_address')}
           </Text>
         </Pressable>
       )}
 
-      {rightAccessory ??
-        (showCartButton ? (
-          <Pressable
-            accessibilityLabel={t('multi_vendor_cart_label')}
-            accessibilityRole="button"
-            onPress={onCartPress}
-            style={({ pressed }) => [
-              styles.cartButton,
-              {
-                backgroundColor: colors.surface,
-                borderColor: 'rgba(17, 24, 39, 0.06)',
-                opacity: pressed ? 0.92 : 1,
-                shadowColor: colors.shadowColor,
-              },
-            ]}
-          >
-            <Icon
-              color={colors.text}
-              name="cart-outline"
-              size={21}
-              type="Ionicons"
-            />
-            {cartCount > 0 ? (
-              <View
-                style={[styles.cartBadge, { backgroundColor: colors.primary }]}
-              >
-                <Text
-                  color={colors.white}
-                  weight="semiBold"
-                  style={{
-                    fontSize: typography.size.xxs,
-                    lineHeight: typography.lineHeight.xxs,
-                  }}
-                >
-                  {cartCount > 99 ? '99+' : cartCount}
-                </Text>
-              </View>
-            ) : null}
-          </Pressable>
-        ) : null)}
+      {rightAccessory}
     </View>
   );
 }
@@ -252,29 +207,6 @@ const styles = StyleSheet.create({
   addressText: {
     flex: 1,
     letterSpacing: -0.1,
-  },
-  cartBadge: {
-    alignItems: 'center',
-    borderRadius: 9,
-    minWidth: 18,
-    paddingHorizontal: 4,
-    paddingVertical: 1,
-    position: 'absolute',
-    right: -3,
-    top: -3,
-  },
-  cartButton: {
-    alignItems: 'center',
-    borderRadius: 22,
-    borderWidth: 1,
-    height: 44,
-    justifyContent: 'center',
-    position: 'relative',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 2,
-    width: 44,
   },
   container: {
     alignItems: 'center',

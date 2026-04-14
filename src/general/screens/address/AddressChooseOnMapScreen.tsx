@@ -2,18 +2,16 @@ import React, { useCallback } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import AddressChooseOnMap from '../../components/addresses/AddressChooseOnMap';
-import type { MapAddressResult } from '../../components/addresses/AddressChooseOnMap';
-import type { DeliveriesAddressFlowParamList } from '../../navigation/addressFlowTypes';
+import AddressChooseOnMap from '../../components/address/AddressChooseOnMap';
+import type { MapAddressResult } from '../../components/address/AddressChooseOnMap';
+import type { AddressFlowParamList } from '../../navigation/addressFlowTypes';
 
 export default function AddressChooseOnMapScreen() {
-  const nav =
-    useNavigation<NativeStackNavigationProp<DeliveriesAddressFlowParamList>>();
+  const nav = useNavigation<NativeStackNavigationProp<AddressFlowParamList>>();
   const route = useRoute();
-  const { t } = useTranslation('deliveries');
+  const { t } = useTranslation('general');
   const params =
-    (route.params as DeliveriesAddressFlowParamList['AddressChooseOnMap']) ??
-    {};
+    (route.params as AddressFlowParamList['AddressChooseOnMap']) ?? {};
 
   const handleConfirm = useCallback(
     (result: MapAddressResult) => {
