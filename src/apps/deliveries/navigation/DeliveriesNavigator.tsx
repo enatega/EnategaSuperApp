@@ -286,7 +286,6 @@ export default function DeliveriesNavigator() {
         component={CheckoutScreen}
         options={sharedScreenOptions}
       />
-      {/* Todo14: need to look into it */}
       <Stack.Screen
         name="SeeAllScreen"
         component={SeeAllScreen}
