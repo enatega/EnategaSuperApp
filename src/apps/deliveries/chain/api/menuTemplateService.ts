@@ -84,12 +84,17 @@ export const chainMenuTemplateService = {
       categoryId,
       offset = CHAIN_MENU_CATEGORY_PRODUCTS_DEFAULTS.offset,
       limit = CHAIN_MENU_CATEGORY_PRODUCTS_DEFAULTS.limit,
+      search,
     } = params;
 
     try {
       return await apiClient.get<ChainMenuCategoryProductsApiResponse>(
         `/api/v1/apps/deliveries/discovery/store-chain/menus/${menuTemplateId}/categories/${categoryId}/products`,
-        { offset, limit },
+        {
+          offset,
+          limit,
+          search: search?.trim() || undefined,
+        },
       );
     } catch (error) {
       console.error('chain menu category products request failed', error);

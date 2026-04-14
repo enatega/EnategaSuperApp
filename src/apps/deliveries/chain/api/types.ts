@@ -30,6 +30,7 @@ export type ChainMenuCategoryProductsParams = {
   categoryId: string;
   offset?: number;
   limit?: number;
+  search?: string;
 };
 
 export type ChainMenuDealsParams = {

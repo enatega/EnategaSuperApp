@@ -34,8 +34,12 @@ export const deliveryKeys = {
         tab?: string;
     }) =>
         [...deliveryKeys.discovery(), 'single-vendor-deals', filters] as const,
+    singleVendorBanners: (filters?: { offset?: number; limit?: number }) =>
+        [...deliveryKeys.discovery(), 'single-vendor-banners', filters] as const,
     chainMenuTemplates: (filters?: { offset?: number; limit?: number }) =>
         [...deliveryKeys.discovery(), 'chain-menu-templates', filters] as const,
+    chainBanners: (filters?: { offset?: number; limit?: number }) =>
+        [...deliveryKeys.discovery(), 'chain-banners', filters] as const,
     chainMenuCategories: (
         menuTemplateId: string,
         filters?: { offset?: number; limit?: number },

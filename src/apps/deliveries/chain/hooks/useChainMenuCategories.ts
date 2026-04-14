@@ -1,15 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import type { ApiError } from '../../../../general/api/apiClient';
 import type { DeliveryDiscoveryCategoryItem } from '../../components/discovery';
 import { deliveryKeys } from '../../api/queryKeys';
 import { chainMenuTemplateService } from '../api/menuTemplateService';
 import type {
-  ChainMenuCategoriesApiResponse,
   ChainMenuCategory,
+  ChainMenuCategoriesApiResponse,
 } from '../api/types';
 
+type UseChainMenuCategoriesMode = 'preview' | 'paginated';
+
 const CHAIN_MENU_CATEGORIES_LIMIT = 10;
-const EMPTY_CHAIN_MENU_CATEGORIES: DeliveryDiscoveryCategoryItem[] = [];
 
 function mapChainMenuCategories(
   items: ChainMenuCategory[],
@@ -24,33 +25,46 @@ function mapChainMenuCategories(
 type UseChainMenuCategoriesOptions = {
   enabled?: boolean;
   menuTemplateId?: string | null;
+  mode?: UseChainMenuCategoriesMode;
 };
 
 export default function useChainMenuCategories(
   options?: UseChainMenuCategoriesOptions,
 ) {
+  const mode = options?.mode ?? 'preview';
   const menuTemplateId = options?.menuTemplateId ?? null;
 
-  const query = useQuery<ChainMenuCategoriesApiResponse, ApiError>({
-    queryKey: deliveryKeys.chainMenuCategories(menuTemplateId ?? 'unknown', {
-      offset: 0,
-      limit: CHAIN_MENU_CATEGORIES_LIMIT,
-    }),
-    queryFn: () =>
-      chainMenuTemplateService.getMenuCategoriesPage({
-        menuTemplateId: menuTemplateId as string,
-        offset: 0,
+  const query = useInfiniteQuery<ChainMenuCategoriesApiResponse, ApiError>({
+    queryKey: [
+      ...deliveryKeys.chainMenuCategories(menuTemplateId ?? 'unknown', {
         limit: CHAIN_MENU_CATEGORIES_LIMIT,
       }),
+      { mode },
+    ],
+    queryFn: ({ pageParam = 0 }) =>
+      chainMenuTemplateService.getMenuCategoriesPage({
+        menuTemplateId: menuTemplateId as string,
+        offset: pageParam as number,
+        limit: CHAIN_MENU_CATEGORIES_LIMIT,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
     staleTime: 5 * 60 * 1000,
     enabled: Boolean(menuTemplateId) && (options?.enabled ?? true),
   });
 
+  const items = query.data?.pages.flatMap((page) => page.items) ?? [];
+  const categories = mapChainMenuCategories(items);
+
   return {
     ...query,
-    data: query.data?.items
-      ? mapChainMenuCategories(query.data.items)
-      : EMPTY_CHAIN_MENU_CATEGORIES,
-    totalCount: query.data?.total ?? 0,
+    data:
+      mode === 'preview'
+        ? categories.slice(0, CHAIN_MENU_CATEGORIES_LIMIT)
+        : categories,
+    totalCount: query.data?.pages.length
+      ? query.data.pages[query.data.pages.length - 1]?.total
+      : undefined,
   };
 }

@@ -12,7 +12,8 @@ export type SeeAllListingType =
   | "shop-type-products"
   | "shop-type-stores"
   | "top-brand-stores"
-  | "single-vendor-category-products";
+  | "single-vendor-category-products"
+  | "chain-category-products";
 
 export type DealsSeeAllSource = "multi-vendor" | "single-vendor" | "chain-vendor";
 
@@ -39,6 +40,11 @@ export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
   Checkout: undefined;
   SingleVendorCategoriesSeeAll: undefined;
   SingleVendorCategoryProductsSeeAll: {
+    categoryId: string;
+    title: string;
+  };
+  ChainCategoriesSeeAll: undefined;
+  ChainCategoryProductsSeeAll: {
     categoryId: string;
     title: string;
   };

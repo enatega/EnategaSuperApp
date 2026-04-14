@@ -17,6 +17,7 @@ import { useTheme } from '../../../../general/theme/theme';
 import ChainCategorySection from '../components/homeScreen/ChainCategorySection';
 import ChainDealsSection from '../components/homeScreen/ChainDealsSection';
 import ChainMenuTemplateDropdown from '../components/homeScreen/ChainMenuTemplateDropdown';
+import ChainSpecialOffersBanner from '../components/homeScreen/ChainSpecialOffersBanner';
 import type { ChainMenuTemplate } from '../api/types';
 import useChainMenuTemplates from '../hooks/useChainMenuTemplates';
 import { useChainMenuStore } from '../stores/useChainMenuStore';
@@ -140,6 +141,7 @@ export default function HomeScreen({}: Props) {
           showCartButton={false}
         />
 
+        <ChainSpecialOffersBanner />
         <ChainCategorySection isTemplatePending={isMenuTemplatesLoading} />
         <ChainDealsSection isTemplatePending={isMenuTemplatesLoading} />
       </ScrollView>
