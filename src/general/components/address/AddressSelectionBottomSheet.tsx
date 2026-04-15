@@ -14,7 +14,7 @@ import BottomSheetHandle from '../BottomSheetHandle';
 import SwipeableBottomSheet from '../SwipeableBottomSheet';
 import Text from '../Text';
 import { useTheme } from '../../theme/theme';
-import type { ProfileAddress } from '../../../apps/deliveries/account/api/profileService';
+import type { ProfileAddress } from '../../api/profileService';
 import {
   formatDeliveryAddressLabel,
   getSelectedSavedAddressId,
@@ -53,7 +53,7 @@ export default function AddressSelectionBottomSheet({
   selectedAddressId,
 }: Props) {
   const { colors, typography } = useTheme();
-  const { t } = useTranslation('deliveries');
+  const { t } = useTranslation('general');
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const isSelectionPending = Boolean(selectingAddressId);

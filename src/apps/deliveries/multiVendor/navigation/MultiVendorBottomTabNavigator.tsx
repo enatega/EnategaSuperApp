@@ -6,7 +6,7 @@ import HomeTab from '../screens/HomeTab/HomeTab';
 import SearchTab from '../screens/SearchTab/SearchTab';
 import { useTheme } from '../../../../general/theme/theme';
 import MultiVendorTabButton from '../components/TabButton';
-import MultiVendorProfileTabScreen from '../../account/screens/ProfileTab/MultiVendorProfileTabScreen';
+import MultiVendorProfileTabScreen from '../../screens/ProfileTab/MultiVendorProfileTabScreen';
 import OrdersScreen from '../../screens/OrdersScreen/OrdersScreen';
 
 const Tab = createBottomTabNavigator();

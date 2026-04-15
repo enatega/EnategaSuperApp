@@ -33,6 +33,9 @@ const fr = {
   address_selector_close: 'Fermer',
   address_selector_use_current_location: 'Utiliser la position actuelle',
   address_selector_add_new: 'Ajouter une nouvelle adresse',
+  home_visits_settings_body: 'Le flux des paramètres pour les visites à domicile sera ajouté ensuite.',
+  home_visits_support_body: "Le flux d'assistance pour les visites à domicile sera ajouté ensuite.",
+  home_visits_wallet_body: 'Le flux du portefeuille pour les visites à domicile sera ajouté ensuite.',
 };
 
 export default fr;

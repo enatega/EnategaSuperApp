@@ -6,7 +6,7 @@ import Text from '../../../general/components/Text';
 import Icon from '../../../general/components/Icon';
 import { useTheme } from '../../../general/theme/theme';
 import useAddress from '../../../general/hooks/useAddress';
-import type { ProfileAddress } from '../../deliveries/account/api/profileService';
+import type { ProfileAddress } from '../../../general/api/profileService';
 import {
   createSelectedDeliveryAddress,
   formatDeliveryAddressLabel,

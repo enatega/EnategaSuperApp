@@ -3,7 +3,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
-import ChainProfileTabScreen from '../../account/screens/ProfileTab/ChainProfileTabScreen';
+import ChainProfileTabScreen from '../../screens/ProfileTab/ChainProfileTabScreen';
 import OrdersScreen from '../../screens/OrdersScreen/OrdersScreen';
 import ChainTabButton from '../components/navigation/ChainTabButton';
 import HomeScreen from '../screens/HomeScreen';
