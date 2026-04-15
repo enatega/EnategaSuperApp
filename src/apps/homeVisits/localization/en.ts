@@ -5,6 +5,7 @@ const en = {
   header_subtitle: 'On-demand services',
   single_vendor_title: 'Single Provider',
   single_vendor_desc: 'A focused experience for one provider.',
+  single_vendor_home_subtitle: 'Schedule trusted home visits',
   multi_vendor_title: 'Multi Provider',
   multi_vendor_desc: 'Browse multiple home visit providers.',
   chain_title: 'Chain',
@@ -24,6 +25,14 @@ const en = {
   logout_error_message: 'Unable to log out right now.',
   details_title: 'Visit Details',
   details_body: 'Visit details and provider info.',
+  // Address related strings
+  home_visits_address_label: 'Select service location',
+  add_service_address: 'Add service address',
+  address_select_error: 'Failed to select address. Please try again.',
+  address_selector_title: 'Select Service Location',
+  address_selector_close: 'Close',
+  address_selector_use_current_location: 'Use current location',
+  address_selector_add_new: 'Add new address',
 };
 
 export default en;

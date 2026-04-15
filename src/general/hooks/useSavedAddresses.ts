@@ -1,13 +1,11 @@
 import { useCallback, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
+import { addressService } from '../api/addressService';
+import type { SavedAddress } from '../api/addressService';
 import useSyncSelectedSavedAddress from './useSyncSelectedSavedAddress';
-import {
-  profileService,
-  ProfileAddress,
-} from '../account/api/profileService';
 
 type SavedAddressesState = {
-  addresses: ProfileAddress[];
+  addresses: SavedAddress[];
   isLoading: boolean;
   error: string | null;
 };
@@ -27,10 +25,10 @@ export default function useSavedAddresses() {
     }
 
     try {
-      const response = await profileService.getProfile();
+      const addresses = await addressService.getSavedAddresses();
 
       setState({
-        addresses: response?.data?.addresses ?? [],
+        addresses,
         isLoading: false,
         error: null,
       });

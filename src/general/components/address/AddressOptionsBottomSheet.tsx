@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import BottomSheetHandle from '../../../../../general/components/BottomSheetHandle';
-import Text from '../../../../../general/components/Text';
-import { useTheme } from '../../../../../general/theme/theme';
-import SwipeableBottomSheet from '../../../../../general/components/SwipeableBottomSheet';
+import BottomSheetHandle from '../BottomSheetHandle';
+import Text from '../Text';
+import { useTheme } from '../../theme/theme';
+import SwipeableBottomSheet from '../SwipeableBottomSheet';
 
 type Props = {
   isVisible: boolean;

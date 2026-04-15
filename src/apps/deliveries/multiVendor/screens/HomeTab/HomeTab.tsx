@@ -5,7 +5,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../../general/theme/theme';
 import { showToast } from '../../../../../general/components/AppToast';
-import AddressSelectionBottomSheet from '../../../components/AddressSelectionBottomSheet';
+import AddressSelectionBottomSheet from '../../../../../general/components/address/AddressSelectionBottomSheet';
 import MultiVendorAddressHeader from '../../../components/MultiVendorAddressHeader';
 import type { DeliveriesStackParamList } from '../../../navigation/types';
 import ShopTypeList from '../../components/HomeTab/ShopTypeList';
@@ -15,12 +15,12 @@ import NearbyStoreList from '../../components/HomeTab/NearbyStoreList';
 import MultiVendorDealsSection from '../../components/HomeTab/MultiVendorDealsSection';
 import OrderAgain from '../../components/HomeTab/OrderAgain';
 import { useCartCount } from '../../../hooks/useCart';
-import useAddressSelectionSheet from '../../../hooks/useAddressSelectionSheet';
+import useAddressSelectionSheet from '../../../../../general/hooks/useAddressSelectionSheet';
 import type { ProfileAddress } from '../../../account/api/profileService';
-import useSavedAddresses from '../../../hooks/useSavedAddresses';
+import useSavedAddresses from '../../../../../general/hooks/useSavedAddresses';
 import { styles } from './HomeTabStyle';
-import useAddress from '../../../hooks/useAddress';
-import useSelectSavedAddress from '../../../hooks/useSelectSavedAddress';
+import useAddress from '../../../../../general/hooks/useAddress';
+import useSelectSavedAddress from '../../../../../general/hooks/useSelectSavedAddress';
 
 type NavProp = NativeStackNavigationProp<DeliveriesStackParamList>;
 

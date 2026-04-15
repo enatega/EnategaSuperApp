@@ -1,7 +1,7 @@
 import { useAddressStore } from '../stores/useAddressStore';
 import { formatDeliveryAddressLabel } from '../utils/address';
 
-export type { DeliveryAddress } from '../stores/useAddressStore';
+export type { DeliveryAddress } from '../api/addressService';
 
 export default function useAddress() {
   const selectedAddress = useAddressStore((state) => state.selectedAddress);

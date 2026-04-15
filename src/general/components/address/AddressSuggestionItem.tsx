@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { useTheme } from '../../../../general/theme/theme';
-import Icon from '../../../../general/components/Icon';
-import Text from '../../../../general/components/Text';
+import { useTheme } from '../../theme/theme';
+import Icon from '../../components/Icon';
+import Text from '../../components/Text';
 
 type Props = {
   description: string;

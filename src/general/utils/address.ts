@@ -1,6 +1,4 @@
-import type { AddressType } from '../api/addressService';
-import type { ProfileAddress } from '../account/api/profileService';
-import type { DeliveryAddress } from '../stores/useAddressStore';
+import type { DeliveryAddress, SavedAddress } from '../api/addressService';
 
 type DeliveryAddressInput = {
   id?: string;
@@ -8,18 +6,7 @@ type DeliveryAddressInput = {
   locationName?: string | null;
   latitude: number;
   longitude: number;
-  type?: AddressType;
-};
-
-type SavedAddressInput = {
-  id: string;
-  address: string;
-  location: {
-    coordinates: [number, number];
-  };
-  location_name: string | null;
-  type: AddressType;
-  is_selected?: boolean;
+  type?: DeliveryAddress['type'];
 };
 
 function toFiniteNumber(value: number | string | undefined) {
@@ -81,7 +68,7 @@ export function areDeliveryAddressesEqual(
 
 export function getSelectedSavedAddressId(
   addresses:
-    | Array<Pick<SavedAddressInput, 'id' | 'is_selected'>>
+    | Array<Pick<SavedAddress, 'id' | 'is_selected'>>
     | null
     | undefined,
 ) {
@@ -89,19 +76,13 @@ export function getSelectedSavedAddressId(
 }
 
 export function getSelectedSavedAddress(
-  addresses: SavedAddressInput[] | null | undefined,
+  addresses: SavedAddress[] | null | undefined,
 ) {
   return addresses?.find((address) => address.is_selected) ?? null;
 }
 
-export function createDeliveryAddressFromProfile(
-  address: ProfileAddress,
-): DeliveryAddress | null {
-  return createDeliveryAddressFromSavedAddress(address);
-}
-
 export function createDeliveryAddressFromSavedAddress(
-  address: SavedAddressInput,
+  address: SavedAddress,
 ): DeliveryAddress | null {
   const [rawLongitude, rawLatitude] = address.location?.coordinates ?? [];
   const latitude = toFiniteNumber(rawLatitude);
@@ -122,7 +103,7 @@ export function createDeliveryAddressFromSavedAddress(
 }
 
 export function createSelectedDeliveryAddress(
-  addresses: SavedAddressInput[] | null | undefined,
+  addresses: SavedAddress[] | null | undefined,
 ): DeliveryAddress | null {
   const selectedAddress = getSelectedSavedAddress(addresses);
 

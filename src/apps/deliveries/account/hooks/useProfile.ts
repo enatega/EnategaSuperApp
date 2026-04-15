@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import useSyncSelectedSavedAddress from '../../hooks/useSyncSelectedSavedAddress';
+import useSyncSelectedSavedAddress from '../../../../general/hooks/useSyncSelectedSavedAddress';
 import {
   profileService,
   ProfileAddress,

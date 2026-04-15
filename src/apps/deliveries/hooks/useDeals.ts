@@ -4,7 +4,7 @@ import { dealsService } from "../api/dealsService";
 import type { DeliveryDealItem } from "../api/dealsServiceTypes";
 import { deliveryKeys } from "../api/queryKeys";
 import type { PaginatedDeliveryResponse } from "../api/types";
-import useAddress from "./useAddress";
+import useAddress from "../../../general/hooks/useAddress";
 import type { UseDealsOptions } from "./useDealsTypes";
 
 const UUID_PATTERN =

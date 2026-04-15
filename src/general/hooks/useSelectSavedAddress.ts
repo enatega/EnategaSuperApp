@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { addressService } from '../api/addressService';
-import useAddress from './useAddress';
 import { createDeliveryAddressFromSavedAddress } from '../utils/address';
+import useAddress from './useAddress';
 
 export default function useSelectSavedAddress() {
   const { selectedAddress, setSelectedAddress } = useAddress();

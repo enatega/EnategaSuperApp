@@ -1,8 +1,8 @@
 import React, { memo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../../../../general/theme/theme';
-import Text from '../../../../general/components/Text';
+import Text from '../../components/Text';
+import { useTheme } from '../../theme/theme';
 import type { AddressType } from '../../api/addressService';
 
 type Props = {
@@ -30,8 +30,7 @@ const OPTIONS: Array<{
 function AddressTypeSelector({ selected, onSelect, labels }: Props) {
   const { colors } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
-
-  const selectedOption = OPTIONS.find((o) => o.value === selected) ?? OPTIONS[0];
+  const selectedOption = OPTIONS.find((option) => option.value === selected) ?? OPTIONS[0];
 
   return (
     <View style={[styles.wrapper, { zIndex: 10 }]}>
@@ -57,24 +56,25 @@ function AddressTypeSelector({ selected, onSelect, labels }: Props) {
         />
       </Pressable>
 
-      {isOpen && (
+      {isOpen ? (
         <View
           style={[
             styles.dropdown,
             { backgroundColor: colors.surface, borderColor: colors.border },
           ]}
         >
-          {OPTIONS.map((opt) => {
-            const isSelected = selected === opt.value;
+          {OPTIONS.map((option) => {
+            const isSelected = selected === option.value;
+
             return (
               <Pressable
-                key={opt.value}
+                key={option.value}
                 onPress={() => {
-                  onSelect(opt.value);
+                  onSelect(option.value);
                   setIsOpen(false);
                 }}
                 accessibilityRole="button"
-                accessibilityLabel={labels[opt.key]}
+                accessibilityLabel={labels[option.key]}
                 style={({ pressed }) => [
                   styles.dropdownItem,
                   {
@@ -84,19 +84,19 @@ function AddressTypeSelector({ selected, onSelect, labels }: Props) {
                   },
                 ]}
               >
-                <Ionicons name={opt.icon} size={18} color={colors.text} />
+                <Ionicons name={option.icon} size={18} color={colors.text} />
                 <Text
                   weight={isSelected ? 'semiBold' : 'regular'}
                   color={colors.text}
                   style={styles.dropdownItemText}
                 >
-                  {labels[opt.key]}
+                  {labels[option.key]}
                 </Text>
               </Pressable>
             );
           })}
         </View>
-      )}
+      ) : null}
     </View>
   );
 }

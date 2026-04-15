@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { ApiError } from '../api/apiClient';
 import { addressService } from '../api/addressService';
-import { ApiError } from '../../../general/api/apiClient';
 
 type PlacePrediction = {
   description: string;

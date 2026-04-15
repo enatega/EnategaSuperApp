@@ -6,7 +6,7 @@ import type {
   PaginatedDeliveryResponse,
 } from '../../api/types';
 import type { GenericListFilters } from '../../components/filters/types';
-import useAddress from '../../hooks/useAddress';
+import useAddress from '../../../../general/hooks/useAddress';
 import { singleVendorDiscoveryService } from '../api/discoveryService';
 
 type UseSingleVendorCategoryProductsMode = 'preview' | 'paginated';

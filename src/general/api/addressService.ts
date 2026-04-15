@@ -1,6 +1,7 @@
-import apiClient from '../../../general/api/apiClient';
+import apiClient from './apiClient';
 
 const ADDRESS_BASE = '/api/v1/apps/deliveries/profile/address';
+const PROFILE_BASE = '/api/v1/apps/deliveries/profile';
 
 export type AddressType = 'HOME' | 'APARTMENT' | 'OFFICE' | 'OTHER';
 
@@ -20,7 +21,7 @@ export type AddressResponse = {
   location_name: string;
 };
 
-export type SavedAddressResponse = {
+export type SavedAddress = {
   id: string;
   user_id: string;
   address: string;
@@ -37,7 +38,25 @@ export type SavedAddressResponse = {
 
 export type SelectAddressResponse = {
   message: string;
-  data: SavedAddressResponse;
+  data: SavedAddress;
+};
+
+export type DeliveryAddress = {
+  id?: string;
+  address: string;
+  locationName?: string | null;
+  latitude: number;
+  longitude: number;
+  type?: AddressType;
+};
+
+export type RecentAddressSearch = {
+  placeId: string;
+  description: string;
+  mainText: string;
+  secondaryText?: string;
+  latitude: number;
+  longitude: number;
 };
 
 export const addressService = {
@@ -78,6 +97,15 @@ export const addressService = {
       latitude,
       longitude,
     }));
+  },
+
+  getSavedAddresses: async () => {
+    const response = await apiClient.get<{
+      message: string;
+      data: { addresses: SavedAddress[] };
+    }>(PROFILE_BASE);
+
+    return response?.data?.addresses ?? [];
   },
 
   addAddress: (payload: AddressPayload) =>

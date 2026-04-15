@@ -10,7 +10,7 @@ import { showToast } from "../../../../general/components/AppToast";
 import { useTheme } from "../../../../general/theme/theme";
 import useDebouncedValue from "../../../../general/hooks/useDebouncedValue";
 import type { ProfileAddress } from "../../account/api/profileService";
-import type { AddressFlowOrigin } from "../../navigation/addressFlowTypes";
+import type { AddressFlowOrigin } from "../../../../general/navigation/addressFlowTypes";
 import type { DeliveriesStackParamList } from "../../navigation/types";
 import {
   useProductSearch,
@@ -18,12 +18,12 @@ import {
   useSearchRecommendations,
   useStoreSearch,
 } from "../useSearchQueries";
-import useAddress from "../useAddress";
-import useAddressSelectionSheet from "../useAddressSelectionSheet";
+import useAddress from "../../../../general/hooks/useAddress";
+import useAddressSelectionSheet from "../../../../general/hooks/useAddressSelectionSheet";
 import useRecentSearchActions from "./useRecentSearchActions";
-import useSavedAddresses from "../useSavedAddresses";
+import useSavedAddresses from "../../../../general/hooks/useSavedAddresses";
 import useSearchKeyboardState from "./useSearchKeyboardState";
-import useSelectSavedAddress from "../useSelectSavedAddress";
+import useSelectSavedAddress from "../../../../general/hooks/useSelectSavedAddress";
 import { type DeliverySearchFlowOptions } from "./types";
 
 type DeliveriesNavigationProp =

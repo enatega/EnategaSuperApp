@@ -21,7 +21,7 @@ export type AddressDetailParams = {
   origin?: AddressFlowOrigin;
 };
 
-export type DeliveriesAddressFlowParamList = {
+export type AddressFlowParamList = {
   AddressSearch: AddressFlowParams | undefined;
   AddressChooseOnMap: AddressFlowParams | undefined;
   AddressDetail: AddressDetailParams;

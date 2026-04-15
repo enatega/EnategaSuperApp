@@ -9,20 +9,20 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import Icon from '../../../general/components/Icon';
-import BottomSheetHandle from '../../../general/components/BottomSheetHandle';
-import SwipeableBottomSheet from '../../../general/components/SwipeableBottomSheet';
-import Text from '../../../general/components/Text';
-import { useTheme } from '../../../general/theme/theme';
-import type { ProfileAddress } from '../account/api/profileService';
+import Icon from '../Icon';
+import BottomSheetHandle from '../BottomSheetHandle';
+import SwipeableBottomSheet from '../SwipeableBottomSheet';
+import Text from '../Text';
+import { useTheme } from '../../theme/theme';
+import type { ProfileAddress } from '../../../apps/deliveries/account/api/profileService';
 import {
   formatDeliveryAddressLabel,
   getSelectedSavedAddressId,
-} from '../utils/address';
+} from '../../utils/address';
 import {
   getSavedAddressIcon,
   getSavedAddressTypeLabel,
-} from '../utils/savedAddressPresentation';
+} from '../../utils/savedAddressPresentation';
 import SavedAddressSelectionRow from './SavedAddressSelectionRow';
 
 type Props = {

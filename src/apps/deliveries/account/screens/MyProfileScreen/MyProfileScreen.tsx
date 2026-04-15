@@ -15,19 +15,17 @@ import useProfile from '../../hooks/useProfile';
 import MyProfileInfoCard from '../../components/profile/MyProfileInfoCard';
 import MyProfileSkeleton from '../../components/profile/MyProfileSkeleton';
 import ProfilePhotoEditor from '../../components/profile/ProfilePhotoEditor';
-import AddressOptionsBottomSheet from '../../components/profile/AddressOptionsBottomSheet';
+import AddressOptionsBottomSheet from '../../../../../general/components/address/AddressOptionsBottomSheet';
 import SavedAddressesList from '../../components/addressSelection/SavedAddressesList';
 import type { ProfileAddress } from '../../api/profileService';
-import { addressService } from '../../../api/addressService';
-import useAddress from '../../../hooks/useAddress';
-import useSelectSavedAddress from '../../../hooks/useSelectSavedAddress';
+import { addressService } from '../../../../../general/api/addressService';
+import useAddress from '../../../../../general/hooks/useAddress';
+import useSelectSavedAddress from '../../../../../general/hooks/useSelectSavedAddress';
 import type {
   DeliveriesAccountNavigationParamList,
   DeliveriesAccountStackParamList,
 } from '../../navigation/types';
-import {
-  formatDeliveryAddressLabel,
-} from '../../../utils/address';
+import { formatDeliveryAddressLabel } from '../../../../../general/utils/address';
 
 export default function MyProfileScreen() {
   const { colors } = useTheme();

@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { showToast } from '../../../../general/components/AppToast';
 import { useTheme } from '../../../../general/theme/theme';
-import AddressSelectionBottomSheet from '../../components/AddressSelectionBottomSheet';
-import useSavedAddresses from '../../multiVendor/hooks/useSavedAddresses';
+import AddressSelectionBottomSheet from '../../../../general/components/address/AddressSelectionBottomSheet';
+import useSavedAddresses from '../../../../general/hooks/useSavedAddresses';
 import type {
   CheckoutOrderType,
   CheckoutPaymentMethod,
@@ -16,12 +16,12 @@ import type { CartResponse } from '../../api/cartServiceTypes';
 import CheckoutScreenContent from '../../components/checkout/CheckoutScreenContent';
 import CartScreenErrorState from '../../components/cart/CartScreenErrorState';
 import CartScreenSkeleton from '../../components/cart/CartScreenSkeleton';
-import { useAddress } from '../../hooks';
-import useSelectSavedAddress from '../../hooks/useSelectSavedAddress';
+import useAddress from '../../../../general/hooks/useAddress';
+import useSelectSavedAddress from '../../../../general/hooks/useSelectSavedAddress';
 import { useCart } from '../../hooks/useCart';
 import { useCheckoutPreview } from '../../hooks/useCheckoutPreview';
 import { formatCartPrice } from '../../components/cart/cartUtils';
-import { formatDeliveryAddressLabel } from '../../utils/address';
+import { formatDeliveryAddressLabel } from '../../../../general/utils/address';
 import { usePlaceOrder } from '../../hooks/usePlaceOrder';
 import CheckoutMessageEditorScreen from '../../components/checkout/CheckoutMessageEditorScreen';
 import {

@@ -5,76 +5,94 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import { useTheme } from '../../../../general/theme/theme';
-import ScreenHeader from '../../../../general/components/ScreenHeader';
-import Button from '../../../../general/components/Button';
-import AddressDetailForm from '../../components/addresses/AddressDetailForm';
-import type { AddressDetailFormHandle } from '../../components/addresses/AddressDetailForm';
-import { addressService, AddressType } from '../../api/addressService';
-import type { DeliveriesStackParamList } from '../../navigation/types';
+import Button from '../../components/Button';
+import ScreenHeader from '../../components/ScreenHeader';
+import { useTheme } from '../../theme/theme';
+import { addressService } from '../../api/addressService';
+import AddressDetailForm from '../../components/address/AddressDetailForm';
+import type { AddressDetailFormHandle } from '../../components/address/AddressDetailForm';
+import type { AddressFlowParamList } from '../../navigation/addressFlowTypes';
+import type { AddressPayload, AddressType } from '../../api/addressService';
+
+type AddressFlowHostParamList = AddressFlowParamList & {
+  Chain: { screen: 'ChainTabs' } | undefined;
+  MultiVendor: { screen: 'MultiVendorTabs' } | undefined;
+  MyProfile: undefined;
+  SingleVendor: { screen: 'SingleVendorTabs' } | undefined;
+};
 
 export default function AddressDetailScreen() {
   const nav =
-    useNavigation<NativeStackNavigationProp<DeliveriesStackParamList>>();
-  const route = useRoute<RouteProp<DeliveriesStackParamList, 'AddressDetail'>>();
+    useNavigation<NativeStackNavigationProp<AddressFlowHostParamList>>();
+  const route = useRoute<RouteProp<AddressFlowParamList, 'AddressDetail'>>();
   const { colors } = useTheme();
-  const { t } = useTranslation('deliveries');
+  const { t } = useTranslation('general');
   const insets = useSafeAreaInsets();
   const formRef = useRef<AddressDetailFormHandle>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
   const params = route.params;
   const isEditing = Boolean(params.editAddressId);
-  const lat = Number(params.latitude);
-  const lng = Number(params.longitude);
 
   useEffect(() => {
-    const show = Keyboard.addListener('keyboardDidShow', (e) => {
-      setKeyboardOffset(e.endCoordinates.height - insets.bottom + 16);
+    const show = Keyboard.addListener('keyboardDidShow', (event) => {
+      setKeyboardOffset(event.endCoordinates.height - insets.bottom + 16);
     });
     const hide = Keyboard.addListener('keyboardDidHide', () => {
       setKeyboardOffset(0);
     });
-    return () => { show.remove(); hide.remove(); };
+
+    return () => {
+      show.remove();
+      hide.remove();
+    };
   }, [insets.bottom]);
 
-  const handleSave = useCallback(async (data: {
-    address: string; latitude: number; longitude: number;
-    type: AddressType; location_name: string;
-  }) => {
-    const payload = { ...data, latitude: Number(data.latitude), longitude: Number(data.longitude) };
-    try {
-      if (isEditing && params.editAddressId) {
-        await addressService.updateAddress(params.editAddressId, payload);
-        Toast.show({ type: 'success', text1: t('address_update_success') });
-      } else {
-        await addressService.addAddress(payload);
-        Toast.show({ type: 'success', text1: t('address_save_success') });
-      }
+  const handleSave = useCallback(
+    async (data: AddressPayload) => {
+      const payload = {
+        ...data,
+        latitude: Number(data.latitude),
+        longitude: Number(data.longitude),
+      };
 
-      if (params.origin === 'multi-vendor-home') {
-        nav.navigate('MultiVendor', { screen: 'MultiVendorTabs' });
-        return;
-      }
+      try {
+        if (isEditing && params.editAddressId) {
+          await addressService.updateAddress(params.editAddressId, payload);
+          Toast.show({ type: 'success', text1: t('address_update_success') });
+        } else {
+          await addressService.addAddress(payload);
+          Toast.show({ type: 'success', text1: t('address_save_success') });
+        }
 
-      if (params.origin === 'single-vendor-home') {
-        nav.navigate('SingleVendor', { screen: 'SingleVendorTabs' });
-        return;
-      }
+        if (params.origin === 'multi-vendor-home') {
+          nav.navigate('MultiVendor', { screen: 'MultiVendorTabs' });
+          return;
+        }
 
-      if (params.origin === 'chain-home') {
-        nav.navigate('Chain', { screen: 'ChainTabs' });
-        return;
-      }
+        if (params.origin === 'single-vendor-home') {
+          nav.navigate('SingleVendor', { screen: 'SingleVendorTabs' });
+          return;
+        }
 
-      nav.navigate('MyProfile');
-    } catch {
-      Toast.show({ type: 'error', text1: t('address_save_error') });
-    }
-  }, [isEditing, nav, params.editAddressId, params.origin, t]);
+        if (params.origin === 'chain-home') {
+          nav.navigate('Chain', { screen: 'ChainTabs' });
+          return;
+        }
+
+        nav.navigate('MyProfile');
+      } catch {
+        Toast.show({ type: 'error', text1: t('address_save_error') });
+      }
+    },
+    [isEditing, nav, params.editAddressId, params.origin, t],
+  );
 
   const handleButtonPress = useCallback(async () => {
-    if (!formRef.current) return;
+    if (!formRef.current) {
+      return;
+    }
+
     setIsSaving(true);
     try {
       await formRef.current.submit();
@@ -98,8 +116,8 @@ export default function AddressDetailScreen() {
         <AddressDetailForm
           ref={formRef}
           address={params.address}
-          latitude={lat}
-          longitude={lng}
+          latitude={Number(params.latitude)}
+          longitude={Number(params.longitude)}
           initialLocationName={params.editLocationName}
           initialType={(params.editType as AddressType) ?? 'HOME'}
           onSave={handleSave}
@@ -119,10 +137,10 @@ export default function AddressDetailScreen() {
         style={[
           styles.footer,
           {
-            borderTopColor: colors.border,
             backgroundColor: colors.background,
-            paddingBottom: insets.bottom + 12,
+            borderTopColor: colors.border,
             bottom: keyboardOffset,
+            paddingBottom: insets.bottom + 12,
           },
         ]}
       >

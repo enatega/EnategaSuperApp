@@ -22,12 +22,12 @@ import ChangePasswordScreen from "../account/screens/ChangePasswordScreen/Change
 import DeleteAccountScreen from "../account/screens/DeleteAccountScreen/DeleteAccountScreen";
 import ColorModeScreen from "../account/screens/ColorModeScreen/ColorModeScreen";
 import LanguageScreen from "../account/screens/LanguageScreen/LanguageScreen";
+import AddressSearchScreen from "../../../general/screens/address/AddressSearchScreen";
+import AddressChooseOnMapScreen from "../../../general/screens/address/AddressChooseOnMapScreen";
+import AddressDetailScreen from "../../../general/screens/address/AddressDetailScreen";
 import WalletScreen from "../account/screens/wallet/WalletScreen/WalletScreen";
 import AddCardScreen from "../account/screens/wallet/AddCardScreen/AddCardScreen";
 import WalletTransactionsScreen from "../account/screens/wallet/WalletTransactionsScreen/WalletTransactionsScreen";
-import AddressSearchScreen from "../screens/addresses/AddressSearchScreen";
-import AddressChooseOnMapScreen from "../screens/addresses/AddressChooseOnMapScreen";
-import AddressDetailScreen from "../screens/addresses/AddressDetailScreen";
 import SupportScreen from "../screens/SupportScreen/SupportScreen";
 import SupportChatScreen from "../screens/SupportChatScreen/SupportChatScreen";
 import SupportConversationsScreen from "../screens/SupportConversationsScreen/SupportConversationsScreen";
@@ -281,10 +281,19 @@ export default function DeliveriesNavigator() {
         component={RiderChatScreen}
         options={sharedScreenOptions}
       />
-
       <Stack.Screen
         name="Checkout"
         component={CheckoutScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SeeAllScreen"
+        component={SeeAllScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="DealsSeeAll"
+        component={DealsSeeAll}
         options={sharedScreenOptions}
       />
       <Stack.Screen
@@ -305,16 +314,6 @@ export default function DeliveriesNavigator() {
       <Stack.Screen
         name="ChainCategoryProductsSeeAll"
         component={ChainCategoryProductsSeeAll}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="SeeAllScreen"
-        component={SeeAllScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="DealsSeeAll"
-        component={DealsSeeAll}
         options={sharedScreenOptions}
       />
     </Stack.Navigator>

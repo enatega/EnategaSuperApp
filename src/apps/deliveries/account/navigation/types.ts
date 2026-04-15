@@ -1,4 +1,4 @@
-import type { DeliveriesAddressFlowParamList } from '../../navigation/addressFlowTypes';
+import type { AddressFlowParamList } from '../../../../general/navigation/addressFlowTypes';
 import type { SupportNavigationParamList } from '../../navigation/supportNavigationTypes';
 
 export type EditProfileParams = {
@@ -30,4 +30,4 @@ export type DeliveriesAccountStackParamList = SupportNavigationParamList & {
 };
 
 export type DeliveriesAccountNavigationParamList =
-  DeliveriesAccountStackParamList & DeliveriesAddressFlowParamList;
+  DeliveriesAccountStackParamList & AddressFlowParamList;
