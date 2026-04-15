@@ -5,6 +5,8 @@ const fr = {
   header_subtitle: 'Services à la demande',
   single_vendor_title: 'Prestataire Unique',
   single_vendor_desc: 'Une expérience ciblée pour un seul prestataire.',
+  single_vendor_categories_title: 'Catégories',
+  single_vendor_category_services_empty: 'Aucun service trouvé pour cette catégorie.',
   multi_vendor_title: 'Multi Prestataires',
   multi_vendor_desc: 'Parcourez plusieurs prestataires de visites à domicile.',
   chain_title: 'Chaîne',
@@ -26,6 +28,9 @@ const fr = {
   details_body: 'Détails de la visite et informations du prestataire.',
   // Address related strings
   single_vendor_home_subtitle: 'Planifiez des visites à domicile de confiance',
+  single_vendor_home_section_empty_title: 'Rien à afficher pour le moment',
+  single_vendor_home_section_error_title: 'Impossible de charger les éléments',
+  single_vendor_home_section_error_message: 'Veuillez réessayer dans un instant.',
   home_visits_address_label: 'Sélectionner le lieu de service',
   add_service_address: 'Ajouter une adresse de service',
   address_select_error: 'Échec de la sélection de l\'adresse. Veuillez réessayer.',
