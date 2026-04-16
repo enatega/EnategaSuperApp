@@ -1,9 +1,13 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import Icon from '../Icon';
+import Text from '../Text';
+import { useTheme } from '../../theme/theme';
 import { useTranslation } from 'react-i18next';
-import Icon from '../../../../general/components/Icon';
-import Text from '../../../../general/components/Text';
-import { useTheme } from '../../../../general/theme/theme';
+
+
+  const { t } = useTranslation('homeVisits');
+
 
 type Tone = 'empty' | 'error';
 
@@ -13,24 +17,27 @@ type Props = {
   title?: string;
 };
 
+const DEFAULT_COPY = {
+  empty: {
+    title: t('Nothing here yet'),
+    message: t('Content for this section will appear once items are available.'),
+  },
+  error: {
+    title: t('Unable to load items'),
+    message: t('Please try again in a moment.'),
+  },
+} as const;
+
 export default function DiscoverySectionState({
   message,
   tone = 'empty',
   title,
 }: Props) {
-  const { t } = useTranslation('deliveries');
   const { colors, typography } = useTheme();
   const isError = tone === 'error';
-  const resolvedTitle =
-    title ??
-    (isError
-      ? t('multi_vendor_home_section_error_title')
-      : t('multi_vendor_home_section_empty_title'));
-  const resolvedMessage =
-    message ??
-    (isError
-      ? t('multi_vendor_home_section_error_message')
-      : t('multi_vendor_home_section_empty_message'));
+  const fallbackCopy = isError ? DEFAULT_COPY.error : DEFAULT_COPY.empty;
+  const resolvedTitle = title ?? fallbackCopy.title;
+  const resolvedMessage = message ?? fallbackCopy.message;
 
   return (
     <View

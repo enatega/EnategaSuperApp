@@ -5,6 +5,8 @@ const fr = {
   header_subtitle: 'Services à la demande',
   single_vendor_title: 'Prestataire Unique',
   single_vendor_desc: 'Une expérience ciblée pour un seul prestataire.',
+  single_vendor_categories_title: 'Catégories',
+  single_vendor_category_services_empty: 'Aucun service trouvé pour cette catégorie.',
   multi_vendor_title: 'Multi Prestataires',
   multi_vendor_desc: 'Parcourez plusieurs prestataires de visites à domicile.',
   chain_title: 'Chaîne',
@@ -26,6 +28,9 @@ const fr = {
   details_body: 'Détails de la visite et informations du prestataire.',
   // Address related strings
   single_vendor_home_subtitle: 'Planifiez des visites à domicile de confiance',
+  single_vendor_home_section_empty_title: 'Rien à afficher pour le moment',
+  single_vendor_home_section_error_title: 'Impossible de charger les éléments',
+  single_vendor_home_section_error_message: 'Veuillez réessayer dans un instant.',
   home_visits_address_label: 'Sélectionner le lieu de service',
   add_service_address: 'Ajouter une adresse de service',
   address_select_error: 'Échec de la sélection de l\'adresse. Veuillez réessayer.',
@@ -33,9 +38,16 @@ const fr = {
   address_selector_close: 'Fermer',
   address_selector_use_current_location: 'Utiliser la position actuelle',
   address_selector_add_new: 'Ajouter une nouvelle adresse',
+  single_vendor_deals_title:'accords',
+  single_vendor_see_all: 'voir tout',
+  single_vendor_home_section_empty_message: 'Revenez plus tard pour en savoir plus.',
+  Nothing_here_yet: 'Rien ici encore',
+  Content_for_this_section_will_appear_once_items_are_available: 'Le contenu de cette section apparaîtra dès que les articles seront disponibles.',
   home_visits_settings_body: 'Le flux des paramètres pour les visites à domicile sera ajouté ensuite.',
   home_visits_support_body: "Le flux d'assistance pour les visites à domicile sera ajouté ensuite.",
   home_visits_wallet_body: 'Le flux du portefeuille pour les visites à domicile sera ajouté ensuite.',
+  Unable_to_load_items: 'Impossible de charger les articles',
+  Please_try_again_in_a_moment: 'Veuillez réessayer dans un instant.',
 };
 
 export default fr;
