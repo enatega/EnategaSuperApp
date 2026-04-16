@@ -1,18 +1,21 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Image from '../../../../../general/components/Image';
-import Text from '../../../../../general/components/Text';
-import Icon from '../../../../../general/components/Icon';
-import { useTheme } from '../../../../../general/theme/theme';
-import type { HomeVisitsSingleVendorDeal } from '../../api/types';
+import Image from '../../../general/components/Image';
+import Text from '../../../general/components/Text';
+import Icon from '../../../general/components/Icon';
+import { useTheme } from '../../../general/theme/theme';
+import type {
+  HomeVisitsSingleVendorCategoryService,
+  HomeVisitsSingleVendorDeal,
+} from '../singleVendor/api/types';
 
 interface DealCardProps {
-  item: HomeVisitsSingleVendorDeal;
+  item: HomeVisitsSingleVendorDeal | HomeVisitsSingleVendorCategoryService;
   onPress?: () => void;
 }
 
-export default function DealCard({ item, onPress }: DealCardProps) {
+export default function ServicesCard({ item, onPress }: DealCardProps) {
   const { colors, typography } = useTheme();
   const imageUrl =
     item.productImage || item.storeImage || item.storeLogo || 'https://placehold.co/400x400.png';

@@ -14,7 +14,7 @@ import useAddressSelectionSheet from '../../../../general/hooks/useAddressSelect
 import useSavedAddresses from '../../../../general/hooks/useSavedAddresses';
 import useSelectSavedAddress from '../../../../general/hooks/useSelectSavedAddress';
 import SingleVendorCategorySection from '../components/HomeScreen/SingleVendorCategorySection';
-import SingleVendorDealsSection from '../components/HomeScreen/SingleVendorDealsSection';
+import DealsSection from '../components/HomeScreen/DealsSection';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
 
 type Props = Record<string, never>;
@@ -94,7 +94,7 @@ export default function SingleVendorHomeScreen({}: Props) {
         </View>
 
         <SingleVendorCategorySection />
-        <SingleVendorDealsSection />
+        <DealsSection />
       </ScrollView>
 
       <AddressSelectionBottomSheet

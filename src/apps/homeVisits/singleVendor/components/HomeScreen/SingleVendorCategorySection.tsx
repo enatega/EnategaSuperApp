@@ -7,7 +7,8 @@ import {
 } from '../../../../../general/components/discovery';
 import useSingleVendorCategories from '../../hooks/useSingleVendorCategories';
 import useSingleVendorCategoryServiceSections from '../../hooks/useSingleVendorCategoryServiceSections';
-import HomeVisitServiceCard from './HomeVisitServiceCard';
+import ServicesCard from '../../../components/ServicesCard';
+
 
 export default function SingleVendorCategorySection() {
   const { t } = useTranslation('homeVisits');
@@ -31,7 +32,7 @@ export default function SingleVendorCategorySection() {
               hasError={Boolean(error)}
               isLoading={isServicesPending}
               keyExtractor={(item) => `${item.productId}-${item.serviceCenterId}`}
-              renderItem={(item) => <HomeVisitServiceCard service={item} />}
+              renderItem={(item) => <ServicesCard item={item} />}
               emptyState={{
                 title: t('single_vendor_home_section_empty_title'),
                 message: t('single_vendor_category_services_empty'),

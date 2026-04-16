@@ -9,15 +9,15 @@ import {
 } from '../../../../../general/components/discovery';
 import type { HomeVisitsSingleVendorDeal } from '../../api/types';
 import useSingleVendorDeals from '../../hooks/useSingleVendorDeals';
-import DealCard from './DealCard';
+import ServicesCard from '../../../components/ServicesCard';
 
-export default function SingleVendorDealsSection() {
+export default function DealsSection() {
   const { t } = useTranslation('homeVisits');
   const { data: deals = [], isPending, isError } = useSingleVendorDeals();
   const isEmpty = !isPending && !isError && deals.length === 0;
 
   const renderItem = useCallback(
-    ({ item }: { item: HomeVisitsSingleVendorDeal }) => <DealCard item={item} />,
+    ({ item }: { item: HomeVisitsSingleVendorDeal }) => <ServicesCard item={item} />,
     [],
   );
 
