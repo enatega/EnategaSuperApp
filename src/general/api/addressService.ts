@@ -1,9 +1,15 @@
-import apiClient from './apiClient';
+import apiClient from "./apiClient";
+import type { ProfileAppPrefix } from "./profileService";
 
-const ADDRESS_BASE = '/api/v1/apps/deliveries/profile/address';
-const PROFILE_BASE = '/api/v1/apps/deliveries/profile';
+function getProfileBase(appPrefix: ProfileAppPrefix) {
+  return `/api/v1/apps/${appPrefix}/profile`;
+}
 
-export type AddressType = 'HOME' | 'APARTMENT' | 'OFFICE' | 'OTHER';
+function getAddressBase(appPrefix: ProfileAppPrefix) {
+  return `/api/v1/apps/${appPrefix}/profile/address`;
+}
+
+export type AddressType = "HOME" | "APARTMENT" | "OFFICE" | "OTHER";
 
 export type AddressPayload = {
   address: string;
@@ -59,17 +65,42 @@ export type RecentAddressSearch = {
   longitude: number;
 };
 
+// Factory function for dynamic address CRUD operations (requires appPrefix)
+export function createAddressService(appPrefix: ProfileAppPrefix) {
+  const addressBase = getAddressBase(appPrefix);
+  const profileBase = getProfileBase(appPrefix);
+
+  return {
+    getSavedAddresses: async () => {
+      const response = await apiClient.get<{
+        message: string;
+        data: { addresses: SavedAddress[] };
+      }>(profileBase);
+      return response?.data?.addresses ?? [];
+    },
+    addAddress: (payload: AddressPayload) =>
+      apiClient.post<AddressResponse>(addressBase, payload),
+    updateAddress: (id: string, payload: AddressPayload) =>
+      apiClient.patch<AddressResponse>(`${addressBase}/${id}`, payload),
+    selectAddress: (id: string) =>
+      apiClient.patch<SelectAddressResponse>(`${addressBase}/${id}/select`),
+    deleteAddress: (id: string) =>
+      apiClient.delete<void>(`${addressBase}/${id}`),
+  };
+}
+
+// Main service object
 export const addressService = {
   searchPlaces: (input: string) =>
     apiClient.post<Array<{ description: string; place_id: string }>>(
-      '/api/v1/maps/places',
+      "/api/v1/maps/places",
       { input },
       { skipAuth: true },
     ),
 
   getPlaceDetails: (placeId: string) =>
     apiClient.post<{ lat: string; lng: string }>(
-      '/api/v1/maps/place-details',
+      "/api/v1/maps/place-details",
       { placeId },
       { skipAuth: true },
     ),
@@ -79,7 +110,7 @@ export const addressService = {
     destination: { lat: number; lng: number },
   ) => {
     const response = await apiClient.get<{ path?: [number, number][] }>(
-      '/api/v1/maps/route',
+      "/api/v1/maps/route",
       {
         originLat: origin.lat,
         originLng: origin.lng,
@@ -99,24 +130,22 @@ export const addressService = {
     }));
   },
 
-  getSavedAddresses: async () => {
-    const response = await apiClient.get<{
-      message: string;
-      data: { addresses: SavedAddress[] };
-    }>(PROFILE_BASE);
+  // Address CRUD methods (require appPrefix)
+  getSavedAddresses: (appPrefix: ProfileAppPrefix) =>
+    createAddressService(appPrefix).getSavedAddresses(),
 
-    return response?.data?.addresses ?? [];
-  },
+  addAddress: (appPrefix: ProfileAppPrefix, payload: AddressPayload) =>
+    createAddressService(appPrefix).addAddress(payload),
 
-  addAddress: (payload: AddressPayload) =>
-    apiClient.post<AddressResponse>(ADDRESS_BASE, payload),
+  updateAddress: (
+    appPrefix: ProfileAppPrefix,
+    id: string,
+    payload: AddressPayload,
+  ) => createAddressService(appPrefix).updateAddress(id, payload),
 
-  updateAddress: (id: string, payload: AddressPayload) =>
-    apiClient.patch<AddressResponse>(`${ADDRESS_BASE}/${id}`, payload),
+  selectAddress: (appPrefix: ProfileAppPrefix, id: string) =>
+    createAddressService(appPrefix).selectAddress(id),
 
-  selectAddress: (id: string) =>
-    apiClient.patch<SelectAddressResponse>(`${ADDRESS_BASE}/${id}/select`),
-
-  deleteAddress: (id: string) =>
-    apiClient.delete<void>(`${ADDRESS_BASE}/${id}`),
+  deleteAddress: (appPrefix: ProfileAppPrefix, id: string) =>
+    createAddressService(appPrefix).deleteAddress(id),
 };

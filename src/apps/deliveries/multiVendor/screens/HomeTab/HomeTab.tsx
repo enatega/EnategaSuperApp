@@ -33,9 +33,9 @@ export default function HomeTab() {
     addresses,
     isLoading: isAddressesLoading,
     refetch,
-  } = useSavedAddresses();
+  } = useSavedAddresses("deliveries");
   const { selectedAddress } = useAddress();
-  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress();
+  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("deliveries");
   const {
     isVisible: isAddressSheetVisible,
     open: handleOpenAddressSheet,
@@ -65,12 +65,18 @@ export default function HomeTab() {
 
   const handleAddAddressPress = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate('AddressSearch', { origin: 'multi-vendor-home' });
+    navigation.navigate('AddressSearch', { 
+      appPrefix: "deliveries",
+      origin: 'multi-vendor-home' 
+    });
   }, [handleCloseAddressSheet, navigation]);
 
   const handleUseCurrentLocation = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate('AddressChooseOnMap', { origin: 'multi-vendor-home' });
+    navigation.navigate('AddressChooseOnMap', { 
+      appPrefix: "deliveries",
+      origin: 'multi-vendor-home' 
+    });
   }, [handleCloseAddressSheet, navigation]);
 
   const handleCartPress = useCallback(() => {

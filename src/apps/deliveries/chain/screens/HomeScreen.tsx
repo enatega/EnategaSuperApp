@@ -34,9 +34,9 @@ export default function HomeScreen({}: Props) {
     addresses,
     isLoading: isAddressesLoading,
     refetch,
-  } = useSavedAddresses();
+  } = useSavedAddresses("deliveries");
   const { selectedAddress } = useAddress();
-  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress();
+  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("deliveries");
   const {
     data: menuTemplates,
     isError: hasMenuTemplatesError,
@@ -101,12 +101,18 @@ export default function HomeScreen({}: Props) {
 
   const handleAddAddressPress = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate('AddressSearch', { origin: 'chain-home' });
+    navigation.navigate('AddressSearch', { 
+      appPrefix: "deliveries",
+      origin: 'chain-home' 
+    });
   }, [handleCloseAddressSheet, navigation]);
 
   const handleUseCurrentLocation = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate('AddressChooseOnMap', { origin: 'chain-home' });
+    navigation.navigate('AddressChooseOnMap', { 
+      appPrefix: "deliveries",
+      origin: 'chain-home' 
+    });
   }, [handleCloseAddressSheet, navigation]);
 
   const handleTemplateSelect = useCallback((template: ChainMenuTemplate) => {

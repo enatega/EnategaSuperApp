@@ -9,9 +9,14 @@ import SpecialOffersBannerSkeleton from './SpecialOffersBannerSkeleton';
 type Props = {
   banners: DeliveryBanner[];
   isPending: boolean;
+  onIndexChange?: (index: number) => void;
 };
 
-export default function SpecialOffersBanner({ banners, isPending }: Props) {
+export default function SpecialOffersBanner({
+  banners,
+  isPending,
+  onIndexChange,
+}: Props) {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const [bannerIndex, setBannerIndex] = useState(0);
@@ -32,7 +37,10 @@ export default function SpecialOffersBanner({ banners, isPending }: Props) {
     <View style={[styles.wrapper, { width: bannerWidth + bannerSidePadding * 2 }]}>
       <BannerSwiper
         data={banners}
-        onIndexChange={setBannerIndex}
+        onIndexChange={(index) => {
+          setBannerIndex(index);
+          onIndexChange?.(index);
+        }}
         renderItem={({ item }) => (
           <SpecialOffersBannerCard
             banner={item}
