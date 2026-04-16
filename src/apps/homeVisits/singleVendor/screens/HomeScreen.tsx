@@ -1,13 +1,14 @@
-import React from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
-import { useTranslation } from "react-i18next";
-import { showToast } from "../../../../general/components/AppToast";
-import Button from "../../../../general/components/Button";
-import Header from "../../../../general/components/Header";
-import Text from "../../../../general/components/Text";
-import { useAppLogout } from "../../../../general/hooks/useAppLogout";
-import { useTheme } from "../../../../general/theme/theme";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import React from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { showToast } from '../../../../general/components/AppToast';
+import Button from '../../../../general/components/Button';
+import Header from '../../../../general/components/Header';
+import Text from '../../../../general/components/Text';
+import { useAppLogout } from '../../../../general/hooks/useAppLogout';
+import { useTheme } from '../../../../general/theme/theme';
+import SingleVendorSpecialOffersBanner from '../components/HomeScreen/SingleVendorSpecialOffersBanner';
 
 type Props = Record<string, never>;
 
@@ -32,15 +33,16 @@ export default function SingleVendorHomeScreen({}: Props) {
       showsVerticalScrollIndicator={false}
     >
       <Header
-        subtitle={t("single_vendor_desc")}
-        title={t("single_vendor_tab_home")}
+        subtitle={t('single_vendor_desc')}
+        title={t('single_vendor_tab_home')}
       />
-      <View style={styles.content}>
-        <Text>{t("single_vendor_home_body")}</Text>
+      <SingleVendorSpecialOffersBanner />
+      <View style={styles.body}>
+        <Text>{t('single_vendor_home_body')}</Text>
         <Button
           disabled={logoutMutation.isPending}
           isLoading={logoutMutation.isPending}
-          label={t("logout")}
+          label={t('logout')}
           onPress={() => logoutMutation.mutate()}
           variant="danger"
         />
@@ -54,8 +56,11 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingBottom: 28,
   },
+  body: {
+    gap: 16,
+    paddingHorizontal: 20,
+  },
   scroll: {
     flex: 1,
-    paddingHorizontal: 20,
   },
 });
