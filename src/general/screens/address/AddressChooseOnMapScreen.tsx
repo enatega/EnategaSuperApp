@@ -12,6 +12,7 @@ export default function AddressChooseOnMapScreen() {
   const { t } = useTranslation('general');
   const params =
     (route.params as AddressFlowParamList['AddressChooseOnMap']) ?? {};
+  console.log("🚀 ~ AddressChooseOnMapScreen ~ params:", params)
 
   const handleConfirm = useCallback(
     (result: MapAddressResult) => {
@@ -21,12 +22,13 @@ export default function AddressChooseOnMapScreen() {
         longitude: result.longitude,
         ...(params.editAddressId
           ? {
+              appPrefix: params.appPrefix,
               editAddressId: params.editAddressId,
               editType: params.editType,
               editLocationName: params.editLocationName,
               origin: params.origin,
             }
-          : { origin: params.origin }),
+          : { appPrefix: params.appPrefix, origin: params.origin }),
       });
     },
     [nav, params],

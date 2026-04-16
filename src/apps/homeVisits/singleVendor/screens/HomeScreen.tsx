@@ -27,9 +27,9 @@ export default function SingleVendorHomeScreen({}: Props) {
     addresses,
     isLoading: isAddressesLoading,
     refetch,
-  } = useSavedAddresses();
+  } = useSavedAddresses("home-services");
   const { selectedAddress } = useAddress();
-  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress();
+  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("home-services");
   const {
     isVisible: isAddressSheetVisible,
     open: handleOpenAddressSheet,
@@ -59,12 +59,18 @@ export default function SingleVendorHomeScreen({}: Props) {
 
   const handleAddAddressPress = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate('AddressSearch', { origin: 'single-vendor-home' });
+    navigation.navigate("AddressSearch", {
+      origin: "single-vendor-home",
+      appPrefix: "home-services",
+    });
   }, [handleCloseAddressSheet, navigation]);
 
   const handleUseCurrentLocation = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate('AddressChooseOnMap', { origin: 'single-vendor-home' });
+    navigation.navigate("AddressChooseOnMap", {
+      origin: "single-vendor-home",
+      appPrefix: "home-services",
+    });
   }, [handleCloseAddressSheet, navigation]);
 
   return (
@@ -86,8 +92,8 @@ export default function SingleVendorHomeScreen({}: Props) {
 
         <View style={styles.content}>
           <Header
-            title={t('single_vendor_title')}
-            subtitle={t('single_vendor_home_subtitle')}
+            title={t("single_vendor_title")}
+            subtitle={t("single_vendor_home_subtitle")}
           />
         </View>
 
