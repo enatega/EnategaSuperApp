@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../../../general/theme/theme';
 import { mapIntentToCategory, RideCategory, RideIntent } from '../../utils/rideOptions';
 import RideOptionsLayout from '../../components/rideOptions/RideOptionsLayout';
 import { CachedAddress, RideOptionItem } from '../../components/rideOptions/types';
@@ -10,6 +12,11 @@ import type { RideTypeCatalogItem } from '../../api/types';
 import useRecentRideAddresses from '../../hooks/useRecentRideAddresses';
 import { toCachedAddress } from '../../utils/rideAddress';
 import type { RideSharingStackParamList } from '../../navigation/RideSharingNavigator';
+import HamburgerMenu from '../../components/HamburgerMenu';
+import Sidebar, { type UserProfile } from '../../components/Sidebar';
+import { useSidebarMenu } from '../../hooks/useSidebarMenu';
+import { useProfile } from '../../hooks/useProfile';
+import { resetToSharedHome } from '../../../../general/navigation/rootNavigation';
 
 type RouteParams = {
   rideType?: RideIntent;
@@ -71,7 +78,10 @@ function resolveRideIntentFromSelection(params: {
 
 export default function RideOptionsScreen() {
   const { t } = useTranslation('rideSharing');
+  const { colors } = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
+  const { sidebarVisible, openSidebar, closeSidebar, menuItems, handleLogout, handleProfilePress } = useSidebarMenu();
+  const { userProfile: apiProfile } = useProfile();
   const route = useRoute();
   const rideType = (route.params as RouteParams | undefined)?.rideType;
   const { recentAddresses } = useRecentRideAddresses();
@@ -145,24 +155,77 @@ export default function RideOptionsScreen() {
   }, []);
 
   const handleBackPress = useCallback(() => {
-    navigation.goBack();
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+
+    resetToSharedHome();
   }, [navigation]);
 
   const rideTypesErrorMessage = rideTypesQuery.error?.message || null;
+  const userProfile = useMemo<UserProfile | undefined>(() => {
+    if (!apiProfile) return undefined;
+
+    return {
+      name: apiProfile.name,
+      email: apiProfile.email,
+      avatarUri: apiProfile.profilePhotoUri,
+    };
+  }, [apiProfile]);
 
   return (
-    <RideOptionsLayout
-      rideOptions={rideOptions}
-      cachedAddresses={cachedAddresses}
-      selectedCategory={selectedCategory}
-      onSelectCategory={handleSelectCategory}
-      onSearchPress={handleSearchPress}
-      onBackPress={handleBackPress}
-      isLoadingRideTypes={rideTypesQuery.isPending}
-      rideTypesErrorMessage={rideTypesErrorMessage ? `${t('ride_types_error_description')} ${rideTypesErrorMessage}` : null}
-      onRetryRideTypes={() => {
-        void rideTypesQuery.refetch();
-      }}
-    />
+    <View style={styles.container}>
+      <RideOptionsLayout
+        rideOptions={rideOptions}
+        cachedAddresses={cachedAddresses}
+        selectedCategory={selectedCategory}
+        onSelectCategory={handleSelectCategory}
+        onSearchPress={handleSearchPress}
+        onBackPress={handleBackPress}
+        isLoadingRideTypes={rideTypesQuery.isPending}
+        rideTypesErrorMessage={rideTypesErrorMessage ? `${t('ride_types_error_description')} ${rideTypesErrorMessage}` : null}
+        onRetryRideTypes={() => {
+          void rideTypesQuery.refetch();
+        }}
+      />
+
+      <HamburgerMenu
+        onPress={openSidebar}
+        style={{
+          ...styles.hamburger,
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
+          shadowColor: colors.shadowColor,
+        }}
+      />
+
+      <Sidebar
+        visible={sidebarVisible}
+        onClose={closeSidebar}
+        userProfile={userProfile}
+        menuItems={menuItems}
+        onLogout={handleLogout}
+        onProfilePress={handleProfilePress}
+      />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  hamburger: {
+    position: 'absolute',
+    right: 16,
+    top: 65,
+    zIndex: 10,
+    borderWidth: 1,
+    borderRadius: 12,
+    shadowOpacity: 0.14,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+});

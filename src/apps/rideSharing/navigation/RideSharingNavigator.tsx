@@ -36,7 +36,9 @@ import { useInitializeRideSharingConfig } from '../hooks/useInitializeRideSharin
 
 export type RideSharingStackParamList = {
   RideSharingHome: undefined;
-  RideOptions: undefined;
+  RideOptions: {
+    rideType?: RideIntent;
+  } | undefined;
   RideAddressSearch: {
     rideType?: RideIntent;
     rideCategory?: RideCategory;

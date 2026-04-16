@@ -1,4 +1,4 @@
-import { getDeliveriesCurrencyLabel } from '../../../../general/stores/useAppConfigStore';
+import { getDeliveriesCurrencyLabel } from '../../../general/stores/useAppConfigStore';
 
 export type WalletTransaction = {
   id: string;

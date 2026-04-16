@@ -6,7 +6,6 @@ import HomeHeader from './home/HomeHeader';
 import HomeLocationPermissionPopup, {
   LocationPopupMode,
 } from './home/HomeLocationPermissionPopup';
-import OurServicesSection from './home/OurServicesSection';
 import RecommendedSection from './home/RecommendedSection';
 import { MiniAppId } from '../general/utils/constants';
 import { useIsFocused } from '@react-navigation/native';
@@ -15,6 +14,8 @@ import {
   openAppLocationSettings,
   requestLocationPermission,
 } from '../general/utils/locationPermission';
+import RideOptionsSection from '../apps/rideSharing/components/RideOptionsSection';
+import DeliveryServicesSection from '../apps/rideSharing/components/DeliveryServicesSection';
 
 type Props = {
   onSelectMiniApp?: (id: MiniAppId) => void;
@@ -104,13 +105,31 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
     }
   }
 
+  function handleSelectRideOption() {
+    onSelectMiniApp?.('rideSharing');
+  }
+
+  function handleSelectDeliveryService() {
+    onSelectMiniApp?.('deliveries');
+  }
+
+  function handleSelectDeliverablesCard() {
+    onSelectMiniApp?.('deliveries');
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <HomeHeader backgroundVariant="solid" />
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <OurServicesSection onSelectMiniApp={onSelectMiniApp} />
-          <RecommendedSection  />
+          <RideOptionsSection onSelectRideOption={handleSelectRideOption} />
+          <DeliveryServicesSection onSelectService={handleSelectDeliveryService} />
+          <RecommendedSection
+            title="Our Deliverables"
+            featureTitle="What We Bring to You"
+            layout="featureCard"
+            onPressFeatureCard={handleSelectDeliverablesCard}
+          />
         </ScrollView>
       </SafeAreaView>
 
@@ -134,9 +153,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingBottom: 24,
-    gap: 18,
-    paddingTop: 8,
+    gap: 24,
+    paddingTop: 0,
   },
 });

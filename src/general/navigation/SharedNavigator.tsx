@@ -17,7 +17,6 @@ import type {
   SharedStackParamList,
 } from "./navigationTypes";
 import {
-  getActiveAppRoute,
   setActiveAppRoute,
   setPendingAppRoute,
 } from "./pendingAppRedirect";
@@ -38,36 +37,8 @@ export default function SharedNavigator() {
   >(null);
 
   useEffect(() => {
-    let isMounted = true;
-
-    const resolveInitialRoute = async () => {
-      const [token, activeAppRoute] = await Promise.all([
-        authSession.getAccessToken(),
-        getActiveAppRoute(),
-      ]);
-
-      if (!isMounted) {
-        return;
-      }
-
-      if (!token) {
-        setInitialRouteName("Home");
-        return;
-      }
-
-      const resolvedRoute = activeAppRoute ?? "RideSharing";
-      if (!activeAppRoute) {
-        await setActiveAppRoute(resolvedRoute);
-      }
-
-      setInitialRouteName(resolvedRoute);
-    };
-
-    void resolveInitialRoute();
-
-    return () => {
-      isMounted = false;
-    };
+    // Always land users on the shared Home screen on app start.
+    setInitialRouteName("Home");
   }, []);
 
   const handleSelectMiniApp = useCallback(
@@ -76,7 +47,7 @@ export default function SharedNavigator() {
       navigation: NativeStackNavigationProp<SharedStackParamList, "Home">,
     ) => {
       const routeName = APP_ROUTES[id];
-      if (routeName == APP_ROUTES["developerMode"]) {
+      if (routeName === "DeveloperMode") {
         navigation.navigate(routeName);
         return;
       }

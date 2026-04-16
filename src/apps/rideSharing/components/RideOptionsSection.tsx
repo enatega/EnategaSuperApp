@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 import Text from '../../../general/components/Text';
 import Image from '../../../general/components/Image';
 import { useTheme } from '../../../general/theme/theme';
@@ -10,7 +10,11 @@ import { RideIntent } from '../utils/rideOptions';
 type RideOption = {
   id: RideIntent;
   title: string;
-  icon: string;
+  icon: ImageSourcePropType;
+};
+
+type Props = {
+  onSelectRideOption?: (rideIntent: RideIntent) => void;
 };
 
 const rideIcon = require('../../rideSharing/assets/images/3d-car.png');
@@ -18,7 +22,7 @@ const scheduledIcon = require('../../rideSharing/assets/images/calendar.png');
 const hourlyIcon = require('../../rideSharing/assets/images/3d-alarm.png');
 const courierIcon = require('../../rideSharing/assets/images/3d-truck.png');
 
-export default function RideOptionsSection() {
+export default function RideOptionsSection({ onSelectRideOption }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('rideSharing');
   const navigation = useNavigation();
@@ -46,6 +50,15 @@ export default function RideOptionsSection() {
     },
   ];
 
+  function handleSelectOption(rideIntent: RideIntent) {
+    if (onSelectRideOption) {
+      onSelectRideOption(rideIntent);
+      return;
+    }
+
+    (navigation as any).navigate('RideOptions', { rideType: rideIntent });
+  }
+
   return (
     <View style={styles.section}>
       <Text
@@ -62,7 +75,7 @@ export default function RideOptionsSection() {
           <Pressable
             key={item.id}
             style={styles.item}
-            onPress={() => navigation.navigate('RideOptions' as never, { rideType: item.id } as never)}
+            onPress={() => handleSelectOption(item.id)}
           >
             <View style={[styles.iconWrap, { backgroundColor: colors.blue50 }]}>
               <Image source={item.icon } style={styles.icon} />
