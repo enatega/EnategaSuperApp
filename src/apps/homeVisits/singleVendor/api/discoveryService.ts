@@ -4,6 +4,8 @@ import type {
   HomeVisitsSingleVendorCategoriesParams,
   HomeVisitsSingleVendorCategoryServicesApiResponse,
   HomeVisitsSingleVendorCategoryServicesParams,
+  HomeVisitsSingleVendorDealsApiResponse,
+  HomeVisitsSingleVendorDealsParams,
 } from './types';
 
 const SINGLE_VENDOR_CATEGORIES_DEFAULTS = {
@@ -46,6 +48,21 @@ export const homeVisitsSingleVendorDiscoveryService = {
         params,
       );
     return response.items;
+  },
+
+  getDealsPage: async (
+    params: HomeVisitsSingleVendorDealsParams = {},
+  ): Promise<HomeVisitsSingleVendorDealsApiResponse> => {
+    const { offset = 0, limit = 10, tab = 'all' } = params;
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorDealsApiResponse>(
+        '/api/v1/apps/home-services/discovery/single-vendor/deals',
+        { offset, limit, tab },
+      );
+    } catch (error) {
+      console.error('home visits single vendor deals request failed', error);
+      throw error;
+    }
   },
 
   getCategoryServicesPage: async (

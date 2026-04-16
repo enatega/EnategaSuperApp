@@ -48,3 +48,31 @@ export type HomeVisitsSingleVendorCategoriesApiResponse =
 
 export type HomeVisitsSingleVendorCategoryServicesApiResponse =
   PaginatedHomeVisitsResponse<HomeVisitsSingleVendorCategoryService>;
+
+export interface HomeVisitsSingleVendorDeal {
+  productId: string;
+  serviceCenterId: string;
+  productName: string;
+  storeName?: string | null;
+  productImage?: string | null;
+  storeLogo?: string | null;
+  storeImage?: string | null;
+  price?: number | null;
+  averageRating?: number | null;
+  reviewCount?: number | null;
+  priceTier?: string | null;
+  deal?: string | null;
+  dealType?: string | null;
+  dealAmount?: number | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
+}
+
+export interface HomeVisitsSingleVendorDealsParams {
+  offset?: number;
+  limit?: number;
+  tab?: string;
+}
+
+export type HomeVisitsSingleVendorDealsApiResponse =
+  PaginatedHomeVisitsResponse<HomeVisitsSingleVendorDeal>;

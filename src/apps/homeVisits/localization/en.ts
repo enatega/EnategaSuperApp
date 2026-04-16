@@ -38,6 +38,9 @@ const en = {
   address_selector_close: 'Close',
   address_selector_use_current_location: 'Use current location',
   address_selector_add_new: 'Add new address',
+  single_vendor_deals_title: 'Deals',
+  single_vendor_see_all: 'See all',
+
 };
 
 export default en;

@@ -38,6 +38,8 @@ const fr = {
   address_selector_close: 'Fermer',
   address_selector_use_current_location: 'Utiliser la position actuelle',
   address_selector_add_new: 'Ajouter une nouvelle adresse',
+  single_vendor_deals_title:'accords',
+  single_vendor_see_all: 'voir tout',
 };
 
 export default fr;

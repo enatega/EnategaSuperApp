@@ -15,4 +15,6 @@ export const homeVisitsKeys = {
       offset,
       limit,
     ] as const,
+  singleVendorDeals: (filters?: { limit?: number; tab?: string }) =>
+    [...homeVisitsKeys.discovery(), 'single-vendor-deals', filters] as const,
 };
