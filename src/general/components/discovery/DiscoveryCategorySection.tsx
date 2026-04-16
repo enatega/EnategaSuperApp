@@ -1,20 +1,20 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import HorizontalList from '../../../../general/components/HorizontalList';
-import SectionActionHeader from '../../../../general/components/SectionActionHeader';
-import Text from '../../../../general/components/Text';
-import { useTheme } from '../../../../general/theme/theme';
+import HorizontalList from '../HorizontalList';
+import SectionActionHeader from '../SectionActionHeader';
+import Text from '../Text';
+import { useTheme } from '../../theme/theme';
 import DiscoveryCategoryCard from './DiscoveryCategoryCard';
 import DiscoveryCategorySkeleton from './DiscoveryCategorySkeleton';
-import type { DeliveryDiscoveryCategoryItem } from './types';
+import type { DiscoveryCategoryItem } from './types';
 
 type Props = {
-  items: DeliveryDiscoveryCategoryItem[];
+  items: DiscoveryCategoryItem[];
   isPending: boolean;
   title: string;
   actionLabel?: string;
   onActionPress?: () => void;
-  onItemPress?: (item: DeliveryDiscoveryCategoryItem) => void;
+  onItemPress?: (item: DiscoveryCategoryItem) => void;
 };
 
 export default function DiscoveryCategorySection({

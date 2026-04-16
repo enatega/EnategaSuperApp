@@ -5,13 +5,21 @@ import { useShopTypeStoresSections, useShopTypes } from "../../../hooks";
 import {
   DiscoveryCategoryResultsSection,
   DiscoveryCategorySection,
-} from "../../../components/discovery";
+} from "../../../../../general/components/discovery";
+import StoreCard from "../../../components/storeCard/StoreCard";
 
-import { useNavigation } from "@react-navigation/native";
+import {
+  CompositeNavigationProp,
+  useNavigation,
+} from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { DeliveriesStackParamList } from "../../../navigation/types";
 import { MultiVendorStackParamList } from "../../navigation/types";
 
-type NavProp = NativeStackNavigationProp<MultiVendorStackParamList>;
+type NavProp = CompositeNavigationProp<
+  NativeStackNavigationProp<MultiVendorStackParamList>,
+  NativeStackNavigationProp<DeliveriesStackParamList>
+>;
 
 export default function ShopTypeList() {
   const { t } = useTranslation("deliveries");
@@ -54,16 +62,24 @@ export default function ShopTypeList() {
         ({ shopType, data = [], error, isPending: isStoresPending }) => (
           <View key={shopType.id} style={styles.storeSection}>
             <DiscoveryCategoryResultsSection
+              title={shopType.name}
               actionLabel={t('multi_vendor_see_all')}
-              cardType="store"
-              emptyMessage={t('multi_vendor_shop_type_stores_empty')}
+              items={data}
               hasError={Boolean(error)}
               isLoading={isStoresPending}
-              items={data}
+              keyExtractor={(item) => item.storeId}
+              renderItem={(item) => <StoreCard store={item} />}
               onActionPress={() =>
                 handleShopTypeSeeAll(shopType.id, shopType.name)
               }
-              title={shopType.name}
+              emptyState={{
+                title: t('multi_vendor_home_section_empty_title'),
+                message: t('multi_vendor_shop_type_stores_empty'),
+              }}
+              errorState={{
+                title: t('multi_vendor_home_section_error_title'),
+                message: t('multi_vendor_home_section_error_message'),
+              }}
             />
           </View>
         ),

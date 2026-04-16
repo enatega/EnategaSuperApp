@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import HorizontalList from '../../../../general/components/HorizontalList';
-import Skeleton from '../../../../general/components/Skeleton';
+import HorizontalList from '../HorizontalList';
+import Skeleton from '../Skeleton';
 
 const SKELETON_ITEMS = Array.from({ length: 3 }, (_, index) => ({
   id: `discovery-results-skeleton-${index}`,

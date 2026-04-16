@@ -6,7 +6,9 @@ import { StyleSheet, View } from 'react-native';
 import {
   DiscoveryCategoryResultsSection,
   DiscoveryCategorySection,
-} from '../../../components/discovery';
+} from '../../../../../general/components/discovery';
+import type { DeliveryShopTypeProduct } from '../../../api/types';
+import ProductCard from '../../../components/productCard/ProductCard';
 import type { DeliveriesStackParamList } from '../../../navigation/types';
 import useSingleVendorCategories from '../../hooks/useSingleVendorCategories';
 import useSingleVendorCategoryProductSections from '../../hooks/useSingleVendorCategoryProductSections';
@@ -18,7 +20,7 @@ export default function SingleVendorCategorySection() {
   const navigation = useNavigation<NavigationProp>();
   const { data = [], isPending } = useSingleVendorCategories();
   const productSections = useSingleVendorCategoryProductSections(data);
-  
+
   const handleSeeAllPress = useCallback(() => {
     navigation.navigate('SingleVendorCategoriesSeeAll');
   }, [navigation]);
@@ -30,9 +32,7 @@ export default function SingleVendorCategorySection() {
         title: categoryName,
         cardType: 'product',
         categoryId,
-        cardVariant:'rail',
-        
-      
+        cardVariant: 'rail',
       });
     },
     [navigation],
@@ -52,14 +52,26 @@ export default function SingleVendorCategorySection() {
         ({ category, data: products = [], error, isPending: isProductsPending }) => (
           <View key={category.id} style={styles.resultSection}>
             <DiscoveryCategoryResultsSection
+              title={category.name}
               actionLabel={t('multi_vendor_see_all')}
-              cardType="product"
-              emptyMessage={t('single_vendor_category_products_empty')}
+              items={products}
               hasError={Boolean(error)}
               isLoading={isProductsPending}
-              items={products}
-              onActionPress={() => handleCategorySeeAllPress(category.id, category.name)}
-              title={category.name}
+              keyExtractor={(item) =>
+                `${item.productId}-${(item as DeliveryShopTypeProduct).storeId}`
+              }
+              renderItem={(item) => <ProductCard product={item} variant="rail" />}
+              onActionPress={() =>
+                handleCategorySeeAllPress(category.id, category.name)
+              }
+              emptyState={{
+                title: t('multi_vendor_home_section_empty_title'),
+                message: t('single_vendor_category_products_empty'),
+              }}
+              errorState={{
+                title: t('multi_vendor_home_section_error_title'),
+                message: t('multi_vendor_home_section_error_message'),
+              }}
             />
           </View>
         ),

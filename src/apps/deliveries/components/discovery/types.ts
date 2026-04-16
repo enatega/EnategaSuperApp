@@ -1,13 +1,10 @@
+import type { DiscoveryCategoryItem } from '../../../../general/components/discovery';
 import type {
   DeliveryNearbyStore,
   DeliveryShopTypeProduct,
 } from '../../api/types';
 
-export interface DeliveryDiscoveryCategoryItem {
-  id: string;
-  name: string;
-  imageUrl?: string | null;
-}
+export type DeliveryDiscoveryCategoryItem = DiscoveryCategoryItem;
 
 export type DiscoveryCategoryResultCardType = 'store' | 'product';
 

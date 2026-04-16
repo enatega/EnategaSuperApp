@@ -1,4 +1,6 @@
 import React from 'react';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import HorizontalList from '../../../../../general/components/HorizontalList';
@@ -7,16 +9,18 @@ import { DiscoverySectionState } from '../../../components/discovery';
 import { useOrderAgain } from '../../../hooks';
 import ProductCard from '../../../components/productCard/ProductCard';
 import StoreMiniCardSkeleton from './HomeTabSkeletons/StoreMiniCardSkeleton';
-import { useNavigation } from '@react-navigation/native';
+import type { MultiVendorBottomTabParamList } from '../../navigation/types';
+
+type NavigationProp = BottomTabNavigationProp<MultiVendorBottomTabParamList>;
 
 export default function OrderAgain() {
   const { t } = useTranslation('deliveries');
   const { data: orderAgainData = [], isPending: isOrderAgainPending } = useOrderAgain();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
 
   const handleSeeAllPress = () => {
-      navigation.navigate('MultiVendorTabOrders' );
-  }
+    navigation.navigate('MultiVendorTabOrders');
+  };
   return (
     <View style={styles.section}>
       <SectionActionHeader
@@ -29,6 +33,7 @@ export default function OrderAgain() {
         <StoreMiniCardSkeleton />
       ) : orderAgainData.length === 0 ? (
         <DiscoverySectionState
+          title={t('multi_vendor_home_section_empty_title')}
           message={t('multi_vendor_home_section_empty_order_again')}
         />
       ) : (
