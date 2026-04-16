@@ -9,7 +9,7 @@ import DeliveriesTabBar, {
   DELIVERIES_TAB_BAR_HEIGHT,
 } from '../../components/navigation/DeliveriesTabBar';
 import MultiVendorTabButton from '../components/TabButton';
-import MultiVendorProfileTabScreen from '../../account/screens/ProfileTab/MultiVendorProfileTabScreen';
+import MultiVendorProfileTabScreen from '../../screens/ProfileTab/MultiVendorProfileTabScreen';
 import OrdersScreen from '../../screens/OrdersScreen/OrdersScreen';
 
 const Tab = createBottomTabNavigator();

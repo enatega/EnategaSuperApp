@@ -6,7 +6,7 @@ import { useTheme } from '../../../../general/theme/theme';
 import DeliveriesTabBar, {
   DELIVERIES_TAB_BAR_HEIGHT,
 } from '../../components/navigation/DeliveriesTabBar';
-import ChainProfileTabScreen from '../../account/screens/ProfileTab/ChainProfileTabScreen';
+import ChainProfileTabScreen from '../../screens/ProfileTab/ChainProfileTabScreen';
 import OrdersScreen from '../../screens/OrdersScreen/OrdersScreen';
 import ChainTabButton from '../components/navigation/ChainTabButton';
 import HomeScreen from '../screens/HomeScreen';

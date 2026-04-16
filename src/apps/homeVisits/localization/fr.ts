@@ -24,6 +24,18 @@ const fr = {
   logout_error_message: 'Impossible de vous déconnecter pour le moment.',
   details_title: 'Détails de la Visite',
   details_body: 'Détails de la visite et informations du prestataire.',
+  // Address related strings
+  single_vendor_home_subtitle: 'Planifiez des visites à domicile de confiance',
+  home_visits_address_label: 'Sélectionner le lieu de service',
+  add_service_address: 'Ajouter une adresse de service',
+  address_select_error: 'Échec de la sélection de l\'adresse. Veuillez réessayer.',
+  address_selector_title: 'Sélectionner le Lieu de Service',
+  address_selector_close: 'Fermer',
+  address_selector_use_current_location: 'Utiliser la position actuelle',
+  address_selector_add_new: 'Ajouter une nouvelle adresse',
+  home_visits_settings_body: 'Le flux des paramètres pour les visites à domicile sera ajouté ensuite.',
+  home_visits_support_body: "Le flux d'assistance pour les visites à domicile sera ajouté ensuite.",
+  home_visits_wallet_body: 'Le flux du portefeuille pour les visites à domicile sera ajouté ensuite.',
 };
 
 export default fr;

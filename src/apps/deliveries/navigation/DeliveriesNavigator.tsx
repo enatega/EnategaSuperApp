@@ -9,23 +9,23 @@ import CheckoutScreen from "../screens/CheckoutScreen/CheckoutScreen";
 import RateOrderScreen from '../screens/RateOrderScreen/RateOrderScreen';
 import OrderDetailsScreen from '../screens/OrderDetailsScreen/OrderDetailsScreen';
 import OrderTrackingScreen from '../screens/OrderTrackingScreen/OrderTrackingScreen';
-import MyProfileScreen from "../account/screens/MyProfileScreen/MyProfileScreen";
-import EditProfileScreen from "../account/screens/EditProfileScreen/EditProfileScreen";
-import SettingsScreen from "../account/screens/SettingsScreen/SettingsScreen";
-import NotificationSettingsScreen from "../account/screens/NotificationSettingsScreen/NotificationSettingsScreen";
-import PrivacyPolicyScreen from "../account/screens/PrivacyPolicyScreen/PrivacyPolicyScreen";
-import TermsOfServiceScreen from "../account/screens/TermsOfServiceScreen/TermsOfServiceScreen";
-import TermsOfUseScreen from "../account/screens/TermsOfUseScreen/TermsOfUseScreen";
-import ChangePasswordScreen from "../account/screens/ChangePasswordScreen/ChangePasswordScreen";
-import DeleteAccountScreen from "../account/screens/DeleteAccountScreen/DeleteAccountScreen";
-import ColorModeScreen from "../account/screens/ColorModeScreen/ColorModeScreen";
-import LanguageScreen from "../account/screens/LanguageScreen/LanguageScreen";
-import WalletScreen from "../account/screens/wallet/WalletScreen/WalletScreen";
-import AddCardScreen from "../account/screens/wallet/AddCardScreen/AddCardScreen";
-import WalletTransactionsScreen from "../account/screens/wallet/WalletTransactionsScreen/WalletTransactionsScreen";
-import AddressSearchScreen from "../screens/addresses/AddressSearchScreen";
-import AddressChooseOnMapScreen from "../screens/addresses/AddressChooseOnMapScreen";
-import AddressDetailScreen from "../screens/addresses/AddressDetailScreen";
+import DeliveriesMyProfileScreen from "../screens/profile/DeliveriesMyProfileScreen";
+import DeliveriesEditProfileScreen from "../screens/profile/DeliveriesEditProfileScreen";
+import SettingsScreen from "../screens/SettingsScreen/SettingsScreen";
+import NotificationSettingsScreen from "../screens/NotificationSettingsScreen/NotificationSettingsScreen";
+import PrivacyPolicyScreen from "../screens/PrivacyPolicyScreen/PrivacyPolicyScreen";
+import TermsOfServiceScreen from "../screens/TermsOfServiceScreen/TermsOfServiceScreen";
+import TermsOfUseScreen from "../screens/TermsOfUseScreen/TermsOfUseScreen";
+import ChangePasswordScreen from "../screens/ChangePasswordScreen/ChangePasswordScreen";
+import DeleteAccountScreen from "../screens/DeleteAccountScreen/DeleteAccountScreen";
+import ColorModeScreen from "../../../general/screens/settings/ColorModeScreen";
+import LanguageScreen from "../../../general/screens/settings/LanguageScreen";
+import AddressSearchScreen from "../../../general/screens/address/AddressSearchScreen";
+import AddressChooseOnMapScreen from "../../../general/screens/address/AddressChooseOnMapScreen";
+import AddressDetailScreen from "../../../general/screens/address/AddressDetailScreen";
+import WalletScreen from "../screens/wallet/WalletScreen/WalletScreen";
+import AddCardScreen from "../screens/wallet/AddCardScreen/AddCardScreen";
+import WalletTransactionsScreen from "../screens/wallet/WalletTransactionsScreen/WalletTransactionsScreen";
 import SupportScreen from "../screens/SupportScreen/SupportScreen";
 import SupportChatScreen from "../screens/SupportChatScreen/SupportChatScreen";
 import SupportConversationsScreen from "../screens/SupportConversationsScreen/SupportConversationsScreen";
@@ -80,12 +80,12 @@ export default function DeliveriesNavigator() {
       />
       <Stack.Screen
         name="MyProfile"
-        component={MyProfileScreen}
+        component={DeliveriesMyProfileScreen}
         options={sharedScreenOptions}
       />
       <Stack.Screen
         name="EditProfile"
-        component={EditProfileScreen}
+        component={DeliveriesEditProfileScreen}
         options={sharedScreenOptions}
       />
       <Stack.Screen
@@ -233,10 +233,19 @@ export default function DeliveriesNavigator() {
         component={RiderChatScreen}
         options={sharedScreenOptions}
       />
-
       <Stack.Screen
         name="Checkout"
         component={CheckoutScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SeeAllScreen"
+        component={SeeAllScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="DealsSeeAll"
+        component={DealsSeeAll}
         options={sharedScreenOptions}
       />
       <Stack.Screen
@@ -257,16 +266,6 @@ export default function DeliveriesNavigator() {
       <Stack.Screen
         name="ChainCategoryProductsSeeAll"
         component={ChainCategoryProductsSeeAll}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="SeeAllScreen"
-        component={SeeAllScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="DealsSeeAll"
-        component={DealsSeeAll}
         options={sharedScreenOptions}
       />
     </Stack.Navigator>

@@ -12,7 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "../../../../general/components/Icon";
 import Text from "../../../../general/components/Text";
 import { typography } from "../../../../general/theme/typography";
-import AddressSelectionBottomSheet from "../AddressSelectionBottomSheet";
+import AddressSelectionBottomSheet from "../../../../general/components/address/AddressSelectionBottomSheet";
 import SearchInput from "./SearchInput";
 import RecentSearches from "./RecentSearches";
 import SearchSuggestions from "./SearchSuggestions";

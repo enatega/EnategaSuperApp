@@ -21,7 +21,7 @@ export {
   usePastOrders,
   useScheduledOrders,
 } from './useOrders';
-export { default as useAddress } from './useAddress';
+export { default as useAddress } from '../../../general/hooks/useAddress';
 export { useCheckoutSchedule } from './useCheckoutSchedule';
 export { default as useDealsListing } from './useDeals';
 export { useDeliveryRoutePath } from './useDeliveryRoutePath';
