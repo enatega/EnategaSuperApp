@@ -6,7 +6,6 @@ import { useTheme } from '../../theme/theme';
 import { useTranslation } from 'react-i18next';
 
 
-  const { t } = useTranslation('homeVisits');
 
 
 type Tone = 'empty' | 'error';
@@ -17,16 +16,7 @@ type Props = {
   title?: string;
 };
 
-const DEFAULT_COPY = {
-  empty: {
-    title: t('Nothing here yet'),
-    message: t('Content for this section will appear once items are available.'),
-  },
-  error: {
-    title: t('Unable to load items'),
-    message: t('Please try again in a moment.'),
-  },
-} as const;
+
 
 export default function DiscoverySectionState({
   message,
@@ -34,11 +24,22 @@ export default function DiscoverySectionState({
   title,
 }: Props) {
   const { colors, typography } = useTheme();
+  const { t } = useTranslation('homeVisits');
+
+  const DEFAULT_COPY = {
+    empty: {
+      title: t('Nothing here yet'),
+      message: t('Content for this section will appear once items are available.'),
+    },
+    error: {
+      title: t('Unable to load items'),
+      message: t('Please try again in a moment.'),
+    },
+  } as const;
   const isError = tone === 'error';
   const fallbackCopy = isError ? DEFAULT_COPY.error : DEFAULT_COPY.empty;
   const resolvedTitle = title ?? fallbackCopy.title;
   const resolvedMessage = message ?? fallbackCopy.message;
-
   return (
     <View
       style={[
