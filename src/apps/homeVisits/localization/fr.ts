@@ -40,6 +40,9 @@ const fr = {
   address_selector_add_new: 'Ajouter une nouvelle adresse',
   single_vendor_deals_title:'accords',
   single_vendor_see_all: 'voir tout',
+  home_visits_settings_body: 'Le flux des paramètres pour les visites à domicile sera ajouté ensuite.',
+  home_visits_support_body: "Le flux d'assistance pour les visites à domicile sera ajouté ensuite.",
+  home_visits_wallet_body: 'Le flux du portefeuille pour les visites à domicile sera ajouté ensuite.',
 };
 
 export default fr;

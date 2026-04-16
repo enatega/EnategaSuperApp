@@ -6,7 +6,7 @@ import { useTheme } from '../../../../general/theme/theme';
 import SingleVendorTabButton from '../components/navigation/SingleVendorTabButton';
 import HomeScreen from '../screens/HomeScreen/HomeScreen';
 import SearchScreen from '../screens/SearchScreen/SearchScreen';
-import SingleVendorProfileTabScreen from '../../account/screens/ProfileTab/SingleVendorProfileTabScreen';
+import SingleVendorProfileTabScreen from '../../screens/ProfileTab/SingleVendorProfileTabScreen';
 import OrdersScreen from '../../screens/OrdersScreen/OrdersScreen';
 import type { SingleVendorBottomTabParamList } from './types';
 

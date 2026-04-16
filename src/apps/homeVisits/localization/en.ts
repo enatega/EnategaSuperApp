@@ -41,6 +41,9 @@ const en = {
   single_vendor_deals_title: 'Deals',
   single_vendor_see_all: 'See all',
 
+  home_visits_settings_body: 'Settings flow for home visits will be added next.',
+  home_visits_support_body: 'Support flow for home visits will be added next.',
+  home_visits_wallet_body: 'Wallet flow for home visits will be added next.',
 };
 
 export default en;
