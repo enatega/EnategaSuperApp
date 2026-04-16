@@ -93,12 +93,12 @@ export default function HomeScreen() {
           onCartPress={handleCartPress}
         />
 
-        <View style={styles.content}>
+        {/* <View style={styles.content}>
           <Header
             title={t('single_vendor_title')}
             subtitle={t('single_vendor_home_subtitle')}
           />
-        </View>
+        </View> */}
 
         <SingleVendorSpecialOffersBanner />
         <SingleVendorCategorySection />

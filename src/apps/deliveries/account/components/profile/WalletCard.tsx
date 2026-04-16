@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Text from '../../../../../general/components/Text';
+import { useDeliveriesCurrencyLabel } from '../../../../../general/stores/useAppConfigStore';
 import { useTheme } from '../../../../../general/theme/theme';
 
 type Props = {
@@ -18,7 +19,8 @@ export default function WalletCard({
   onPressWallet,
 }: Props) {
   const { colors } = useTheme();
-  const formattedBalance = `$${(balance ?? 0).toLocaleString()}`;
+  const currencyLabel = useDeliveriesCurrencyLabel();
+  const formattedBalance = `${currencyLabel} ${(balance ?? 0).toLocaleString()}`;
 
   return (
     <View style={styles.wrapper}>

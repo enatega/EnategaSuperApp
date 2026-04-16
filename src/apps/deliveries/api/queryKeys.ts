@@ -9,6 +9,9 @@
 export const deliveryKeys = {
     /** Root key – invalidating this clears ALL deliveries-related caches. */
     all: ['deliveries'] as const,
+    appConfig: () => [...deliveryKeys.all, 'app-config'] as const,
+    platformConfiguration: () =>
+        [...deliveryKeys.appConfig(), 'platform-configuration'] as const,
 
     // Discovery
     discovery: () => [...deliveryKeys.all, 'discovery'] as const,

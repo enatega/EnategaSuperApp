@@ -3,6 +3,7 @@ import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation, type NavigationProp } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import Text from '../../../../../../general/components/Text';
+import { useDeliveriesCurrencyLabel } from '../../../../../../general/stores/useAppConfigStore';
 import { useTheme } from '../../../../../../general/theme/theme';
 import WalletBalanceHeader from '../../../components/wallet/WalletBalanceHeader';
 import SavedCardRow from '../../../components/wallet/SavedCardRow';
@@ -19,6 +20,7 @@ import type { DeliveriesAccountStackParamList } from '../../../navigation/types'
 export default function WalletScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
+  const currencyLabel = useDeliveriesCurrencyLabel();
   const navigation = useNavigation<NavigationProp<DeliveriesAccountStackParamList>>();
 
   const handleAddCard = useCallback(() => {
@@ -52,7 +54,7 @@ export default function WalletScreen() {
             <WalletBalanceHeader
               balanceLabel={t('wallet_balance_label')}
               balance={MOCK_WALLET_BALANCE}
-              currency="$"
+              currency={currencyLabel}
             />
 
             {/* Cards section */}

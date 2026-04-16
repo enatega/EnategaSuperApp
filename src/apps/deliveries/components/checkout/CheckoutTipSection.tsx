@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import Text from '../../../../general/components/Text';
+import { useDeliveriesCurrencyLabel } from '../../../../general/stores/useAppConfigStore';
 import { useTheme } from '../../../../general/theme/theme';
 
 type Props = {
@@ -18,6 +19,7 @@ export default function CheckoutTipSection({
 }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
+  const currencyLabel = useDeliveriesCurrencyLabel();
 
   return (
     <View style={styles.section}>
@@ -69,7 +71,7 @@ export default function CheckoutTipSection({
                   lineHeight: typography.lineHeight.md,
                 }}
               >
-                {`$ ${amount}`}
+                {`${currencyLabel} ${amount}`}
               </Text>
             </Pressable>
           );

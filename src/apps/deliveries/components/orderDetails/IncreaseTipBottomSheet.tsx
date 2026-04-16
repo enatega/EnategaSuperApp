@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../../../general/components/Button";
 import SwipeableBottomSheet from "../../../../general/components/SwipeableBottomSheet";
 import Text from "../../../../general/components/Text";
+import { useDeliveriesCurrencyLabel } from "../../../../general/stores/useAppConfigStore";
 import { useTheme } from "../../../../general/theme/theme";
 import { styles } from "./IncreaseTipBottomSheet.styles";
 
@@ -34,6 +35,7 @@ export default function IncreaseTipBottomSheet({
 }: Props) {
   const { t } = useTranslation("deliveries");
   const { colors, typography } = useTheme();
+  const currencyLabel = useDeliveriesCurrencyLabel();
   const insets = useSafeAreaInsets();
 
   if (!isVisible) {
@@ -117,7 +119,7 @@ export default function IncreaseTipBottomSheet({
                 }}
                 weight="medium"
               >
-                $
+                {currencyLabel}
               </Text>
               <TextInput
                 autoFocus
@@ -161,7 +163,7 @@ export default function IncreaseTipBottomSheet({
                     }}
                     weight="medium"
                   >
-                    {`$ ${preset}`}
+                    {`${currencyLabel} ${preset}`}
                   </Text>
                 </Pressable>
               ))}

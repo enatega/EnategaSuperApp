@@ -39,6 +39,7 @@ export { deliveryKeys } from './queryKeys';
 
 // Discovery service
 export { discoveryService } from './discoveryService';
+export { platformConfigurationService } from './platformConfigurationService';
 export { filterService } from './filterService';
 export { ordersService } from './ordersService';
 // Chat service

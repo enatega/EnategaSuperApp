@@ -10,6 +10,7 @@ import Button from '../../../../general/components/Button';
 import Text from '../../../../general/components/Text';
 import { showToast } from '../../../../general/components/AppToast';
 import { useTheme } from '../../../../general/theme/theme';
+import { useRideSharingCurrencyLabel } from '../../../../general/stores/useAppConfigStore';
 import OfferFareHourlyStepper from '../../components/offerFare/OfferFareHourlyStepper';
 import OfferFareModeTabs from '../../components/offerFare/OfferFareModeTabs';
 import OfferFareTripSummary from '../../components/offerFare/OfferFareTripSummary';
@@ -52,6 +53,7 @@ export default function OfferFareScreen() {
   const route = useRoute();
   const { colors, typography } = useTheme();
   const { t } = useTranslation('rideSharing');
+  const currencyLabel = useRideSharingCurrencyLabel();
   const {
     rideType,
     rideCategory,
@@ -202,7 +204,7 @@ export default function OfferFareScreen() {
                   },
                 ]}
               >
-                <Text style={styles.currencyLabel}>QAR</Text>
+                <Text style={styles.currencyLabel}>{currencyLabel}</Text>
                 <TextInput
                   keyboardType="decimal-pad"
                   value={fareValue}

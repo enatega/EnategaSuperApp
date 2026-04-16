@@ -88,7 +88,7 @@ export default function StoreDetailListHeader({
             style={[
               styles.heroContent,
               {
-                backgroundColor: colors.storeHeroOverlay,
+                
                 paddingTop: insets.top + 12,
               },
             ]}

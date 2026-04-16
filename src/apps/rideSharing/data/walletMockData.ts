@@ -1,8 +1,9 @@
 import type { Transaction, PaymentCard, WalletBalance } from '../types/wallet';
+import { getRideSharingCurrencyLabel } from '../../../general/stores/useAppConfigStore';
 
 export const MOCK_BALANCE: WalletBalance = {
   amount: 52.49,
-  currency: 'QAR',
+  currency: getRideSharingCurrencyLabel(),
 };
 
 export const MOCK_TRANSACTIONS: Transaction[] = [

@@ -1,14 +1,17 @@
 import type { CartItem, CartSelectedOption } from '../../api/cartServiceTypes';
+import { getDeliveriesCurrencyLabel } from '../../../../general/stores/useAppConfigStore';
 
 export const CART_MINIMUM_SPEND = 10;
 export const CART_SMALL_ORDER_FEE = 2;
 
 export function formatCartPrice(value?: number | null) {
+  const currencyLabel = getDeliveriesCurrencyLabel();
+
   if (typeof value !== 'number' || Number.isNaN(value)) {
-    return '$0.00';
+    return `${currencyLabel} 0.00`;
   }
 
-  return `$ ${value.toFixed(2)}`;
+  return `${currencyLabel} ${value.toFixed(2)}`;
 }
 
 export function getCartSelectedOptionsLabel(selectedOptions: CartSelectedOption[]) {

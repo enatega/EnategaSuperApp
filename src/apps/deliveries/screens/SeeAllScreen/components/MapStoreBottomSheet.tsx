@@ -67,6 +67,7 @@ export default function MapStoreBottomSheet({
           </Text>
           <Pressable
             accessibilityRole="button"
+            hitSlop={12}
             onPress={onClose}
             style={({ pressed }) => [
               styles.closeButton,
@@ -100,7 +101,10 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     height: 32,
     justifyContent: "center",
+    position: "relative",
     width: 32,
+    zIndex: 8,
+    elevation: 8,
   },
   content: {
     flex: 1,
@@ -124,6 +128,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
+    position: "relative",
+    zIndex: 8,
+    elevation: 8,
   },
   placeholder: {
     width: 32,

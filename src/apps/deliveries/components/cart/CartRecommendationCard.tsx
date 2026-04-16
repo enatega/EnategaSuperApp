@@ -5,7 +5,7 @@ import type { DeliveryOrderAgainItem } from '../../api/types';
 import Image from '../../../../general/components/Image';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
-import { formatCartPrice } from './cartUtils';
+import { CART_SMALL_ORDER_FEE, formatCartPrice } from './cartUtils';
 
 type Props = {
   item: DeliveryOrderAgainItem;
@@ -103,7 +103,7 @@ export default function CartRecommendationCard({ item, onPress }: Props) {
                 lineHeight: typography.lineHeight.sm,
               }}
             >
-              $2
+              {formatCartPrice(CART_SMALL_ORDER_FEE)}
             </Text>
           </View>
 

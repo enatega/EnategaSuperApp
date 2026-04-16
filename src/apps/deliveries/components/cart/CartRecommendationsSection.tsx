@@ -52,10 +52,10 @@ export default function CartRecommendationsSection({ items, onItemPress }: Props
 const styles = StyleSheet.create({
   container: {
     gap: 14,
+    paddingHorizontal: 16,
     paddingTop: 8,
   },
   content: {
     gap: 12,
-    paddingHorizontal: 16,
   },
 });

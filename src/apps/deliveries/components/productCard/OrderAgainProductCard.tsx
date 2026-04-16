@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import Image from '../../../../general/components/Image';
 import Icon from '../../../../general/components/Icon';
 import Text from '../../../../general/components/Text';
+import { useDeliveriesCurrencyLabel } from '../../../../general/stores/useAppConfigStore';
 import { useTheme } from '../../../../general/theme/theme';
 import type { DeliveryOrderAgainItem } from '../../api/types';
 import CartActionControl from '../cart/CartActionControl';
@@ -19,6 +20,7 @@ type Props = {
 export default function OrderAgainProductCard({ onPress, product, state }: Props) {
   const { t } = useTranslation('deliveries');
   const { colors, typography } = useTheme();
+  const currencyLabel = useDeliveriesCurrencyLabel();
   const imageUri =
     product.productImage?.trim() ||
     product.storeImage?.trim() ||
@@ -26,7 +28,7 @@ export default function OrderAgainProductCard({ onPress, product, state }: Props
     'https://placehold.co/400x400.png';
   const formattedPrice =
     typeof product.price === 'number'
-      ? `€ ${product.price.toFixed(2)}`
+      ? `${currencyLabel} ${product.price.toFixed(2)}`
       : t('multi_vendor_order_again_price_unavailable');
 
   return (

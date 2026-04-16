@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
+import { useRideSharingCurrencyLabel } from '../../../../general/stores/useAppConfigStore';
 import { useCustomerRideDetail } from '../../hooks/useRideQueries';
 import { useCancelRide } from '../../hooks/useRideMutations';
 import { showToast } from '../../../../general/components/AppToast';
@@ -72,6 +73,7 @@ export default function ReservationDetailScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('rideSharing');
+  const currencyLabel = useRideSharingCurrencyLabel();
   const [isCancelBottomSheetVisible, setIsCancelBottomSheetVisible] = useState(false);
   const [isMoreOptionsVisible, setIsMoreOptionsVisible] = useState(false);
 
@@ -182,7 +184,7 @@ export default function ReservationDetailScreen() {
         <ReservationRideInfo
           rideTitle={rideDetail.rideType.name}
           price={rideDetail.agreedPrice}
-          currency="QAR"
+          currency={currencyLabel}
           imageUrl={rideDetail.rideType.imageUrl}
         />
 

@@ -18,7 +18,6 @@ export type SeeAllListingType =
 export type DealsSeeAllSource = "multi-vendor" | "single-vendor" | "chain-vendor";
 
 export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
-  DeliveriesHome: undefined;
   SingleVendor: NavigatorScreenParams<SingleVendorStackParamList> | undefined;
   MultiVendor: NavigatorScreenParams<MultiVendorStackParamList> | undefined;
   Chain: NavigatorScreenParams<ChainStackParamList> | undefined;

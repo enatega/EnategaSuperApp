@@ -30,7 +30,7 @@ export default function WalletBalanceHeader({ balanceLabel, balance, currency }:
           {balanceLabel}
         </Text>
         <Text weight="bold" color={colors.white} style={styles.amount}>
-          {currency}{balance.toLocaleString()}
+          {`${currency} ${balance.toLocaleString()}`}
         </Text>
       </View>
     </LinearGradient>
