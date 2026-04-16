@@ -40,9 +40,14 @@ const fr = {
   address_selector_add_new: 'Ajouter une nouvelle adresse',
   single_vendor_deals_title:'accords',
   single_vendor_see_all: 'voir tout',
+  single_vendor_home_section_empty_message: 'Revenez plus tard pour en savoir plus.',
+  Nothing_here_yet: 'Rien ici encore',
+  Content_for_this_section_will_appear_once_items_are_available: 'Le contenu de cette section apparaîtra dès que les articles seront disponibles.',
   home_visits_settings_body: 'Le flux des paramètres pour les visites à domicile sera ajouté ensuite.',
   home_visits_support_body: "Le flux d'assistance pour les visites à domicile sera ajouté ensuite.",
   home_visits_wallet_body: 'Le flux du portefeuille pour les visites à domicile sera ajouté ensuite.',
+  Unable_to_load_items: 'Impossible de charger les articles',
+  Please_try_again_in_a_moment: 'Veuillez réessayer dans un instant.',
 };
 
 export default fr;

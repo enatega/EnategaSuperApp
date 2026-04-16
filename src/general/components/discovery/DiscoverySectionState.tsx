@@ -3,6 +3,11 @@ import { StyleSheet, View } from 'react-native';
 import Icon from '../Icon';
 import Text from '../Text';
 import { useTheme } from '../../theme/theme';
+import { useTranslation } from 'react-i18next';
+
+
+  const { t } = useTranslation('homeVisits');
+
 
 type Tone = 'empty' | 'error';
 
@@ -14,12 +19,12 @@ type Props = {
 
 const DEFAULT_COPY = {
   empty: {
-    title: 'Nothing here yet',
-    message: 'Content for this section will appear once items are available.',
+    title: t('Nothing here yet'),
+    message: t('Content for this section will appear once items are available.'),
   },
   error: {
-    title: 'Unable to load items',
-    message: 'Please try again in a moment.',
+    title: t('Unable to load items'),
+    message: t('Please try again in a moment.'),
   },
 } as const;
 

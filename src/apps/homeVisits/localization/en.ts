@@ -40,10 +40,14 @@ const en = {
   address_selector_add_new: 'Add new address',
   single_vendor_deals_title: 'Deals',
   single_vendor_see_all: 'See all',
-
+  single_vendor_home_section_empty_message: 'Check back later for more.',
+  Nothing_here_yet: 'Nothing here yet',
+  Content_for_this_section_will_appear_once_items_are_available: 'Content for this section will appear once items are available.',
   home_visits_settings_body: 'Settings flow for home visits will be added next.',
   home_visits_support_body: 'Support flow for home visits will be added next.',
   home_visits_wallet_body: 'Wallet flow for home visits will be added next.',
+  Unable_to_load_items: 'Unable to load items',
+  Please_try_again_in_a_moment: 'Please try again in a moment.',
 };
 
 export default en;
