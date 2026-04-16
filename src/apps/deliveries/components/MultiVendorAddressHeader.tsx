@@ -5,12 +5,12 @@ import { useTranslation } from 'react-i18next';
 import Text from '../../../general/components/Text';
 import Icon from '../../../general/components/Icon';
 import { useTheme } from '../../../general/theme/theme';
-import useAddress from '../hooks/useAddress';
-import type { ProfileAddress } from '../account/api/profileService';
+import useAddress from '../../../general/hooks/useAddress';
+import type { ProfileAddress } from '../../../general/api/profileService';
 import {
   createSelectedDeliveryAddress,
   formatDeliveryAddressLabel,
-} from '../utils/address';
+} from '../../../general/utils/address';
 
 type Props = {
   addresses?: ProfileAddress[];

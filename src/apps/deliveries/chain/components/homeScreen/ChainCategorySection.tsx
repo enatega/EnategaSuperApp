@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 import {
   DiscoveryCategoryResultsSection,
   DiscoveryCategorySection,
-} from '../../../components/discovery';
+} from '../../../../../general/components/discovery';
+import ProductCard from '../../../components/productCard/ProductCard';
 import type { DeliveriesStackParamList } from '../../../navigation/types';
 import useChainCategoryProductSections from '../../hooks/useChainCategoryProductSections';
 import useChainMenuCategories from '../../hooks/useChainMenuCategories';
@@ -62,16 +63,24 @@ export default function ChainCategorySection({
         ({ category, data: products = [], error, isPending: isProductsPending }) => (
           <View key={category.id} style={styles.resultSection}>
             <DiscoveryCategoryResultsSection
+              title={category.name}
               actionLabel={t('multi_vendor_see_all')}
-              cardType="product"
-              emptyMessage={t('chain_category_products_empty')}
+              items={products}
               hasError={Boolean(error)}
               isLoading={isTemplatePending || isProductsPending}
-              items={products}
+              keyExtractor={(item) => `${item.productId}-${item.storeId}`}
+              renderItem={(item) => <ProductCard product={item} variant="rail" />}
               onActionPress={() =>
                 handleCategorySeeAllPress(category.id, category.name)
               }
-              title={category.name}
+              emptyState={{
+                title: t('multi_vendor_home_section_empty_title'),
+                message: t('chain_category_products_empty'),
+              }}
+              errorState={{
+                title: t('multi_vendor_home_section_error_title'),
+                message: t('multi_vendor_home_section_error_message'),
+              }}
             />
           </View>
         ),

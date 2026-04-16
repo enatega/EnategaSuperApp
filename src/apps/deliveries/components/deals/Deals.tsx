@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
 import HorizontalList from '../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../general/components/SectionActionHeader';
@@ -49,6 +50,7 @@ export default function Deals({
   onItemPress,
 }: Props) {
   const { typography } = useTheme();
+  const { t } = useTranslation('deliveries');
   const isEmpty = !isPending && !isError && items.length === 0;
   const renderItem = useCallback(
     ({ item }: { item: DealsItem }) => (
@@ -84,9 +86,16 @@ export default function Deals({
       {isPending ? (
         <DiscoveryResultsSkeleton />
       ) : isError ? (
-        <DiscoverySectionState tone="error" />
+        <DiscoverySectionState
+          tone="error"
+          title={t('multi_vendor_home_section_error_title')}
+          message={t('multi_vendor_home_section_error_message')}
+        />
       ) : isEmpty ? (
-        <DiscoverySectionState />
+        <DiscoverySectionState
+          title={t('multi_vendor_home_section_empty_title')}
+          message={t('multi_vendor_home_section_empty_message')}
+        />
       ) : (
         <HorizontalList
           data={items}

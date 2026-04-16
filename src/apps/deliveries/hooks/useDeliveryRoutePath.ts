@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { LatLng } from "react-native-maps";
 import type { ApiError } from "../../../general/api/apiClient";
-import { addressService } from "../api/addressService";
+import { addressService } from "../../../general/api/addressService";
 import { deliveryKeys } from "../api/queryKeys";
 
 type Coordinate = LatLng | null | undefined;

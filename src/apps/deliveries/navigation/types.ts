@@ -1,6 +1,6 @@
 import type { RiderChatScreenParams } from '../screens/RiderChatScreen/RiderChatScreen';
 import type { NavigatorScreenParams } from "@react-navigation/native";
-import type { DeliveriesAccountNavigationParamList } from "../account/navigation/types";
+import type { ProfileNavigationParamList } from "../../../general/navigation/profileTypes";
 import type { ChainStackParamList } from "../chain/navigation/types";
 import type { MultiVendorStackParamList } from "../multiVendor/navigation/types";
 import type { SingleVendorStackParamList } from "../singleVendor/navigation/types";
@@ -16,6 +16,29 @@ export type SeeAllListingType =
   | "chain-category-products";
 
 export type DealsSeeAllSource = "multi-vendor" | "single-vendor" | "chain-vendor";
+
+type DeliveriesAccountNavigationParamList = ProfileNavigationParamList & {
+  Settings: undefined;
+  NotificationSettings: undefined;
+  PrivacyPolicy: undefined;
+  TermsOfService: undefined;
+  TermsOfUse: undefined;
+  ChangePassword: undefined;
+  DeleteAccount: undefined;
+  ColorMode: undefined;
+  Language: undefined;
+  Support: undefined;
+  Wallet: undefined;
+  AddCard: undefined;
+  WalletTransactions: undefined;
+  SupportChat: import('./supportNavigationTypes').SupportNavigationParamList['SupportChat'];
+  SupportConversations: undefined;
+  SupportContactForm: import('./supportNavigationTypes').SupportNavigationParamList['SupportContactForm'];
+  SupportFaq: undefined;
+  SupportFaqArticle: import('./supportNavigationTypes').SupportNavigationParamList['SupportFaqArticle'];
+  SupportTickets: undefined;
+  SupportTicketDetail: import('./supportNavigationTypes').SupportNavigationParamList['SupportTicketDetail'];
+};
 
 export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
   DeliveriesHome: undefined;

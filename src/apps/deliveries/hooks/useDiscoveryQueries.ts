@@ -11,7 +11,7 @@ import { ApiError } from '../../../general/api/apiClient';
 import { discoveryService } from '../api/discoveryService';
 import { deliveryKeys } from '../api/queryKeys';
 import type { GenericListFilters } from '../components/filters/types';
-import useAddress from './useAddress';
+import useAddress from '../../../general/hooks/useAddress';
 import type {
   DeliveryBanner,
   DeliveryNearbyStore,

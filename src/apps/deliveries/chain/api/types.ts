@@ -31,6 +31,10 @@ export type ChainMenuCategoryProductsParams = {
   offset?: number;
   limit?: number;
   search?: string;
+  stock?: string;
+  subcategory_id?: string;
+  price_tiers?: string[];
+  sort_by?: string;
 };
 
 export type ChainMenuDealsParams = {

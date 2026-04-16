@@ -1,84 +1,91 @@
 import apiClient from '../../../../general/api/apiClient';
 import type {
-  ApiResponse,
-  DeliveryBanner,
-  PaginatedDeliveryResponse,
-} from '../../../deliveries/api/types';
+  HomeVisitsSingleVendorCategoriesApiResponse,
+  HomeVisitsSingleVendorCategoriesParams,
+  HomeVisitsSingleVendorCategoryServicesApiResponse,
+  HomeVisitsSingleVendorCategoryServicesParams,
+  HomeVisitsSingleVendorDealsApiResponse,
+  HomeVisitsSingleVendorDealsParams,
+} from './types';
 
-type HomeServicesBannersParams = {
-  offset?: number;
-  limit?: number;
-  search?: string;
-};
-
-const SINGLE_VENDOR_BANNERS_DEFAULTS = {
+const SINGLE_VENDOR_CATEGORIES_DEFAULTS = {
   offset: 0,
   limit: 10,
 } as const;
 
-function isPaginatedBannersResponse(
-  response:
-    | ApiResponse<DeliveryBanner[]>
-    | PaginatedDeliveryResponse<DeliveryBanner>,
-): response is PaginatedDeliveryResponse<DeliveryBanner> {
-  return 'items' in response && Array.isArray(response.items);
-}
+const SINGLE_VENDOR_CATEGORY_SERVICES_DEFAULTS = {
+  offset: 0,
+  limit: 10,
+  stock: 'all',
+  sort_by: 'recommended',
+} as const;
 
-function isWrappedBannersResponse(
-  response:
-    | ApiResponse<DeliveryBanner[]>
-    | PaginatedDeliveryResponse<DeliveryBanner>,
-): response is ApiResponse<DeliveryBanner[]> {
-  return 'data' in response && Array.isArray(response.data);
-}
-
-export const singleVendorDiscoveryService = {
-  getBanners: async (
-    params: HomeServicesBannersParams = {},
-  ): Promise<DeliveryBanner[]> => {
+export const homeVisitsSingleVendorDiscoveryService = {
+  getCategoriesPage: async (
+    params: HomeVisitsSingleVendorCategoriesParams = {},
+  ): Promise<HomeVisitsSingleVendorCategoriesApiResponse> => {
     const {
-      offset = SINGLE_VENDOR_BANNERS_DEFAULTS.offset,
-      limit = SINGLE_VENDOR_BANNERS_DEFAULTS.limit,
-      // Intentionally ignored for this endpoint.
-      search: _search,
+      offset = SINGLE_VENDOR_CATEGORIES_DEFAULTS.offset,
+      limit = SINGLE_VENDOR_CATEGORIES_DEFAULTS.limit,
     } = params;
-    void _search;
 
     try {
-      console.log('home services single vendor banners request', { offset, limit });
-
-      const response = await apiClient.get<
-        ApiResponse<DeliveryBanner[]> | PaginatedDeliveryResponse<DeliveryBanner>
-      >('/api/v1/apps/home-services/discovery/single-vendor/banners', {
-        offset,
-        limit,
-      });
-
-      if (Array.isArray(response)) {
-        console.log('home services single vendor banners response', {
-          count: response.length,
-        });
-        return response;
-      }
-
-      if (isPaginatedBannersResponse(response)) {
-        console.log('home services single vendor banners response', {
-          count: response.items.length,
-        });
-        return response.items;
-      }
-
-      if (isWrappedBannersResponse(response)) {
-        console.log('home services single vendor banners response', {
-          count: response.data.length,
-        });
-        return response.data;
-      }
-
-      console.log('home services single vendor banners response', { count: 0 });
-      return [];
+      return await apiClient.get<HomeVisitsSingleVendorCategoriesApiResponse>(
+        '/api/v1/apps/home-services/discovery/single-vendor/categories',
+        { offset, limit },
+      );
     } catch (error) {
-      console.error('home services single vendor banners request failed', error);
+      console.error('home visits single vendor categories request failed', error);
+      throw error;
+    }
+  },
+
+  getCategoryServices: async (
+    params: HomeVisitsSingleVendorCategoryServicesParams,
+  ) => {
+    const response =
+      await homeVisitsSingleVendorDiscoveryService.getCategoryServicesPage(
+        params,
+      );
+    return response.items;
+  },
+
+  getDealsPage: async (
+    params: HomeVisitsSingleVendorDealsParams = {},
+  ): Promise<HomeVisitsSingleVendorDealsApiResponse> => {
+    const { offset = 0, limit = 10, tab = 'all' } = params;
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorDealsApiResponse>(
+        '/api/v1/apps/home-services/discovery/single-vendor/deals',
+        { offset, limit, tab },
+      );
+    } catch (error) {
+      console.error('home visits single vendor deals request failed', error);
+      throw error;
+    }
+  },
+
+  getCategoryServicesPage: async (
+    params: HomeVisitsSingleVendorCategoryServicesParams,
+  ): Promise<HomeVisitsSingleVendorCategoryServicesApiResponse> => {
+    const { categoryId } = params;
+    const {
+      offset = SINGLE_VENDOR_CATEGORY_SERVICES_DEFAULTS.offset,
+      limit = SINGLE_VENDOR_CATEGORY_SERVICES_DEFAULTS.limit,
+      stock = SINGLE_VENDOR_CATEGORY_SERVICES_DEFAULTS.stock,
+      sort_by = SINGLE_VENDOR_CATEGORY_SERVICES_DEFAULTS.sort_by,
+    } = params;
+
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorCategoryServicesApiResponse>(
+        `/api/v1/apps/home-services/discovery/single-vendor/categories/${categoryId}/services`,
+        { offset, limit, stock, sort_by },
+      );
+    } catch (error) {
+      console.error(
+        'home visits single vendor category services request failed',
+        error,
+      );
       throw error;
     }
   },
