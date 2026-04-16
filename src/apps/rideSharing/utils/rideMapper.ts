@@ -1,5 +1,6 @@
 import { CustomerRideListItem, CustomerRideDetail } from '../api/types';
 import { Reservation, RideStatus } from '../types/reservation';
+import { getRideSharingCurrencyLabel } from '../../../general/stores/useAppConfigStore';
 
 function mapApiStatus(rideStatus: string): RideStatus {
   switch (rideStatus) {
@@ -25,7 +26,7 @@ export const mapCustomerRideToReservation = (ride: CustomerRideListItem): Reserv
     imageUrl: ride.rideType.imageUrl,
     dateTime: ride.scheduledAt || ride.createdAt,
     price: ride.agreedPrice,
-    currency: 'QAR',
+    currency: getRideSharingCurrencyLabel(),
     status: mapApiStatus(ride.rideStatus),
     // These fields are not available in the list endpoint; provide defaults
     pickupAddress: '',
@@ -55,7 +56,7 @@ export const mapCustomerRideDetailToReservation = (ride: CustomerRideDetail): Re
     } : undefined,
     dateTime: ride.scheduledAt || '',
     price: ride.agreedPrice,
-    currency: 'QAR',
+    currency: getRideSharingCurrencyLabel(),
     status: mapApiStatus(ride.rideStatus),
     pickupAddress: ride.pickup.location,
     dropoffAddress: ride.dropoff.location,

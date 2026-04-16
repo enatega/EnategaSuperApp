@@ -11,6 +11,7 @@ export {
     usePrefetchRideDetails,
     useDriverStats,
 } from './useRideQueries';
+export { useInitializeRideSharingConfig } from './useInitializeRideSharingConfig';
 
 // Ride Mutations
 export {
@@ -31,4 +32,3 @@ export { useUpdateUser, useUpdateProfileImage, useUpdatePassword } from './useUs
 export { useProfile } from './useProfile';
 export { useSidebarMenu } from './useSidebarMenu';
 export type { ProfileStackParamList } from './useSidebarMenu';
-

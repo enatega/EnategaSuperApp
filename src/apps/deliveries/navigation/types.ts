@@ -41,7 +41,6 @@ type DeliveriesAccountNavigationParamList = ProfileNavigationParamList & {
 };
 
 export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
-  DeliveriesHome: undefined;
   SingleVendor: NavigatorScreenParams<SingleVendorStackParamList> | undefined;
   MultiVendor: NavigatorScreenParams<MultiVendorStackParamList> | undefined;
   Chain: NavigatorScreenParams<ChainStackParamList> | undefined;

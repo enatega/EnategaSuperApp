@@ -2,6 +2,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import React from "react";
 import { Image, Pressable, StyleSheet, View } from "react-native";
 import Text from "../../../../general/components/Text";
+import { useDeliveriesCurrencyCode } from "../../../../general/stores/useAppConfigStore";
 import { useTheme } from "../../../../general/theme/theme";
 import type { DeliveryOrderListItem } from "../../api/ordersServiceTypes";
 
@@ -28,10 +29,10 @@ function formatOrderDate(dateString: string) {
   }).format(date);
 }
 
-function formatOrderPrice(amount: number) {
+function formatOrderPrice(amount: number, currencyCode: string) {
   return new Intl.NumberFormat(undefined, {
     style: "currency",
-    currency: "USD",
+    currency: currencyCode,
   }).format(amount);
 }
 
@@ -56,6 +57,7 @@ const OrderListCard = ({
   statusTone = "warning",
 }: Props) => {
   const { colors, typography } = useTheme();
+  const currencyCode = useDeliveriesCurrencyCode();
   const imageUri = order.storeImage ?? order.storeLogo ?? undefined;
   const resolvedStatusLabel = statusLabel ?? formatOrderStatus(order.orderStatus);
   const badgeColors =
@@ -167,7 +169,7 @@ const OrderListCard = ({
             lineHeight: typography.lineHeight.md,
           }}
         >
-          {formatOrderPrice(order.orderPrice)}
+          {formatOrderPrice(order.orderPrice, currencyCode)}
         </Text>
         <MaterialCommunityIcons
           color={colors.iconColor}

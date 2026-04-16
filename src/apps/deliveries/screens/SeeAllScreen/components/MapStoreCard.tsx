@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import Image from "../../../../../general/components/Image";
 import Icon from "../../../../../general/components/Icon";
 import Text from "../../../../../general/components/Text";
+import { useDeliveriesCurrencyLabel } from "../../../../../general/stores/useAppConfigStore";
 import { useTheme } from "../../../../../general/theme/theme";
 import type { SeeAllMapStore } from "./mapStoreUtils";
 
@@ -18,12 +19,12 @@ function formatDeliveryTime(value?: number | string) {
   return typeof value === "number" ? `${value} mins` : String(value);
 }
 
-function formatFee(value?: number) {
+function formatFee(value: number | undefined, currencyLabel: string) {
   if (value === undefined || value === null) {
     return null;
   }
 
-  return `$${value}`;
+  return `${currencyLabel} ${value}`;
 }
 
 function formatDistance(value?: number) {
@@ -36,12 +37,13 @@ function formatDistance(value?: number) {
 
 export default function MapStoreCard({ store }: Props) {
   const { colors, typography } = useTheme();
+  const currencyLabel = useDeliveriesCurrencyLabel();
   const metaItems = [
     {
       id: "fee",
       icon: "bicycle",
       type: "Ionicons" as const,
-      label: formatFee(store.deliveryFee),
+      label: formatFee(store.deliveryFee, currencyLabel),
     },
     {
       id: "time",

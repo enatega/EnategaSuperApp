@@ -67,7 +67,12 @@ function RideEstimateTripPointsSheet({
           <Text weight="bold" style={styles.title}>
             {title}
           </Text>
-          <Pressable onPress={onClose} hitSlop={8} accessibilityRole="button">
+          <Pressable
+            accessibilityRole="button"
+            hitSlop={12}
+            onPress={onClose}
+            style={styles.closeButton}
+          >
             <Icon type="Feather" name="x" size={20} color={colors.text} />
           </Pressable>
         </View>
@@ -154,6 +159,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    position: 'relative',
+    zIndex: 8,
+    elevation: 8,
+  },
+  closeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    zIndex: 8,
+    elevation: 8,
   },
   title: {
     fontSize: 18,

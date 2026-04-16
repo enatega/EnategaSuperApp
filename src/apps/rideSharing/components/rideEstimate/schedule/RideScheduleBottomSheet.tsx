@@ -125,6 +125,7 @@ function RideScheduleBottomSheet({
           </Text>
           <Pressable
             onPress={onClose}
+            hitSlop={12}
             style={[styles.closeButton, { backgroundColor: colors.backgroundTertiary }]}
           >
             <Icon type="Feather" name="x" size={18} color={colors.text} />
@@ -222,6 +223,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     marginBottom: 20,
+    position: 'relative',
+    zIndex: 8,
+    elevation: 8,
   },
   headerSpacer: {
     width: 32,
@@ -238,6 +242,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
+    zIndex: 8,
+    elevation: 8,
   },
   pickerWrap: {
     position: 'relative',

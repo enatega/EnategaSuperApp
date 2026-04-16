@@ -27,16 +27,18 @@ import WalletHomeScreen from '../screens/wallet/WalletHomeScreen';
 import AddFundsScreen from '../screens/wallet/AddFundsScreen';
 import RideSupportChatScreen from '../screens/support/RideSupportChatScreen';
 import { useTranslation } from 'react-i18next';
-import QueryProvider from '../../../general/providers/QueryProvider';
 import type { RideAddressSelection } from '../api/types';
 import type { CachedAddress } from '../components/rideOptions/types';
 import type { PaymentMethodId } from '../components/payment/paymentTypes';
 import type { RideOfferMode } from '../utils/rideOffer';
 import type { RideCategory, RideIntent } from '../utils/rideOptions';
+import { useInitializeRideSharingConfig } from '../hooks/useInitializeRideSharingConfig';
 
 export type RideSharingStackParamList = {
   RideSharingHome: undefined;
-  RideOptions: undefined;
+  RideOptions: {
+    rideType?: RideIntent;
+  } | undefined;
   RideAddressSearch: {
     rideType?: RideIntent;
     rideCategory?: RideCategory;
@@ -126,116 +128,116 @@ const Stack = createNativeStackNavigator();
 
 export default function RideSharingNavigator() {
   const { t } = useTranslation('rideSharing');
+  useInitializeRideSharingConfig();
+
   return (
-    <QueryProvider>
-      <Stack.Navigator>
-        <Stack.Screen name="RideSharingHome" component={RideSharingHomeScreen} options={{ headerShown:false, title: t('header_title') }} />
-        <Stack.Screen name="RideOptions" component={RideOptionsScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="RideAddressSearch" component={RideAddressSearchScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="RideEstimate" component={RideEstimateScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="OfferFare" component={OfferFareScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="CourierDetails" component={CourierDetailsScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="RideDetails" component={RideDetails} options={{ title: t('details_title') }} />
-        <Stack.Screen
-          name="DriverProfile"
-          component={DriverProfileScreen}
-          options={{ headerShown: false }}
-        />
-        {/* Profile Screens */}
-        <Stack.Screen
-          name="PersonalInfo"
-          component={PersonalInfoScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="EditName"
-          component={EditNameScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="EditPhone"
-          component={EditPhoneScreen}
-          options={{ headerShown: false }}
-        />
-        {/* Settings Screens */}
-        <Stack.Screen
-          name="Settings"
-          component={SettingsScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="UpdatePassword"
-          component={UpdatePasswordScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Language"
-          component={LanguageScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Appearance"
-          component={AppearanceScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="RulesAndTerms"
-          component={RulesAndTermsScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="PrivacyPolicy"
-          component={PrivacyPolicyScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="TermsAndConditions"
-          component={TermsAndConditionsScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Licences"
-          component={LicencesScreen}
-          options={{ headerShown: false }}
-        />
-        {/* Reservation Screens */}
-        <Stack.Screen
-          name="ReservationsList"
-          component={ReservationsListScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="ReservationDetail"
-          component={ReservationDetailScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="RiderChat"
-          component={RiderChatScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Safety"
-          component={SafetyScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="RideSupportChat"
-          component={RideSupportChatScreen}
-          options={{ headerShown: false }}
-        />
-        {/* Wallet Screens */}
-        <Stack.Screen
-          name="WalletHome"
-          component={WalletHomeScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="WalletAddFunds"
-          component={AddFundsScreen}
-          options={{ headerShown: false }}
-        />
-      </Stack.Navigator>
-    </QueryProvider>
+    <Stack.Navigator>
+      <Stack.Screen name="RideSharingHome" component={RideSharingHomeScreen} options={{ headerShown:false, title: t('header_title') }} />
+      <Stack.Screen name="RideOptions" component={RideOptionsScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="RideAddressSearch" component={RideAddressSearchScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="RideEstimate" component={RideEstimateScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="OfferFare" component={OfferFareScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="CourierDetails" component={CourierDetailsScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="RideDetails" component={RideDetails} options={{ title: t('details_title') }} />
+      <Stack.Screen
+        name="DriverProfile"
+        component={DriverProfileScreen}
+        options={{ headerShown: false }}
+      />
+      {/* Profile Screens */}
+      <Stack.Screen
+        name="PersonalInfo"
+        component={PersonalInfoScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EditName"
+        component={EditNameScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EditPhone"
+        component={EditPhoneScreen}
+        options={{ headerShown: false }}
+      />
+      {/* Settings Screens */}
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="UpdatePassword"
+        component={UpdatePasswordScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Language"
+        component={LanguageScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Appearance"
+        component={AppearanceScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="RulesAndTerms"
+        component={RulesAndTermsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicyScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="TermsAndConditions"
+        component={TermsAndConditionsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Licences"
+        component={LicencesScreen}
+        options={{ headerShown: false }}
+      />
+      {/* Reservation Screens */}
+      <Stack.Screen
+        name="ReservationsList"
+        component={ReservationsListScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ReservationDetail"
+        component={ReservationDetailScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="RiderChat"
+        component={RiderChatScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Safety"
+        component={SafetyScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="RideSupportChat"
+        component={RideSupportChatScreen}
+        options={{ headerShown: false }}
+      />
+      {/* Wallet Screens */}
+      <Stack.Screen
+        name="WalletHome"
+        component={WalletHomeScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="WalletAddFunds"
+        component={AddFundsScreen}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
   );
 }

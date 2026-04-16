@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { useDeliveriesCurrencyLabel } from '../../../../../general/stores/useAppConfigStore';
 import AppPopup from '../../../../../general/components/AppPopup';
 import Text from '../../../../../general/components/Text';
 import { showToast } from '../../../../../general/components/AppToast';
@@ -60,6 +61,7 @@ function getTodayStoreHours(
 export default function StoreDetailsScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
+  const currencyLabel = useDeliveriesCurrencyLabel();
   const navigation = useNavigation();
   const route = useRoute<RouteProp<StoreDetailsParamList, 'StoreDetails'>>();
   const [searchValue, setSearchValue] = useState('');
@@ -231,9 +233,9 @@ export default function StoreDetailsScreen() {
   const reviewCount = store?.reviewCount ?? selectedStore?.reviewCount ?? null;
   const deliveryFee =
     typeof store?.baseFee === 'number'
-      ? `$${store.baseFee}`
+      ? `${currencyLabel} ${store.baseFee}`
       : typeof selectedStore?.baseFee === 'number'
-        ? `$${selectedStore.baseFee}`
+        ? `${currencyLabel} ${selectedStore.baseFee}`
         : null;
   const distance =
     typeof selectedStore?.distanceKm === 'number'

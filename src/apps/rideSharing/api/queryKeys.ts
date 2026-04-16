@@ -25,6 +25,8 @@ export const rideKeys = {
   // Sub-resources
   estimates: () => [...rideKeys.all, 'estimates'] as const,
   activeRide: () => [...rideKeys.all, 'active'] as const,
+  appConfig: () => [...rideKeys.all, 'app-config'] as const,
+  appConfigCurrency: () => [...rideKeys.appConfig(), 'currency'] as const,
   rideTypes: () => [...rideKeys.all, 'types'] as const,
   rideTypeCatalog: () => [...rideKeys.rideTypes(), 'catalog'] as const,
   rideTypeFares: (params?: Record<string, unknown>) =>

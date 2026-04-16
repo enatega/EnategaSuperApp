@@ -49,6 +49,7 @@ export default function ChoosePaymentSheet({
             style={[styles.closeButton, { backgroundColor: colors.backgroundTertiary }]}
             accessibilityRole="button"
             accessibilityLabel="Close"
+            hitSlop={12}
           >
             <Ionicons name="close" size={16} color={colors.text} />
           </Pressable>
@@ -125,6 +126,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     marginBottom: 24,
+    position: 'relative',
+    zIndex: 8,
+    elevation: 8,
   },
   headerPlaceholder: {
     width: 32,
@@ -139,6 +143,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
+    zIndex: 8,
+    elevation: 8,
   },
   cardList: {
     gap: 0,

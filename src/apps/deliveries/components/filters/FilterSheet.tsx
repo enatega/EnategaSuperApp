@@ -111,6 +111,7 @@ export default function FilterSheet({
             <Pressable
               accessibilityLabel={closeLabel}
               accessibilityRole="button"
+              hitSlop={12}
               onPress={onClose}
               style={({ pressed }) => [
                 styles.closeButton,
@@ -285,7 +286,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     height: 40,
     justifyContent: "center",
+    position: "relative",
     width: 40,
+    zIndex: 8,
+    elevation: 8,
   },
   handle: {
     borderRadius: 999,
@@ -301,6 +305,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 16,
+    position: "relative",
+    zIndex: 8,
+    elevation: 8,
   },
   headerSpacer: {
     width: 40,

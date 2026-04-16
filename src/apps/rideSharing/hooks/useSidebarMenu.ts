@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAppLogout } from '../../../general/hooks/useAppLogout';
+import type { RideIntent } from '../utils/rideOptions';
 
 type MenuItem = {
   id: string;
@@ -23,7 +24,9 @@ type UserProfile = {
 
 export type RideSharingStackParamList = {
   RideSharingHome: undefined;
-  RideOptions: undefined;
+  RideOptions: {
+    rideType?: RideIntent;
+  } | undefined;
   RideAddressSearch: undefined;
   RideEstimate: undefined;
   RideDetails: undefined;

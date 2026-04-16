@@ -2,6 +2,7 @@ import React from "react";
 import { View } from "react-native";
 import Icon from "../../../../../general/components/Icon";
 import Text from "../../../../../general/components/Text";
+import { useDeliveriesCurrencyLabel } from "../../../../../general/stores/useAppConfigStore";
 import { useTheme } from "../../../../../general/theme/theme";
 import { styles } from "../styles";
 
@@ -19,12 +20,13 @@ function formatDeliveryTime(value: number | string) {
   return `${value} mins`;
 }
 
-function formatPrice(value: number) {
-  return `$${value}`;
+function formatPrice(value: number, currencyLabel: string) {
+  return `${currencyLabel} ${value}`;
 }
 
 export default function StoreDeliveryInfo({ price, deliveryTime, distance }: StoreDeliveryInfoProps) {
   const { colors } = useTheme();
+  const currencyLabel = useDeliveriesCurrencyLabel();
 
   return (
     <View style={styles.row}>
@@ -46,7 +48,7 @@ export default function StoreDeliveryInfo({ price, deliveryTime, distance }: Sto
             weight="medium"
             style={{ color: colors.mutedText, fontSize: 12, lineHeight: 18 }}
           >
-            {formatPrice(price)}
+            {formatPrice(price, currencyLabel)}
           </Text>
         </View>
       </View>

@@ -107,6 +107,7 @@ function PaymentMethodBottomSheet({
               </Text>
               <Pressable
                 onPress={handleClose}
+                hitSlop={12}
                 style={[styles.headerButton, { backgroundColor: colors.backgroundTertiary }]}
               >
                 <Icon type="Feather" name="x" size={18} color={colors.text} />
@@ -161,6 +162,7 @@ function PaymentMethodBottomSheet({
             <View style={styles.header}>
               <Pressable
                 onPress={() => setMode('list')}
+                hitSlop={12}
                 style={[styles.headerButton, { backgroundColor: colors.backgroundTertiary }]}
               >
                 <Icon type="Ionicons" name="arrow-back" size={18} color={colors.text} />
@@ -170,6 +172,7 @@ function PaymentMethodBottomSheet({
               </Text>
               <Pressable
                 onPress={handleClose}
+                hitSlop={12}
                 style={[styles.headerButton, { backgroundColor: colors.backgroundTertiary }]}
               >
                 <Icon type="Feather" name="x" size={18} color={colors.text} />
@@ -259,6 +262,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
+    position: 'relative',
+    zIndex: 8,
+    elevation: 8,
   },
   headerSpacer: {
     width: 32,
@@ -275,6 +281,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
+    zIndex: 8,
+    elevation: 8,
   },
   list: {
     paddingTop: 24,

@@ -54,6 +54,7 @@ export default function ShopTypeList() {
         }))}
         isPending={isPending}
         onActionPress={handleSeeAll}
+        onItemPress={(item) => handleShopTypeSeeAll(item.id, item.name)}
         title={t("multi_vendor_shop_types_title")}
       />
 

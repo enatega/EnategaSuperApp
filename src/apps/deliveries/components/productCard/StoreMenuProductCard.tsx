@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import Image from '../../../../general/components/Image';
 import Icon from '../../../../general/components/Icon';
 import Text from '../../../../general/components/Text';
+import { useDeliveriesCurrencyLabel } from '../../../../general/stores/useAppConfigStore';
 import { useTheme } from '../../../../general/theme/theme';
 import type { DeliveryDealItem } from '../../api/dealsServiceTypes';
 import type { DeliveryStoreDetailsProduct } from '../../api/types';
@@ -17,15 +18,16 @@ type Props = {
   state: ProductCardControlState;
 };
 
-function formatPrice(price?: number | null) {
-  return typeof price === 'number' ? `$${price.toFixed(2)}` : null;
+function formatPrice(price: number | null | undefined, currencyLabel: string) {
+  return typeof price === 'number' ? `${currencyLabel} ${price.toFixed(2)}` : null;
 }
 
 export default function StoreMenuProductCard({ onPress, product, state }: Props) {
   const { t } = useTranslation('deliveries');
   const { colors } = useTheme();
+  const currencyLabel = useDeliveriesCurrencyLabel();
   const badgeText = product.deal ?? product.dealType ?? null;
-  const priceLabel = formatPrice(product.price);
+  const priceLabel = formatPrice(product.price, currencyLabel);
   const productImageUri = product.imageUrl || 'https://placehold.co/400x400.png';
   const imageBackgroundColor = badgeText
     ? colors.storeMenuAccentOrange

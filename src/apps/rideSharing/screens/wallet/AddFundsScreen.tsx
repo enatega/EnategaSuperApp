@@ -6,6 +6,10 @@ import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import Button from '../../../../general/components/Button';
 import { useTheme } from '../../../../general/theme/theme';
+import {
+  useRideSharingCurrencyCode,
+  useRideSharingCurrencyLabel,
+} from '../../../../general/stores/useAppConfigStore';
 import QuickAmountChips from '../../components/wallet/QuickAmountChips';
 import PaymentMethodRow from '../../components/wallet/PaymentMethodRow';
 import ChoosePaymentSheet from '../../components/wallet/ChoosePaymentSheet';
@@ -17,6 +21,8 @@ import type { PaymentCard } from '../../types/wallet';
 export default function AddFundsScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
+  const currencyCode = useRideSharingCurrencyCode();
+  const currencyLabel = useRideSharingCurrencyLabel();
   const walletTopUpMutation = useWalletTopUp();
 
   const [amount, setAmount] = useState('');
@@ -57,7 +63,7 @@ export default function AddFundsScreen() {
     walletTopUpMutation.mutate(
       {
         amount: parsedAmount,
-        currency: t('wallet_currency_prefix'),
+        currency: currencyCode,
       },
       {
         onError: (error) => {
@@ -89,7 +95,7 @@ export default function AddFundsScreen() {
         },
       },
     );
-  }, [parsedAmount, t, walletTopUpMutation]);
+  }, [currencyCode, parsedAmount, t, walletTopUpMutation]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -126,13 +132,13 @@ export default function AddFundsScreen() {
               </Text>
             </View>
             <Text variant="caption" color={colors.mutedText}>
-              {t('wallet_offer_fare_hint')}
+              {t('wallet_offer_fare_hint', { currency: currencyLabel })}
             </Text>
           </View>
 
           <View style={[styles.inputContainer, { borderColor: colors.border, backgroundColor: colors.background }]}>
             <Text variant="body" color={colors.text} style={styles.currencyPrefix}>
-              {t('wallet_currency_prefix')}
+              {currencyLabel}
             </Text>
             <TextInput
               value={amount}
@@ -147,7 +153,7 @@ export default function AddFundsScreen() {
 
           <QuickAmountChips
             amounts={QUICK_AMOUNTS}
-            currency={t('wallet_currency_prefix')}
+            currency={currencyLabel}
             selectedAmount={selectedQuickAmount}
             onSelect={handleQuickAmount}
           />

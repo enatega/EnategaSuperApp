@@ -9,7 +9,10 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     height: 40,
     justifyContent: "center",
+    position: "relative",
     width: 40,
+    zIndex: 8,
+    elevation: 8,
   },
   content: {
     borderTopLeftRadius: 20,
@@ -31,6 +34,9 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
+    position: "relative",
+    zIndex: 8,
+    elevation: 8,
   },
   headerSide: {
     width: 40,

@@ -10,12 +10,14 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useDeliveriesCurrencyLabel } from "../../../../general/stores/useAppConfigStore";
 import { useTheme } from "../../../../general/theme/theme";
 import type {
   ProductInfoCustomizationsResponse,
   ProductInfoResponse,
 } from "../../api/productInfoServiceTypes";
 import CartStoreConflictModal from "../cart/CartStoreConflictModal";
+import DeliveriesFloatingCartButton from "../navigation/DeliveriesFloatingCartButton";
 import Footer from "./Footer";
 import ImageHeader, {
   getProductInfoHeaderMaxHeight,
@@ -28,8 +30,6 @@ import ItemSizes from "./ItemSizes";
 import ProductInfoCustomizationsLoadingSkeleton from "./ProductInfoCustomizationsLoadingSkeleton";
 import useProductSelectionState from "./useProductSelectionState";
 import useProductInfoCartFlow from "./useProductInfoCartFlow";
-
-const formatPrice = (value: number) => `$ ${value.toFixed(2)}`;
 
 type Props = {
   data: ProductInfoResponse;
@@ -47,6 +47,7 @@ export default function MainContainer({
   onRefresh,
 }: Props) {
   const { colors } = useTheme();
+  const currencyLabel = useDeliveriesCurrencyLabel();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -118,6 +119,8 @@ export default function MainContainer({
     outputRange: [0, -18],
     extrapolate: "clamp",
   });
+
+  const formatPrice = (value: number) => `${currencyLabel} ${value.toFixed(2)}`;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -234,6 +237,15 @@ export default function MainContainer({
         totalPriceLabel={formatPrice(totalPrice)}
       />
 
+      <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
+        <DeliveriesFloatingCartButton
+          style={[
+            styles.floatingCartButton,
+            { bottom: insets.bottom + 92 },
+          ]}
+        />
+      </View>
+
       <CartStoreConflictModal
         isSubmitting={conflictResolution.isResolving}
         onCancel={conflictResolution.cancelResolution}
@@ -273,6 +285,10 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingBottom: 20,
+  },
+  floatingCartButton: {
+    position: "absolute",
+    right: 16,
   },
   headerContainer: {
     overflow: "hidden",

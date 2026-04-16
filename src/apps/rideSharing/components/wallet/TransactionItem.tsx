@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
+import { useRideSharingCurrencyLabel } from '../../../../general/stores/useAppConfigStore';
 import type { Transaction } from '../../types/wallet';
 
 type Props = {
@@ -12,9 +13,10 @@ type Props = {
 
 export default function TransactionItem({ transaction, onPress }: Props) {
   const { colors, typography } = useTheme();
+  const currencyLabel = useRideSharingCurrencyLabel();
 
   const amountPrefix = transaction.isCredit ? '+ ' : '- ';
-  const formattedAmount = `${amountPrefix}QAR ${transaction.amount.toFixed(2)}`;
+  const formattedAmount = `${amountPrefix}${currencyLabel} ${transaction.amount.toFixed(2)}`;
 
   return (
     <Pressable

@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import DeliveriesHomeScreen from "../screens/HomeScreen";
 import SingleVendorNavigator from "../singleVendor/navigation/SingleVendorNavigator";
 import MultiVendorNavigator from "../multiVendor/navigation/MultiVendorNavigator";
 import ChainNavigator from "../chain/navigation/ChainNavigator";
-import { useTranslation } from "react-i18next";
 import ProductInfo from "../screens/ProductInfo/ProductInfo";
 import CartScreen from "../screens/CartScreen/CartScreen";
 import CheckoutScreen from "../screens/CheckoutScreen/CheckoutScreen";
@@ -38,11 +36,7 @@ import SupportTicketsScreen from "../screens/SupportTicketsScreen/SupportTickets
 import SupportTicketDetailScreen from "../screens/SupportTicketDetailScreen";
 import RiderChatScreen from "../screens/RiderChatScreen/RiderChatScreen";
 import {
-  DEFAULT_DELIVERY_MODE,
-  getDeliveryModePreference,
   mapDeliveryModeToRoute,
-  setDeliveryModePreference,
-  
 } from "./deliveryModePreference";
 import type { DeliveriesStackParamList } from "./types";
 import SeeAllScreen from "../screens/SeeAllScreen/SeeAllScreen";
@@ -51,66 +45,24 @@ import SingleVendorCategoriesSeeAll from "../screens/SingleVendorCategoriesSeeAl
 import SingleVendorCategoryProductsSeeAll from "../screens/SingleVendorCategoryProductsSeeAll/SingleVendorCategoryProductsSeeAll";
 import ChainCategoriesSeeAll from "../screens/ChainCategoriesSeeAll/ChainCategoriesSeeAll";
 import ChainCategoryProductsSeeAll from "../screens/ChainCategoryProductsSeeAll/ChainCategoryProductsSeeAll";
+import DeliveriesStartupSkeleton from "../components/DeliveriesStartupSkeleton";
+import { useInitializeDeliveriesConfig } from "../hooks/useInitializeDeliveriesConfig";
+import { useDeliveriesDeliveryMode } from "../../../general/stores/useAppConfigStore";
 
 const Stack = createNativeStackNavigator<DeliveriesStackParamList>();
-
-type DeliveriesEntryRouteName =
-  | "DeliveriesHome"
-  | "SingleVendor"
-  | "MultiVendor"
-  | "Chain";
 
 const sharedScreenOptions = { headerShown: false } as const;
 
 export default function DeliveriesNavigator() {
-  const { t } = useTranslation("deliveries");
-  const [initialRouteName, setInitialRouteName] =
-    useState<DeliveriesEntryRouteName | null>(null);
+  const deliveryMode = useDeliveriesDeliveryMode();
+  const configQuery = useInitializeDeliveriesConfig();
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadInitialRoute = async () => {
-      const savedMode = await getDeliveryModePreference();
-      const resolvedMode = savedMode ?? DEFAULT_DELIVERY_MODE;
-
-      if (!savedMode) {
-        await setDeliveryModePreference(resolvedMode);
-      }
-
-      if (isMounted) {
-        setInitialRouteName(mapDeliveryModeToRoute(resolvedMode));
-      }
-    };
-
-    void loadInitialRoute();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  if (!initialRouteName) {
-    return null;
+  if (!deliveryMode || configQuery.isLoading || configQuery.isFetching) {
+    return <DeliveriesStartupSkeleton />;
   }
 
   return (
-    <Stack.Navigator initialRouteName={initialRouteName}>
-      <Stack.Screen
-        name="DeliveriesHome"
-        options={{ title: t("header_title") }}
-      >
-        {(props) => (
-          <DeliveriesHomeScreen
-            {...props}
-            onSelect={(type) => {
-              void setDeliveryModePreference(type);
-              props.navigation.replace(mapDeliveryModeToRoute(type));
-            }}
-          />
-        )}
-      </Stack.Screen>
-
+    <Stack.Navigator initialRouteName={mapDeliveryModeToRoute(deliveryMode)}>
       <Stack.Screen
         name="SingleVendor"
         component={SingleVendorNavigator}

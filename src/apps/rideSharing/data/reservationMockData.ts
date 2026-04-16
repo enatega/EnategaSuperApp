@@ -1,4 +1,5 @@
 import type { Reservation } from '../types/reservation';
+import { getRideSharingCurrencyLabel } from '../../../general/stores/useAppConfigStore';
 
 export const MOCK_RESERVATIONS: Reservation[] = [
   {
@@ -18,7 +19,7 @@ export const MOCK_RESERVATIONS: Reservation[] = [
     },
     dateTime: '2024-10-05T16:12:00Z',
     price: 48.75,
-    currency: 'QAR',
+    currency: getRideSharingCurrencyLabel(),
     status: 'scheduled',
     pickupAddress: '1001 Parsippany Boulevard, Troy Hills',
     dropoffAddress: '445 Vreeland Avenue, Troy Hills',
@@ -37,7 +38,7 @@ export const MOCK_RESERVATIONS: Reservation[] = [
     licensePlate: 'NJ - W89 XYZ',
     dateTime: '2024-10-01T01:42:00Z',
     price: 62.4,
-    currency: 'QAR',
+    currency: getRideSharingCurrencyLabel(),
     status: 'completed',
     pickupAddress: '789 Main Street, Dover',
     dropoffAddress: '456 Oak Avenue, Morristown',
@@ -56,7 +57,7 @@ export const MOCK_RESERVATIONS: Reservation[] = [
     licensePlate: 'NJ - A12 BCD',
     dateTime: '2024-09-24T20:19:00Z',
     price: 53.2,
-    currency: 'QAR',
+    currency: getRideSharingCurrencyLabel(),
     status: 'cancelled',
     pickupAddress: '321 Pine Road, Parsippany',
     dropoffAddress: '654 Elm Street, Wayne',
@@ -75,7 +76,7 @@ export const MOCK_RESERVATIONS: Reservation[] = [
     licensePlate: 'NJ - P78 EFG',
     dateTime: '2024-09-13T14:02:00Z',
     price: 59.99,
-    currency: 'QAR',
+    currency: getRideSharingCurrencyLabel(),
     status: 'completed',
     pickupAddress: '555 Luxury Lane, Princeton',
     dropoffAddress: '777 Executive Drive, Trenton',

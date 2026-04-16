@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 import Text from '../../../general/components/Text';
 import Image from '../../../general/components/Image';
 import { useTheme } from '../../../general/theme/theme';
@@ -8,7 +8,11 @@ import { useTranslation } from 'react-i18next';
 type DeliveryService = {
   id: string;
   title: string;
-  image: string;
+  image: ImageSourcePropType;
+};
+
+type Props = {
+  onSelectService?: (serviceId: string) => void;
 };
 
 const foodImage = require('../../rideSharing/assets/images/pizza.png');
@@ -16,7 +20,7 @@ const groceryImage = require('../../rideSharing/assets/images/basket.png');
 const giftImage =  require('../../rideSharing/assets/images/gift.png');
 const medicineImage = require('../../rideSharing/assets/images/medicine.png');
 
-export default function DeliveryServicesSection() {
+export default function DeliveryServicesSection({ onSelectService }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('rideSharing');
 
@@ -56,7 +60,14 @@ export default function DeliveryServicesSection() {
       </Text>
       <View style={styles.grid}>
         {items.map((item) => (
-          <View key={item.id} style={[styles.card, { backgroundColor: colors.blue50 }]}>
+          <Pressable
+            key={item.id}
+            style={({ pressed }) => [
+              styles.card,
+              { backgroundColor: colors.blue50, opacity: pressed ? 0.85 : 1 },
+            ]}
+            onPress={() => onSelectService?.(item.id)}
+          >
             <Text
               weight="semiBold"
               style={{ fontSize: typography.size.xs2, lineHeight: typography.lineHeight.xs2,maxWidth:80 }}
@@ -64,7 +75,7 @@ export default function DeliveryServicesSection() {
               {item.title}
             </Text>
             <Image source={item.image} style={styles.image} />
-          </View>
+          </Pressable>
         ))}
       </View>
     </View>

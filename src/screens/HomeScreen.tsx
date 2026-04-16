@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { AppState, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
 import { useTheme } from '../general/theme/theme';
-import { mockImages } from '../general/utils/mockImages';
-import { serviceTypeIcons } from '../general/assets/images';
 import HomeHeader from './home/HomeHeader';
 import HomeLocationPermissionPopup, {
   LocationPopupMode,
 } from './home/HomeLocationPermissionPopup';
-import OurServicesSection from './home/OurServicesSection';
-import ServiceTypeSection from './home/ServiceTypeSection';
 import RecommendedSection from './home/RecommendedSection';
 import { MiniAppId } from '../general/utils/constants';
 import { useIsFocused } from '@react-navigation/native';
@@ -19,12 +14,8 @@ import {
   openAppLocationSettings,
   requestLocationPermission,
 } from '../general/utils/locationPermission';
-import {
-  DEFAULT_DELIVERY_MODE,
-  getDeliveryModePreference,
-  setDeliveryModePreference,
-  type DeliveryMode,
-} from '../apps/deliveries/navigation/deliveryModePreference';
+import RideOptionsSection from '../apps/rideSharing/components/RideOptionsSection';
+import DeliveryServicesSection from '../apps/rideSharing/components/DeliveryServicesSection';
 
 type Props = {
   onSelectMiniApp?: (id: MiniAppId) => void;
@@ -32,57 +23,10 @@ type Props = {
 
 export default function HomeScreen({ onSelectMiniApp }: Props) {
   const { colors } = useTheme();
-  const { t } = useTranslation('general');
-  const { t: tDeliveries } = useTranslation('deliveries');
   const isFocused = useIsFocused();
   const [isLocationPopupVisible, setIsLocationPopupVisible] = useState(false);
   const [locationPopupMode, setLocationPopupMode] = useState<LocationPopupMode>('request');
   const [isRequestingLocation, setIsRequestingLocation] = useState(false);
-  const [selectedDeliveryMode, setSelectedDeliveryMode] = useState<DeliveryMode>(DEFAULT_DELIVERY_MODE);
-
-  const serviceTypes = [
-    {
-      id: 'marketplace',
-      title: tDeliveries('type_marketplace_title'),
-      description: tDeliveries('type_marketplace_desc'),
-      icon: serviceTypeIcons.multiStore,
-    },
-    {
-      id: 'single',
-      title: tDeliveries('type_single_vendor_title'),
-      description: tDeliveries('type_single_vendor_desc'),
-      icon: serviceTypeIcons.singleStore,
-    },
-    {
-      id: 'chain',
-      title: tDeliveries('type_chain_title'),
-      description: tDeliveries('type_chain_desc'),
-      icon: serviceTypeIcons.chainStore,
-    },
-  ];
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadDeliveryModePreference = async () => {
-      const savedMode = await getDeliveryModePreference();
-      const resolvedMode = savedMode ?? DEFAULT_DELIVERY_MODE;
-
-      if (!savedMode) {
-        await setDeliveryModePreference(resolvedMode);
-      }
-
-      if (isMounted) {
-        setSelectedDeliveryMode(resolvedMode);
-      }
-    };
-
-    void loadDeliveryModePreference();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   useEffect(() => {
     if (!isFocused) {
@@ -161,37 +105,31 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
     }
   }
 
-  async function handleSelectDeliveryMode(nextModeId: string) {
-    const nextMode = nextModeId === 'marketplace'
-      ? 'multiVendor'
-      : nextModeId === 'chain'
-        ? 'chain'
-        : 'singleVendor';
-
-    setSelectedDeliveryMode(nextMode);
-    await setDeliveryModePreference(nextMode);
+  function handleSelectRideOption() {
+    onSelectMiniApp?.('rideSharing');
   }
 
-  const selectedServiceTypeId = selectedDeliveryMode === 'multiVendor'
-    ? 'marketplace'
-    : selectedDeliveryMode === 'chain'
-      ? 'chain'
-      : 'single';
+  function handleSelectDeliveryService() {
+    onSelectMiniApp?.('deliveries');
+  }
+
+  function handleSelectDeliverablesCard() {
+    onSelectMiniApp?.('deliveries');
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <HomeHeader backgroundVariant="solid" />
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <OurServicesSection onSelectMiniApp={onSelectMiniApp} />
-          <ServiceTypeSection
-            items={serviceTypes}
-            selectedId={selectedServiceTypeId}
-            onSelect={(id) => {
-              void handleSelectDeliveryMode(id);
-            }}
+          <RideOptionsSection onSelectRideOption={handleSelectRideOption} />
+          <DeliveryServicesSection onSelectService={handleSelectDeliveryService} />
+          <RecommendedSection
+            title="Our Deliverables"
+            featureTitle="What We Bring to You"
+            layout="featureCard"
+            onPressFeatureCard={handleSelectDeliverablesCard}
           />
-          <RecommendedSection  />
         </ScrollView>
       </SafeAreaView>
 
@@ -215,9 +153,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingBottom: 24,
-    gap: 18,
-    paddingTop: 8,
+    gap: 24,
+    paddingTop: 0,
   },
 });

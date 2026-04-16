@@ -1,3 +1,5 @@
+import { getDeliveriesCurrencyCode } from '../../../../general/stores/useAppConfigStore';
+
 export const TERMINAL_STATUSES = new Set([
   "delivered",
   "cancelled",
@@ -9,7 +11,7 @@ export const TERMINAL_STATUSES = new Set([
 export function formatCurrency(amount: number | null | undefined) {
   return new Intl.NumberFormat(undefined, {
     style: "currency",
-    currency: "USD",
+    currency: getDeliveriesCurrencyCode(),
   }).format(amount ?? 0);
 }
 

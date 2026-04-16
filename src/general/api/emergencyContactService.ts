@@ -1,14 +1,5 @@
 import apiClient from './apiClient';
-
-export type GlobalEmergencyContact = {
-  id: string;
-  title: string;
-  contact_number: string;
-  is_active: boolean;
-  description: string | null;
-  created_at: string;
-  updated_at: string;
-};
+import type { GlobalEmergencyContact } from '../stores/useAppConfigStore';
 
 type EmergencyContactResponse = {
   data: GlobalEmergencyContact;

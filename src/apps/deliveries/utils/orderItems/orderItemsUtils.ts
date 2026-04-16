@@ -3,6 +3,7 @@ import type {
   DeliveryOrderProduct,
   DeliveryOrderProductAddon,
 } from "../../api/ordersServiceTypes";
+import { getDeliveriesCurrencyLabel } from '../../../../general/stores/useAppConfigStore';
 
 export type OrderProductAddonLine = {
   label: string;
@@ -83,7 +84,9 @@ function formatAddonLine(
       ? `${baseLabel} x${item.quantity}`
       : baseLabel;
   const priceLabel =
-    typeof item.price === "number" && item.price > 0 ? `US$${item.price.toFixed(2)}` : null;
+    typeof item.price === "number" && item.price > 0
+      ? `${getDeliveriesCurrencyLabel()} ${item.price.toFixed(2)}`
+      : null;
 
   return {
     label: lineLabel,

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { showToast } from '../../../../general/components/AppToast';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import { useTheme } from '../../../../general/theme/theme';
-import { useEmergencyContactStore } from '../../../../general/stores/useEmergencyContactStore';
+import { useRideSharingEmergencyContact } from '../../../../general/stores/useAppConfigStore';
 import type { RideSharingStackParamList } from '../../navigation/RideSharingNavigator';
 import SafetyActionGrid from './components/SafetyActionGrid';
 import DriverVerificationCard from './components/DriverVerificationCard';
@@ -20,7 +20,7 @@ function SafetyScreen() {
   const { t } = useTranslation('rideSharing');
   const route = useRoute<SafetyScreenRouteProp>();
   const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
-  const emergencyContact = useEmergencyContactStore((s) => s.contact);
+  const emergencyContact = useRideSharingEmergencyContact();
   const {
     driverName,
     driverAvatarUri,

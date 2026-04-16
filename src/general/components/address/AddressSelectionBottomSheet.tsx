@@ -111,6 +111,7 @@ export default function AddressSelectionBottomSheet({
           <Pressable
             accessibilityLabel={t('address_selector_close')}
             accessibilityRole="button"
+            hitSlop={12}
             onPress={onClose}
             style={({ pressed }) => [
               styles.closeButton,
@@ -247,7 +248,10 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     height: 32,
     justifyContent: 'center',
+    position: 'relative',
     width: 32,
+    zIndex: 8,
+    elevation: 8,
   },
   content: {
     gap: 8,
@@ -268,6 +272,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingBottom: 12,
     paddingHorizontal: 16,
+    position: 'relative',
+    zIndex: 8,
+    elevation: 8,
   },
   headerSpacer: {
     height: 32,

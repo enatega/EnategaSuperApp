@@ -3,6 +3,9 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
+import DeliveriesTabBar, {
+  DELIVERIES_TAB_BAR_HEIGHT,
+} from '../../components/navigation/DeliveriesTabBar';
 import ChainProfileTabScreen from '../../screens/ProfileTab/ChainProfileTabScreen';
 import OrdersScreen from '../../screens/OrdersScreen/OrdersScreen';
 import ChainTabButton from '../components/navigation/ChainTabButton';
@@ -36,6 +39,7 @@ export default function ChainBottomTabNavigator() {
       sceneContainerStyle={{
         backgroundColor: colors.background,
       }}
+      tabBar={(props) => <DeliveriesTabBar {...props} />}
       screenOptions={{
         freezeOnBlur: true,
         headerShown: false,
@@ -56,7 +60,7 @@ export default function ChainBottomTabNavigator() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          height: 82,
+          height: DELIVERIES_TAB_BAR_HEIGHT,
         },
       }}
     >

@@ -3,6 +3,9 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
+import DeliveriesTabBar, {
+  DELIVERIES_TAB_BAR_HEIGHT,
+} from '../../components/navigation/DeliveriesTabBar';
 import SingleVendorTabButton from '../components/navigation/SingleVendorTabButton';
 import HomeScreen from '../screens/HomeScreen/HomeScreen';
 import SearchScreen from '../screens/SearchScreen/SearchScreen';
@@ -26,6 +29,7 @@ export default function SinglevendorBottomTabNavigator() {
       sceneContainerStyle={{
         backgroundColor: colors.background,
       }}
+      tabBar={(props) => <DeliveriesTabBar {...props} />}
       screenOptions={{
         freezeOnBlur: true,
         headerShown: false,
@@ -46,7 +50,7 @@ export default function SinglevendorBottomTabNavigator() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          height: 82,
+          height: DELIVERIES_TAB_BAR_HEIGHT,
         },
       }}
     >

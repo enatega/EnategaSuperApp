@@ -5,6 +5,9 @@ import { useTranslation } from 'react-i18next';
 import HomeTab from '../screens/HomeTab/HomeTab';
 import SearchTab from '../screens/SearchTab/SearchTab';
 import { useTheme } from '../../../../general/theme/theme';
+import DeliveriesTabBar, {
+  DELIVERIES_TAB_BAR_HEIGHT,
+} from '../../components/navigation/DeliveriesTabBar';
 import MultiVendorTabButton from '../components/TabButton';
 import MultiVendorProfileTabScreen from '../../screens/ProfileTab/MultiVendorProfileTabScreen';
 import OrdersScreen from '../../screens/OrdersScreen/OrdersScreen';
@@ -50,9 +53,10 @@ function MultiVendorBottomTabNavigator() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          height: 82,
+          height: DELIVERIES_TAB_BAR_HEIGHT,
         },
       }}
+      tabBar={(props) => <DeliveriesTabBar {...props} />}
     >
       <Tab.Screen
         component={HomeTab}

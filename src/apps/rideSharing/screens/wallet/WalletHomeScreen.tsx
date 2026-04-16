@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
+import { useRideSharingCurrencyLabel } from '../../../../general/stores/useAppConfigStore';
 import BalanceCard from '../../components/wallet/BalanceCard';
 import TransactionFilterTabs from '../../components/wallet/TransactionFilterTabs';
 import TransactionItem from '../../components/wallet/TransactionItem';
@@ -17,6 +18,7 @@ import type { RideSharingStackParamList } from '../../navigation/RideSharingNavi
 export default function WalletHomeScreen() {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('rideSharing');
+  const currencyLabel = useRideSharingCurrencyLabel();
   const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
   const [activeFilter, setActiveFilter] = useState<TransactionFilter>('all');
   const walletBalanceQuery = useWalletBalance();
@@ -32,9 +34,9 @@ export default function WalletHomeScreen() {
 
     return {
       amount: Number.isFinite(parsedAmount) ? parsedAmount : 0,
-      currency: t('wallet_currency_prefix'),
+      currency: currencyLabel,
     };
-  }, [t, walletBalanceQuery.data?.totalBalanceInWallet]);
+  }, [currencyLabel, walletBalanceQuery.data?.totalBalanceInWallet]);
 
   const filteredTransactions = useMemo(() => {
     if (activeFilter === 'money_in') {
