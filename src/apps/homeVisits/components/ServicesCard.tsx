@@ -8,10 +8,16 @@ import { useTheme } from '../../../general/theme/theme';
 import type {
   HomeVisitsSingleVendorCategoryService,
   HomeVisitsSingleVendorDeal,
+  HomeVisitsSingleVendorMostPopularService,
+  HomeVisitsSingleVendorNearbyService,
 } from '../singleVendor/api/types';
 
 interface DealCardProps {
-  item: HomeVisitsSingleVendorDeal | HomeVisitsSingleVendorCategoryService;
+  item:
+    | HomeVisitsSingleVendorDeal
+    | HomeVisitsSingleVendorCategoryService
+    | HomeVisitsSingleVendorMostPopularService
+    | HomeVisitsSingleVendorNearbyService;
   onPress?: () => void;
 }
 

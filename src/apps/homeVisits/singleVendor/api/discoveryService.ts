@@ -1,11 +1,17 @@
 import apiClient from '../../../../general/api/apiClient';
 import type {
+  HomeVisitsSingleVendorBannersApiResponse,
+  HomeVisitsSingleVendorBannersParams,
   HomeVisitsSingleVendorCategoriesApiResponse,
   HomeVisitsSingleVendorCategoriesParams,
   HomeVisitsSingleVendorCategoryServicesApiResponse,
   HomeVisitsSingleVendorCategoryServicesParams,
   HomeVisitsSingleVendorDealsApiResponse,
   HomeVisitsSingleVendorDealsParams,
+  HomeVisitsSingleVendorMostPopularServicesApiResponse,
+  HomeVisitsSingleVendorMostPopularServicesParams,
+  HomeVisitsSingleVendorNearbyServicesApiResponse,
+  HomeVisitsSingleVendorNearbyServicesParams,
 } from './types';
 
 const SINGLE_VENDOR_CATEGORIES_DEFAULTS = {
@@ -20,7 +26,49 @@ const SINGLE_VENDOR_CATEGORY_SERVICES_DEFAULTS = {
   sort_by: 'recommended',
 } as const;
 
+const SINGLE_VENDOR_BANNERS_DEFAULTS = {
+  offset: 0,
+  limit: 10,
+} as const;
+
+const SINGLE_VENDOR_NEARBY_SERVICES_DEFAULTS = {
+  offset: 0,
+  limit: 10,
+} as const;
+
+const SINGLE_VENDOR_MOST_POPULAR_SERVICES_DEFAULTS = {
+  offset: 0,
+  limit: 10,
+} as const;
+
 export const homeVisitsSingleVendorDiscoveryService = {
+  getBanners: async (
+    params: HomeVisitsSingleVendorBannersParams = {},
+  ) => {
+    const response =
+      await homeVisitsSingleVendorDiscoveryService.getBannersPage(params);
+    return response.items;
+  },
+
+  getBannersPage: async (
+    params: HomeVisitsSingleVendorBannersParams = {},
+  ): Promise<HomeVisitsSingleVendorBannersApiResponse> => {
+    const {
+      offset = SINGLE_VENDOR_BANNERS_DEFAULTS.offset,
+      limit = SINGLE_VENDOR_BANNERS_DEFAULTS.limit,
+    } = params;
+
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorBannersApiResponse>(
+        '/api/v1/apps/home-services/discovery/single-vendor/banners',
+        { offset, limit },
+      );
+    } catch (error) {
+      console.error('home visits single vendor banners request failed', error);
+      throw error;
+    }
+  },
+
   getCategoriesPage: async (
     params: HomeVisitsSingleVendorCategoriesParams = {},
   ): Promise<HomeVisitsSingleVendorCategoriesApiResponse> => {
@@ -61,6 +109,52 @@ export const homeVisitsSingleVendorDiscoveryService = {
       );
     } catch (error) {
       console.error('home visits single vendor deals request failed', error);
+      throw error;
+    }
+  },
+
+  getNearbyServicesPage: async (
+    params: HomeVisitsSingleVendorNearbyServicesParams,
+  ): Promise<HomeVisitsSingleVendorNearbyServicesApiResponse> => {
+    const {
+      latitude,
+      longitude,
+      offset = SINGLE_VENDOR_NEARBY_SERVICES_DEFAULTS.offset,
+      limit = SINGLE_VENDOR_NEARBY_SERVICES_DEFAULTS.limit,
+    } = params;
+
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorNearbyServicesApiResponse>(
+        '/api/v1/apps/home-services/discovery/nearby-services',
+        { offset, limit, latitude, longitude },
+      );
+    } catch (error) {
+      console.error(
+        'home visits single vendor nearby services request failed',
+        error,
+      );
+      throw error;
+    }
+  },
+
+  getMostPopularServicesPage: async (
+    params: HomeVisitsSingleVendorMostPopularServicesParams = {},
+  ): Promise<HomeVisitsSingleVendorMostPopularServicesApiResponse> => {
+    const {
+      offset = SINGLE_VENDOR_MOST_POPULAR_SERVICES_DEFAULTS.offset,
+      limit = SINGLE_VENDOR_MOST_POPULAR_SERVICES_DEFAULTS.limit,
+    } = params;
+
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorMostPopularServicesApiResponse>(
+        '/api/v1/apps/home-services/discovery/most-popular-services',
+        { offset, limit },
+      );
+    } catch (error) {
+      console.error(
+        'home visits single vendor most popular services request failed',
+        error,
+      );
       throw error;
     }
   },

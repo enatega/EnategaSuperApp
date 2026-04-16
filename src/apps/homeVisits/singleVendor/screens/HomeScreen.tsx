@@ -1,3 +1,7 @@
+import Button from '../../../../general/components/Button';
+import Text from '../../../../general/components/Text';
+import { useAppLogout } from '../../../../general/hooks/useAppLogout';
+import SingleVendorSpecialOffersBanner from '../components/HomeScreen/SingleVendorSpecialOffersBanner';
 import React, { useCallback } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -13,13 +17,16 @@ import useAddress from '../../../../general/hooks/useAddress';
 import useAddressSelectionSheet from '../../../../general/hooks/useAddressSelectionSheet';
 import useSavedAddresses from '../../../../general/hooks/useSavedAddresses';
 import useSelectSavedAddress from '../../../../general/hooks/useSelectSavedAddress';
+import { createSelectedDeliveryAddress } from '../../../../general/utils/address';
 import SingleVendorCategorySection from '../components/HomeScreen/SingleVendorCategorySection';
 import DealsSection from '../components/HomeScreen/DealsSection';
+import MostPopularServicesSection from '../components/HomeScreen/MostPopularServicesSection';
+import NearbyYourLocationSection from '../components/HomeScreen/NearbyYourLocationSection';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
 
 type Props = Record<string, never>;
 
-export default function SingleVendorHomeScreen({}: Props) {
+export default function SingleVendorHomeScreen({ }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('homeVisits');
   const insets = useSafeAreaInsets();
@@ -31,6 +38,11 @@ export default function SingleVendorHomeScreen({}: Props) {
     refetch,
   } = useSavedAddresses("home-services");
   const { selectedAddress } = useAddress();
+  const apiSelectedAddress = React.useMemo(
+    () => createSelectedDeliveryAddress(addresses),
+    [addresses],
+  );
+  const resolvedSelectedAddress = apiSelectedAddress ?? selectedAddress;
   const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("home-services");
   const {
     isVisible: isAddressSheetVisible,
@@ -91,16 +103,14 @@ export default function SingleVendorHomeScreen({}: Props) {
           onAddAddressPress={handleOpenAddressSheet}
           onAddressPress={handleOpenAddressSheet}
         />
-
-        <View style={styles.content}>
-          <Header
-            title={t("single_vendor_title")}
-            subtitle={t("single_vendor_home_subtitle")}
-          />
-        </View>
-
         <SingleVendorCategorySection />
+        <SingleVendorSpecialOffersBanner />
+        <NearbyYourLocationSection
+          latitude={resolvedSelectedAddress?.latitude}
+          longitude={resolvedSelectedAddress?.longitude}
+        />
         <DealsSection />
+        <MostPopularServicesSection />
       </ScrollView>
 
       <AddressSelectionBottomSheet
