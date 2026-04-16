@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AddressSelectionBottomSheet from '../../../../general/components/address/AddressSelectionBottomSheet';
 import MultiVendorAddressHeader from '../../components/MultiVendorAddressHeader';
-import type { ProfileAddress } from '../../account/api/profileService';
+import type { ProfileAddress } from '../../../../general/api/profileService';
 import { useAddress } from '../../hooks';
 import useAddressSelectionSheet from '../../../../general/hooks/useAddressSelectionSheet';
 import useSavedAddresses from '../../../../general/hooks/useSavedAddresses';

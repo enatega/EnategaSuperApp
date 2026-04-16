@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { showToast } from "../../../../general/components/AppToast";
 import { useTheme } from "../../../../general/theme/theme";
 import useDebouncedValue from "../../../../general/hooks/useDebouncedValue";
-import type { ProfileAddress } from "../../account/api/profileService";
+import type { ProfileAddress } from "../../../../general/api/profileService";
 import type { AddressFlowOrigin } from "../../../../general/navigation/addressFlowTypes";
 import type { DeliveriesStackParamList } from "../../navigation/types";
 import {

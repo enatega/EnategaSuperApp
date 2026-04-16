@@ -33,6 +33,9 @@ const en = {
   address_selector_close: 'Close',
   address_selector_use_current_location: 'Use current location',
   address_selector_add_new: 'Add new address',
+  home_visits_settings_body: 'Settings flow for home visits will be added next.',
+  home_visits_support_body: 'Support flow for home visits will be added next.',
+  home_visits_wallet_body: 'Wallet flow for home visits will be added next.',
 };
 
 export default en;
