@@ -49,6 +49,87 @@ export type HomeVisitsSingleVendorCategoriesApiResponse =
 export type HomeVisitsSingleVendorCategoryServicesApiResponse =
   PaginatedHomeVisitsResponse<HomeVisitsSingleVendorCategoryService>;
 
+export interface HomeVisitsSingleVendorBannerStore {
+  id: string;
+  address?: string | null;
+  storeImage?: string | null;
+  coverImage?: string | null;
+}
+
+export interface HomeVisitsSingleVendorBanner {
+  id: string;
+  title: string;
+  description?: string | null;
+  bannerVideoLink?: string | null;
+  bannerImageLink?: string | null;
+  relatedStore?: string | null;
+  store?: HomeVisitsSingleVendorBannerStore | null;
+}
+
+export interface HomeVisitsSingleVendorBannersParams {
+  offset?: number;
+  limit?: number;
+}
+
+export type HomeVisitsSingleVendorBannersApiResponse =
+  PaginatedHomeVisitsResponse<HomeVisitsSingleVendorBanner>;
+
+export interface HomeVisitsSingleVendorNearbyService {
+  productId: string;
+  serviceCenterId: string;
+  productName: string;
+  storeName?: string | null;
+  productImage?: string | null;
+  storeLogo?: string | null;
+  storeImage?: string | null;
+  price?: number | null;
+  averageRating?: number | null;
+  reviewCount?: number | null;
+  priceTier?: string | null;
+  deal?: string | null;
+  dealType?: string | null;
+  dealAmount?: number | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
+}
+
+export interface HomeVisitsSingleVendorNearbyServicesParams {
+  offset?: number;
+  limit?: number;
+  latitude: number;
+  longitude: number;
+}
+
+export type HomeVisitsSingleVendorNearbyServicesApiResponse =
+  PaginatedHomeVisitsResponse<HomeVisitsSingleVendorNearbyService>;
+
+export interface HomeVisitsSingleVendorMostPopularService {
+  productId: string;
+  serviceCenterId: string;
+  productName: string;
+  storeName?: string | null;
+  productImage?: string | null;
+  storeLogo?: string | null;
+  storeImage?: string | null;
+  price?: number | null;
+  averageRating?: number | null;
+  reviewCount?: number | null;
+  priceTier?: string | null;
+  deal?: string | null;
+  dealType?: string | null;
+  dealAmount?: number | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
+}
+
+export interface HomeVisitsSingleVendorMostPopularServicesParams {
+  offset?: number;
+  limit?: number;
+}
+
+export type HomeVisitsSingleVendorMostPopularServicesApiResponse =
+  PaginatedHomeVisitsResponse<HomeVisitsSingleVendorMostPopularService>;
+
 export interface HomeVisitsSingleVendorDeal {
   productId: string;
   serviceCenterId: string;

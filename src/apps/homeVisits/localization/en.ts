@@ -39,6 +39,10 @@ const en = {
   address_selector_use_current_location: 'Use current location',
   address_selector_add_new: 'Add new address',
   single_vendor_deals_title: 'Deals',
+  single_vendor_nearby_location_title: 'Nearby your location',
+  single_vendor_most_popular_services_title: 'Most Popular Services',
+  single_vendor_nearby_location_select_address_message:
+    'Select a service address to see nearby services.',
   single_vendor_see_all: 'See all',
   single_vendor_home_section_empty_message: 'Check back later for more.',
   Nothing_here_yet: 'Nothing here yet',

@@ -17,8 +17,11 @@ import useAddress from '../../../../general/hooks/useAddress';
 import useAddressSelectionSheet from '../../../../general/hooks/useAddressSelectionSheet';
 import useSavedAddresses from '../../../../general/hooks/useSavedAddresses';
 import useSelectSavedAddress from '../../../../general/hooks/useSelectSavedAddress';
+import { createSelectedDeliveryAddress } from '../../../../general/utils/address';
 import SingleVendorCategorySection from '../components/HomeScreen/SingleVendorCategorySection';
 import DealsSection from '../components/HomeScreen/DealsSection';
+import MostPopularServicesSection from '../components/HomeScreen/MostPopularServicesSection';
+import NearbyYourLocationSection from '../components/HomeScreen/NearbyYourLocationSection';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
 
 type Props = Record<string, never>;
@@ -35,6 +38,11 @@ export default function SingleVendorHomeScreen({ }: Props) {
     refetch,
   } = useSavedAddresses();
   const { selectedAddress } = useAddress();
+  const apiSelectedAddress = React.useMemo(
+    () => createSelectedDeliveryAddress(addresses),
+    [addresses],
+  );
+  const resolvedSelectedAddress = apiSelectedAddress ?? selectedAddress;
   const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress();
   const {
     isVisible: isAddressSheetVisible,
@@ -89,9 +97,14 @@ export default function SingleVendorHomeScreen({ }: Props) {
           onAddAddressPress={handleOpenAddressSheet}
           onAddressPress={handleOpenAddressSheet}
         />
-        <SingleVendorSpecialOffersBanner />
         <SingleVendorCategorySection />
+        <SingleVendorSpecialOffersBanner />
+        <NearbyYourLocationSection
+          latitude={resolvedSelectedAddress?.latitude}
+          longitude={resolvedSelectedAddress?.longitude}
+        />
         <DealsSection />
+        <MostPopularServicesSection />
       </ScrollView>
 
       <AddressSelectionBottomSheet
