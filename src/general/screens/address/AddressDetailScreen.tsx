@@ -32,6 +32,7 @@ export default function AddressDetailScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
   const params = route.params;
+  console.log("🚀 ~ AddressDetailScreen ~ params:", params)
   const isEditing = Boolean(params.editAddressId);
 
   useEffect(() => {
@@ -58,10 +59,10 @@ export default function AddressDetailScreen() {
 
       try {
         if (isEditing && params.editAddressId) {
-          await addressService.updateAddress(params.editAddressId, payload);
+          await addressService.updateAddress(params?.appPrefix, params.editAddressId, payload);
           Toast.show({ type: 'success', text1: t('address_update_success') });
         } else {
-          await addressService.addAddress(payload);
+          await addressService.addAddress(params?.appPrefix, payload);
           Toast.show({ type: 'success', text1: t('address_save_success') });
         }
 

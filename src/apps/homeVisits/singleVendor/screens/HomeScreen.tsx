@@ -36,14 +36,14 @@ export default function SingleVendorHomeScreen({ }: Props) {
     addresses,
     isLoading: isAddressesLoading,
     refetch,
-  } = useSavedAddresses();
+  } = useSavedAddresses("home-services");
   const { selectedAddress } = useAddress();
   const apiSelectedAddress = React.useMemo(
     () => createSelectedDeliveryAddress(addresses),
     [addresses],
   );
   const resolvedSelectedAddress = apiSelectedAddress ?? selectedAddress;
-  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress();
+  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("home-services");
   const {
     isVisible: isAddressSheetVisible,
     open: handleOpenAddressSheet,
@@ -73,12 +73,18 @@ export default function SingleVendorHomeScreen({ }: Props) {
 
   const handleAddAddressPress = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate('AddressSearch', { origin: 'single-vendor-home' });
+    navigation.navigate("AddressSearch", {
+      origin: "single-vendor-home",
+      appPrefix: "home-services",
+    });
   }, [handleCloseAddressSheet, navigation]);
 
   const handleUseCurrentLocation = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate('AddressChooseOnMap', { origin: 'single-vendor-home' });
+    navigation.navigate("AddressChooseOnMap", {
+      origin: "single-vendor-home",
+      appPrefix: "home-services",
+    });
   }, [handleCloseAddressSheet, navigation]);
 
   return (

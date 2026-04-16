@@ -25,6 +25,7 @@ export default function AddressSearchScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('general');
   const params = (route.params as AddressFlowParamList['AddressSearch']) ?? {};
+  console.log("🚀 ~ AddressSearchScreen ~ params:", params)
 
   const [query, setQuery] = useState('');
   const [recentSearches, setRecentSearches] = useState<RecentAddressSearch[]>([]);
@@ -49,12 +50,13 @@ export default function AddressSearchScreen() {
 
   const editParams = params.editAddressId
     ? {
+        appPrefix: params.appPrefix,
         editAddressId: params.editAddressId,
         editType: params.editType,
         editLocationName: params.editLocationName,
         origin: params.origin,
       }
-    : { origin: params.origin };
+    : { appPrefix: params.appPrefix, origin: params.origin };
 
   const handleSelectPrediction = useCallback(
     async (placeId: string, description: string) => {
