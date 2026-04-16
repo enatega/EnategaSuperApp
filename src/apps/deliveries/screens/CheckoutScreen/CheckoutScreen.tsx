@@ -112,8 +112,8 @@ export default function CheckoutScreen() {
     addresses,
     isLoading: isAddressesLoading,
     refetch: refetchAddresses,
-  } = useSavedAddresses();
-  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress();
+  } = useSavedAddresses("deliveries");
+  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("deliveries");
   const [orderType, setOrderType] = React.useState<CheckoutOrderType>('delivery');
   const [leaveAtDoor, setLeaveAtDoor] = React.useState(false);
   const [deliveryTimeMode, setDeliveryTimeMode] = React.useState<CheckoutDeliveryTimeMode>('standard');

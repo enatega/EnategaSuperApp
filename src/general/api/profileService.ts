@@ -59,6 +59,7 @@ export type UpdateProfileImagePayload = {
   fileName?: string;
 };
 
+// Factory function that creates a service instance for a specific app prefix
 export function createProfileService(appPrefix: ProfileAppPrefix) {
   const profileBase = getProfileBase(appPrefix);
 
@@ -83,6 +84,7 @@ export function createProfileService(appPrefix: ProfileAppPrefix) {
   };
 }
 
+// Service object that accepts appPrefix as the first argument for each method
 export const profileService = {
   getProfile: (appPrefix: ProfileAppPrefix) =>
     createProfileService(appPrefix).getProfile(),
