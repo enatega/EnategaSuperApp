@@ -3,8 +3,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useTheme } from '../../../general/theme/theme';
 import Skeleton from '../../../general/components/Skeleton';
-import DiscoveryCategorySkeleton from './discovery/DiscoveryCategorySkeleton';
-import DiscoveryResultsSkeleton from './discovery/DiscoveryResultsSkeleton';
+import DiscoveryCategorySkeleton from '../../../general/components/discovery/DiscoveryCategorySkeleton';
+import DiscoveryResultsSkeleton from '../../../general/components/discovery/DiscoveryResultsSkeleton';
 
 export default function DeliveriesStartupSkeleton() {
   const { colors } = useTheme();

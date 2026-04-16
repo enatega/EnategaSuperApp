@@ -401,7 +401,7 @@ export default function RideEstimateScreen() {
     } catch (error) {
       console.log("Error creating ride:", error);
 
-      const errorMessage = error?.message || "";
+      const errorMessage = error instanceof Error ? error.message : String(error);
       console.log("Error message:", errorMessage);
 
       // Case: Not enough wallet balance
