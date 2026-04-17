@@ -7,8 +7,11 @@ import {
   DiscoveryResultsSkeleton,
   DiscoverySectionState,
 } from '../../../../../general/components/discovery';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { HomeVisitsSingleVendorNearbyService } from '../../api/types';
 import useSingleVendorNearbyServices from '../../hooks/useSingleVendorNearbyServices';
+import type { HomeVisitsSingleVendorNavigationParamList } from '../../navigation/types';
 import ServicesCard from '../../../components/ServicesCard';
 
 type Props = {
@@ -21,6 +24,8 @@ export default function NearbyYourLocationSection({
   longitude,
 }: Props) {
   const { t } = useTranslation('homeVisits');
+  const navigation =
+    useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const {
     data: nearbyServices = [],
     isPending,
@@ -33,6 +38,17 @@ export default function NearbyYourLocationSection({
 
   const isEmpty = !isPending && !isError && nearbyServices.length === 0;
 
+  const handleSeeAllNearbyServices = useCallback(() => {
+    navigation.navigate('SeeAllScreen', {
+      queryType: 'nearby-services',
+      title: t('single_vendor_nearby_location_title'),
+      scope: 'single-vendor',
+      cardType: 'service',
+      latitude,
+      longitude,
+    });
+  }, [latitude, longitude, navigation, t]);
+  
   const renderItem = useCallback(
     ({ item }: { item: HomeVisitsSingleVendorNearbyService }) => (
       <ServicesCard item={item} />
@@ -59,6 +75,7 @@ export default function NearbyYourLocationSection({
       <SectionActionHeader
         title={t('single_vendor_nearby_location_title')}
         actionLabel={t('single_vendor_see_all')}
+        onActionPress={handleSeeAllNearbyServices}
       />
 
       {!isEnabled ? (

@@ -85,12 +85,13 @@ export const homeVisitsSingleVendorDiscoveryService = {
     const {
       offset = SINGLE_VENDOR_CATEGORIES_DEFAULTS.offset,
       limit = SINGLE_VENDOR_CATEGORIES_DEFAULTS.limit,
+      search,
     } = params;
 
     try {
       return await apiClient.get<HomeVisitsSingleVendorCategoriesApiResponse>(
         '/api/v1/apps/home-services/discovery/single-vendor/categories',
-        { offset, limit },
+        { offset, limit, search },
       );
     } catch (error) {
       console.error('home visits single vendor categories request failed', error);
@@ -111,11 +112,33 @@ export const homeVisitsSingleVendorDiscoveryService = {
   getDealsPage: async (
     params: HomeVisitsSingleVendorDealsParams = {},
   ): Promise<HomeVisitsSingleVendorDealsApiResponse> => {
-    const { offset = 0, limit = 10, tab = 'all' } = params;
+    const {
+      offset = 0,
+      limit = 10,
+      tab = 'all',
+      search,
+      category_ids,
+      subcategory_id,
+      price_tiers,
+      latitude,
+      longitude,
+      sort_by,
+    } = params;
     try {
       return await apiClient.get<HomeVisitsSingleVendorDealsApiResponse>(
         '/api/v1/apps/home-services/discovery/single-vendor/deals',
-        { offset, limit, tab },
+        {
+          offset,
+          limit,
+          search,
+          tab,
+          category_ids,
+          subcategory_id,
+          price_tiers,
+          latitude,
+          longitude,
+          sort_by,
+        },
       );
     } catch (error) {
       console.error('home visits single vendor deals request failed', error);
@@ -167,12 +190,29 @@ export const homeVisitsSingleVendorDiscoveryService = {
       longitude,
       offset = SINGLE_VENDOR_NEARBY_SERVICES_DEFAULTS.offset,
       limit = SINGLE_VENDOR_NEARBY_SERVICES_DEFAULTS.limit,
+      search,
+      stock = SINGLE_VENDOR_CATEGORY_SERVICES_DEFAULTS.stock,
+      category_ids,
+      subcategory_id,
+      price_tiers,
+      sort_by = SINGLE_VENDOR_CATEGORY_SERVICES_DEFAULTS.sort_by,
     } = params;
 
     try {
       return await apiClient.get<HomeVisitsSingleVendorNearbyServicesApiResponse>(
         '/api/v1/apps/home-services/discovery/nearby-services',
-        { offset, limit, latitude, longitude },
+        {
+          offset,
+          limit,
+          search,
+          latitude,
+          longitude,
+          stock,
+          category_ids,
+          subcategory_id,
+          price_tiers,
+          sort_by,
+        },
       );
     } catch (error) {
       console.error(
@@ -189,12 +229,31 @@ export const homeVisitsSingleVendorDiscoveryService = {
     const {
       offset = SINGLE_VENDOR_MOST_POPULAR_SERVICES_DEFAULTS.offset,
       limit = SINGLE_VENDOR_MOST_POPULAR_SERVICES_DEFAULTS.limit,
+      search,
+      latitude,
+      longitude,
+      stock = SINGLE_VENDOR_CATEGORY_SERVICES_DEFAULTS.stock,
+      category_ids,
+      subcategory_id,
+      price_tiers,
+      sort_by = SINGLE_VENDOR_CATEGORY_SERVICES_DEFAULTS.sort_by,
     } = params;
 
     try {
       return await apiClient.get<HomeVisitsSingleVendorMostPopularServicesApiResponse>(
         '/api/v1/apps/home-services/discovery/most-popular-services',
-        { offset, limit },
+        {
+          offset,
+          limit,
+          search,
+          latitude,
+          longitude,
+          stock,
+          category_ids,
+          subcategory_id,
+          price_tiers,
+          sort_by,
+        },
       );
     } catch (error) {
       console.error(
@@ -212,14 +271,31 @@ export const homeVisitsSingleVendorDiscoveryService = {
     const {
       offset = SINGLE_VENDOR_CATEGORY_SERVICES_DEFAULTS.offset,
       limit = SINGLE_VENDOR_CATEGORY_SERVICES_DEFAULTS.limit,
+      search,
+      latitude,
+      longitude,
       stock = SINGLE_VENDOR_CATEGORY_SERVICES_DEFAULTS.stock,
+      category_ids,
+      subcategory_id,
+      price_tiers,
       sort_by = SINGLE_VENDOR_CATEGORY_SERVICES_DEFAULTS.sort_by,
     } = params;
 
     try {
       return await apiClient.get<HomeVisitsSingleVendorCategoryServicesApiResponse>(
         `/api/v1/apps/home-services/discovery/single-vendor/categories/${categoryId}/services`,
-        { offset, limit, stock, sort_by },
+        {
+          offset,
+          limit,
+          search,
+          latitude,
+          longitude,
+          stock,
+          category_ids,
+          subcategory_id,
+          price_tiers,
+          sort_by,
+        },
       );
     } catch (error) {
       console.error(

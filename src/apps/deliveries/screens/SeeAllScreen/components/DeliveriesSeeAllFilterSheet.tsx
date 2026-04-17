@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import FilterSheet from '../../../components/filters/FilterSheet';
+import MainFilterSheet from '../../../../../general/components/filters/MainFilterSheet';
 import type {
   GenericListFilterData,
   GenericListFilterSheetRenderProps,
@@ -10,15 +10,24 @@ type Props = GenericListFilterSheetRenderProps & {
   filters?: GenericListFilterData;
 };
 
-export default function SeeAllFilterSheet(props: Props) {
-  const { t } = useTranslation('deliveries');
+export default function DeliveriesSeeAllFilterSheet(props: Props) {
+  const { t } = useTranslation('general');
+  const { t: tDeliveries } = useTranslation('deliveries');
 
   return (
-    <FilterSheet
+    <MainFilterSheet
       visible={props.visible}
       title={t('filter_title')}
       applyLabel={t('filter_apply_results')}
       closeLabel={t('filter_close_label')}
+      sectionTitles={{
+        category: tDeliveries('filter_category_title'),
+        price: tDeliveries('filter_price_title'),
+        address: tDeliveries('filter_address_title'),
+        stock: tDeliveries('filter_stock_title'),
+        sort: tDeliveries('filter_sort_title'),
+      }}
+      isStockVisible={false}
       filters={props.filters}
       draftFilters={props.draftFilters}
       isApplyDisabled={props.isApplyDisabled}

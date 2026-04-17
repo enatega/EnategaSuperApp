@@ -14,6 +14,7 @@ export type HomeVisitsSingleVendorCategory = DiscoveryCategoryItem;
 export interface HomeVisitsSingleVendorCategoriesParams {
   offset?: number;
   limit?: number;
+  search?: string;
 }
 
 export interface HomeVisitsSingleVendorCategoryService {
@@ -39,7 +40,13 @@ export interface HomeVisitsSingleVendorCategoryServicesParams {
   categoryId: string;
   offset?: number;
   limit?: number;
+  search?: string;
+  latitude?: number;
+  longitude?: number;
   stock?: string;
+  category_ids?: string;
+  subcategory_id?: string;
+  price_tiers?: string;
   sort_by?: string;
 }
 
@@ -98,6 +105,12 @@ export interface HomeVisitsSingleVendorNearbyServicesParams {
   limit?: number;
   latitude: number;
   longitude: number;
+  search?: string;
+  stock?: string;
+  category_ids?: string;
+  subcategory_id?: string;
+  price_tiers?: string;
+  sort_by?: string;
 }
 
 export type HomeVisitsSingleVendorNearbyServicesApiResponse =
@@ -125,6 +138,14 @@ export interface HomeVisitsSingleVendorMostPopularService {
 export interface HomeVisitsSingleVendorMostPopularServicesParams {
   offset?: number;
   limit?: number;
+  search?: string;
+  latitude?: number;
+  longitude?: number;
+  stock?: string;
+  category_ids?: string;
+  subcategory_id?: string;
+  price_tiers?: string;
+  sort_by?: string;
 }
 
 export type HomeVisitsSingleVendorMostPopularServicesApiResponse =
@@ -152,7 +173,14 @@ export interface HomeVisitsSingleVendorDeal {
 export interface HomeVisitsSingleVendorDealsParams {
   offset?: number;
   limit?: number;
+  search?: string;
   tab?: string;
+  category_ids?: string;
+  subcategory_id?: string;
+  price_tiers?: string;
+  latitude?: number;
+  longitude?: number;
+  sort_by?: string;
 }
 
 export type HomeVisitsSingleVendorDealsApiResponse =

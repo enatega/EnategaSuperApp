@@ -1,10 +1,10 @@
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import SearchInput from '../../../components/search/SearchInput';
-import Icon from '../../../../../general/components/Icon';
-import { useTheme } from '../../../../../general/theme/theme';
+import Icon from '../../../components/Icon';
+import { useTheme } from '../../../theme/theme';
 import type { GenericListHeaderRenderProps } from '../../../components/filterablePaginatedList';
 
 export default function SeeAllHeader({
@@ -18,10 +18,19 @@ export default function SeeAllHeader({
   isSearchVisible,
   isFilterVisible,
   isMapVisible,
+  renderSearchInput,
 }: GenericListHeaderRenderProps) {
+  const { t } = useTranslation('general');
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
+
+  const searchInput = renderSearchInput({
+    value: searchValue,
+    onChangeText: onSearchChangeText,
+    placeholder: searchPlaceholder,
+    editable: isSearchEditable,
+  });
 
   return (
     <View
@@ -34,7 +43,7 @@ export default function SeeAllHeader({
       ]}
     >
       <Pressable
-        accessibilityLabel="Back"
+        accessibilityLabel={t('see_all_back_label')}
         accessibilityRole="button"
         onPress={() => navigation.goBack()}
         style={({ pressed }) => [
@@ -50,13 +59,7 @@ export default function SeeAllHeader({
 
       {isSearchVisible ? (
         isSearchEditable ? (
-          <View style={styles.searchContainer}>
-            <SearchInput
-              value={searchValue}
-              onChangeText={onSearchChangeText}
-              placeholder={searchPlaceholder}
-            />
-          </View>
+          <View style={styles.searchContainer}>{searchInput}</View>
         ) : (
           <Pressable
             accessibilityRole="button"
@@ -64,13 +67,7 @@ export default function SeeAllHeader({
             onPress={onSearchPress}
             style={styles.searchContainer}
           >
-            <View pointerEvents="none">
-              <SearchInput
-                value={searchValue}
-                onChangeText={() => {}}
-                placeholder={searchPlaceholder}
-              />
-            </View>
+            <View pointerEvents="none">{searchInput}</View>
           </Pressable>
         )
       ) : (
@@ -80,7 +77,7 @@ export default function SeeAllHeader({
       {isFilterVisible ? (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Open filters"
+          accessibilityLabel={t('see_all_open_filters_label')}
           onPress={onOpenFilters}
           style={({ pressed }) => [
             styles.iconButton,
@@ -97,7 +94,7 @@ export default function SeeAllHeader({
       {isMapVisible ? (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Map view"
+          accessibilityLabel={t('see_all_map_view_label')}
           onPress={onMapPress}
           style={({ pressed }) => [
             styles.iconButton,

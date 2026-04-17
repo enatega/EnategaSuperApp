@@ -6,9 +6,10 @@ import { useTranslation } from 'react-i18next';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import { useTheme } from '../../../../general/theme/theme';
 import type { DeliveryShopTypeProduct } from '../../api/types';
-import { GenericFilterablePaginatedListScreen } from '../../components/filterablePaginatedList';
+import { GenericFilterablePaginatedListScreen } from '../../../../general/components/filterablePaginatedList';
 import type { DeliveriesStackParamList } from '../../navigation/types';
 import useSingleVendorCategoryProducts from '../../singleVendor/hooks/useSingleVendorCategoryProducts';
+import ProductCard from '../../components/productCard/ProductCard';
 
 type NavigationProp = NativeStackNavigationProp<
   DeliveriesStackParamList,
@@ -46,9 +47,8 @@ export default function SingleVendorCategoryProductsSeeAll() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
-      <GenericFilterablePaginatedListScreen<DeliveryShopTypeProduct, 'store'>
+      <GenericFilterablePaginatedListScreen<DeliveryShopTypeProduct>
         title={title}
-        cardType="store"
         data={products}
         totalCount={totalCount}
         isPending={isPending}
@@ -62,7 +62,13 @@ export default function SingleVendorCategoryProductsSeeAll() {
         itemKeyExtractor={(item, index) =>
           `${item.productId}-${item.storeId}-${index}`
         }
-        onItemPress={handleProductPress}
+        renderItemCard={(item) => (
+          <ProductCard
+            product={item}
+            variant="rail"
+            onPress={() => handleProductPress(item)}
+          />
+        )}
         header={<ScreenHeader showBack={navigation.canGoBack()} />}
         emptyTitle={t('generic_list_empty_title')}
         emptyDescription={t('single_vendor_category_products_empty')}

@@ -36,7 +36,7 @@ type SeeAllListQueryResult = {
   isRefetching: boolean;
 };
 
-type UseSeeAllScreenConfigParams = {
+type UseDeliveriesSeeAllScreenConfigParams = {
   enabled: boolean;
   filters: GenericListFilters;
   search: string;
@@ -46,7 +46,7 @@ type UseSeeAllScreenConfigParams = {
   categoryId?: string;
 };
 
-type UseSeeAllScreenConfigResult = {
+type UseDeliveriesSeeAllScreenConfigResult = {
   itemKeyExtractor: (item: SeeAllItem, index: number) => string;
   listQuery: SeeAllListQueryResult;
   loadingComponent: React.ReactNode;
@@ -71,7 +71,7 @@ function normalizeListQuery(query: SeeAllRawQueryResult): SeeAllListQueryResult 
   };
 }
 
-export default function useSeeAllScreenConfig({
+export default function useDeliveriesSeeAllScreenConfig({
   enabled,
   filters,
   search,
@@ -79,7 +79,7 @@ export default function useSeeAllScreenConfig({
   shopTypeId,
   vendorId,
   categoryId,
-}: UseSeeAllScreenConfigParams): UseSeeAllScreenConfigResult {
+}: UseDeliveriesSeeAllScreenConfigParams): UseDeliveriesSeeAllScreenConfigResult {
   const nearbyStoresQuery = useNearbyStores({
     mode: 'paginated',
     enabled: enabled && queryType === 'nearby-stores',

@@ -1,9 +1,9 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import Icon from "../../../../../general/components/Icon";
-import Text from "../../../../../general/components/Text";
-import { useTheme } from "../../../../../general/theme/theme";
+import Icon from "../../../components/Icon";
+import Text from "../../../components/Text";
+import { useTheme } from "../../../theme/theme";
 
 type Props = {
   title: string;

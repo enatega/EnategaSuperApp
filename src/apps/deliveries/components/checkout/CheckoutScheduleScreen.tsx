@@ -6,7 +6,7 @@ import Button from '../../../../general/components/Button';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import { useCheckoutSchedule } from '../../hooks';
-import ListStateView from '../filterablePaginatedList/ListStateView';
+import ListStateView from '../../../../general/components/filterablePaginatedList/ListStateView';
 import CheckoutHeader from './CheckoutHeader';
 import {
   buildCheckoutScheduleDayOptions,

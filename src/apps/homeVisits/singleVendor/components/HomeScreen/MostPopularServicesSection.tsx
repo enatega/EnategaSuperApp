@@ -1,5 +1,7 @@
 import React, { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
@@ -9,10 +11,13 @@ import {
 } from '../../../../../general/components/discovery';
 import type { HomeVisitsSingleVendorMostPopularService } from '../../api/types';
 import useSingleVendorMostPopularServices from '../../hooks/useSingleVendorMostPopularServices';
+import type { HomeVisitsSingleVendorNavigationParamList } from '../../navigation/types';
 import ServicesCard from '../../../components/ServicesCard';
 
 export default function MostPopularServicesSection() {
   const { t } = useTranslation('homeVisits');
+  const navigation =
+    useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const {
     data: mostPopularServices = [],
     isPending,
@@ -44,11 +49,21 @@ export default function MostPopularServicesSection() {
     void fetchNextPage();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
+  const handleSeeAllPress = useCallback(() => {
+    navigation.navigate('SeeAllScreen', {
+      queryType: 'most-popular-services',
+      title: t('single_vendor_most_popular_services_title'),
+      scope: 'single-vendor',
+      cardType: 'service',
+    });
+  }, [navigation, t]);
+
   return (
     <View style={styles.section}>
       <SectionActionHeader
         title={t('single_vendor_most_popular_services_title')}
         actionLabel={t('single_vendor_see_all')}
+        onActionPress={handleSeeAllPress}
       />
 
       {isPending ? (

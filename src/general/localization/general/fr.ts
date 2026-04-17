@@ -174,6 +174,23 @@ const fr = {
   language_french: 'Français',
   offline_notice_title: 'Vous êtes hors ligne',
   offline_notice_description: 'Reconnectez-vous pour actualiser les trajets, tarifs et données en direct.',
+  clear_all: 'Tout effacer',
+  filter_title: 'Filtrer',
+  filter_close_label: 'Fermer les filtres',
+  filter_apply_results: 'Appliquer les filtres',
+  generic_list_error_title: 'Impossible de charger les résultats',
+  generic_list_error_description: 'Actualisez ou réessayez.',
+  generic_list_retry: 'Réessayer',
+  generic_list_empty_title: 'Aucun résultat trouvé',
+  generic_list_empty_description: 'Essayez une autre recherche ou modifiez vos filtres.',
+  generic_list_search_placeholder: 'Rechercher',
+  see_all_map_loading_title: 'Recherche de {{title}}',
+  see_all_map_loading_description: 'Cela peut prendre quelques instants. Veuillez rester sur cet écran.',
+  see_all_map_sheet_title: 'Restaurant',
+  see_all_map_cta: 'Voir le restaurant',
+  see_all_back_label: 'Retour',
+  see_all_open_filters_label: 'Ouvrir les filtres',
+  see_all_map_view_label: 'Vue carte',
 };
 
 export default fr;

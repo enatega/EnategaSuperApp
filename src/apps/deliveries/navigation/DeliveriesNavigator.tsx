@@ -39,7 +39,7 @@ import {
   mapDeliveryModeToRoute,
 } from "./deliveryModePreference";
 import type { DeliveriesStackParamList } from "./types";
-import SeeAllScreen from "../screens/SeeAllScreen/SeeAllScreen";
+import DeliveriesSeeAllScreen from "../screens/SeeAllScreen/DeliveriesSeeAllScreen";
 import DealsSeeAll from "../screens/DealsSeeAll/DealsSeeAll";
 import SingleVendorCategoriesSeeAll from "../screens/SingleVendorCategoriesSeeAll/SingleVendorCategoriesSeeAll";
 import SingleVendorCategoryProductsSeeAll from "../screens/SingleVendorCategoryProductsSeeAll/SingleVendorCategoryProductsSeeAll";
@@ -240,7 +240,7 @@ export default function DeliveriesNavigator() {
       />
       <Stack.Screen
         name="SeeAllScreen"
-        component={SeeAllScreen}
+        component={DeliveriesSeeAllScreen}
         options={sharedScreenOptions}
       />
       <Stack.Screen

@@ -1,22 +1,22 @@
-import React from "react";
-import { StyleSheet, View } from "react-native";
-import Image from "../../../../../general/components/Image";
-import Icon from "../../../../../general/components/Icon";
-import Text from "../../../../../general/components/Text";
-import { useDeliveriesCurrencyLabel } from "../../../../../general/stores/useAppConfigStore";
-import { useTheme } from "../../../../../general/theme/theme";
-import type { SeeAllMapStore } from "./mapStoreUtils";
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import Image from '../../../components/Image';
+import Icon from '../../../components/Icon';
+import Text from '../../../components/Text';
+import { useTheme } from '../../../theme/theme';
+import type { SeeAllMapStore } from './mapStoreUtils';
 
 type Props = {
   store: SeeAllMapStore;
+  currencyLabel?: string;
 };
 
 function formatDeliveryTime(value?: number | string) {
-  if (value === undefined || value === null || value === "") {
-    return "0 mins";
+  if (value === undefined || value === null || value === '') {
+    return '0 mins';
   }
 
-  return typeof value === "number" ? `${value} mins` : String(value);
+  return typeof value === 'number' ? `${value} mins` : String(value);
 }
 
 function formatFee(value: number | undefined, currencyLabel: string) {
@@ -35,26 +35,25 @@ function formatDistance(value?: number) {
   return `${value} km`;
 }
 
-export default function MapStoreCard({ store }: Props) {
+export default function MapStoreCard({ store, currencyLabel = '$' }: Props) {
   const { colors, typography } = useTheme();
-  const currencyLabel = useDeliveriesCurrencyLabel();
   const metaItems = [
     {
-      id: "fee",
-      icon: "bicycle",
-      type: "Ionicons" as const,
+      id: 'fee',
+      icon: 'bicycle',
+      type: 'Ionicons' as const,
       label: formatFee(store.deliveryFee, currencyLabel),
     },
     {
-      id: "time",
-      icon: "time-outline",
-      type: "Ionicons" as const,
+      id: 'time',
+      icon: 'time-outline',
+      type: 'Ionicons' as const,
       label: formatDeliveryTime(store.deliveryTime),
     },
     {
-      id: "distance",
-      icon: "location-outline",
-      type: "Ionicons" as const,
+      id: 'distance',
+      icon: 'location-outline',
+      type: 'Ionicons' as const,
       label: formatDistance(store.distanceKm),
     },
   ].filter((item) => item.label !== null);
@@ -114,7 +113,7 @@ export default function MapStoreCard({ store }: Props) {
                 lineHeight: typography.lineHeight.sm,
               }}
             >
-              {store.rating?.toFixed(1) ?? "-"}
+              {store.rating?.toFixed(1) ?? '-'}
             </Text>
           </View>
           {store.reviewCount ? (
@@ -181,7 +180,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     gap: 2,
-    justifyContent: "center",
+    justifyContent: 'center',
     minHeight: 48,
   },
   divider: {
@@ -193,37 +192,30 @@ const styles = StyleSheet.create({
     height: 48,
     width: 48,
   },
-  metaDivider: {
-    borderRadius: 2,
-    height: 4,
-    marginHorizontal: 2,
-    opacity: 0.4,
-    width: 4,
-  },
   metaItem: {
-    alignItems: "center",
-    flexDirection: "row",
+    alignItems: 'center',
+    flexDirection: 'row',
     gap: 4,
   },
   metaRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    flexWrap: "wrap",
+    alignItems: 'center',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
   },
   rating: {
-    alignItems: "flex-end",
+    alignItems: 'flex-end',
     gap: 2,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   ratingRow: {
-    alignItems: "center",
-    flexDirection: "row",
+    alignItems: 'center',
+    flexDirection: 'row',
     gap: 4,
   },
   topRow: {
-    alignItems: "center",
-    flexDirection: "row",
+    alignItems: 'center',
+    flexDirection: 'row',
     gap: 12,
   },
 });

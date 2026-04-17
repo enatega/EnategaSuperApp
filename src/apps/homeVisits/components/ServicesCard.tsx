@@ -21,9 +21,15 @@ interface DealCardProps {
     | HomeVisitsSingleVendorCategoryService
     | HomeVisitsSingleVendorMostPopularService
     | HomeVisitsSingleVendorNearbyService;
+  onPress?: () => void;
+  layout?: 'compact' | 'fullWidth';
 }
 
-export default function ServicesCard({ item }: DealCardProps) {
+export default function ServicesCard({
+  item,
+  onPress,
+  layout = 'compact',
+}: DealCardProps) {
   const { colors } = useTheme();
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
@@ -31,6 +37,11 @@ export default function ServicesCard({ item }: DealCardProps) {
     item.productImage || item.storeImage || item.storeLogo || 'https://placehold.co/400x400.png';
 
   const handlePress = () => {
+    if (onPress) {
+      onPress();
+      return;
+    }
+
     navigation.navigate('ServiceDetailsPage', { serviceId: item.productId });
   };
 
@@ -40,6 +51,7 @@ export default function ServicesCard({ item }: DealCardProps) {
       onPress={handlePress}
       style={[
         styles.container,
+        layout === 'fullWidth' ? styles.fullWidthContainer : styles.compactContainer,
         { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.shadowColor },
       ]}
     >
@@ -124,13 +136,18 @@ export default function ServicesCard({ item }: DealCardProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: 280,
     borderRadius: 8,
     borderWidth: 1,
     overflow: 'hidden',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 3,
+  },
+  compactContainer: {
+    width: 280,
+  },
+  fullWidthContainer: {
+    width: '100%',
   },
   imageContainer: {
     width: '100%',

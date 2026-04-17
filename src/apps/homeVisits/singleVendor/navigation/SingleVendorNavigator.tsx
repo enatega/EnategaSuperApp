@@ -11,6 +11,8 @@ import AddressSearchScreen from '../../../../general/screens/address/AddressSear
 import AddressChooseOnMapScreen from '../../../../general/screens/address/AddressChooseOnMapScreen';
 import AddressDetailScreen from '../../../../general/screens/address/AddressDetailScreen';
 import type { HomeVisitsSingleVendorNavigationParamList } from './types';
+import HomeVisitsSingleVendorSeeAllScreen from '../screens/SeeAllScreen/HomeVisitsSingleVendorSeeAllScreen';
+import SingleVendorCategoriesSeeAll from '../../screens/SingleVendorCategoriesSeeAll/SingleVendorCategoriesSeeAll';
 
 const Stack = createNativeStackNavigator<HomeVisitsSingleVendorNavigationParamList>();
 
@@ -30,6 +32,16 @@ export default function SingleVendorNavigator() {
         name="SingleVendorDetails"
         component={VisitDetails}
         options={{ title: t('details_title') }}
+      />
+      <Stack.Screen
+        name="SingleVendorCategoriesSeeAll"
+        component={SingleVendorCategoriesSeeAll}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SeeAllScreen"
+        component={HomeVisitsSingleVendorSeeAllScreen}
+        options={sharedScreenOptions}
       />
       <Stack.Screen
         name="SingleVendorBookingDetails"

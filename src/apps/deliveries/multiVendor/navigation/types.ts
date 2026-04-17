@@ -3,6 +3,9 @@ import type {
   DeliveryNearbyStore,
   DeliveryShopTypeProduct,
 } from "../../api/types";
+import type { ProductCardVariant } from '../../components/productCard/types';
+import type { SupportedCardType } from '../../../../general/components/filterablePaginatedList';
+import type { SeeAllListingType } from '../../navigation/sharedTypes';
 
 export type SeeAllItem = DeliveryNearbyStore | DeliveryShopTypeProduct;
 
@@ -18,6 +21,15 @@ export type MultiVendorStackParamList = {
   Favourites: undefined;
   StoreDetails: {
     store?: DeliveryNearbyStore;
+  };
+  SeeAllScreen: {
+    queryType: SeeAllListingType;
+    title: string;
+    cardType: SupportedCardType;
+    shopTypeId?: string;
+    vendorId?: string;
+    categoryId?: string;
+    cardVariant?: ProductCardVariant;
   };
   SeeAllMapView: {
     items: SeeAllItem[];

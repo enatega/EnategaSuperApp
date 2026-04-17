@@ -1,9 +1,9 @@
 import React from 'react';
 import { ActivityIndicator, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Button from '../../../../general/components/Button';
-import Text from '../../../../general/components/Text';
-import { useTheme } from '../../../../general/theme/theme';
+import Button from '../Button';
+import Text from '../Text';
+import { useTheme } from '../../theme/theme';
 
 type Props = {
   title?: string;

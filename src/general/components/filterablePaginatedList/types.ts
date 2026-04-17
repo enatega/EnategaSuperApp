@@ -1,13 +1,8 @@
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
-import type {
-  GenericFilterChip,
-  GenericListFilters,
-} from '../filters/types';
-import { ProductCardVariant } from '../productCard/types';
 
-export type QueryBuilderContext<TPageParam> = {
-  filters: GenericListFilters;
+export type QueryBuilderContext<TPageParam, TFilters = Record<string, unknown>> = {
+  filters: TFilters;
   pageParam: TPageParam;
   staticParams?: Record<string, unknown>;
 };
@@ -18,18 +13,22 @@ export type SupportedCardType =
   | 'top-brand'
   | 'shop-type';
 
-  
+export type FilterChip = {
+  id: string;
+  label: string;
+};
 
 export type GenericListQueryConfig<
   TItem,
   TResponse,
   TQueryParams extends object,
   TPageParam,
+  TFilters = Record<string, unknown>,
 > = {
   queryKey: readonly unknown[];
   queryFn: (params: TQueryParams) => Promise<TResponse>;
   buildQueryParams?: (
-    context: QueryBuilderContext<TPageParam>,
+    context: QueryBuilderContext<TPageParam, TFilters>,
   ) => TQueryParams;
   extractItemsFromResponse: (response: TResponse) => TItem[];
   extractNextPageParam: (
@@ -55,8 +54,8 @@ export type GenericListHookResult<TItem> = {
   isRefetching: boolean;
 };
 
-export type GenericListHookParams = {
-  filters: GenericListFilters;
+export type GenericListHookParams<TFilters = Record<string, unknown>> = {
+  filters: TFilters;
   search: string;
 };
 
@@ -79,14 +78,19 @@ export type GenericListHeaderRenderProps = {
   isSearchVisible: boolean;
   isFilterVisible: boolean;
   isMapVisible: boolean;
+  renderSearchInput: (params: {
+    value: string;
+    onChangeText: (text: string) => void;
+    placeholder: string;
+    editable: boolean;
+  }) => ReactNode;
 };
 
 export type GenericFilterablePaginatedListScreenProps<
   TItem,
-  TCardType extends SupportedCardType,
+  TChip extends FilterChip = FilterChip,
 > = {
   title: string;
-  cardType: TCardType;
   data: TItem[];
   totalCount?: number;
   isPending: boolean;
@@ -98,10 +102,16 @@ export type GenericFilterablePaginatedListScreenProps<
   fetchNextPage: () => Promise<unknown> | unknown;
   isRefetching: boolean;
   itemKeyExtractor?: (item: TItem, index: number) => string;
-  chips?: GenericFilterChip[];
+  chips?: TChip[];
   clearAllLabel?: string;
-  onRemoveChip?: (chip: GenericFilterChip) => void;
+  onRemoveChip?: (chip: TChip) => void;
   onClearAll?: () => void;
+  renderSelectedFilters?: (params: {
+    chips: TChip[];
+    clearAllLabel: string;
+    onRemoveChip: (chip: TChip) => void;
+    onClearAll: () => void;
+  }) => ReactNode;
   emptyTitle?: string;
   emptyDescription?: string;
   loadingComponent?: ReactNode;
@@ -109,8 +119,5 @@ export type GenericFilterablePaginatedListScreenProps<
   header?: ReactNode;
   filterSheet?: ReactNode;
   listContentContainerStyle?: StyleProp<ViewStyle>;
-  onItemPress?: (item: TItem) => void;
-  estimatedItemSize?: number;
-  cardVariant?: ProductCardVariant;
-  isRailProductCardFullWidth?: boolean;
+  renderItemCard: (item: TItem) => ReactElement | null;
 };

@@ -221,6 +221,23 @@ const en = {
   language_french: 'French',
   offline_notice_title: "You're offline",
   offline_notice_description: 'Reconnect to refresh routes, fares, and live app data.',
+  clear_all: 'Clear all',
+  filter_title: 'Filter',
+  filter_close_label: 'Close filters',
+  filter_apply_results: 'Apply filters',
+  generic_list_error_title: 'Unable to load results',
+  generic_list_error_description: 'Pull to refresh or try again.',
+  generic_list_retry: 'Retry',
+  generic_list_empty_title: 'No results found',
+  generic_list_empty_description: 'Try a different search or adjust your filters.',
+  generic_list_search_placeholder: 'Search',
+  see_all_map_loading_title: 'Finding {{title}}',
+  see_all_map_loading_description: 'This may take a few moments. Please stay on this screen.',
+  see_all_map_sheet_title: 'Restaurant',
+  see_all_map_cta: 'View Restaurant',
+  see_all_back_label: 'Back',
+  see_all_open_filters_label: 'Open filters',
+  see_all_map_view_label: 'Map view',
 };
 
 export default en;

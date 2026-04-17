@@ -13,7 +13,7 @@ import type {
   DeliveryStoreDetailsFilterItem,
   DeliveryStoreDetailsProduct,
 } from '../../../api/types';
-import ListStateView from '../../../components/filterablePaginatedList/ListStateView';
+import ListStateView from '../../../../../general/components/filterablePaginatedList/ListStateView';
 import ProductCard from '../../../components/productCard/ProductCard';
 import {
   buildStoreDetailCategoryIds,
