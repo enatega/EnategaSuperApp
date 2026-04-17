@@ -1,6 +1,3 @@
-import Button from '../../../../general/components/Button';
-import Text from '../../../../general/components/Text';
-import { useAppLogout } from '../../../../general/hooks/useAppLogout';
 import SingleVendorSpecialOffersBanner from '../components/HomeScreen/SingleVendorSpecialOffersBanner';
 import React, { useCallback } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -10,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AddressSelectionBottomSheet from '../../../../general/components/address/AddressSelectionBottomSheet';
 import HomeVisitsAddressHeader from '../../components/HomeVisitsAddressHeader';
-import Header from '../../../../general/components/Header';
 import { showToast } from '../../../../general/components/AppToast';
 import { useTheme } from '../../../../general/theme/theme';
 import useAddress from '../../../../general/hooks/useAddress';
@@ -129,9 +125,6 @@ export default function SingleVendorHomeScreen({ }: Props) {
 }
 
 const styles = StyleSheet.create({
-  content: {
-    paddingHorizontal: 20,
-  },
   screen: {
     flex: 1,
   },

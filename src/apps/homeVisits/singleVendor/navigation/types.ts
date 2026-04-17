@@ -19,6 +19,9 @@ export type SingleVendorStackParamList = {
   SingleVendorCancelAppointment: {
     orderId: string;
   };
+  ServiceDetailsPage: {
+    serviceId: string;
+  };
 };
 
 export type HomeVisitsSingleVendorNavigationParamList =

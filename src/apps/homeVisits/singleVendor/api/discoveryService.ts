@@ -1,4 +1,5 @@
 import apiClient from '../../../../general/api/apiClient';
+import type { HomeVisitsSingleVendorServiceBookingScreenResponse } from '../../types/serviceDetails';
 import type {
   HomeVisitsSingleVendorBannersApiResponse,
   HomeVisitsSingleVendorBannersParams,
@@ -223,6 +224,22 @@ export const homeVisitsSingleVendorDiscoveryService = {
     } catch (error) {
       console.error(
         'home visits single vendor category services request failed',
+        error,
+      );
+      throw error;
+    }
+  },
+
+  getServiceBookingScreen: async (
+    serviceId: string,
+  ): Promise<HomeVisitsSingleVendorServiceBookingScreenResponse> => {
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorServiceBookingScreenResponse>(
+        `/api/v1/apps/home-services/services/mobile/${serviceId}/booking-screen`,
+      );
+    } catch (error) {
+      console.error(
+        'home visits single vendor service booking screen request failed',
         error,
       );
       throw error;

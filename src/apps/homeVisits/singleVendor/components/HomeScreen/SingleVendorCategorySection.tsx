@@ -9,7 +9,6 @@ import useSingleVendorCategories from '../../hooks/useSingleVendorCategories';
 import useSingleVendorCategoryServiceSections from '../../hooks/useSingleVendorCategoryServiceSections';
 import ServicesCard from '../../../components/ServicesCard';
 
-
 export default function SingleVendorCategorySection() {
   const { t } = useTranslation('homeVisits');
   const { data = [], isPending } = useSingleVendorCategories();

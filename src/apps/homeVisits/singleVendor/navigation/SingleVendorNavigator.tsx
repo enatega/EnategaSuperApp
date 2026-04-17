@@ -5,6 +5,7 @@ import VisitDetails from '../../screens/VisitDetails';
 import BookingDetailsScreen from '../screens/BookingDetailsScreen';
 import ManageAppointmentScreen from '../screens/ManageAppointmentScreen';
 import CancelAppointmentScreen from '../screens/CancelAppointmentScreen';
+import ServiceDetailsPage from '../../components/ServiceDetailsPage';
 import SingleVendorBottomTabNavigator from './SingleVendorBottomTabNavigator';
 import AddressSearchScreen from '../../../../general/screens/address/AddressSearchScreen';
 import AddressChooseOnMapScreen from '../../../../general/screens/address/AddressChooseOnMapScreen';
@@ -43,6 +44,11 @@ export default function SingleVendorNavigator() {
       <Stack.Screen
         name="SingleVendorCancelAppointment"
         component={CancelAppointmentScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="ServiceDetailsPage"
+        component={ServiceDetailsPage}
         options={sharedScreenOptions}
       />
       <Stack.Screen
