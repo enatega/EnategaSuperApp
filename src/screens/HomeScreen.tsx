@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { AppState, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../general/theme/theme';
+// Todo17: need to remove it after testing
+import Button from '../general/components/Button';
 import HomeHeader from './home/HomeHeader';
 import HomeLocationPermissionPopup, {
   LocationPopupMode,
@@ -117,6 +119,11 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
     onSelectMiniApp?.('deliveries');
   }
 
+  // Todo17: need to remove it after testing
+  function handleSelectHomeVisits() {
+    onSelectMiniApp?.('homeVisits');
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <HomeHeader backgroundVariant="solid" />
@@ -129,6 +136,13 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
             featureTitle="What We Bring to You"
             layout="featureCard"
             onPressFeatureCard={handleSelectDeliverablesCard}
+          />
+          {/* Todo17: need to remove it after testing */}
+          <Button
+            label="Go to Home Visits"
+            onPress={handleSelectHomeVisits}
+            variant="primary"
+            style={styles.homeVisitsButton}
           />
         </ScrollView>
       </SafeAreaView>
@@ -148,6 +162,10 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  // // Todo17: need to remove it after testing
+  homeVisitsButton: {
+    marginTop: 8,
   },
   safeArea: {
     flex: 1,
