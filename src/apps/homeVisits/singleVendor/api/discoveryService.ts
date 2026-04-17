@@ -2,6 +2,9 @@ import apiClient from '../../../../general/api/apiClient';
 import type {
   HomeVisitsSingleVendorBannersApiResponse,
   HomeVisitsSingleVendorBannersParams,
+  HomeVisitsSingleVendorBookingDetails,
+  HomeVisitsSingleVendorBookingsApiResponse,
+  HomeVisitsSingleVendorBookingsParams,
   HomeVisitsSingleVendorCategoriesApiResponse,
   HomeVisitsSingleVendorCategoriesParams,
   HomeVisitsSingleVendorCategoryServicesApiResponse,
@@ -39,6 +42,12 @@ const SINGLE_VENDOR_NEARBY_SERVICES_DEFAULTS = {
 const SINGLE_VENDOR_MOST_POPULAR_SERVICES_DEFAULTS = {
   offset: 0,
   limit: 10,
+} as const;
+
+const SINGLE_VENDOR_BOOKINGS_DEFAULTS = {
+  offset: 0,
+  limit: 10,
+  tab: 'ongoing',
 } as const;
 
 export const homeVisitsSingleVendorDiscoveryService = {
@@ -109,6 +118,42 @@ export const homeVisitsSingleVendorDiscoveryService = {
       );
     } catch (error) {
       console.error('home visits single vendor deals request failed', error);
+      throw error;
+    }
+  },
+
+  getBookingsPage: async (
+    params: HomeVisitsSingleVendorBookingsParams,
+  ): Promise<HomeVisitsSingleVendorBookingsApiResponse> => {
+    const {
+      offset = SINGLE_VENDOR_BOOKINGS_DEFAULTS.offset,
+      limit = SINGLE_VENDOR_BOOKINGS_DEFAULTS.limit,
+      tab = SINGLE_VENDOR_BOOKINGS_DEFAULTS.tab,
+    } = params;
+
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorBookingsApiResponse>(
+        '/api/v1/apps/home-services/orders/my-bookings',
+        { offset, limit, tab },
+      );
+    } catch (error) {
+      console.error('home visits single vendor bookings request failed', error);
+      throw error;
+    }
+  },
+
+  getBookingDetails: async (
+    orderId: string,
+  ): Promise<HomeVisitsSingleVendorBookingDetails> => {
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorBookingDetails>(
+        `/api/v1/apps/home-services/orders/my-bookings/${orderId}`,
+      );
+    } catch (error) {
+      console.error(
+        'home visits single vendor booking details request failed',
+        error,
+      );
       throw error;
     }
   },
