@@ -24,6 +24,7 @@ export type SingleVendorStackParamList = {
     categoryId?: string;
     latitude?: number;
     longitude?: number;
+  };
   SingleVendorBookingDetails: {
     orderId: string;
   };

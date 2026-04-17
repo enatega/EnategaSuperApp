@@ -30,10 +30,6 @@ export default function ServicesCard({
   onPress,
   layout = 'compact',
 }: DealCardProps) {
-  const { colors, typography } = useTheme();
-}
-
-export default function ServicesCard({ item }: DealCardProps) {
   const { colors } = useTheme();
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
@@ -41,6 +37,11 @@ export default function ServicesCard({ item }: DealCardProps) {
     item.productImage || item.storeImage || item.storeLogo || 'https://placehold.co/400x400.png';
 
   const handlePress = () => {
+    if (onPress) {
+      onPress();
+      return;
+    }
+
     navigation.navigate('ServiceDetailsPage', { serviceId: item.productId });
   };
 

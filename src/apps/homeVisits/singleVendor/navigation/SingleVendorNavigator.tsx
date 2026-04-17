@@ -41,6 +41,9 @@ export default function SingleVendorNavigator() {
       <Stack.Screen
         name="SeeAllScreen"
         component={HomeVisitsSingleVendorSeeAllScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
         name="SingleVendorBookingDetails"
         component={BookingDetailsScreen}
         options={sharedScreenOptions}
