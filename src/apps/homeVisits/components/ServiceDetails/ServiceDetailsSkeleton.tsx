@@ -1,8 +1,8 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Skeleton from '../../../../../general/components/Skeleton';
-import { useTheme } from '../../../../../general/theme/theme';
+import Skeleton from '../../../../general/components/Skeleton';
+import { useTheme } from '../../../../general/theme/theme';
 
 export default function ServiceDetailsSkeleton() {
   const { colors } = useTheme();

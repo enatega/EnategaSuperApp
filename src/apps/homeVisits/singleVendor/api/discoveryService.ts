@@ -1,4 +1,5 @@
 import apiClient from '../../../../general/api/apiClient';
+import type { HomeVisitsSingleVendorServiceBookingScreenResponse } from '../../types/serviceDetails';
 import type {
   HomeVisitsSingleVendorBannersApiResponse,
   HomeVisitsSingleVendorBannersParams,
@@ -12,7 +13,6 @@ import type {
   HomeVisitsSingleVendorMostPopularServicesParams,
   HomeVisitsSingleVendorNearbyServicesApiResponse,
   HomeVisitsSingleVendorNearbyServicesParams,
-  HomeVisitsSingleVendorServiceBookingScreenResponse,
 } from './types';
 
 const SINGLE_VENDOR_CATEGORIES_DEFAULTS = {

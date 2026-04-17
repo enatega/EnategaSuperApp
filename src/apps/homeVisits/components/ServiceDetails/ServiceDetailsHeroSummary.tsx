@@ -2,11 +2,11 @@ import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Icon from '../../../../../general/components/Icon';
-import Image from '../../../../../general/components/Image';
-import Text from '../../../../../general/components/Text';
-import { useTheme } from '../../../../../general/theme/theme';
-import type { HomeVisitsSingleVendorServiceBookingScreenResponse } from '../../api/types';
+import Icon from '../../../../general/components/Icon';
+import Image from '../../../../general/components/Image';
+import Text from '../../../../general/components/Text';
+import { useTheme } from '../../../../general/theme/theme';
+import type { HomeVisitsSingleVendorServiceBookingScreenResponse } from '../../types/serviceDetails';
 
 type Props = {
   data: HomeVisitsSingleVendorServiceBookingScreenResponse;

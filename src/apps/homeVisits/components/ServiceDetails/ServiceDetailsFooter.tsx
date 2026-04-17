@@ -2,10 +2,10 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Button from '../../../../../general/components/Button';
-import Icon from '../../../../../general/components/Icon';
-import Text from '../../../../../general/components/Text';
-import { useTheme } from '../../../../../general/theme/theme';
+import Button from '../../../../general/components/Button';
+import Icon from '../../../../general/components/Icon';
+import Text from '../../../../general/components/Text';
+import { useTheme } from '../../../../general/theme/theme';
 
 type Props = {
   durationLabel: string | null;

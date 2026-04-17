@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import type { ApiError } from '../../../../general/api/apiClient';
 import { homeVisitsKeys } from '../../api/queryKeys';
+import type { HomeVisitsSingleVendorServiceBookingScreenResponse } from '../../types/serviceDetails';
 import { homeVisitsSingleVendorDiscoveryService } from '../api/discoveryService';
-import type { HomeVisitsSingleVendorServiceBookingScreenResponse } from '../api/types';
 
 export default function useServiceDetailsBookingScreen(serviceId: string) {
   return useQuery<HomeVisitsSingleVendorServiceBookingScreenResponse, ApiError>({

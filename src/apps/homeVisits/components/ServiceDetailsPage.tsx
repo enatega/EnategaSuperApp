@@ -5,13 +5,13 @@ import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { DiscoverySectionState } from '../../../../general/components/discovery';
-import ScreenHeader from '../../../../general/components/ScreenHeader';
-import { useTheme } from '../../../../general/theme/theme';
-import ServiceDetailsContent from '../components/ServiceDetails/ServiceDetailsContent';
-import ServiceDetailsSkeleton from '../components/ServiceDetails/ServiceDetailsSkeleton';
-import useServiceDetailsBookingScreen from '../hooks/useServiceDetailsBookingScreen';
-import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
+import { DiscoverySectionState } from '../../../general/components/discovery';
+import ScreenHeader from '../../../general/components/ScreenHeader';
+import { useTheme } from '../../../general/theme/theme';
+import ServiceDetailsContent from './ServiceDetails/ServiceDetailsContent';
+import ServiceDetailsSkeleton from './ServiceDetails/ServiceDetailsSkeleton';
+import useServiceDetailsBookingScreen from '../singleVendor/hooks/useServiceDetailsBookingScreen';
+import type { HomeVisitsSingleVendorNavigationParamList } from '../singleVendor/navigation/types';
 
 type ServiceDetailsRouteProp = RouteProp<
   HomeVisitsSingleVendorNavigationParamList,

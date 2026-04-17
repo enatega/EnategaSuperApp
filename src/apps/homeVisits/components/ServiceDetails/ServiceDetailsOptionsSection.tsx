@@ -1,9 +1,9 @@
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, View } from 'react-native';
-import Text from '../../../../../general/components/Text';
-import { useTheme } from '../../../../../general/theme/theme';
-import type { HomeVisitsSingleVendorServiceBookingScreenSection } from '../../api/types';
+import Text from '../../../../general/components/Text';
+import { useTheme } from '../../../../general/theme/theme';
+import type { HomeVisitsSingleVendorServiceBookingScreenSection } from '../../types/serviceDetails';
 
 type Props = {
   section: HomeVisitsSingleVendorServiceBookingScreenSection;
