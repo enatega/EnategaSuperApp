@@ -10,6 +10,9 @@ export type SingleVendorBottomTabParamList = {
 export type SingleVendorStackParamList = {
   SingleVendorTabs: undefined;
   SingleVendorDetails: undefined;
+  ServiceDetailsPage: {
+    serviceId: string;
+  };
 };
 
 export type HomeVisitsSingleVendorNavigationParamList =

@@ -31,4 +31,6 @@ export const homeVisitsKeys = {
     ] as const,
   singleVendorDeals: (filters?: { limit?: number; tab?: string }) =>
     [...homeVisitsKeys.discovery(), 'single-vendor-deals', filters] as const,
+  singleVendorServiceBookingScreen: (serviceId: string) =>
+    [...homeVisitsKeys.discovery(), 'single-vendor-service-booking-screen', serviceId] as const,
 };

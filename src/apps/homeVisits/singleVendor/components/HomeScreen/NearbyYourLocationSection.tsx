@@ -16,7 +16,10 @@ type Props = {
   longitude?: number;
 };
 
-export default function NearbyYourLocationSection({ latitude, longitude }: Props) {
+export default function NearbyYourLocationSection({
+  latitude,
+  longitude,
+}: Props) {
   const { t } = useTranslation('homeVisits');
   const {
     data: nearbyServices = [],

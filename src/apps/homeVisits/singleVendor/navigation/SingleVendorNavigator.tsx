@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import VisitDetails from '../../screens/VisitDetails';
+import ServiceDetailsPage from '../screens/ServiceDetailsPage';
 import SingleVendorBottomTabNavigator from './SingleVendorBottomTabNavigator';
 import AddressSearchScreen from '../../../../general/screens/address/AddressSearchScreen';
 import AddressChooseOnMapScreen from '../../../../general/screens/address/AddressChooseOnMapScreen';
@@ -26,6 +27,11 @@ export default function SingleVendorNavigator() {
         name="SingleVendorDetails"
         component={VisitDetails}
         options={{ title: t('details_title') }}
+      />
+      <Stack.Screen
+        name="ServiceDetailsPage"
+        component={ServiceDetailsPage}
+        options={sharedScreenOptions}
       />
       <Stack.Screen
         name="AddressSearch"

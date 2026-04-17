@@ -12,6 +12,7 @@ import type {
   HomeVisitsSingleVendorMostPopularServicesParams,
   HomeVisitsSingleVendorNearbyServicesApiResponse,
   HomeVisitsSingleVendorNearbyServicesParams,
+  HomeVisitsSingleVendorServiceBookingScreenResponse,
 } from './types';
 
 const SINGLE_VENDOR_CATEGORIES_DEFAULTS = {
@@ -178,6 +179,22 @@ export const homeVisitsSingleVendorDiscoveryService = {
     } catch (error) {
       console.error(
         'home visits single vendor category services request failed',
+        error,
+      );
+      throw error;
+    }
+  },
+
+  getServiceBookingScreen: async (
+    serviceId: string,
+  ): Promise<HomeVisitsSingleVendorServiceBookingScreenResponse> => {
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorServiceBookingScreenResponse>(
+        `/api/v1/apps/home-services/services/mobile/${serviceId}/booking-screen`,
+      );
+    } catch (error) {
+      console.error(
+        'home visits single vendor service booking screen request failed',
         error,
       );
       throw error;
