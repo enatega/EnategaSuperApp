@@ -22,7 +22,9 @@ export default function DealsSection() {
   const isEmpty = !isPending && !isError && deals.length === 0;
 
   const renderItem = useCallback(
-    ({ item }: { item: HomeVisitsSingleVendorDeal }) => <ServicesCard item={item} />,
+    ({ item }: { item: HomeVisitsSingleVendorDeal }) => (
+      <ServicesCard item={item} />
+    ),
     [],
   );
 

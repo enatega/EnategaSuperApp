@@ -24,6 +24,17 @@ export type SingleVendorStackParamList = {
     categoryId?: string;
     latitude?: number;
     longitude?: number;
+  SingleVendorBookingDetails: {
+    orderId: string;
+  };
+  SingleVendorManageAppointment: {
+    orderId: string;
+  };
+  SingleVendorCancelAppointment: {
+    orderId: string;
+  };
+  ServiceDetailsPage: {
+    serviceId: string;
   };
 };
 

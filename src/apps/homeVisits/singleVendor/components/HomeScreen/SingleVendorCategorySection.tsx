@@ -12,7 +12,6 @@ import useSingleVendorCategoryServiceSections from '../../hooks/useSingleVendorC
 import type { HomeVisitsSingleVendorNavigationParamList } from '../../navigation/types';
 import ServicesCard from '../../../components/ServicesCard';
 
-
 export default function SingleVendorCategorySection() {
   const { t } = useTranslation('homeVisits');
   const navigation =

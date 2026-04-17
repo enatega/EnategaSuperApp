@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Image from '../../../general/components/Image';
 import Text from '../../../general/components/Text';
 import Icon from '../../../general/components/Icon';
@@ -11,6 +13,7 @@ import type {
   HomeVisitsSingleVendorMostPopularService,
   HomeVisitsSingleVendorNearbyService,
 } from '../singleVendor/api/types';
+import type { HomeVisitsSingleVendorNavigationParamList } from '../singleVendor/navigation/types';
 
 interface DealCardProps {
   item:
@@ -28,14 +31,23 @@ export default function ServicesCard({
   layout = 'compact',
 }: DealCardProps) {
   const { colors, typography } = useTheme();
+}
+
+export default function ServicesCard({ item }: DealCardProps) {
+  const { colors } = useTheme();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const imageUrl =
     item.productImage || item.storeImage || item.storeLogo || 'https://placehold.co/400x400.png';
 
+  const handlePress = () => {
+    navigation.navigate('ServiceDetailsPage', { serviceId: item.productId });
+  };
+
   return (
     <TouchableOpacity
-      activeOpacity={onPress ? 0.7 : 1}
-      disabled={!onPress}
-      onPress={onPress}
+      activeOpacity={0.7}
+      onPress={handlePress}
       style={[
         styles.container,
         layout === 'fullWidth' ? styles.fullWidthContainer : styles.compactContainer,

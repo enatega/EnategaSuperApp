@@ -87,7 +87,7 @@ export default function SingleVendorBottomTabNavigator() {
           tabBarIcon: ({ color, size }: TabIconProps) => (
             <MaterialCommunityIcons
               color={color}
-              name="receipt-text-outline"
+              name="calendar-blank-outline"
               size={size}
             />
           ),

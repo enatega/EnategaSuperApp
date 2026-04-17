@@ -185,3 +185,103 @@ export interface HomeVisitsSingleVendorDealsParams {
 
 export type HomeVisitsSingleVendorDealsApiResponse =
   PaginatedHomeVisitsResponse<HomeVisitsSingleVendorDeal>;
+
+export type HomeVisitsSingleVendorBookingsTab = 'ongoing' | 'past';
+
+export interface HomeVisitsSingleVendorBookingsParams {
+  offset?: number;
+  limit?: number;
+  tab: HomeVisitsSingleVendorBookingsTab;
+}
+
+export interface HomeVisitsSingleVendorBookingItem {
+  orderId: string;
+  title: string;
+  durationLabel?: string | null;
+  itemCount: number;
+  totalAmount?: number | null;
+  status?: string | null;
+  jobStatus?: string | null;
+  paymentStatus?: string | null;
+  orderedAt?: string | null;
+  scheduledAt?: string | null;
+  image?: string | null;
+  statusLabel?: string | null;
+  canViewDetails?: boolean;
+  canBookAgain?: boolean;
+}
+
+export type HomeVisitsSingleVendorBookingsApiResponse =
+  PaginatedHomeVisitsResponse<HomeVisitsSingleVendorBookingItem>;
+
+export interface HomeVisitsSingleVendorBookingServiceItem {
+  productId?: string;
+  name?: string | null;
+  description?: string | null;
+  image?: string | null;
+  durationLabel?: string | null;
+  quantity?: number | null;
+  unitPrice?: number | null;
+  totalPrice?: number | null;
+}
+
+export interface HomeVisitsSingleVendorBookingStore {
+  id?: string;
+  name?: string | null;
+  address?: string | null;
+  image?: string | null;
+}
+
+export interface HomeVisitsSingleVendorBookingSummary {
+  subtotal?: number | null;
+  discountAmount?: number | null;
+  taxAmount?: number | null;
+  deliveryFee?: number | null;
+  packingCharges?: number | null;
+  riderTip?: number | null;
+  totalAmount?: number | null;
+  couponCode?: string | null;
+}
+
+export interface HomeVisitsSingleVendorAssignedWorker {
+  id?: string;
+  name?: string | null;
+  phone?: string | null;
+  profile?: string | null;
+}
+
+export interface HomeVisitsSingleVendorBookingCategoryImage {
+  categoryId?: string;
+  categoryName?: string | null;
+  imageUrl?: string | null;
+}
+
+export interface HomeVisitsSingleVendorBookingDetails {
+  orderId: string;
+  title?: string | null;
+  itemCount?: number | null;
+  status?: string | null;
+  jobStatus?: string | null;
+  statusMessage?: string | null;
+  durationLabel?: string | null;
+  statusLabel?: string | null;
+  paymentStatus?: string | null;
+  bookingType?: string | null;
+  contractDays?: number | null;
+  teamSize?: number | null;
+  totalAmount?: number | null;
+  paymentMethod?: string | null;
+  orderedAt?: string | null;
+  scheduledAt?: string | null;
+  image?: string | null;
+  categoryImages?: HomeVisitsSingleVendorBookingCategoryImage[] | null;
+  store?: HomeVisitsSingleVendorBookingStore | null;
+  services?: HomeVisitsSingleVendorBookingServiceItem[] | null;
+  summary?: HomeVisitsSingleVendorBookingSummary | null;
+  addressLabel?: string | null;
+  address?: string | null;
+  customerNote?: string | null;
+  cancellationPolicy?: string | null;
+  assignedWorker?: HomeVisitsSingleVendorAssignedWorker | null;
+  [key: string]: unknown;
+}
