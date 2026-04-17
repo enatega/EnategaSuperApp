@@ -7,28 +7,66 @@ export const homeVisitsKeys = {
     limit?: number;
     latitude?: number;
     longitude?: number;
+    search?: string;
+    stock?: string;
+    category_ids?: string;
+    subcategory_id?: string;
+    price_tiers?: string;
+    sort_by?: string;
   }) =>
     [...homeVisitsKeys.discovery(), 'single-vendor-nearby-services', filters] as const,
-  singleVendorMostPopularServices: (filters?: { limit?: number }) =>
+  singleVendorMostPopularServices: (filters?: {
+    limit?: number;
+    search?: string;
+    latitude?: number;
+    longitude?: number;
+    stock?: string;
+    category_ids?: string;
+    subcategory_id?: string;
+    price_tiers?: string;
+    sort_by?: string;
+  }) =>
     [
       ...homeVisitsKeys.discovery(),
       'single-vendor-most-popular-services',
       filters,
     ] as const,
-  singleVendorCategories: (filters?: { limit?: number }) =>
+  singleVendorCategories: (filters?: {
+    limit?: number;
+    search?: string;
+  }) =>
     [...homeVisitsKeys.discovery(), 'single-vendor-categories', filters] as const,
   singleVendorCategoryServices: (
     categoryId: string,
-    offset = 0,
-    limit = 10,
+    filters?: {
+      offset?: number;
+      limit?: number;
+      search?: string;
+      latitude?: number;
+      longitude?: number;
+      stock?: string;
+      category_ids?: string;
+      subcategory_id?: string;
+      price_tiers?: string;
+      sort_by?: string;
+    },
   ) =>
     [
       ...homeVisitsKeys.discovery(),
       'single-vendor-category-services',
       categoryId,
-      offset,
-      limit,
+      filters,
     ] as const,
-  singleVendorDeals: (filters?: { limit?: number; tab?: string }) =>
+  singleVendorDeals: (filters?: {
+    limit?: number;
+    tab?: string;
+    search?: string;
+    category_ids?: string;
+    subcategory_id?: string;
+    price_tiers?: string;
+    latitude?: number;
+    longitude?: number;
+    sort_by?: string;
+  }) =>
     [...homeVisitsKeys.discovery(), 'single-vendor-deals', filters] as const,
 };

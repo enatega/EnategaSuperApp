@@ -9,6 +9,7 @@ type UseSingleVendorCategoriesMode = 'preview' | 'paginated';
 type UseSingleVendorCategoriesOptions = {
   mode?: UseSingleVendorCategoriesMode;
   enabled?: boolean;
+  search?: string;
 };
 
 const SINGLE_VENDOR_CATEGORIES_LIMIT = 10;
@@ -17,6 +18,7 @@ export default function useSingleVendorCategories(
   options?: UseSingleVendorCategoriesOptions,
 ) {
   const mode = options?.mode ?? 'preview';
+  const search = options?.search?.trim() || undefined;
   const query = useInfiniteQuery<
     HomeVisitsSingleVendorCategoriesApiResponse,
     ApiError
@@ -24,6 +26,7 @@ export default function useSingleVendorCategories(
     queryKey: [
       ...homeVisitsKeys.singleVendorCategories({
         limit: SINGLE_VENDOR_CATEGORIES_LIMIT,
+        search,
       }),
       { mode },
     ],
@@ -31,6 +34,7 @@ export default function useSingleVendorCategories(
       homeVisitsSingleVendorDiscoveryService.getCategoriesPage({
         offset: pageParam as number,
         limit: SINGLE_VENDOR_CATEGORIES_LIMIT,
+        search,
       }),
     initialPageParam: 0,
     getNextPageParam: (lastPage) =>

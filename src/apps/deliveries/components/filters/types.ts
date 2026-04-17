@@ -1,14 +1,11 @@
-import type { DeliveryProductFilterValues } from "../../api/types";
+import type {
+  MainListFilterData,
+  MainListFilters,
+} from '../../../../general/components/filters';
 
-export type GenericListFilters = {
-  category_ids: string[];
-  price_tiers: string | null;
-  address_id: string | null;
-  stock: string | null;
-  sort_by: string | null;
-};
+export type GenericListFilters = MainListFilters;
 
-export type GenericListFilterData = DeliveryProductFilterValues["filters"];
+export type GenericListFilterData = MainListFilterData;
 
 export type GenericFilterChip = {
   id: string;

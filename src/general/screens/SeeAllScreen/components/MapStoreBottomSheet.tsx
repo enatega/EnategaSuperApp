@@ -1,20 +1,15 @@
-import React from "react";
-import {
-  Dimensions,
-  Pressable,
-  StyleSheet,
-  View,
-} from "react-native";
-import Button from "../../../../../general/components/Button";
-import BottomSheetHandle from "../../../../../general/components/BottomSheetHandle";
-import Icon from "../../../../../general/components/Icon";
-import Text from "../../../../../general/components/Text";
-import SwipeableBottomSheet from "../../../../../general/components/SwipeableBottomSheet";
-import { useTheme } from "../../../../../general/theme/theme";
-import MapStoreCard from "./MapStoreCard";
-import type { SeeAllMapStore } from "./mapStoreUtils";
+import React from 'react';
+import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
+import Button from '../../../components/Button';
+import BottomSheetHandle from '../../../components/BottomSheetHandle';
+import Icon from '../../../components/Icon';
+import Text from '../../../components/Text';
+import SwipeableBottomSheet from '../../../components/SwipeableBottomSheet';
+import { useTheme } from '../../../theme/theme';
+import MapStoreCard from './MapStoreCard';
+import type { SeeAllMapStore } from './mapStoreUtils';
 
-const SHEET_HEIGHT = Math.min(Dimensions.get("window").height * 0.42, 360);
+const SHEET_HEIGHT = Math.min(Dimensions.get('window').height * 0.42, 360);
 
 type Props = {
   store: SeeAllMapStore | null;
@@ -22,6 +17,8 @@ type Props = {
   onViewStore: () => void;
   title: string;
   ctaLabel: string;
+  closeLabel: string;
+  currencyLabel?: string;
 };
 
 export default function MapStoreBottomSheet({
@@ -30,6 +27,8 @@ export default function MapStoreBottomSheet({
   onViewStore,
   title,
   ctaLabel,
+  closeLabel,
+  currencyLabel,
 }: Props) {
   const { colors, typography } = useTheme();
 
@@ -67,6 +66,7 @@ export default function MapStoreBottomSheet({
           </Text>
           <Pressable
             accessibilityRole="button"
+            accessibilityLabel={closeLabel}
             hitSlop={12}
             onPress={onClose}
             style={({ pressed }) => [
@@ -81,7 +81,7 @@ export default function MapStoreBottomSheet({
           </Pressable>
         </View>
 
-        <MapStoreCard store={store} />
+        <MapStoreCard store={store} currencyLabel={currencyLabel} />
 
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
@@ -94,17 +94,17 @@ export default function MapStoreBottomSheet({
 const styles = StyleSheet.create({
   button: {
     borderRadius: 6,
-    width: "100%",
+    width: '100%',
   },
   closeButton: {
-    alignItems: "center",
+    alignItems: 'center',
     borderRadius: 16,
+    elevation: 8,
     height: 32,
-    justifyContent: "center",
-    position: "relative",
+    justifyContent: 'center',
+    position: 'relative',
     width: 32,
     zIndex: 8,
-    elevation: 8,
   },
   content: {
     flex: 1,
@@ -115,22 +115,13 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
   },
-  handle: {
-    borderRadius: 999,
-    height: 4,
-    width: 44,
-  },
-  handleArea: {
-    alignItems: "center",
-    paddingBottom: 12,
-  },
   headerRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    position: "relative",
-    zIndex: 8,
+    alignItems: 'center',
     elevation: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    position: 'relative',
+    zIndex: 8,
   },
   placeholder: {
     width: 32,
@@ -138,10 +129,10 @@ const styles = StyleSheet.create({
   sheet: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    overflow: "hidden",
+    elevation: 10,
+    overflow: 'hidden',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
-    elevation: 10,
   },
 });

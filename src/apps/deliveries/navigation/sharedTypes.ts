@@ -2,7 +2,7 @@ import type {
   DeliveryNearbyStore,
   DeliveryShopTypeProduct,
 } from '../api/types';
-import { SupportedCardType } from '../components/filterablePaginatedList';
+import { SupportedCardType } from '../../../general/components/filterablePaginatedList';
 import { ProductCardVariant } from '../components/productCard/types';
 
 export type SeeAllListingType =

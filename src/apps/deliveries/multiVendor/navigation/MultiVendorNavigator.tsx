@@ -5,7 +5,7 @@ import MultiVendorBottomTabNavigator from './MultiVendorBottomTabNavigator';
 import FavouritesScreen from '../screens/FavouritesScreen/FavouritesScreen';
 import StoreDetailsScreen from '../screens/StoreDetailsScreen/StoreDetailsScreen';
 import type { MultiVendorStackParamList } from './types';
-import SeeAllMapView from '../../screens/SeeAllScreen/components/SeeAllMapView';
+import DeliveriesSeeAllMapView from '../../screens/SeeAllScreen/DeliveriesSeeAllMapView';
 import ProductInfo from '../../screens/ProductInfo/ProductInfo';
 import ShopTypesSeeAll from '../screens/ShopTypesSeeAll/ShopTypesSeeAll';
 import TopBrandsSeeAll from '../screens/TopBrandsSeeAll/TopBrandsSeeAll';
@@ -36,7 +36,7 @@ export default function MultiVendorNavigator() {
       />
       <Stack.Screen
         name="SeeAllMapView"
-        component={SeeAllMapView}
+        component={DeliveriesSeeAllMapView}
         options={hiddenHeaderOptions}
       />
       <Stack.Screen

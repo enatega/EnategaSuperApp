@@ -19,9 +19,14 @@ interface DealCardProps {
     | HomeVisitsSingleVendorMostPopularService
     | HomeVisitsSingleVendorNearbyService;
   onPress?: () => void;
+  layout?: 'compact' | 'fullWidth';
 }
 
-export default function ServicesCard({ item, onPress }: DealCardProps) {
+export default function ServicesCard({
+  item,
+  onPress,
+  layout = 'compact',
+}: DealCardProps) {
   const { colors, typography } = useTheme();
   const imageUrl =
     item.productImage || item.storeImage || item.storeLogo || 'https://placehold.co/400x400.png';
@@ -33,6 +38,7 @@ export default function ServicesCard({ item, onPress }: DealCardProps) {
       onPress={onPress}
       style={[
         styles.container,
+        layout === 'fullWidth' ? styles.fullWidthContainer : styles.compactContainer,
         { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.shadowColor },
       ]}
     >
@@ -117,13 +123,18 @@ export default function ServicesCard({ item, onPress }: DealCardProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: 280,
     borderRadius: 8,
     borderWidth: 1,
     overflow: 'hidden',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 3,
+  },
+  compactContainer: {
+    width: 280,
+  },
+  fullWidthContainer: {
+    width: '100%',
   },
   imageContainer: {
     width: '100%',

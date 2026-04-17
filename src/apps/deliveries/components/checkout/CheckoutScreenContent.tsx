@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import ListStateView from '../filterablePaginatedList/ListStateView';
+import ListStateView from '../../../../general/components/filterablePaginatedList/ListStateView';
 import { useTheme } from '../../../../general/theme/theme';
 import type {
   CheckoutOrderType,

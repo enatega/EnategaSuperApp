@@ -1,24 +1,20 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { useTranslation } from "react-i18next";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import MapView, { LatLng, Region } from "react-native-maps";
-import Icon from "../../../../../general/components/Icon";
-import Map, { MapMarker } from "../../../../../general/components/Map";
-import { useTheme } from "../../../../../general/theme/theme";
-import type {
-  DeliveriesSeeAllParamList,
-  SeeAllItem,
-} from "../../../navigation/sharedTypes";
-import MapStoreBottomSheet from "./MapStoreBottomSheet";
-import MapStoreMarker from "./MapStoreMarker";
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MapView, { LatLng, Region } from 'react-native-maps';
+import Icon from '../../../components/Icon';
+import Map, { MapMarker } from '../../../components/Map';
+import { useTheme } from '../../../theme/theme';
+import MapStoreBottomSheet from './MapStoreBottomSheet';
+import MapStoreMarker from './MapStoreMarker';
 import {
   SEE_ALL_DEFAULT_USER_COORDINATE,
   toSeeAllMapStore,
   type SeeAllMapStore,
-} from "./mapStoreUtils";
-import SeeAllMapLoadingState from "./SeeAllMapLoadingState";
+  type SeeAllMapStoreSource,
+} from './mapStoreUtils';
+import SeeAllMapLoadingState from './SeeAllMapLoadingState';
 
 const DEFAULT_REGION: Region = {
   latitude: 24.8607,
@@ -40,21 +36,33 @@ function getRegionFromCoordinates(coordinate: LatLng): Region {
   };
 }
 
-function SeeAllMapView() {
-  const { t } = useTranslation("deliveries");
-  const navigation = useNavigation();
-  const route =
-    useRoute<RouteProp<DeliveriesSeeAllParamList, "SeeAllMapView">>();
+type Props<TItem> = {
+  items: TItem[];
+  title: string;
+  onBack: () => void;
+  mapStoreFromItem: (item: TItem, index: number) => SeeAllMapStoreSource;
+  currencyLabel?: string;
+};
+
+function SeeAllMapViewComponent<TItem>({
+  items,
+  title,
+  onBack,
+  mapStoreFromItem,
+  currencyLabel,
+}: Props<TItem>) {
+  const { t } = useTranslation('general');
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView | null>(null);
   const hasInitializedSelectionRef = useRef(false);
-  const { items, title } = route.params;
   const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
+
   const stores = useMemo<SeeAllMapStore[]>(
-    () => items.map((item, index) => toSeeAllMapStore(item, index)),
-    [items],
+    () => items.map((item, index) => toSeeAllMapStore(mapStoreFromItem(item, index))),
+    [items, mapStoreFromItem],
   );
+
   const isLoading = items.length === 0;
   const userCoordinate = SEE_ALL_DEFAULT_USER_COORDINATE;
 
@@ -62,9 +70,9 @@ function SeeAllMapView() {
     () => stores.filter((store) => Boolean(store.coordinate)),
     [stores],
   );
+
   const selectedStore =
     stores.find((store) => store.id === selectedStoreId) ?? null;
-  const initialCoordinate = userCoordinate;
 
   const markers = useMemo<MapMarker[]>(
     () =>
@@ -73,7 +81,7 @@ function SeeAllMapView() {
         coordinate: store.coordinate!,
         active: true,
         zIndex: store.id === selectedStoreId ? 3 : 1,
-        keyOverride: `${store.id}-${store.id === selectedStoreId ? "selected" : "default"}`,
+        keyOverride: `${store.id}-${store.id === selectedStoreId ? 'selected' : 'default'}`,
         onPress: () => setSelectedStoreId(store.id),
         tracksViewChanges: true,
         render: (
@@ -104,10 +112,7 @@ function SeeAllMapView() {
       .filter(Boolean) as LatLng[];
 
     if (coordinates.length === 1) {
-      mapRef.current.animateToRegion(
-        getRegionFromCoordinates(coordinates[0]),
-        350,
-      );
+      mapRef.current.animateToRegion(getRegionFromCoordinates(coordinates[0]), 350);
       return;
     }
 
@@ -124,10 +129,7 @@ function SeeAllMapView() {
       return;
     }
 
-    mapRef.current.animateToRegion(
-      getRegionFromCoordinates(userCoordinate),
-      350,
-    );
+    mapRef.current.animateToRegion(getRegionFromCoordinates(userCoordinate), 350);
   }, [selectedStore, storesWithCoordinates, userCoordinate]);
 
   useEffect(() => {
@@ -153,11 +155,11 @@ function SeeAllMapView() {
       <Map
         ref={mapRef}
         initialRegion={
-          initialCoordinate
-            ? getRegionFromCoordinates(initialCoordinate)
+          userCoordinate
+            ? getRegionFromCoordinates(userCoordinate)
             : DEFAULT_REGION
         }
-        showsUserLocation={true}
+        showsUserLocation
         showsMyLocationButton={false}
         showsCompass={false}
         toolbarEnabled={false}
@@ -168,7 +170,8 @@ function SeeAllMapView() {
       <View style={[styles.header, { top: insets.top + 8 }]}>
         <Pressable
           accessibilityRole="button"
-          onPress={() => navigation.goBack()}
+          accessibilityLabel={t('see_all_back_label')}
+          onPress={onBack}
           style={({ pressed }) => [
             styles.headerButton,
             {
@@ -179,53 +182,52 @@ function SeeAllMapView() {
             },
           ]}
         >
-          <Icon
-            type="Ionicons"
-            name="arrow-back"
-            size={20}
-            color={colors.text}
-          />
+          <Icon type="Ionicons" name="arrow-back" size={20} color={colors.text} />
         </Pressable>
       </View>
 
       {isLoading ? (
         <SeeAllMapLoadingState
-          title={t("see_all_map_loading_title", { title })}
-          description={t("see_all_map_loading_description")}
+          title={t('see_all_map_loading_title', { title })}
+          description={t('see_all_map_loading_description')}
         />
       ) : null}
 
       <MapStoreBottomSheet
         store={selectedStore}
         onClose={() => setSelectedStoreId(null)}
-        onViewStore={() => navigation.goBack()}
-        title={t("see_all_map_sheet_title")}
-        ctaLabel={t("see_all_map_cta")}
+        onViewStore={onBack}
+        title={t('see_all_map_sheet_title')}
+        ctaLabel={t('see_all_map_cta')}
+        closeLabel={t('filter_close_label')}
+        currencyLabel={currencyLabel}
       />
     </View>
   );
 }
 
-export default memo(SeeAllMapView);
+const SeeAllMapView = memo(SeeAllMapViewComponent) as typeof SeeAllMapViewComponent;
+
+export default SeeAllMapView;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     left: 16,
-    position: "absolute",
+    position: 'absolute',
     right: 16,
   },
   headerButton: {
-    alignItems: "center",
+    alignItems: 'center',
     borderRadius: 20,
     borderWidth: 1,
     elevation: 3,
     height: 40,
-    justifyContent: "center",
+    justifyContent: 'center',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 6,

@@ -4,7 +4,7 @@ import type { ProfileNavigationParamList } from "../../../general/navigation/pro
 import type { ChainStackParamList } from "../chain/navigation/types";
 import type { MultiVendorStackParamList } from "../multiVendor/navigation/types";
 import type { SingleVendorStackParamList } from "../singleVendor/navigation/types";
-import { SupportedCardType } from "../components/filterablePaginatedList";
+import { SupportedCardType } from "../../../general/components/filterablePaginatedList";
 import { ProductCardVariant } from "../components/productCard/types";
 
 export type SeeAllListingType =
