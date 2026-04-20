@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import EmptySearch from './EmptySearch';
+import EmptySearch from '../../../../general/components/search/EmptySearch';
 import SearchResultsSkeleton from './SearchResultsSkeleton';
 import ProductMiniCardScroller from './ProductMiniCardScroller';
 import StoreCardScroller from './StoreCardScroller';

@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import Skeleton from "../../../../general/components/Skeleton";
-import type { SearchSuggestionsSkeletonProps } from "./types";
+import Skeleton from "../Skeleton";
+import type { SearchSuggestionsSkeletonProps } from "../../../apps/deliveries/components/search/types";
 
 export default function SearchSuggestionsSkeleton(
   {}: SearchSuggestionsSkeletonProps,

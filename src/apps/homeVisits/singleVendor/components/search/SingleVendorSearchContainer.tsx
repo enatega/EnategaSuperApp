@@ -1,7 +1,7 @@
 import React from "react";
 import SearchMainContainer from "../../../../../general/components/search/SearchMainContainer";
 import useSingleVendorSearchFlow from "../../hooks/useSingleVendorSearchFlow";
-import SearchResults from "../../../components/search/SearchResults";
+import SearchResults from "../../../../deliveries/components/search/SearchResults";
 
 export default function SingleVendorSearchContainer() {
   const searchFlow = useSingleVendorSearchFlow();

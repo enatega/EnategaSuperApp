@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import SearchInput from '../search/SearchInput';
+import SearchInput from '../../../../general/components/search/SearchInput';
 import Icon from '../../../../general/components/Icon';
 import { useTheme } from '../../../../general/theme/theme';
 
