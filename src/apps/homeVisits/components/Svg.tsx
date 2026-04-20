@@ -1,7 +1,7 @@
 import React from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { SvgProps } from 'react-native-svg';
-import NoResultsFound from '../assets/svgs/no-results-found.svg';
+import NoResultsFound from '../../../general/assets/svgs/no-results-found.svg';
 
 export type HomeVisitsSvgName = 'noResultsFound';
 

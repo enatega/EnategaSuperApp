@@ -3,8 +3,8 @@ import React from "react";
 import { ActivityIndicator } from "react-native";
 import RecentSearch from "./RecentSearch";
 import { useTranslation } from "react-i18next";
-import Text from "../../../../general/components/Text";
-import { useTheme } from "../../../../general/theme/theme";
+import Text from "../Text";
+import { useTheme } from "../../theme/theme";
 import { RecentSearchesProps } from "./types";
 
 const RecentSearches = ({

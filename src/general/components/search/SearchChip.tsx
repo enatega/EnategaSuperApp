@@ -1,7 +1,7 @@
 import React from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
-import Text from "../../../../general/components/Text";
-import { useTheme } from "../../../../general/theme/theme";
+import Text from "../Text";
+import { useTheme } from "../../theme/theme";
 import { SearchChipProps } from "./types";
 
 
