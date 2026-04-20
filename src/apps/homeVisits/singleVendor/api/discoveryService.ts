@@ -16,6 +16,8 @@ import type {
   HomeVisitsSingleVendorMostPopularServicesParams,
   HomeVisitsSingleVendorNearbyServicesApiResponse,
   HomeVisitsSingleVendorNearbyServicesParams,
+  HomeVisitsSingleVendorServiceCenterServicesApiResponse,
+  HomeVisitsSingleVendorServiceCenterServicesParams,
 } from './types';
 
 const SINGLE_VENDOR_CATEGORIES_DEFAULTS = {
@@ -49,6 +51,11 @@ const SINGLE_VENDOR_BOOKINGS_DEFAULTS = {
   offset: 0,
   limit: 10,
   tab: 'ongoing',
+} as const;
+
+const SINGLE_VENDOR_SERVICE_CENTER_SERVICES_DEFAULTS = {
+  offset: 0,
+  limit: 10,
 } as const;
 
 export const homeVisitsSingleVendorDiscoveryService = {
@@ -316,6 +323,29 @@ export const homeVisitsSingleVendorDiscoveryService = {
     } catch (error) {
       console.error(
         'home visits single vendor service booking screen request failed',
+        error,
+      );
+      throw error;
+    }
+  },
+
+  getServiceCenterServicesPage: async (
+    params: HomeVisitsSingleVendorServiceCenterServicesParams,
+  ): Promise<HomeVisitsSingleVendorServiceCenterServicesApiResponse> => {
+    const { serviceCenterId } = params;
+    const {
+      offset = SINGLE_VENDOR_SERVICE_CENTER_SERVICES_DEFAULTS.offset,
+      limit = SINGLE_VENDOR_SERVICE_CENTER_SERVICES_DEFAULTS.limit,
+    } = params;
+
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorServiceCenterServicesApiResponse>(
+        `/api/v1/apps/home-services/service-centers/${serviceCenterId}/view/services`,
+        { offset, limit },
+      );
+    } catch (error) {
+      console.error(
+        'home visits single vendor service center services request failed',
         error,
       );
       throw error;

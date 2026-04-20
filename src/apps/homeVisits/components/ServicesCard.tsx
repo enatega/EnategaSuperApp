@@ -42,7 +42,7 @@ export default function ServicesCard({
       return;
     }
 
-    navigation.navigate('ServiceDetailsPage', { serviceId: item.productId });
+    navigation.push('ServiceDetails', { serviceId: item.productId });
   };
 
   return (
