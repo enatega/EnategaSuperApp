@@ -26,6 +26,7 @@ import {
 import useServiceDetailsBookingScreen from '../../singleVendor/hooks/useServiceDetailsBookingScreen';
 import type { HomeVisitsSingleVendorServiceCenterListItem } from '../../singleVendor/api/types';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../../singleVendor/navigation/types';
+import type { HomeVisitsSelectedServiceSnapshot } from '../../types/teamSchedule';
 
 type ServiceDetailsBookingRouteProp = RouteProp<
   HomeVisitsSingleVendorNavigationParamList,
@@ -55,13 +56,6 @@ export default function ServiceDetailsBooking() {
 
   const handleClose = useCallback(() => {
     navigation.popToTop();
-  }, [navigation]);
-
-  const handleBookService = useCallback(() => {
-    navigation.push('AddressSearch', {
-      origin: 'single-vendor-home',
-      appPrefix: 'home-services',
-    });
   }, [navigation]);
 
   if (query.isPending) {
@@ -122,10 +116,72 @@ export default function ServiceDetailsBooking() {
   const totalDurationLabel =
     formatMinutesToDurationLabel(totalDurationMinutes) ?? basePricing.durationLabel;
   const totalPriceLabel = formatPrice(totalPrice);
+  const selectedServiceIds = useMemo(
+    () => Array.from(new Set([...lockedSelectedServiceIds, ...selectedListServices.map((service) => service.id)])),
+    [lockedSelectedServiceIds, selectedListServices],
+  );
+  const selectedServices = useMemo<HomeVisitsSelectedServiceSnapshot[]>(
+    () => {
+      const additionalServices = selectedListServices
+        .filter((service) => !lockedSelectedSet.has(service.id))
+        .map((service) => ({
+          id: service.id,
+          name: service.name,
+          price: service.price ?? 0,
+          durationLabel: service.estimatedDuration ?? null,
+          isLocked: false,
+        }));
+
+      return [
+        {
+          id: serviceId,
+          name: query.data.serviceName,
+          price: basePricing.totalPrice,
+          durationLabel: basePricing.durationLabel,
+          isLocked: true,
+        },
+        ...additionalServices,
+      ];
+    },
+    [
+      basePricing.durationLabel,
+      basePricing.totalPrice,
+      lockedSelectedSet,
+      query.data.serviceName,
+      selectedListServices,
+      serviceId,
+    ],
+  );
   const serviceCountLabel =
     totalServiceCount === 1
       ? t('service_details_service_singular')
       : t('service_details_service_plural');
+  const handleBookService = useCallback(() => {
+    navigation.push('TeamAndSchedule', {
+      initialSelection,
+      selectedServiceIds,
+      selectedServices,
+      serviceCenterId,
+      serviceId,
+      summary: {
+        durationLabel: totalDurationLabel,
+        durationMinutes: totalDurationMinutes,
+        serviceCount: totalServiceCount,
+        totalPrice,
+      },
+    });
+  }, [
+    initialSelection,
+    navigation,
+    selectedServiceIds,
+    selectedServices,
+    serviceCenterId,
+    serviceId,
+    totalDurationLabel,
+    totalDurationMinutes,
+    totalPrice,
+    totalServiceCount,
+  ]);
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>

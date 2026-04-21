@@ -56,6 +56,41 @@ export interface HomeVisitsSingleVendorServiceCenterServicesParams {
   limit?: number;
 }
 
+export interface HomeVisitsSingleVendorBookingAvailabilityParams {
+  serviceCenterId: string;
+  date: string;
+  teamSize?: number;
+}
+
+export interface HomeVisitsSingleVendorBookingAvailabilitySlot {
+  open: string;
+  close: string;
+  availableWorkers: number;
+  meetsTeamSize: boolean;
+}
+
+export interface HomeVisitsSingleVendorBookingAvailabilityWorker {
+  workerId: string;
+  name: string;
+  profession: string | null;
+  minimumWorkingHours: number | null;
+  slots: Array<{
+    open: string;
+    close: string;
+  }>;
+}
+
+export interface HomeVisitsSingleVendorBookingAvailabilityResponse {
+  serviceCenterId: string;
+  date: string;
+  day: string;
+  scheduleAllowed: boolean;
+  serviceCenterAvailable: boolean;
+  teamSize: number | null;
+  slots: HomeVisitsSingleVendorBookingAvailabilitySlot[];
+  workers: HomeVisitsSingleVendorBookingAvailabilityWorker[];
+}
+
 export interface HomeVisitsSingleVendorServiceCenterListCategory {
   id: string;
   name: string;

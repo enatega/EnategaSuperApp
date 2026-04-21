@@ -3,6 +3,8 @@ import type { HomeVisitsSingleVendorServiceBookingScreenResponse } from '../../t
 import type {
   HomeVisitsSingleVendorBannersApiResponse,
   HomeVisitsSingleVendorBannersParams,
+  HomeVisitsSingleVendorBookingAvailabilityParams,
+  HomeVisitsSingleVendorBookingAvailabilityResponse,
   HomeVisitsSingleVendorBookingDetails,
   HomeVisitsSingleVendorBookingsApiResponse,
   HomeVisitsSingleVendorBookingsParams,
@@ -346,6 +348,28 @@ export const homeVisitsSingleVendorDiscoveryService = {
     } catch (error) {
       console.error(
         'home visits single vendor service center services request failed',
+        error,
+      );
+      throw error;
+    }
+  },
+
+  getBookingAvailability: async (
+    params: HomeVisitsSingleVendorBookingAvailabilityParams,
+  ): Promise<HomeVisitsSingleVendorBookingAvailabilityResponse> => {
+    const { serviceCenterId, date, teamSize } = params;
+
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorBookingAvailabilityResponse>(
+        `/api/v1/apps/home-services/service-centers/${serviceCenterId}/booking-availability`,
+        {
+          date,
+          teamSize,
+        },
+      );
+    } catch (error) {
+      console.error(
+        'home visits single vendor booking availability request failed',
         error,
       );
       throw error;
