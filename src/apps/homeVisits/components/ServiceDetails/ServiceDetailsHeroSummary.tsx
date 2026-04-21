@@ -1,6 +1,7 @@
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../../../general/components/Icon';
 import Image from '../../../../general/components/Image';
@@ -12,20 +13,28 @@ type Props = {
   data: HomeVisitsSingleVendorServiceBookingScreenResponse;
   basePrice: string | null;
   durationLabel: string | null;
+  isFavorite: boolean;
+  isFavoritePending: boolean;
   onBack: () => void;
-  onClose: () => void;
+  onFavorite: () => void;
+  onShare: () => void;
 };
 
 export default function ServiceDetailsHeroSummary({
   data,
   basePrice,
   durationLabel,
+  isFavorite,
+  isFavoritePending,
   onBack,
-  onClose,
+  onFavorite,
+  onShare,
 }: Props) {
   const { colors, typography } = useTheme();
+  const { t } = useTranslation('homeVisits');
   const insets = useSafeAreaInsets();
   const heroImageUrl = data.imageUrl ?? 'https://placehold.co/800x500.png';
+  const favoriteIconName = isFavorite ? 'heart' : 'heart-outline';
 
   return (
     <>
@@ -68,25 +77,56 @@ export default function ServiceDetailsHeroSummary({
             </View>
           </Pressable>
 
-          <Pressable
-            accessibilityLabel="Close"
-            accessibilityRole="button"
-            hitSlop={10}
-            onPress={onClose}
-            style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}
-          >
-            <View
-              style={[
-                styles.iconButton,
-                {
-                  backgroundColor: colors.backgroundTertiary,
-                  shadowColor: colors.shadowColor,
-                },
-              ]}
+          <View style={styles.rightActions}>
+            <Pressable
+              accessibilityLabel={t('service_details_favorite_action')}
+              accessibilityRole="button"
+              disabled={isFavoritePending}
+              hitSlop={10}
+              onPress={onFavorite}
+              style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}
             >
-              <Ionicons name="close" size={24} color={colors.text} />
-            </View>
-          </Pressable>
+              <View
+                style={[
+                  styles.iconButton,
+                  {
+                    backgroundColor: colors.backgroundTertiary,
+                    shadowColor: colors.shadowColor,
+                  },
+                ]}
+              >
+                {isFavoritePending ? (
+                  <ActivityIndicator color={colors.text} size="small" />
+                ) : (
+                  <Ionicons
+                    name={favoriteIconName}
+                    size={24}
+                    color={isFavorite ? colors.danger : colors.text}
+                  />
+                )}
+              </View>
+            </Pressable>
+
+            <Pressable
+              accessibilityLabel={t('service_details_share_action')}
+              accessibilityRole="button"
+              hitSlop={10}
+              onPress={onShare}
+              style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}
+            >
+              <View
+                style={[
+                  styles.iconButton,
+                  {
+                    backgroundColor: colors.backgroundTertiary,
+                    shadowColor: colors.shadowColor,
+                  },
+                ]}
+              >
+                <Ionicons name="share-outline" size={24} color={colors.text} />
+              </View>
+            </Pressable>
+          </View>
         </View>
       </View>
 
@@ -218,6 +258,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: 4,
+  },
+  rightActions: {
+    flexDirection: 'row',
+    gap: 8,
   },
   sectionBody: {
     gap: 10,

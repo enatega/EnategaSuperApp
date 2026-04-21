@@ -10,8 +10,10 @@ import ServiceDetailsOptionsSection from './ServiceDetailsOptionsSection';
 
 type Props = {
   data: HomeVisitsSingleVendorServiceBookingScreenResponse;
+  isFavoritePending: boolean;
   onBack: () => void;
-  onClose: () => void;
+  onFavorite: () => void;
+  onShare: () => void;
   onBookService: () => void;
 };
 
@@ -25,8 +27,10 @@ function formatPrice(value: number | null | undefined) {
 
 export default function ServiceDetailsContent({
   data,
+  isFavoritePending,
   onBack,
-  onClose,
+  onFavorite,
+  onShare,
   onBookService,
 }: Props) {
   const { colors } = useTheme();
@@ -56,8 +60,11 @@ export default function ServiceDetailsContent({
           data={data}
           basePrice={basePrice}
           durationLabel={durationLabel}
+          isFavorite={data.isFavorite}
+          isFavoritePending={isFavoritePending}
           onBack={onBack}
-          onClose={onClose}
+          onFavorite={onFavorite}
+          onShare={onShare}
         />
 
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
