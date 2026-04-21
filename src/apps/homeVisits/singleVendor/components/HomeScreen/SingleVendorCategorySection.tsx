@@ -43,6 +43,7 @@ export default function SingleVendorCategorySection() {
         items={data}
         isPending={isPending}
         onActionPress={handleSeeAllPress}
+        onItemPress={(item) => handleCategorySeeAllPress(item.id, item.name)}
         title={t('single_vendor_categories_title')}
       />
 

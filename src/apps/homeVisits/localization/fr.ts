@@ -111,6 +111,8 @@ const fr = {
   service_details_service_plural: 'services',
   service_details_service_type_fallback: 'Type de service',
   service_details_additional_services_fallback: 'Services supplementaires',
+  service_details_favorite_action: 'Favori',
+  service_details_share_action: 'Partager',
   Nothing_here_yet: 'Rien ici encore',
   Content_for_this_section_will_appear_once_items_are_available: 'Le contenu de cette section apparaîtra dès que les articles seront disponibles.',
   home_visits_settings_body: 'Le flux des paramètres pour les visites à domicile sera ajouté ensuite.',

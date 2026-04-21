@@ -16,6 +16,7 @@ import type {
   HomeVisitsSingleVendorMostPopularServicesParams,
   HomeVisitsSingleVendorNearbyServicesApiResponse,
   HomeVisitsSingleVendorNearbyServicesParams,
+  HomeVisitsToggleFavoriteServiceResponse,
 } from './types';
 
 const SINGLE_VENDOR_CATEGORIES_DEFAULTS = {
@@ -316,6 +317,23 @@ export const homeVisitsSingleVendorDiscoveryService = {
     } catch (error) {
       console.error(
         'home visits single vendor service booking screen request failed',
+        error,
+      );
+      throw error;
+    }
+  },
+
+  toggleFavoriteService: async (
+    serviceId: string,
+  ): Promise<HomeVisitsToggleFavoriteServiceResponse> => {
+    try {
+      return await apiClient.post<HomeVisitsToggleFavoriteServiceResponse>(
+        '/api/v1/apps/home-services/favorite-services/toggle',
+        { serviceId },
+      );
+    } catch (error) {
+      console.error(
+        'home visits single vendor toggle favorite service request failed',
         error,
       );
       throw error;

@@ -35,6 +35,8 @@ export default function ServicesCard({
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const imageUrl =
     item.productImage || item.storeImage || item.storeLogo || 'https://placehold.co/400x400.png';
+    console.log('json_Data_Item',JSON.stringify(item,null,2));
+    
 
   const handlePress = () => {
     if (onPress) {

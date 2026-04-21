@@ -111,6 +111,8 @@ const en = {
   service_details_service_plural: 'services',
   service_details_service_type_fallback: 'Service Type',
   service_details_additional_services_fallback: 'Additional Services',
+  service_details_favorite_action: 'Favorite',
+  service_details_share_action: 'Share',
   Nothing_here_yet: 'Nothing here yet',
   Content_for_this_section_will_appear_once_items_are_available: 'Content for this section will appear once items are available.',
   home_visits_settings_body: 'Settings flow for home visits will be added next.',

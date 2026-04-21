@@ -186,6 +186,11 @@ export interface HomeVisitsSingleVendorDealsParams {
 export type HomeVisitsSingleVendorDealsApiResponse =
   PaginatedHomeVisitsResponse<HomeVisitsSingleVendorDeal>;
 
+export interface HomeVisitsToggleFavoriteServiceResponse {
+  message: string;
+  isFavorite: boolean;
+}
+
 export type HomeVisitsSingleVendorBookingsTab = 'ongoing' | 'past';
 
 export interface HomeVisitsSingleVendorBookingsParams {
