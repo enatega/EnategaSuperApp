@@ -12,10 +12,13 @@ import type {
   HomeVisitsSingleVendorCategoryServicesParams,
   HomeVisitsSingleVendorDealsApiResponse,
   HomeVisitsSingleVendorDealsParams,
+  HomeVisitsSingleVendorFavoriteServicesApiResponse,
+  HomeVisitsSingleVendorFavoriteServicesParams,
   HomeVisitsSingleVendorMostPopularServicesApiResponse,
   HomeVisitsSingleVendorMostPopularServicesParams,
   HomeVisitsSingleVendorNearbyServicesApiResponse,
   HomeVisitsSingleVendorNearbyServicesParams,
+  HomeVisitsToggleFavoriteServiceResponse,
 } from './types';
 
 const SINGLE_VENDOR_CATEGORIES_DEFAULTS = {
@@ -49,6 +52,11 @@ const SINGLE_VENDOR_BOOKINGS_DEFAULTS = {
   offset: 0,
   limit: 10,
   tab: 'ongoing',
+} as const;
+
+const SINGLE_VENDOR_FAVORITE_SERVICES_DEFAULTS = {
+  offset: 0,
+  limit: 10,
 } as const;
 
 export const homeVisitsSingleVendorDiscoveryService = {
@@ -316,6 +324,45 @@ export const homeVisitsSingleVendorDiscoveryService = {
     } catch (error) {
       console.error(
         'home visits single vendor service booking screen request failed',
+        error,
+      );
+      throw error;
+    }
+  },
+
+  getFavoriteServicesPage: async (
+    params: HomeVisitsSingleVendorFavoriteServicesParams = {},
+  ): Promise<HomeVisitsSingleVendorFavoriteServicesApiResponse> => {
+    const {
+      offset = SINGLE_VENDOR_FAVORITE_SERVICES_DEFAULTS.offset,
+      limit = SINGLE_VENDOR_FAVORITE_SERVICES_DEFAULTS.limit,
+    } = params;
+
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorFavoriteServicesApiResponse>(
+        '/api/v1/apps/home-services/favorite-services',
+        { offset, limit },
+      );
+    } catch (error) {
+      console.error(
+        'home visits single vendor favorite services request failed',
+        error,
+      );
+      throw error;
+    }
+  },
+
+  toggleFavoriteService: async (
+    serviceId: string,
+  ): Promise<HomeVisitsToggleFavoriteServiceResponse> => {
+    try {
+      return await apiClient.post<HomeVisitsToggleFavoriteServiceResponse>(
+        '/api/v1/apps/home-services/favorite-services/toggle',
+        { serviceId },
+      );
+    } catch (error) {
+      console.error(
+        'home visits single vendor toggle favorite service request failed',
         error,
       );
       throw error;

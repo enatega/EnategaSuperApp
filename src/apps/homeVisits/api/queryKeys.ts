@@ -69,6 +69,11 @@ export const homeVisitsKeys = {
     sort_by?: string;
   }) =>
     [...homeVisitsKeys.discovery(), 'single-vendor-deals', filters] as const,
+  singleVendorFavoriteServices: (filters?: {
+    offset?: number;
+    limit?: number;
+  }) =>
+    [...homeVisitsKeys.discovery(), 'single-vendor-favorite-services', filters] as const,
   singleVendorServiceBookingScreen: (serviceId: string) =>
     [...homeVisitsKeys.discovery(), 'single-vendor-service-booking-screen', serviceId] as const,
   singleVendorBookings: (filters?: { limit?: number; tab?: string }) =>
