@@ -34,6 +34,7 @@ export default function ServiceDetailsHeroSummary({
   const { t } = useTranslation('homeVisits');
   const insets = useSafeAreaInsets();
   const heroImageUrl = data.imageUrl ?? 'https://placehold.co/800x500.png';
+  const favoriteIconName = isFavorite ? 'heart' : 'heart-outline';
 
   return (
     <>
@@ -98,7 +99,7 @@ export default function ServiceDetailsHeroSummary({
                   <ActivityIndicator color={colors.text} size="small" />
                 ) : (
                   <Ionicons
-                    name="heart-outline"
+                    name={favoriteIconName}
                     size={24}
                     color={isFavorite ? colors.danger : colors.text}
                   />
