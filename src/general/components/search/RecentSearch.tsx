@@ -1,9 +1,9 @@
 import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from "react-native";
 import React from "react";
-import Icon from "../../../../general/components/Icon";
-import { useTheme } from "../../../../general/theme/theme";
-import Text from "../../../../general/components/Text";
-import { typography } from "../../../../general/theme/typography";
+import Icon from "../Icon";
+import { useTheme } from "../../theme/theme";
+import Text from "../Text";
+import { typography } from "../../theme/typography";
 import { RecentSearchProps } from "./types";
 
 const RecentSearch = ({

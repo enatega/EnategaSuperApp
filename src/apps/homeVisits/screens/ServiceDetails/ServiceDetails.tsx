@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, Share, StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -13,6 +13,7 @@ import ServiceDetailsSkeleton from '../../components/ServiceDetailsPage/ServiceD
 import useServiceDetailsBookingScreen from '../../singleVendor/hooks/useServiceDetailsBookingScreen';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../../singleVendor/navigation/types';
 import type { HomeVisitsServiceDetailsBookingSelectionPayload } from '../../types/serviceDetails';
+import useToggleFavoriteService from '../../singleVendor/hooks/useToggleFavoriteService';
 
 type ServiceDetailsRouteProp = RouteProp<
   HomeVisitsSingleVendorNavigationParamList,
@@ -27,6 +28,7 @@ export default function ServiceDetails() {
   const route = useRoute<ServiceDetailsRouteProp>();
   const { serviceId } = route.params;
   const query = useServiceDetailsBookingScreen(serviceId);
+  const toggleFavoriteMutation = useToggleFavoriteService();
 
   const handleGoBack = useCallback(() => {
     navigation.goBack();
@@ -42,6 +44,26 @@ export default function ServiceDetails() {
     },
     [navigation, query.data?.serviceCenterId, serviceId],
   );
+
+  const handleFavoritePress = useCallback(async () => {
+    if (!query.data?.serviceId || toggleFavoriteMutation.isPending) {
+      return;
+    }
+
+    try {
+      await toggleFavoriteMutation.mutateAsync(query.data.serviceId);
+      await query.refetch();
+    } catch (error) {
+      console.error('service favorite toggle failed', error);
+    }
+  }, [query, toggleFavoriteMutation]);
+
+  const handleSharePress = useCallback(async () => {
+    await Share.share({
+      title: t('details_title'),
+      message: t('details_body'),
+    });
+  }, [t]);
 
   if (query.isPending) {
     return <ServiceDetailsSkeleton />;
@@ -87,9 +109,11 @@ export default function ServiceDetails() {
   return (
     <ServiceDetailsContent
       data={query.data}
+      isFavoritePending={toggleFavoriteMutation.isPending}
       onBack={handleGoBack}
+      onFavorite={handleFavoritePress}
+      onShare={handleSharePress}
       onBookService={handleBookService}
-      onClose={handleGoBack}
     />
   );
 }

@@ -16,6 +16,7 @@ export type SingleVendorStackParamList = {
   SingleVendorTabs: undefined;
   SingleVendorDetails: undefined;
   SingleVendorCategoriesSeeAll: undefined;
+  SingleVendorFavorites: undefined;
   SeeAllScreen: {
     scope?: 'single-vendor' | 'multi-vendor' | 'chain';
     queryType:

@@ -34,6 +34,7 @@ export interface HomeVisitsSingleVendorServiceBookingScreenPricingSummary {
 export interface HomeVisitsSingleVendorServiceBookingScreenResponse {
   serviceId: string;
   serviceCenterId: string;
+  isFavorite: boolean;
   serviceName: string;
   imageUrl: string | null;
   description: string | null;

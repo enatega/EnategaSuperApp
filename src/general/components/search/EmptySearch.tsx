@@ -1,8 +1,8 @@
 import { StyleSheet, View } from "react-native";
 import React from "react";
-import Svg from "../Svg";
-import Text from "../../../../general/components/Text";
-import { useTheme } from "../../../../general/theme/theme";
+import Svg from "../../components/Svg";
+import Text from "../Text";
+import { useTheme } from "../../theme/theme";
 import { useTranslation } from "react-i18next";
 import { EmptySearchProps } from "./types";
 

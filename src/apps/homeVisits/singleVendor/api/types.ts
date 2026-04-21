@@ -34,6 +34,7 @@ export interface HomeVisitsSingleVendorCategoryService {
   dealAmount?: number | null;
   latitude?: number | string | null;
   longitude?: number | string | null;
+  isFavorite?: boolean | null;
 }
 
 export interface HomeVisitsSingleVendorCategoryServicesParams {
@@ -168,6 +169,7 @@ export interface HomeVisitsSingleVendorNearbyService {
   dealAmount?: number | null;
   latitude?: number | string | null;
   longitude?: number | string | null;
+  isFavorite?: boolean | null;
 }
 
 export interface HomeVisitsSingleVendorNearbyServicesParams {
@@ -203,6 +205,7 @@ export interface HomeVisitsSingleVendorMostPopularService {
   dealAmount?: number | null;
   latitude?: number | string | null;
   longitude?: number | string | null;
+  isFavorite?: boolean | null;
 }
 
 export interface HomeVisitsSingleVendorMostPopularServicesParams {
@@ -238,6 +241,7 @@ export interface HomeVisitsSingleVendorDeal {
   dealAmount?: number | null;
   latitude?: number | string | null;
   longitude?: number | string | null;
+  isFavorite?: boolean | null;
 }
 
 export interface HomeVisitsSingleVendorDealsParams {
@@ -255,6 +259,19 @@ export interface HomeVisitsSingleVendorDealsParams {
 
 export type HomeVisitsSingleVendorDealsApiResponse =
   PaginatedHomeVisitsResponse<HomeVisitsSingleVendorDeal>;
+
+export interface HomeVisitsToggleFavoriteServiceResponse {
+  message: string;
+  isFavorite: boolean;
+}
+
+export interface HomeVisitsSingleVendorFavoriteServicesParams {
+  offset?: number;
+  limit?: number;
+}
+
+export type HomeVisitsSingleVendorFavoriteServicesApiResponse =
+  PaginatedHomeVisitsResponse<HomeVisitsSingleVendorCategoryService>;
 
 export type HomeVisitsSingleVendorBookingsTab = 'ongoing' | 'past';
 
