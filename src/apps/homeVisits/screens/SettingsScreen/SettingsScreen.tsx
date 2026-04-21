@@ -9,14 +9,14 @@ import SettingsScreen, {
   type SettingsMenuItem,
 } from '../../../../general/screens/settings/SettingsScreen';
 import { useTheme } from '../../../../general/theme/theme';
-import type { DeliveriesStackParamList } from '../../navigation/types';
+import type { HomeVisitsStackParamList } from '../../navigation/types';
 
 const ICON_SIZE = 20;
 
-export default function DeliveriesSettingsScreen() {
+export default function HomeVisitsSettingsScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('general');
-  const navigation = useNavigation<NavigationProp<DeliveriesStackParamList>>();
+  const navigation = useNavigation<NavigationProp<HomeVisitsStackParamList>>();
   const iconColor = colors.text;
 
   const menuSections: SettingsMenuItem[][] = [
