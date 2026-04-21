@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,8 +17,24 @@ export default function FavoriteServicesScreen({}: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('homeVisits');
   const insets = useSafeAreaInsets();
-  const { data, isPending, isError, isRefetching, refetch } =
-    useSingleVendorFavoriteServices();
+  const {
+    data,
+    isPending,
+    isError,
+    isRefetching,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useSingleVendorFavoriteServices();
+
+  const onEndReached = React.useCallback(() => {
+    if (!hasNextPage || isFetchingNextPage) {
+      return;
+    }
+
+    void fetchNextPage();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -85,6 +101,8 @@ export default function FavoriteServicesScreen({}: Props) {
       <FlatList
         data={data}
         keyExtractor={(item) => `${item.productId}-${item.serviceCenterId}`}
+        onEndReached={onEndReached}
+        onEndReachedThreshold={0.3}
         renderItem={({ item }: { item: HomeVisitsSingleVendorCategoryService }) => (
           <ServicesCard item={item} layout="fullWidth" />
         )}
@@ -105,6 +123,13 @@ export default function FavoriteServicesScreen({}: Props) {
           },
         ]}
         showsVerticalScrollIndicator={false}
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <View style={styles.footerLoader}>
+              <ActivityIndicator color={colors.primary} size="small" />
+            </View>
+          ) : null
+        }
       />
     </View>
   );
@@ -120,6 +145,11 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 16,
     paddingTop: 4,
+  },
+  footerLoader: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
   },
   listContent: {
     paddingHorizontal: 16,
