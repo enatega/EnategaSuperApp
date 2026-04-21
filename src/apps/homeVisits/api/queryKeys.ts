@@ -75,4 +75,13 @@ export const homeVisitsKeys = {
     [...homeVisitsKeys.all, 'single-vendor-bookings', filters] as const,
   singleVendorBookingDetail: (orderId: string) =>
     [...homeVisitsKeys.all, 'single-vendor-booking-detail', orderId] as const,
+
+  // Search
+  search: () => [...homeVisitsKeys.all, 'search'] as const,
+  recommendations: () => [...homeVisitsKeys.search(), 'recommendations'] as const,
+  recentSearches: () => [...homeVisitsKeys.search(), 'recent-searches'] as const,
+  serviceSearch: (keyword: string, latitude?: number, longitude?: number) =>
+    [...homeVisitsKeys.search(), 'services', keyword, latitude, longitude] as const,
+  serviceCenterSearch: (keyword: string, latitude?: number, longitude?: number) =>
+    [...homeVisitsKeys.search(), 'service-centers', keyword, latitude, longitude] as const,
 };

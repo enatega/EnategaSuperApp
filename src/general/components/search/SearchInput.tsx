@@ -8,8 +8,8 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "../../../../general/theme/theme";
-import Icon from "../../../../general/components/Icon";
+import { useTheme } from "../../theme/theme";
+import Icon from "../Icon";
 import { SearchInputProps } from "./types";
 
 

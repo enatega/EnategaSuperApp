@@ -9,16 +9,15 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Icon from "../../../../general/components/Icon";
-import Text from "../../../../general/components/Text";
-import { typography } from "../../../../general/theme/typography";
-import AddressSelectionBottomSheet from "../../../../general/components/address/AddressSelectionBottomSheet";
+import Icon from "../Icon";
+import Text from "../Text";
+import { typography } from "../../theme/typography";
+import AddressSelectionBottomSheet from "../address/AddressSelectionBottomSheet";
 import SearchInput from "./SearchInput";
 import RecentSearches from "./RecentSearches";
 import SearchSuggestions from "./SearchSuggestions";
 import SearchSuggestionsSkeleton from "./SearchSuggestionsSkeleton";
-import SearchResults from "./SearchResults";
-import type { SearchMainContainerProps } from "./types";
+import type { SearchMainContainerProps } from "../../../apps/deliveries/components/search/types";
 
 export default function SearchMainContainer({
   colors,
@@ -27,21 +26,13 @@ export default function SearchMainContainer({
   searchQuery,
   recommendations,
   recentSearches,
-  products,
-  stores,
   selectedAddressLabel,
-  shouldSearchStores,
-  isSearchActive,
   isLoadingRecommendations,
-  isSearchLoading,
-  isFetchingMoreProducts,
-  isFetchingMoreStores,
   deletingRecentSearchId,
   isDeletingRecentSearch,
   isClearingRecentSearches,
   showIdleState,
   showRecentSearches,
-  hasNoResults,
   handleChangeText,
   handleFocus,
   handleBlur,
@@ -50,11 +41,10 @@ export default function SearchMainContainer({
   handleSubmitEditing,
   handleSuggestionPress,
   handleRecentSearchPress,
-  handleLoadMoreProducts,
-  handleLoadMoreStores,
   onDeleteRecentSearch,
   onClearRecentSearches,
   addressSheet,
+  children,
 }: SearchMainContainerProps) {
   return (
     <>
@@ -139,18 +129,7 @@ export default function SearchMainContainer({
                 </View>
               ) : null}
 
-              <SearchResults
-                isSearchActive={isSearchActive}
-                shouldSearchStores={shouldSearchStores}
-                isSearchLoading={isSearchLoading}
-                hasNoResults={hasNoResults}
-                products={products}
-                stores={stores}
-                isFetchingMoreProducts={isFetchingMoreProducts}
-                isFetchingMoreStores={isFetchingMoreStores}
-                onLoadMoreProducts={handleLoadMoreProducts}
-                onLoadMoreStores={handleLoadMoreStores}
-              />
+              {children}
             </ScrollView>
           </KeyboardAvoidingView>
         </SafeAreaView>

@@ -1,5 +1,5 @@
 import React from 'react';
-import SearchInput from '../../../components/search/SearchInput';
+import SearchInput from '../../../../../general/components/search/SearchInput';
 import SeeAllHeader from '../../../../../general/screens/SeeAllScreen/components/SeeAllHeader';
 import type { GenericListHeaderRenderProps } from '../../../../../general/components/filterablePaginatedList';
 
