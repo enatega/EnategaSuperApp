@@ -11,12 +11,12 @@ import { useTheme } from "../../../../general/theme/theme";
 import useDebouncedValue from "../../../../general/hooks/useDebouncedValue";
 import type { ProfileAddress } from "../../../../general/api/profileService";
 import type { AddressFlowOrigin } from "../../../../general/navigation/addressFlowTypes";
-import type { DeliveriesStackParamList } from "../../navigation/types";
+import type { HomeVisitsStackParamList } from "../../navigation/types";
 import {
-  useProductSearch,
+  useServiceSearch,
   useRecentSearches,
   useSearchRecommendations,
-  useStoreSearch,
+  useServiceCenterSearch,
 } from "../useSearchQueries";
 import useAddress from "../../../../general/hooks/useAddress";
 import useAddressSelectionSheet from "../../../../general/hooks/useAddressSelectionSheet";
@@ -24,16 +24,18 @@ import useRecentSearchActions from "./useRecentSearchActions";
 import useSavedAddresses from "../../../../general/hooks/useSavedAddresses";
 import useSearchKeyboardState from "../../../../general/hooks/searchFlow/useSearchKeyboardState";
 import useSelectSavedAddress from "../../../../general/hooks/useSelectSavedAddress";
-import { type DeliverySearchFlowOptions } from "./types";
+import useHomeVisitsSearchFilterState from "./useHomeVisitsSearchFilterState";
+import { type HomeVisitsSearchFlowOptions } from "./queryTypes";
 
-type DeliveriesNavigationProp =
-  NativeStackNavigationProp<DeliveriesStackParamList>;
+type HomeVisitsNavigationProp =
+  NativeStackNavigationProp<HomeVisitsStackParamList>;
 
 type SearchRouteName =
   | "MultiVendorTabSearch"
   | "SingleVendorTabSearch"
   | "ChainTabSearch";
 
+  // Todo apr 21: need to look into it after multivenor and chain navigation is implemented.
 function getAddressFlowOrigin(routeName: string): AddressFlowOrigin {
   if (routeName === "MultiVendorTabSearch") {
     return "multi-vendor-home";
@@ -46,16 +48,17 @@ function getAddressFlowOrigin(routeName: string): AddressFlowOrigin {
   return "single-vendor-home";
 }
 
-export default function useDeliverySearchFlow(
-  options?: DeliverySearchFlowOptions,
+export default function useHomeVisitsSearchFlow(
+  options?: HomeVisitsSearchFlowOptions,
 ) {
-  const navigation = useNavigation<DeliveriesNavigationProp>();
+  const navigation = useNavigation<HomeVisitsNavigationProp>();
   const route =
     useRoute<
       RouteProp<Record<SearchRouteName, object | undefined>, SearchRouteName>
     >();
   const { colors } = useTheme();
-  const { t } = useTranslation("deliveries");
+  const { t } = useTranslation("homeVisits");
+  const { t: tGeneral } = useTranslation("general");
   const { inputRef, isFocused, dismissKeyboard, handleFocus, handleBlur } =
     useSearchKeyboardState();
   const origin = getAddressFlowOrigin(route.name);
@@ -65,8 +68,8 @@ export default function useDeliverySearchFlow(
     addresses,
     isLoading: isAddressesLoading,
     refetch,
-  } = useSavedAddresses("deliveries");
-  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("deliveries");
+  } = useSavedAddresses("home-services");
+  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("home-services");
   const {
     isVisible: isAddressSheetVisible,
     open: handleOpenAddressSheet,
@@ -88,11 +91,13 @@ export default function useDeliverySearchFlow(
       options?.location?.longitude,
     ],
   );
-  const shouldSearchStores = options?.searchStores ?? false;
+  const shouldSearchServiceCenters = options?.searchServiceCenters ?? false;
   const debounceMs = options?.debounceMs ?? 600;
 
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedQuery = useDebouncedValue(searchQuery, debounceMs);
+  
+  const filterState = useHomeVisitsSearchFilterState({ t: tGeneral });
   const trimmedQuery = searchQuery.trim();
   const trimmedDebouncedQuery = debouncedQuery.trim();
   const isWaitingForDebounce =
@@ -102,27 +107,37 @@ export default function useDeliverySearchFlow(
     useSearchRecommendations();
   const { data: recentSearchesData } = useRecentSearches();
   const {
-    data: productsData,
-    isLoading: isLoadingProducts,
-    isFetchingNextPage: isFetchingMoreProducts,
-    hasNextPage: hasMoreProducts,
-    fetchNextPage: fetchMoreProducts,
-  } = useProductSearch(trimmedDebouncedQuery, location);
+    data: servicesData,
+    isLoading: isLoadingServices,
+    isFetchingNextPage: isFetchingMoreServices,
+    hasNextPage: hasMoreServices,
+    fetchNextPage: fetchMoreServices,
+  } = useServiceSearch(trimmedDebouncedQuery, {
+    ...location,
+    sort_by: filterState.appliedFilters.sortBy,
+    ratings: filterState.appliedFilters.ratings,
+    availability: filterState.appliedFilters.availability,
+  });
   const {
-    data: storesData,
-    isLoading: isLoadingStores,
-    isFetchingNextPage: isFetchingMoreStores,
-    hasNextPage: hasMoreStores,
-    fetchNextPage: fetchMoreStores,
-  } = useStoreSearch(trimmedDebouncedQuery, location, {
-    enabled: shouldSearchStores && trimmedDebouncedQuery.length > 0,
+    data: serviceCentersData,
+    isLoading: isLoadingServiceCenters,
+    isFetchingNextPage: isFetchingMoreServiceCenters,
+    hasNextPage: hasMoreServiceCenters,
+    fetchNextPage: fetchMoreServiceCenters,
+  } = useServiceCenterSearch(trimmedDebouncedQuery, {
+    ...location,
+    sort_by: filterState.appliedFilters.sortBy,
+    ratings: filterState.appliedFilters.ratings,
+    availability: filterState.appliedFilters.availability,
+  }, {
+    enabled: shouldSearchServiceCenters && trimmedDebouncedQuery.length > 0,
   });
 
   const recommendations = recommendationsData ?? [];
   const recentSearches = recentSearchesData?.items ?? [];
-  const products = productsData?.pages.flatMap((page) => page.items) ?? [];
-  const stores = shouldSearchStores
-    ? (storesData?.pages.flatMap((page) => page.items) ?? [])
+  const services = servicesData?.pages.flatMap((page) => page.items) ?? [];
+  const serviceCenters = shouldSearchServiceCenters
+    ? (serviceCentersData?.pages.flatMap((page) => page.items) ?? [])
     : [];
   const {
     deletingRecentSearchId,
@@ -141,14 +156,14 @@ export default function useDeliverySearchFlow(
   const isSearchLoading =
     isSearchActive &&
     (isWaitingForDebounce ||
-      isLoadingProducts ||
-      (shouldSearchStores && isLoadingStores));
+      isLoadingServices ||
+      (shouldSearchServiceCenters && isLoadingServiceCenters));
   const hasNoResults =
     isSearchActive &&
     trimmedDebouncedQuery.length > 0 &&
     !isSearchLoading &&
-    products.length === 0 &&
-    stores.length === 0;
+    services.length === 0 &&
+    serviceCenters.length === 0;
 
   const handleChangeText = useCallback((text: string) => {
     setSearchQuery(text);
@@ -184,25 +199,25 @@ export default function useDeliverySearchFlow(
     [dismissKeyboard],
   );
 
-  const handleLoadMoreProducts = useCallback(() => {
-    if (hasMoreProducts && !isFetchingMoreProducts) {
-      fetchMoreProducts();
+  const handleLoadMoreServices = useCallback(() => {
+    if (hasMoreServices && !isFetchingMoreServices) {
+      fetchMoreServices();
     }
-  }, [fetchMoreProducts, hasMoreProducts, isFetchingMoreProducts]);
+  }, [fetchMoreServices, hasMoreServices, isFetchingMoreServices]);
 
-  const handleLoadMoreStores = useCallback(() => {
-    if (!shouldSearchStores) {
+  const handleLoadMoreServiceCenters = useCallback(() => {
+    if (!shouldSearchServiceCenters) {
       return;
     }
 
-    if (hasMoreStores && !isFetchingMoreStores) {
-      fetchMoreStores();
+    if (hasMoreServiceCenters && !isFetchingMoreServiceCenters) {
+      fetchMoreServiceCenters();
     }
   }, [
-    fetchMoreStores,
-    hasMoreStores,
-    isFetchingMoreStores,
-    shouldSearchStores,
+    fetchMoreServiceCenters,
+    hasMoreServiceCenters,
+    isFetchingMoreServiceCenters,
+    shouldSearchServiceCenters,
   ]);
 
   const handleSelectAddress = useCallback(
@@ -226,7 +241,7 @@ export default function useDeliverySearchFlow(
   const handleAddAddressPress = useCallback(() => {
     handleCloseAddressSheet();
     navigation.navigate("AddressSearch", { 
-      appPrefix: "deliveries",
+      appPrefix: "home-services",
       origin 
     });
   }, [handleCloseAddressSheet, navigation, origin]);
@@ -234,10 +249,14 @@ export default function useDeliverySearchFlow(
   const handleUseCurrentLocation = useCallback(() => {
     handleCloseAddressSheet();
     navigation.navigate("AddressChooseOnMap", { 
-      appPrefix: "deliveries",
+      appPrefix: "home-services",
       origin 
     });
   }, [handleCloseAddressSheet, navigation, origin]);
+
+  const handleFiltersChange = useCallback(() => {
+    // This will be handled by the filter state hook
+  }, []);
 
   return {
     colors,
@@ -246,21 +265,21 @@ export default function useDeliverySearchFlow(
     searchQuery,
     recommendations,
     recentSearches,
-    products,
-    stores,
+    services,
+    serviceCenters,
     selectedAddressLabel,
     isSearchActive,
     isLoadingRecommendations,
     isSearchLoading,
-    isFetchingMoreProducts,
-    isFetchingMoreStores: shouldSearchStores ? isFetchingMoreStores : false,
+    isFetchingMoreServices,
+    isFetchingMoreServiceCenters: shouldSearchServiceCenters ? isFetchingMoreServiceCenters : false,
     deletingRecentSearchId,
     isDeletingRecentSearch,
     isClearingRecentSearches,
     showIdleState,
     showRecentSearches,
     hasNoResults,
-    shouldSearchStores,
+    shouldSearchServiceCenters,
     handleChangeText,
     handleFocus,
     handleBlur,
@@ -269,8 +288,9 @@ export default function useDeliverySearchFlow(
     handleSubmitEditing,
     handleSuggestionPress,
     handleRecentSearchPress,
-    handleLoadMoreProducts,
-    handleLoadMoreStores,
+    handleFiltersChange,
+    handleLoadMoreServices,
+    handleLoadMoreServiceCenters,
     onDeleteRecentSearch: handleDeleteRecentSearch,
     onClearRecentSearches: handleClearRecentSearches,
     addressSheet: {
@@ -285,5 +305,7 @@ export default function useDeliverySearchFlow(
       selectedAddressId: selectedAddress?.id,
       onOpen: handleOpenAddressSheet,
     },
+    // Filter state
+    ...filterState,
   };
 }

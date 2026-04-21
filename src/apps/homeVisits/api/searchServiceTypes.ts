@@ -48,24 +48,22 @@ export type ClearRecentSearchesResponse = {
 // ---------------------------------------------------------------------------
 
 export type SearchServiceItem = {
-  serviceId: string;
-  serviceCenterId: string;
-  serviceName: string;
-  serviceCenterName: string;
-  serviceImage?: string | null;
-  serviceCenterLogo?: string | null;
-  serviceCenterImage?: string | null;
   productId: string;
-  storeId: string;
+  serviceCenterId: string;
   productName: string;
   storeName: string;
   productImage?: string | null;
   storeLogo?: string | null;
   storeImage?: string | null;
   price?: number | null;
+  averageRating?: number | null;
+  reviewCount?: number | null;
+  priceTier?: string | null;
   deal?: string | null;
   dealType?: string | null;
   dealAmount?: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 export type SearchServicesResponse = {

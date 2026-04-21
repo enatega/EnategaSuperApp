@@ -16,38 +16,39 @@ const RecentSearches = ({
   isDeletingRecentSearch,
   isClearingRecentSearches,
 }: RecentSearchesProps) => {
-  const { t } = useTranslation("deliveries");
+  const { t } = useTranslation("general");
   const { colors, typography } = useTheme();
 
   return (
-    <View>
-      <View style={styles.wrapper}>
-        <View style={styles.headerContainer}>
-          <Text
-            weight="extraBold"
-            style={{ fontSize: typography.size.h5, lineHeight: typography.lineHeight.h5 }}
-          >
-            {t("recent_searches")}
-          </Text>
-          <TouchableOpacity
-            hitSlop={12}
-            onPress={onDeleteAllPress}
-            disabled={Boolean(isClearingRecentSearches || isDeletingRecentSearch)}
-            activeOpacity={0.7}
-          >
-            {isClearingRecentSearches ? (
-              <ActivityIndicator size="small" color={colors.blue800} />
-            ) : (
-              <Text
-                color={colors.blue800}
-                weight="medium"
-                style={{ fontSize: typography.size.sm2, lineHeight: 22 }}
-              >
-                {t("clear_all")}
-              </Text>
-            )}
-          </TouchableOpacity>
-        </View>
+    <>
+      <View style={styles.headerContainer}>
+        <Text
+          weight="extraBold"
+          style={{
+            fontSize: typography.size.h5,
+            lineHeight: typography.lineHeight.h5,
+          }}
+        >
+          {t("recent_searches")}
+        </Text>
+        <TouchableOpacity
+          hitSlop={12}
+          onPress={onDeleteAllPress}
+          disabled={Boolean(isClearingRecentSearches || isDeletingRecentSearch)}
+          activeOpacity={0.7}
+        >
+          {isClearingRecentSearches ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <Text
+              color={colors.primary}
+              weight="medium"
+              style={{ fontSize: typography.size.sm2, lineHeight: 22 }}
+            >
+              {t("clear_all")}
+            </Text>
+          )}
+        </TouchableOpacity>
       </View>
       <FlatList
         data={items}
@@ -65,16 +66,13 @@ const RecentSearches = ({
         showsVerticalScrollIndicator={false}
         scrollEnabled={false}
       />
-    </View>
+    </>
   );
 };
 
 export default RecentSearches;
 
 const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-  },
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",

@@ -118,6 +118,9 @@ const fr = {
   home_visits_wallet_body: 'Le flux du portefeuille pour les visites à domicile sera ajouté ensuite.',
   Unable_to_load_items: 'Impossible de charger les articles',
   Please_try_again_in_a_moment: 'Veuillez réessayer dans un instant.',
+  // Search related translations
+  services: 'Services',
+  see_all: 'Voir tout',
 };
 
 export default fr;

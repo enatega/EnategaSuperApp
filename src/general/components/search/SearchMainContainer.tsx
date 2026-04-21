@@ -17,11 +17,11 @@ import SearchInput from "./SearchInput";
 import RecentSearches from "./RecentSearches";
 import SearchSuggestions from "./SearchSuggestions";
 import SearchSuggestionsSkeleton from "./SearchSuggestionsSkeleton";
-import type { SearchMainContainerProps } from "../../../apps/deliveries/components/search/types";
+import type { GenericSearchMainContainerProps } from "./types";
+import { useTranslation } from "react-i18next";
 
 export default function SearchMainContainer({
   colors,
-  t,
   inputRef,
   searchQuery,
   recommendations,
@@ -45,7 +45,8 @@ export default function SearchMainContainer({
   onClearRecentSearches,
   addressSheet,
   children,
-}: SearchMainContainerProps) {
+}: GenericSearchMainContainerProps) {
+  const { t } = useTranslation("general");
   return (
     <>
       <TouchableWithoutFeedback onPress={dismissKeyboard}>
@@ -60,7 +61,7 @@ export default function SearchMainContainer({
               ref={inputRef}
               value={searchQuery}
               onChangeText={handleChangeText}
-              placeholder={t("search_input_placeholder")}
+              placeholder={t("generic_list_search_placeholder")}
               onFocus={handleFocus}
               onBlur={handleBlur}
               onClear={handleClear}
@@ -136,15 +137,15 @@ export default function SearchMainContainer({
       </TouchableWithoutFeedback>
 
       <AddressSelectionBottomSheet
-        addresses={addressSheet.addresses}
-        isLoading={addressSheet.isLoading}
-        isVisible={addressSheet.isVisible}
-        onAddAddress={addressSheet.onAddAddress}
-        onClose={addressSheet.onClose}
-        onSelectAddress={addressSheet.onSelectAddress}
-        onUseCurrentLocation={addressSheet.onUseCurrentLocation}
-        selectingAddressId={addressSheet.selectingAddressId}
-        selectedAddressId={addressSheet.selectedAddressId}
+        addresses={addressSheet?.addresses}
+        isLoading={addressSheet?.isLoading}
+        isVisible={addressSheet?.isVisible}
+        onAddAddress={addressSheet?.onAddAddress}
+        onClose={addressSheet?.onClose}
+        onSelectAddress={addressSheet?.onSelectAddress}
+        onUseCurrentLocation={addressSheet?.onUseCurrentLocation}
+        selectingAddressId={addressSheet?.selectingAddressId}
+        selectedAddressId={addressSheet?.selectedAddressId}
       />
     </>
   );

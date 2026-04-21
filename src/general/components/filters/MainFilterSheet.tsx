@@ -202,8 +202,7 @@ export default function MainFilterSheet({
               </View>
             ) : null}
 
-            {/* Todo17: can add stock filter after backend handling */}
-            {/* {isStockVisible && filters?.stock?.length ? (
+            {isStockVisible && filters?.stock?.length ? (
               <View style={styles.section}>
                 <Text variant="subtitle" weight="bold">
                   {sectionTitles?.stock}
@@ -223,7 +222,7 @@ export default function MainFilterSheet({
                   )}
                 />
               </View>
-            ) : null} */}
+            ) : null}
 
             {filters?.sortBy?.length ? (
               <View style={styles.section}>
