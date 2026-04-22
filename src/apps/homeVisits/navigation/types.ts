@@ -10,6 +10,20 @@ export type HomeVisitsStackParamList = ProfileNavigationParamList &
   Chain: undefined;
   Settings: undefined;
   Support: undefined;
+  SupportFaq: undefined;
+  SupportContactForm: {
+    issueLabel: string;
+    issueValue: string;
+  };
+  SupportConversations: undefined;
+  SupportTickets: undefined;
+  SupportChat:
+    | {
+        agentName?: string;
+        chatBoxId?: string;
+        receiverId?: string;
+      }
+    | undefined;
   Wallet: undefined;
   ColorMode: undefined;
   Language: undefined;

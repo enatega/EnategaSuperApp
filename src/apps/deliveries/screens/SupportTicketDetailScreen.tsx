@@ -10,6 +10,7 @@ import {
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import SupportHeader from '../../../general/components/support/SupportHeader';
 import Text from '../../../general/components/Text';
 import { showToast } from '../../../general/components/AppToast';
 import { useAuthSessionQuery } from '../../../general/hooks/useAuthQueries';
@@ -18,7 +19,6 @@ import { useTheme } from '../../../general/theme/theme';
 import ChatComposer from '../components/chat/ChatComposer';
 import ChatMessageBubble from '../components/chat/ChatMessageBubble';
 import ChatQuickReplyChip from '../components/chat/ChatQuickReplyChip';
-import SupportHeader from '../components/support/SupportHeader';
 import { useDeliveriesSocketSession } from '../hooks';
 import { useSendSupportChatMessage } from '../hooks/useSupportChatMutations';
 import { useSupportChatBox, useSupportConversations } from '../hooks/useSupportChatQueries';
@@ -319,9 +319,10 @@ export default function SupportTicketDetailScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <SupportHeader
-        title={t('support_tickets_title')}
+        backAccessibilityLabel={t('support_back_action')}
         rightAccessibilityLabel={t('support_tickets_search_action')}
         rightIconName="search-outline"
+        title={t('support_tickets_title')}
       />
 
       <KeyboardAvoidingView

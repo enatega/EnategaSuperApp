@@ -1,3 +1,4 @@
+import type { NavigatorScreenParams } from '@react-navigation/native';
 import type { AddressFlowParamList } from "../../../../general/navigation/addressFlowTypes";
 
 export type SingleVendorBottomTabParamList = {
@@ -8,7 +9,7 @@ export type SingleVendorBottomTabParamList = {
 };
 
 export type SingleVendorStackParamList = {
-  SingleVendorTabs: undefined;
+  SingleVendorTabs: NavigatorScreenParams<SingleVendorBottomTabParamList> | undefined;
   SingleVendorDetails: undefined;
   SingleVendorCategoriesSeeAll: undefined;
   SeeAllScreen: {

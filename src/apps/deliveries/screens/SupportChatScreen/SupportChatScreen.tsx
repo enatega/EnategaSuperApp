@@ -11,6 +11,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import SupportHeader from '../../../../general/components/support/SupportHeader';
 import Text from '../../../../general/components/Text';
 import { showToast } from '../../../../general/components/AppToast';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
@@ -19,7 +20,6 @@ import { useTheme } from '../../../../general/theme/theme';
 import ChatComposer from '../../components/chat/ChatComposer';
 import ChatMessageBubble from '../../components/chat/ChatMessageBubble';
 import ChatQuickReplyChip from '../../components/chat/ChatQuickReplyChip';
-import SupportHeader from '../../components/support/SupportHeader';
 import { useDeliveriesSocketSession } from '../../hooks';
 import { useSendSupportChatMessage } from '../../hooks/useSupportChatMutations';
 import { useSupportChatBox, useSupportGroupedChatBoxes } from '../../hooks/useSupportChatQueries';
@@ -304,8 +304,9 @@ export default function SupportChatScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <SupportHeader
-        title={agentName}
+        backAccessibilityLabel={t('support_back_action')}
         rightAccessibilityLabel={t('support_call_action')}
+        title={agentName}
       />
 
       <KeyboardAvoidingView

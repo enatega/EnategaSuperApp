@@ -13,6 +13,7 @@ type Props = {
   onBack: () => void;
   onClose: () => void;
   onBookService: () => void;
+  onRatingPress?: () => void;
 };
 
 function formatPrice(value: number | null | undefined) {
@@ -28,6 +29,7 @@ export default function ServiceDetailsContent({
   onBack,
   onClose,
   onBookService,
+  onRatingPress,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('homeVisits');
@@ -40,6 +42,38 @@ export default function ServiceDetailsContent({
     data.pricingSummary.serviceCount === 1
       ? t('service_details_service_singular')
       : t('service_details_service_plural');
+
+  React.useEffect(() => {
+    console.log('[ServiceDetailsContent] render snapshot', {
+      serviceId: data.serviceId,
+      title: data.title,
+      basePrice,
+      totalPrice,
+      durationLabel,
+      serviceCount: data.pricingSummary.serviceCount,
+      serviceCountLabel,
+      serviceTypeSections: data.serviceTypeSections.map((section) => ({
+        groupId: section.groupId,
+        heading: section.heading,
+        options: section.options.length,
+      })),
+      additionalServiceSections: data.additionalServiceSections.map((section) => ({
+        groupId: section.groupId,
+        heading: section.heading,
+        options: section.options.length,
+      })),
+    });
+  }, [
+    basePrice,
+    data.additionalServiceSections,
+    data.pricingSummary.serviceCount,
+    data.serviceId,
+    data.serviceTypeSections,
+    data.title,
+    durationLabel,
+    serviceCountLabel,
+    totalPrice,
+  ]);
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -58,6 +92,7 @@ export default function ServiceDetailsContent({
           durationLabel={durationLabel}
           onBack={onBack}
           onClose={onClose}
+          onRatingPress={onRatingPress}
         />
 
         <View style={[styles.divider, { backgroundColor: colors.border }]} />

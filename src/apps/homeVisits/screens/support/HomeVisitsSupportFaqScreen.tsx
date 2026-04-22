@@ -1,51 +1,60 @@
-import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import type { NavigationProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
+import React, { useMemo } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import SupportChatFooter from '../../../../general/components/support/SupportChatFooter';
 import SupportFaqListItem from '../../../../general/components/support/SupportFaqListItem';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
-import ScreenHeader from '../../../../general/components/ScreenHeader';
-import { SupportFaqNavigationProp } from '../../navigation/supportNavigationTypes';
-import { supportFaqArticles } from '../../utils/supportFaqArticles';
+import type { HomeVisitsStackParamList } from '../../navigation/types';
 
-export default function SupportFaqScreen() {
+export default function HomeVisitsSupportFaqScreen() {
   const { colors, typography } = useTheme();
-  const { t } = useTranslation('deliveries');
-  const navigation = useNavigation<SupportFaqNavigationProp>();
+  const { t } = useTranslation('homeVisits');
+  const navigation = useNavigation<NavigationProp<HomeVisitsStackParamList>>();
+
+  const faqLabels = useMemo(
+    () => [
+      t('home_visits_support_faq_item_1'),
+      t('home_visits_support_faq_item_2'),
+      t('home_visits_support_faq_item_3'),
+      t('home_visits_support_faq_item_4'),
+      t('home_visits_support_faq_item_5'),
+      t('home_visits_support_faq_item_6'),
+    ],
+    [t],
+  );
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
-      <ScreenHeader title="" />
-
       <ScrollView
-        style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        style={styles.scroll}
       >
         <Text
           color={colors.text}
-          weight="extraBold"
           style={[styles.title, { fontSize: typography.size.h5, lineHeight: 38 }]}
+          weight="extraBold"
         >
-          {t('support_faq_title')}
+          {t('home_visits_support_faq_title')}
         </Text>
 
         <View style={styles.list}>
-          {supportFaqArticles.map((item) => (
+          {faqLabels.map((item, index) => (
             <SupportFaqListItem
-              key={item.id}
-              label={t(item.titleKey)}
-              onPress={() => navigation.navigate('SupportFaqArticle', { articleId: item.id })}
+              key={`${item}-${index}`}
+              label={item}
+              onPress={() => navigation.navigate('SupportChat')}
             />
           ))}
         </View>
       </ScrollView>
 
       <SupportChatFooter
-        ctaLabel={t('support_chat_cta')}
-        onPress={() => navigation.navigate('SupportChat', { agentName: t('support_chat_agent_name') })}
+        ctaLabel={t('home_visits_support_chat_cta')}
+        onPress={() => navigation.navigate('SupportChat')}
       />
     </View>
   );
