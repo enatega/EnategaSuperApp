@@ -16,6 +16,8 @@ type Props = {
   isFavorite: boolean;
   isFavoritePending: boolean;
   onBack: () => void;
+
+  onRatingPress?: () => void;
   onFavorite: () => void;
   onShare: () => void;
 };
@@ -27,6 +29,8 @@ export default function ServiceDetailsHeroSummary({
   isFavorite,
   isFavoritePending,
   onBack,
+
+  onRatingPress,
   onFavorite,
   onShare,
 }: Props) {
@@ -34,6 +38,8 @@ export default function ServiceDetailsHeroSummary({
   const { t } = useTranslation('homeVisits');
   const insets = useSafeAreaInsets();
   const heroImageUrl = data.imageUrl ?? 'https://placehold.co/800x500.png';
+  const averageRating = data.rating?.average ?? 0;
+  const reviewCount = data.rating?.count ?? 0;
   const favoriteIconName = isFavorite ? 'heart' : 'heart-outline';
 
   return (
@@ -143,36 +149,37 @@ export default function ServiceDetailsHeroSummary({
           {data.serviceName}
         </Text>
 
-        {data.rating ? (
-          <View style={styles.ratingRow}>
-            <Icon type="AntDesign" name="star" size={14} color={colors.yellow500} />
-            {data.rating.average != null ? (
-              <Text
-                weight="semiBold"
-                style={{
-                  color: colors.text,
-                  fontSize: typography.size.xs2,
-                  lineHeight: typography.lineHeight.sm,
-                }}
-              >
-                {data.rating.average.toFixed(1)}
-              </Text>
-            ) : null}
-            {data.rating.count != null ? (
-              <Text
-                weight="medium"
-                style={{
-                  color: colors.warningText,
-                  fontSize: typography.size.xs2,
-                  lineHeight: typography.lineHeight.sm,
-                  textDecorationLine: 'underline',
-                }}
-              >
-                ({data.rating.count.toLocaleString()}+)
-              </Text>
-            ) : null}
-          </View>
-        ) : null}
+        <View style={styles.ratingRow}>
+          <Icon type="AntDesign" name="star" size={14} color={colors.yellow500} />
+          <Text
+            weight="semiBold"
+            style={{
+              color: colors.text,
+              fontSize: typography.size.xs2,
+              lineHeight: typography.lineHeight.sm,
+            }}
+          >
+            {averageRating.toFixed(1)}
+          </Text>
+          <Pressable
+            accessibilityRole="button"
+            disabled={!onRatingPress}
+            onPress={onRatingPress}
+            style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}
+          >
+            <Text
+              weight="medium"
+              style={{
+                color: colors.warningText,
+                fontSize: typography.size.xs2,
+                lineHeight: typography.lineHeight.sm,
+                textDecorationLine: 'underline',
+              }}
+            >
+              ({reviewCount.toLocaleString()}+)
+            </Text>
+          </Pressable>
+        </View>
 
         <View style={styles.summaryRow}>
           {basePrice ? (

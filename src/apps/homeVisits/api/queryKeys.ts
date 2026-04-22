@@ -1,5 +1,11 @@
 export const homeVisitsKeys = {
   all: ['homeVisits'] as const,
+  supportChat: () => [...homeVisitsKeys.all, 'support-chat'] as const,
+  supportChatConversations: () =>
+    [...homeVisitsKeys.supportChat(), 'conversations'] as const,
+  supportChatAdmins: () => [...homeVisitsKeys.supportChat(), 'admins'] as const,
+  supportTickets: () => [...homeVisitsKeys.all, 'support-tickets'] as const,
+  supportTicketOptions: () => [...homeVisitsKeys.all, 'support-ticket-options'] as const,
   discovery: () => [...homeVisitsKeys.all, 'discovery'] as const,
   singleVendorBanners: (filters?: { limit?: number }) =>
     [...homeVisitsKeys.discovery(), 'single-vendor-banners', filters] as const,
@@ -76,6 +82,8 @@ export const homeVisitsKeys = {
     [...homeVisitsKeys.discovery(), 'single-vendor-favorite-services', filters] as const,
   singleVendorServiceBookingScreen: (serviceId: string) =>
     [...homeVisitsKeys.discovery(), 'single-vendor-service-booking-screen', serviceId] as const,
+  singleVendorServiceReviews: (serviceId: string, filters?: { limit?: number }) =>
+    [...homeVisitsKeys.discovery(), 'single-vendor-service-reviews', serviceId, filters] as const,
   singleVendorServiceCenterServices: (
     serviceCenterId: string,
     filters?: { limit?: number },
@@ -96,8 +104,8 @@ export const homeVisitsKeys = {
   recommendations: () => [...homeVisitsKeys.search(), 'recommendations'] as const,
   recentSearches: () => [...homeVisitsKeys.search(), 'recent-searches'] as const,
   serviceSearch: (
-    keyword: string, 
-    latitude?: number, 
+    keyword: string,
+    latitude?: number,
     longitude?: number,
     filters?: {
       sort_by?: string;
@@ -107,8 +115,8 @@ export const homeVisitsKeys = {
   ) =>
     [...homeVisitsKeys.search(), 'services', keyword, latitude, longitude, filters] as const,
   serviceCenterSearch: (
-    keyword: string, 
-    latitude?: number, 
+    keyword: string,
+    latitude?: number,
     longitude?: number,
     filters?: {
       sort_by?: string;

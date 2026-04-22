@@ -1,3 +1,4 @@
+import type { NavigatorScreenParams } from '@react-navigation/native';
 import type { AddressFlowParamList } from "../../../../general/navigation/addressFlowTypes";
 import type { HomeVisitsServiceDetailsSelectionState } from '../../types/serviceDetails';
 import type {
@@ -13,7 +14,7 @@ export type SingleVendorBottomTabParamList = {
 };
 
 export type SingleVendorStackParamList = {
-  SingleVendorTabs: undefined;
+  SingleVendorTabs: NavigatorScreenParams<SingleVendorBottomTabParamList> | undefined;
   SingleVendorDetails: undefined;
   SingleVendorCategoriesSeeAll: undefined;
   SingleVendorFavorites: undefined;

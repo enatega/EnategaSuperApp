@@ -2,13 +2,13 @@ import React, { useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import SupportHeader from '../../../../general/components/support/SupportHeader';
 import Text from '../../../../general/components/Text';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
 import { useTheme } from '../../../../general/theme/theme';
 import SupportDeleteConversationModal from '../../components/support/SupportDeleteConversationModal';
 import SupportConversationsSkeleton from '../../components/support/SupportConversationsSkeleton';
 import SupportConversationSectionTitle from '../../components/support/SupportConversationSectionTitle';
-import SupportHeader from '../../components/support/SupportHeader';
 import SupportSwipeableConversationItem from '../../components/support/SupportSwipeableConversationItem';
 import { useSupportConversations } from '../../hooks/useSupportChatQueries';
 import { SupportHomeNavigationProp } from '../../navigation/supportNavigationTypes';
@@ -93,9 +93,10 @@ export default function SupportConversationsScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <SupportHeader
-        title={t('support_conversations_title')}
+        backAccessibilityLabel={t('support_back_action')}
         rightAccessibilityLabel={t('support_search_action')}
         rightIconName="search-outline"
+        title={t('support_conversations_title')}
       />
 
       <ScrollView

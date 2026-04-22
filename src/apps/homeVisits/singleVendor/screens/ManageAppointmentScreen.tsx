@@ -11,6 +11,9 @@ import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
+import Svg from '../../components/Svg';
+import type { HomeVisitsSingleVendorBookingsTab } from '../api/types';
+import BookingsTabs from '../components/Bookings/BookingsTabs';
 import useSingleVendorBookingDetails from '../hooks/useSingleVendorBookingDetails';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
 
@@ -26,10 +29,13 @@ export default function ManageAppointmentScreen({ navigation, route }: Props) {
   const { colors, typography } = useTheme();
   const insets = useSafeAreaInsets();
   const { orderId } = route.params;
-  const { data } = useSingleVendorBookingDetails({ orderId });
+  const [activeTab, setActiveTab] =
+    React.useState<HomeVisitsSingleVendorBookingsTab>('past');
+  const { data, isLoading } = useSingleVendorBookingDetails({ orderId });
   const heroImage = data?.services?.[0]?.image ?? data?.store?.image ?? FALLBACK_IMAGE;
   const scheduleLabel = formatShortScheduleDate(data?.scheduledAt ?? data?.orderedAt);
   const serviceName = data?.services?.[0]?.name ?? t('single_vendor_bookings_title');
+  const showEmptyState = !isLoading && !data?.orderId;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background, paddingBottom: insets.bottom }]}>
@@ -37,8 +43,15 @@ export default function ManageAppointmentScreen({ navigation, route }: Props) {
         <View style={[styles.barContent, { backgroundColor: colors.background }]}>
           <Pressable
             accessibilityRole="button"
+            disabled={showEmptyState}
             onPress={() => navigation.goBack()}
-            style={[styles.iconButton, { backgroundColor: colors.backgroundTertiary }]}
+            style={[
+              styles.iconButton,
+              {
+                backgroundColor: colors.backgroundTertiary,
+                opacity: showEmptyState ? 0 : 1,
+              },
+            ]}
           >
             <MaterialCommunityIcons
               color={colors.text}
@@ -73,72 +86,139 @@ export default function ManageAppointmentScreen({ navigation, route }: Props) {
         </View>
       </View>
 
-      <View style={styles.content}>
-        <View style={styles.bookingRow}>
-          <Image source={{ uri: heroImage }} style={styles.image} />
-          <View style={styles.info}>
+      {showEmptyState ? (
+        <View style={[styles.content, styles.emptyContent]}>
+          <BookingsTabs
+            activeTab={activeTab}
+            ongoingLabel={t('single_vendor_bookings_tab_ongoing')}
+            onTabChange={setActiveTab}
+            pastLabel={t('single_vendor_bookings_tab_past')}
+          />
+          <View
+            style={[
+              styles.emptyCard,
+              {
+                backgroundColor: colors.background,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <Svg
+              color={colors.text}
+              height={72}
+              name="noResultsFound"
+              width={72}
+            />
             <Text
               style={{
                 color: colors.text,
-                fontSize: typography.size.sm2,
-                lineHeight: typography.lineHeight.md,
+                fontSize: typography.size.lg,
+                lineHeight: typography.lineHeight.lg,
               }}
-              weight="semiBold"
+              weight="bold"
             >
-              {scheduleLabel}
+              {t('single_vendor_manage_appointment_empty_title')}
             </Text>
             <Text
-              style={{
-                color: colors.mutedText,
-                fontSize: typography.size.xs2,
-                lineHeight: typography.lineHeight.sm,
-              }}
-              weight="medium"
+              style={[
+                styles.emptySubtitle,
+                {
+                  color: colors.text,
+                  fontSize: typography.size.md,
+                  lineHeight: typography.lineHeight.md2,
+                },
+              ]}
             >
-              {serviceName}
+              {t('single_vendor_manage_appointment_empty_subtitle')}
             </Text>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => {
+                navigation.navigate('SingleVendorTabs', { screen: 'SingleVendorTabSearch' });
+              }}
+              style={[styles.searchButton, { borderColor: colors.border }]}
+            >
+              <Text
+                style={{
+                  color: colors.text,
+                  fontSize: typography.size.sm,
+                  lineHeight: typography.lineHeight.sm,
+                }}
+                weight="medium"
+              >
+                {t('single_vendor_manage_appointment_search_service')}
+              </Text>
+            </Pressable>
           </View>
         </View>
-
-        <Pressable style={[styles.actionRow, { borderTopColor: colors.border, borderBottomColor: colors.border }]}>
-          <View style={styles.actionLeft}>
-            <MaterialCommunityIcons color={colors.text} name="calendar-clock-outline" size={24} />
-            <Text
-              style={{
-                color: colors.text,
-                fontSize: typography.size.md2,
-                lineHeight: typography.lineHeight.md2,
-              }}
-              weight="medium"
-            >
-              {t('single_vendor_manage_appointment_reschedule')}
-            </Text>
+      ) : (
+        <View style={styles.content}>
+          <View style={styles.bookingRow}>
+            <Image source={{ uri: heroImage }} style={styles.image} />
+            <View style={styles.info}>
+              <Text
+                style={{
+                  color: colors.text,
+                  fontSize: typography.size.sm2,
+                  lineHeight: typography.lineHeight.md,
+                }}
+                weight="semiBold"
+              >
+                {scheduleLabel}
+              </Text>
+              <Text
+                style={{
+                  color: colors.mutedText,
+                  fontSize: typography.size.xs2,
+                  lineHeight: typography.lineHeight.sm,
+                }}
+                weight="medium"
+              >
+                {serviceName}
+              </Text>
+            </View>
           </View>
-          <MaterialCommunityIcons color={colors.iconMuted} name="chevron-right" size={20} />
-        </Pressable>
 
-        <Pressable
-          onPress={() => {
-            navigation.navigate('SingleVendorCancelAppointment', { orderId });
-          }}
-          style={[styles.actionRow, { borderBottomColor: colors.border }]}
-        >
-          <View style={styles.actionLeft}>
-            <MaterialCommunityIcons color={colors.text} name="calendar-remove-outline" size={24} />
-            <Text
-              style={{
-                color: colors.text,
-                fontSize: typography.size.md2,
-                lineHeight: typography.lineHeight.md2,
-              }}
-              weight="medium"
-            >
-              {t('single_vendor_manage_appointment_cancel')}
-            </Text>
-          </View>
-          <MaterialCommunityIcons color={colors.iconMuted} name="chevron-right" size={20} />
-        </Pressable>
-      </View>
+          <Pressable style={[styles.actionRow, { borderTopColor: colors.border, borderBottomColor: colors.border }]}>
+            <View style={styles.actionLeft}>
+              <MaterialCommunityIcons color={colors.text} name="calendar-clock-outline" size={24} />
+              <Text
+                style={{
+                  color: colors.text,
+                  fontSize: typography.size.md2,
+                  lineHeight: typography.lineHeight.md2,
+                }}
+                weight="medium"
+              >
+                {t('single_vendor_manage_appointment_reschedule')}
+              </Text>
+            </View>
+            <MaterialCommunityIcons color={colors.iconMuted} name="chevron-right" size={20} />
+          </Pressable>
+
+          <Pressable
+            onPress={() => {
+              navigation.navigate('SingleVendorCancelAppointment', { orderId });
+            }}
+            style={[styles.actionRow, { borderBottomColor: colors.border }]}
+          >
+            <View style={styles.actionLeft}>
+              <MaterialCommunityIcons color={colors.text} name="calendar-remove-outline" size={24} />
+              <Text
+                style={{
+                  color: colors.text,
+                  fontSize: typography.size.md2,
+                  lineHeight: typography.lineHeight.md2,
+                }}
+                weight="medium"
+              >
+                {t('single_vendor_manage_appointment_cancel')}
+              </Text>
+            </View>
+            <MaterialCommunityIcons color={colors.iconMuted} name="chevron-right" size={20} />
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 }
@@ -209,6 +289,28 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 4,
   },
+  emptyCard: {
+    alignItems: 'center',
+    borderRadius: 8,
+    borderWidth: 1,
+    marginTop: 10,
+    paddingHorizontal: 24,
+    paddingVertical: 26,
+    rowGap: 12,
+    shadowColor: '#101828',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  emptyContent: {
+    paddingHorizontal: 16,
+  },
+  emptySubtitle: {
+    textAlign: 'center',
+  },
   image: {
     borderRadius: 8,
     height: 49,
@@ -220,6 +322,15 @@ const styles = StyleSheet.create({
   },
   screen: {
     flex: 1,
+  },
+  searchButton: {
+    alignItems: 'center',
+    borderRadius: 6,
+    borderWidth: 1,
+    height: 44,
+    justifyContent: 'center',
+    marginTop: 4,
+    width: '100%',
   },
   topBar: {
     width: '100%',
