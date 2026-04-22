@@ -15,6 +15,7 @@ export default function HomeVisitsProfileTabScreen() {
       favoritesEnabled
       isLoading={isLoading}
       onOpenFavourites={() => navigation.navigate('SingleVendorFavorites')}
+      onOpenNotifications={() => navigation.navigate('SingleVendorNotifications')}
       user={user}
       wallet={wallet}
     />
