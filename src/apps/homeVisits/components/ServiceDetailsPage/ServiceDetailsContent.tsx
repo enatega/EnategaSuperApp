@@ -1,44 +1,51 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '../../../../general/theme/theme';
+import React, { useCallback, useMemo, useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "../../../../general/theme/theme";
 import type {
   HomeVisitsServiceDetailsBookingSelectionPayload,
   HomeVisitsServiceDetailsSelectionState,
   HomeVisitsSingleVendorServiceBookingScreenResponse,
-} from '../../types/serviceDetails';
-import ServiceDetailsFooter from './ServiceDetailsFooter';
-import ServiceDetailsHeroSummary from './ServiceDetailsHeroSummary';
-import ServiceDetailsOptionsSection from './ServiceDetailsOptionsSection';
+} from "../../types/serviceDetails";
+import ServiceDetailsFooter from "./ServiceDetailsFooter";
+import ServiceDetailsHeroSummary from "./ServiceDetailsHeroSummary";
+import ServiceDetailsOptionsSection from "./ServiceDetailsOptionsSection";
 import {
   buildSelectionPayload,
   getInitialSelectionState,
   getPricingState,
   getSelectedOptions,
-} from './serviceDetailsSelection';
+} from "./serviceDetailsSelection";
 
 type Props = {
   data: HomeVisitsSingleVendorServiceBookingScreenResponse;
+  isFavoritePending: boolean;
   onBack: () => void;
-  onClose: () => void;
-  onBookService: (selection: HomeVisitsServiceDetailsBookingSelectionPayload) => void;
+  onFavorite: () => void;
+  onShare: () => void;
+  onBookService: (
+    selection: HomeVisitsServiceDetailsBookingSelectionPayload,
+  ) => void;
   initialSelection?: HomeVisitsServiceDetailsSelectionState;
 };
 
 export default function ServiceDetailsContent({
   data,
+  isFavoritePending,
   onBack,
-  onClose,
+  onFavorite,
+  onShare,
   onBookService,
   initialSelection,
 }: Props) {
   const { colors } = useTheme();
-  const { t } = useTranslation('homeVisits');
+  const { t } = useTranslation("homeVisits");
   const insets = useSafeAreaInsets();
-  const [selectionState, setSelectionState] = useState<HomeVisitsServiceDetailsSelectionState>(() =>
-    getInitialSelectionState(data, initialSelection),
-  );
+  const [selectionState, setSelectionState] =
+    useState<HomeVisitsServiceDetailsSelectionState>(() =>
+      getInitialSelectionState(data, initialSelection),
+    );
 
   const selectedOptions = useMemo(
     () => getSelectedOptions(data, selectionState),
@@ -59,8 +66,8 @@ export default function ServiceDetailsContent({
   const durationLabel = pricingState.durationLabel;
   const serviceCountLabel =
     pricingState.serviceCount === 1
-      ? t('service_details_service_singular')
-      : t('service_details_service_plural');
+      ? t("service_details_service_singular")
+      : t("service_details_service_plural");
 
   const handleServiceTypePress = useCallback((optionId: string) => {
     setSelectionState((previous) => ({
@@ -69,23 +76,26 @@ export default function ServiceDetailsContent({
     }));
   }, []);
 
-  const handleAdditionalServicePress = useCallback((groupId: string, optionId: string) => {
-    setSelectionState((previous) => {
-      const current = previous.selectedAdditionalByGroup[groupId] ?? [];
-      const exists = current.includes(optionId);
-      const next = exists
-        ? current.filter((id) => id !== optionId)
-        : [...current, optionId];
+  const handleAdditionalServicePress = useCallback(
+    (groupId: string, optionId: string) => {
+      setSelectionState((previous) => {
+        const current = previous.selectedAdditionalByGroup[groupId] ?? [];
+        const exists = current.includes(optionId);
+        const next = exists
+          ? current.filter((id) => id !== optionId)
+          : [...current, optionId];
 
-      return {
-        ...previous,
-        selectedAdditionalByGroup: {
-          ...previous.selectedAdditionalByGroup,
-          [groupId]: next,
-        },
-      };
-    });
-  }, []);
+        return {
+          ...previous,
+          selectedAdditionalByGroup: {
+            ...previous.selectedAdditionalByGroup,
+            [groupId]: next,
+          },
+        };
+      });
+    },
+    [],
+  );
 
   const handleBookServicePress = useCallback(() => {
     onBookService(selectionPayload);
@@ -106,15 +116,19 @@ export default function ServiceDetailsContent({
           data={data}
           basePrice={totalPrice}
           durationLabel={durationLabel}
+          isFavorite={data.isFavorite}
+          isFavoritePending={isFavoritePending}
           onBack={onBack}
-          onClose={onClose}
+          onFavorite={onFavorite}
+          onShare={onShare}
         />
 
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
         {data.serviceTypeSections.map((section) => {
           const selectedOptionId = section.options.some(
-            (option) => option.optionId === selectionState.selectedServiceTypeId,
+            (option) =>
+              option.optionId === selectionState.selectedServiceTypeId,
           )
             ? selectionState.selectedServiceTypeId
             : null;
@@ -123,7 +137,7 @@ export default function ServiceDetailsContent({
             <ServiceDetailsOptionsSection
               key={section.groupId}
               section={section}
-              titleFallback={t('service_details_service_type_fallback')}
+              titleFallback={t("service_details_service_type_fallback")}
               variant="radio"
               selectedOptionIds={selectedOptionId ? [selectedOptionId] : []}
               onOptionPress={handleServiceTypePress}
@@ -137,9 +151,11 @@ export default function ServiceDetailsContent({
           <ServiceDetailsOptionsSection
             key={section.groupId}
             section={section}
-            titleFallback={t('service_details_additional_services_fallback')}
+            titleFallback={t("service_details_additional_services_fallback")}
             variant="checkbox"
-            selectedOptionIds={selectionState.selectedAdditionalByGroup[section.groupId] ?? []}
+            selectedOptionIds={
+              selectionState.selectedAdditionalByGroup[section.groupId] ?? []
+            }
             onOptionPress={(optionId) =>
               handleAdditionalServicePress(section.groupId, optionId)
             }

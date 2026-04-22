@@ -163,8 +163,30 @@ export function getPricingState(
   data: HomeVisitsSingleVendorServiceBookingScreenResponse,
   selectedOptions: HomeVisitsSingleVendorServiceBookingScreenOption[],
 ): ServiceDetailsPricingState {
-  const optionsPrice = selectedOptions.reduce((sum, option) => sum + option.price, 0);
-  const totalPrice = data.basePrice + optionsPrice;
+  const serviceTypeOptionsById = new Map(
+    data.serviceTypeSections.flatMap((section) =>
+      section.options.map((option) => [option.optionId, option] as const),
+    ),
+  );
+
+  const selectedServiceTypeOption = selectedOptions.find((option) =>
+    serviceTypeOptionsById.has(option.optionId),
+  );
+
+  const basePrice =
+    selectedServiceTypeOption == null || selectedServiceTypeOption.isDefaultSelected
+      ? data.basePrice
+      : selectedServiceTypeOption.price;
+
+  const additionalOptionsPrice = selectedOptions.reduce((sum, option) => {
+    if (serviceTypeOptionsById.has(option.optionId)) {
+      return sum;
+    }
+
+    return sum + option.price;
+  }, 0);
+
+  const totalPrice = basePrice + additionalOptionsPrice;
   const estimatedDurationMinutes = selectedOptions.reduce(
     (sum, option) => sum + toMinutes(option.duration, option.durationUnit),
     0,
