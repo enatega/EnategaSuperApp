@@ -1,26 +1,27 @@
 import type { RefObject } from "react";
 import type {
-  SearchProductItem,
-  SearchStoreItem,
+  SearchServiceItem,
+  SearchServiceCenterItem,
 } from "../../api/searchServiceTypes";
-import type { TextInput } from "react-native";
+import type { TextInput, TextInputProps } from "react-native";
 import type {
   RecentSearchItem,
   SearchRecommendation,
 } from "../../api/searchServiceTypes";
-import type { SearchAddressSheetConfig } from "../../hooks/searchFlow/types";
+import type { SearchAddressSheetConfig } from "../../hooks/searchFlow/queryTypes";
 import type { ReactNode } from "react";
 
-export type ProductMiniCardScrollerProps = {
-  products: SearchProductItem[];
+export type ServiceCardScrollerProps = {
+  services: SearchServiceItem[];
   onSeeAllPress?: () => void;
-  onProductPress?: (product: SearchProductItem) => void;
+  onServicePress?: (service: SearchServiceItem) => void;
   onLoadMore?: () => void;
   isLoadingMore?: boolean;
+  horizontal?: boolean;
 };
 
-export type StoreCardScrollerProps = {
-  stores: SearchStoreItem[];
+export type ServiceCenterCardScrollerProps = {
+  serviceCenters: SearchServiceCenterItem[];
   onSeeAllPress?: () => void;
   onLoadMore?: () => void;
   isLoadingMore?: boolean;
@@ -28,15 +29,16 @@ export type StoreCardScrollerProps = {
 
 export type SearchResultsProps = {
   isSearchActive: boolean;
-  shouldSearchStores: boolean;
+  shouldSearchServiceCenters: boolean;
   isSearchLoading: boolean;
   hasNoResults: boolean;
-  products: SearchProductItem[];
-  stores: SearchStoreItem[];
-  isFetchingMoreProducts?: boolean;
-  isFetchingMoreStores?: boolean;
-  onLoadMoreProducts?: () => void;
-  onLoadMoreStores?: () => void;
+  services: SearchServiceItem[];
+  serviceCenters: SearchServiceCenterItem[];
+  isFetchingMoreServices?: boolean;
+  isFetchingMoreServiceCenters?: boolean;
+  onLoadMoreServices?: () => void;
+  onLoadMoreServiceCenters?: () => void;
+  horizontal: boolean
 };
 
 export type SearchMainContainerProps = {
@@ -52,15 +54,15 @@ export type SearchMainContainerProps = {
   searchQuery: string;
   recommendations: SearchRecommendation[];
   recentSearches: RecentSearchItem[];
-  products: SearchProductItem[];
-  stores: SearchStoreItem[];
+  services: SearchServiceItem[];
+  serviceCenters: SearchServiceCenterItem[];
   selectedAddressLabel?: string | null;
-  shouldSearchStores: boolean;
+  shouldSearchServiceCenters: boolean;
   isSearchActive: boolean;
   isLoadingRecommendations: boolean;
   isSearchLoading: boolean;
-  isFetchingMoreProducts: boolean;
-  isFetchingMoreStores: boolean;
+  isFetchingMoreServices: boolean;
+  isFetchingMoreServiceCenters: boolean;
   deletingRecentSearchId: string | null;
   isDeletingRecentSearch: boolean;
   isClearingRecentSearches: boolean;
@@ -75,8 +77,8 @@ export type SearchMainContainerProps = {
   handleSubmitEditing: () => void;
   handleSuggestionPress: (term: string) => void;
   handleRecentSearchPress: (term: string) => void;
-  handleLoadMoreProducts: () => void;
-  handleLoadMoreStores: () => void;
+  handleLoadMoreServices: () => void;
+  handleLoadMoreServiceCenters: () => void;
   onDeleteRecentSearch: (id: string) => void;
   onClearRecentSearches: () => void;
   addressSheet: SearchAddressSheetConfig;
@@ -84,7 +86,18 @@ export type SearchMainContainerProps = {
 };
 
 export type SearchResultsSkeletonProps = {
-  showStores?: boolean;
+  showServiceCenters?: boolean;
 };
 
 export type SearchSuggestionsSkeletonProps = Record<string, never>;
+
+export type SearchInputProps = {
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder?: string;
+  onClear?: () => void;
+  onFocus?: TextInputProps["onFocus"];
+  onBlur?: TextInputProps["onBlur"];
+  onSubmitEditing?: TextInputProps["onSubmitEditing"];
+  autoFocus?: boolean;
+};

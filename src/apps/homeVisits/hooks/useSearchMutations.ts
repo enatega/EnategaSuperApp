@@ -48,6 +48,9 @@ export function useDeleteRecentSearch(
       });
       options?.onSuccess?.(data, variables, context);
     },
+    onSettled: (data, error, variables, context) => {
+      options?.onSettled?.(data, error, variables, context);
+    },
   });
 }
 
@@ -64,6 +67,9 @@ export function useClearRecentSearches(
         queryKey: homeVisitsKeys.recentSearches(),
       });
       options?.onSuccess?.(data, variables, context);
+    },
+    onSettled: (data, error, variables, context) => {
+      options?.onSettled?.(data, error, variables, context);
     },
   });
 }

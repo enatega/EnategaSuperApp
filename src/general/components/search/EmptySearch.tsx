@@ -7,11 +7,11 @@ import { useTranslation } from "react-i18next";
 import { EmptySearchProps } from "./types";
 
 const EmptySearch = ({ 
-  title = "No results found", 
+  title = "no_results_found", 
   subtitle,
-  showIcon = true 
+  showIcon = true,
 }: EmptySearchProps) => {
-  const { t } = useTranslation("deliveries");
+  const { t } = useTranslation('general');
   const { colors, typography } = useTheme();
   
   return (

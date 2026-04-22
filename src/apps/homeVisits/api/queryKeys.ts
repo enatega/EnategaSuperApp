@@ -85,8 +85,26 @@ export const homeVisitsKeys = {
   search: () => [...homeVisitsKeys.all, 'search'] as const,
   recommendations: () => [...homeVisitsKeys.search(), 'recommendations'] as const,
   recentSearches: () => [...homeVisitsKeys.search(), 'recent-searches'] as const,
-  serviceSearch: (keyword: string, latitude?: number, longitude?: number) =>
-    [...homeVisitsKeys.search(), 'services', keyword, latitude, longitude] as const,
-  serviceCenterSearch: (keyword: string, latitude?: number, longitude?: number) =>
-    [...homeVisitsKeys.search(), 'service-centers', keyword, latitude, longitude] as const,
+  serviceSearch: (
+    keyword: string, 
+    latitude?: number, 
+    longitude?: number,
+    filters?: {
+      sort_by?: string;
+      ratings?: number;
+      availability?: string;
+    }
+  ) =>
+    [...homeVisitsKeys.search(), 'services', keyword, latitude, longitude, filters] as const,
+  serviceCenterSearch: (
+    keyword: string, 
+    latitude?: number, 
+    longitude?: number,
+    filters?: {
+      sort_by?: string;
+      ratings?: number;
+      availability?: string;
+    }
+  ) =>
+    [...homeVisitsKeys.search(), 'service-centers', keyword, latitude, longitude, filters] as const,
 };

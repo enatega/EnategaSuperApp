@@ -238,6 +238,24 @@ const en = {
   see_all_back_label: 'Back',
   see_all_open_filters_label: 'Open filters',
   see_all_map_view_label: 'Map view',
+  // Search components translations
+  no_results_found: 'No results found',
+  recent_searches: 'Recent searches',
+  searching_near: 'Searching near',
+  multi_vendor_address_label: 'Select address',
+  // Search filter translations
+  search_filter_title: 'Search Filters',
+  search_filter_sort_by: 'Sort by',
+  search_filter_sort_best_match: 'Best match',
+  search_filter_sort_top_rated: 'Top rated',
+  search_filter_sort_nearest: 'Nearest',
+  search_filter_ratings: 'Minimum rating',
+  search_filter_availability: 'Availability',
+  search_filter_availability_standard: 'Standard',
+  search_filter_availability_emergency: 'Emergency',
+  search_filter_stars: 'stars',
+  filter_button_label: 'Filter options',
+  search_input_placeholder: 'Search anything'
 };
 
 export default en;

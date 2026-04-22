@@ -13,6 +13,7 @@ import type {
   HomeVisitsSingleVendorMostPopularService,
   HomeVisitsSingleVendorNearbyService,
 } from '../singleVendor/api/types';
+import type { SearchServiceItem } from '../api/searchServiceTypes';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../singleVendor/navigation/types';
 
 interface DealCardProps {
@@ -20,7 +21,8 @@ interface DealCardProps {
     | HomeVisitsSingleVendorDeal
     | HomeVisitsSingleVendorCategoryService
     | HomeVisitsSingleVendorMostPopularService
-    | HomeVisitsSingleVendorNearbyService;
+    | HomeVisitsSingleVendorNearbyService
+    | SearchServiceItem;
   onPress?: () => void;
   layout?: 'compact' | 'fullWidth';
 }

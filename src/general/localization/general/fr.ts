@@ -183,7 +183,7 @@ const fr = {
   generic_list_retry: 'Réessayer',
   generic_list_empty_title: 'Aucun résultat trouvé',
   generic_list_empty_description: 'Essayez une autre recherche ou modifiez vos filtres.',
-  generic_list_search_placeholder: 'Rechercher',
+  generic_list_search_placeholder: 'Recherche',
   see_all_map_loading_title: 'Recherche de {{title}}',
   see_all_map_loading_description: 'Cela peut prendre quelques instants. Veuillez rester sur cet écran.',
   see_all_map_sheet_title: 'Restaurant',
@@ -191,6 +191,24 @@ const fr = {
   see_all_back_label: 'Retour',
   see_all_open_filters_label: 'Ouvrir les filtres',
   see_all_map_view_label: 'Vue carte',
+  // Search components translations
+  no_results_found: 'Aucun résultat trouvé',
+  recent_searches: 'Recherches récentes',
+  searching_near: 'Recherche près de',
+  multi_vendor_address_label: 'Sélectionner une adresse',
+  // Search filter translations
+  search_filter_title: 'Filtres de recherche',
+  search_filter_sort_by: 'Trier par',
+  search_filter_sort_best_match: 'Meilleure correspondance',
+  search_filter_sort_top_rated: 'Mieux notés',
+  search_filter_sort_nearest: 'Plus proches',
+  search_filter_ratings: 'Note minimum',
+  search_filter_availability: 'Disponibilité',
+  search_filter_availability_standard: 'Standard',
+  search_filter_availability_emergency: 'Urgence',
+  search_filter_stars: 'étoiles',
+  filter_button_label: 'Options de filtre',
+  search_input_placeholder: "Rechercher n'importe quoi",
 };
 
 export default fr;
