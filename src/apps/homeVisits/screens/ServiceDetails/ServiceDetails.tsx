@@ -5,21 +5,22 @@ import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { DiscoverySectionState } from '../../../general/components/discovery';
-import ScreenHeader from '../../../general/components/ScreenHeader';
-import { useTheme } from '../../../general/theme/theme';
-import ServiceDetailsContent from './ServiceDetails/ServiceDetailsContent';
-import ServiceDetailsSkeleton from './ServiceDetails/ServiceDetailsSkeleton';
-import useServiceDetailsBookingScreen from '../singleVendor/hooks/useServiceDetailsBookingScreen';
-import useToggleFavoriteService from '../singleVendor/hooks/useToggleFavoriteService';
-import type { HomeVisitsSingleVendorNavigationParamList } from '../singleVendor/navigation/types';
+import { DiscoverySectionState } from '../../../../general/components/discovery';
+import ScreenHeader from '../../../../general/components/ScreenHeader';
+import { useTheme } from '../../../../general/theme/theme';
+import ServiceDetailsContent from '../../components/ServiceDetailsPage/ServiceDetailsContent';
+import ServiceDetailsSkeleton from '../../components/ServiceDetailsPage/ServiceDetailsSkeleton';
+import useServiceDetailsBookingScreen from '../../singleVendor/hooks/useServiceDetailsBookingScreen';
+import type { HomeVisitsSingleVendorNavigationParamList } from '../../singleVendor/navigation/types';
+import type { HomeVisitsServiceDetailsBookingSelectionPayload } from '../../types/serviceDetails';
+import useToggleFavoriteService from '../../singleVendor/hooks/useToggleFavoriteService';
 
 type ServiceDetailsRouteProp = RouteProp<
   HomeVisitsSingleVendorNavigationParamList,
-  'ServiceDetailsPage'
+  'ServiceDetails'
 >;
 
-export default function ServiceDetailsPage() {
+export default function ServiceDetails() {
   const { colors } = useTheme();
   const { t } = useTranslation('homeVisits');
   const navigation =
@@ -33,9 +34,16 @@ export default function ServiceDetailsPage() {
     navigation.goBack();
   }, [navigation]);
 
-  const handleBookService = useCallback(() => {
-    // Booking flow will be added in a follow-up.
-  }, []);
+  const handleBookService = useCallback(
+    (selection: HomeVisitsServiceDetailsBookingSelectionPayload) => {
+      navigation.push('ServiceDetailsBooking', {
+        serviceId,
+        serviceCenterId: query.data!.serviceCenterId,
+        initialSelection: selection.selectionState,
+      });
+    },
+    [navigation, query.data?.serviceCenterId, serviceId],
+  );
 
   const handleFavoritePress = useCallback(async () => {
     if (!query.data?.serviceId || toggleFavoriteMutation.isPending) {

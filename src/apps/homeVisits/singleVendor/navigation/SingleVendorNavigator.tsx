@@ -5,11 +5,11 @@ import VisitDetails from '../../screens/VisitDetails';
 import BookingDetailsScreen from '../screens/BookingDetailsScreen';
 import ManageAppointmentScreen from '../screens/ManageAppointmentScreen';
 import CancelAppointmentScreen from '../screens/CancelAppointmentScreen';
-import ServiceDetailsPage from '../../components/ServiceDetailsPage';
+import ServiceDetails from '../../screens/ServiceDetails/ServiceDetails';
+import ServiceDetailsBooking from '../../screens/ServiceDetails/ServiceDetailsBooking';
+import TeamAndSchedule from '../../screens/TeamAndSchedule/TeamAndSchedule';
+import ReviewAndConfirm from '../../screens/ReviewAndConfirm/ReviewAndConfirm';
 import SingleVendorBottomTabNavigator from './SingleVendorBottomTabNavigator';
-import AddressSearchScreen from '../../../../general/screens/address/AddressSearchScreen';
-import AddressChooseOnMapScreen from '../../../../general/screens/address/AddressChooseOnMapScreen';
-import AddressDetailScreen from '../../../../general/screens/address/AddressDetailScreen';
 import type { HomeVisitsSingleVendorNavigationParamList } from './types';
 import HomeVisitsSingleVendorSeeAllScreen from '../screens/SeeAllScreen/HomeVisitsSingleVendorSeeAllScreen';
 import SingleVendorCategoriesSeeAll from '../../screens/SingleVendorCategoriesSeeAll/SingleVendorCategoriesSeeAll';
@@ -32,7 +32,7 @@ export default function SingleVendorNavigator() {
       <Stack.Screen
         name="SingleVendorDetails"
         component={VisitDetails}
-        options={{ title: t('details_title') }}
+        options={{ headerShown: true, title: t('details_title') }}
       />
       <Stack.Screen
         name="SingleVendorCategoriesSeeAll"
@@ -65,23 +65,23 @@ export default function SingleVendorNavigator() {
         options={sharedScreenOptions}
       />
       <Stack.Screen
-        name="ServiceDetailsPage"
-        component={ServiceDetailsPage}
+        name="ServiceDetails"
+        component={ServiceDetails}
         options={sharedScreenOptions}
       />
       <Stack.Screen
-        name="AddressSearch"
-        component={AddressSearchScreen}
+        name="ServiceDetailsBooking"
+        component={ServiceDetailsBooking}
         options={sharedScreenOptions}
       />
       <Stack.Screen
-        name="AddressChooseOnMap"
-        component={AddressChooseOnMapScreen}
+        name="TeamAndSchedule"
+        component={TeamAndSchedule}
         options={sharedScreenOptions}
       />
       <Stack.Screen
-        name="AddressDetail"
-        component={AddressDetailScreen}
+        name="ReviewAndConfirm"
+        component={ReviewAndConfirm}
         options={sharedScreenOptions}
       />
     </Stack.Navigator>

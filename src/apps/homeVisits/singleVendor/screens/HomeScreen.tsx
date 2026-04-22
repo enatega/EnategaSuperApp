@@ -99,8 +99,8 @@ export default function SingleVendorHomeScreen({ }: Props) {
           onAddAddressPress={handleOpenAddressSheet}
           onAddressPress={handleOpenAddressSheet}
         />
-        <SingleVendorCategorySection />
         <SingleVendorSpecialOffersBanner />
+        <SingleVendorCategorySection />
         <NearbyYourLocationSection
           latitude={resolvedSelectedAddress?.latitude}
           longitude={resolvedSelectedAddress?.longitude}

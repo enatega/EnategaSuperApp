@@ -1,4 +1,9 @@
 import type { AddressFlowParamList } from "../../../../general/navigation/addressFlowTypes";
+import type { HomeVisitsServiceDetailsSelectionState } from '../../types/serviceDetails';
+import type {
+  HomeVisitsReviewAndConfirmRouteParams,
+  HomeVisitsTeamAndScheduleRouteParams,
+} from '../../types/teamSchedule';
 
 export type SingleVendorBottomTabParamList = {
   SingleVendorTabHome: undefined;
@@ -35,9 +40,16 @@ export type SingleVendorStackParamList = {
   SingleVendorCancelAppointment: {
     orderId: string;
   };
-  ServiceDetailsPage: {
+  ServiceDetails: {
     serviceId: string;
   };
+  ServiceDetailsBooking: {
+    serviceId: string;
+    serviceCenterId: string;
+    initialSelection: HomeVisitsServiceDetailsSelectionState;
+  };
+  TeamAndSchedule: HomeVisitsTeamAndScheduleRouteParams;
+  ReviewAndConfirm: HomeVisitsReviewAndConfirmRouteParams;
 };
 
 export type HomeVisitsSingleVendorNavigationParamList =

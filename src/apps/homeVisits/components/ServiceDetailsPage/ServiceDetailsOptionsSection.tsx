@@ -1,6 +1,6 @@
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import type { HomeVisitsSingleVendorServiceBookingScreenSection } from '../../types/serviceDetails';
@@ -9,6 +9,8 @@ type Props = {
   section: HomeVisitsSingleVendorServiceBookingScreenSection;
   titleFallback: string;
   variant: 'radio' | 'checkbox';
+  selectedOptionIds: string[];
+  onOptionPress: (optionId: string) => void;
 };
 
 function formatOptionPrice(value: number) {
@@ -19,8 +21,11 @@ export default function ServiceDetailsOptionsSection({
   section,
   titleFallback,
   variant,
+  selectedOptionIds,
+  onOptionPress,
 }: Props) {
   const { colors, typography } = useTheme();
+  const selectedSet = new Set(selectedOptionIds);
 
   return (
     <View style={styles.optionsSection}>
@@ -50,75 +55,81 @@ export default function ServiceDetailsOptionsSection({
         ) : null}
       </View>
 
-      {section.options.map((option) => (
-        <View key={option.optionId} style={styles.optionRow}>
-          <View style={styles.optionTitleRow}>
-            {variant === 'radio' ? (
-              <View
-                style={[
-                  styles.radioOuter,
-                  {
-                    borderColor: option.isDefaultSelected
-                      ? colors.warning
-                      : colors.border,
-                  },
-                ]}
+      {section.options.map((option) => {
+        const isSelected = selectedSet.has(option.optionId);
+
+        return (
+          <Pressable
+            key={option.optionId}
+            accessibilityRole="button"
+            onPress={() => onOptionPress(option.optionId)}
+            style={({ pressed }) => [
+              styles.optionRow,
+              pressed ? styles.optionRowPressed : null,
+            ]}
+          >
+            <View style={styles.optionTitleRow}>
+              {variant === 'radio' ? (
+                <View
+                  style={[
+                    styles.radioOuter,
+                    {
+                      borderColor: isSelected ? colors.warning : colors.border,
+                    },
+                  ]}
+                >
+                  {isSelected ? (
+                    <View
+                      style={[
+                        styles.radioInner,
+                        {
+                          backgroundColor: colors.warning,
+                        },
+                      ]}
+                    />
+                  ) : null}
+                </View>
+              ) : (
+                <View
+                  style={[
+                    styles.checkbox,
+                    {
+                      borderColor: isSelected ? colors.warning : colors.border,
+                      backgroundColor: isSelected ? colors.warning : colors.background,
+                    },
+                  ]}
+                >
+                  {isSelected ? (
+                    <Ionicons name="checkmark" size={12} color={colors.text} />
+                  ) : null}
+                </View>
+              )}
+
+              <Text
+                weight="medium"
+                style={{
+                  color: colors.text,
+                  fontSize: typography.size.sm2,
+                  lineHeight: typography.lineHeight.md,
+                }}
               >
-                {option.isDefaultSelected ? (
-                  <View
-                    style={[
-                      styles.radioInner,
-                      {
-                        backgroundColor: colors.warning,
-                      },
-                    ]}
-                  />
-                ) : null}
-              </View>
-            ) : (
-              <View
-                style={[
-                  styles.checkbox,
-                  {
-                    borderColor: option.isDefaultSelected
-                      ? colors.warning
-                      : colors.border,
-                    backgroundColor: option.isDefaultSelected
-                      ? colors.warning
-                      : colors.background,
-                  },
-                ]}
-              >
-                {option.isDefaultSelected ? (
-                  <Ionicons name="checkmark" size={12} color={colors.text} />
-                ) : null}
-              </View>
-            )}
+                {option.title}
+              </Text>
+            </View>
 
             <Text
               weight="medium"
               style={{
-                color: colors.text,
+                color: colors.iconMuted,
                 fontSize: typography.size.sm2,
                 lineHeight: typography.lineHeight.md,
               }}
             >
-              {option.title}
+              {formatOptionPrice(option.price)}
             </Text>
-          </View>
-
-          <Text
-            weight="medium"
-            style={{
-              color: colors.iconMuted,
-              fontSize: typography.size.sm2,
-              lineHeight: typography.lineHeight.md,
-            }}
-          >
-            {formatOptionPrice(option.price)}
-          </Text>
-        </View>
-      ))}
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
@@ -136,6 +147,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  optionRowPressed: {
+    opacity: 0.75,
   },
   optionsSection: {
     gap: 12,

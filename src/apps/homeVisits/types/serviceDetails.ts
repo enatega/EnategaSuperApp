@@ -33,6 +33,7 @@ export interface HomeVisitsSingleVendorServiceBookingScreenPricingSummary {
 
 export interface HomeVisitsSingleVendorServiceBookingScreenResponse {
   serviceId: string;
+  serviceCenterId: string;
   isFavorite: boolean;
   serviceName: string;
   imageUrl: string | null;
@@ -42,4 +43,22 @@ export interface HomeVisitsSingleVendorServiceBookingScreenResponse {
   serviceTypeSections: HomeVisitsSingleVendorServiceBookingScreenSection[];
   additionalServiceSections: HomeVisitsSingleVendorServiceBookingScreenSection[];
   pricingSummary: HomeVisitsSingleVendorServiceBookingScreenPricingSummary;
+}
+
+export interface HomeVisitsServiceDetailsSelectionState {
+  selectedServiceTypeId: string | null;
+  selectedAdditionalByGroup: Record<string, string[]>;
+}
+
+export interface HomeVisitsServiceDetailsSelectionSummary {
+  totalPrice: number;
+  serviceCount: number;
+  estimatedDurationMinutes: number;
+  estimatedDurationLabel: string | null;
+}
+
+export interface HomeVisitsServiceDetailsBookingSelectionPayload {
+  serviceId: string;
+  selectionState: HomeVisitsServiceDetailsSelectionState;
+  summary: HomeVisitsServiceDetailsSelectionSummary;
 }

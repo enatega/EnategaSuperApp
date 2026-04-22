@@ -5,35 +5,35 @@ import {
   Pressable,
   StyleSheet,
 } from 'react-native';
-import Text from '../../../../../general/components/Text';
-import { useTheme } from '../../../../../general/theme/theme';
+import Text from '../Text';
+import { useTheme } from '../../theme/theme';
 import {
-  SCHEDULE_ROW_HEIGHT,
-  SCHEDULE_VISIBLE_ROWS,
-  type ScheduleWheelOption,
-} from '../../../utils/rideSchedule';
+  DATE_TIME_PICKER_ROW_HEIGHT,
+  DATE_TIME_PICKER_VISIBLE_ROWS,
+  type DateTimePickerOption,
+} from '../../utils/dateTimePicker';
 
 type Props<TValue extends string | number> = {
-  options: ScheduleWheelOption<TValue>[];
+  options: DateTimePickerOption<TValue>[];
   selectedIndex: number;
   onChange: (index: number) => void;
   width: number;
   align?: 'left' | 'center' | 'right';
 };
 
-function RideScheduleWheelColumn<TValue extends string | number>({
+function DateTimePickerWheelColumn<TValue extends string | number>({
+  align = 'center',
+  onChange,
   options,
   selectedIndex,
-  onChange,
   width,
-  align = 'center',
 }: Props<TValue>) {
-  const listRef = useRef<FlatList<ScheduleWheelOption<TValue>>>(null);
+  const listRef = useRef<FlatList<DateTimePickerOption<TValue>>>(null);
   const { colors, typography } = useTheme();
 
   useEffect(() => {
     listRef.current?.scrollToOffset({
-      offset: selectedIndex * SCHEDULE_ROW_HEIGHT,
+      offset: selectedIndex * DATE_TIME_PICKER_ROW_HEIGHT,
       animated: false,
     });
   }, [selectedIndex]);
@@ -41,7 +41,7 @@ function RideScheduleWheelColumn<TValue extends string | number>({
   const handleScrollEnd = (offsetY: number) => {
     const nextIndex = Math.max(
       0,
-      Math.min(options.length - 1, Math.round(offsetY / SCHEDULE_ROW_HEIGHT)),
+      Math.min(options.length - 1, Math.round(offsetY / DATE_TIME_PICKER_ROW_HEIGHT)),
     );
 
     if (nextIndex !== selectedIndex) {
@@ -50,12 +50,12 @@ function RideScheduleWheelColumn<TValue extends string | number>({
     }
 
     listRef.current?.scrollToOffset({
-      offset: nextIndex * SCHEDULE_ROW_HEIGHT,
+      offset: nextIndex * DATE_TIME_PICKER_ROW_HEIGHT,
       animated: true,
     });
   };
 
-  const renderItem = ({ item, index }: ListRenderItemInfo<ScheduleWheelOption<TValue>>) => {
+  const renderItem = ({ item, index }: ListRenderItemInfo<DateTimePickerOption<TValue>>) => {
     const isSelected = index === selectedIndex;
 
     return (
@@ -85,40 +85,40 @@ function RideScheduleWheelColumn<TValue extends string | number>({
   return (
     <FlatList
       ref={listRef}
-      data={options}
-      keyExtractor={(item, index) => `${item.value}-${index}`}
-      renderItem={renderItem}
-      showsVerticalScrollIndicator={false}
       bounces={false}
-      snapToInterval={SCHEDULE_ROW_HEIGHT}
-      decelerationRate="fast"
-      style={styles.list}
       contentContainerStyle={styles.content}
+      data={options}
+      decelerationRate="fast"
       getItemLayout={(_, index) => ({
-        length: SCHEDULE_ROW_HEIGHT,
-        offset: SCHEDULE_ROW_HEIGHT * index,
+        length: DATE_TIME_PICKER_ROW_HEIGHT,
+        offset: DATE_TIME_PICKER_ROW_HEIGHT * index,
         index,
       })}
+      keyExtractor={(item, index) => `${item.value}-${index}`}
       onMomentumScrollEnd={(event) => handleScrollEnd(event.nativeEvent.contentOffset.y)}
       onScrollEndDrag={(event) => handleScrollEnd(event.nativeEvent.contentOffset.y)}
+      renderItem={renderItem}
+      showsVerticalScrollIndicator={false}
+      snapToInterval={DATE_TIME_PICKER_ROW_HEIGHT}
+      style={styles.list}
     />
   );
 }
 
-export default memo(RideScheduleWheelColumn) as typeof RideScheduleWheelColumn;
+export default memo(DateTimePickerWheelColumn) as typeof DateTimePickerWheelColumn;
 
 const styles = StyleSheet.create({
-  list: {
-    height: SCHEDULE_ROW_HEIGHT * SCHEDULE_VISIBLE_ROWS,
-  },
   content: {
-    paddingVertical: SCHEDULE_ROW_HEIGHT * 2,
-  },
-  row: {
-    height: SCHEDULE_ROW_HEIGHT,
-    justifyContent: 'center',
+    paddingVertical: DATE_TIME_PICKER_ROW_HEIGHT * 2,
   },
   label: {
     paddingHorizontal: 4,
+  },
+  list: {
+    height: DATE_TIME_PICKER_ROW_HEIGHT * DATE_TIME_PICKER_VISIBLE_ROWS,
+  },
+  row: {
+    height: DATE_TIME_PICKER_ROW_HEIGHT,
+    justifyContent: 'center',
   },
 });
