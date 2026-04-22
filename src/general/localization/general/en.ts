@@ -210,6 +210,146 @@ const en = {
   settings_terms_of_use: 'Terms of Use',
   settings_delete_account: 'Delete Account',
   settings_app_version: 'App Version 1.0.0',
+  // Notification settings screen
+  notif_settings_title: 'Notification Settings',
+  notif_settings_food_delivery: 'Food Delivery',
+  notif_settings_marketing: 'Marketing',
+  notif_settings_email: 'Email',
+  notif_settings_sms: 'SMS',
+  notif_settings_whatsapp: 'WhatsApp',
+  notif_settings_success_title: 'Saved',
+  notif_settings_success_message: 'Notification preference updated.',
+  notif_settings_error_title: 'Error',
+  // Privacy Policy screen
+  privacy_title: 'Privacy Policy',
+  privacy_last_updated: 'Last updated 2 months ago',
+  privacy_intro:
+    'This privacy policy explains how we handle your personal information while using the food delivery app. By registering or accessing the app, you consent to the practices described in this policy.',
+  privacy_section_app_title: 'Privacy policy for the app',
+  privacy_section_app_body:
+    'The food delivery app is committed to protecting and managing your personal data and orders securely. You are authorized to use the app for personal and business purposes, subject to compliance with this policy and all applicable laws.',
+  privacy_section_responsibilities_title: 'User responsibilities',
+  privacy_section_responsibilities_body:
+    'Users are responsible for keeping their delivery addresses and payment information accurate. It is important to keep this information up to date to avoid issues during the ordering process.',
+  privacy_section_data_title: 'Data collection',
+  privacy_section_data_body:
+    'The food delivery app collects essential data to improve your experience, including your location, order history, and preferences.',
+  privacy_section_modifications_title: 'Order modifications',
+  privacy_section_modifications_body:
+    'You may modify or cancel your orders through the app before they are processed. Once an order is confirmed, changes may no longer be possible.',
+  privacy_section_payment_title: 'Payment security',
+  privacy_section_payment_body:
+    'We prioritize the security of your payment information. All transactions made through the app are processed using standard encryption technology.',
+  privacy_section_contact_title: 'Contact us',
+  privacy_section_contact_body:
+    'If you have any questions about these terms, please feel free to contact us:',
+  privacy_contact_email: 'Email: contact@fooddelivery.com',
+  privacy_contact_address: 'Address: Doha, Qatar',
+  // Terms of Service screen
+  tos_title: 'Terms of Service',
+  tos_last_updated: 'Last updated 2 months ago',
+  tos_intro:
+    'These terms of service define your access to and use of the food delivery app.',
+  tos_section_usage_title: 'Use of the service',
+  tos_section_usage_body:
+    'The food delivery app provides a reliable platform for placing orders and managing your meal deliveries.',
+  tos_section_orders_title: 'Order management',
+  tos_section_orders_body:
+    'The app allows you to track your orders easily, modify details, or cancel them within the allowed timeframe.',
+  tos_section_payment_title: 'Payment security',
+  tos_section_payment_body:
+    'Payments made through the app are processed securely using encryption technology.',
+  tos_section_delivery_title: 'Delivery policies',
+  tos_section_delivery_body:
+    'Users are encouraged to provide accurate delivery addresses to support fast and efficient service.',
+  tos_section_support_title: 'Customer support',
+  tos_section_support_body:
+    'The app provides a robust support system to address any questions or issues.',
+  tos_section_contact_title: 'Contact us',
+  tos_section_contact_body:
+    'If you have any questions about these terms, please feel free to contact us:',
+  tos_contact_email: 'Email: contact@fooddelivery.com',
+  tos_contact_address: 'Address: Doha, Qatar',
+  // Terms of Use screen
+  tou_title: 'Terms of Use',
+  tou_last_updated: 'Updated 2 months ago',
+  tou_intro:
+    'These terms of use define your rights and responsibilities when using the app.',
+  tou_section_guidelines_title: 'Usage guidelines',
+  tou_section_guidelines_body:
+    'The app provides secure management of your orders and customer data.',
+  tou_section_etiquette_title: 'Delivery etiquette',
+  tou_section_etiquette_body:
+    'Users should remain respectful and courteous toward delivery staff.',
+  tou_section_payment_title: 'Payment methods',
+  tou_section_payment_body:
+    'The app supports multiple payment methods, including credit cards and digital wallets.',
+  tou_section_cancellation_title: 'Cancellation policy',
+  tou_section_cancellation_body:
+    'Orders may be cancelled within 10 minutes after being placed.',
+  tou_section_feedback_title: 'Feedback and ratings',
+  tou_section_feedback_body:
+    'Users are encouraged to share feedback about their delivery experience.',
+  tou_section_promotions_title: 'Promotions and offers',
+  tou_section_promotions_body:
+    'The app may offer promotions and discounts that are subject to specific conditions.',
+  tou_section_contact_title: 'Contact us',
+  tou_section_contact_body:
+    'If you have any questions, please feel free to contact us:',
+  tou_contact_email: 'Email: contact@fooddelivery.com',
+  tou_contact_address: 'Address: Doha, Qatar',
+  // Change password flow
+  change_password_title: 'Change Password',
+  change_password_new_title: 'New Password',
+  change_password_email_heading: 'Change password?',
+  change_password_email_description: 'Enter your email address and we\'ll send you a verification code.',
+  change_password_email_placeholder: 'your@email.com',
+  change_password_continue: 'Continue',
+  change_password_verify_heading: 'Verify Your Email',
+  change_password_verify_description: 'Enter the 4-digit code sent to {{email}}',
+  change_password_verify_button: 'Verify OTP',
+  change_password_new_heading: 'Create your new password',
+  change_password_new_description: 'Your new password must be different from your previous password.',
+  change_password_new_placeholder: 'New password',
+  change_password_confirm_placeholder: 'Confirm new password',
+  change_password_set_new: 'Set new password',
+  change_password_mismatch: 'Passwords do not match.',
+  change_password_error_title: 'Error',
+  change_password_send_otp_error: 'Failed to send verification code.',
+  change_password_verify_otp_error: 'Invalid or expired code.',
+  change_password_update_error: 'Failed to update password.',
+  change_password_success_title: 'Success',
+  change_password_success_message: 'Your password has been updated.',
+  change_password_otp_resent_title: 'Code sent',
+  change_password_otp_resent_message: 'A new verification code has been sent.',
+  // Delete account flow
+  delete_account_step_label: 'Delete my account',
+  delete_account_sorry_heading: "We'll be sorry to see you go",
+  delete_account_sorry_subtext: 'Can we change your mind? Drop a line at',
+  delete_account_contact_email: 'hello@enategadelivery.com',
+  delete_account_reason_heading: 'Why do you wish to leave Food delivery?',
+  delete_account_reason_subtext: 'Please let us know the reason for deleting your account:',
+  delete_account_reason_mistake: 'I created this account by mistake',
+  delete_account_reason_no_longer: 'I do not want to use Food delivery anymore',
+  delete_account_reason_no_venues: "I can't find the venues or services I want",
+  delete_account_reason_other: 'Other',
+  delete_account_confirm_heading: 'Delete your Food delivery account',
+  delete_account_confirm_description: 'This action will delete your account and you won\'t be able to retrieve it. Please confirm you understand by ticking the below statements:',
+  delete_account_confirm_item_orders: 'I know I won\'t be able to access my orders.',
+  delete_account_confirm_item_marketplace: 'I know I will no longer be able to book orders via Food delivery marketplace.',
+  delete_account_final_heading: 'Confirm you are happy to proceed',
+  delete_account_final_description: 'Please note this is permanent and can\'t be undone. To confirm deleting your account, please review your email below:',
+  delete_account_email_label: 'Email',
+  delete_account_email_placeholder: 'your@email.com',
+  delete_account_cta_continue: 'Continue',
+  delete_account_cta_delete: 'Delete account',
+  delete_account_close: 'Close',
+  delete_account_alert_title: 'Delete account',
+  delete_account_alert_message: 'Are you sure you want to permanently delete your account? This action cannot be undone.',
+  delete_account_alert_cancel: 'Cancel',
+  delete_account_alert_confirm: 'Delete',
+  delete_account_error_title: 'Error',
+  delete_account_error: 'Failed to delete account. Please try again.',
   color_mode_title: 'App color mode',
   color_mode_section_label: 'Select app color mode',
   color_mode_system: 'Default System',
