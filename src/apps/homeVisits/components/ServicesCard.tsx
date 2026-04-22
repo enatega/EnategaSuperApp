@@ -13,6 +13,7 @@ import type {
   HomeVisitsSingleVendorMostPopularService,
   HomeVisitsSingleVendorNearbyService,
 } from '../singleVendor/api/types';
+import type { SearchServiceItem } from '../api/searchServiceTypes';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../singleVendor/navigation/types';
 
 interface DealCardProps {
@@ -20,7 +21,8 @@ interface DealCardProps {
     | HomeVisitsSingleVendorDeal
     | HomeVisitsSingleVendorCategoryService
     | HomeVisitsSingleVendorMostPopularService
-    | HomeVisitsSingleVendorNearbyService;
+    | HomeVisitsSingleVendorNearbyService
+    | SearchServiceItem;
   onPress?: () => void;
   layout?: 'compact' | 'fullWidth';
 }
@@ -35,6 +37,8 @@ export default function ServicesCard({
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const imageUrl =
     item.productImage || item.storeImage || item.storeLogo || 'https://placehold.co/400x400.png';
+  const shouldShowFavoriteIcon = typeof item.isFavorite === 'boolean';
+  const favoriteIconName = item.isFavorite ? 'heart' : 'heart-outline';
 
   const handlePress = () => {
     if (onPress) {
@@ -42,7 +46,7 @@ export default function ServicesCard({
       return;
     }
 
-    navigation.navigate('ServiceDetailsPage', { serviceId: item.productId });
+    navigation.push('ServiceDetails', { serviceId: item.productId });
   };
 
   return (
@@ -57,6 +61,20 @@ export default function ServicesCard({
     >
       <View style={styles.imageContainer}>
         <Image source={{ uri: imageUrl }} style={styles.image} />
+        {shouldShowFavoriteIcon ? (
+          <View
+            style={[
+              styles.favoriteBadge,
+              { backgroundColor: colors.white, shadowColor: colors.shadowColor },
+            ]}
+          >
+            <Ionicons
+              name={favoriteIconName}
+              size={20}
+              color={item.isFavorite ? colors.danger : colors.text}
+            />
+          </View>
+        ) : null}
         {item.deal && (
           <View style={[styles.badge, { backgroundColor: colors.primary }]}>
             <Ionicons name="pricetag" size={12} color={colors.white} style={styles.badgeIcon} />
@@ -175,6 +193,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingTop: 6,
     paddingBottom: 8,
+  },
+  favoriteBadge: {
+    alignItems: 'center',
+    borderRadius: 22,
+    elevation: 3,
+    height: 44,
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 10,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    top: 10,
+    width: 44,
   },
   row: {
     flexDirection: 'row',

@@ -34,6 +34,7 @@ export interface HomeVisitsSingleVendorCategoryService {
   dealAmount?: number | null;
   latitude?: number | string | null;
   longitude?: number | string | null;
+  isFavorite?: boolean | null;
 }
 
 export interface HomeVisitsSingleVendorCategoryServicesParams {
@@ -50,11 +51,81 @@ export interface HomeVisitsSingleVendorCategoryServicesParams {
   sort_by?: string;
 }
 
+export interface HomeVisitsSingleVendorServiceCenterServicesParams {
+  serviceCenterId: string;
+  offset?: number;
+  limit?: number;
+}
+
+export interface HomeVisitsSingleVendorBookingAvailabilityParams {
+  serviceCenterId: string;
+  date: string;
+  teamSize?: number;
+}
+
+export interface HomeVisitsSingleVendorBookingAvailabilitySlot {
+  open: string;
+  close: string;
+  availableWorkers: number;
+  meetsTeamSize: boolean;
+}
+
+export interface HomeVisitsSingleVendorBookingAvailabilityWorker {
+  workerId: string;
+  name: string;
+  profession: string | null;
+  minimumWorkingHours: number | null;
+  slots: Array<{
+    open: string;
+    close: string;
+  }>;
+}
+
+export interface HomeVisitsSingleVendorBookingAvailabilityResponse {
+  serviceCenterId: string;
+  date: string;
+  day: string;
+  scheduleAllowed: boolean;
+  serviceCenterAvailable: boolean;
+  teamSize: number | null;
+  slots: HomeVisitsSingleVendorBookingAvailabilitySlot[];
+  workers: HomeVisitsSingleVendorBookingAvailabilityWorker[];
+}
+
+export interface HomeVisitsSingleVendorServiceCenterListCategory {
+  id: string;
+  name: string;
+}
+
+export interface HomeVisitsSingleVendorServiceCenterListSubcategory {
+  id: string;
+  name: string;
+}
+
+export interface HomeVisitsSingleVendorServiceCenterListItem {
+  id: string;
+  name: string;
+  shortDescription?: string | null;
+  description?: string | null;
+  price: number;
+  imageUrl?: string | null;
+  categoryId: string;
+  subcategoryId?: string | null;
+  estimatedDuration?: string | null;
+  category: HomeVisitsSingleVendorServiceCenterListCategory;
+  subcategory?: HomeVisitsSingleVendorServiceCenterListSubcategory | null;
+  duration?: number | null;
+  durationUnit?: string | null;
+}
+
 export type HomeVisitsSingleVendorCategoriesApiResponse =
   PaginatedHomeVisitsResponse<HomeVisitsSingleVendorCategory>;
 
 export type HomeVisitsSingleVendorCategoryServicesApiResponse =
   PaginatedHomeVisitsResponse<HomeVisitsSingleVendorCategoryService>;
+
+export type HomeVisitsSingleVendorServiceCenterServicesApiResponse =
+  PaginatedHomeVisitsResponse<HomeVisitsSingleVendorServiceCenterListItem>;
 
 export interface HomeVisitsSingleVendorBannerStore {
   id: string;
@@ -98,6 +169,7 @@ export interface HomeVisitsSingleVendorNearbyService {
   dealAmount?: number | null;
   latitude?: number | string | null;
   longitude?: number | string | null;
+  isFavorite?: boolean | null;
 }
 
 export interface HomeVisitsSingleVendorNearbyServicesParams {
@@ -133,6 +205,7 @@ export interface HomeVisitsSingleVendorMostPopularService {
   dealAmount?: number | null;
   latitude?: number | string | null;
   longitude?: number | string | null;
+  isFavorite?: boolean | null;
 }
 
 export interface HomeVisitsSingleVendorMostPopularServicesParams {
@@ -168,6 +241,7 @@ export interface HomeVisitsSingleVendorDeal {
   dealAmount?: number | null;
   latitude?: number | string | null;
   longitude?: number | string | null;
+  isFavorite?: boolean | null;
 }
 
 export interface HomeVisitsSingleVendorDealsParams {
@@ -225,6 +299,19 @@ export interface HomeVisitsServiceReviewsApiResponse {
   averageRating: number;
   reviewCount: number;
 }
+
+export interface HomeVisitsToggleFavoriteServiceResponse {
+  message: string;
+  isFavorite: boolean;
+}
+
+export interface HomeVisitsSingleVendorFavoriteServicesParams {
+  offset?: number;
+  limit?: number;
+}
+
+export type HomeVisitsSingleVendorFavoriteServicesApiResponse =
+  PaginatedHomeVisitsResponse<HomeVisitsSingleVendorCategoryService>;
 
 export type HomeVisitsSingleVendorBookingsTab = 'ongoing' | 'past';
 

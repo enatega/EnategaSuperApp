@@ -1,5 +1,10 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import type { AddressFlowParamList } from "../../../../general/navigation/addressFlowTypes";
+import type { HomeVisitsServiceDetailsSelectionState } from '../../types/serviceDetails';
+import type {
+  HomeVisitsReviewAndConfirmRouteParams,
+  HomeVisitsTeamAndScheduleRouteParams,
+} from '../../types/teamSchedule';
 
 export type SingleVendorBottomTabParamList = {
   SingleVendorTabHome: undefined;
@@ -12,6 +17,7 @@ export type SingleVendorStackParamList = {
   SingleVendorTabs: NavigatorScreenParams<SingleVendorBottomTabParamList> | undefined;
   SingleVendorDetails: undefined;
   SingleVendorCategoriesSeeAll: undefined;
+  SingleVendorFavorites: undefined;
   SeeAllScreen: {
     scope?: 'single-vendor' | 'multi-vendor' | 'chain';
     queryType:
@@ -35,9 +41,16 @@ export type SingleVendorStackParamList = {
   SingleVendorCancelAppointment: {
     orderId: string;
   };
-  ServiceDetailsPage: {
+  ServiceDetails: {
     serviceId: string;
   };
+  ServiceDetailsBooking: {
+    serviceId: string;
+    serviceCenterId: string;
+    initialSelection: HomeVisitsServiceDetailsSelectionState;
+  };
+  TeamAndSchedule: HomeVisitsTeamAndScheduleRouteParams;
+  ReviewAndConfirm: HomeVisitsReviewAndConfirmRouteParams;
 };
 
 export type HomeVisitsSingleVendorNavigationParamList =

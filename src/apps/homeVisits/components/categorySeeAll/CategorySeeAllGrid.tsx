@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   row: {
-    justifyContent: 'space-between',
+    columnGap: 10,
     marginBottom: 28,
   },
 });

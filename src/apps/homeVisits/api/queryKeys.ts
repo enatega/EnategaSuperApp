@@ -75,12 +75,54 @@ export const homeVisitsKeys = {
     sort_by?: string;
   }) =>
     [...homeVisitsKeys.discovery(), 'single-vendor-deals', filters] as const,
+  singleVendorFavoriteServices: (filters?: {
+    offset?: number;
+    limit?: number;
+  }) =>
+    [...homeVisitsKeys.discovery(), 'single-vendor-favorite-services', filters] as const,
   singleVendorServiceBookingScreen: (serviceId: string) =>
     [...homeVisitsKeys.discovery(), 'single-vendor-service-booking-screen', serviceId] as const,
   singleVendorServiceReviews: (serviceId: string, filters?: { limit?: number }) =>
     [...homeVisitsKeys.discovery(), 'single-vendor-service-reviews', serviceId, filters] as const,
+  singleVendorServiceCenterServices: (
+    serviceCenterId: string,
+    filters?: { limit?: number },
+  ) =>
+    [
+      ...homeVisitsKeys.discovery(),
+      'single-vendor-service-center-services',
+      serviceCenterId,
+      filters,
+    ] as const,
   singleVendorBookings: (filters?: { limit?: number; tab?: string }) =>
     [...homeVisitsKeys.all, 'single-vendor-bookings', filters] as const,
   singleVendorBookingDetail: (orderId: string) =>
     [...homeVisitsKeys.all, 'single-vendor-booking-detail', orderId] as const,
+
+  // Search
+  search: () => [...homeVisitsKeys.all, 'search'] as const,
+  recommendations: () => [...homeVisitsKeys.search(), 'recommendations'] as const,
+  recentSearches: () => [...homeVisitsKeys.search(), 'recent-searches'] as const,
+  serviceSearch: (
+    keyword: string,
+    latitude?: number,
+    longitude?: number,
+    filters?: {
+      sort_by?: string;
+      ratings?: number;
+      availability?: string;
+    }
+  ) =>
+    [...homeVisitsKeys.search(), 'services', keyword, latitude, longitude, filters] as const,
+  serviceCenterSearch: (
+    keyword: string,
+    latitude?: number,
+    longitude?: number,
+    filters?: {
+      sort_by?: string;
+      ratings?: number;
+      availability?: string;
+    }
+  ) =>
+    [...homeVisitsKeys.search(), 'service-centers', keyword, latitude, longitude, filters] as const,
 };

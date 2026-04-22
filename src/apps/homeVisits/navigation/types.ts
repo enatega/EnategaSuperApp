@@ -9,6 +9,12 @@ export type HomeVisitsStackParamList = ProfileNavigationParamList &
   MultiVendor: undefined;
   Chain: undefined;
   Settings: undefined;
+  NotificationSettings: undefined;
+  ChangePassword: undefined;
+  PrivacyPolicy: undefined;
+  TermsOfService: undefined;
+  TermsOfUse: undefined;
+  DeleteAccount: undefined;
   Support: undefined;
   SupportFaq: undefined;
   SupportContactForm: {

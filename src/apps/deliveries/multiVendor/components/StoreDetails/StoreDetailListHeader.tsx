@@ -2,7 +2,7 @@ import React from 'react';
 import { ImageBackground, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import SearchInput from '../../../components/search/SearchInput';
+import SearchInput from '../../../../../general/components/search/SearchInput';
 import Image from '../../../../../general/components/Image';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';

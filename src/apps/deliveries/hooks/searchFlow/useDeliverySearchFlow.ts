@@ -22,7 +22,7 @@ import useAddress from "../../../../general/hooks/useAddress";
 import useAddressSelectionSheet from "../../../../general/hooks/useAddressSelectionSheet";
 import useRecentSearchActions from "./useRecentSearchActions";
 import useSavedAddresses from "../../../../general/hooks/useSavedAddresses";
-import useSearchKeyboardState from "./useSearchKeyboardState";
+import useSearchKeyboardState from "../../../../general/hooks/searchFlow/useSearchKeyboardState";
 import useSelectSavedAddress from "../../../../general/hooks/useSelectSavedAddress";
 import { type DeliverySearchFlowOptions } from "./types";
 

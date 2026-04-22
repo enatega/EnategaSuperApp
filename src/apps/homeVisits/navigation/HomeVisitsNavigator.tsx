@@ -12,6 +12,13 @@ import HomeVisitsSupportChatScreen from '../screens/support/HomeVisitsSupportCha
 import HomeVisitsSupportConversationsScreen from '../screens/support/HomeVisitsSupportConversationsScreen';
 import HomeVisitsSupportTicketsScreen from '../screens/support/HomeVisitsSupportTicketsScreen';
 import HomeVisitsSupportContactFormScreen from '../screens/support/HomeVisitsSupportContactFormScreen';
+import HomeVisitsSettingsScreen from '../screens/SettingsScreen/SettingsScreen';
+import NotificationSettingsScreen from '../screens/NotificationSettingsScreen/NotificationSettingsScreen';
+import ChangePasswordScreen from '../screens/ChangePasswordScreen/ChangePasswordScreen';
+import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen/PrivacyPolicyScreen';
+import TermsOfServiceScreen from '../screens/TermsOfServiceScreen/TermsOfServiceScreen';
+import TermsOfUseScreen from '../screens/TermsOfUseScreen/TermsOfUseScreen';
+import DeleteAccountScreen from '../screens/DeleteAccountScreen/DeleteAccountScreen';
 import ColorModeScreen from '../../../general/screens/settings/ColorModeScreen';
 import LanguageScreen from '../../../general/screens/settings/LanguageScreen';
 import AddressSearchScreen from '../../../general/screens/address/AddressSearchScreen';
@@ -90,15 +97,39 @@ export default function HomeVisitsNavigator() {
       />
       <Stack.Screen
         name="Settings"
+        component={HomeVisitsSettingsScreen}
         options={hiddenHeaderOptions}
-      >
-        {() => (
-          <HomeVisitsFeaturePlaceholderScreen
-            bodyKey="home_visits_settings_body"
-            titleKey="settings_title"
-          />
-        )}
-      </Stack.Screen>
+      />
+      <Stack.Screen
+        name="NotificationSettings"
+        component={NotificationSettingsScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="ChangePassword"
+        component={ChangePasswordScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicyScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="TermsOfService"
+        component={TermsOfServiceScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="TermsOfUse"
+        component={TermsOfUseScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="DeleteAccount"
+        component={DeleteAccountScreen}
+        options={hiddenHeaderOptions}
+      />
       <Stack.Screen
         name="Support"
         component={HomeVisitsSupportScreen}
