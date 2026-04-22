@@ -17,7 +17,7 @@ import type {
   SearchQueryOptions,
   UseRecentSearchesOptions,
   UseSearchRecommendationsOptions,
-} from "./searchFlow/queryTypes";
+} from "./useSearchTypes";
 
 const SEARCH_LIMIT = 10;
 
@@ -51,6 +51,12 @@ export function useServiceSearch(
   },
   options?: SearchQueryOptions,
 ) {
+  const filterParams = {
+    sort_by: params?.sort_by,
+    ratings: params?.ratings,
+    availability: params?.availability,
+  };
+
   return useInfiniteQuery<
     SearchServicesResponse,
     ApiError,
@@ -62,14 +68,15 @@ export function useServiceSearch(
       keyword,
       params?.latitude,
       params?.longitude,
+      filterParams,
     ),
     queryFn: ({ pageParam }) =>
       searchService.searchServices({
         keyword,
         offset: pageParam,
         limit: SEARCH_LIMIT,
-        latitude: params?.latitude,
-        longitude: params?.longitude,
+        // latitude: params?.latitude,
+        // longitude: params?.longitude,
         categoryId: params?.categoryId,
         sort_by: params?.sort_by,
         ratings: params?.ratings,
@@ -93,6 +100,12 @@ export function useServiceCenterSearch(
   },
   options?: SearchQueryOptions,
 ) {
+  const filterParams = {
+    sort_by: params?.sort_by,
+    ratings: params?.ratings,
+    availability: params?.availability,
+  };
+
   return useInfiniteQuery<
     SearchServiceCentersResponse,
     ApiError,
@@ -104,6 +117,7 @@ export function useServiceCenterSearch(
       keyword,
       params?.latitude,
       params?.longitude,
+      filterParams,
     ),
     queryFn: ({ pageParam }) =>
       searchService.searchServiceCenters({

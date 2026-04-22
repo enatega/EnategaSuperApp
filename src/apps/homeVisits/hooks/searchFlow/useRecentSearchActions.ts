@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import useRecentSearchActions from "../../../../general/hooks/searchFlow/useRecentSearchActions";
 import {
   useClearRecentSearches,
@@ -6,7 +5,7 @@ import {
   useSaveRecentSearch,
 } from "../useSearchMutations";
 
-export default function useDeliveriesRecentSearchActions(trimmedDebouncedQuery: string) {
+export default function useHomeVisitsRecentSearchActions(trimmedDebouncedQuery: string) {
   return useRecentSearchActions(trimmedDebouncedQuery, {
     useSaveRecentSearch,
     useDeleteRecentSearch,

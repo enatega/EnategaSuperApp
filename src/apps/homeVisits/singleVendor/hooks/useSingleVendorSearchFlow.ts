@@ -1,7 +1,7 @@
-import useDeliverySearchFlow from "../../../deliveries/hooks/searchFlow/useDeliverySearchFlow";
+import useHomeVisitsSearchFlow from "../../hooks/searchFlow/useHomeVisitsSearchFlow";
 
 export default function useSingleVendorSearchFlow() {
-  return useDeliverySearchFlow({
-    searchStores: false,
+  return useHomeVisitsSearchFlow({
+    searchServiceCenters: false,
   });
 }

@@ -199,6 +199,9 @@ const en = {
   home_visits_wallet_body: 'Wallet flow for home visits will be added next.',
   Unable_to_load_items: 'Unable to load items',
   Please_try_again_in_a_moment: 'Please try again in a moment.',
+  // Search related translations
+  services: 'Services',
+  see_all: 'See all',
 };
 
 export default en;

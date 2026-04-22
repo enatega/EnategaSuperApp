@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import EmptySearch from '../../../../general/components/search/EmptySearch';
+import GenericSearchResults from '../../../../general/components/search/GenericSearchResults';
 import SearchResultsSkeleton from './SearchResultsSkeleton';
 import ProductMiniCardScroller from './ProductMiniCardScroller';
 import StoreCardScroller from './StoreCardScroller';
@@ -18,27 +18,9 @@ export default function SearchResults({
   onLoadMoreProducts,
   onLoadMoreStores,
 }: SearchResultsProps) {
-  if (!isSearchActive) {
-    return null;
-  }
-
-  if (isSearchLoading) {
-    return <SearchResultsSkeleton showStores={shouldSearchStores} />;
-  }
-
-  if (hasNoResults) {
-    return (
-      <View style={styles.emptyContainer}>
-        <EmptySearch />
-      </View>
-    );
-  }
-
-  if (products.length === 0 && stores.length === 0) {
-    return null;
-  }
-
-  return (
+  const skeletonComponent = <SearchResultsSkeleton showStores={shouldSearchStores} />;
+  
+  const resultsContent = (
     <>
       {products.length > 0 ? (
         <View style={styles.section}>
@@ -61,13 +43,20 @@ export default function SearchResults({
       ) : null}
     </>
   );
+
+  return (
+    <GenericSearchResults
+      isSearchActive={isSearchActive}
+      isSearchLoading={isSearchLoading}
+      hasNoResults={hasNoResults}
+      skeletonComponent={skeletonComponent}
+    >
+      {(products.length > 0 || stores.length > 0) ? resultsContent : null}
+    </GenericSearchResults>
+  );
 }
 
 const styles = StyleSheet.create({
-  emptyContainer: {
-    minHeight: 320,
-    justifyContent: 'center',
-  },
   section: {
     marginBottom: 20,
   },

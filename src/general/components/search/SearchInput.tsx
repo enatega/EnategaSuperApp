@@ -24,6 +24,8 @@ const SearchInput = forwardRef<TextInput, SearchInputProps>(
       onBlur,
       onSubmitEditing,
       autoFocus = false,
+      editable = true,
+      style,
     },
     ref,
   ) {
@@ -72,6 +74,7 @@ const SearchInput = forwardRef<TextInput, SearchInputProps>(
             borderColor: isFocused ? colors.primary : "transparent",
             width: "100%",
           },
+          style, // Apply custom style to the outer container
         ]}
       >
         <View
@@ -114,6 +117,7 @@ const SearchInput = forwardRef<TextInput, SearchInputProps>(
             onBlur={handleBlur}
             onSubmitEditing={onSubmitEditing}
             autoFocus={autoFocus}
+            editable={editable}
             returnKeyType="search"
             autoCapitalize="none"
             autoCorrect={false}
