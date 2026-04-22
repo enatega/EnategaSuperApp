@@ -1,33 +1,38 @@
+import type { NavigationProp } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import SupportAdminPickerBottomSheet from '../../../../general/components/support/SupportAdminPickerBottomSheet';
 import SupportChatFooter from '../../../../general/components/support/SupportChatFooter';
-import SupportIssueDropdown from '../../../../general/components/support/SupportIssueDropdown';
 import SupportHeader from '../../../../general/components/support/SupportHeader';
+import SupportIssueDropdown, {
+  type SupportIssueOption,
+} from '../../../../general/components/support/SupportIssueDropdown';
 import SupportTopicItem from '../../../../general/components/support/SupportTopicItem';
 import Text from '../../../../general/components/Text';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
 import { useTheme } from '../../../../general/theme/theme';
-import SupportAdminPickerBottomSheet from '../../components/support/SupportAdminPickerBottomSheet';
-import { useSupportAdmins } from '../../hooks/useSupportChatQueries';
-import { useSupportTicketFormConfigQuery } from '../../hooks/useSupportTicketFormConfigQuery';
-import { SupportHomeNavigationProp } from '../../navigation/supportNavigationTypes';
+import { useSupportAdmins } from '../../hooks/useSupportAdmins';
+import { useSupportTicketOptionsQuery } from '../../hooks/useSupportTicketOptionsQuery';
+import type { HomeVisitsStackParamList } from '../../navigation/types';
 import { buildSupportOptions, orderSupportCategoryKeys } from '../../utils/supportFormOptions';
 
-export default function SupportScreen() {
+export default function HomeVisitsSupportScreen() {
   const { colors, typography } = useTheme();
-  const { t, i18n } = useTranslation('deliveries');
-  const navigation = useNavigation<SupportHomeNavigationProp>();
+  const { t, i18n } = useTranslation(['homeVisits', 'general']);
+  const navigation = useNavigation<NavigationProp<HomeVisitsStackParamList>>();
   const sessionQuery = useAuthSessionQuery();
-  const supportAdminsQuery = useSupportAdmins();
-  const supportTicketFormConfigQuery = useSupportTicketFormConfigQuery();
   const [isAdminPickerVisible, setIsAdminPickerVisible] = useState(false);
-  const displayName = sessionQuery.data?.user?.name ?? t('support_guest_name');
-  const issueOptions = useMemo(
+  const supportAdminsQuery = useSupportAdmins();
+  const supportTicketOptionsQuery = useSupportTicketOptionsQuery();
+  const admins = supportAdminsQuery.data?.admins ?? supportAdminsQuery.data?.data?.admins ?? [];
+  const displayName = sessionQuery.data?.user?.name ?? t('home_visits_support_guest_name', { ns: 'homeVisits' });
+
+  const issueOptions = useMemo<SupportIssueOption[]>(
     () => {
       const categoryKeys = orderSupportCategoryKeys(
-        supportTicketFormConfigQuery.data?.categories.map((category) => category.key) ?? [
+        supportTicketOptionsQuery.data?.categories.map((category) => category.key) ?? [
           'business_support',
           'joining_as_a_business',
           'appointment_support',
@@ -36,73 +41,65 @@ export default function SupportScreen() {
 
       return buildSupportOptions(
         categoryKeys,
-        'support_issue_',
+        'home_visits_support_issue_',
         t,
-        (key) => i18n.exists(key, { ns: 'deliveries' }),
+        (key, options) => i18n.exists(key, options),
       );
     },
-    [i18n, supportTicketFormConfigQuery.data?.categories, t],
+    [i18n, supportTicketOptionsQuery.data?.categories, t],
   );
-
-  const handleOpenAdminPicker = () => {
-    setIsAdminPickerVisible(true);
-  };
-
-  const handleCloseAdminPicker = () => {
-    setIsAdminPickerVisible(false);
-  };
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <SupportHeader
-        backAccessibilityLabel={t('support_back_action')}
-        rightAccessibilityLabel={t('support_call_action')}
-        title={t('support_title')}
+        backAccessibilityLabel={t('home_visits_support_back_action', { ns: 'homeVisits' })}
+        rightAccessibilityLabel={t('support_call_action', { ns: 'homeVisits' })}
+        title={t('profile_menu_support', { ns: 'general' })}
       />
 
       <ScrollView
-        style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        style={styles.scroll}
       >
         <Text
           color={colors.mutedText}
-          weight="medium"
           style={[styles.greeting, { fontSize: typography.size.sm2, lineHeight: typography.lineHeight.md }]}
+          weight="medium"
         >
-          {t('support_greeting', { name: displayName })}
+          {t('home_visits_support_greeting', { name: displayName, ns: 'homeVisits' })}
         </Text>
 
         <Text
           color={colors.text}
-          weight="extraBold"
           style={[styles.headline, { fontSize: typography.size.h5, lineHeight: typography.lineHeight.h5 }]}
+          weight="extraBold"
         >
-          {t('support_headline')}
+          {t('home_visits_support_headline', { ns: 'homeVisits' })}
         </Text>
 
         <View style={styles.section}>
           <Text
             color={colors.text}
-            weight="extraBold"
             style={[styles.sectionTitle, { fontSize: typography.size.lg, lineHeight: 22 }]}
+            weight="extraBold"
           >
-            {t('support_browse_topics')}
+            {t('home_visits_support_browse_topics', { ns: 'homeVisits' })}
           </Text>
 
           <SupportTopicItem
             iconName="bag-outline"
-            label={t('support_topic_faq')}
+            label={t('home_visits_support_topic_faq', { ns: 'homeVisits' })}
             onPress={() => navigation.navigate('SupportFaq')}
           />
           <SupportTopicItem
             iconName="chatbox-outline"
-            label={t('support_topic_conversations')}
+            label={t('home_visits_support_topic_conversations', { ns: 'homeVisits' })}
             onPress={() => navigation.navigate('SupportConversations')}
           />
           <SupportTopicItem
             iconName="alert-circle-outline"
-            label={t('support_topic_tickets')}
+            label={t('home_visits_support_topic_tickets', { ns: 'homeVisits' })}
             onPress={() => navigation.navigate('SupportTickets')}
           />
         </View>
@@ -110,17 +107,12 @@ export default function SupportScreen() {
         <View style={styles.section}>
           <Text
             color={colors.text}
-            weight="extraBold"
             style={[styles.sectionTitle, { fontSize: typography.size.lg, lineHeight: 22 }]}
+            weight="extraBold"
           >
-            {t('support_issue_prompt')}
+            {t('home_visits_support_issue_prompt', { ns: 'homeVisits' })}
           </Text>
-
           <SupportIssueDropdown
-            options={issueOptions}
-            placeholder={t('support_issue_placeholder')}
-            sheetTitle={t('support_issue_select_title')}
-            value={undefined}
             onChange={(nextValue) => {
               const selectedOption = issueOptions.find((option) => option.value === nextValue);
 
@@ -133,32 +125,36 @@ export default function SupportScreen() {
                 issueValue: selectedOption.value,
               });
             }}
+            options={issueOptions}
+            placeholder={t('home_visits_support_issue_placeholder', { ns: 'homeVisits' })}
+            sheetTitle={t('home_visits_support_issue_select_title', { ns: 'homeVisits' })}
+            value={undefined}
           />
         </View>
       </ScrollView>
 
       <SupportChatFooter
-        ctaLabel={t('support_chat_cta')}
-        onPress={handleOpenAdminPicker}
+        ctaLabel={t('home_visits_support_chat_cta', { ns: 'homeVisits' })}
+        onPress={() => setIsAdminPickerVisible(true)}
       />
 
       <SupportAdminPickerBottomSheet
-        admins={supportAdminsQuery.data?.admins ?? []}
-        emptyLabel={t('support_admin_picker_empty')}
+        admins={admins}
+        emptyLabel={t('home_visits_support_admin_picker_empty', { ns: 'homeVisits' })}
         isLoading={supportAdminsQuery.isPending}
         isVisible={isAdminPickerVisible}
-        loadingLabel={t('support_admin_picker_loading')}
-        onClose={handleCloseAdminPicker}
+        loadingLabel={t('home_visits_support_admin_picker_loading', { ns: 'homeVisits' })}
+        onClose={() => setIsAdminPickerVisible(false)}
         onSelectAdmin={(admin) => {
-          handleCloseAdminPicker();
+          setIsAdminPickerVisible(false);
           navigation.navigate('SupportChat', {
             agentName: admin.name,
             receiverId: admin.id,
           });
         }}
-        rowSubtitle={t('support_admin_picker_row_subtitle')}
-        subtitle={t('support_admin_picker_subtitle')}
-        title={t('support_admin_picker_title')}
+        rowSubtitle={t('home_visits_support_admin_picker_row_subtitle', { ns: 'homeVisits' })}
+        subtitle={t('home_visits_support_admin_picker_subtitle', { ns: 'homeVisits' })}
+        title={t('home_visits_support_admin_picker_title', { ns: 'homeVisits' })}
       />
     </View>
   );
@@ -166,9 +162,9 @@ export default function SupportScreen() {
 
 const styles = StyleSheet.create({
   content: {
+    paddingBottom: 24,
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 24,
   },
   greeting: {
     marginBottom: 8,

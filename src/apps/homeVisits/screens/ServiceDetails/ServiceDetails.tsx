@@ -5,6 +5,9 @@ import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import BookingReviewsModal from '../../singleVendor/components/Reviews/BookingReviewsModal';
+import useServiceReviews from '../../singleVendor/hooks/useServiceReviews';
+
 import { DiscoverySectionState } from '../../../../general/components/discovery';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import { useTheme } from '../../../../general/theme/theme';
@@ -27,12 +30,18 @@ export default function ServiceDetails() {
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const route = useRoute<ServiceDetailsRouteProp>();
   const { serviceId } = route.params;
+  const [isReviewsVisible, setIsReviewsVisible] = React.useState(false);
   const query = useServiceDetailsBookingScreen(serviceId);
+  const serviceReviewsQuery = useServiceReviews(serviceId, {
+    enabled: isReviewsVisible,
+    serviceNameFallback: query.data?.serviceName ?? t('single_vendor_reviews_title'),
+  });
   const toggleFavoriteMutation = useToggleFavoriteService();
 
   const handleGoBack = useCallback(() => {
+    console.log('[ServiceDetailsPage] goBack pressed', { serviceId });
     navigation.goBack();
-  }, [navigation]);
+  }, [navigation, serviceId]);
 
   const handleBookService = useCallback(
     (selection: HomeVisitsServiceDetailsBookingSelectionPayload) => {
@@ -107,14 +116,37 @@ export default function ServiceDetails() {
   }
 
   return (
-    <ServiceDetailsContent
-      data={query.data}
-      isFavoritePending={toggleFavoriteMutation.isPending}
-      onBack={handleGoBack}
-      onFavorite={handleFavoritePress}
-      onShare={handleSharePress}
-      onBookService={handleBookService}
-    />
+
+
+
+    <View style={styles.screen}>
+      <ServiceDetailsContent
+        data={query.data}
+        isFavoritePending={toggleFavoriteMutation.isPending}
+        onBack={handleGoBack}
+        onFavorite={handleFavoritePress}
+        onShare={handleSharePress}
+        onBookService={handleBookService}
+        onRatingPress={() => setIsReviewsVisible(true)}
+      />
+
+      <BookingReviewsModal
+        hasNextPage={serviceReviewsQuery.hasNextPage}
+        isFetchingNextPage={serviceReviewsQuery.isFetchingNextPage}
+        isLoading={serviceReviewsQuery.isPending}
+        onClose={() => setIsReviewsVisible(false)}
+        onLoadMore={() => {
+          if (!serviceReviewsQuery.hasNextPage || serviceReviewsQuery.isFetchingNextPage) {
+            return;
+          }
+
+          void serviceReviewsQuery.fetchNextPage();
+        }}
+        reviews={serviceReviewsQuery.reviews}
+        summary={serviceReviewsQuery.summary}
+        visible={isReviewsVisible}
+      />
+    </View>
   );
 }
 

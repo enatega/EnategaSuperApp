@@ -1,30 +1,32 @@
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import Text from '../../../../general/components/Text';
-import { useTheme } from '../../../../general/theme/theme';
+import Text from '../Text';
+import { useTheme } from '../../theme/theme';
+
+export type SupportTicketStatusTone = 'success' | 'info' | 'danger';
 
 type Props = {
   dateLabel: string;
   dayNumber: string;
+  onPress?: () => void;
   orderIdLabel?: string;
   preview: string;
   statusLabel: string;
-  statusTone: 'success' | 'info' | 'danger';
+  statusTone: SupportTicketStatusTone;
   title: string;
   unreadCount?: number;
-  onPress?: () => void;
 };
 
 export default function SupportTicketListItem({
   dateLabel,
   dayNumber,
+  onPress,
   orderIdLabel,
   preview,
   statusLabel,
   statusTone,
   title,
   unreadCount,
-  onPress,
 }: Props) {
   const { colors, typography } = useTheme();
   const statusStyles = {
@@ -51,15 +53,15 @@ export default function SupportTicketListItem({
         <View style={styles.dateColumn}>
           <Text
             color={colors.text}
-            weight="medium"
             style={{ fontSize: typography.size.md2, lineHeight: typography.lineHeight.md2 }}
+            weight="medium"
           >
             {dayNumber}
           </Text>
           <Text
             color={colors.mutedText}
-            weight="medium"
             style={{ fontSize: typography.size.xs2, lineHeight: 15 }}
+            weight="medium"
           >
             {dateLabel}
           </Text>
@@ -70,19 +72,17 @@ export default function SupportTicketListItem({
         <View style={styles.textColumn}>
           <Text
             color={colors.text}
-            weight="semiBold"
-            style={{ fontSize: typography.size.sm2, lineHeight: typography.lineHeight.md }}
             numberOfLines={2}
-            ellipsizeMode="tail"
+            style={{ fontSize: typography.size.sm2, lineHeight: typography.lineHeight.md }}
+            weight="semiBold"
           >
             {title}
           </Text>
           <Text
             color={colors.mutedText}
-            weight="medium"
-            style={{ fontSize: typography.size.xs2, lineHeight: 18 }}
             numberOfLines={1}
-            ellipsizeMode="tail"
+            style={{ fontSize: typography.size.xs2, lineHeight: 18 }}
+            weight="medium"
           >
             {preview}
           </Text>
@@ -92,8 +92,8 @@ export default function SupportTicketListItem({
           <View style={[styles.countBadge, { backgroundColor: colors.blue800 }]}>
             <Text
               color={colors.white}
-              weight="medium"
               style={{ fontSize: typography.size.xs2, lineHeight: 18 }}
+              weight="medium"
             >
               {String(unreadCount)}
             </Text>
@@ -106,8 +106,8 @@ export default function SupportTicketListItem({
           <View style={[styles.chip, { backgroundColor: colors.gray100 }]}>
             <Text
               color={colors.mutedText}
-              weight="medium"
               style={{ fontSize: typography.size.xs2, lineHeight: 18 }}
+              weight="medium"
             >
               {orderIdLabel}
             </Text>
@@ -117,8 +117,8 @@ export default function SupportTicketListItem({
         <View style={[styles.chip, { backgroundColor: resolvedStatusStyle.backgroundColor }]}>
           <Text
             color={resolvedStatusStyle.color}
-            weight="medium"
             style={{ fontSize: typography.size.xs2, lineHeight: 18 }}
+            weight="medium"
           >
             {statusLabel}
           </Text>
@@ -149,9 +149,9 @@ const styles = StyleSheet.create({
   countBadge: {
     alignItems: 'center',
     borderRadius: 4,
+    flexShrink: 0,
     justifyContent: 'center',
     minWidth: 20,
-    flexShrink: 0,
     paddingHorizontal: 6,
   },
   dateColumn: {
@@ -178,3 +178,4 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
 });
+

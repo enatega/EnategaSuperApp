@@ -260,6 +260,46 @@ export interface HomeVisitsSingleVendorDealsParams {
 export type HomeVisitsSingleVendorDealsApiResponse =
   PaginatedHomeVisitsResponse<HomeVisitsSingleVendorDeal>;
 
+export interface HomeVisitsServiceReview {
+  id?: string;
+  _id?: string;
+  rating?: number | null;
+  review?: string | null;
+  comment?: string | null;
+  text?: string | null;
+  description?: string | null;
+  createdAt?: string | null;
+  created_at?: string | null;
+  serviceName?: string | null;
+  serviceTitle?: string | null;
+  service?: {
+    name?: string | null;
+    title?: string | null;
+  } | null;
+  user?: {
+    id?: string;
+    fullName?: string | null;
+    full_name?: string | null;
+    name?: string | null;
+    image?: string | null;
+    profile?: string | null;
+    avatar?: string | null;
+  } | null;
+}
+
+export interface HomeVisitsServiceReviewsParams {
+  serviceId: string;
+  offset?: number;
+  limit?: number;
+}
+
+export interface HomeVisitsServiceReviewsApiResponse {
+  reviews: HomeVisitsServiceReview[];
+  total: number;
+  averageRating: number;
+  reviewCount: number;
+}
+
 export interface HomeVisitsToggleFavoriteServiceResponse {
   message: string;
   isFavorite: boolean;

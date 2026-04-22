@@ -2,10 +2,10 @@ import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import SupportHeader from '../../../../general/components/support/SupportHeader';
+import SupportTicketListItem from '../../../../general/components/support/SupportTicketListItem';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
-import SupportHeader from '../../components/support/SupportHeader';
-import SupportTicketListItem from '../../components/support/SupportTicketListItem';
 import { useSupportMyTicketsQuery } from '../../hooks/useSupportMyTicketsQuery';
 import { SupportHomeNavigationProp } from '../../navigation/supportNavigationTypes';
 import { mapSupportTicketToListItem } from '../../utils/supportTicketMappers';
@@ -22,9 +22,10 @@ export default function SupportTicketsScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <SupportHeader
-        title={t('support_tickets_title')}
+        backAccessibilityLabel={t('support_back_action')}
         rightAccessibilityLabel={t('support_tickets_search_action')}
         rightIconName="search-outline"
+        title={t('support_tickets_title')}
       />
 
       <ScrollView

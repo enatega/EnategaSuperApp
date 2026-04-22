@@ -16,6 +16,8 @@ import Skeleton from '../../../../general/components/Skeleton';
 import { showToast } from '../../../../general/components/AppToast';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
+import BookingReviewsModal from '../components/Reviews/BookingReviewsModal';
+import { DEFAULT_BOOKING_REVIEW_SUMMARY, getDefaultBookingReviews } from '../constants/reviewsMock';
 import useSingleVendorBookingDetails from '../hooks/useSingleVendorBookingDetails';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
 
@@ -31,7 +33,13 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
   const { colors, typography } = useTheme();
   const insets = useSafeAreaInsets();
   const { orderId } = route.params;
+  const [isReviewsVisible, setIsReviewsVisible] = React.useState(false);
   const { data, isLoading } = useSingleVendorBookingDetails({ orderId });
+  const reviewSummary = DEFAULT_BOOKING_REVIEW_SUMMARY;
+  const defaultReviews = React.useMemo(
+    () => getDefaultBookingReviews(t),
+    [t],
+  );
 
   const isCancelled = `${data?.status ?? ''}`.toLowerCase() === 'cancelled';
   const statusLabel = data?.statusLabel ?? t('single_vendor_booking_status_confirmed');
@@ -170,6 +178,49 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
           >
             {data?.statusMessage ?? durationLabel}
           </Text>
+
+          <Pressable
+            onPress={() => setIsReviewsVisible(true)}
+            style={[styles.ratingRow, { borderColor: colors.border }]}
+          >
+            <View style={styles.ratingValue}>
+              <MaterialCommunityIcons
+                color={colors.warning}
+                name="star"
+                size={18}
+              />
+              <Text
+                style={{
+                  color: colors.text,
+                  fontSize: typography.size.sm2,
+                  lineHeight: typography.lineHeight.md,
+                }}
+                weight="semiBold"
+              >
+                {t('single_vendor_reviews_summary_label', {
+                  count: reviewSummary.distribution.find((item) => item.rating === 5)?.count ?? 0,
+                  rating: reviewSummary.averageRating.toFixed(1),
+                })}
+              </Text>
+            </View>
+            <View style={styles.ratingCta}>
+              <Text
+                style={{
+                  color: colors.mutedText,
+                  fontSize: typography.size.xs2,
+                  lineHeight: typography.lineHeight.sm,
+                }}
+                weight="medium"
+              >
+                {t('single_vendor_booking_open_reviews')}
+              </Text>
+              <MaterialCommunityIcons
+                color={colors.iconMuted}
+                name="chevron-right"
+                size={18}
+              />
+            </View>
+          </Pressable>
 
           <Pressable
             onPress={() => {
@@ -482,6 +533,13 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
           </View>
         </View>
       </ScrollView>
+
+      <BookingReviewsModal
+        onClose={() => setIsReviewsVisible(false)}
+        reviews={defaultReviews}
+        summary={reviewSummary}
+        visible={isReviewsVisible}
+      />
     </View>
   );
 }
@@ -635,6 +693,26 @@ const styles = StyleSheet.create({
   },
   heroOverlay: {
     ...StyleSheet.absoluteFillObject,
+  },
+  ratingCta: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 2,
+  },
+  ratingRow: {
+    alignItems: 'center',
+    borderRadius: 8,
+    borderWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  ratingValue: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 6,
   },
   screen: {
     flex: 1,

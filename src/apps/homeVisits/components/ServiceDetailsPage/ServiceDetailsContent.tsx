@@ -28,6 +28,7 @@ type Props = {
     selection: HomeVisitsServiceDetailsBookingSelectionPayload,
   ) => void;
   initialSelection?: HomeVisitsServiceDetailsSelectionState;
+  onRatingPress?: () => void;
 };
 
 export default function ServiceDetailsContent({
@@ -38,6 +39,7 @@ export default function ServiceDetailsContent({
   onShare,
   onBookService,
   initialSelection,
+  onRatingPress,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation("homeVisits");
@@ -121,6 +123,7 @@ export default function ServiceDetailsContent({
           onBack={onBack}
           onFavorite={onFavorite}
           onShare={onShare}
+          onRatingPress={onRatingPress}
         />
 
         <View style={[styles.divider, { backgroundColor: colors.border }]} />

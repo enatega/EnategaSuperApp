@@ -1,24 +1,27 @@
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showToast } from '../../../../general/components/AppToast';
 import Button from '../../../../general/components/Button';
 import SupportHeader from '../../../../general/components/support/SupportHeader';
 import SupportIssueDropdown from '../../../../general/components/support/SupportIssueDropdown';
-import Text from '../../../../general/components/Text';
+import { type SupportIssueOption } from '../../../../general/components/support/SupportIssueDropdown';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
 import { useTheme } from '../../../../general/theme/theme';
-import SupportAttachmentDropzone from '../../components/support/SupportAttachmentDropzone';
-import SupportLabeledField from '../../components/support/SupportLabeledField';
+import HomeVisitsSupportAttachmentDropzone from '../../components/support/HomeVisitsSupportAttachmentDropzone';
+import HomeVisitsSupportLabeledField from '../../components/support/HomeVisitsSupportLabeledField';
 import { useCreateSupportTicketMutation } from '../../hooks/useCreateSupportTicketMutation';
-import { useSupportTicketFormConfigQuery } from '../../hooks/useSupportTicketFormConfigQuery';
-import { SupportHomeNavigationProp, SupportNavigationParamList } from '../../navigation/supportNavigationTypes';
+import { useSupportTicketOptionsQuery } from '../../hooks/useSupportTicketOptionsQuery';
+import type { HomeVisitsStackParamList } from '../../navigation/types';
 import { buildSupportOptions, orderSupportCategoryKeys } from '../../utils/supportFormOptions';
 
-type SupportContactFormRouteProp = RouteProp<SupportNavigationParamList, 'SupportContactForm'>;
+type SupportContactFormRouteProp = RouteProp<HomeVisitsStackParamList, 'SupportContactForm'>;
+
 const BUSINESS_JOINING_ISSUE = 'joining_as_a_business';
+const APPOINTMENT_SUPPORT_ISSUE = 'appointment_support';
 const FALLBACK_CATEGORY_KEYS = [
   'business_support',
   'joining_as_a_business',
@@ -51,15 +54,13 @@ const FALLBACK_CATEGORY_REASONS: Record<string, string[]> = {
   ],
 };
 const FALLBACK_BUSINESS_TYPES = [
-  'Burger Joint',
-  'Pizza Place',
-  'Taco Stand',
-  'Sandwich Shop',
-  'Ice Cream Parlor',
-  'Fried Chicken Spot',
-  'Food Truck',
-  'Hot Dog Stand',
-  'Other Fast Food',
+  'Salon',
+  'Spa',
+  'Cleaning',
+  'Handyman',
+  'Electrical',
+  'Plumbing',
+  'Other Home Service',
 ];
 const FALLBACK_TEAM_SIZES = ['Just me', '2 - 5', '6 - 10'];
 
@@ -75,14 +76,14 @@ function normalizeTextValue(value: unknown) {
   return String(value).trim();
 }
 
-export default function SupportContactFormScreen() {
+export default function HomeVisitsSupportContactFormScreen() {
   const { colors, typography } = useTheme();
-  const { t, i18n } = useTranslation('deliveries');
+  const { t, i18n } = useTranslation(['homeVisits', 'general']);
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation<SupportHomeNavigationProp>();
+  const navigation = useNavigation<NavigationProp<HomeVisitsStackParamList>>();
   const route = useRoute<SupportContactFormRouteProp>();
   const sessionQuery = useAuthSessionQuery();
-  const supportTicketFormConfigQuery = useSupportTicketFormConfigQuery();
+  const supportTicketOptionsQuery = useSupportTicketOptionsQuery();
   const [email, setEmail] = useState(sessionQuery.data?.user?.email ?? '');
   const [issueValue, setIssueValue] = useState(route.params.issueValue);
   const [reasonValue, setReasonValue] = useState<string>();
@@ -94,21 +95,16 @@ export default function SupportContactFormScreen() {
   const [businessType, setBusinessType] = useState<string>();
   const [teamSize, setTeamSize] = useState<string>();
   const createSupportTicketMutation = useCreateSupportTicketMutation({
-    onSuccess: (response) => {
-      console.log('[SupportContactForm] ticket submit success:', response);
+    onSuccess: () => {
       showToast.success(
-        t('support_form_submit_success_title'),
-        t('support_form_submit_success_message'),
+        t('home_visits_support_form_submit_success_title'),
+        t('home_visits_support_form_submit_success_message'),
       );
       navigation.goBack();
     },
     onError: (error) => {
-      console.log('[SupportContactForm] ticket submit error:', {
-        message: error.message,
-        error,
-      });
       showToast.error(
-        t('support_form_submit_error_title'),
+        t('home_visits_support_form_submit_error_title'),
         error.message,
       );
     },
@@ -133,7 +129,7 @@ export default function SupportContactFormScreen() {
   }, [mobileNumber, sessionQuery.data?.user?.phone]);
 
   const categoryReasonMap = useMemo(() => {
-    const categories = supportTicketFormConfigQuery.data?.categories;
+    const categories = supportTicketOptionsQuery.data?.categories;
 
     if (!categories?.length) {
       return FALLBACK_CATEGORY_REASONS;
@@ -143,64 +139,62 @@ export default function SupportContactFormScreen() {
       result[category.key] = category.reasons;
       return result;
     }, {});
-  }, [supportTicketFormConfigQuery.data?.categories]);
+  }, [supportTicketOptionsQuery.data?.categories]);
 
-  const howCanWeHelpOptions = useMemo(
-    () => {
-      const categoryKeys = orderSupportCategoryKeys(
-        supportTicketFormConfigQuery.data?.categories.map((category) => category.key)
-          ?? FALLBACK_CATEGORY_KEYS,
-      );
+  const howCanWeHelpOptions = useMemo<SupportIssueOption[]>(() => {
+    const categoryKeys = orderSupportCategoryKeys(
+      supportTicketOptionsQuery.data?.categories.map((category) => category.key)
+      ?? FALLBACK_CATEGORY_KEYS,
+    );
 
-      return buildSupportOptions(
-        categoryKeys,
-        'support_issue_',
-        t,
-        (key) => i18n.exists(key, { ns: 'deliveries' }),
-      );
-    },
-    [i18n, supportTicketFormConfigQuery.data?.categories, t],
-  );
+    return buildSupportOptions(
+      categoryKeys,
+      'home_visits_support_issue_',
+      t,
+      (key, options) => i18n.exists(key, options),
+    );
+  }, [i18n, supportTicketOptionsQuery.data?.categories, t]);
 
   const reasonOptions = useMemo(
     () => buildSupportOptions(
       categoryReasonMap[issueValue] ?? [],
-      'support_form_reason_',
+      'home_visits_support_form_reason_',
       t,
-      (key) => i18n.exists(key, { ns: 'deliveries' }),
+      (key, options) => i18n.exists(key, options),
     ),
     [categoryReasonMap, i18n, issueValue, t],
   );
 
   const countryRegionOptions = useMemo(
     () => [
-      { value: 'united_states', label: t('support_form_country_united_states') },
-      { value: 'canada', label: t('support_form_country_canada') },
-      { value: 'united_kingdom', label: t('support_form_country_united_kingdom') },
-      { value: 'australia', label: t('support_form_country_australia') },
-      { value: 'france', label: t('support_form_country_france') },
+      { value: 'united_states', label: t('home_visits_support_form_country_united_states') },
+      { value: 'canada', label: t('home_visits_support_form_country_canada') },
+      { value: 'united_kingdom', label: t('home_visits_support_form_country_united_kingdom') },
+      { value: 'australia', label: t('home_visits_support_form_country_australia') },
+      { value: 'france', label: t('home_visits_support_form_country_france') },
     ],
     [t],
   );
 
   const businessTypeOptions = useMemo(
-    () => (supportTicketFormConfigQuery.data?.businessTypes ?? FALLBACK_BUSINESS_TYPES).map((value) => ({
+    () => (supportTicketOptionsQuery.data?.businessTypes ?? FALLBACK_BUSINESS_TYPES).map((value) => ({
       value,
       label: value,
     })),
-    [supportTicketFormConfigQuery.data?.businessTypes],
+    [supportTicketOptionsQuery.data?.businessTypes],
   );
 
   const teamSizeOptions = useMemo(
-    () => (supportTicketFormConfigQuery.data?.teamSizes ?? FALLBACK_TEAM_SIZES).map((value) => ({
+    () => (supportTicketOptionsQuery.data?.teamSizes ?? FALLBACK_TEAM_SIZES).map((value) => ({
       value,
       label: value,
     })),
-    [supportTicketFormConfigQuery.data?.teamSizes],
+    [supportTicketOptionsQuery.data?.teamSizes],
   );
 
   const normalizedIssueValue = normalizeTextValue(issueValue);
   const isBusinessJoiningFlow = normalizedIssueValue === BUSINESS_JOINING_ISSUE;
+  const isAppointmentSupportFlow = normalizedIssueValue === APPOINTMENT_SUPPORT_ISSUE;
 
   useEffect(() => {
     const validIssueValues = howCanWeHelpOptions.map((option) => option.value);
@@ -260,24 +254,6 @@ export default function SupportContactFormScreen() {
     const normalizedBusinessType = normalizeTextValue(businessType);
     const normalizedTeamSize = normalizeTextValue(teamSize);
 
-    console.log('[SupportContactForm] submit pressed:', {
-      isBusinessJoiningFlow,
-      issueValue: normalizedIssueValue,
-      reasonValue,
-      email: trimmedEmail,
-      fullName: trimmedFullName,
-      countryRegion: normalizedCountryRegion,
-      countryRegionType: typeof countryRegion,
-      mobileNumber: trimmedMobileNumber,
-      businessName: trimmedBusinessName,
-      businessNameType: typeof businessName,
-      businessType: normalizedBusinessType,
-      businessTypeType: typeof businessType,
-      teamSize: normalizedTeamSize,
-      teamSizeType: typeof teamSize,
-      description: trimmedDescription,
-    });
-
     if (isBusinessJoiningFlow) {
       if (
         !trimmedEmail
@@ -290,21 +266,10 @@ export default function SupportContactFormScreen() {
         || !reasonValue
         || !trimmedDescription
       ) {
-        console.log('[SupportContactForm] business submit blocked by validation:', {
-          hasEmail: Boolean(trimmedEmail),
-          hasIssueValue: Boolean(trimmedIssueValue),
-          hasFullName: Boolean(trimmedFullName),
-          hasCountryRegion: Boolean(normalizedCountryRegion),
-          hasBusinessName: Boolean(trimmedBusinessName),
-          hasBusinessType: Boolean(normalizedBusinessType),
-          hasTeamSize: Boolean(normalizedTeamSize),
-          hasReasonValue: Boolean(reasonValue),
-          hasDescription: Boolean(trimmedDescription),
-        });
         return;
       }
 
-      const payload = {
+      createSupportTicketMutation.mutate({
         category: trimmedIssueValue,
         reason: reasonValue,
         email: trimmedEmail,
@@ -316,25 +281,16 @@ export default function SupportContactFormScreen() {
         teamSize: normalizedTeamSize,
         description: trimmedDescription,
         attachmentUrls: [],
-        priority: 'low' as const,
-      };
-
-      console.log('[SupportContactForm] business payload:', payload);
-      createSupportTicketMutation.mutate(payload);
-      return;
-    }
-
-    if (!trimmedEmail || !trimmedIssueValue || !reasonValue || !trimmedDescription) {
-      console.log('[SupportContactForm] standard submit blocked by validation:', {
-        hasEmail: Boolean(trimmedEmail),
-        hasIssueValue: Boolean(trimmedIssueValue),
-        hasReasonValue: Boolean(reasonValue),
-        hasDescription: Boolean(trimmedDescription),
+        priority: 'low',
       });
       return;
     }
 
-    const payload = {
+    if (!trimmedEmail || !trimmedIssueValue || !reasonValue || !trimmedDescription) {
+      return;
+    }
+
+    createSupportTicketMutation.mutate({
       category: trimmedIssueValue,
       reason: reasonValue,
       email: trimmedEmail,
@@ -342,42 +298,39 @@ export default function SupportContactFormScreen() {
       mobileNumber: sessionQuery.data?.user?.phone?.trim() || undefined,
       description: trimmedDescription,
       attachmentUrls: [],
-      priority: 'low' as const,
-    };
-
-    console.log('[SupportContactForm] standard payload:', payload);
-    createSupportTicketMutation.mutate(payload);
+      priority: 'low',
+    });
   };
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <SupportHeader
-        backAccessibilityLabel={t('support_back_action')}
-        rightAccessibilityLabel={t('support_close_action')}
-        rightIconName="close-outline"
-        title={t('support_title')}
+        backAccessibilityLabel={t('home_visits_support_back_action')}
         onRightPress={() => navigation.goBack()}
+        rightAccessibilityLabel={t('home_visits_support_close_action')}
+        rightIconName="close-outline"
+        title={t('profile_menu_support', { ns: 'general' })}
       />
 
       <ScrollView
-        style={styles.scroll}
         contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom, 16) + 24 }]}
         showsVerticalScrollIndicator={false}
+        style={styles.scroll}
       >
-        <SupportLabeledField label={t('support_form_how_help_label')}>
+        <HomeVisitsSupportLabeledField label={t('home_visits_support_form_how_help_label')}>
           <SupportIssueDropdown
-            sheetTitle={t('support_issue_select_title')}
-            options={howCanWeHelpOptions}
-            placeholder={t('support_issue_placeholder')}
-            value={issueValue}
             onChange={setIssueValue}
+            options={howCanWeHelpOptions}
+            placeholder={t('home_visits_support_issue_placeholder')}
+            sheetTitle={t('home_visits_support_issue_select_title')}
+            value={issueValue}
           />
-        </SupportLabeledField>
+        </HomeVisitsSupportLabeledField>
 
-        <SupportLabeledField
-          label={t('support_form_email_label')}
-          helperText={t('support_form_email_helper')}
+        <HomeVisitsSupportLabeledField
+          helperText={t('home_visits_support_form_email_helper')}
           isRequired
+          label={t('home_visits_support_form_email_label')}
         >
           <View style={[styles.inputField, { backgroundColor: colors.background, borderColor: colors.border }]}>
             <TextInput
@@ -390,46 +343,46 @@ export default function SupportContactFormScreen() {
               value={email}
             />
           </View>
-        </SupportLabeledField>
+        </HomeVisitsSupportLabeledField>
 
         {isBusinessJoiningFlow ? (
           <>
-            <SupportLabeledField label={t('support_form_full_name_label')} isRequired>
+            <HomeVisitsSupportLabeledField isRequired label={t('home_visits_support_form_full_name_label')}>
               <View style={[styles.inputField, { backgroundColor: colors.background, borderColor: colors.border }]}>
                 <TextInput
                   onChangeText={setFullName}
-                  placeholder={t('support_form_full_name_placeholder')}
+                  placeholder={t('home_visits_support_form_full_name_placeholder')}
                   placeholderTextColor={colors.mutedText}
                   style={[styles.input, { color: colors.text, fontSize: typography.size.md2 }]}
                   value={fullName}
                 />
               </View>
-            </SupportLabeledField>
+            </HomeVisitsSupportLabeledField>
 
-            <SupportLabeledField label={t('support_form_country_region_label')} isRequired>
+            <HomeVisitsSupportLabeledField isRequired label={t('home_visits_support_form_country_region_label')}>
               <SupportIssueDropdown
-                sheetTitle={t('support_issue_select_title')}
-                options={countryRegionOptions}
-                placeholder={t('support_form_country_region_placeholder')}
-                value={countryRegion}
                 onChange={setCountryRegion}
+                options={countryRegionOptions}
+                placeholder={t('home_visits_support_form_country_region_placeholder')}
+                sheetTitle={t('home_visits_support_issue_select_title')}
+                value={countryRegion}
               />
-            </SupportLabeledField>
+            </HomeVisitsSupportLabeledField>
 
-            <SupportLabeledField label={t('support_form_mobile_number_label')}>
+            <HomeVisitsSupportLabeledField label={t('home_visits_support_form_mobile_number_label')}>
               <View style={[styles.inputField, { backgroundColor: colors.background, borderColor: colors.border }]}>
                 <TextInput
                   keyboardType="phone-pad"
                   onChangeText={setMobileNumber}
-                  placeholder={t('support_form_mobile_number_placeholder')}
+                  placeholder={t('home_visits_support_form_mobile_number_placeholder')}
                   placeholderTextColor={colors.mutedText}
                   style={[styles.input, { color: colors.text, fontSize: typography.size.md2 }]}
                   value={mobileNumber}
                 />
               </View>
-            </SupportLabeledField>
+            </HomeVisitsSupportLabeledField>
 
-            <SupportLabeledField label={t('support_form_business_name_label')} isRequired>
+            <HomeVisitsSupportLabeledField isRequired label={t('home_visits_support_form_business_name_label')}>
               <View style={[styles.inputField, { backgroundColor: colors.background, borderColor: colors.border }]}>
                 <TextInput
                   onChangeText={setBusinessName}
@@ -439,55 +392,49 @@ export default function SupportContactFormScreen() {
                   value={businessName}
                 />
               </View>
-            </SupportLabeledField>
+            </HomeVisitsSupportLabeledField>
 
-            <SupportLabeledField label={t('support_form_business_type_label')} isRequired>
+            <HomeVisitsSupportLabeledField isRequired label={t('home_visits_support_form_business_type_label')}>
               <SupportIssueDropdown
-                sheetTitle={t('support_issue_select_title')}
-                options={businessTypeOptions}
-                placeholder={t('support_form_business_type_placeholder')}
-                value={businessType}
                 onChange={setBusinessType}
+                options={businessTypeOptions}
+                placeholder={t('home_visits_support_form_business_type_placeholder')}
+                sheetTitle={t('home_visits_support_issue_select_title')}
+                value={businessType}
               />
-            </SupportLabeledField>
+            </HomeVisitsSupportLabeledField>
 
-            <SupportLabeledField label={t('support_form_team_size_label')} isRequired>
+            <HomeVisitsSupportLabeledField isRequired label={t('home_visits_support_form_team_size_label')}>
               <SupportIssueDropdown
-                sheetTitle={t('support_issue_select_title')}
-                options={teamSizeOptions}
-                placeholder={t('support_form_team_size_placeholder')}
-                value={teamSize}
                 onChange={setTeamSize}
+                options={teamSizeOptions}
+                placeholder={t('home_visits_support_form_team_size_placeholder')}
+                sheetTitle={t('home_visits_support_issue_select_title')}
+                value={teamSize}
               />
-            </SupportLabeledField>
-
-            <SupportLabeledField label={t('support_form_reason_label')} isRequired>
-              <SupportIssueDropdown
-                sheetTitle={t('support_issue_select_title')}
-                options={reasonOptions}
-                placeholder={t('support_form_reason_placeholder')}
-                value={reasonValue}
-                onChange={setReasonValue}
-              />
-            </SupportLabeledField>
+            </HomeVisitsSupportLabeledField>
           </>
-        ) : (
-          <SupportLabeledField label={t('support_form_reason_label')} isRequired>
-            <SupportIssueDropdown
-              sheetTitle={t('support_issue_select_title')}
-              options={reasonOptions}
-              placeholder={t('support_form_reason_placeholder')}
-              value={reasonValue}
-              onChange={setReasonValue}
-            />
-          </SupportLabeledField>
-        )}
+        ) : null}
 
-        <SupportLabeledField
-          label={isBusinessJoiningFlow
-            ? t('support_form_business_description_label')
-            : t('support_form_description_label')}
+        <HomeVisitsSupportLabeledField isRequired label={t('home_visits_support_form_reason_label')}>
+          <SupportIssueDropdown
+            onChange={setReasonValue}
+            options={reasonOptions}
+            placeholder={t('home_visits_support_form_reason_placeholder')}
+            sheetTitle={t('home_visits_support_issue_select_title')}
+            value={reasonValue}
+          />
+        </HomeVisitsSupportLabeledField>
+
+        <HomeVisitsSupportLabeledField
           isRequired
+          label={
+            isBusinessJoiningFlow
+              ? t('home_visits_support_form_business_description_label')
+              : isAppointmentSupportFlow
+                ? t('home_visits_support_form_appointment_description_label')
+                : t('home_visits_support_form_description_label')
+          }
         >
           <Pressable>
             <View
@@ -499,7 +446,7 @@ export default function SupportContactFormScreen() {
               <TextInput
                 multiline
                 onChangeText={setDescription}
-                placeholder={t('support_form_description_placeholder')}
+                placeholder={t('home_visits_support_form_description_placeholder')}
                 placeholderTextColor={colors.mutedText}
                 style={[
                   styles.textArea,
@@ -514,9 +461,9 @@ export default function SupportContactFormScreen() {
               />
             </View>
           </Pressable>
-        </SupportLabeledField>
+        </HomeVisitsSupportLabeledField>
 
-        {!isBusinessJoiningFlow ? <SupportAttachmentDropzone /> : null}
+        {!isBusinessJoiningFlow ? <HomeVisitsSupportAttachmentDropzone /> : null}
       </ScrollView>
 
       <View
@@ -529,12 +476,12 @@ export default function SupportContactFormScreen() {
         ]}
       >
         <Button
-          label={t('support_form_send_email')}
-          onPress={handleSubmit}
           disabled={!isFormValid || createSupportTicketMutation.isPending}
           isLoading={createSupportTicketMutation.isPending}
-          variant={isFormValid ? 'primary' : 'secondary'}
+          label={t('home_visits_support_form_send_email')}
+          onPress={handleSubmit}
           style={styles.footerButton}
+          variant={isFormValid ? 'primary' : 'secondary'}
         />
       </View>
     </View>
@@ -544,9 +491,9 @@ export default function SupportContactFormScreen() {
 const styles = StyleSheet.create({
   content: {
     gap: 16,
+    paddingBottom: 24,
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 24,
   },
   footer: {
     paddingHorizontal: 16,

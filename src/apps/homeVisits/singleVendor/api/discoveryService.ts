@@ -20,6 +20,8 @@ import type {
   HomeVisitsSingleVendorMostPopularServicesParams,
   HomeVisitsSingleVendorNearbyServicesApiResponse,
   HomeVisitsSingleVendorNearbyServicesParams,
+  HomeVisitsServiceReviewsApiResponse,
+  HomeVisitsServiceReviewsParams,
   HomeVisitsSingleVendorServiceCenterServicesApiResponse,
   HomeVisitsSingleVendorServiceCenterServicesParams,
   HomeVisitsToggleFavoriteServiceResponse,
@@ -59,6 +61,11 @@ const SINGLE_VENDOR_BOOKINGS_DEFAULTS = {
 } as const;
 
 const SINGLE_VENDOR_SERVICE_CENTER_SERVICES_DEFAULTS = {
+  offset: 0,
+  limit: 10,
+} as const;
+
+const SINGLE_VENDOR_SERVICE_REVIEWS_DEFAULTS = {
   offset: 0,
   limit: 10,
 } as const;
@@ -384,7 +391,7 @@ export const homeVisitsSingleVendorDiscoveryService = {
     }
   },
 
-   getFavoriteServicesPage: async (
+  getFavoriteServicesPage: async (
     params: HomeVisitsSingleVendorFavoriteServicesParams = {},
   ): Promise<HomeVisitsSingleVendorFavoriteServicesApiResponse> => {
     const {
@@ -417,6 +424,29 @@ export const homeVisitsSingleVendorDiscoveryService = {
     } catch (error) {
       console.error(
         'home visits single vendor toggle favorite service request failed',
+        error,
+      );
+      throw error;
+    }
+  },
+
+  getServiceReviewsPage: async (
+    params: HomeVisitsServiceReviewsParams,
+  ): Promise<HomeVisitsServiceReviewsApiResponse> => {
+    const { serviceId } = params;
+    const {
+      offset = SINGLE_VENDOR_SERVICE_REVIEWS_DEFAULTS.offset,
+      limit = SINGLE_VENDOR_SERVICE_REVIEWS_DEFAULTS.limit,
+    } = params;
+
+    try {
+      return await apiClient.get<HomeVisitsServiceReviewsApiResponse>(
+        `/api/v1/apps/home-services/reviews/services/${serviceId}`,
+        { offset, limit },
+      );
+    } catch (error) {
+      console.error(
+        'home visits service reviews request failed',
         error,
       );
       throw error;

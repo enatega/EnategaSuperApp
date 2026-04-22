@@ -1,18 +1,20 @@
 import React from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import SupportChatFooter from '../../../../general/components/support/SupportChatFooter';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
-import SupportChatFooter from '../../components/support/SupportChatFooter';
 import SupportFaqHelpfulActions from '../../components/support/SupportFaqHelpfulActions';
-import { SupportFaqArticleRouteProp } from '../../navigation/supportNavigationTypes';
+import { SupportFaqArticleRouteProp, type SupportFaqNavigationProp } from '../../navigation/supportNavigationTypes';
 import { getSupportFaqArticleById } from '../../utils/supportFaqArticles';
 
 export default function SupportFaqArticleScreen() {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
+  const navigation = useNavigation<SupportFaqNavigationProp>();
   const route = useRoute<SupportFaqArticleRouteProp>();
   const article = getSupportFaqArticleById(route.params.articleId);
 
@@ -48,7 +50,10 @@ export default function SupportFaqArticleScreen() {
         <SupportFaqHelpfulActions />
       </ScrollView>
 
-      <SupportChatFooter />
+      <SupportChatFooter
+        ctaLabel={t('support_chat_cta')}
+        onPress={() => navigation.navigate('SupportChat', { agentName: t('support_chat_agent_name') })}
+      />
     </View>
   );
 }
