@@ -35,7 +35,8 @@ export default function SingleVendorSearchWithFiltersContainer() {
           onOpenFilters={searchFlow.openFilters}
           isFilterVisible={
             searchFlow.services.length > 0 ||
-            searchFlow.serviceCenters.length > 0
+            searchFlow.serviceCenters.length > 0 ||
+            searchFlow.hasAppliedFilters
           }
           onSubmitEditing={searchFlow.handleSubmitEditing}
           onClear={searchFlow.handleClear}
