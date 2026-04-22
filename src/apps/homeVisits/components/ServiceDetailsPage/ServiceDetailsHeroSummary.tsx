@@ -16,7 +16,7 @@ type Props = {
   isFavorite: boolean;
   isFavoritePending: boolean;
   onBack: () => void;
-  onClose: () => void;
+
   onRatingPress?: () => void;
   onFavorite: () => void;
   onShare: () => void;
@@ -29,7 +29,7 @@ export default function ServiceDetailsHeroSummary({
   isFavorite,
   isFavoritePending,
   onBack,
-  onClose,
+
   onRatingPress,
   onFavorite,
   onShare,
