@@ -4,6 +4,8 @@ import type {
   HomeVisitsSingleVendorBannersApiResponse,
   HomeVisitsSingleVendorBannersParams,
   HomeVisitsSingleVendorBookingAvailabilityParams,
+  HomeVisitsSingleVendorBookingAvailabilityRangeParams,
+  HomeVisitsSingleVendorBookingAvailabilityRangeResponse,
   HomeVisitsSingleVendorBookingAvailabilityResponse,
   HomeVisitsSingleVendorBookingDetails,
   HomeVisitsSingleVendorBookingsApiResponse,
@@ -24,6 +26,9 @@ import type {
   HomeVisitsServiceReviewsParams,
   HomeVisitsSingleVendorServiceCenterServicesApiResponse,
   HomeVisitsSingleVendorServiceCenterServicesParams,
+  HomeVisitsServiceOrderPreviewPayload,
+  HomeVisitsServicePlaceOrderResponse,
+  HomeVisitsServiceOrderPreviewResponse,
   HomeVisitsToggleFavoriteServiceResponse,
 } from './types';
 
@@ -391,7 +396,61 @@ export const homeVisitsSingleVendorDiscoveryService = {
     }
   },
 
-  getFavoriteServicesPage: async (
+  getBookingAvailabilityRange: async (
+    params: HomeVisitsSingleVendorBookingAvailabilityRangeParams,
+  ): Promise<HomeVisitsSingleVendorBookingAvailabilityRangeResponse> => {
+    const { days, serviceCenterId, startDate, teamSize } = params;
+
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorBookingAvailabilityRangeResponse>(
+        `/api/v1/apps/home-services/service-centers/${serviceCenterId}/booking-availability/range`,
+        {
+          startDate,
+          days,
+          teamSize,
+        },
+      );
+    } catch (error) {
+      console.error(
+        'home visits single vendor booking availability range request failed',
+        error,
+      );
+      throw error;
+    }
+  },
+
+  getBookingSummaryPreview: async (
+    payload: HomeVisitsServiceOrderPreviewPayload,
+  ): Promise<HomeVisitsServiceOrderPreviewResponse> => {
+    try {
+      return await apiClient.post<HomeVisitsServiceOrderPreviewResponse>(
+        '/api/v1/apps/home-services/orders/place-order/preview',
+        payload,
+      );
+    } catch (error) {
+      console.error(
+        'home visits single vendor booking summary preview request failed',
+        error,
+      );
+      throw error;
+    }
+  },
+
+  placeBookingOrder: async (
+    payload: HomeVisitsServiceOrderPreviewPayload,
+  ): Promise<HomeVisitsServicePlaceOrderResponse> => {
+    try {
+      return await apiClient.post<HomeVisitsServicePlaceOrderResponse>(
+        '/api/v1/apps/home-services/orders',
+        payload,
+      );
+    } catch (error) {
+      console.error('home visits single vendor place booking order request failed', error);
+      throw error;
+    }
+  },
+
+   getFavoriteServicesPage: async (
     params: HomeVisitsSingleVendorFavoriteServicesParams = {},
   ): Promise<HomeVisitsSingleVendorFavoriteServicesApiResponse> => {
     const {

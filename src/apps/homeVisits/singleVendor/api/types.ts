@@ -63,6 +63,13 @@ export interface HomeVisitsSingleVendorBookingAvailabilityParams {
   teamSize?: number;
 }
 
+export interface HomeVisitsSingleVendorBookingAvailabilityRangeParams {
+  serviceCenterId: string;
+  startDate: string;
+  days: number;
+  teamSize?: number;
+}
+
 export interface HomeVisitsSingleVendorBookingAvailabilitySlot {
   open: string;
   close: string;
@@ -78,6 +85,8 @@ export interface HomeVisitsSingleVendorBookingAvailabilityWorker {
   slots: Array<{
     open: string;
     close: string;
+    availableWorkers?: number;
+    meetsTeamSize?: boolean;
   }>;
 }
 
@@ -90,6 +99,113 @@ export interface HomeVisitsSingleVendorBookingAvailabilityResponse {
   teamSize: number | null;
   slots: HomeVisitsSingleVendorBookingAvailabilitySlot[];
   workers: HomeVisitsSingleVendorBookingAvailabilityWorker[];
+}
+
+export interface HomeVisitsSingleVendorBookingAvailabilityRangeResponse {
+  serviceCenterId: string;
+  startDate: string;
+  days: number;
+  teamSize: number | null;
+  scheduleAllowed: boolean;
+  serviceCenterAvailable: boolean;
+  dailyAvailability: HomeVisitsSingleVendorBookingAvailabilityResponse[];
+}
+
+export type HomeVisitsOrderPreviewType = 'delivery' | 'pickup';
+export type HomeVisitsBookingType = 'one_time' | 'contract';
+export type HomeVisitsOrderPaymentMethod = 'cod' | 'stripe';
+export type HomeVisitsServicePaymentMethod = 'cash' | 'card';
+
+export interface HomeVisitsServicePreviewSlot {
+  startTime: string;
+  endTime: string;
+}
+
+export interface HomeVisitsServicePreviewSelection {
+  serviceTypeOptionId?: string | null;
+  additionalServiceOptionIds?: string[];
+}
+
+export interface HomeVisitsServicePreviewItem {
+  serviceId: string;
+  isPrimary: boolean;
+  quantity: number;
+  selection?: HomeVisitsServicePreviewSelection | null;
+}
+
+export interface HomeVisitsServicePreviewPayment {
+  method: HomeVisitsServicePaymentMethod;
+  discountCode?: string;
+}
+
+export interface HomeVisitsServiceOrderPreviewPayload {
+  serviceCenterId: string;
+  storeId?: string;
+  bucketId?: string;
+  orderType: HomeVisitsOrderPreviewType;
+  paymentMethod: HomeVisitsOrderPaymentMethod;
+  bookingType: HomeVisitsBookingType;
+  addressId?: string;
+  scheduledAt: string;
+  timezone: string;
+  teamSize: number;
+  workingHours: number;
+  contractDays?: number;
+  slot: HomeVisitsServicePreviewSlot;
+  services: HomeVisitsServicePreviewItem[];
+  payment: HomeVisitsServicePreviewPayment;
+  notes?: string | null;
+  customerNote?: string | null;
+  source: 'mobile_app';
+  riderTip?: number;
+  successUrl?: string;
+  cancelUrl?: string;
+  totalAmount?: number;
+}
+
+export interface HomeVisitsServiceOrderPreviewSummary {
+  totalPrice: number;
+  discountAmount: number;
+  payableAmount: number;
+  totalAmount: number;
+  itemCount: number;
+  serviceCount: number;
+  workingHours: number;
+  subtotal: number;
+  discount: number;
+  tax: number;
+  packingCharges: number;
+  deliveryFee: number;
+  riderTip: number;
+}
+
+export interface HomeVisitsServiceOrderPreviewLocation {
+  latitude: number;
+  longitude: number;
+  address: string;
+}
+
+export interface HomeVisitsServiceOrderPreviewResponse {
+  summary: HomeVisitsServiceOrderPreviewSummary;
+  serviceCenterLocation: HomeVisitsServiceOrderPreviewLocation;
+}
+
+export interface HomeVisitsServicePlaceOrderResponse {
+  mode: HomeVisitsOrderPaymentMethod;
+  orderId?: string;
+  status?: string;
+  paymentStatus?: string;
+  paymentMethod?: string;
+  bookingType?: HomeVisitsBookingType;
+  teamSize?: number | null;
+  contractDays?: number | null;
+  orderType?: HomeVisitsOrderPreviewType;
+  totalAmount?: number;
+  scheduledAt?: string | null;
+  createdAt?: string;
+  draftId?: string;
+  checkoutUrl?: string | null;
+  sessionId?: string;
 }
 
 export interface HomeVisitsSingleVendorServiceCenterListCategory {

@@ -1,6 +1,6 @@
 export type ApiEnvironment = 'development' | 'staging' | 'production' | 'local';
 
-const DEFAULT_ENV: ApiEnvironment = 'production';//'production';//'local' 
+const DEFAULT_ENV: ApiEnvironment = 'local';//'production';//'local' 
 
 const API_BASE_URLS: Record<ApiEnvironment, string> = {
   development: 'https://enatega-super-app-production.up.railway.app',

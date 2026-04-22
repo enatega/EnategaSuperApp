@@ -35,6 +35,7 @@ export type HomeVisitsReviewAndConfirmRouteParams =
   HomeVisitsTeamAndScheduleRouteParams & {
     teamSize: number;
     workingHours: number;
+    contractDays: number;
     serviceMode: HomeVisitsTeamScheduleMode;
     scheduledAtIso: string;
     scheduledSlot: HomeVisitsScheduledSlot;

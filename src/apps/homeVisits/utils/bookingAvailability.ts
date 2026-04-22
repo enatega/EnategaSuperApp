@@ -1,4 +1,5 @@
 import type {
+  HomeVisitsSingleVendorBookingAvailabilityRangeResponse,
   HomeVisitsSingleVendorBookingAvailabilityResponse,
   HomeVisitsSingleVendorBookingAvailabilitySlot,
 } from '../singleVendor/api/types';
@@ -90,4 +91,63 @@ export function isBookingTimeAvailable(
   }
 
   return hasWorkerSlotAtSelectedTime(response.workers ?? [], selectedMinutes, teamSize);
+}
+
+function isSlotAvailableForTeam(
+  slot: HomeVisitsSingleVendorBookingAvailabilitySlot,
+  selectedMinutes: number,
+  teamSize: number,
+) {
+  if (!isSlotMatchingSelection(slot, selectedMinutes)) {
+    return false;
+  }
+
+  if (slot.meetsTeamSize === false) {
+    return false;
+  }
+
+  if (
+    typeof slot.availableWorkers === 'number' &&
+    Number.isFinite(slot.availableWorkers) &&
+    slot.availableWorkers < teamSize
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+export function isBookingTimeRangeAvailable(
+  response: HomeVisitsSingleVendorBookingAvailabilityRangeResponse,
+  selectedDate: Date,
+  teamSize: number,
+  days: number,
+) {
+  if (!response.scheduleAllowed || !response.serviceCenterAvailable) {
+    return false;
+  }
+
+  if (response.dailyAvailability.length < days) {
+    return false;
+  }
+
+  const selectedMinutes = toMinutesFromStartOfDay(selectedDate);
+
+  return response.dailyAvailability.every((dayAvailability) => {
+    if (!dayAvailability.scheduleAllowed || !dayAvailability.serviceCenterAvailable) {
+      return false;
+    }
+
+    if (dayAvailability.slots.length > 0) {
+      return dayAvailability.slots.some((slot) =>
+        isSlotAvailableForTeam(slot, selectedMinutes, teamSize),
+      );
+    }
+
+    return hasWorkerSlotAtSelectedTime(
+      dayAvailability.workers ?? [],
+      selectedMinutes,
+      teamSize,
+    );
+  });
 }

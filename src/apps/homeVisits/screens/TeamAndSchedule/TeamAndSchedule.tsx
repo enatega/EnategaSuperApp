@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import { useTheme } from '../../../../general/theme/theme';
 import HomeVisitsDateTimePickerSheet from '../../components/common/HomeVisitsDateTimePickerSheet';
 import { formatMinutesToDurationLabel } from '../../components/ServiceCenterServicesList/serviceDuration';
 import CustomTeamSizeSheet from '../../components/TeamAndSchedule/CustomTeamSizeSheet';
+import ContractTimeRangeSheet from '../../components/TeamAndSchedule/ContractTimeRangeSheet';
 import ServiceModeSection from '../../components/TeamAndSchedule/ServiceModeSection';
 import TeamAndScheduleFooter from '../../components/TeamAndSchedule/TeamAndScheduleFooter';
 import TeamAndScheduleHeader from '../../components/TeamAndSchedule/TeamAndScheduleHeader';
@@ -21,6 +22,7 @@ import type { HomeVisitsSingleVendorNavigationParamList } from '../../singleVend
 import {
   formatBookingDateOnly,
   isBookingTimeAvailable,
+  isBookingTimeRangeAvailable,
 } from '../../utils/bookingAvailability';
 import type { HomeVisitsScheduledSlot } from '../../types/teamSchedule';
 
@@ -48,7 +50,9 @@ export default function TeamAndSchedule() {
   const [teamSize, setTeamSize] = useState(1);
   const [workingHours, setWorkingHours] = useState(6);
   const [serviceMode, setServiceMode] = useState<'one-time' | 'contract'>('one-time');
+  const [contractDays, setContractDays] = useState(30);
   const [isCustomSheetOpen, setIsCustomSheetOpen] = useState(false);
+  const [isContractRangeSheetOpen, setIsContractRangeSheetOpen] = useState(false);
   const [isDateTimeSheetOpen, setIsDateTimeSheetOpen] = useState(false);
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
   const [availabilityPopup, setAvailabilityPopup] = useState<{
@@ -81,9 +85,20 @@ export default function TeamAndSchedule() {
       endTime,
     };
   };
+  const formatContractDaysLabel = (days: number) =>
+    `${days} ${days === 1 ? t('team_schedule_day_singular') : t('team_schedule_day_plural')}`;
+
+  const handleSelectServiceMode = (nextMode: 'one-time' | 'contract') => {
+    setServiceMode(nextMode);
+    if (nextMode === 'contract') {
+      setIsContractRangeSheetOpen(true);
+    }
+  };
+
   const navigateToReview = (scheduledAtIso: string) => {
     setIsDateTimeSheetOpen(false);
     navigation.push('ReviewAndConfirm', {
+      contractDays,
       initialSelection,
       scheduledAtIso,
       scheduledSlot: buildScheduledSlot(scheduledAtIso),
@@ -136,7 +151,7 @@ export default function TeamAndSchedule() {
         />
 
         <ServiceModeSection
-          onSelect={setServiceMode}
+          onSelect={handleSelectServiceMode}
           options={[
             {
               id: 'one-time',
@@ -182,17 +197,45 @@ export default function TeamAndSchedule() {
             return;
           }
 
-          if (serviceMode === 'contract') {
-            navigateToReview(nextDate.toISOString());
-            return;
-          }
-
           try {
             setIsCheckingAvailability(true);
+            const bookingDate = formatBookingDateOnly(nextDate);
+
+            if (serviceMode === 'contract') {
+              const response =
+                await homeVisitsSingleVendorDiscoveryService.getBookingAvailabilityRange({
+                  serviceCenterId,
+                  startDate: bookingDate,
+                  days: contractDays,
+                  teamSize,
+                });
+
+              if (!response.scheduleAllowed || !response.serviceCenterAvailable) {
+                setAvailabilityPopup({
+                  visible: true,
+                  title: t('team_schedule_availability_unavailable_title'),
+                  description: t('team_schedule_availability_unavailable_description'),
+                });
+                return;
+              }
+
+              if (!isBookingTimeRangeAvailable(response, nextDate, teamSize, contractDays)) {
+                setAvailabilityPopup({
+                  visible: true,
+                  title: t('team_schedule_slot_not_available_title'),
+                  description: t('team_schedule_slot_not_available_description'),
+                });
+                return;
+              }
+
+              navigateToReview(nextDate.toISOString());
+              return;
+            }
+
             const response =
               await homeVisitsSingleVendorDiscoveryService.getBookingAvailability({
                 serviceCenterId,
-                date: formatBookingDateOnly(nextDate),
+                date: bookingDate,
                 teamSize,
               });
 
@@ -230,6 +273,19 @@ export default function TeamAndSchedule() {
         }}
         value={null}
         visible={isDateTimeSheetOpen}
+      />
+
+      <ContractTimeRangeSheet
+        addLabel={t('team_schedule_contract_range_add')}
+        customLabel={t('team_schedule_contract_range_custom')}
+        customPlaceholder={t('team_schedule_contract_range_custom_placeholder')}
+        formatDaysLabel={formatContractDaysLabel}
+        helperText={t('team_schedule_contract_range_helper')}
+        initialDays={contractDays}
+        onAdd={setContractDays}
+        onClose={() => setIsContractRangeSheetOpen(false)}
+        title={t('team_schedule_contract_range_title')}
+        visible={isContractRangeSheetOpen}
       />
 
       <AppPopup

@@ -8,11 +8,13 @@ type Props = {
   confirmLabel: string;
   onConfirm: () => void;
   onClose: () => void;
+  isConfirmLoading?: boolean;
 };
 
 function ReviewConfirmBookingPopup({
   confirmLabel,
   description,
+  isConfirmLoading = false,
   onClose,
   onConfirm,
   title,
@@ -27,6 +29,8 @@ function ReviewConfirmBookingPopup({
       primaryAction={{
         label: confirmLabel,
         onPress: onConfirm,
+        isLoading: isConfirmLoading,
+        disabled: isConfirmLoading,
         style: { backgroundColor: '#FC9401', borderColor: '#FC9401' },
       }}
       title={title}
