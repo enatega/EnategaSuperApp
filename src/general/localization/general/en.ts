@@ -169,6 +169,7 @@ const en = {
   notifications_title: 'Notifications',
   notifications_section_today: 'Today',
   notifications_section_past: 'Past',
+  notifications_show_more: 'Show More',
   notifications_empty_title: 'No notifications yet',
   notifications_empty_description: 'You will see your latest updates here once they arrive.',
   notifications_today_appointment_title: 'Your appointment at Style Haven is confirmed and ready for you.',
