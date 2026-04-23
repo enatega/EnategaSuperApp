@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useInfiniteQuery } from '@tanstack/react-query';
@@ -6,14 +6,11 @@ import { useTranslation } from 'react-i18next';
 import apiClient from '../../api/apiClient';
 import EmptyNotification from '../../assets/svgs/emptyNotification.svg';
 import Button from '../../components/Button';
+import NotificationsSkeleton from '../../components/notifications/NotificationsSkeleton';
 import ScreenHeader from '../../components/ScreenHeader';
 import Text from '../../components/Text';
 import { useAuthSessionQuery } from '../../hooks/useAuthQueries';
 import { useTheme } from '../../theme/theme';
-import {
-  notificationMockSections,
-  type NotificationMockSection,
-} from './mockNotifications';
 
 const NOTIFICATIONS_LIMIT = 10;
 
@@ -37,13 +34,11 @@ type NotificationsApiResponse = {
 
 type Props = {
   appPrefix?: AppPrefix;
-  sections?: NotificationMockSection[];
   userId?: string | null;
 };
 
 export default function NotificationsScreen({
   appPrefix = 'home-services',
-  sections,
   userId: userIdProp,
 }: Props) {
   const { colors, typography } = useTheme();
@@ -51,17 +46,6 @@ export default function NotificationsScreen({
 
   const sessionQuery = useAuthSessionQuery();
   const userId = userIdProp ?? sessionQuery.data?.user?.id ?? null;
-  const isStaticMode = Boolean(sections);
-
-  const sectionData = useMemo(
-    () => sections ?? notificationMockSections,
-    [sections],
-  );
-
-  const visibleSections = useMemo(
-    () => sectionData.filter((section) => section.data.length > 0),
-    [sectionData],
-  );
 
   const todayQuery = useInfiniteQuery<NotificationsApiResponse>({
     queryKey: ['notifications', appPrefix, 'today', userId, NOTIFICATIONS_LIMIT],
@@ -73,7 +57,7 @@ export default function NotificationsScreen({
     initialPageParam: 0,
     getNextPageParam: (lastPage) =>
       lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
-    enabled: !isStaticMode && Boolean(userId),
+    enabled: Boolean(userId),
     staleTime: 60 * 1000,
   });
 
@@ -87,133 +71,25 @@ export default function NotificationsScreen({
     initialPageParam: 0,
     getNextPageParam: (lastPage) =>
       lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
-    enabled: !isStaticMode && Boolean(userId),
+    enabled: Boolean(userId),
     staleTime: 60 * 1000,
   });
 
   const todayItems = todayQuery.data?.pages.flatMap((page) => page.items) ?? [];
   const pastItems = pastQuery.data?.pages.flatMap((page) => page.items) ?? [];
 
-  const isDynamicLoading =
-    !isStaticMode
-    && (sessionQuery.isLoading
-      || ((todayQuery.isLoading && todayItems.length === 0)
-        || (pastQuery.isLoading && pastItems.length === 0)));
+  const isDynamicLoading = sessionQuery.isLoading
+    || ((todayQuery.isLoading && todayItems.length === 0)
+      || (pastQuery.isLoading && pastItems.length === 0));
 
-  const isEmpty = isStaticMode
-    ? visibleSections.length === 0
-    : !isDynamicLoading && todayItems.length === 0 && pastItems.length === 0;
+  const isEmpty = !isDynamicLoading && todayItems.length === 0 && pastItems.length === 0;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <ScreenHeader title={t('notifications_title')} />
 
-      {isStaticMode ? (
-        <FlatList
-          data={visibleSections}
-          keyExtractor={(section) => section.id}
-          contentContainerStyle={[
-            styles.contentContainer,
-            isEmpty ? styles.emptyContainer : null,
-          ]}
-          showsVerticalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View style={styles.sectionSeparator} />}
-          renderItem={({ item: section }) => (
-            <View>
-              <Text
-                weight="extraBold"
-                style={{
-                  color: colors.text,
-                  fontSize: typography.size.lg,
-                  lineHeight: typography.lineHeight.md,
-                  marginBottom: 6,
-                }}
-              >
-                {t(section.titleKey)}
-              </Text>
-
-              <FlatList
-                data={section.data}
-                keyExtractor={(item) => item.id}
-                scrollEnabled={false}
-                ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
-                renderItem={({ item }) => (
-                  <View style={styles.row}>
-                    <View
-                      style={[
-                        styles.iconWrap,
-                        {
-                          backgroundColor: colors.surfaceSoft,
-                        },
-                      ]}
-                    >
-                      <Ionicons
-                        name={item.iconName}
-                        size={24}
-                        color={colors.iconMuted}
-                      />
-                    </View>
-
-                    <View style={styles.messageColumn}>
-                      <Text
-                        numberOfLines={1}
-                        weight="medium"
-                        style={{
-                          color: colors.text,
-                          fontSize: typography.size.sm2,
-                          lineHeight: typography.lineHeight.md,
-                        }}
-                      >
-                        {t(item.titleKey)}
-                      </Text>
-
-                      <Text
-                        numberOfLines={1}
-                        weight="medium"
-                        style={{
-                          color: colors.mutedText,
-                          fontSize: typography.size.xs2,
-                          lineHeight: typography.lineHeight.sm,
-                          marginTop: 2,
-                        }}
-                      >
-                        {t(item.subtitleKey)}
-                      </Text>
-                    </View>
-                  </View>
-                )}
-              />
-            </View>
-          )}
-          ListEmptyComponent={(
-            <View style={styles.emptyState}>
-              <EmptyNotification width={200} height={200} />
-              <Text
-                weight="semiBold"
-                style={{
-                  color: colors.text,
-                  fontSize: typography.size.md2,
-                  lineHeight: typography.lineHeight.md,
-                  marginTop: 16,
-                  textAlign: 'center',
-                }}
-              >
-                {t('notifications_empty_title')}
-              </Text>
-              <Text
-                style={{
-                  color: colors.mutedText,
-                  fontSize: typography.size.sm2,
-                  lineHeight: typography.lineHeight.md,
-                  marginTop: 8,
-                  textAlign: 'center',
-                }}
-              >
-                {t('notifications_empty_description')}
-              </Text>
-            </View>
-          )}
-        />
+      {isDynamicLoading ? (
+        <NotificationsSkeleton />
       ) : (
         <ScrollView
           contentContainerStyle={[
