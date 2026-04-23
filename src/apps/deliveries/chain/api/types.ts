@@ -33,7 +33,7 @@ export type ChainMenuCategoryProductsParams = {
   search?: string;
   stock?: string;
   subcategory_id?: string;
-  price_tiers?: string[];
+  price_tiers?: string;
   sort_by?: string;
 };
 

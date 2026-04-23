@@ -867,6 +867,7 @@ const fr = {
   wallet_security_code_label: 'Code de sécurité',
   wallet_pay_securely: 'Paiement sécurisé avec',
   wallet_save_card: 'Enregistrer',
+  off: 'désactivé'
 };
 
 export default fr;

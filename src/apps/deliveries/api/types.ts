@@ -71,7 +71,7 @@ export interface DeliveryShopTypeProductsParams {
     stock?: string;
     category_ids?: string[];
     subcategory_id?: string;
-    price_tiers?: string[];
+    price_tiers?: string;
     sort_by?: string;
 }
 
@@ -85,7 +85,7 @@ export interface DeliveryShopTypeStoresParams {
     stock?: string;
     category_ids?: string[];
     subcategory_id?: string;
-    price_tiers?: string[];
+    price_tiers?: string;
     sort_by?: string;
 }
 
@@ -99,7 +99,7 @@ export interface DeliveryVendorStoresParams {
     stock?: string;
     category_ids?: string[];
     subcategory_id?: string;
-    price_tiers?: string[];
+    price_tiers?: string;
     sort_by?: string;
 }
 
@@ -197,7 +197,7 @@ export interface DeliveryNearbyStoresParams {
     stock?: string;
     category_ids?: string[];
     subcategory_id?: string;
-    price_tiers?: string[];
+    price_tiers?: string;
     sort_by?: string;
 }
 

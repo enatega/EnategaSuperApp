@@ -868,6 +868,7 @@ const en = {
   wallet_security_code_label: 'Security code',
   wallet_pay_securely: 'Pay securely with',
   wallet_save_card: 'Save',
+  off: 'off',
 };
 
 export default en;

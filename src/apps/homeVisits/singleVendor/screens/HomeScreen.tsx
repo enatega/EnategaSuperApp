@@ -84,7 +84,12 @@ export default function SingleVendorHomeScreen({ }: Props) {
   }, [handleCloseAddressSheet, navigation]);
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+    <View style={[styles.screen, { backgroundColor: colors.background, gap: 10 }]}>
+      <HomeVisitsAddressHeader
+        addresses={addresses}
+        onAddAddressPress={handleOpenAddressSheet}
+        onAddressPress={handleOpenAddressSheet}
+      />
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
@@ -94,11 +99,6 @@ export default function SingleVendorHomeScreen({ }: Props) {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <HomeVisitsAddressHeader
-          addresses={addresses}
-          onAddAddressPress={handleOpenAddressSheet}
-          onAddressPress={handleOpenAddressSheet}
-        />
         <SingleVendorSpecialOffersBanner />
         <SingleVendorCategorySection />
         <NearbyYourLocationSection

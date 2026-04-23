@@ -14,6 +14,7 @@ import StoreImage from "./subComponents/StoreImage";
 import StoreInfo from "./subComponents/StoreInfo";
 import StoreRating from "./subComponents/StoreRating";
 import StoreDeliveryInfo from "./subComponents/StoreDeliveryInfo";
+import { useTranslations } from "../../../../general/localization/LocalizationProvider";
 
 type StoreCardData =
   | DeliveryNearbyStore
@@ -42,6 +43,7 @@ export default function StoreCard({
   onPress,
 }: StoreCardProps) {
   const { colors } = useTheme();
+  const { t } = useTranslations("deliveries")
   const navigation = useNavigation<NavigationProp>();
   const isProductItem = isProductStoreCardData(store);
   const isPressable = Boolean(onPress) || !isProductItem;
@@ -51,7 +53,7 @@ export default function StoreCard({
       store.storeLogo ||
       "https://placehold.co/400x400.png"
     : store.coverImage || store.logo || "https://placehold.co/400x400.png";
-  const resolvedOffer = store.deal ?? undefined;
+  const resolvedOffer = store.dealType === 'percentage' ? store.dealAmount + ' % ' + t("off") : store.dealAmount + t('off');
   const resolvedName = isProductItem ? store.productName : store.name;
   const resolvedLocation = !isProductItem ? store.address ?? undefined : undefined;
   const resolvedRating = store.averageRating ?? undefined;
@@ -93,7 +95,7 @@ export default function StoreCard({
       activeOpacity={isPressable ? 0.7 : 1}
       onPress={handlePress}
     >
-      <StoreImage imageUrl={resolvedImageUrl} offer={resolvedOffer} actionSlot={actionSlot} />
+      <StoreImage imageUrl={resolvedImageUrl} offer={resolvedOffer ?? undefined} actionSlot={actionSlot} />
 
       <View style={styles.content}>
         <StoreInfo name={resolvedName} />

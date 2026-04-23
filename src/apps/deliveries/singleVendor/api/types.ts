@@ -24,7 +24,7 @@ export interface SingleVendorCategoryProductsParams {
   longitude?: number;
   stock?: string;
   subcategory_id?: string;
-  price_tiers?: string | string[];
+  price_tiers?: string;
   sort_by?: string;
 }
 
