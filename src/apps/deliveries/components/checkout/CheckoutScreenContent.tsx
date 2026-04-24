@@ -39,6 +39,7 @@ type Props = {
   onRestaurantMessagePress: () => void;
   onSchedulePress: () => void;
   onRetryPreview: () => void;
+  onCustomTipPress: () => void;
   onTipChange: (amount: number) => void;
   orderType: CheckoutOrderType;
   paymentErrorMessage?: string | null;
@@ -76,6 +77,7 @@ export default function CheckoutScreenContent({
   onRestaurantMessagePress,
   onSchedulePress,
   onRetryPreview,
+  onCustomTipPress,
   onTipChange,
   orderType,
   paymentErrorMessage,
@@ -187,6 +189,7 @@ export default function CheckoutScreenContent({
 
         {isDeliveryOrder ? (
           <CheckoutTipSection
+            onCustomTipPress={onCustomTipPress}
             selectedTip={selectedTip}
             onSelectTip={onTipChange}
           />

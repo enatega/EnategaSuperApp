@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Share, StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useDeliveriesCurrencyLabel } from '../../../../../general/stores/useAppConfigStore';
@@ -218,6 +218,17 @@ export default function StoreDetailsScreen() {
     setIsInfoModalVisible(true);
   }, []);
 
+  const handleSharePress = useCallback(async () => {
+    try {
+      await Share.share({
+        message: storeName,
+        title: storeName,
+      });
+    } catch {
+      // Ignore canceled/failed share action.
+    }
+  }, [storeName]);
+
   const handleCloseInfoModal = useCallback(() => {
     setIsInfoModalVisible(false);
   }, []);
@@ -272,6 +283,7 @@ export default function StoreDetailsScreen() {
         onCategorySelect={handleCategorySelect}
         onFavouritePress={handleFavouritePress}
         onInfoPress={handleOpenInfoModal}
+        onSharePress={handleSharePress}
         onSearchChange={setSearchValue}
         onSubcategorySelect={handleSubcategorySelect}
         phone={phone}
@@ -300,6 +312,7 @@ export default function StoreDetailsScreen() {
       handleCategorySelect,
       handleFavouritePress,
       handleOpenInfoModal,
+      handleSharePress,
       handleSubcategorySelect,
       phone,
       rating,

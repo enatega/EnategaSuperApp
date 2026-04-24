@@ -28,6 +28,7 @@ export default function CartItemRow({
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const subtitle = getCartItemSubtitle(item);
+  const [isExpanded, setIsExpanded] = React.useState(true);
   const [localQuantity, setLocalQuantity] = React.useState(item.quantity);
   const desiredQuantityRef = React.useRef(item.quantity);
   const inflightQuantityRef = React.useRef<number | null>(null);
@@ -157,6 +158,10 @@ export default function CartItemRow({
     onRemove();
   }, [clearDebounceTimeout, item.quantity, onRemove]);
 
+  const handleToggleExpanded = React.useCallback(() => {
+    setIsExpanded((currentValue) => !currentValue);
+  }, []);
+
   return (
     <View style={[styles.container, { borderBottomColor: colors.border }]}>
       <View style={styles.contentRow}>
@@ -167,7 +172,12 @@ export default function CartItemRow({
         />
 
         <View style={styles.details}>
-          <View style={styles.titleRow}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ expanded: isExpanded }}
+            onPress={handleToggleExpanded}
+            style={styles.titleRow}
+          >
             <View style={styles.textColumn}>
               <Text
                 numberOfLines={1}
@@ -181,7 +191,7 @@ export default function CartItemRow({
                 {item.name}
               </Text>
 
-              {subtitle ? (
+              {isExpanded && subtitle ? (
                 <Text
                   numberOfLines={1}
                   style={{
@@ -195,8 +205,8 @@ export default function CartItemRow({
               ) : null}
             </View>
 
-            <Ionicons color={colors.text} name="chevron-down" size={18} />
-          </View>
+            <Ionicons color={colors.text} name={isExpanded ? 'chevron-up' : 'chevron-down'} size={18} />
+          </Pressable>
 
           <View style={styles.controlsRow}>
             <View style={styles.quantityControls}>
