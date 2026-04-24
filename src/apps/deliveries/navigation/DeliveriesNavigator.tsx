@@ -24,6 +24,7 @@ import AddressSearchScreen from "../../../general/screens/address/AddressSearchS
 import AddressChooseOnMapScreen from "../../../general/screens/address/AddressChooseOnMapScreen";
 import AddressDetailScreen from "../../../general/screens/address/AddressDetailScreen";
 import WalletScreen from "../screens/wallet/WalletScreen/WalletScreen";
+import NotificationsScreen from "../../../general/screens/notifications/NotificationsScreen";
 import AddCardScreen from "../screens/wallet/AddCardScreen/AddCardScreen";
 import WalletTransactionsScreen from "../screens/wallet/WalletTransactionsScreen/WalletTransactionsScreen";
 import SupportScreen from "../screens/SupportScreen/SupportScreen";
@@ -153,6 +154,12 @@ export default function DeliveriesNavigator() {
         component={WalletScreen}
         options={sharedScreenOptions}
       />
+      <Stack.Screen
+        name="Notifications"
+        options={sharedScreenOptions}
+      >
+        {() => <NotificationsScreen appPrefix="deliveries" />}
+      </Stack.Screen>
       <Stack.Screen
         name="AddCard"
         component={AddCardScreen}

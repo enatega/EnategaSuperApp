@@ -8,7 +8,7 @@ import { styles } from "../styles";
 
 interface StoreImageProps {
   imageUrl: string;
-  offer?: string;
+  offer?: string | number | undefined;
   actionSlot?: React.ReactNode;
 }
 

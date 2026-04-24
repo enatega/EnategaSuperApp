@@ -1,5 +1,10 @@
 export const homeVisitsKeys = {
   all: ['homeVisits'] as const,
+  notifications: () => [...homeVisitsKeys.all, 'notifications'] as const,
+  homeVisitsTodayNotifications: (filters: { userId: string; limit?: number }) =>
+    [...homeVisitsKeys.notifications(), 'today', filters] as const,
+  homeVisitsPastNotifications: (filters: { userId: string; limit?: number }) =>
+    [...homeVisitsKeys.notifications(), 'past', filters] as const,
   supportChat: () => [...homeVisitsKeys.all, 'support-chat'] as const,
   supportChatConversations: () =>
     [...homeVisitsKeys.supportChat(), 'conversations'] as const,

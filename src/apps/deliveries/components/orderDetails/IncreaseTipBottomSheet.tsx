@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  KeyboardAvoidingView,
+  Keyboard,
   Platform,
   Pressable,
   TextInput,
@@ -37,6 +37,43 @@ export default function IncreaseTipBottomSheet({
   const { colors, typography } = useTheme();
   const currencyLabel = useDeliveriesCurrencyLabel();
   const insets = useSafeAreaInsets();
+  const [keyboardHeight, setKeyboardHeight] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!isVisible) {
+      setKeyboardHeight(0);
+      return undefined;
+    }
+
+    const showEvent = Platform.OS === "ios" ? "keyboardWillChangeFrame" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const showSubscription = Keyboard.addListener(showEvent, (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+
+    const hideSubscription = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [isVisible]);
+
+  const keyboardBottomInset = Platform.OS === "ios"
+    ? Math.max(keyboardHeight - insets.bottom, 0)
+    : 0;
+  const handleClose = React.useCallback(() => {
+    Keyboard.dismiss();
+    onClose();
+  }, [onClose]);
+
+  const handleDone = React.useCallback(() => {
+    Keyboard.dismiss();
+    onDone();
+  }, [onDone]);
 
   if (!isVisible) {
     return null;
@@ -46,7 +83,7 @@ export default function IncreaseTipBottomSheet({
     <View pointerEvents="box-none" style={styles.backdrop}>
       <Pressable
         accessibilityRole="button"
-        onPress={onClose}
+        onPress={handleClose}
         style={[styles.backdrop, { backgroundColor: colors.overlayDark20 }]}
       />
 
@@ -62,19 +99,21 @@ export default function IncreaseTipBottomSheet({
         }
         initialState="expanded"
         modal
-        onCollapsed={onClose}
-        style={[styles.sheet, { backgroundColor: colors.background }]}
+        onCollapsed={handleClose}
+        style={[
+          styles.sheet,
+          {
+            backgroundColor: colors.background,
+            bottom: keyboardBottomInset,
+          },
+        ]}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={insets.bottom}
+        <View
+          style={[
+            styles.content,
+            { backgroundColor: colors.background, paddingBottom: insets.bottom + 16 },
+          ]}
         >
-          <View
-            style={[
-              styles.content,
-              { backgroundColor: colors.background, paddingBottom: insets.bottom + 16 },
-            ]}
-          >
             <View style={styles.headerRow}>
               <View style={styles.headerSide} />
               <Text
@@ -92,7 +131,7 @@ export default function IncreaseTipBottomSheet({
                 accessibilityLabel={t("store_details_close")}
                 accessibilityRole="button"
                 hitSlop={8}
-                onPress={onClose}
+                onPress={handleClose}
                 style={[
                   styles.closeButton,
                   { backgroundColor: colors.backgroundTertiary },
@@ -169,9 +208,8 @@ export default function IncreaseTipBottomSheet({
               ))}
             </View>
 
-            <Button label={t("order_details_tip_done")} onPress={onDone} />
-          </View>
-        </KeyboardAvoidingView>
+          <Button label={t("order_details_tip_done")} onPress={handleDone} />
+        </View>
       </SwipeableBottomSheet>
     </View>
   );

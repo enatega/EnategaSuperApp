@@ -31,6 +31,7 @@ type Props = {
   onCategorySelect: (categoryId: string | null) => void;
   onFavouritePress: () => void;
   onInfoPress: () => void;
+  onSharePress: () => void;
   onSubcategorySelect: (subcategoryId: string) => void;
   phone?: string | null;
   rating?: number | null;
@@ -59,6 +60,7 @@ export default function StoreDetailListHeader({
   onCategorySelect,
   onFavouritePress,
   onInfoPress,
+  onSharePress,
   onSearchChange,
   onSubcategorySelect,
   phone,
@@ -111,13 +113,16 @@ export default function StoreDetailListHeader({
                   accessibilityLabel={t('store_details_action_favorite')}
                   isFavourite={isFavourite}
                   isLoading={isFavouriteLoading}
+                  outlined
                   onPress={onFavouritePress}
+                  tone="neutral"
                   style={styles.favButton}
                 />
                 <StoreDetailActionButton
                   accessibilityLabel={t('store_details_action_share')}
                   iconName="share-2"
                   iconType="Feather"
+                  onPress={onSharePress}
                 />
               </View>
             </View>

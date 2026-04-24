@@ -511,6 +511,9 @@ const fr = {
   checkout_tip_title: 'Donnez un pourboire à votre livreur',
   checkout_tip_description: 'Le pourboire sera versé intégralement au livreur.',
   checkout_tip_custom: 'Personnalisé',
+  checkout_tip_custom_title: 'Ajouter un pourboire personnalisé',
+  checkout_tip_custom_placeholder: '0.00',
+  checkout_tip_custom_done: 'Terminé',
   checkout_summary_title: 'Résumé',
   checkout_summary_hint: 'taxes incluses (si applicables)',
   checkout_summary_subtotal: 'Sous-total',
@@ -867,6 +870,7 @@ const fr = {
   wallet_security_code_label: 'Code de sécurité',
   wallet_pay_securely: 'Paiement sécurisé avec',
   wallet_save_card: 'Enregistrer',
+  off: 'désactivé'
 };
 
 export default fr;

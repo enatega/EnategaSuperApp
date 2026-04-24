@@ -4,7 +4,8 @@ export type AddressFlowOrigin =
   | 'multi-vendor-home'
   | 'profile'
   | 'single-vendor-home'
-  | 'chain-home';
+  | 'chain-home'
+  | 'checkout';
 
 export type AddressFlowParams = {
   appPrefix: ProfileAppPrefix;

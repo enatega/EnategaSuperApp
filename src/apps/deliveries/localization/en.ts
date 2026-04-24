@@ -713,6 +713,9 @@ const en = {
   checkout_tip_title: 'Tip your courier',
   checkout_tip_description: 'The tip will be paid full to the courier.',
   checkout_tip_custom: 'Custom',
+  checkout_tip_custom_title: 'Add a custom tip',
+  checkout_tip_custom_placeholder: '0.00',
+  checkout_tip_custom_done: 'Done',
   checkout_summary_title: 'Summary',
   checkout_summary_hint: 'incl. taxes (if applicable)',
   checkout_summary_subtotal: 'Subtotal',
@@ -868,6 +871,7 @@ const en = {
   wallet_security_code_label: 'Security code',
   wallet_pay_securely: 'Pay securely with',
   wallet_save_card: 'Save',
+  off: 'off',
 };
 
 export default en;

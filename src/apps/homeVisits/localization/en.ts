@@ -387,6 +387,7 @@ const en = {
   // Search related translations
   services: 'Services',
   see_all: 'See all',
+  off: 'off'
 };
 
 export default en;

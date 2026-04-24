@@ -9,6 +9,7 @@ import StoreInfo from '../storeCard/subComponents/StoreInfo';
 import StoreRating from '../storeCard/subComponents/StoreRating';
 import { styles as storeCardStyles } from '../storeCard/styles';
 import type { ProductCardControlState } from './types';
+import { useTranslations } from '../../../../general/localization/LocalizationProvider';
 
 type Props = {
   isFullWidth?: boolean;
@@ -24,11 +25,14 @@ export default function RailProductCard({
   state,
 }: Props) {
   const { colors } = useTheme();
+  const { t } = useTranslations('deliveries')
   const imageUrl =
     product.productImage ??
     product.storeImage ??
     product.storeLogo ??
     'https://placehold.co/400x400.png';
+  
+  const resolvedOffer = product?.dealType === 'percentage' ? product?.dealAmount + ' % ' + t("off") : product?.dealAmount + t('off');
 
   return (
     <TouchableOpacity
@@ -51,7 +55,7 @@ export default function RailProductCard({
           <CartCountBadge count={state.totalQuantity} style={styles.countBadge} />
         ) : undefined}
         imageUrl={imageUrl}
-        offer={product.deal ?? undefined}
+        offer={resolvedOffer ?? undefined}
       />
 
       <View style={storeCardStyles.content}>

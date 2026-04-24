@@ -81,7 +81,14 @@ export default function HomeScreen() {
   }, [navigation]);
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+    <View style={[styles.screen, { backgroundColor: colors.background, gap: 10 }]}>
+      <MultiVendorAddressHeader
+        addresses={addresses}
+        cartCount={cartCount?.totalItems}
+        onAddAddressPress={handleOpenAddressSheet}
+        onAddressPress={handleOpenAddressSheet}
+        onCartPress={handleCartPress}
+      />
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
@@ -91,13 +98,6 @@ export default function HomeScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <MultiVendorAddressHeader
-          addresses={addresses}
-          cartCount={cartCount?.totalItems}
-          onAddAddressPress={handleOpenAddressSheet}
-          onAddressPress={handleOpenAddressSheet}
-          onCartPress={handleCartPress}
-        />
 
         {/* <View style={styles.content}>
           <Header

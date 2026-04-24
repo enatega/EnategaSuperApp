@@ -8,6 +8,7 @@ import { useTheme } from '../../../../general/theme/theme';
 
 type Props = {
   selectedTip: number;
+  onCustomTipPress: () => void;
   onSelectTip: (amount: number) => void;
 };
 
@@ -15,11 +16,13 @@ const TIP_OPTIONS = [5, 10, 20, 50] as const;
 
 export default function CheckoutTipSection({
   selectedTip,
+  onCustomTipPress,
   onSelectTip,
 }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const currencyLabel = useDeliveriesCurrencyLabel();
+  const isCustomSelected = selectedTip > 0 && !TIP_OPTIONS.includes(selectedTip as (typeof TIP_OPTIONS)[number]);
 
   return (
     <View style={styles.section}>
@@ -79,12 +82,12 @@ export default function CheckoutTipSection({
 
         <Pressable
           accessibilityRole="button"
-          onPress={() => onSelectTip(0)}
+          onPress={onCustomTipPress}
           style={[
             styles.optionButton,
             {
-              backgroundColor: selectedTip === 0 ? colors.blue50 : colors.surface,
-              borderColor: selectedTip === 0 ? colors.blue800 : colors.border,
+              backgroundColor: isCustomSelected ? colors.blue50 : colors.surface,
+              borderColor: isCustomSelected ? colors.blue800 : colors.border,
             },
           ]}
         >

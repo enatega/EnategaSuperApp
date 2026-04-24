@@ -30,7 +30,7 @@ export interface DeliveryDealsListingParams {
   tab?: DeliveryDealsTabType;
   category_ids?: string[];
   subcategory_id?: string;
-  price_tiers?: string[];
+  price_tiers?: string;
   latitude?: number;
   longitude?: number;
   sort_by?: string;

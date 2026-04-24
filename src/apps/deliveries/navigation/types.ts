@@ -18,6 +18,7 @@ export type SeeAllListingType =
 export type DealsSeeAllSource = "multi-vendor" | "single-vendor" | "chain-vendor";
 
 type DeliveriesAccountNavigationParamList = ProfileNavigationParamList & {
+  Notifications: undefined;
   Settings: undefined;
   NotificationSettings: undefined;
   PrivacyPolicy: undefined;
