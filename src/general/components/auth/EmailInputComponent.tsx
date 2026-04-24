@@ -9,6 +9,7 @@ import Footer from "../Footer";
 import Button from "../Button";
 import TextInputField from "./TextInputField";
 import { isValidEmail } from "../../utils/validation";
+import KeyboardDismissWrapper from "../KeyboardDismissWrapper";
 
 type Props = {
   heading: string;
@@ -16,6 +17,7 @@ type Props = {
   buttonLabel?: string;
   onContinue: (email: string) => void;
   styles: any;
+  emailId?:string
 };
 
 export default function EmailInputComponent({
@@ -24,16 +26,17 @@ export default function EmailInputComponent({
   buttonLabel = "continue",
   onContinue,
   styles,
+  emailId
 }: Props) {
   const navigation = useNavigation();
   const { t } = useTranslation();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(emailId ?? '');
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const isFormValid = email.trim().length > 0 && isValidEmail(email);
 
   return (
-    <View style={styles.container}>
+    <KeyboardDismissWrapper style={styles.container}>
       <ScreenHeader onBack={() => navigation.goBack()} />
 
       <View style={styles.centerContent}>
@@ -63,6 +66,6 @@ export default function EmailInputComponent({
           disabled={!isFormValid}
         />
       </Footer>
-    </View>
+    </KeyboardDismissWrapper>
   );
 }

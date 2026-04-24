@@ -10,6 +10,7 @@ import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal"
 import { useAuthStore } from "../../../stores/useAuthStore";
 import AppPopup from "../../../components/AppPopup";
 import { useNavigation } from "@react-navigation/native";
+import KeyboardDismissWrapper from "../../../components/KeyboardDismissWrapper";
 
 const ForgetPasswordEnterOtp = ({ route }) => {
   const { emailId } = route.params;
@@ -76,7 +77,7 @@ const ForgetPasswordEnterOtp = ({ route }) => {
   };
 
   return (
-    <>
+    <KeyboardDismissWrapper>
       <OtpVerificationComponent
         heading="verify_your_email"
         description={t("enter_otp_sent_to", { contact: emailId })}
@@ -104,7 +105,7 @@ const ForgetPasswordEnterOtp = ({ route }) => {
           variant: "danger",
         }}
       />
-    </>
+    </KeyboardDismissWrapper>
   );
 };
 

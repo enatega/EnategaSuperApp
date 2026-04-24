@@ -13,6 +13,7 @@ export default function HomeVisitsProfileTabScreen() {
   return (
     <ProfileTabScreen
       favoritesEnabled
+      couponsEnabled={false}
       isLoading={isLoading}
       onOpenFavourites={() => navigation.navigate('SingleVendorFavorites')}
       onOpenNotifications={() => navigation.navigate('SingleVendorNotifications')}
