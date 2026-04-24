@@ -20,7 +20,6 @@ import WorkingHoursSection from '../../components/TeamAndSchedule/WorkingHoursSe
 import { homeVisitsSingleVendorDiscoveryService } from '../../singleVendor/api/discoveryService';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../../singleVendor/navigation/types';
 import {
-  formatBookingDateOnly,
   getBookingAvailabilityFailureMessage,
   isBookingTimeAvailable,
   isBookingTimeRangeAvailable,
@@ -200,13 +199,13 @@ export default function TeamAndSchedule() {
 
           try {
             setIsCheckingAvailability(true);
-            const bookingDate = formatBookingDateOnly(nextDate);
+            const bookingDateTime = nextDate.toISOString();
 
             if (serviceMode === 'contract') {
               const response =
                 await homeVisitsSingleVendorDiscoveryService.getBookingAvailabilityRange({
                   serviceCenterId,
-                  startDate: bookingDate,
+                  startDate: bookingDateTime,
                   days: contractDays,
                   teamSize,
                 });
@@ -242,8 +241,9 @@ export default function TeamAndSchedule() {
             const response =
               await homeVisitsSingleVendorDiscoveryService.getBookingAvailability({
                 serviceCenterId,
-                date: bookingDate,
+                date: bookingDateTime,
                 teamSize,
+                requiredHours: workingHours,
               });
 
             if (
