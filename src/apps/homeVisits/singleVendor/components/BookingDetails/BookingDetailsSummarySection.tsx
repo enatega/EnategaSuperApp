@@ -71,45 +71,7 @@ export default function BookingDetailsSummarySection({
         {statusMessage}
       </Text>
 
-      <Pressable
-        onPress={onOpenReviews}
-        style={[styles.ratingRow, { borderColor: colors.border }]}
-      >
-        <View style={styles.ratingValue}>
-          <MaterialCommunityIcons
-            color={colors.warning}
-            name="star"
-            size={18}
-          />
-          <Text
-            style={{
-              color: colors.text,
-              fontSize: typography.size.sm2,
-              lineHeight: typography.lineHeight.md,
-            }}
-            weight="semiBold"
-          >
-            {reviewLabel}
-          </Text>
-        </View>
-        <View style={styles.ratingCta}>
-          <Text
-            style={{
-              color: colors.mutedText,
-              fontSize: typography.size.xs2,
-              lineHeight: typography.lineHeight.sm,
-            }}
-            weight="medium"
-          >
-            {t('single_vendor_booking_open_reviews')}
-          </Text>
-          <MaterialCommunityIcons
-            color={colors.iconMuted}
-            name="chevron-right"
-            size={18}
-          />
-        </View>
-      </Pressable>
+    
     </>
   );
 }

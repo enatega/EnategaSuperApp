@@ -2,8 +2,6 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import {
-  AppState,
-  type AppStateStatus,
   FlatList,
   Linking,
   Platform,
@@ -11,10 +9,8 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import type { LatLng } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { homeVisitsKeys } from '../../api/queryKeys';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
 import useAddress from '../../../../general/hooks/useAddress';
 import AppPopup from '../../../../general/components/AppPopup';
@@ -24,22 +20,18 @@ import { showToast } from '../../../../general/components/AppToast';
 import Skeleton from '../../../../general/components/Skeleton';
 import SwipeableBottomSheet from '../../../../general/components/SwipeableBottomSheet';
 import { useTheme } from '../../../../general/theme/theme';
-import {
-  homeServicesSocketClient,
-  subscribeHomeServicesEvent,
-} from '../../socket/homeServicesSocket';
-import type {
-  JobStatusUpdatedEvent,
-  WorkerLocationEvent,
-} from '../../socket/homeServicesSocket.types';
-import type { HomeVisitsSingleVendorBookingDetails } from '../api/types';
 import TrackWorkerBookingContent from '../components/TrackWorker/TrackWorkerBookingContent';
 import TrackWorkerFeedbackSection from '../components/TrackWorker/TrackWorkerFeedbackSection';
 import TrackWorkerHeader from '../components/TrackWorker/TrackWorkerHeader';
 import TrackWorkerMapPreview from '../components/TrackWorker/TrackWorkerMapPreview';
 import TrackWorkerStatusBlock from '../components/TrackWorker/TrackWorkerStatusBlock';
+import useTrackWorkerRealtime from '../hooks/useTrackWorkerRealtime';
 import useSingleVendorBookingDetails from '../hooks/useSingleVendorBookingDetails';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
+import {
+  extractDestinationLocation,
+  extractWorkerLocation,
+} from '../utils/trackWorkerLocation';
 import {
   getProgressStep,
   resolveTrackWorkerStage,
@@ -74,181 +66,18 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
   const [rating, setRating] = React.useState(0);
   const [feedback, setFeedback] = React.useState('');
   const [isAroundCornerDismissed, setIsAroundCornerDismissed] = React.useState(false);
-  const [liveBookingData, setLiveBookingData] = React.useState<HomeVisitsSingleVendorBookingDetails | null>(null);
-  const [workerLocation, setWorkerLocation] = React.useState<LatLng | null>(null);
+  const resetLocalFlow = React.useCallback(() => {
+    setLocalFlow('none');
+  }, []);
 
-  const appStateRef = React.useRef<AppStateStatus>(AppState.currentState);
-  const currentOrderIdRef = React.useRef(orderId);
-  const currentUserIdRef = React.useRef<string | null>(currentUserId);
-
-  React.useEffect(() => {
-    currentOrderIdRef.current = orderId;
-  }, [orderId]);
-
-  React.useEffect(() => {
-    currentUserIdRef.current = currentUserId;
-  }, [currentUserId]);
-
-  React.useEffect(() => {
-    if (data) {
-      setLiveBookingData(data);
-    }
-  }, [data]);
-
-  React.useEffect(() => {
-    void homeServicesSocketClient.updateSession({ token, userId: currentUserId });
-  }, [currentUserId, token]);
-
-  React.useEffect(() => {
-    if (!token) {
-      return undefined;
-    }
-
-    homeServicesSocketClient.retain();
-    void homeServicesSocketClient.connect();
-
-    return () => {
-      homeServicesSocketClient.release();
-    };
-  }, [token]);
-
-  React.useEffect(() => {
-    if (!token) {
-      return undefined;
-    }
-
-    const subscription = AppState.addEventListener('change', (nextState) => {
-      const previousState = appStateRef.current;
-      appStateRef.current = nextState;
-
-      if (previousState === 'active' && nextState !== 'active') {
-        homeServicesSocketClient.disconnectIfIdle();
-        return;
-      }
-
-      if (nextState === 'active' && homeServicesSocketClient.hasActiveConsumers()) {
-        void homeServicesSocketClient.connect();
-      }
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, [token]);
-
-  React.useEffect(() => {
-    if (!token) {
-      return undefined;
-    }
-
-    const unsubscribeStatus = subscribeHomeServicesEvent('job-status-updated', (payload) => {
-      console.log('[home-services][track-worker] event received: job-status-updated', payload);
-
-      if (!isJobStatusUpdatedEvent(payload)) {
-        console.warn('[home-services][track-worker] ignored invalid job-status-updated payload', payload);
-        return;
-      }
-
-      if (payload.jobId !== currentOrderIdRef.current) {
-        console.log('[home-services][track-worker] ignored job-status-updated for different job', {
-          activeOrderId: currentOrderIdRef.current,
-          eventJobId: payload.jobId,
-        });
-        return;
-      }
-
-      setLocalFlow('none');
-      setLiveBookingData((previous) => {
-        const base = previous ?? data;
-
-        if (!base) {
-          return {
-            orderId: payload.jobId,
-            jobStatus: payload.jobStatus,
-            status: payload.jobStatus,
-            assignedWorker: payload.workerId ? { id: payload.workerId } : null,
-          };
-        }
-
-        return {
-          ...base,
-          jobStatus: payload.jobStatus,
-          status: payload.jobStatus,
-          assignedWorker: {
-            ...(base.assignedWorker ?? {}),
-            id: payload.workerId ?? base.assignedWorker?.id,
-          },
-        };
-      });
-
-      console.log('[home-services][track-worker] applying job status update to local UI', {
-        orderId: payload.jobId,
-        previousJobStatus: payload.previousJobStatus,
-        jobStatus: payload.jobStatus,
-        workerId: payload.workerId,
-        message: payload.message,
-      });
-
-      queryClient.setQueryData<HomeVisitsSingleVendorBookingDetails>(
-        homeVisitsKeys.singleVendorBookingDetail(payload.jobId),
-        (cached) => {
-          if (!cached) {
-            console.log('[home-services][track-worker] cache miss for booking detail', {
-              orderId: payload.jobId,
-            });
-            return cached;
-          }
-
-          return {
-            ...cached,
-            jobStatus: payload.jobStatus,
-            status: payload.jobStatus,
-            assignedWorker: {
-              ...(cached.assignedWorker ?? {}),
-              id: payload.workerId ?? cached.assignedWorker?.id,
-            },
-          };
-        },
-      );
-    });
-
-    const unsubscribeLocation = subscribeHomeServicesEvent('get-worker-location', (payload) => {
-      console.log('[home-services][track-worker] event received: get-worker-location', payload);
-
-      if (!isWorkerLocationEvent(payload)) {
-        console.warn('[home-services][track-worker] ignored invalid get-worker-location payload', payload);
-        return;
-      }
-
-      const eventCustomerUserId = readString(payload.customerUserId);
-      const activeCustomerUserId = currentUserIdRef.current;
-
-      if (activeCustomerUserId && eventCustomerUserId && activeCustomerUserId !== eventCustomerUserId) {
-        console.log('[home-services][track-worker] ignored worker location for different customer', {
-          activeCustomerUserId,
-          eventCustomerUserId,
-        });
-        return;
-      }
-
-      console.log('[home-services][track-worker] applying worker location update', {
-        latitude: payload.latitude,
-        longitude: payload.longitude,
-        workerUserId: payload.workerUserId,
-        customerUserId: payload.customerUserId,
-      });
-
-      setWorkerLocation({
-        latitude: payload.latitude,
-        longitude: payload.longitude,
-      });
-    });
-
-    return () => {
-      unsubscribeStatus();
-      unsubscribeLocation();
-    };
-  }, [data, queryClient, token]);
+  const { liveBookingData, workerLocation } = useTrackWorkerRealtime({
+    currentUserId,
+    initialBookingData: data,
+    onJobStatusUpdated: resetLocalFlow,
+    orderId,
+    queryClient,
+    token,
+  });
 
   const bookingData = liveBookingData ?? data ?? null;
   const stage = resolveTrackWorkerStage(bookingData);
@@ -349,7 +178,7 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
   }, [showAroundCornerPopupRaw]);
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}> 
+    <View style={[styles.screen, { backgroundColor: colors.background }]}>
       {isMapVisible ? (
         <View style={styles.mapLayer}>
           <TrackWorkerMapPreview
@@ -463,155 +292,6 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
         visible={showAroundCornerPopup}
       />
     </View>
-  );
-}
-
-function readString(value: unknown) {
-  return typeof value === 'string' && value.trim().length > 0
-    ? value.trim()
-    : null;
-}
-
-function asNumber(value: unknown) {
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return value;
-  }
-
-  if (typeof value === 'string') {
-    const parsed = Number.parseFloat(value);
-
-    if (Number.isFinite(parsed)) {
-      return parsed;
-    }
-  }
-
-  return null;
-}
-
-function asRecord(value: unknown): Record<string, unknown> | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    return null;
-  }
-
-  return value as Record<string, unknown>;
-}
-
-function toLatLng(value: unknown): LatLng | null {
-  const record = asRecord(value);
-
-  if (!record) {
-    return null;
-  }
-
-  const latitude = asNumber(record.latitude ?? record.lat);
-  const longitude = asNumber(record.longitude ?? record.lng ?? record.lon);
-
-  if (latitude === null || longitude === null) {
-    return null;
-  }
-
-  return { latitude, longitude };
-}
-
-function extractDestinationLocation(details?: HomeVisitsSingleVendorBookingDetails | null) {
-  if (!details) {
-    return null;
-  }
-
-  const directLocation = toLatLng(details);
-
-  if (directLocation) {
-    return directLocation;
-  }
-
-  const detailsRecord = asRecord(details);
-
-  if (!detailsRecord) {
-    return null;
-  }
-
-  const candidates: unknown[] = [
-    detailsRecord.serviceCenterLocation,
-    detailsRecord.deliveryDetails,
-    detailsRecord.location,
-    detailsRecord.addressLocation,
-    detailsRecord.store,
-  ];
-
-  for (const candidate of candidates) {
-    const point = toLatLng(candidate);
-
-    if (point) {
-      return point;
-    }
-  }
-
-  const latitude = asNumber(detailsRecord.addressLatitude ?? detailsRecord.deliveryLatitude);
-  const longitude = asNumber(detailsRecord.addressLongitude ?? detailsRecord.deliveryLongitude);
-
-  if (latitude !== null && longitude !== null) {
-    return { latitude, longitude };
-  }
-
-  return null;
-}
-
-function extractWorkerLocation(details?: HomeVisitsSingleVendorBookingDetails | null) {
-  if (!details) {
-    return null;
-  }
-
-  const detailsRecord = asRecord(details);
-
-  if (!detailsRecord) {
-    return null;
-  }
-
-  const candidates: unknown[] = [
-    detailsRecord.workerLocation,
-    detailsRecord.currentLocation,
-    detailsRecord.assignedWorker,
-    asRecord(detailsRecord.assignedWorker)?.currentLocation,
-  ];
-
-  for (const candidate of candidates) {
-    const point = toLatLng(candidate);
-
-    if (point) {
-      return point;
-    }
-  }
-
-  return null;
-}
-
-function isJobStatusUpdatedEvent(value: unknown): value is JobStatusUpdatedEvent {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    return false;
-  }
-
-  const payload = value as JobStatusUpdatedEvent;
-
-  return (
-    typeof payload.jobId === 'string'
-    && payload.jobId.trim().length > 0
-    && typeof payload.jobStatus === 'string'
-    && payload.jobStatus.trim().length > 0
-  );
-}
-
-function isWorkerLocationEvent(value: unknown): value is WorkerLocationEvent {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    return false;
-  }
-
-  const payload = value as WorkerLocationEvent;
-
-  return (
-    typeof payload.latitude === 'number'
-    && Number.isFinite(payload.latitude)
-    && typeof payload.longitude === 'number'
-    && Number.isFinite(payload.longitude)
   );
 }
 

@@ -61,6 +61,7 @@ export interface HomeVisitsSingleVendorBookingAvailabilityParams {
   serviceCenterId: string;
   date: string;
   teamSize?: number;
+  requiredHours?: number;
 }
 
 export interface HomeVisitsSingleVendorBookingAvailabilityRangeParams {
