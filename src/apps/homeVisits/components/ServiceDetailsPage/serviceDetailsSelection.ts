@@ -191,9 +191,18 @@ export function getPricingState(
     (sum, option) => sum + toMinutes(option.duration, option.durationUnit),
     0,
   );
+  const selectedServiceTypeCount = selectedOptions.some((option) =>
+    serviceTypeOptionsById.has(option.optionId),
+  )
+    ? 1
+    : 0;
+  const selectedAdditionalCount = selectedOptions.filter(
+    (option) => !serviceTypeOptionsById.has(option.optionId),
+  ).length;
+  const serviceCount = Math.max(1, selectedServiceTypeCount) + selectedAdditionalCount;
 
   return {
-    serviceCount: selectedOptions.length,
+    serviceCount,
     totalPrice,
     totalPriceLabel: formatPrice(totalPrice),
     estimatedDurationMinutes,
