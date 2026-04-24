@@ -91,6 +91,10 @@ export interface HomeVisitsSingleVendorBookingAvailabilityWorker {
 }
 
 export interface HomeVisitsSingleVendorBookingAvailabilityResponse {
+  success?: boolean;
+  message?: string;
+  start_date?: string;
+  end_date?: string;
   serviceCenterId: string;
   date: string;
   day: string;
@@ -102,6 +106,10 @@ export interface HomeVisitsSingleVendorBookingAvailabilityResponse {
 }
 
 export interface HomeVisitsSingleVendorBookingAvailabilityRangeResponse {
+  success?: boolean;
+  message?: string;
+  start_date?: string;
+  end_date?: string;
   serviceCenterId: string;
   startDate: string;
   days: number;

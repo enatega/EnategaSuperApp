@@ -1,52 +1,83 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React from 'react';
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useQueryClient } from "@tanstack/react-query";
+import React from "react";
 import {
-  ImageBackground,
+  AppState,
+  type AppStateStatus,
   Linking,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   View,
-} from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Skeleton from '../../../../general/components/Skeleton';
-import { showToast } from '../../../../general/components/AppToast';
-import Text from '../../../../general/components/Text';
-import { useTheme } from '../../../../general/theme/theme';
-import BookingReviewsModal from '../components/Reviews/BookingReviewsModal';
-import { DEFAULT_BOOKING_REVIEW_SUMMARY, getDefaultBookingReviews } from '../constants/reviewsMock';
-import useSingleVendorBookingDetails from '../hooks/useSingleVendorBookingDetails';
-import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
+} from "react-native";
+import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { homeVisitsKeys } from "../../api/queryKeys";
+import { useAuthSessionQuery } from "../../../../general/hooks/useAuthQueries";
+import { showToast } from "../../../../general/components/AppToast";
+import { useTheme } from "../../../../general/theme/theme";
+import {
+  homeServicesSocketClient,
+  subscribeHomeServicesEvent,
+} from "../../socket/homeServicesSocket";
+import type { JobStatusUpdatedEvent } from "../../socket/homeServicesSocket.types";
+import BookingReviewsModal from "../components/Reviews/BookingReviewsModal";
+import {
+  DEFAULT_BOOKING_REVIEW_SUMMARY,
+  getDefaultBookingReviews,
+} from "../constants/reviewsMock";
+import useSingleVendorBookingDetails from "../hooks/useSingleVendorBookingDetails";
+import type {
+  HomeVisitsSingleVendorBookingDetails,
+  HomeVisitsSingleVendorBookingServiceItem,
+} from "../api/types";
+import type { HomeVisitsSingleVendorNavigationParamList } from "../navigation/types";
+import { normalizeJobStatus } from "../utils/trackWorkerStatus";
+import BookingDetailsActionsSection from "../components/BookingDetails/BookingDetailsActionsSection";
+import BookingDetailsEventsFeed from "../components/BookingDetails/BookingDetailsEventsFeed";
+import BookingDetailsHero from "../components/BookingDetails/BookingDetailsHero";
+import BookingDetailsServicesSection from "../components/BookingDetails/BookingDetailsServicesSection";
+import BookingDetailsSummarySection from "../components/BookingDetails/BookingDetailsSummarySection";
+import BookingDetailsTextSection from "../components/BookingDetails/BookingDetailsTextSection";
+import type { BookingDetailsLiveEvent } from "../components/BookingDetails/types";
 
 type Props = NativeStackScreenProps<
   HomeVisitsSingleVendorNavigationParamList,
-  'SingleVendorBookingDetails'
+  "SingleVendorBookingDetails"
 >;
 
-const HERO_FALLBACK_IMAGE = 'https://placehold.co/900x500/png';
+const HERO_FALLBACK_IMAGE = "https://placehold.co/900x500/png";
+const MAX_LIVE_EVENTS = 10;
 
 export default function BookingDetailsScreen({ navigation, route }: Props) {
-  const { t } = useTranslation('homeVisits');
-  const { colors, typography } = useTheme();
+  const { t } = useTranslation("homeVisits");
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const queryClient = useQueryClient();
   const { orderId } = route.params;
+  const sessionQuery = useAuthSessionQuery();
+  const token = sessionQuery.data?.token ?? null;
+  const userId = sessionQuery.data?.user?.id ?? null;
   const [isReviewsVisible, setIsReviewsVisible] = React.useState(false);
   const { data, isLoading } = useSingleVendorBookingDetails({ orderId });
+  const appStateRef = React.useRef<AppStateStatus>(AppState.currentState);
+  const currentOrderIdRef = React.useRef(orderId);
+  const lastApiEventKeyRef = React.useRef<string | null>(null);
   const reviewSummary = DEFAULT_BOOKING_REVIEW_SUMMARY;
-  const defaultReviews = React.useMemo(
-    () => getDefaultBookingReviews(t),
-    [t],
-  );
+  const defaultReviews = React.useMemo(() => getDefaultBookingReviews(t), [t]);
 
-  const isCancelled = `${data?.status ?? ''}`.toLowerCase() === 'cancelled';
-  const statusLabel = data?.statusLabel ?? t('single_vendor_booking_status_confirmed');
-  const scheduledLabel = formatScheduleDate(data?.scheduledAt ?? data?.orderedAt);
+  const isCancelled = `${data?.status ?? ""}`.toLowerCase() === "cancelled";
+  const statusLabel = resolveBookingStatusLabel(
+    data?.jobStatus,
+    data?.statusLabel,
+    t,
+  );
+  const scheduledLabel = formatScheduleDate(
+    data?.scheduledAt ?? data?.orderedAt,
+  );
   const durationLabel = resolveDurationLabel(
     data?.durationLabel,
-    t('single_vendor_booking_default_duration'),
+    t("single_vendor_booking_default_duration"),
     t,
   );
   const services = data?.services ?? [];
@@ -60,15 +91,163 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
     data?.store?.image ??
     HERO_FALLBACK_IMAGE;
   const cancellationPolicy =
-    data?.cancellationPolicy ?? t('single_vendor_booking_cancellation_body');
+    data?.cancellationPolicy ?? t("single_vendor_booking_cancellation_body");
   const scheduledAt = data?.scheduledAt ?? data?.orderedAt;
+  const summaryStatusMessage = data?.statusMessage ?? durationLabel;
+  const reviewLabel = t("single_vendor_reviews_summary_label", {
+    count:
+      reviewSummary.distribution.find((item) => item.rating === 5)?.count ?? 0,
+    rating: reviewSummary.averageRating.toFixed(1),
+  });
+
+  const resolveDuration = React.useCallback(
+    (label: string | null | undefined, fallback: string) =>
+      resolveDurationLabel(label, fallback, t),
+    [t],
+  );
+
+  React.useEffect(() => {
+    currentOrderIdRef.current = orderId;
+  }, [orderId]);
+
+  React.useEffect(() => {
+    void homeServicesSocketClient.updateSession({ token, userId });
+  }, [token, userId]);
+
+  React.useEffect(() => {
+    if (!token) {
+      return undefined;
+    }
+
+    homeServicesSocketClient.retain();
+    void homeServicesSocketClient.connect();
+
+    return () => {
+      homeServicesSocketClient.release();
+    };
+  }, [token]);
+
+  React.useEffect(() => {
+    if (!token) {
+      return undefined;
+    }
+
+    const subscription = AppState.addEventListener("change", (nextState) => {
+      const previousState = appStateRef.current;
+      appStateRef.current = nextState;
+
+      if (previousState === "active" && nextState !== "active") {
+        homeServicesSocketClient.disconnectIfIdle();
+        return;
+      }
+
+      if (
+        nextState === "active" &&
+        homeServicesSocketClient.hasActiveConsumers()
+      ) {
+        void homeServicesSocketClient.connect();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [token]);
+
+  React.useEffect(() => {
+    if (!token) {
+      return undefined;
+    }
+
+    return subscribeHomeServicesEvent("job-status-updated", (payload) => {
+      console.log(
+        "[home-services][booking-details] event received: job-status-updated",
+        payload,
+      );
+
+      if (!isJobStatusUpdatedEvent(payload)) {
+        console.warn(
+          "[home-services][booking-details] ignored invalid job-status-updated payload",
+          payload,
+        );
+        return;
+      }
+
+      const activeOrderId = currentOrderIdRef.current;
+
+      if (!activeOrderId || payload.jobId !== activeOrderId) {
+        console.log(
+          "[home-services][booking-details] ignored job-status-updated for different job",
+          {
+            activeOrderId,
+            eventJobId: payload.jobId,
+          },
+        );
+        return;
+      }
+
+      console.log(
+        "[home-services][booking-details] applying job status update to UI/cache",
+        {
+          orderId: payload.jobId,
+          previousJobStatus: payload.previousJobStatus,
+          jobStatus: payload.jobStatus,
+          workerId: payload.workerId,
+          message: payload.message,
+        },
+      );
+
+      queryClient.setQueryData<HomeVisitsSingleVendorBookingDetails>(
+        homeVisitsKeys.singleVendorBookingDetail(activeOrderId),
+        (cached) => {
+          if (!cached) {
+            console.log(
+              "[home-services][booking-details] cache miss for booking detail",
+              {
+                orderId: activeOrderId,
+              },
+            );
+            return cached;
+          }
+
+          return {
+            ...cached,
+            jobStatus: payload.jobStatus,
+            status: payload.jobStatus,
+            assignedWorker: {
+              ...(cached.assignedWorker ?? {}),
+              id: payload.workerId ?? cached.assignedWorker?.id,
+            },
+          };
+        },
+      );
+    });
+  }, [queryClient, token]);
+
+  React.useEffect(() => {
+    if (!data) {
+      return;
+    }
+
+    const apiEventKey = `${data.orderId}|${data.jobStatus ?? data.status ?? ""}`;
+
+    if (lastApiEventKeyRef.current === apiEventKey) {
+      return;
+    }
+
+    lastApiEventKeyRef.current = apiEventKey;
+
+
+  }, [data]);
 
   const handleAddToCalendar = React.useCallback(async () => {
     try {
       const targetDate = scheduledAt ? new Date(scheduledAt) : new Date();
-      const safeDate = Number.isNaN(targetDate.getTime()) ? new Date() : targetDate;
+      const safeDate = Number.isNaN(targetDate.getTime())
+        ? new Date()
+        : targetDate;
 
-      if (Platform.OS === 'ios') {
+      if (Platform.OS === "ios") {
         const secondsSinceAppleEpoch = Math.floor(
           safeDate.getTime() / 1000 - 978307200,
         );
@@ -76,14 +255,18 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
         return;
       }
 
-      if (Platform.OS === 'android') {
-        await Linking.openURL(`content://com.android.calendar/time/${safeDate.getTime()}`);
+      if (Platform.OS === "android") {
+        await Linking.openURL(
+          `content://com.android.calendar/time/${safeDate.getTime()}`,
+        );
         return;
       }
 
-      await Linking.openURL(`https://calendar.google.com/calendar/u/0/r/day/${safeDate.getFullYear()}/${safeDate.getMonth() + 1}/${safeDate.getDate()}`);
+      await Linking.openURL(
+        `https://calendar.google.com/calendar/u/0/r/day/${safeDate.getFullYear()}/${safeDate.getMonth() + 1}/${safeDate.getDate()}`,
+      );
     } catch {
-      showToast.error(t('single_vendor_booking_calendar_open_error'));
+      showToast.error(t("single_vendor_booking_calendar_open_error"));
     }
   }, [scheduledAt, t]);
 
@@ -93,444 +276,71 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
         contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         showsVerticalScrollIndicator={false}
       >
-        <ImageBackground
-          source={{ uri: heroImage }}
-          style={styles.hero}
-        >
-          <View style={[styles.heroOverlay, { backgroundColor: colors.overlayDark20 }]} />
-          <View style={[styles.heroActions, { paddingTop: insets.top + 8 }]}>
-            <Pressable
-              onPress={() => navigation.goBack()}
-              style={[
-                styles.headerButton,
-                {
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                },
-              ]}
-            >
-              <MaterialCommunityIcons
-                color={colors.text}
-                name="arrow-left"
-                size={22}
-              />
-            </Pressable>
-            <Pressable
-              onPress={() => navigation.goBack()}
-              style={[
-                styles.headerButton,
-                {
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                },
-              ]}
-            >
-              <MaterialCommunityIcons
-                color={colors.text}
-                name="close"
-                size={22}
-              />
-            </Pressable>
-          </View>
-        </ImageBackground>
+        <BookingDetailsHero
+          heroImage={heroImage}
+          onBack={() => navigation.goBack()}
+          onClose={() => navigation.goBack()}
+          topInset={insets.top}
+        />
 
         <View style={styles.content}>
-          <View
-            style={[
-              styles.badge,
-              {
-                backgroundColor: isCancelled ? colors.danger : colors.success,
-              },
-            ]}
-          >
-            <MaterialCommunityIcons
-              color={colors.white}
-              name={isCancelled ? 'close-circle-outline' : 'check-circle-outline'}
-              size={14}
-            />
-            <Text
-              color={colors.white}
-              style={styles.badgeText}
-              weight="medium"
-            >
-              {statusLabel}
-            </Text>
-          </View>
+          <BookingDetailsSummarySection
+            isCancelled={isCancelled}
+            onOpenReviews={() => setIsReviewsVisible(true)}
+            reviewLabel={reviewLabel}
+            scheduledLabel={scheduledLabel}
+            statusLabel={statusLabel}
+            statusMessage={summaryStatusMessage}
+          />
 
-          <Text
-            style={{
-              color: colors.text,
-              fontSize: typography.size.lg,
-              lineHeight: typography.lineHeight.lg2,
-              marginBottom: 4,
-            }}
-            weight="bold"
-          >
-            {scheduledLabel}
-          </Text>
-          <Text
-            style={{
-              color: colors.mutedText,
-              fontSize: typography.size.sm2,
-              lineHeight: typography.lineHeight.md,
-            }}
-            weight="medium"
-          >
-            {data?.statusMessage ?? durationLabel}
-          </Text>
-
-          <Pressable
-            onPress={() => setIsReviewsVisible(true)}
-            style={[styles.ratingRow, { borderColor: colors.border }]}
-          >
-            <View style={styles.ratingValue}>
-              <MaterialCommunityIcons
-                color={colors.warning}
-                name="star"
-                size={18}
-              />
-              <Text
-                style={{
-                  color: colors.text,
-                  fontSize: typography.size.sm2,
-                  lineHeight: typography.lineHeight.md,
-                }}
-                weight="semiBold"
-              >
-                {t('single_vendor_reviews_summary_label', {
-                  count: reviewSummary.distribution.find((item) => item.rating === 5)?.count ?? 0,
-                  rating: reviewSummary.averageRating.toFixed(1),
-                })}
-              </Text>
-            </View>
-            <View style={styles.ratingCta}>
-              <Text
-                style={{
-                  color: colors.mutedText,
-                  fontSize: typography.size.xs2,
-                  lineHeight: typography.lineHeight.sm,
-                }}
-                weight="medium"
-              >
-                {t('single_vendor_booking_open_reviews')}
-              </Text>
-              <MaterialCommunityIcons
-                color={colors.iconMuted}
-                name="chevron-right"
-                size={18}
-              />
-            </View>
-          </Pressable>
-
-          <Pressable
-            onPress={() => {
+          <BookingDetailsActionsSection
+            onAddToCalendar={() => {
               void handleAddToCalendar();
             }}
-            style={[styles.actionRow, { borderTopColor: colors.border }]}
-          >
-            <View style={[styles.actionIcon, { backgroundColor: colors.backgroundTertiary }]}>
-              <MaterialCommunityIcons
-                color={colors.primary}
-                name="calendar-month-outline"
-                size={20}
-              />
-            </View>
-            <View style={styles.actionText}>
-              <Text
-                style={{
-                  color: colors.text,
-                  fontSize: typography.size.sm2,
-                  lineHeight: typography.lineHeight.md,
-                }}
-                weight="semiBold"
-              >
-                {t('single_vendor_booking_add_calendar_title')}
-              </Text>
-              <Text
-                style={{
-                  color: colors.mutedText,
-                  fontSize: typography.size.xs2,
-                  lineHeight: typography.lineHeight.sm,
-                }}
-                weight="medium"
-              >
-                {t('single_vendor_booking_add_calendar_subtitle')}
-              </Text>
-            </View>
-          </Pressable>
-
-          <Pressable
-            onPress={() => {
-              navigation.navigate('SingleVendorManageAppointment', { orderId });
+            onManageAppointment={() => {
+              navigation.navigate("SingleVendorManageAppointment", { orderId });
             }}
-            style={[styles.actionRow, { borderTopColor: colors.border }]}
-          >
-            <View style={[styles.actionIcon, { backgroundColor: colors.backgroundTertiary }]}>
-              <MaterialCommunityIcons
-                color={colors.primary}
-                name="square-edit-outline"
-                size={20}
-              />
-            </View>
-            <View style={styles.actionText}>
-              <Text
-                style={{
-                  color: colors.text,
-                  fontSize: typography.size.sm2,
-                  lineHeight: typography.lineHeight.md,
-                }}
-                weight="semiBold"
-              >
-                {t('single_vendor_booking_manage_title')}
-              </Text>
-              <Text
-                style={{
-                  color: colors.mutedText,
-                  fontSize: typography.size.xs2,
-                  lineHeight: typography.lineHeight.sm,
-                }}
-                weight="medium"
-              >
-                {t('single_vendor_booking_manage_subtitle')}
-              </Text>
-            </View>
-          </Pressable>
+            onTrackWorker={() => {
+              navigation.navigate("SingleVendorTrackWorker", {
+                orderId,
+                source: "booking_details",
+              });
+            }}
+          />
 
-          <View style={[styles.actionRow, { borderTopColor: colors.border }]}>
-            <View style={[styles.actionIcon, { backgroundColor: colors.backgroundTertiary }]}>
-              <MaterialCommunityIcons
-                color={colors.primary}
-                name="crosshairs-gps"
-                size={20}
-              />
-            </View>
-            <View style={styles.actionText}>
-              <Text
-                style={{
-                  color: colors.text,
-                  fontSize: typography.size.sm2,
-                  lineHeight: typography.lineHeight.md,
-                }}
-                weight="semiBold"
-              >
-                {t('single_vendor_booking_track_title')}
-              </Text>
-              <Text
-                style={{
-                  color: colors.mutedText,
-                  fontSize: typography.size.xs2,
-                  lineHeight: typography.lineHeight.sm,
-                }}
-                weight="medium"
-              >
-                {t('single_vendor_booking_track_subtitle')}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <Text
-              style={{
-                color: colors.text,
-                fontSize: typography.size.lg,
-                lineHeight: typography.lineHeight.lg2,
-              }}
-              weight="bold"
-            >
-              {t('single_vendor_booking_service_title')}
-            </Text>
-            <Text
-              style={{
-                color: colors.mutedText,
-                fontSize: typography.size.sm2,
-                lineHeight: typography.lineHeight.md,
-                marginBottom: 8,
-              }}
-              weight="medium"
-            >
-              {t('single_vendor_booking_service_subtitle')}
-            </Text>
-
-            {isLoading ? (
-              <Skeleton
-                height={66}
-                width="100%"
-              />
-            ) : (
-              <View>
-                {services.map((service, index) => (
-                  <View key={`${service.productId ?? service.name ?? 'service'}-${index}`}>
-                    <View style={styles.serviceRow}>
-                      <View style={styles.serviceText}>
-                        <Text
-                          style={{
-                            color: colors.text,
-                            fontSize: typography.size.sm2,
-                            lineHeight: typography.lineHeight.md,
-                          }}
-                          weight="medium"
-                        >
-                          {service.name ?? t('single_vendor_bookings_title')}
-                        </Text>
-                        <Text
-                          style={{
-                            color: colors.mutedText,
-                            fontSize: typography.size.sm2,
-                            lineHeight: typography.lineHeight.md,
-                          }}
-                          weight="medium"
-                        >
-                          {resolveDurationLabel(
-                            service.durationLabel,
-                            t('single_vendor_booking_service_duration'),
-                            t,
-                          )}
-                        </Text>
-                      </View>
-                      <Text
-                        style={{
-                          color: colors.text,
-                          fontSize: typography.size.sm2,
-                          lineHeight: typography.lineHeight.md,
-                        }}
-                        weight="medium"
-                      >
-                        {formatAmount(resolveServiceTotalPrice(service))}
-                      </Text>
-                    </View>
-                    {index < services.length - 1 ? (
-                      <View
-                        style={[
-                          styles.divider,
-                          { backgroundColor: colors.border },
-                        ]}
-                      />
-                    ) : null}
-                  </View>
-                ))}
-
-                {services.length === 0 ? (
-                  <Text
-                    style={{
-                      color: colors.mutedText,
-                      fontSize: typography.size.sm2,
-                      lineHeight: typography.lineHeight.md,
-                    }}
-                    weight="medium"
-                  >
-                    {t('single_vendor_home_section_empty_message')}
-                  </Text>
-                ) : null}
-              </View>
-            )}
-
-            <View style={[styles.divider, { backgroundColor: colors.border }]} />
-            <View style={styles.totalRow}>
-              <Text
-                style={{
-                  color: colors.text,
-                  fontSize: typography.size.sm2,
-                  lineHeight: typography.lineHeight.md,
-                }}
-                weight="medium"
-              >
-                {t('single_vendor_booking_total')}
-              </Text>
-              <Text
-                style={{
-                  color: colors.text,
-                  fontSize: typography.size.sm2,
-                  lineHeight: typography.lineHeight.md,
-                }}
-                weight="medium"
-              >
-                {totalAmount}
-              </Text>
-            </View>
-          </View>
+          <BookingDetailsServicesSection
+            formatAmount={formatAmount}
+            isLoading={isLoading}
+            resolveDurationLabel={resolveDuration}
+            resolveServiceTotalPrice={resolveServiceTotalPrice}
+            services={services}
+            totalAmount={totalAmount}
+          />
 
           {data?.customerNote ? (
-            <View style={styles.section}>
-              <Text
-                style={{
-                  color: colors.text,
-                  fontSize: typography.size.lg,
-                  lineHeight: typography.lineHeight.lg2,
-                }}
-                weight="bold"
-              >
-                {t('single_vendor_booking_customer_note_title')}
-              </Text>
-              <Text
-                style={{
-                  color: colors.mutedText,
-                  fontSize: typography.size.sm2,
-                  lineHeight: typography.lineHeight.md,
-                }}
-                weight="medium"
-              >
-                {data.customerNote}
-              </Text>
-            </View>
+            <BookingDetailsTextSection
+              primaryText={data.customerNote}
+              secondaryText={null}
+              title={t("single_vendor_booking_customer_note_title")}
+            />
           ) : null}
 
           {data?.addressLabel || data?.address ? (
-            <View style={styles.section}>
-              <Text
-                style={{
-                  color: colors.text,
-                  fontSize: typography.size.lg,
-                  lineHeight: typography.lineHeight.lg2,
-                }}
-                weight="bold"
-              >
-                {t('single_vendor_booking_address_title')}
-              </Text>
-              <Text
-                style={{
-                  color: colors.text,
-                  fontSize: typography.size.sm2,
-                  lineHeight: typography.lineHeight.md,
-                }}
-                weight="semiBold"
-              >
-                {data?.addressLabel ?? t('single_vendor_booking_address_title')}
-              </Text>
-              <Text
-                style={{
-                  color: colors.mutedText,
-                  fontSize: typography.size.sm2,
-                  lineHeight: typography.lineHeight.md,
-                }}
-                weight="medium"
-              >
-                {data?.address}
-              </Text>
-            </View>
+            <BookingDetailsTextSection
+              primaryText={
+                data?.addressLabel ?? t("single_vendor_booking_address_title")
+              }
+              primaryWeight="semiBold"
+              secondaryText={data?.address}
+              title={t("single_vendor_booking_address_title")}
+            />
           ) : null}
 
-          <View style={styles.section}>
-            <Text
-              style={{
-                color: colors.text,
-                fontSize: typography.size.lg,
-                lineHeight: typography.lineHeight.lg2,
-              }}
-              weight="bold"
-            >
-              {t('single_vendor_booking_cancellation_title')}
-            </Text>
-            <Text
-              style={{
-                color: colors.mutedText,
-                fontSize: typography.size.sm2,
-                lineHeight: typography.lineHeight.md,
-              }}
-              weight="medium"
-            >
-              {cancellationPolicy}
-            </Text>
-          </View>
+          <BookingDetailsTextSection
+            primaryText={null}
+            secondaryText={cancellationPolicy}
+            title={t("single_vendor_booking_cancellation_title")}
+          />
         </View>
       </ScrollView>
 
@@ -541,6 +351,23 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
         visible={isReviewsVisible}
       />
     </View>
+  );
+}
+
+function isJobStatusUpdatedEvent(
+  value: unknown,
+): value is JobStatusUpdatedEvent {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+
+  const payload = value as JobStatusUpdatedEvent;
+
+  return (
+    typeof payload.jobId === "string" &&
+    payload.jobId.trim().length > 0 &&
+    typeof payload.jobStatus === "string" &&
+    payload.jobStatus.trim().length > 0
   );
 }
 
@@ -555,12 +382,12 @@ function resolveDurationLabel(
 
   const normalized = label.trim().toLowerCase();
 
-  if (normalized === 'job') {
-    return t('single_vendor_booking_duration_job');
+  if (normalized === "job") {
+    return t("single_vendor_booking_duration_job");
   }
 
-  if (normalized === 'service') {
-    return t('single_vendor_booking_duration_service');
+  if (normalized === "service") {
+    return t("single_vendor_booking_duration_service");
   }
 
   return label;
@@ -568,7 +395,7 @@ function resolveDurationLabel(
 
 function formatScheduleDate(value?: string | null) {
   if (!value) {
-    return '—';
+    return "—";
   }
 
   const date = new Date(value);
@@ -578,38 +405,85 @@ function formatScheduleDate(value?: string | null) {
   }
 
   return new Intl.DateTimeFormat(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function formatEventTime(value?: string | null) {
+  if (!value) {
+    return "--:--";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
   }).format(date);
 }
 
 function formatAmount(value?: number | string | null) {
   const numericValue =
-    typeof value === 'number'
+    typeof value === "number"
       ? value
-      : typeof value === 'string'
+      : typeof value === "string"
         ? Number.parseFloat(value)
         : Number.NaN;
 
   if (!Number.isFinite(numericValue)) {
-    return '$-';
+    return "$-";
   }
 
   return `$${numericValue.toFixed(2)}`;
 }
 
-function resolveServiceTotalPrice(service: {
-  totalPrice?: number | string | null;
-  unitPrice?: number | string | null;
-  quantity?: number | null;
-}) {
+function toTitleCase(value: string) {
+  return value
+    .replace(/_/g, " ")
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function resolveBookingStatusLabel(
+  jobStatus: string | null | undefined,
+  fallbackStatusLabel: string | null | undefined,
+  t: (key: string) => string,
+) {
+  const normalized = normalizeJobStatus(jobStatus);
+
+  if (normalized === "confirmed") {
+    return t("single_vendor_booking_status_confirmed");
+  }
+
+  if (normalized) {
+    return toTitleCase(normalized);
+  }
+
+  if (fallbackStatusLabel && fallbackStatusLabel.trim().length > 0) {
+    return fallbackStatusLabel;
+  }
+
+  return t("single_vendor_booking_status_confirmed");
+}
+
+function resolveServiceTotalPrice(
+  service: HomeVisitsSingleVendorBookingServiceItem,
+) {
   const totalPrice =
-    typeof service.totalPrice === 'number'
+    typeof service.totalPrice === "number"
       ? service.totalPrice
-      : typeof service.totalPrice === 'string'
+      : typeof service.totalPrice === "string"
         ? Number.parseFloat(service.totalPrice)
         : Number.NaN;
 
@@ -618,9 +492,9 @@ function resolveServiceTotalPrice(service: {
   }
 
   const unitPrice =
-    typeof service.unitPrice === 'number'
+    typeof service.unitPrice === "number"
       ? service.unitPrice
-      : typeof service.unitPrice === 'string'
+      : typeof service.unitPrice === "string"
         ? Number.parseFloat(service.unitPrice)
         : Number.NaN;
   const quantity = service.quantity ?? 1;
@@ -633,105 +507,11 @@ function resolveServiceTotalPrice(service: {
 }
 
 const styles = StyleSheet.create({
-  actionIcon: {
-    alignItems: 'center',
-    borderRadius: 22,
-    height: 44,
-    justifyContent: 'center',
-    width: 44,
-  },
-  actionRow: {
-    alignItems: 'center',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    flexDirection: 'row',
-    gap: 10,
-    paddingVertical: 12,
-  },
-  actionText: {
-    flex: 1,
-    gap: 2,
-  },
-  badge: {
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    borderRadius: 6,
-    flexDirection: 'row',
-    gap: 4,
-    marginBottom: 10,
-    marginTop: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  badgeText: {
-    fontSize: 14,
-    lineHeight: 22,
-  },
   content: {
     paddingHorizontal: 16,
     paddingTop: 16,
   },
-  divider: {
-    height: 1,
-    marginVertical: 8,
-  },
-  headerButton: {
-    alignItems: 'center',
-    borderRadius: 20,
-    borderWidth: 1,
-    height: 40,
-    justifyContent: 'center',
-    width: 40,
-  },
-  hero: {
-    height: 212,
-    justifyContent: 'flex-start',
-  },
-  heroActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-  },
-  heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  ratingCta: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 2,
-  },
-  ratingRow: {
-    alignItems: 'center',
-    borderRadius: 8,
-    borderWidth: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  ratingValue: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 6,
-  },
   screen: {
     flex: 1,
-  },
-  section: {
-    paddingTop: 14,
-  },
-  serviceRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-  },
-  serviceText: {
-    flex: 1,
-  },
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
   },
 });

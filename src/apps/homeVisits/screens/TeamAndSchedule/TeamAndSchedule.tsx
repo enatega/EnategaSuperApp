@@ -21,6 +21,7 @@ import { homeVisitsSingleVendorDiscoveryService } from '../../singleVendor/api/d
 import type { HomeVisitsSingleVendorNavigationParamList } from '../../singleVendor/navigation/types';
 import {
   formatBookingDateOnly,
+  getBookingAvailabilityFailureMessage,
   isBookingTimeAvailable,
   isBookingTimeRangeAvailable,
 } from '../../utils/bookingAvailability';
@@ -210,11 +211,17 @@ export default function TeamAndSchedule() {
                   teamSize,
                 });
 
-              if (!response.scheduleAllowed || !response.serviceCenterAvailable) {
+              if (
+                response.success === false ||
+                response.scheduleAllowed === false ||
+                response.serviceCenterAvailable === false
+              ) {
                 setAvailabilityPopup({
                   visible: true,
                   title: t('team_schedule_availability_unavailable_title'),
-                  description: t('team_schedule_availability_unavailable_description'),
+                  description:
+                    getBookingAvailabilityFailureMessage(response) ??
+                    t('team_schedule_availability_unavailable_description'),
                 });
                 return;
               }
@@ -239,11 +246,17 @@ export default function TeamAndSchedule() {
                 teamSize,
               });
 
-            if (!response.scheduleAllowed || !response.serviceCenterAvailable) {
+            if (
+              response.success === false ||
+              response.scheduleAllowed === false ||
+              response.serviceCenterAvailable === false
+            ) {
               setAvailabilityPopup({
                 visible: true,
                 title: t('team_schedule_availability_unavailable_title'),
-                description: t('team_schedule_availability_unavailable_description'),
+                description:
+                  getBookingAvailabilityFailureMessage(response) ??
+                  t('team_schedule_availability_unavailable_description'),
               });
               return;
             }

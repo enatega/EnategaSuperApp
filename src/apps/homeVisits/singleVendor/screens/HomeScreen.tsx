@@ -18,7 +18,9 @@ import SingleVendorCategorySection from '../components/HomeScreen/SingleVendorCa
 import DealsSection from '../components/HomeScreen/DealsSection';
 import MostPopularServicesSection from '../components/HomeScreen/MostPopularServicesSection';
 import NearbyYourLocationSection from '../components/HomeScreen/NearbyYourLocationSection';
+import ActiveServiceCard from '../components/HomeScreen/ActiveServiceCard';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
+import useSingleVendorActiveBooking from '../hooks/useSingleVendorActiveBooking';
 
 type Props = Record<string, never>;
 
@@ -34,6 +36,7 @@ export default function SingleVendorHomeScreen({ }: Props) {
     refetch,
   } = useSavedAddresses("home-services");
   const { selectedAddress } = useAddress();
+  const { data: activeBooking } = useSingleVendorActiveBooking();
   const apiSelectedAddress = React.useMemo(
     () => createSelectedDeliveryAddress(addresses),
     [addresses],
@@ -100,6 +103,17 @@ export default function SingleVendorHomeScreen({ }: Props) {
           onAddressPress={handleOpenAddressSheet}
         />
         <SingleVendorSpecialOffersBanner />
+        {activeBooking ? (
+          <ActiveServiceCard
+            booking={activeBooking}
+            onPress={() => {
+              navigation.navigate('SingleVendorTrackWorker', {
+                orderId: activeBooking.orderId,
+                source: 'home_active_service',
+              });
+            }}
+          />
+        ) : null}
         <SingleVendorCategorySection />
         <NearbyYourLocationSection
           latitude={resolvedSelectedAddress?.latitude}

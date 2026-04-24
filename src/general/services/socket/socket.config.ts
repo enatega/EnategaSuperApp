@@ -13,7 +13,6 @@ export const DEFAULT_SOCKET_TRANSPORTS: SocketTransportOrder = [
 
 export const WEBSOCKET_FIRST_TRANSPORTS: SocketTransportOrder = [
   'websocket',
-  'polling',
 ];
 
 export const socketBaseUrl = normalizeUrl(
@@ -39,5 +38,5 @@ export const websocketFirstSocketOptions: Partial<
 > = {
   ...defaultSocketOptions,
   transports: [...WEBSOCKET_FIRST_TRANSPORTS],
-  tryAllTransports: true,
+  tryAllTransports: false,
 };

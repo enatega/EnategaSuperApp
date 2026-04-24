@@ -96,7 +96,7 @@ export function useOrderRiderLocationSync(
       appStateRef.current = nextState;
 
       if (previousState === "active" && nextState !== "active") {
-        deliveriesSocketClient.disconnect();
+        deliveriesSocketClient.disconnectIfIdle();
         return;
       }
 

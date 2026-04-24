@@ -15,6 +15,54 @@ function toMinutesFromStartOfDay(date: Date) {
   return date.getHours() * 60 + date.getMinutes();
 }
 
+function parseDate(value?: string) {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return parsed;
+}
+
+function hasRangeWindow(
+  response:
+    | HomeVisitsSingleVendorBookingAvailabilityResponse
+    | HomeVisitsSingleVendorBookingAvailabilityRangeResponse,
+) {
+  const start = parseDate(response.start_date);
+  const end = parseDate(response.end_date);
+
+  if (!start || !end) {
+    return null;
+  }
+
+  return { start, end };
+}
+
+function toDateOnly(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function isWithinWindow(selectedDate: Date, start: Date, end: Date) {
+  return selectedDate >= start && selectedDate <= end;
+}
+
+export function getBookingAvailabilityFailureMessage(
+  response:
+    | HomeVisitsSingleVendorBookingAvailabilityResponse
+    | HomeVisitsSingleVendorBookingAvailabilityRangeResponse,
+) {
+  if (response.success === false) {
+    return response.message;
+  }
+
+  return undefined;
+}
+
 function parseTimeToMinutes(value: string) {
   const [hourRaw, minuteRaw] = value.split(':');
   const hours = Number(hourRaw);
@@ -77,6 +125,15 @@ export function isBookingTimeAvailable(
   selectedDate: Date,
   teamSize: number,
 ) {
+  if (response.success === false) {
+    return false;
+  }
+
+  const rangeWindow = hasRangeWindow(response);
+  if (rangeWindow) {
+    return isWithinWindow(selectedDate, rangeWindow.start, rangeWindow.end);
+  }
+
   const selectedMinutes = toMinutesFromStartOfDay(selectedDate);
   const matchingSlot = response.slots.find(
     (slot) => slot.meetsTeamSize && isSlotMatchingSelection(slot, selectedMinutes),
@@ -123,6 +180,30 @@ export function isBookingTimeRangeAvailable(
   teamSize: number,
   days: number,
 ) {
+  if (response.success === false) {
+    return false;
+  }
+
+  const rangeWindow = hasRangeWindow(response);
+  if (rangeWindow) {
+    const selectedStartDay = toDateOnly(selectedDate);
+    const selectedEndDay = new Date(selectedStartDay);
+    selectedEndDay.setDate(selectedEndDay.getDate() + (days - 1));
+
+    const availableStartDay = toDateOnly(rangeWindow.start);
+    const availableEndDay = toDateOnly(rangeWindow.end);
+
+    if (selectedStartDay < availableStartDay || selectedEndDay > availableEndDay) {
+      return false;
+    }
+
+    const selectedMinutes = toMinutesFromStartOfDay(selectedDate);
+    const availableStartMinutes = toMinutesFromStartOfDay(rangeWindow.start);
+    const availableEndMinutes = toMinutesFromStartOfDay(rangeWindow.end);
+
+    return selectedMinutes >= availableStartMinutes && selectedMinutes < availableEndMinutes;
+  }
+
   if (!response.scheduleAllowed || !response.serviceCenterAvailable) {
     return false;
   }
