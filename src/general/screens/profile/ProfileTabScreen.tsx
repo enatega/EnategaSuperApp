@@ -24,6 +24,7 @@ const ICON_SIZE = 20;
 
 type Props = {
   favoritesEnabled?: boolean;
+  couponsEnabled?: boolean;
   isLoading: boolean;
   onOpenCoupons?: () => void;
   onOpenFavourites?: () => void;
@@ -35,6 +36,7 @@ type Props = {
 
 export default function ProfileTabScreen({
   favoritesEnabled = false,
+  couponsEnabled = true,
   isLoading,
   onOpenCoupons,
   onOpenFavourites,
@@ -102,11 +104,13 @@ export default function ProfileTabScreen({
           label={t('profile_menu_favorites')}
           onPress={favoritesEnabled ? onOpenFavourites : undefined}
         />
+        {couponsEnabled && (
         <ProfileMenuItem
           icon={<Ionicons name="pricetag-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_coupons')}
           onPress={onOpenCoupons}
         />
+        )}
         <ProfileMenuItem
           icon={<Ionicons name="settings-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_settings')}

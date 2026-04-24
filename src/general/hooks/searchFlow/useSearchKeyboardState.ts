@@ -1,36 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Keyboard, type TextInput } from "react-native";
+import { type TextInput } from "react-native";
+import useKeyboard from "../useKeyboard";
 
 export default function useSearchKeyboardState() {
   const inputRef = useRef<TextInput>(null);
   const [isFocused, setIsFocused] = useState(false);
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const { isKeyboardVisible, dismissKeyboard: dismissKeyboardCore } = useKeyboard();
 
   useEffect(() => {
-    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
-      setIsKeyboardVisible(true);
-    });
-    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
-      setIsKeyboardVisible(false);
-
-      // A pending keyboard hide event can arrive after the input has already
-      // regained focus. Only clear focus when the input is actually blurred.
-      if (!inputRef.current?.isFocused()) {
-        setIsFocused(false);
-      }
-    });
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
+    // A pending keyboard hide event can arrive after the input has already
+    // regained focus. Only clear focus when the input is actually blurred.
+    if (!isKeyboardVisible && !inputRef.current?.isFocused()) {
+      setIsFocused(false);
+    }
+  }, [isKeyboardVisible]);
 
   const dismissKeyboard = useCallback(() => {
-    Keyboard.dismiss();
+    dismissKeyboardCore();
     inputRef.current?.blur();
     setIsFocused(false);
-  }, []);
+  }, [dismissKeyboardCore]);
 
   const handleFocus = useCallback(() => {
     setIsFocused(true);

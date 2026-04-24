@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { View } from "react-native";
 import { useTheme } from "../../../theme/theme";
 import ScreenHeader from "../../../components/ScreenHeader";
 import { useNavigation } from "@react-navigation/native";
@@ -9,6 +9,7 @@ import Footer from "../../../components/Footer";
 import Button from "../../../components/Button";
 import { useTranslation } from "react-i18next";
 import PhoneNumberInput from "../../../components/auth/PhoneInput";
+import KeyboardDismissWrapper from "../../../components/KeyboardDismissWrapper";
 
 const EnterPhoneNumber = () => {
   const { colors } = useTheme();
@@ -20,8 +21,7 @@ const EnterPhoneNumber = () => {
   const hasPhoneInput = phoneNumber.length > 0;
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+    <KeyboardDismissWrapper style={styles.container}>
       <ScreenHeader onBack={() => navigation.goBack()} />
 
       {/* Center content container */}
@@ -52,8 +52,7 @@ const EnterPhoneNumber = () => {
           disabled={!hasPhoneInput}
         />
       </Footer>
-    </View>
-    </TouchableWithoutFeedback>
+    </KeyboardDismissWrapper>
   );
 };
 

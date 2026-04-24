@@ -4,7 +4,8 @@ import { useNavigation } from "@react-navigation/native";
 import useStyles from "./styles";
 import EmailInputComponent from "../../../components/auth/EmailInputComponent";
 
-const ForgetPasswordEnterEmail = () => {
+const ForgetPasswordEnterEmail = ({route}) => {
+  const { emailId } = route.params;
   const { colors } = useTheme();
   const navigation = useNavigation();
   const styles = useStyles(colors);
@@ -13,6 +14,7 @@ const ForgetPasswordEnterEmail = () => {
     <EmailInputComponent
       heading="forget_password"
       description="forget_password_desc"
+      emailId={emailId}
       onContinue={(email) => {
         navigation.navigate("forgetPasswordEnterOtp", {
           emailId: email,

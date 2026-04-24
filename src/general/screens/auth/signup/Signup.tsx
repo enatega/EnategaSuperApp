@@ -11,6 +11,7 @@ import { useNavigation } from "@react-navigation/native";
 import FieldsWrapper from "../../../components/auth/signup/FieldsWrapper";
 import { useAuthStore } from "../../../stores/useAuthStore";
 import { isValidEmail } from "../../../utils/validation";
+import KeyboardDismissWrapper from "../../../components/KeyboardDismissWrapper";
 
 const Signup = () => {
   const { colors } = useTheme();
@@ -33,7 +34,7 @@ const Signup = () => {
   };
 
   return (
-    <View style={[styles.container]}>
+    <KeyboardDismissWrapper style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={[styles.container]}
@@ -61,7 +62,7 @@ const Signup = () => {
           disabled={!isFormValid}
         />
       </Footer>
-    </View>
+    </KeyboardDismissWrapper>
   );
 };
 

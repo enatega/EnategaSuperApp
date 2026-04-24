@@ -12,6 +12,7 @@ import { getPendingAppRoute } from "../../../navigation/pendingAppRedirect";
 import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal";
 import AppPopup from "../../../components/AppPopup";
 import { showToast } from "../../../components/AppToast";
+import KeyboardDismissWrapper from "../../../components/KeyboardDismissWrapper";
 
 const EnterEmailOtpSignup = () => {
   const { colors } = useTheme();
@@ -116,7 +117,7 @@ const EnterEmailOtpSignup = () => {
   };
 
   return (
-    <>
+    <KeyboardDismissWrapper>
       <OtpVerificationComponent
         heading="verify_your_email"
         description={t("enter_otp_sent_to", { contact: formData.email })}
@@ -144,7 +145,7 @@ const EnterEmailOtpSignup = () => {
           variant: "danger",
         }}
       />
-    </>
+    </KeyboardDismissWrapper>
   );
 };
 

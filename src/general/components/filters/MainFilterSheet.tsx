@@ -121,6 +121,7 @@ export default function MainFilterSheet({
                 {
                   backgroundColor: colors.backgroundTertiary,
                   opacity: pressed ? 0.85 : 1,
+                  zIndex: 999
                 },
               ]}
             >
@@ -202,7 +203,8 @@ export default function MainFilterSheet({
               </View>
             ) : null}
 
-            {isStockVisible && filters?.stock?.length ? (
+            {/* Todo: can add stock based filter after backend handling */}
+            {/* {isStockVisible && filters?.stock?.length ? (
               <View style={styles.section}>
                 <Text variant="subtitle" weight="bold">
                   {sectionTitles?.stock}
@@ -222,7 +224,7 @@ export default function MainFilterSheet({
                   )}
                 />
               </View>
-            ) : null}
+            ) : null} */}
 
             {filters?.sortBy?.length ? (
               <View style={styles.section}>
@@ -295,6 +297,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 20,
+    paddingHorizontal: 10
   },
   headerSpacer: {
     width: 32,
