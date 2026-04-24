@@ -14,6 +14,7 @@ import type { HomeVisitsSingleVendorNavigationParamList } from './types';
 import HomeVisitsSingleVendorSeeAllScreen from '../screens/SeeAllScreen/HomeVisitsSingleVendorSeeAllScreen';
 import SingleVendorCategoriesSeeAll from '../../screens/SingleVendorCategoriesSeeAll/SingleVendorCategoriesSeeAll';
 import FavoriteServicesScreen from '../screens/FavoriteServicesScreen';
+import TrackWorkerScreen from '../screens/TrackWorkerScreen';
 import NotificationsScreen from '../../../../general/screens/notifications/NotificationsScreen';
 
 const Stack = createNativeStackNavigator<HomeVisitsSingleVendorNavigationParamList>();
@@ -58,6 +59,11 @@ export default function SingleVendorNavigator() {
       <Stack.Screen
         name="SingleVendorBookingDetails"
         component={BookingDetailsScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SingleVendorTrackWorker"
+        component={TrackWorkerScreen}
         options={sharedScreenOptions}
       />
       <Stack.Screen

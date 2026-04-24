@@ -27,6 +27,7 @@ type Props = {
   floatingAccessoryStyle?: StyleProp<ViewStyle>;
   onCollapsed?: () => void;
   modal?: boolean;
+  enablePanGesture?: boolean;
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -34,11 +35,11 @@ function clamp(value: number, min: number, max: number) {
 }
 
 function getNearestSnapPoint(
-  offset: number,
-  snapPoints: Array<{ state: BottomSheetState; offset: number }>,
+  value: number,
+  snapPoints: Array<{ state: BottomSheetState; height: number }>,
 ) {
   return snapPoints.reduce((nearestPoint, point) => (
-    Math.abs(point.offset - offset) < Math.abs(nearestPoint.offset - offset)
+    Math.abs(point.height - value) < Math.abs(nearestPoint.height - value)
       ? point
       : nearestPoint
   ));
@@ -59,56 +60,64 @@ export default function SwipeableBottomSheet({
   floatingAccessoryStyle,
   onCollapsed,
   modal = false,
+  enablePanGesture = true,
 }: Props) {
-  const collapsedOffset = useMemo(
-    () => Math.max(expandedHeight - collapsedHeight, 0),
-    [expandedHeight, collapsedHeight],
+  const normalizedCollapsedHeight = useMemo(
+    () => clamp(collapsedHeight, 0, expandedHeight),
+    [collapsedHeight, expandedHeight],
   );
-  const defaultOffset = useMemo(() => {
+  const normalizedDefaultHeight = useMemo(() => {
     if (typeof defaultHeight !== 'number') {
       return undefined;
     }
 
-    const normalizedDefaultHeight = clamp(defaultHeight, collapsedHeight, expandedHeight);
-    return Math.max(expandedHeight - normalizedDefaultHeight, 0);
-  }, [collapsedHeight, defaultHeight, expandedHeight]);
-  const snapPoints = useMemo<Array<{ state: BottomSheetState; offset: number }>>(() => {
-    const points: Array<{ state: BottomSheetState; offset: number }> = [
-      { state: 'expanded', offset: 0 },
+    return clamp(defaultHeight, normalizedCollapsedHeight, expandedHeight);
+  }, [defaultHeight, expandedHeight, normalizedCollapsedHeight]);
+  const snapPoints = useMemo<Array<{ state: BottomSheetState; height: number }>>(() => {
+    const points: Array<{ state: BottomSheetState; height: number }> = [
+      { state: 'expanded', height: expandedHeight },
     ];
 
-    if (typeof defaultOffset === 'number' && defaultOffset > 0 && defaultOffset < collapsedOffset) {
-      points.push({ state: 'default', offset: defaultOffset });
+    if (
+      typeof normalizedDefaultHeight === 'number'
+      && normalizedDefaultHeight > normalizedCollapsedHeight
+      && normalizedDefaultHeight < expandedHeight
+    ) {
+      points.push({ state: 'default', height: normalizedDefaultHeight });
     }
 
-    points.push({ state: 'collapsed', offset: collapsedOffset });
+    points.push({ state: 'collapsed', height: normalizedCollapsedHeight });
+
+    points.sort((a, b) => b.height - a.height);
     return points;
-  }, [collapsedOffset, defaultOffset]);
+  }, [expandedHeight, normalizedCollapsedHeight, normalizedDefaultHeight]);
   const resolvedInitialState = useMemo<BottomSheetState>(() => {
-    if (initialState === 'default' && typeof defaultOffset !== 'number') {
+    if (initialState === 'default' && typeof normalizedDefaultHeight !== 'number') {
       return 'expanded';
     }
 
     return initialState;
-  }, [defaultOffset, initialState]);
-  const getOffsetForState = useMemo(
-    () => (state: BottomSheetState) => snapPoints.find((point) => point.state === state)?.offset ?? 0,
+  }, [initialState, normalizedDefaultHeight]);
+  const getHeightForState = useMemo(
+    () => (state: BottomSheetState) => (
+      snapPoints.find((point) => point.state === state)?.height ?? expandedHeight
+    ),
     [snapPoints],
   );
-  const initialOffset = getOffsetForState(resolvedInitialState);
-  const shouldAnimateOnMount = modal && initialOffset < collapsedOffset;
+  const initialHeight = getHeightForState(resolvedInitialState);
+  const shouldAnimateOnMount = modal && initialHeight > normalizedCollapsedHeight;
 
-  const translateY = useRef(
+  const animatedHeight = useRef(
     new Animated.Value(
       shouldAnimateOnMount
-        ? collapsedOffset
-        : initialOffset,
+        ? normalizedCollapsedHeight
+        : initialHeight,
     ),
   ).current;
-  const startY = useRef(
+  const startHeight = useRef(
     shouldAnimateOnMount
-      ? collapsedOffset
-      : initialOffset,
+      ? normalizedCollapsedHeight
+      : initialHeight,
   );
   const isDragging = useRef(false);
   const currentState = useRef<BottomSheetState>(resolvedInitialState);
@@ -121,38 +130,43 @@ export default function SwipeableBottomSheet({
   useEffect(() => {
     if (isDragging.current) return;
 
-    const target = getOffsetForState(currentState.current);
+    const target = getHeightForState(currentState.current);
 
     if (!hasPresented.current) {
-      translateY.setValue(collapsedOffset);
-      Animated.timing(translateY, {
+      animatedHeight.setValue(normalizedCollapsedHeight);
+      Animated.timing(animatedHeight, {
         toValue: target,
         duration: 260,
         easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
+        useNativeDriver: false,
       }).start(() => {
-        startY.current = target;
+        startHeight.current = target;
         hasPresented.current = true;
         onStateChange?.(currentState.current);
       });
       return;
     }
 
-    startY.current = target;
-    translateY.setValue(target);
-  }, [collapsedOffset, getOffsetForState, onStateChange, translateY]);
+    startHeight.current = target;
+    animatedHeight.setValue(target);
+  }, [
+    animatedHeight,
+    getHeightForState,
+    normalizedCollapsedHeight,
+    onStateChange,
+  ]);
 
   const animateTo = (state: BottomSheetState) => {
-    const targetOffset = getOffsetForState(state);
+    const targetHeight = getHeightForState(state);
     currentState.current = state;
     onStateChange?.(state);
-    Animated.spring(translateY, {
-      toValue: targetOffset,
-      useNativeDriver: true,
+    Animated.spring(animatedHeight, {
+      toValue: targetHeight,
+      useNativeDriver: false,
       tension: 180,
       friction: 24,
     }).start(() => {
-      startY.current = targetOffset;
+      startHeight.current = targetHeight;
       if (state === 'collapsed') {
         onCollapsed?.();
       }
@@ -160,22 +174,28 @@ export default function SwipeableBottomSheet({
   };
 
   const handleRelease = (_: unknown, gesture: PanResponderGestureState) => {
-    const currentOffset = clamp(startY.current + gesture.dy, 0, collapsedOffset);
+    const currentHeight = clamp(
+      startHeight.current - gesture.dy,
+      normalizedCollapsedHeight,
+      expandedHeight,
+    );
 
     if (gesture.vy > 0.5) {
-      const nextPoint = snapPoints.find((point) => point.offset > currentOffset + 1);
+      const nextPoint = snapPoints
+        .slice()
+        .reverse()
+        .find((point) => point.height < currentHeight - 1);
       animateTo(nextPoint?.state ?? 'collapsed');
       return;
     }
 
     if (gesture.vy < -0.5) {
-      const previousPoints = snapPoints.filter((point) => point.offset < currentOffset - 1);
-      const previousPoint = previousPoints[previousPoints.length - 1];
+      const previousPoint = snapPoints.find((point) => point.height > currentHeight + 1);
       animateTo(previousPoint?.state ?? 'expanded');
       return;
     }
 
-    animateTo(getNearestSnapPoint(currentOffset, snapPoints).state);
+    animateTo(getNearestSnapPoint(currentHeight, snapPoints).state);
   };
 
   const panResponder = useMemo(
@@ -186,13 +206,17 @@ export default function SwipeableBottomSheet({
         onPanResponderTerminationRequest: () => false,
         onPanResponderGrant: () => {
           isDragging.current = true;
-          translateY.stopAnimation((value) => {
-            startY.current = value;
+          animatedHeight.stopAnimation((value) => {
+            startHeight.current = value;
           });
         },
         onPanResponderMove: (_evt, gesture) => {
-          const next = clamp(startY.current + gesture.dy, 0, collapsedOffset);
-          translateY.setValue(next);
+          const next = clamp(
+            startHeight.current - gesture.dy,
+            normalizedCollapsedHeight,
+            expandedHeight,
+          );
+          animatedHeight.setValue(next);
         },
         onPanResponderRelease: (evt, gesture) => {
           isDragging.current = false;
@@ -203,7 +227,7 @@ export default function SwipeableBottomSheet({
           handleRelease(evt, gesture);
         },
       }),
-    [collapsedOffset, snapPoints, translateY],
+    [animatedHeight, expandedHeight, normalizedCollapsedHeight, snapPoints],
   );
 
   return (
@@ -211,8 +235,7 @@ export default function SwipeableBottomSheet({
       style={[
         styles.container,
         {
-          height: expandedHeight,
-          transform: [{ translateY }],
+          height: animatedHeight,
         },
         style,
       ]}
@@ -235,7 +258,7 @@ export default function SwipeableBottomSheet({
               marginHorizontal: -handleGestureInset,
             },
           ]}
-          {...panResponder.panHandlers}
+          {...(enablePanGesture ? panResponder.panHandlers : {})}
         >
           <View style={handleContainerStyle}>{handle}</View>
         </View>

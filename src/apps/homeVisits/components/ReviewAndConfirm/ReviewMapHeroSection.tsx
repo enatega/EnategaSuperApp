@@ -4,37 +4,59 @@ import type { Region } from 'react-native-maps';
 import Map, { type MapMarker, type MapPolyline } from '../../../../general/components/Map';
 
 type Props = {
-  latitude: number;
-  longitude: number;
+  userLatitude: number;
+  userLongitude: number;
+  serviceCenterLatitude?: number | null;
+  serviceCenterLongitude?: number | null;
 };
 
-function ReviewMapHeroSection({ latitude, longitude }: Props) {
+function ReviewMapHeroSection({
+  serviceCenterLatitude,
+  serviceCenterLongitude,
+  userLatitude,
+  userLongitude,
+}: Props) {
+  const resolvedServiceCenterLatitude = serviceCenterLatitude ?? userLatitude;
+  const resolvedServiceCenterLongitude = serviceCenterLongitude ?? userLongitude;
+  const centerLatitude = (userLatitude + resolvedServiceCenterLatitude) / 2;
+  const centerLongitude = (userLongitude + resolvedServiceCenterLongitude) / 2;
+  const latitudeDelta = Math.max(Math.abs(userLatitude - resolvedServiceCenterLatitude) * 2, 0.01);
+  const longitudeDelta = Math.max(
+    Math.abs(userLongitude - resolvedServiceCenterLongitude) * 2,
+    0.01,
+  );
+
   const region = useMemo<Region>(
     () => ({
-      latitude,
-      longitude,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
+      latitude: centerLatitude,
+      longitude: centerLongitude,
+      latitudeDelta,
+      longitudeDelta,
     }),
-    [latitude, longitude],
+    [centerLatitude, centerLongitude, latitudeDelta, longitudeDelta],
   );
 
   const markers = useMemo<MapMarker[]>(
     () => [
       {
-        id: 'service-location',
-        coordinate: { latitude, longitude },
+        id: 'user-location',
+        coordinate: { latitude: userLatitude, longitude: userLongitude },
       },
       {
-        id: 'worker-location',
+        id: 'service-center-location',
         coordinate: {
-          latitude: latitude + 0.0015,
-          longitude: longitude + 0.0018,
+          latitude: resolvedServiceCenterLatitude,
+          longitude: resolvedServiceCenterLongitude,
         },
-        opacity: 0.8,
+        opacity: 0.95,
       },
     ],
-    [latitude, longitude],
+    [
+      resolvedServiceCenterLatitude,
+      resolvedServiceCenterLongitude,
+      userLatitude,
+      userLongitude,
+    ],
   );
 
   const polylines = useMemo<MapPolyline[]>(
@@ -42,21 +64,28 @@ function ReviewMapHeroSection({ latitude, longitude }: Props) {
       {
         id: 'route',
         coordinates: [
-          { latitude: latitude + 0.0015, longitude: longitude + 0.0018 },
-          { latitude: latitude + 0.0007, longitude: longitude + 0.0008 },
-          { latitude, longitude },
+          {
+            latitude: resolvedServiceCenterLatitude,
+            longitude: resolvedServiceCenterLongitude,
+          },
+          { latitude: userLatitude, longitude: userLongitude },
         ],
         strokeColor: '#FC9401',
         strokeWidth: 3,
       },
     ],
-    [latitude, longitude],
+    [
+      resolvedServiceCenterLatitude,
+      resolvedServiceCenterLongitude,
+      userLatitude,
+      userLongitude,
+    ],
   );
 
   return (
     <View style={styles.container}>
       <Map
-        initialRegion={region}
+        region={region}
         markers={markers}
         polylines={polylines}
         rotateEnabled={false}

@@ -1,61 +1,43 @@
-import type { DeliveryAddress } from '../../../general/hooks/useAddress';
+import type {
+  HomeVisitsOrderPaymentMethod,
+  HomeVisitsServiceOrderPreviewPayload,
+  HomeVisitsServicePaymentMethod,
+} from '../singleVendor/api/types';
 import type {
   HomeVisitsReviewAndConfirmRouteParams,
   HomeVisitsScheduledSlot,
 } from '../types/teamSchedule';
 
-type BookingSummaryServicePayload = {
-  serviceId: string;
-  isPrimary: boolean;
-  quantity: number;
-  selection: {
-    serviceTypeOptionId: string | null;
-    additionalServiceOptionIds: string[];
-  } | null;
-};
-
-export type HomeVisitsBookingSummaryPreviewPayload = {
-  serviceCenterId: string;
-  bookingType: 'one_time' | 'contract';
-  addressId: string | null;
-  scheduledAt: string;
-  timezone: string;
-  teamSize: number;
-  workingHours: number;
-  slot: HomeVisitsScheduledSlot;
-  services: BookingSummaryServicePayload[];
-  payment: {
-    method: 'cash' | 'card';
-    discountCode: string | null;
-  };
-  notes: string | null;
-  source: 'mobile_app';
-};
-
 function toBookingType(value: HomeVisitsReviewAndConfirmRouteParams['serviceMode']) {
   return value === 'contract' ? 'contract' : 'one_time';
 }
 
+function toOrderPaymentMethod(value: HomeVisitsServicePaymentMethod): HomeVisitsOrderPaymentMethod {
+  return value === 'card' ? 'stripe' : 'cod';
+}
+
 export function buildBookingSummaryPreviewPayload(params: {
   routeParams: HomeVisitsReviewAndConfirmRouteParams;
-  selectedAddress: DeliveryAddress | null;
+  addressId?: string;
   notes: string;
-  paymentMethod: 'cash' | 'card';
+  customerNote: string;
+  paymentMethod: HomeVisitsServicePaymentMethod;
   discountCode: string;
   scheduledAtIso: string;
   scheduledSlot: HomeVisitsScheduledSlot;
 }) {
   const {
+    addressId,
     discountCode,
     notes,
+    customerNote,
     paymentMethod,
     routeParams,
     scheduledAtIso,
     scheduledSlot,
-    selectedAddress,
   } = params;
 
-  const primaryService: BookingSummaryServicePayload = {
+  const primaryService: HomeVisitsServiceOrderPreviewPayload['services'][number] = {
     serviceId: routeParams.serviceId,
     isPrimary: true,
     quantity: 1,
@@ -67,7 +49,7 @@ export function buildBookingSummaryPreviewPayload(params: {
     },
   };
 
-  const additionalServices: BookingSummaryServicePayload[] = routeParams.selectedServiceIds
+  const additionalServices: HomeVisitsServiceOrderPreviewPayload['services'] = routeParams.selectedServiceIds
     .filter((serviceId) => serviceId !== routeParams.serviceId)
     .map((serviceId) => ({
       serviceId,
@@ -78,19 +60,24 @@ export function buildBookingSummaryPreviewPayload(params: {
 
   return {
     serviceCenterId: routeParams.serviceCenterId,
+    orderType: addressId ? 'delivery' : 'pickup',
+    paymentMethod: toOrderPaymentMethod(paymentMethod),
     bookingType: toBookingType(routeParams.serviceMode),
-    addressId: selectedAddress?.id ?? null,
+    addressId,
     scheduledAt: scheduledAtIso,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     teamSize: routeParams.teamSize,
     workingHours: routeParams.workingHours,
+    contractDays: routeParams.serviceMode === 'contract' ? routeParams.contractDays : undefined,
     slot: scheduledSlot,
     services: [primaryService, ...additionalServices],
     payment: {
       method: paymentMethod,
-      discountCode: discountCode.trim() || null,
+      discountCode: discountCode.trim() || undefined,
     },
     notes: notes.trim() || null,
+    customerNote: customerNote.trim() || null,
     source: 'mobile_app',
-  } as HomeVisitsBookingSummaryPreviewPayload;
+    riderTip: 0,
+  } as HomeVisitsServiceOrderPreviewPayload;
 }

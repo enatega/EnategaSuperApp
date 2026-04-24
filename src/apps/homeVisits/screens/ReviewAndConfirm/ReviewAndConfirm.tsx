@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -18,6 +18,7 @@ import HomeVisitsDateTimePickerSheet from '../../components/common/HomeVisitsDat
 import ReviewAddressRowSection from '../../components/ReviewAndConfirm/ReviewAddressRowSection';
 import ReviewAndConfirmFooter from '../../components/ReviewAndConfirm/ReviewAndConfirmFooter';
 import ReviewAndConfirmHeader from '../../components/ReviewAndConfirm/ReviewAndConfirmHeader';
+import ReviewAppointmentConfirmedTransition from '../../components/ReviewAndConfirm/ReviewAppointmentConfirmedTransition';
 import ReviewCancellationSection from '../../components/ReviewAndConfirm/ReviewCancellationSection';
 import ReviewConfirmBookingPopup from '../../components/ReviewAndConfirm/ReviewConfirmBookingPopup';
 import ReviewDiscountCodeBottomSheet from '../../components/ReviewAndConfirm/ReviewDiscountCodeBottomSheet';
@@ -29,11 +30,15 @@ import ReviewNotesSection from '../../components/ReviewAndConfirm/ReviewNotesSec
 import ReviewPaymentSection from '../../components/ReviewAndConfirm/ReviewPaymentSection';
 import ReviewScheduleSection from '../../components/ReviewAndConfirm/ReviewScheduleSection';
 import ReviewSummarySection from '../../components/ReviewAndConfirm/ReviewSummarySection';
+import { useBookingSummaryPreview } from '../../hooks/useBookingSummaryPreview';
+import { usePlaceBookingOrder } from '../../hooks/usePlaceBookingOrder';
 import { homeVisitsSingleVendorDiscoveryService } from '../../singleVendor/api/discoveryService';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../../singleVendor/navigation/types';
 import {
   formatBookingDateOnly,
+  getBookingAvailabilityFailureMessage,
   isBookingTimeAvailable,
+  isBookingTimeRangeAvailable,
 } from '../../utils/bookingAvailability';
 import { buildBookingSummaryPreviewPayload } from '../../utils/buildBookingSummaryPayload';
 
@@ -53,6 +58,7 @@ const TIME_FORMATTER = new Intl.DateTimeFormat('en-US', {
   minute: '2-digit',
   hour12: true,
 });
+const CONFIRMATION_TRANSITION_MS = 1400;
 
 function formatScheduleLabel(isoDate: string) {
   const date = new Date(isoDate);
@@ -90,7 +96,7 @@ export default function ReviewAndConfirm() {
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const {
-    selectedServices,
+    contractDays,
     serviceCenterId,
     serviceMode,
     summary,
@@ -112,12 +118,8 @@ export default function ReviewAndConfirm() {
     title: '',
     description: '',
   });
-
-  const serviceCountLabel = `${summary.serviceCount} ${
-    summary.serviceCount === 1
-      ? t('service_details_service_singular')
-      : t('service_details_service_plural')
-  }`;
+  const [confirmedOrderId, setConfirmedOrderId] = useState<string | null>(null);
+  const placeBookingOrderMutation = usePlaceBookingOrder();
 
   const locationLatitude = latitude ?? 24.8607;
   const locationLongitude = longitude ?? 67.0011;
@@ -136,10 +138,11 @@ export default function ReviewAndConfirm() {
     () =>
       buildBookingSummaryPreviewPayload({
         routeParams: route.params,
-        selectedAddress,
+        addressId: selectedAddress?.id,
         notes,
-        paymentMethod: selectedPaymentMethod,
+        customerNote: notes,
         discountCode,
+        paymentMethod: selectedPaymentMethod,
         scheduledAtIso: selectedScheduledAt.toISOString(),
         scheduledSlot: selectedScheduledSlot,
       }),
@@ -147,13 +150,52 @@ export default function ReviewAndConfirm() {
       discountCode,
       notes,
       route.params,
-      selectedAddress,
+      selectedAddress?.id,
       selectedPaymentMethod,
       selectedScheduledAt,
       selectedScheduledSlot,
     ],
   );
+  const { data: bookingPreviewData } = useBookingSummaryPreview(bookingSummaryPayload);
 
+  const previewSummary = bookingPreviewData?.summary;
+  const serviceCenterLocation = bookingPreviewData?.serviceCenterLocation;
+
+  const summaryRows = useMemo(
+    () => [
+      {
+        id: 'services',
+        label: t('review_confirm_price_services'),
+        value: previewSummary?.subtotal ?? summary.totalPrice,
+      },
+      {
+        id: 'discount',
+        label: t('review_confirm_discount_title'),
+        value: -(previewSummary?.discountAmount ?? 0),
+      },
+      {
+        id: 'total',
+        label: t('review_confirm_price_total'),
+        value: previewSummary?.payableAmount ?? summary.totalPrice,
+        isEmphasized: true,
+      },
+    ],
+    [
+      previewSummary?.discountAmount,
+      previewSummary?.payableAmount,
+      previewSummary?.subtotal,
+      summary.totalPrice,
+      t,
+    ],
+  );
+
+  const totalForFooter = previewSummary?.payableAmount ?? summary.totalPrice;
+  const serviceCountForFooter = previewSummary?.serviceCount ?? summary.serviceCount;
+  const serviceCountLabel = `${serviceCountForFooter} ${
+    serviceCountForFooter === 1
+      ? t('service_details_service_singular')
+      : t('service_details_service_plural')
+  }`;
   const handleClosePopup = () => {
     setIsConfirmPopupVisible(false);
   };
@@ -198,18 +240,66 @@ export default function ReviewAndConfirm() {
   };
 
   const handleConfirmBooking = () => {
-    void bookingSummaryPayload;
-    setIsConfirmPopupVisible(false);
-    showToast.success(t('review_confirm_success_title'), t('review_confirm_success_body'));
-    navigation.navigate('AddressSearch', {
-      appPrefix: 'home-services',
-      origin: 'single-vendor-home',
-    });
+    void (async () => {
+      try {
+        const response = await placeBookingOrderMutation.mutateAsync({
+          ...bookingSummaryPayload,
+          totalAmount: totalForFooter,
+        });
+
+        if (!response.orderId) {
+          setAvailabilityPopup({
+            visible: true,
+            title: t('review_confirm_place_order_error_title'),
+            description: t('review_confirm_place_order_error_description'),
+          });
+          return;
+        }
+
+        setIsConfirmPopupVisible(false);
+        setConfirmedOrderId(response.orderId);
+      } catch (error) {
+        setAvailabilityPopup({
+          visible: true,
+          title: t('review_confirm_place_order_error_title'),
+          description: getApiErrorMessage(
+            error,
+            t('review_confirm_place_order_error_description'),
+          ),
+        });
+      }
+    })();
   };
 
   const hideAvailabilityPopup = () => {
     setAvailabilityPopup((previous) => ({ ...previous, visible: false }));
   };
+
+  useEffect(() => {
+    if (!confirmedOrderId) {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      navigation.replace('SingleVendorBookingDetails', {
+        orderId: confirmedOrderId,
+      });
+    }, CONFIRMATION_TRANSITION_MS);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [confirmedOrderId, navigation]);
+
+  if (confirmedOrderId) {
+    return (
+      <ReviewAppointmentConfirmedTransition
+        bottomInset={insets.bottom}
+        title={t('review_confirm_appointment_confirmed')}
+        topInset={insets.top}
+      />
+    );
+  }
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -225,8 +315,10 @@ export default function ReviewAndConfirm() {
         showsVerticalScrollIndicator={false}
       >
         <ReviewMapHeroSection
-          latitude={locationLatitude}
-          longitude={locationLongitude}
+          serviceCenterLatitude={serviceCenterLocation?.latitude}
+          serviceCenterLongitude={serviceCenterLocation?.longitude}
+          userLatitude={locationLatitude}
+          userLongitude={locationLongitude}
         />
 
         <ReviewAddressRowSection
@@ -267,8 +359,7 @@ export default function ReviewAndConfirm() {
         />
 
         <ReviewSummarySection
-          discountCodeLabel={t('review_confirm_discount_title')}
-          services={selectedServices}
+          rows={summaryRows}
           subtitle={t('review_confirm_summary_subtitle')}
           title={t('review_confirm_summary_title')}
         />
@@ -280,7 +371,7 @@ export default function ReviewAndConfirm() {
         durationLabel={summary.durationLabel}
         onConfirm={() => setIsConfirmPopupVisible(true)}
         serviceCountLabel={serviceCountLabel}
-        totalPrice={summary.totalPrice}
+        totalPrice={totalForFooter}
       />
 
       <HomeVisitsDateTimePickerSheet
@@ -291,27 +382,67 @@ export default function ReviewAndConfirm() {
             return;
           }
 
-          if (serviceMode === 'contract') {
-            setSelectedScheduledAt(nextDate);
-            setSelectedScheduledSlot(buildSlotFromDate(nextDate, workingHours));
-            setIsDateTimeSheetOpen(false);
-            return;
-          }
-
           try {
             setIsCheckingAvailability(true);
+            const bookingDate = formatBookingDateOnly(nextDate);
+
+            if (serviceMode === 'contract') {
+              const response =
+                await homeVisitsSingleVendorDiscoveryService.getBookingAvailabilityRange({
+                  serviceCenterId,
+                  startDate: bookingDate,
+                  days: contractDays,
+                  teamSize,
+                });
+
+              if (
+                response.success === false ||
+                response.scheduleAllowed === false ||
+                response.serviceCenterAvailable === false
+              ) {
+                setAvailabilityPopup({
+                  visible: true,
+                  title: t('team_schedule_availability_unavailable_title'),
+                  description:
+                    getBookingAvailabilityFailureMessage(response) ??
+                    t('team_schedule_availability_unavailable_description'),
+                });
+                return;
+              }
+
+              if (!isBookingTimeRangeAvailable(response, nextDate, teamSize, contractDays)) {
+                setAvailabilityPopup({
+                  visible: true,
+                  title: t('team_schedule_slot_not_available_title'),
+                  description: t('team_schedule_slot_not_available_description'),
+                });
+                return;
+              }
+
+              setSelectedScheduledAt(nextDate);
+              setSelectedScheduledSlot(buildSlotFromDate(nextDate, workingHours));
+              setIsDateTimeSheetOpen(false);
+              return;
+            }
+
             const response =
               await homeVisitsSingleVendorDiscoveryService.getBookingAvailability({
                 serviceCenterId,
-                date: formatBookingDateOnly(nextDate),
+                date: bookingDate,
                 teamSize,
               });
 
-            if (!response.scheduleAllowed || !response.serviceCenterAvailable) {
+            if (
+              response.success === false ||
+              response.scheduleAllowed === false ||
+              response.serviceCenterAvailable === false
+            ) {
               setAvailabilityPopup({
                 visible: true,
                 title: t('team_schedule_availability_unavailable_title'),
-                description: t('team_schedule_availability_unavailable_description'),
+                description:
+                  getBookingAvailabilityFailureMessage(response) ??
+                  t('team_schedule_availability_unavailable_description'),
               });
               return;
             }
@@ -360,6 +491,7 @@ export default function ReviewAndConfirm() {
       <ReviewConfirmBookingPopup
         confirmLabel={t('review_confirm_popup_accept')}
         description={`${t('review_confirm_popup_line_one')}\n\n${t('review_confirm_popup_line_two')}`}
+        isConfirmLoading={placeBookingOrderMutation.isPending}
         onClose={handleClosePopup}
         onConfirm={handleConfirmBooking}
         title={t('review_confirm_popup_title')}
@@ -374,7 +506,7 @@ export default function ReviewAndConfirm() {
         }}
         onClose={() => setIsPaymentMethodSheetVisible(false)}
         selectedMethod={selectedPaymentMethod}
-        totalAmountLabel={formatPrice(summary.totalPrice) ?? '$0'}
+        totalAmountLabel={formatPrice(totalForFooter) ?? '$0'}
         visible={isPaymentMethodSheetVisible}
       />
 

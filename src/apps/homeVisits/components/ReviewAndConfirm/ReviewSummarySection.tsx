@@ -3,22 +3,31 @@ import { StyleSheet, View } from 'react-native';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import { formatPrice } from '../ServiceDetailsPage/serviceDetailsSelection';
-import type { HomeVisitsSelectedServiceSnapshot } from '../../types/teamSchedule';
 
 type Props = {
   title: string;
   subtitle: string;
-  services: HomeVisitsSelectedServiceSnapshot[];
-  discountCodeLabel: string;
+  rows: Array<{
+    id: string;
+    label: string;
+    value: number;
+    isEmphasized?: boolean;
+  }>;
 };
 
 function ReviewSummarySection({
-  discountCodeLabel,
-  services,
+  rows,
   subtitle,
   title,
 }: Props) {
   const { colors, typography } = useTheme();
+  const formatRowValue = (value: number) => {
+    if (value < 0) {
+      return `-${formatPrice(Math.abs(value)) ?? '$0'}`;
+    }
+
+    return formatPrice(value) ?? '$0';
+  };
 
   return (
     <View style={styles.section}>
@@ -44,53 +53,30 @@ function ReviewSummarySection({
       </Text>
 
       <View style={styles.rows}>
-        {services.slice(0, 2).map((service) => (
-          <View key={service.id} style={styles.row}>
+        {rows.map((row) => (
+          <View key={row.id} style={styles.row}>
             <Text
-              weight="medium"
+              weight={row.isEmphasized ? 'bold' : 'medium'}
               style={{
-                color: colors.iconMuted,
+                color: row.isEmphasized ? colors.text : colors.iconMuted,
                 fontSize: typography.size.xs2,
                 lineHeight: typography.lineHeight.sm,
               }}
             >
-              {service.name}
+              {row.label}
             </Text>
             <Text
-              weight="medium"
+              weight={row.isEmphasized ? 'bold' : 'medium'}
               style={{
-                color: colors.iconMuted,
+                color: colors.text,
                 fontSize: typography.size.xs2,
                 lineHeight: typography.lineHeight.sm,
               }}
             >
-              {formatPrice(service.price) ?? '$0'}
+              {formatRowValue(row.value)}
             </Text>
           </View>
         ))}
-
-        <View style={styles.row}>
-          <Text
-            weight="medium"
-            style={{
-              color: colors.iconMuted,
-              fontSize: typography.size.xs2,
-              lineHeight: typography.lineHeight.sm,
-            }}
-          >
-            {discountCodeLabel}
-          </Text>
-          <Text
-            weight="medium"
-            style={{
-              color: colors.iconMuted,
-              fontSize: typography.size.xs2,
-              lineHeight: typography.lineHeight.sm,
-            }}
-          >
-            $0
-          </Text>
-        </View>
       </View>
     </View>
   );

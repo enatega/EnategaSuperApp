@@ -36,6 +36,10 @@ export type SingleVendorStackParamList = {
   SingleVendorBookingDetails: {
     orderId: string;
   };
+  SingleVendorTrackWorker: {
+    orderId: string;
+    source?: 'booking_details' | 'home_active_service';
+  };
   SingleVendorManageAppointment: {
     orderId: string;
   };

@@ -103,6 +103,31 @@ export const homeVisitsKeys = {
     [...homeVisitsKeys.all, 'single-vendor-bookings', filters] as const,
   singleVendorBookingDetail: (orderId: string) =>
     [...homeVisitsKeys.all, 'single-vendor-booking-detail', orderId] as const,
+  bookingSummaryPreview: (input: {
+    serviceCenterId: string;
+    bookingType: 'one_time' | 'contract';
+    orderType: 'delivery' | 'pickup';
+    teamSize: number;
+    workingHours: number;
+    scheduledAt: string;
+    slot: {
+      startTime: string;
+      endTime: string;
+    };
+    paymentMethod: 'cod' | 'stripe';
+    paymentMode: 'cash' | 'card';
+    services: Array<{
+      serviceId: string;
+      isPrimary: boolean;
+      quantity: number;
+      selection?: {
+        serviceTypeOptionId?: string | null;
+        additionalServiceOptionIds?: string[];
+      } | null;
+    }>;
+    addressId?: string | null;
+    discountCode?: string | null;
+  }) => [...homeVisitsKeys.all, 'booking-summary-preview', input] as const,
 
   // Search
   search: () => [...homeVisitsKeys.all, 'search'] as const,
