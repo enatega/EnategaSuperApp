@@ -15,6 +15,7 @@ import type { AddressFlowParamList } from '../../navigation/addressFlowTypes';
 import type { AddressPayload, AddressType } from '../../api/addressService';
 
 type AddressFlowHostParamList = AddressFlowParamList & {
+  Checkout: undefined;
   Chain: { screen: 'ChainTabs' } | undefined;
   MultiVendor: { screen: 'MultiVendorTabs' } | undefined;
   MyProfile: undefined;
@@ -78,6 +79,11 @@ export default function AddressDetailScreen() {
 
         if (params.origin === 'chain-home') {
           nav.navigate('Chain', { screen: 'ChainTabs' });
+          return;
+        }
+
+        if (params.origin === 'checkout') {
+          nav.navigate('Checkout');
           return;
         }
 

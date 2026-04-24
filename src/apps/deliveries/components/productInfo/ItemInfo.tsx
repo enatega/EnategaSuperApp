@@ -1,17 +1,37 @@
 import React from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, Share, StyleSheet, View } from "react-native";
+import { useTranslation } from 'react-i18next';
 import Text from "../../../../general/components/Text";
 import Icon from "../../../../general/components/Icon";
 import { useTheme } from "../../../../general/theme/theme";
 
 type Props = {
   name: string;
-  description: string;
+  description?: string | null;
   priceLabel: string;
 };
 
 export default function ItemInfo({ name, description, priceLabel }: Props) {
   const { colors, typography } = useTheme();
+  const { t } = useTranslation('deliveries');
+
+  const handleSharePress = React.useCallback(() => {
+    const shareText = [name, priceLabel, description]
+      .map((value) => (typeof value === 'string' ? value.trim() : ''))
+      .filter(Boolean)
+      .join('\n');
+
+    if (!shareText) {
+      return;
+    }
+
+    void Share.share({
+      message: shareText,
+      title: name,
+    }).catch(() => {
+      // Ignore canceled/failed share action.
+    });
+  }, [description, name, priceLabel]);
 
   return (
     <View style={styles.container}>
@@ -44,6 +64,9 @@ export default function ItemInfo({ name, description, priceLabel }: Props) {
         </View>
 
         <Pressable
+          accessibilityLabel={t('store_details_action_share')}
+          accessibilityRole="button"
+          onPress={handleSharePress}
           style={({ pressed }) => [
             styles.shareButton,
             {

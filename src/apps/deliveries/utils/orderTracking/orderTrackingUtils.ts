@@ -8,11 +8,21 @@ export function formatTrackingEta(
   scheduledAt: string | null | undefined,
 ) {
   if (typeof estimatedDeliveryTime === "number") {
-    return `${estimatedDeliveryTime} min`;
+    return `${Math.round(estimatedDeliveryTime)} min`;
   }
 
   if (typeof estimatedDeliveryTime === "string" && estimatedDeliveryTime.trim()) {
-    return estimatedDeliveryTime.trim();
+    const normalizedEta = estimatedDeliveryTime.trim();
+
+    if (/^\d+(?:\.\d+)?$/.test(normalizedEta)) {
+      return `${Math.round(Number(normalizedEta))} min`;
+    }
+
+    if (/^\d+\s*-\s*\d+$/.test(normalizedEta)) {
+      return `${normalizedEta.replace(/\s+/g, "")} min`;
+    }
+
+    return normalizedEta;
   }
 
   if (!scheduledAt) {

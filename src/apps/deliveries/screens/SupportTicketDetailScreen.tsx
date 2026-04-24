@@ -21,14 +21,12 @@ import ChatMessageBubble from '../components/chat/ChatMessageBubble';
 import ChatQuickReplyChip from '../components/chat/ChatQuickReplyChip';
 import { useDeliveriesSocketSession } from '../hooks';
 import { useSendSupportChatMessage } from '../hooks/useSupportChatMutations';
-import { useSupportChatBox, useSupportConversations } from '../hooks/useSupportChatQueries';
+import { useSupportChatBox } from '../hooks/useSupportChatQueries';
 import type { SupportNavigationParamList } from '../navigation/supportNavigationTypes';
 import { subscribeDeliveriesEvent } from '../socket/deliveriesSocket';
 import {
   formatSupportChatTimeLabel,
   getSupportChatBox,
-  getSupportChatBoxId,
-  getSupportChatConversationGroups,
   getSupportChatMessages,
   getSupportChatMessageId,
   getSupportChatOtherParticipant,
@@ -46,43 +44,16 @@ type TicketChatMessage = {
 
 export default function SupportTicketDetailScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
+  const sessionStartedAtRef = useRef(Date.now());
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
   const route = useRoute<SupportTicketDetailRouteProp>();
-  const { ticket } = route.params;
+  const { openMode, ticket } = route.params;
+  const isFreshTicketSession = openMode === 'fresh';
   const sessionQuery = useAuthSessionQuery();
   useDeliveriesSocketSession();
-  const supportConversationsQuery = useSupportConversations();
-  const fallbackChatBoxId = useMemo(() => {
-    if (ticket.chatBoxId || !ticket.assignedAdminId) {
-      return ticket.chatBoxId;
-    }
-
-    const conversationGroups = getSupportChatConversationGroups(
-      supportConversationsQuery.data,
-    );
-    const allConversations = [
-      ...conversationGroups.recent,
-      ...conversationGroups.past,
-    ];
-    const matchedConversation = allConversations.find((chatBox) => {
-      const participant = getSupportChatOtherParticipant(
-        chatBox,
-        sessionQuery.data?.user?.id,
-      );
-
-      return getSupportChatParticipantId(participant) === ticket.assignedAdminId;
-    });
-
-    return getSupportChatBoxId(matchedConversation) || undefined;
-  }, [
-    sessionQuery.data?.user?.id,
-    supportConversationsQuery.data,
-    ticket.assignedAdminId,
-    ticket.chatBoxId,
-  ]);
-  const [chatBoxId, setChatBoxId] = useState(fallbackChatBoxId);
+  const [chatBoxId, setChatBoxId] = useState(ticket.chatBoxId);
   const [draftMessage, setDraftMessage] = useState('');
   const [pendingMessages, setPendingMessages] = useState<TicketChatMessage[]>([]);
   const [realtimeMessages, setRealtimeMessages] = useState<TicketChatMessage[]>([]);
@@ -110,12 +81,6 @@ export default function SupportTicketDetailScreen() {
       setDraftMessage('');
     },
   });
-
-  useEffect(() => {
-    if (!chatBoxId && fallbackChatBoxId) {
-      setChatBoxId(fallbackChatBoxId);
-    }
-  }, [chatBoxId, fallbackChatBoxId]);
 
   useEffect(() => {
     console.log('SupportTicketDetailScreen route ticket', {
@@ -167,8 +132,21 @@ export default function SupportTicketDetailScreen() {
 
   const messages = useMemo(() => {
     const currentUserId = sessionQuery.data?.user?.id;
-    const serverMessages = getSupportChatMessages(supportChatBoxQuery.data);
-    const mappedServerMessages = serverMessages.map((message) => ({
+    const rawServerMessages = getSupportChatMessages(supportChatBoxQuery.data);
+    const shouldSuppressHistoricalMessages = isFreshTicketSession || !ticket.chatBoxId;
+    const visibleServerMessages = shouldSuppressHistoricalMessages
+      ? rawServerMessages.filter((message) => {
+        const timestamp = new Date(message.createdAt ?? message.created_at ?? '').getTime();
+
+        if (Number.isNaN(timestamp)) {
+          return false;
+        }
+
+        // For brand-new tickets, keep only messages from the current session.
+        return timestamp >= sessionStartedAtRef.current - 3000;
+      })
+      : rawServerMessages;
+    const mappedServerMessages = visibleServerMessages.map((message) => ({
       id: getSupportChatMessageId(message),
       isCurrentUser:
         (message.senderId ?? message.sender_id ?? getSupportChatParticipantId(message.sender)) ===
@@ -189,7 +167,15 @@ export default function SupportTicketDetailScreen() {
     }
 
     return [...mappedServerMessages, ...realtimeMessages, ...pendingMessages];
-  }, [pendingMessages, realtimeMessages, sessionQuery.data?.user?.id, supportChatBoxQuery.data, t]);
+  }, [
+    pendingMessages,
+    realtimeMessages,
+    sessionQuery.data?.user?.id,
+    supportChatBoxQuery.data,
+    t,
+    isFreshTicketSession,
+    ticket.chatBoxId,
+  ]);
 
   const quickReplies = useMemo(
     () => [

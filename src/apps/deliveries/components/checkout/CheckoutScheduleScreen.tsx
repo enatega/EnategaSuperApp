@@ -2,6 +2,7 @@ import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Button from '../../../../general/components/Button';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
@@ -30,6 +31,7 @@ export default function CheckoutScheduleScreen({
 }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
+  const insets = useSafeAreaInsets();
   const scheduleInput = React.useMemo(
     () => ({
       dateTime: new Date().toISOString(),
@@ -212,7 +214,14 @@ export default function CheckoutScheduleScreen({
         )}
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View
+        style={[
+          styles.footer,
+          {
+            paddingBottom: insets.bottom + 12,
+          },
+        ]}
+      >
         <View style={styles.noteRow}>
           <Ionicons color={colors.mutedText} name="alert-circle-outline" size={18} />
           <Text
@@ -274,7 +283,6 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 16,
   },
   noteRow: {
     alignItems: 'center',
