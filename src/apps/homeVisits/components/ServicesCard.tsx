@@ -15,6 +15,7 @@ import type {
 } from '../singleVendor/api/types';
 import type { SearchServiceItem } from '../api/searchServiceTypes';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../singleVendor/navigation/types';
+import { useTranslations } from '../../../general/localization/LocalizationProvider';
 
 interface DealCardProps {
   item:
@@ -33,12 +34,14 @@ export default function ServicesCard({
   layout = 'compact',
 }: DealCardProps) {
   const { colors } = useTheme();
+  const { t } = useTranslations('homeVisits')
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const imageUrl =
     item.productImage || item.storeImage || item.storeLogo || 'https://placehold.co/400x400.png';
   const shouldShowFavoriteIcon = typeof item.isFavorite === 'boolean';
   const favoriteIconName = item.isFavorite ? 'heart' : 'heart-outline';
+  const resolvedDeal = item?.dealType === 'percentage' ? item?.dealAmount + ' % ' + t('off') : item?.dealAmount + t('off');
 
   const handlePress = () => {
     if (onPress) {
@@ -79,7 +82,7 @@ export default function ServicesCard({
           <View style={[styles.badge, { backgroundColor: colors.primary }]}>
             <Ionicons name="pricetag" size={12} color={colors.white} style={styles.badgeIcon} />
             <Text variant="caption" weight="semiBold" style={{ color: colors.white, fontSize: 12 }}>
-              {item.deal}
+              {resolvedDeal ?? undefined}
             </Text>
           </View>
         )}

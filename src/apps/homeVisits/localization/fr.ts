@@ -334,6 +334,7 @@ const fr = {
   // Search related translations
   services: 'Services',
   see_all: 'Voir tout',
+  off: 'désactivé' 
 };
 
 export default fr;
