@@ -122,6 +122,7 @@ const fr = {
   notifications_title: 'Notifications',
   notifications_section_today: "Aujourd'hui",
   notifications_section_past: 'Passées',
+  notifications_show_more: 'Afficher plus',
   notifications_empty_title: 'Aucune notification pour le moment',
   notifications_empty_description: 'Vos dernières mises à jour apparaîtront ici dès leur arrivée.',
   notifications_today_appointment_title: 'Votre rendez-vous chez Style Haven est confirmé.',
