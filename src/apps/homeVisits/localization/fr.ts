@@ -31,6 +31,10 @@ const fr = {
   single_vendor_bookings_empty_subtitle_ongoing: 'Vos réservations actives apparaîtront ici.',
   single_vendor_bookings_empty_title_past: 'Aucune réservation passée',
   single_vendor_bookings_empty_subtitle_past: 'Vos réservations terminées ou annulées apparaîtront ici.',
+  single_vendor_bookings_empty_generic_title: 'Aucun rendez-vous trouvé',
+  single_vendor_bookings_empty_generic_subtitle:
+    'Vos rendez-vous à venir et passés apparaîtront lorsque vous réserverez',
+  single_vendor_bookings_empty_cta: 'Rechercher un service',
   single_vendor_booking_status_confirmed: 'Confirmée',
   single_vendor_booking_default_duration: 'Durée de 1 h',
   single_vendor_booking_add_calendar_title: 'Ajouter au calendrier',

@@ -4,7 +4,7 @@ const hasValidGoogleIosUrlScheme = iosUrlScheme.startsWith('com.googleuserconten
 
 module.exports = {
   expo: {
-    name: 'EnategaSuperApp',
+    name: 'Fix Right',
     slug: 'EnategaSuperApp',
     version: '1.0.0',
     orientation: 'portrait',

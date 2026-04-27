@@ -26,7 +26,7 @@ export default function SingleVendorTabButton({
       style={[
         styles.button,
         {
-          backgroundColor: isSelected ? colors.blue100 : colors.surface,
+          backgroundColor: colors.surface,
         },
       ]}
       testID={testID}

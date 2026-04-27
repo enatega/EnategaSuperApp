@@ -16,6 +16,13 @@ export const homePatterns = {
   header: require('./headerPattern.png'),
 } as const;
 
+export const homeVisitOnboardingImages = {
+  welcomeScreen: require('./homeVisitWelcomeScreen.png'),
+  cleanUp: require('./clean-up.png'),
+  maintenance: require('./maintenance.png'),
+} as const;
+
 export const placeholderImages = {
   store: require('./400x400.png'),
+  comingSoon: require('./coming-soon.png'),
 } as const;

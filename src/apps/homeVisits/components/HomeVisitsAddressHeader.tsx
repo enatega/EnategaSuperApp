@@ -82,19 +82,10 @@ export default function HomeVisitsAddressHeader({
           style={({ pressed }) => [
             styles.addressButton,
             {
-              backgroundColor: colors.surface,
-              borderColor: 'rgba(17, 24, 39, 0.06)',
               opacity: pressed ? 0.92 : 1,
-              shadowColor: colors.shadowColor,
             },
           ]}
         >
-          <Icon
-            color={colors.iconMuted}
-            name="home-outline"
-            size={18}
-            type="Ionicons"
-          />
           <Text
             numberOfLines={1}
             weight="medium"
@@ -110,9 +101,9 @@ export default function HomeVisitsAddressHeader({
             {resolvedSelectedAddressLabel ?? t('home_visits_address_label')}
           </Text>
           <Icon
-            color={colors.mutedText}
+            color={colors.text}
             name="chevron-down"
-            size={14}
+            size={20}
             type="Ionicons"
           />
         </Pressable>
@@ -124,10 +115,7 @@ export default function HomeVisitsAddressHeader({
           style={({ pressed }) => [
             styles.addAddressButton,
             {
-              backgroundColor: colors.surface,
-              borderColor: 'rgba(17, 24, 39, 0.06)',
               opacity: pressed ? 0.92 : 1,
-              shadowColor: colors.shadowColor,
             },
           ]}
         >
@@ -162,18 +150,12 @@ export default function HomeVisitsAddressHeader({
 const styles = StyleSheet.create({
   addAddressButton: {
     alignItems: 'center',
-    borderRadius: 22,
-    borderWidth: 1,
     flexDirection: 'row',
-    gap: 8,
-    justifyContent: 'center',
+    gap: 6,
+    justifyContent: 'flex-start',
     minHeight: 44,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 2,
+    paddingHorizontal: 0,
+    paddingVertical: 12,
   },
   addAddressText: {
     flexShrink: 1,
@@ -191,22 +173,16 @@ const styles = StyleSheet.create({
   },
   addressButton: {
     alignItems: 'center',
-    borderRadius: 22,
-    borderWidth: 1,
     flex: 1,
     flexDirection: 'row',
-    gap: 8,
+    gap: 6,
     minHeight: 44,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 2,
+    paddingHorizontal: 0,
+    paddingVertical: 12,
   },
   addressText: {
     flex: 1,
-    letterSpacing: -0.1,
+    letterSpacing: 0,
   },
   container: {
     alignItems: 'center',

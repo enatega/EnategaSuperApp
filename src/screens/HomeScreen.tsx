@@ -1,152 +1,159 @@
-import React, { useEffect, useState } from 'react';
-import { AppState, ScrollView, StyleSheet, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Image, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../general/theme/theme';
-import HomeHeader from './home/HomeHeader';
-import HomeLocationPermissionPopup, {
-  LocationPopupMode,
-} from './home/HomeLocationPermissionPopup';
-import HomeVisitsSection from './home/HomeVisitsSection';
-import RecommendedSection from './home/RecommendedSection';
+import Button from '../general/components/Button';
+import Text from '../general/components/Text';
 import { MiniAppId } from '../general/utils/constants';
-import { useIsFocused } from '@react-navigation/native';
-import {
-  getLocationPermissionState,
-  openAppLocationSettings,
-  requestLocationPermission,
-} from '../general/utils/locationPermission';
-import RideOptionsSection from '../apps/rideSharing/components/RideOptionsSection';
-import DeliveryServicesSection from '../apps/rideSharing/components/DeliveryServicesSection';
+import { authSession } from '../general/auth/authSession';
+import { LinearGradient } from 'expo-linear-gradient';
+import { homeVisitOnboardingImages } from '../general/assets/images';
 
 type Props = {
   onSelectMiniApp?: (id: MiniAppId) => void;
 };
 
+type Slide = {
+  title: string;
+  image: number;
+};
+
+const ONBOARDING_SLIDES: Slide[] = [
+  {
+    title: 'Connect with Trusted Home Cleaning Services at Your Fingertips',
+    image: homeVisitOnboardingImages.cleanUp,
+  },
+  {
+    title: 'Discover Reliable Plumbing Services Near You with a Click',
+    image: homeVisitOnboardingImages.maintenance,
+  },
+  {
+    title: 'Access Professional Landscaping Services to Transform Your Home',
+    image: homeVisitOnboardingImages.maintenance,
+  },
+];
+
 export default function HomeScreen({ onSelectMiniApp }: Props) {
   const { colors } = useTheme();
-  const isFocused = useIsFocused();
-  const [isLocationPopupVisible, setIsLocationPopupVisible] = useState(false);
-  const [locationPopupMode, setLocationPopupMode] = useState<LocationPopupMode>('request');
-  const [isRequestingLocation, setIsRequestingLocation] = useState(false);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const [stepIndex, setStepIndex] = useState(-1);
+  const currentSlide = useMemo(() => ONBOARDING_SLIDES[stepIndex] ?? null, [stepIndex]);
 
   useEffect(() => {
-    if (!isFocused) {
-      return;
-    }
+    let isMounted = true;
 
-    void syncLocationPermission();
-  }, [isFocused]);
+    const checkAuthAndRedirect = async () => {
+      try {
+        const token = await authSession.getAccessToken();
 
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextState) => {
-      if (nextState === 'active' && isFocused) {
-        void syncLocationPermission();
+        if (token) {
+          onSelectMiniApp?.('homeVisits');
+          return;
+        }
+      } catch (error) {
+        console.warn('Unable to read auth session', error);
+      } finally {
+        if (isMounted) {
+          setIsCheckingSession(false);
+        }
       }
-    });
+    };
+
+    void checkAuthAndRedirect();
 
     return () => {
-      subscription.remove();
+      isMounted = false;
     };
-  }, [isFocused]);
+  }, []);
 
-  async function syncLocationPermission() {
-    try {
-      const permission = await getLocationPermissionState();
-
-      if (permission.granted) {
-        setIsLocationPopupVisible(false);
-        setLocationPopupMode('request');
-        return;
-      }
-
-      if (permission.blocked) {
-        setLocationPopupMode('blocked');
-      } else if (permission.undetermined) {
-        setLocationPopupMode('request');
-      } else {
-        setLocationPopupMode('denied');
-      }
-
-      setIsLocationPopupVisible(true);
-    } catch (error) {
-      console.warn('Unable to read location permission state', error);
-    }
-  }
-
-  async function handleRequestLocation() {
-    setIsRequestingLocation(true);
-
-    try {
-      const permission = await requestLocationPermission();
-
-      if (permission.granted) {
-        setIsLocationPopupVisible(false);
-        setLocationPopupMode('request');
-        return;
-      }
-
-      setLocationPopupMode(permission.blocked ? 'blocked' : 'denied');
-      setIsLocationPopupVisible(true);
-    } catch (error) {
-      console.warn('Unable to request location permission', error);
-    } finally {
-      setIsRequestingLocation(false);
-    }
-  }
-
-  function handleDismissLocationPopup() {
-    setIsLocationPopupVisible(false);
-  }
-
-  async function handleOpenLocationSettings() {
-    try {
-      await openAppLocationSettings();
-    } catch (error) {
-      console.warn('Unable to open app settings', error);
-    }
-  }
-
-  function handleSelectRideOption() {
-    onSelectMiniApp?.('rideSharing');
-  }
-
-  function handleSelectDeliveryService() {
-    onSelectMiniApp?.('deliveries');
-  }
-
-  function handleSelectDeliverablesCard() {
-    onSelectMiniApp?.('deliveries');
-  }
-
-  function handleSelectHomeVisits() {
+  function handleSignIn() {
     onSelectMiniApp?.('homeVisits');
   }
 
+  function handleSkip() {
+    setStepIndex(ONBOARDING_SLIDES.length - 1);
+  }
+
+  function handleNext() {
+    setStepIndex((current) => Math.min(current + 1, ONBOARDING_SLIDES.length - 1));
+  }
+
+  if (isCheckingSession) {
+    return <View style={[styles.container, { backgroundColor: colors.background }]} />;
+  }
+
+  const isWelcomeStep = stepIndex < 0;
+  const isLastSlide = stepIndex === ONBOARDING_SLIDES.length - 1;
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <HomeHeader backgroundVariant="solid" />
-      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <RideOptionsSection onSelectRideOption={handleSelectRideOption} />
-          <DeliveryServicesSection onSelectService={handleSelectDeliveryService} />
-          <HomeVisitsSection onPress={handleSelectHomeVisits} />
-          <RecommendedSection
-            title="Our Deliverables"
-            featureTitle="What We Bring to You"
-            layout="featureCard"
-            onPressFeatureCard={handleSelectDeliverablesCard}
+      {isWelcomeStep ? (
+        <View style={styles.welcomeBackdrop}>
+          <Image source={homeVisitOnboardingImages.welcomeScreen} style={styles.welcomeBackgroundImage} />
+          <LinearGradient
+            colors={['rgba(0, 0, 0, 0.2)', 'rgba(9, 9, 11, 0.3)']}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={styles.welcomeOverlay}
           />
-        </ScrollView>
-      </SafeAreaView>
+        </View>
+      ) : null}
 
-      <HomeLocationPermissionPopup
-        visible={isLocationPopupVisible}
-        mode={locationPopupMode}
-        isLoading={isRequestingLocation}
-        onRequestLocation={handleRequestLocation}
-        onOpenSettings={handleOpenLocationSettings}
-        onDismiss={handleDismissLocationPopup}
-      />
+      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
+        {isWelcomeStep ? (
+          <View style={styles.welcomeContent}>
+            <View style={styles.welcomeCopy}>
+              <Text color={colors.white} style={styles.welcomeEyebrow} weight="semiBold">
+                Welcome to
+              </Text>
+              <Text color={colors.white} style={styles.welcomeTitle} weight="extraBold">
+                Home-Visit
+              </Text>
+              <Text color={colors.white} style={styles.welcomeDescription}>
+                Book trusted plumbers or schedule appliance repairs from the comfort of your home.
+              </Text>
+            </View>
+            <Button label="Continue" onPress={handleNext} />
+          </View>
+        ) : (
+          <View style={styles.onboardingContent}>
+            <View style={styles.heroIconWrap}>
+              <Image source={currentSlide?.image} resizeMode="contain" style={styles.slideImage} />
+            </View>
+
+            <Text style={styles.slideTitle} weight="extraBold">
+              {currentSlide?.title}
+            </Text>
+
+            <View style={styles.pagination}>
+              {ONBOARDING_SLIDES.map((_, index) => {
+                const isActive = stepIndex === index;
+                return (
+                  <View
+                    key={index}
+                    style={[
+                      styles.dot,
+                      {
+                        width: isActive ? 24 : 8,
+                        backgroundColor: isActive ? colors.primary : '#D4D4D8',
+                      },
+                    ]}
+                  />
+                );
+              })}
+            </View>
+
+            {isLastSlide ? (
+              <Button label="Sign in" onPress={handleSignIn} style={styles.singleActionButton} />
+            ) : (
+              <View style={styles.rowActions}>
+                <Button label="Skip" onPress={handleSkip} style={styles.rowButton} variant="secondary" />
+                <Button label="Next" onPress={handleNext} style={styles.rowButton} />
+              </View>
+            )}
+          </View>
+        )}
+      </SafeAreaView>
     </View>
   );
 }
@@ -158,10 +165,91 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
+  welcomeBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  welcomeBackgroundImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+  },
+  welcomeOverlay: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  welcomeContent: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    paddingHorizontal: 20,
+    paddingBottom: 28,
     gap: 24,
-    paddingTop: 0,
+  },
+  welcomeCopy: {
+    gap: 8,
+    width: 290,
+  },
+  welcomeEyebrow: {
+    fontSize: 18,
+    lineHeight: 28,
+  },
+  welcomeTitle: {
+    fontSize: 44,
+    lineHeight: 50,
+    letterSpacing: -0.6,
+  },
+  welcomeDescription: {
+    marginTop: 8,
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  onboardingContent: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 72,
+    paddingBottom: 28,
+  },
+  heroIconWrap: {
+    height: 250,
+    width: 250,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  slideImage: {
+    width: 200,
+    height: 200,
+  },
+  slideTitle: {
+    textAlign: 'center',
+    fontSize: 18,
+    lineHeight: 26,
+    letterSpacing: -0.27,
+    maxWidth: '100%',
+  },
+  pagination: {
+    marginTop: 52,
+    flexDirection: 'row',
+    gap: 4,
+    alignItems: 'center',
+  },
+  dot: {
+    height: 8,
+    borderRadius: 50,
+  },
+  rowActions: {
+    marginTop: 'auto',
+    width: '100%',
+    flexDirection: 'row',
+    gap: 12,
+  },
+  rowButton: {
+    flex: 1,
+    height: 48,
+    borderRadius: 6,
+  },
+  singleActionButton: {
+    marginTop: 'auto',
+    width: '100%',
+    height: 48,
+    borderRadius: 6,
   },
 });

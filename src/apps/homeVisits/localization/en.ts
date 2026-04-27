@@ -35,6 +35,10 @@ const en = {
   single_vendor_bookings_empty_subtitle_ongoing: 'Your active bookings will show up here.',
   single_vendor_bookings_empty_title_past: 'No past bookings',
   single_vendor_bookings_empty_subtitle_past: 'Your completed or cancelled bookings will show up here.',
+  single_vendor_bookings_empty_generic_title: 'No appointments found',
+  single_vendor_bookings_empty_generic_subtitle:
+    'Your upcoming and past appointments will appear when you book',
+  single_vendor_bookings_empty_cta: 'Search service',
   single_vendor_booking_status_confirmed: 'Confirmed',
   single_vendor_booking_default_duration: '1 hr duration',
   single_vendor_booking_add_calendar_title: 'Add to calendar',

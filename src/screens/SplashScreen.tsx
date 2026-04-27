@@ -38,7 +38,13 @@ export default function SplashScreen({ onFinish }: Props) {
       end={{ x: 0.5, y: 1 }}
       style={styles.container}
     >
-      
+      <View style={styles.centerBlock}>
+        <Text color={colors.white} style={styles.title} weight="bold">
+          Home-Visit
+          {'\n'}
+          Services
+        </Text>
+      </View>
       <View style={styles.loader}>
         <View style={[styles.progressCircle, { borderColor: colors.white }]}>
           <Text variant="caption" color={colors.white}>
@@ -57,27 +63,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
   },
   centerBlock: {
-    flex: 1,
+    position: 'absolute',
+    top: '35%',
+    left: 0,
+    right: 0,
     justifyContent: 'center',
     alignItems: 'center',
   },
   title: {
     letterSpacing: 0,
     fontFamily: 'Figma Hand',
+    textAlign: 'center',
+    fontSize: 52,
+    lineHeight: 56,
   },
   loader: {
     alignItems: 'center',
-    gap: 8,
-    paddingBottom: 48,
+    gap: 12,
+    paddingBottom: 88,
   },
   progressCircle: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    borderWidth: 2,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 3,
     alignItems: 'center',
     justifyContent: 'center',
   },

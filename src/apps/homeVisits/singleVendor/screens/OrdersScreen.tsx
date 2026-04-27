@@ -42,14 +42,14 @@ export default function SingleVendorOrdersScreen({}: Props) {
     tab: activeTab,
   });
 
-  const emptyTitle =
-    activeTab === 'ongoing'
-      ? t('single_vendor_bookings_empty_title_ongoing')
-      : t('single_vendor_bookings_empty_title_past');
-  const emptySubtitle =
-    activeTab === 'ongoing'
-      ? t('single_vendor_bookings_empty_subtitle_ongoing')
-      : t('single_vendor_bookings_empty_subtitle_past');
+  const emptyTitle = t('single_vendor_bookings_empty_generic_title');
+  const emptySubtitle = t('single_vendor_bookings_empty_generic_subtitle');
+
+  const handleEmptyStateCtaPress = React.useCallback(() => {
+    navigation.navigate('SingleVendorTabs', {
+      screen: 'SingleVendorTabSearch',
+    });
+  }, [navigation]);
 
   const onEndReached = React.useCallback(() => {
     if (!hasNextPage || isFetchingNextPage) {
@@ -169,6 +169,8 @@ export default function SingleVendorOrdersScreen({}: Props) {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <BookingListEmptyState
+              ctaLabel={t('single_vendor_bookings_empty_cta')}
+              onCtaPress={handleEmptyStateCtaPress}
               subtitle={emptySubtitle}
               title={emptyTitle}
             />
