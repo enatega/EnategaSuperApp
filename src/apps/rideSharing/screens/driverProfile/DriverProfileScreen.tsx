@@ -1,10 +1,13 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View, TouchableOpacity } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '../../../../general/theme/theme';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
+import FullImagePreviewModal from '../../../../general/components/FullImagePreviewModal';
+import { showToast } from '../../../../general/components/AppToast';
 
 import ProfileHeroCard from '../../components/driverProfile/ProfileHeroCard';
 import RatingSummary from '../../components/driverProfile/RatingSummary';
@@ -59,6 +62,8 @@ const FALLBACK_USER_ID = 'f6280bea-39a4-4616-b462-59381289402e';
 
 export default function DriverProfileScreen() {
   const { colors } = useTheme();
+  const { t } = useTranslation('rideSharing');
+  const [isImagePreviewVisible, setIsImagePreviewVisible] = React.useState(false);
 
   const route = useRoute<DriverProfileRouteProp>();
   const userId = route.params?.userId ?? FALLBACK_USER_ID;
@@ -91,7 +96,7 @@ export default function DriverProfileScreen() {
             onPress={() => refetch()}
             accessibilityLabel="Retry loading driver profile"
           >
-            <Text variant="body" weight="semibold" color="#fff">
+            <Text variant="body" weight="semiBold" color="#fff">
               Retry
             </Text>
           </TouchableOpacity>
@@ -102,6 +107,16 @@ export default function DriverProfileScreen() {
 
   // ── Success ──────────────────────────────────────────────────────────────
   const profileData = toDriverProfileData(data);
+  const profileImageUri = profileData.profile.profilePic?.trim() ?? '';
+
+  const handleAvatarPress = () => {
+    if (!profileImageUri) {
+      showToast.error(t('error'), t('ride_profile_photo_unavailable'));
+      return;
+    }
+
+    setIsImagePreviewVisible(true);
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -110,7 +125,7 @@ export default function DriverProfileScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <ProfileHeroCard data={profileData} />
+        <ProfileHeroCard data={profileData} onAvatarPress={handleAvatarPress} />
 
         <RatingSummary
           averageRating={profileData.averageRating}
@@ -127,6 +142,12 @@ export default function DriverProfileScreen() {
           ))}
         </View>
       </ScrollView>
+
+      <FullImagePreviewModal
+        visible={isImagePreviewVisible}
+        imageUri={profileImageUri}
+        onClose={() => setIsImagePreviewVisible(false)}
+      />
     </View>
   );
 }

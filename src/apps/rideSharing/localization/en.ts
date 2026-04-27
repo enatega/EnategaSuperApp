@@ -65,6 +65,7 @@ const en = {
   details_body: 'Ride details and driver information.',
   driver_profile_title: 'Driver Profile',
   driver_profile_button: 'Driver Profile',
+  ride_profile_photo_unavailable: 'No profile photo available.',
   // Sidebar
   logout: 'Logout',
   // Sidebar menu items

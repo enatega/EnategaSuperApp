@@ -1,11 +1,12 @@
 import React from 'react';
-import { Image, View } from 'react-native';
+import { Image, TouchableOpacity, View } from 'react-native';
 import Text from '../../../../general/components/Text';
 
 type Props = {
   uri: string;
   name: string;
   size: number;
+  onPress?: () => void;
 };
 
 function AvatarFallback({ name, size }: { name: string; size: number }) {
@@ -45,18 +46,28 @@ function AvatarFallback({ name, size }: { name: string; size: number }) {
  * Loads an avatar image from `uri`.
  * Falls back to initials on load error (handles HEIC / broken URLs gracefully).
  */
-export default function ProfileAvatar({ uri, name, size }: Props) {
+export default function ProfileAvatar({ uri, name, size, onPress }: Props) {
   const [error, setError] = React.useState(false);
+  const hasImage = uri?.trim().length > 0;
 
-  if (error) {
-    return <AvatarFallback name={name} size={size} />;
+  const avatarNode =
+    error || !hasImage ? (
+      <AvatarFallback name={name} size={size} />
+    ) : (
+      <Image
+        source={{ uri }}
+        style={{ width: size, height: size, borderRadius: size / 2 }}
+        onError={() => setError(true)}
+      />
+    );
+
+  if (!onPress) {
+    return avatarNode;
   }
 
   return (
-    <Image
-      source={{ uri }}
-      style={{ width: size, height: size, borderRadius: size / 2 }}
-      onError={() => setError(true)}
-    />
+    <TouchableOpacity activeOpacity={0.85} onPress={onPress}>
+      {avatarNode}
+    </TouchableOpacity>
   );
 }

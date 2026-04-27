@@ -8,6 +8,7 @@ import type { DriverProfileData } from './types';
 
 type Props = {
   data: DriverProfileData;
+  onAvatarPress?: () => void;
 };
 
 function StatCard({ value, label }: { value: string | number; label: string }) {
@@ -28,7 +29,7 @@ function StatCard({ value, label }: { value: string | number; label: string }) {
   );
 }
 
-export default function ProfileHeroCard({ data }: Props) {
+export default function ProfileHeroCard({ data, onAvatarPress }: Props) {
   const { colors } = useTheme();
   const joinedLabel = formatJoinYear(data.joiningTime);
 
@@ -36,7 +37,12 @@ export default function ProfileHeroCard({ data }: Props) {
     <View style={[styles.heroCard, { backgroundColor: colors.surface }]}>
       {/* Avatar */}
       <View style={styles.avatarWrapper}>
-        <ProfileAvatar uri={data.profile.profilePic} name={data.profile.name} size={90} />
+        <ProfileAvatar
+          uri={data.profile.profilePic}
+          name={data.profile.name}
+          size={90}
+          onPress={onAvatarPress}
+        />
       </View>
 
       {/* Name */}

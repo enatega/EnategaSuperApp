@@ -65,6 +65,7 @@ const fr = {
   details_body: 'Détails du trajet et informations sur le conducteur.',
   driver_profile_title: 'Profil du Conducteur',
   driver_profile_button: 'Profil du Conducteur',
+  ride_profile_photo_unavailable: 'Aucune photo de profil disponible.',
   // Sidebar
   logout: 'Déconnexion',
   // Sidebar menu items
