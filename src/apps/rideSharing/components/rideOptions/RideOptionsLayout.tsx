@@ -16,6 +16,7 @@ type Props = {
   isLoadingRideTypes?: boolean;
   rideTypesErrorMessage?: string | null;
   onRetryRideTypes?: () => void;
+  enableNearbyDrivers?: boolean;
 };
 
 function RideOptionsLayout({
@@ -28,6 +29,7 @@ function RideOptionsLayout({
   isLoadingRideTypes = false,
   rideTypesErrorMessage = null,
   onRetryRideTypes,
+  enableNearbyDrivers = true,
 }: Props) {
   const {
     currentCoordinates,
@@ -40,6 +42,7 @@ function RideOptionsLayout({
       <RideOptionsMapLayer
         currentCoordinates={currentCoordinates}
         cachedAddresses={cachedAddresses}
+        enableNearbyDrivers={enableNearbyDrivers}
       />
       <RideOptionsBottomSheet
         rideOptions={rideOptions}
