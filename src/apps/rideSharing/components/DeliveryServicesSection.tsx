@@ -92,6 +92,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
+   
   },
   card: {
     width: 174.5,
@@ -99,8 +100,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     justifyContent: 'space-between',
+    
   },
   image: {
     width: 48,

@@ -36,6 +36,27 @@ function isProductStoreCardData(
   return "productId" in store && "productName" in store;
 }
 
+function resolveOfferLabel(
+  dealAmount: number | null | undefined,
+  dealType: string | null | undefined,
+  deal: string | null | undefined,
+  offLabel: string,
+) {
+  const hasValidAmount =
+    typeof dealAmount === "number" && Number.isFinite(dealAmount) && dealAmount > 0;
+
+  if (hasValidAmount) {
+    if (dealType === "percentage") {
+      return `${dealAmount} % ${offLabel}`;
+    }
+
+    return `${dealAmount} ${offLabel}`;
+  }
+
+  const trimmedDeal = typeof deal === "string" ? deal.trim() : "";
+  return trimmedDeal.length > 0 ? trimmedDeal : undefined;
+}
+
 export default function StoreCard({
   store,
   actionSlot,
@@ -53,7 +74,12 @@ export default function StoreCard({
       store.storeLogo ||
       "https://placehold.co/400x400.png"
     : store.coverImage || store.logo || "https://placehold.co/400x400.png";
-  const resolvedOffer = store.dealType === 'percentage' ? store.dealAmount + ' % ' + t("off") : store.dealAmount + t('off');
+  const resolvedOffer = resolveOfferLabel(
+    store.dealAmount,
+    store.dealType,
+    store.deal,
+    t("off"),
+  );
   const resolvedName = isProductItem ? store.productName : store.name;
   const resolvedLocation = !isProductItem ? store.address ?? undefined : undefined;
   const resolvedRating = store.averageRating ?? undefined;
@@ -95,7 +121,7 @@ export default function StoreCard({
       activeOpacity={isPressable ? 0.7 : 1}
       onPress={handlePress}
     >
-      <StoreImage imageUrl={resolvedImageUrl} offer={resolvedOffer ?? undefined} actionSlot={actionSlot} />
+      <StoreImage imageUrl={resolvedImageUrl} offer={resolvedOffer} actionSlot={actionSlot} />
 
       <View style={styles.content}>
         <StoreInfo name={resolvedName} />

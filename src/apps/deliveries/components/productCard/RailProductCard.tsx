@@ -18,6 +18,27 @@ type Props = {
   state: ProductCardControlState;
 };
 
+function resolveOfferLabel(
+  dealAmount: number | null | undefined,
+  dealType: string | null | undefined,
+  deal: string | null | undefined,
+  offLabel: string,
+) {
+  const hasValidAmount =
+    typeof dealAmount === 'number' && Number.isFinite(dealAmount) && dealAmount > 0;
+
+  if (hasValidAmount) {
+    if (dealType === 'percentage') {
+      return `${dealAmount} % ${offLabel}`;
+    }
+
+    return `${dealAmount} ${offLabel}`;
+  }
+
+  const trimmedDeal = typeof deal === 'string' ? deal.trim() : '';
+  return trimmedDeal.length > 0 ? trimmedDeal : undefined;
+}
+
 export default function RailProductCard({
   isFullWidth = false,
   onPress,
@@ -32,7 +53,12 @@ export default function RailProductCard({
     product.storeLogo ??
     'https://placehold.co/400x400.png';
   
-  const resolvedOffer = product?.dealType === 'percentage' ? product?.dealAmount + ' % ' + t("off") : product?.dealAmount + t('off');
+  const resolvedOffer = resolveOfferLabel(
+    product.dealAmount,
+    product.dealType,
+    product.deal,
+    t('off'),
+  );
 
   return (
     <TouchableOpacity
@@ -55,7 +81,7 @@ export default function RailProductCard({
           <CartCountBadge count={state.totalQuantity} style={styles.countBadge} />
         ) : undefined}
         imageUrl={imageUrl}
-        offer={resolvedOffer ?? undefined}
+        offer={resolvedOffer}
       />
 
       <View style={storeCardStyles.content}>

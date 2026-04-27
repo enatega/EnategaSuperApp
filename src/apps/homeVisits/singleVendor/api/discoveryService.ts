@@ -377,7 +377,7 @@ export const homeVisitsSingleVendorDiscoveryService = {
   getBookingAvailability: async (
     params: HomeVisitsSingleVendorBookingAvailabilityParams,
   ): Promise<HomeVisitsSingleVendorBookingAvailabilityResponse> => {
-    const { serviceCenterId, date, teamSize } = params;
+    const { serviceCenterId, date, teamSize, requiredHours } = params;
 
     try {
       return await apiClient.get<HomeVisitsSingleVendorBookingAvailabilityResponse>(
@@ -385,6 +385,7 @@ export const homeVisitsSingleVendorDiscoveryService = {
         {
           date,
           teamSize,
+          requiredHours,
         },
       );
     } catch (error) {

@@ -1,5 +1,11 @@
 import React from 'react';
-import { Pressable, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  View,
+  type ImageSourcePropType,
+} from 'react-native';
 import Text from '../../../general/components/Text';
 import Image from '../../../general/components/Image';
 import { useTheme } from '../../../general/theme/theme';
@@ -70,15 +76,20 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
       >
         {t('ride_options_title')}
       </Text>
-      <View style={styles.grid}>
-        {items.map((item) => (
+      <FlatList
+        horizontal
+        data={items}
+        keyExtractor={(item) => item.id}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        renderItem={({ item }) => (
           <Pressable
-            key={item.id}
             style={styles.item}
             onPress={() => handleSelectOption(item.id)}
           >
             <View style={[styles.iconWrap, { backgroundColor: colors.blue50 }]}>
-              <Image source={item.icon } style={styles.icon} />
+              <Image source={item.icon} style={styles.icon} />
             </View>
             <Text
               weight="semiBold"
@@ -91,8 +102,8 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
               {item.title}
             </Text>
           </Pressable>
-        ))}
-      </View>
+        )}
+      />
     </View>
   );
 }
@@ -103,9 +114,11 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
   },
-  grid: {
-    flexDirection: 'row',
-    gap: 12,
+  listContent: {
+    paddingRight: 4,
+  },
+  separator: {
+    width: 12,
   },
   item: {
     alignItems: 'center',

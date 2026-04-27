@@ -16,6 +16,7 @@ import { getPendingAppRoute } from "../../../navigation/pendingAppRedirect";
 import { showToast } from "../../../components/AppToast";
 import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal";
 import AppPopup from "../../../components/AppPopup";
+import KeyboardDismissWrapper from "../../../components/KeyboardDismissWrapper";
 
 const EnterPassword = ({ route }) => {
   const { emailId } = route.params;
@@ -57,7 +58,7 @@ const EnterPassword = ({ route }) => {
   };
 
   return (
-    <View style={[styles.container]}>
+    <KeyboardDismissWrapper style={styles.container}>
       <ScreenHeader onBack={() => navigation.goBack()} />
 
       {/* Center content container */}
@@ -110,7 +111,7 @@ const EnterPassword = ({ route }) => {
           <TouchableOpacity
             onPress={() =>
               navigation.navigate("forgetPasswordEnterEmail", {
-                email: "test@gmail.com",
+                emailId,
               })
             }
           >
@@ -143,7 +144,7 @@ const EnterPassword = ({ route }) => {
           variant: "danger",
         }}
       />
-    </View>
+    </KeyboardDismissWrapper>
   );
 };
 
