@@ -38,6 +38,7 @@ export type RideSharingStackParamList = {
   RideSharingHome: undefined;
   RideOptions: {
     rideType?: RideIntent;
+    directCourierOnly?: boolean;
   } | undefined;
   RideAddressSearch: {
     rideType?: RideIntent;
