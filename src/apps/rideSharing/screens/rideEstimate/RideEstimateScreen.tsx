@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
@@ -57,6 +57,9 @@ type RouteParams = {
   hourlyHours?: number;
 };
 
+const DEFAULT_PAYMENT_METHOD_ID: PaymentMethodId = 'wallet';
+let lastSelectedPaymentMethodId: PaymentMethodId = DEFAULT_PAYMENT_METHOD_ID;
+
 function resolveRideIcon(name: string) {
   if (/comfort/i.test(name)) return rideEstimateIcons.comfort;
   if (/premium/i.test(name)) return rideEstimateIcons.premiumSedan;
@@ -108,7 +111,7 @@ export default function RideEstimateScreen() {
     stops = [],
     rideCategory,
     offeredFare: initialOfferedFare,
-    paymentMethodId: initialPaymentMethodId = 'wallet',
+    paymentMethodId: initialPaymentMethodId,
     offerMode: initialOfferMode,
     hourlyHours: initialHourlyHours,
   } = route.params as RouteParams;
@@ -130,13 +133,17 @@ export default function RideEstimateScreen() {
     rideCategory ?? (mappedOptions[0]?.id ?? 'ride'),
   );
   const [customFare, setCustomFare] = useState<number | undefined>(initialOfferedFare);
-  const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethodId>(initialPaymentMethodId);
+  const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethodId>(
+    () => initialPaymentMethodId ?? lastSelectedPaymentMethodId,
+  );
   const [isPaymentMethodVisible, setIsPaymentMethodVisible] = useState(false);
   const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
   const [wantsScheduledRide, setWantsScheduledRide] = useState(rideType === 'schedule');
   const [isSchedulePickerVisible, setIsSchedulePickerVisible] = useState(false);
   const [isTripPointsVisible, setIsTripPointsVisible] = useState(false);
   const [isWalletTopUpPromptVisible, setIsWalletTopUpPromptVisible] = useState(false);
+  const [layoutHeight, setLayoutHeight] = useState(0);
+  const [bottomSheetHeight, setBottomSheetHeight] = useState(0);
   const hasPresentedHourlyOfferRef = useRef(false);
   const createRideMutation = useCreateRide();
   const setActiveRideRequest = useActiveRideRequestStore((state) => state.setActiveRideRequest);
@@ -151,7 +158,12 @@ export default function RideEstimateScreen() {
   }), [courierActiveTab, courierToBuilding, courierToDoor]);
 
   useEffect(() => {
+    if (!initialPaymentMethodId) {
+      return;
+    }
+
     setPaymentMethodId(initialPaymentMethodId);
+    lastSelectedPaymentMethodId = initialPaymentMethodId;
   }, [initialPaymentMethodId]);
 
   useEffect(() => {
@@ -206,6 +218,28 @@ export default function RideEstimateScreen() {
   const bottomSheetOptions = isCourierFlow
     ? displayOptions.filter((item) => item.id === resolvedSelectedOptionId)
     : displayOptions;
+
+  const handleLayout = useCallback((event: LayoutChangeEvent) => {
+    setLayoutHeight(event.nativeEvent.layout.height);
+  }, []);
+
+  const handleBottomSheetHeightChange = useCallback((height: number) => {
+    setBottomSheetHeight((previousHeight) => {
+      if (Math.abs(previousHeight - height) < 1) {
+        return previousHeight;
+      }
+
+      return height;
+    });
+  }, []);
+
+  const mapHeight = useMemo(() => {
+    if (layoutHeight <= 0) {
+      return null;
+    }
+
+    return Math.max(layoutHeight - bottomSheetHeight, 0);
+  }, [bottomSheetHeight, layoutHeight]);
 
   const handleEditStop = (stopIndex: number) => {
     const selectedStop = stops[stopIndex];
@@ -423,14 +457,27 @@ export default function RideEstimateScreen() {
     }
   };
 
+  const handleSelectPaymentMethod = (nextPaymentMethodId: PaymentMethodId) => {
+    setPaymentMethodId(nextPaymentMethodId);
+    lastSelectedPaymentMethodId = nextPaymentMethodId;
+    setIsPaymentMethodVisible(false);
+  };
+
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <RideEstimateMapLayer
-        fromAddress={fromAddress}
-        stopAddresses={stops}
-        toAddress={toAddress}
-        routeCoordinates={routeQuery.data ?? []}
-      />
+    <View style={[styles.container, { backgroundColor: colors.background }]} onLayout={handleLayout}>
+      <View
+        style={[
+          styles.mapContainer,
+          mapHeight === null ? styles.mapContainerFallback : { height: mapHeight },
+        ]}
+      >
+        <RideEstimateMapLayer
+          fromAddress={fromAddress}
+          stopAddresses={stops}
+          toAddress={toAddress}
+          routeCoordinates={routeQuery.data ?? []}
+        />
+      </View>
       <RideEstimateAddressSummaryCard
         fromAddress={fromAddress}
         stopAddresses={stops}
@@ -533,16 +580,14 @@ export default function RideEstimateScreen() {
         onRetry={() => quoteQuery.refetch()}
         isConfirmDisabled={quoteQuery.isLoading || quoteQuery.isFetching || !quoteQuery.data || (isCourierFlow && !isCourierDetailsValid)}
         isConfirmLoading={createRideMutation.isPending}
+        onHeightChange={handleBottomSheetHeightChange}
       />
 
       <PaymentMethodBottomSheet
         visible={isPaymentMethodVisible}
         selectedPaymentMethodId={paymentMethodId}
         onClose={() => setIsPaymentMethodVisible(false)}
-        onSelect={(nextPaymentMethodId) => {
-          setPaymentMethodId(nextPaymentMethodId);
-          setIsPaymentMethodVisible(false);
-        }}
+        onSelect={handleSelectPaymentMethod}
       />
 
       <WalletTopUpPromptModal
@@ -591,6 +636,13 @@ export default function RideEstimateScreen() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  mapContainer: {
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  mapContainerFallback: {
     flex: 1,
   },
 });

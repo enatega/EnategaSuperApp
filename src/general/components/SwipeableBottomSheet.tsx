@@ -28,6 +28,7 @@ type Props = {
   onCollapsed?: () => void;
   modal?: boolean;
   enablePanGesture?: boolean;
+  onHeightChange?: (height: number) => void;
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -61,6 +62,7 @@ export default function SwipeableBottomSheet({
   onCollapsed,
   modal = false,
   enablePanGesture = true,
+  onHeightChange,
 }: Props) {
   const normalizedCollapsedHeight = useMemo(
     () => clamp(collapsedHeight, 0, expandedHeight),
@@ -155,6 +157,21 @@ export default function SwipeableBottomSheet({
     normalizedCollapsedHeight,
     onStateChange,
   ]);
+
+  useEffect(() => {
+    if (!onHeightChange) {
+      return;
+    }
+
+    onHeightChange?.(startHeight.current);
+    const listenerId = animatedHeight.addListener(({ value }) => {
+      onHeightChange?.(value);
+    });
+
+    return () => {
+      animatedHeight.removeListener(listenerId);
+    };
+  }, [animatedHeight, onHeightChange]);
 
   const animateTo = (state: BottomSheetState) => {
     const targetHeight = getHeightForState(state);

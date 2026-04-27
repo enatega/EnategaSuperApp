@@ -1,10 +1,11 @@
 import React, { memo } from 'react';
-import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Icon from '../../../../../general/components/Icon';
 import Text from '../../../../../general/components/Text';
 import Button from '../../../../../general/components/Button';
 import { useTheme } from '../../../../../general/theme/theme';
+import { openEmergencyDialer, resolveEmergencyNumber } from '../../../utils/safety';
 
 type ActionTileProps = {
   iconName: string;
@@ -37,14 +38,15 @@ type Props = {
 function SafetyActionGrid({ emergencyNumber, onShareRide, onSupport, onEmergencyContacts }: Props) {
   const { t } = useTranslation('rideSharing');
   const { colors } = useTheme();
+  const resolvedEmergencyNumber = resolveEmergencyNumber(emergencyNumber);
+  const hasProvidedEmergencyNumber = Boolean(emergencyNumber?.trim());
 
   const handleCallEmergency = () => {
-    const number = emergencyNumber ?? '15';
-    Linking.openURL(`tel:${number}`);
+    void openEmergencyDialer(emergencyNumber);
   };
 
-  const callLabel = emergencyNumber
-    ? `${t('safety_call_emergency')} ${emergencyNumber}`
+  const callLabel = hasProvidedEmergencyNumber
+    ? `${t('safety_call_emergency')} ${resolvedEmergencyNumber}`
     : t('safety_call_emergency');
 
   return (
