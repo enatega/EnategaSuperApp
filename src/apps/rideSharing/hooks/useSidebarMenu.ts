@@ -33,7 +33,11 @@ export type ProfileStackParamList = {
   Appearance: undefined;
 };
 
-export function useSidebarMenu() {
+type UseSidebarMenuParams = {
+  onPaymentMethodsPress?: () => void;
+};
+
+export function useSidebarMenu({ onPaymentMethodsPress }: UseSidebarMenuParams = {}) {
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
   const { mutate: logout } = useAppLogout();
@@ -52,14 +56,14 @@ export function useSidebarMenu() {
 
   // Default ride-sharing menu items
   const menuItems: MenuItem[] = [
-    {
-      id: 'lo-drive',
-      icon: 'car-outline',
-      iconLibrary: 'Ionicons',
-      titleKey: 'sidebar_lo_drive',
-      showChevron: true,
-      onPress: () => console.log('LO Drive pressed'),
-    },
+    // {
+    //   id: 'lo-drive',
+    //   icon: 'car-outline',
+    //   iconLibrary: 'Ionicons',
+    //   titleKey: 'sidebar_lo_drive',
+    //   showChevron: true,
+    //   onPress: () => console.log('LO Drive pressed'),
+    // },
     {
       id: 'reservations',
       icon: 'calendar-outline',
@@ -82,14 +86,14 @@ export function useSidebarMenu() {
         navigation.navigate('RideHistory');
       },
     },
-    {
-      id: 'payment-methods',
-      icon: 'card-outline',
-      iconLibrary: 'Ionicons',
-      titleKey: 'sidebar_payment_methods',
-      showChevron: true,
-      onPress: () => console.log('Payment Methods pressed'),
-    },
+    // {
+    //   id: 'payment-methods',
+    //   icon: 'card-outline',
+    //   iconLibrary: 'Ionicons',
+    //   titleKey: 'sidebar_payment_methods',
+    //   showChevron: true,
+    //   onPress: onPaymentMethodsPress,
+    // },
     {
       id: 'wallet',
       icon: 'wallet-outline',

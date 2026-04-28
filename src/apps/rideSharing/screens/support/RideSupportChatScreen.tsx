@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Keyboard,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   RefreshControl,
   ScrollView,
@@ -47,6 +48,8 @@ type SupportMessageItem = {
   text: string;
   timeLabel?: string;
 };
+
+const SUPPORT_PHONE_NUMBER = '+14232900408';
 
 export default function RideSupportChatScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
@@ -116,12 +119,6 @@ export default function RideSupportChatScreen() {
     }
   }, [chatBoxId, fallbackChatBox, myActiveMessagesQuery.data, route.params?.chatBoxId]);
 
-  useEffect(() => {
-    if (baseServerMessages.length > 0 && pendingMessages.length > 0) {
-      setPendingMessages([]);
-    }
-  }, [baseServerMessages, pendingMessages.length]);
-
   const baseServerMessages = useMemo(() => {
     const activeMessages = getRideSupportChatMessages(myActiveMessagesQuery.data);
     if (activeMessages.length > 0) {
@@ -151,6 +148,15 @@ export default function RideSupportChatScreen() {
     () => [...conversationMessages, ...pendingMessages],
     [conversationMessages, pendingMessages],
   );
+  const isConversationLoading =
+    (myActiveMessagesQuery.isPending || chatBoxesQuery.isPending || (chatBoxId && chatMessagesQuery.isPending))
+    && messages.length === 0;
+
+  useEffect(() => {
+    if (baseServerMessages.length > 0 && pendingMessages.length > 0) {
+      setPendingMessages([]);
+    }
+  }, [baseServerMessages, pendingMessages.length]);
 
   const quickReplies = useMemo(
     () => [
@@ -247,6 +253,14 @@ export default function RideSupportChatScreen() {
   }, [t]);
 
   const shouldShowQuickReplies = !messages.length && !isKeyboardVisible;
+  const handleCallSupport = useCallback(async () => {
+    try {
+      await Linking.openURL(`tel:${SUPPORT_PHONE_NUMBER}`);
+    } catch {
+      showToast.error(t('ride_active_dialer_unavailable'));
+    }
+  }, [t]);
+
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
     try {
@@ -265,6 +279,9 @@ export default function RideSupportChatScreen() {
       <SupportHeader
         backAccessibilityLabel={t('back_button')}
         rightAccessibilityLabel={t('sidebar_support')}
+        onRightPress={() => {
+          void handleCallSupport();
+        }}
         title={t('ride_support_chat_title')}
       />
 
@@ -289,7 +306,7 @@ export default function RideSupportChatScreen() {
             />
           )}
         >
-          {myActiveMessagesQuery.isPending || chatBoxesQuery.isPending || (chatBoxId && chatMessagesQuery.isPending) ? (
+          {isConversationLoading ? (
             <View style={styles.centerState}>
               <ChatMessageBubble
                 isCurrentUser={false}

@@ -119,6 +119,10 @@ export type RideSharingStackParamList = {
     driverAvatarUri?: string;
     driverRating?: number;
     vehicleLabel?: string;
+    pickupLatitude?: number;
+    pickupLongitude?: number;
+    dropoffLatitude?: number;
+    dropoffLongitude?: number;
   };
   RideSupportChat: {
     chatBoxId?: string;

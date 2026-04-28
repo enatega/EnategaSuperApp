@@ -223,7 +223,7 @@ const en = {
   ride_active_contact_driver: 'Contact Driver',
   ride_active_contact_courier: 'Contact Courier',
   ride_chat_loading: 'Loading conversation...',
-  ride_chat_auto_message: 'How can we help you?\n[Automessage]',
+  ride_chat_auto_message: 'How can we help you?',
   ride_chat_auto_time: '8:29 pm',
   ride_chat_quick_reply_here: 'I’m here',
   ride_chat_quick_reply_hello: 'Hello',
