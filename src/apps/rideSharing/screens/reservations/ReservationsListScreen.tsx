@@ -8,7 +8,7 @@ import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import ReservationCard from '../../components/reservation/ReservationCard';
 import ReservationListSkeleton from '../../components/reservation/ReservationListSkeleton';
-import { useCustomerRides } from '../../hooks/useRideQueries';
+import { useCustomerScheduledRides } from '../../hooks/useRideQueries';
 import { mapCustomerRideToReservation } from '../../utils/rideMapper';
 import type { RideSharingStackParamList } from '../../navigation/RideSharingNavigator';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -28,7 +28,7 @@ export default function ReservationsListScreen() {
     fetchNextPage,
     error,
     refetch,
-  } = useCustomerRides();
+  } = useCustomerScheduledRides();
   const [refreshing, setRefreshing] = useState(false);
 
   const reservations = useMemo(() => {

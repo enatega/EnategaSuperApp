@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Linking, Platform, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { LatLng } from 'react-native-maps';
@@ -202,15 +202,15 @@ function ActiveRideView({ activeRide }: Props) {
     : null;
   const stopAddresses = rideId
     ? activeRide.stops.flatMap((stop, index) => {
-        const stopLabel = readString(stop?.address);
-        const stopCoordinates = readCoordinates(stop);
+      const stopLabel = readString(stop?.address);
+      const stopCoordinates = readCoordinates(stop);
 
-        if (!stopLabel || !stopCoordinates) {
-          return [];
-        }
+      if (!stopLabel || !stopCoordinates) {
+        return [];
+      }
 
-        return [createAddressSelection(rideId, 'stop', stopLabel, stopCoordinates, String(index + 1))];
-      })
+      return [createAddressSelection(rideId, 'stop', stopLabel, stopCoordinates, String(index + 1))];
+    })
     : [];
   const {
     canCancelRide,
@@ -249,8 +249,73 @@ function ActiveRideView({ activeRide }: Props) {
   }, [driverAvatarUri, driverName, driverRating, vehicleColor, vehicleName, navigation]);
 
   const handleShareRide = useCallback(() => {
-    showToast.info(t('ride_active_share_coming_soon'));
-  }, [t]);
+    const originLatitude = fromAddress?.coordinates.latitude;
+    const originLongitude = fromAddress?.coordinates.longitude;
+    const destinationLatitude = toAddress?.coordinates.latitude;
+    const destinationLongitude = toAddress?.coordinates.longitude;
+
+
+    if (
+      originLatitude === undefined
+      || originLongitude === undefined
+      || destinationLatitude === undefined
+      || destinationLongitude === undefined
+    ) {
+      showToast.error(t('error'), t('ride_active_map_open_error'));
+      return;
+    }
+
+    const openMaps = async () => {
+      try {
+        if (Platform.OS === 'ios') {
+          const appleMapsUrl = `http://maps.apple.com/?saddr=${originLatitude},${originLongitude}&daddr=${destinationLatitude},${destinationLongitude}&dirflg=d`;
+          console.log('[ActiveRideView][ShareRide] Apple Maps URL:', appleMapsUrl);
+          const canOpenAppleMaps = await Linking.canOpenURL(appleMapsUrl);
+          console.log('[ActiveRideView][ShareRide] canOpenAppleMaps:', canOpenAppleMaps);
+
+          if (!canOpenAppleMaps) {
+            showToast.error(t('error'), t('ride_active_map_unavailable'));
+            return;
+          }
+
+          await Linking.openURL(appleMapsUrl);
+          return;
+        }
+
+        const googleNavigationUrl = `google.navigation:q=${destinationLatitude},${destinationLongitude}&mode=d`;
+        console.log('[ActiveRideView][ShareRide] Google Navigation URL:', googleNavigationUrl);
+        const canOpenGoogleNavigation = await Linking.canOpenURL(googleNavigationUrl);
+        console.log('[ActiveRideView][ShareRide] canOpenGoogleNavigation:', canOpenGoogleNavigation);
+
+        if (canOpenGoogleNavigation) {
+          await Linking.openURL(googleNavigationUrl);
+          return;
+        }
+
+        const googleMapsWebDirectionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${originLatitude},${originLongitude}&destination=${destinationLatitude},${destinationLongitude}&travelmode=driving`;
+        console.log('[ActiveRideView][ShareRide] Google Maps Web URL:', googleMapsWebDirectionsUrl);
+        const canOpenGoogleMapsWeb = await Linking.canOpenURL(googleMapsWebDirectionsUrl);
+        console.log('[ActiveRideView][ShareRide] canOpenGoogleMapsWeb:', canOpenGoogleMapsWeb);
+
+        if (!canOpenGoogleMapsWeb) {
+          showToast.error(t('error'), t('ride_active_map_unavailable'));
+          return;
+        }
+
+        await Linking.openURL(googleMapsWebDirectionsUrl);
+      } catch {
+        showToast.error(t('error'), t('ride_active_map_open_error'));
+      }
+    };
+
+    void openMaps();
+  }, [
+    fromAddress?.coordinates.latitude,
+    fromAddress?.coordinates.longitude,
+    t,
+    toAddress?.coordinates.latitude,
+    toAddress?.coordinates.longitude,
+  ]);
 
   const handleEmergencyPress = useCallback(() => {
     void openEmergencyDialer(emergencyContact?.contact_number).catch(() => {

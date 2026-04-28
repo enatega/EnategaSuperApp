@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type {
@@ -14,6 +14,7 @@ import { useFindingRideController } from '../hooks/useFindingRideController';
 import type { FindingRideViewProps } from '../types/view';
 import { isCourierRideRequest } from '../../../utils/courierBooking';
 import { useRideBidsStore } from '../../../stores/useRideBidsStore';
+import CancelRideBottomSheet from '../../../components/reservation/CancelRideBottomSheet';
 
 function toAddressSelection(
   requestId: string,
@@ -92,6 +93,7 @@ export default function FindingRideView({
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
   const bidsCount = useRideBidsStore((state) => state.bids.length);
+  const [isCancelSheetVisible, setIsCancelSheetVisible] = useState(false);
   const fromAddress = useMemo(() => toAddressSelection(
     activeRideRequest.id,
     'pickup',
@@ -162,6 +164,25 @@ export default function FindingRideView({
     selectedRide,
     ...props,
   });
+  const openCancelSheet = useCallback(() => {
+    if (controller.isCancelLoading) {
+      return;
+    }
+
+    setIsCancelSheetVisible(true);
+  }, [controller.isCancelLoading]);
+
+  const closeCancelSheet = useCallback(() => {
+    if (controller.isCancelLoading) {
+      return;
+    }
+
+    setIsCancelSheetVisible(false);
+  }, [controller.isCancelLoading]);
+
+  const confirmCancelRide = useCallback(() => {
+    void controller.handleCancelRide();
+  }, [controller]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -193,7 +214,7 @@ export default function FindingRideView({
         isDecreaseDisabled={controller.isDecreaseDisabled}
         onKeepSearching={controller.handleKeepSearching}
         isKeepSearchingLoading={controller.isKeepSearchingLoading}
-        onCancelRide={controller.handleCancelRide}
+        onCancelRide={openCancelSheet}
         isCancelLoading={controller.isCancelLoading}
         floatingAccessory={(
           <FindingRideBidsList
@@ -204,6 +225,15 @@ export default function FindingRideView({
             isInteractionLocked={controller.isBidInteractionLocked}
           />
         )}
+      />
+      <CancelRideBottomSheet
+        isVisible={isCancelSheetVisible}
+        onClose={closeCancelSheet}
+        onConfirmCancel={confirmCancelRide}
+        isLoading={controller.isCancelLoading}
+        title={t('reservation_confirm_cancel_title')}
+        confirmLabel={t('reservation_confirm_cancel_yes')}
+        continueLabel={t('reservation_confirm_cancel_no')}
       />
     </View>
   );

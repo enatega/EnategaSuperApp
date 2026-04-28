@@ -16,6 +16,7 @@ type Props = {
   isLoadingRideTypes?: boolean;
   rideTypesErrorMessage?: string | null;
   onRetryRideTypes?: () => void;
+  isDirectCourierFlow?: boolean;
 };
 
 function RideOptionsLayout({
@@ -28,6 +29,7 @@ function RideOptionsLayout({
   isLoadingRideTypes = false,
   rideTypesErrorMessage = null,
   onRetryRideTypes,
+  isDirectCourierFlow = false,
 }: Props) {
   const {
     currentCoordinates,
@@ -85,6 +87,7 @@ function RideOptionsLayout({
         rideTypesErrorMessage={rideTypesErrorMessage}
         onRetryRideTypes={onRetryRideTypes}
         onHeightChange={handleBottomSheetHeightChange}
+        isDirectCourierFlow={isDirectCourierFlow}
       />
     </View>
   );

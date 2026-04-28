@@ -14,6 +14,7 @@ type Props = {
   onSelectCategory: (category: RideCategory) => void;
   onSearchPress: () => void;
   searchDisabled?: boolean;
+  hideOptionsRow?: boolean;
 };
 
 function RideOptionsHeader({
@@ -22,6 +23,7 @@ function RideOptionsHeader({
   onSelectCategory,
   onSearchPress,
   searchDisabled = false,
+  hideOptionsRow = false,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
@@ -39,14 +41,16 @@ function RideOptionsHeader({
 
   return (
     <>
-      <FlatList
-        data={rideOptions}
-        keyExtractor={(item) => item.id}
-        renderItem={renderRideOption}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.optionsRow}
-      />
+      {hideOptionsRow ? null : (
+        <FlatList
+          data={rideOptions}
+          keyExtractor={(item) => item.id}
+          renderItem={renderRideOption}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.optionsRow}
+        />
+      )}
       <Pressable
         onPress={() => onSearchPress()}
         disabled={searchDisabled}
