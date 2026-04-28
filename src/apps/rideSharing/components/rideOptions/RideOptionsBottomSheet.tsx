@@ -13,6 +13,7 @@ import RideOptionsHeader from './RideOptionsHeader';
 import CachedAddressList from './CachedAddressList';
 import RideOptionsBottomSheetSkeleton from './RideOptionsBottomSheetSkeleton';
 import RideOptionsBottomSheetError from './RideOptionsBottomSheetError';
+import NoAddressEmptyState from './NoAddressEmptyState';
 
 type Props = {
   rideOptions: RideOptionItem[];
@@ -110,6 +111,7 @@ function RideOptionsBottomSheet({
           data={cachedAddresses}
           onSelect={onSearchPress}
           contentContainerStyle={styles.sheetContent}
+          ListEmptyComponent={<NoAddressEmptyState />}
           ListHeaderComponent={(
             <RideOptionsHeader
               rideOptions={rideOptions}
