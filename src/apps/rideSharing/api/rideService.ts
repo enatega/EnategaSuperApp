@@ -280,7 +280,6 @@ export const rideService = {
         const response = await apiClient.get<unknown>(
             `/api/v1/rides/drivers/nearby/${latitude}/${longitude}/${radiusKm}`,
             undefined,
-            { skipAuth: true },
         );
 
         return rideService.normalizeNearbyDrivers(response);

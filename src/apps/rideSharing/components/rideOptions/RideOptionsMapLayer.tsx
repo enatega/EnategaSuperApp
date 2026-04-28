@@ -5,6 +5,7 @@ import { useTheme } from '../../../../general/theme/theme';
 import Image from '../../../../general/components/Image';
 import Icon from '../../../../general/components/Icon';
 import Map, { MapMarker } from '../../../../general/components/Map';
+import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
 import type { RideAddressSelection } from '../../api/types';
 import type { CachedAddress } from './types';
 import { useNearbyDrivers } from '../../hooks/useRideQueries';
@@ -31,6 +32,7 @@ type Props = {
   fromAddress?: RideAddressSelection;
   stopAddresses?: RideAddressSelection[];
   toAddress?: RideAddressSelection;
+  enableNearbyDrivers?: boolean;
 };
 
 function getRegionFromCoordinates(coordinates: LatLng): Region {
@@ -47,19 +49,29 @@ function RideOptionsMapLayer({
   fromAddress,
   stopAddresses = [],
   toAddress,
+  enableNearbyDrivers = true,
 }: Props) {
   const { colors } = useTheme();
+  const authSessionQuery = useAuthSessionQuery();
   const mapRef = useRef<MapView | null>(null);
   const firstCachedCoordinates = cachedAddresses.find((item) => item.coordinates)?.coordinates ?? null;
   const tripPoints = useMemo(
     () => [fromAddress, ...stopAddresses, toAddress].filter(Boolean) as RideAddressSelection[],
     [fromAddress, stopAddresses, toAddress],
   );
+  const isAuthenticated = Boolean(authSessionQuery.data?.token && authSessionQuery.data?.user?.id);
+  const shouldFetchNearbyDrivers = Boolean(
+    enableNearbyDrivers
+    && isAuthenticated
+    && typeof currentCoordinates?.latitude === 'number'
+    && typeof currentCoordinates?.longitude === 'number',
+  );
   const nearbyDriversQuery = useNearbyDrivers(
     currentCoordinates?.latitude,
     currentCoordinates?.longitude,
     NEARBY_RADIUS_KM,
     {
+      enabled: shouldFetchNearbyDrivers,
       placeholderData: (previousData) => previousData,
     },
   );

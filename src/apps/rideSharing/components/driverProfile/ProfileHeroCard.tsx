@@ -10,6 +10,7 @@ import type { DriverProfileData } from './types';
 
 type Props = {
   data: DriverProfileData;
+  onAvatarPress?: () => void;
 };
 
 export default function ProfileHeroCard({ data }: Props) {
@@ -20,7 +21,12 @@ export default function ProfileHeroCard({ data }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.avatarWrap}>
-        <ProfileAvatar uri={data.profile.profilePic} name={data.profile.name} size={96} />
+        <ProfileAvatar
+          uri={data.profile.profilePic}
+          name={data.profile.name}
+          size={96}
+          onPress={onAvatarPress}
+        />
       </View>
 
       <View style={styles.nameRow}>

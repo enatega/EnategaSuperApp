@@ -47,6 +47,7 @@ const ForgetPasswordEnterOtp = ({ route }) => {
       showToast.success("Success!", data?.message);
       navigation.navigate("createNewPassword", {
         userId: data.userId,
+        emailId,
       } as never);
       setOtpType("sms")
     },

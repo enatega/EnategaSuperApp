@@ -1,3 +1,7 @@
+
+import FullImagePreviewModal from '../../../../general/components/FullImagePreviewModal';
+import { showToast } from '../../../../general/components/AppToast';
+
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
@@ -47,6 +51,8 @@ const FALLBACK_USER_ID = '918430de-31cd-41f7-bb13-8297f90c4f5d';
 export default function DriverProfileScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
+  const [isImagePreviewVisible, setIsImagePreviewVisible] = React.useState(false);
+
   const route = useRoute<DriverProfileRouteProp>();
   const [activeTab, setActiveTab] = useState<DriverProfileTab>('reviews');
 
@@ -98,13 +104,24 @@ export default function DriverProfileScreen() {
       vehicleColor: riderVehicleInfoQuery.data?.vehicleColor ?? profileData.vehicle.vehicleColor,
     },
   };
+  const profileImageUri = profileData.profile.profilePic?.trim() ?? '';
+
+  const handleAvatarPress = () => {
+    if (!profileImageUri) {
+      showToast.error(t('error'), t('ride_profile_photo_unavailable'));
+      return;
+    }
+
+    setIsImagePreviewVisible(true);
+  };
+
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.backgroundTertiary }]}>
       <ScreenHeader style={{ backgroundColor: colors.backgroundTertiary }} />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <ProfileHeroCard data={profileDataWithVehicle} />
+        <ProfileHeroCard data={profileDataWithVehicle} onAvatarPress={handleAvatarPress}/>
 
         <DriverProfileTabs
           activeTab={activeTab}
@@ -140,6 +157,12 @@ export default function DriverProfileScreen() {
           <DriverInformationSection data={profileDataWithVehicle} />
         )}
       </ScrollView>
+
+      <FullImagePreviewModal
+        visible={isImagePreviewVisible}
+        imageUri={profileImageUri}
+        onClose={() => setIsImagePreviewVisible(false)}
+      />
     </View>
   );
 }

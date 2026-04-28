@@ -66,6 +66,7 @@ const en = {
   details_body: 'Ride details and driver information.',
   driver_profile_title: 'Driver Profile',
   driver_profile_button: 'Driver Profile',
+  ride_profile_photo_unavailable: 'No profile photo available.',
   driver_profile_label_rides: 'Rides',
   driver_profile_label_joined_us: 'Joined us',
   driver_profile_label_rating: 'Rating',

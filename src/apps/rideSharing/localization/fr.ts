@@ -66,6 +66,7 @@ const fr = {
   details_body: 'Détails du trajet et informations sur le conducteur.',
   driver_profile_title: 'Profil du Conducteur',
   driver_profile_button: 'Profil du Conducteur',
+  ride_profile_photo_unavailable: 'Aucune photo de profil disponible.',
   driver_profile_label_rides: 'Trajets',
   driver_profile_label_joined_us: 'Inscrit',
   driver_profile_label_rating: 'Note',

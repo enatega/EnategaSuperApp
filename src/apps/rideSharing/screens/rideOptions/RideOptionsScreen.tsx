@@ -17,6 +17,8 @@ import Sidebar, { type UserProfile } from '../../components/Sidebar';
 import { useSidebarMenu } from '../../hooks/useSidebarMenu';
 import { useProfile } from '../../hooks/useProfile';
 import { resetToSharedHome } from '../../../../general/navigation/rootNavigation';
+import { useActiveRideStore } from '../../stores/useActiveRideStore';
+import { useActiveRideRequestStore } from '../../stores/useActiveRideRequestStore';
 
 type RouteParams = {
   rideType?: RideIntent;
@@ -87,7 +89,10 @@ export default function RideOptionsScreen() {
   const rideType = (route.params as RouteParams | undefined)?.rideType;
   const directCourierOnly = (route.params as RouteParams | undefined)?.directCourierOnly ?? false;
   const { recentAddresses } = useRecentRideAddresses();
+  const activeRide = useActiveRideStore((state) => state.activeRide);
+  const activeRideRequest = useActiveRideRequestStore((state) => state.activeRideRequest);
   const [selectedCategory, setSelectedCategory] = useState<RideCategory | null>(null);
+  const enableNearbyDrivers = !activeRide && !activeRideRequest;
 
   const rideTypesQuery = useRideTypes({
     gcTime: 5 * 60 * 1000,
@@ -189,6 +194,7 @@ export default function RideOptionsScreen() {
       <RideOptionsLayout
         rideOptions={visibleRideOptions}
         cachedAddresses={cachedAddresses}
+        enableNearbyDrivers={enableNearbyDrivers}
         selectedCategory={selectedCategory}
         onSelectCategory={handleSelectCategory}
         onSearchPress={handleSearchPress}

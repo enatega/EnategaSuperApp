@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
@@ -32,6 +32,10 @@ export default function EmailInputComponent({
   const { t } = useTranslation();
   const [email, setEmail] = useState(emailId ?? '');
   const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  useEffect(() => {
+    setEmail(emailId ?? "");
+  }, [emailId]);
 
   const isFormValid = email.trim().length > 0 && isValidEmail(email);
 

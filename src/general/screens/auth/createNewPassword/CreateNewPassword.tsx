@@ -17,7 +17,7 @@ import { useAuthStore } from "../../../stores/useAuthStore";
 import KeyboardDismissWrapper from "../../../components/KeyboardDismissWrapper";
 
 const CreateNewPassword = ({ route }) => {
-  const { userId } = route.params;
+  const { userId, emailId } = route.params;
   const { colors } = useTheme();
   const navigation = useNavigation();
   const styles = useStyles(colors);
@@ -33,7 +33,13 @@ const CreateNewPassword = ({ route }) => {
     onSuccess: (data) => {
       showToast.success("Success!", data.message);
       setFlowType("login");
-      navigation.navigate("enterEmail" as never);
+      navigation.reset({
+        index: 1,
+        routes: [
+          { name: "login" as never },
+          { name: "enterEmail" as never, params: { emailId } as never },
+        ],
+      });
     },
     onError: (error) => {
       setHasError(true);

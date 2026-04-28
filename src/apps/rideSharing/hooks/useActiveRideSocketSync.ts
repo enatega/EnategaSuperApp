@@ -141,7 +141,13 @@ export default function useActiveRideSocketSync(options?: Options) {
       return;
     }
 
-    if (activeRideQuery.data !== activeRide) {
+    // Do not overwrite live socket-updated ride state for the same ride.
+    // The query cache is bootstrap data (staleTime: Infinity) and may lag behind.
+    const queryRideId = readString(activeRideQuery.data.ride_id);
+    const currentRideId = readString(activeRide?.ride_id);
+    const shouldHydrateFromQuery = !currentRideId || (queryRideId && queryRideId !== currentRideId);
+
+    if (shouldHydrateFromQuery) {
       clearActiveRideRequest();
       setActiveRide(activeRideQuery.data);
     }
