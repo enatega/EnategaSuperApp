@@ -48,3 +48,8 @@ export type {
 
 // User service
 export { userService } from './userService';
+export type {
+    UserNotificationItem,
+    UserNotificationsQueryParams,
+    UserNotificationsResponse,
+} from './userService';

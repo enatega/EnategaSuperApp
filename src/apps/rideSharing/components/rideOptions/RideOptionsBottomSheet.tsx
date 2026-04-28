@@ -26,6 +26,7 @@ type Props = {
   isLoadingRideTypes?: boolean;
   rideTypesErrorMessage?: string | null;
   onRetryRideTypes?: () => void;
+  isDirectCourierFlow?: boolean;
 };
 
 function RideOptionsBottomSheet({
@@ -40,12 +41,18 @@ function RideOptionsBottomSheet({
   isLoadingRideTypes = false,
   rideTypesErrorMessage = null,
   onRetryRideTypes,
+  isDirectCourierFlow = false,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
-  const expandedHeight = Math.min(screenHeight * 0.6, 520);
+  const expandedHeight = isDirectCourierFlow
+    ? Math.min(screenHeight * 0.8, screenHeight - 32)
+    : Math.min(screenHeight * 0.6, 520);
+  const defaultHeight = isDirectCourierFlow
+    ? expandedHeight
+    : undefined;
   const collapsedHeight = 120;
   const showErrorState = Boolean(rideTypesErrorMessage) && !isLoadingRideTypes;
   const searchDisabled = !selectedCategory || isLoadingRideTypes || showErrorState;
@@ -53,6 +60,7 @@ function RideOptionsBottomSheet({
   return (
     <SwipeableBottomSheet
       expandedHeight={expandedHeight}
+      defaultHeight={defaultHeight}
       collapsedHeight={collapsedHeight + insets.bottom}
       floatingAccessory={(
         <View style={styles.floatingAccessoryContent}>
@@ -106,6 +114,7 @@ function RideOptionsBottomSheet({
               onSelectCategory={onSelectCategory}
               onSearchPress={onSearchPress}
               searchDisabled={searchDisabled}
+              hideOptionsRow={isDirectCourierFlow}
             />
           )}
         />

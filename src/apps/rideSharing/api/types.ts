@@ -522,6 +522,16 @@ export interface DriverProfileStats {
 }
 
 // ---------------------------------------------------------------------------
+// Rider Vehicle Info (/api/v1/ride-vehicles/rider/:riderId/vehicle-info)
+// ---------------------------------------------------------------------------
+
+export interface RiderVehicleInfo {
+    vehicleName: string | null;
+    vehicleNo: string | null;
+    vehicleColor: string | null;
+}
+
+// ---------------------------------------------------------------------------
 // User  (/api/v1/users)
 // ---------------------------------------------------------------------------
 

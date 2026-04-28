@@ -41,15 +41,27 @@ export const rideKeys = {
   chatBoxes: (userId: string) => [...rideKeys.chat(), 'boxes', userId] as const,
   chatMessages: (chatBoxId: string) => [...rideKeys.chat(), 'messages', chatBoxId] as const,
   supportChat: () => [...rideKeys.all, 'support-chat'] as const,
+  supportChatBoxes: (filters: Record<string, unknown>) =>
+    [...rideKeys.supportChat(), 'boxes', filters] as const,
+  supportChatBoxesByUser: (userId: string, filters: Record<string, unknown>) =>
+    [...rideKeys.supportChat(), 'boxes', 'user', userId, filters] as const,
+  supportChatBox: (chatBoxId: string) =>
+    [...rideKeys.supportChat(), 'box', chatBoxId] as const,
   supportChatMessages: (chatBoxId: string) => [...rideKeys.supportChat(), 'messages', chatBoxId] as const,
+  supportChatMyActiveMessages: (userId: string) =>
+    [...rideKeys.supportChat(), 'my-active-messages', userId] as const,
 
   // Profile / Stats
   stats: () => [...rideKeys.all, 'stats'] as const,
   stat: (userId: string) => [...rideKeys.stats(), userId] as const,
+  riderVehicleInfo: (riderId: string) => [...rideKeys.stats(), 'rider-vehicle', riderId] as const,
 
   // Customer Rides
   customerRides: () => [...rideKeys.all, 'customer'] as const,
   customerRideList: (offset: number) => [...rideKeys.customerRides(), offset] as const,
+  customerScheduledRides: () => [...rideKeys.customerRides(), 'scheduled'] as const,
+  customerScheduledRideList: (offset: number) =>
+    [...rideKeys.customerScheduledRides(), offset] as const,
   customerRideDetail: (rideId: string) => [...rideKeys.customerRides(), 'detail', rideId] as const,
 };
 
@@ -62,6 +74,11 @@ export const userKeys = {
   /** Current authenticated user profile. */
   profile: () => [...userKeys.all, 'profile'] as const,
   walletBalance: () => [...userKeys.all, 'wallet-balance'] as const,
+  notifications: () => [...userKeys.all, 'notifications'] as const,
+  notificationsToday: (userId: string, limit: number, search?: string) =>
+    [...userKeys.notifications(), 'today', userId, limit, search ?? ''] as const,
+  notificationsPast: (userId: string, limit: number, search?: string) =>
+    [...userKeys.notifications(), 'past', userId, limit, search ?? ''] as const,
 
 };
 
