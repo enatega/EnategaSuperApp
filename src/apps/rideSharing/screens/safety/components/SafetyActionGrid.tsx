@@ -62,11 +62,11 @@ function SafetyActionGrid({ emergencyNumber, onShareRide, onSupport, onEmergency
           label={t('safety_action_support')}
           onPress={onSupport}
         />
-        <ActionTile
+        {/* <ActionTile
           iconName="users"
           label={t('safety_action_emergency_contacts')}
           onPress={onEmergencyContacts}
-        />
+        /> */}
       </View>
       <Button
         label={callLabel}

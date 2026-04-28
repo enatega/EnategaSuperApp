@@ -19,6 +19,12 @@ import { useProfile } from '../../hooks/useProfile';
 import { resetToSharedHome } from '../../../../general/navigation/rootNavigation';
 import { useActiveRideStore } from '../../stores/useActiveRideStore';
 import { useActiveRideRequestStore } from '../../stores/useActiveRideRequestStore';
+import PaymentMethodBottomSheet from '../../components/payment/PaymentMethodBottomSheet';
+import type { PaymentMethodId } from '../../components/payment/paymentTypes';
+import {
+  getSavedRideEstimatePaymentMethod,
+  saveRideEstimatePaymentMethod,
+} from '../../storage/rideEstimatePaymentMethod';
 
 type RouteParams = {
   rideType?: RideIntent;
@@ -83,7 +89,6 @@ export default function RideOptionsScreen() {
   const { t } = useTranslation('rideSharing');
   const { colors } = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
-  const { sidebarVisible, openSidebar, closeSidebar, menuItems, handleLogout, handleProfilePress } = useSidebarMenu();
   const { userProfile: apiProfile } = useProfile();
   const route = useRoute();
   const rideType = (route.params as RouteParams | undefined)?.rideType;
@@ -92,7 +97,22 @@ export default function RideOptionsScreen() {
   const activeRide = useActiveRideStore((state) => state.activeRide);
   const activeRideRequest = useActiveRideRequestStore((state) => state.activeRideRequest);
   const [selectedCategory, setSelectedCategory] = useState<RideCategory | null>(null);
+  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<PaymentMethodId | null>(null);
+  const [isPaymentMethodVisible, setIsPaymentMethodVisible] = useState(false);
   const enableNearbyDrivers = !activeRide && !activeRideRequest;
+  const {
+    sidebarVisible,
+    openSidebar,
+    closeSidebar,
+    menuItems,
+    handleLogout,
+    handleProfilePress,
+  } = useSidebarMenu({
+    onPaymentMethodsPress: () => {
+      closeSidebar();
+      setIsPaymentMethodVisible(true);
+    },
+  });
 
   const rideTypesQuery = useRideTypes({
     gcTime: 5 * 60 * 1000,
@@ -131,6 +151,25 @@ export default function RideOptionsScreen() {
       setSelectedCategory(resolveInitialRideTypeId(visibleRideOptions, rideType));
     }
   }, [rideType, selectedCategory, visibleRideOptions]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const hydratePaymentMethod = async () => {
+      const savedPaymentMethodId = await getSavedRideEstimatePaymentMethod();
+      if (!isMounted) {
+        return;
+      }
+
+      setSelectedPaymentMethodId(savedPaymentMethodId);
+    };
+
+    void hydratePaymentMethod();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const cachedAddresses = useMemo<CachedAddress[]>(
     () => recentAddresses.map(toCachedAddress),
@@ -224,6 +263,17 @@ export default function RideOptionsScreen() {
         menuItems={menuItems}
         onLogout={handleLogout}
         onProfilePress={handleProfilePress}
+      />
+
+      <PaymentMethodBottomSheet
+        visible={isPaymentMethodVisible}
+        selectedPaymentMethodId={selectedPaymentMethodId}
+        onClose={() => setIsPaymentMethodVisible(false)}
+        onSelect={(paymentMethodId) => {
+          setSelectedPaymentMethodId(paymentMethodId);
+          void saveRideEstimatePaymentMethod(paymentMethodId);
+          setIsPaymentMethodVisible(false);
+        }}
       />
     </View>
   );

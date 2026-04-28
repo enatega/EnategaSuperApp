@@ -4,7 +4,7 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Toast from 'react-native-toast-message';
+import { showToast } from '../../components/AppToast';
 import Button from '../../components/Button';
 import ScreenHeader from '../../components/ScreenHeader';
 import { useTheme } from '../../theme/theme';
@@ -61,10 +61,10 @@ export default function AddressDetailScreen() {
       try {
         if (isEditing && params.editAddressId) {
           await addressService.updateAddress(params?.appPrefix, params.editAddressId, payload);
-          Toast.show({ type: 'success', text1: t('address_update_success') });
+          showToast.success(t('address_update_success'));
         } else {
           await addressService.addAddress(params?.appPrefix, payload);
-          Toast.show({ type: 'success', text1: t('address_save_success') });
+          showToast.success(t('address_save_success'));
         }
 
         if (params.origin === 'multi-vendor-home') {
@@ -89,7 +89,7 @@ export default function AddressDetailScreen() {
 
         nav.navigate('MyProfile');
       } catch {
-        Toast.show({ type: 'error', text1: t('address_save_error') });
+        showToast.error(t('address_save_error'));
       }
     },
     [isEditing, nav, params.editAddressId, params.origin, t],
