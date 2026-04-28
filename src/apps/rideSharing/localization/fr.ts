@@ -17,6 +17,7 @@ const fr = {
   ride_option_ac_title: 'Trajet A/C',
   ride_option_premium_title: 'Premium',
   ride_search_placeholder: 'Où aller & pour combien ?',
+  ride_options_empty_destination: 'Recherchez la destination où vous souhaitez aller !',
   ride_current_location: 'Position actuelle',
   ride_types_error_title: 'Impossible de charger les types de trajet',
   ride_types_error_description: 'Veuillez actualiser et réessayer. Les options de trajet sont temporairement indisponibles.',
