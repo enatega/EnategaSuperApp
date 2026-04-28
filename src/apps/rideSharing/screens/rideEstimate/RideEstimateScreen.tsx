@@ -33,6 +33,10 @@ import { useActiveRideStore } from '../../stores/useActiveRideStore';
 import { useCourierBookingStore } from '../../stores/useCourierBookingStore';
 import { emitRideSharingEvent } from '../../socket/rideSharingSocket';
 import {
+  getSavedRideEstimatePaymentMethod,
+  saveRideEstimatePaymentMethod,
+} from '../../storage/rideEstimatePaymentMethod';
+import {
   buildCourierCreateRidePayload,
   getCourierComment,
   isCourierBookingValid,
@@ -56,9 +60,6 @@ type RouteParams = {
   offerMode?: RideOfferMode;
   hourlyHours?: number;
 };
-
-const DEFAULT_PAYMENT_METHOD_ID: PaymentMethodId = 'wallet';
-let lastSelectedPaymentMethodId: PaymentMethodId = DEFAULT_PAYMENT_METHOD_ID;
 
 function resolveRideIcon(name: string) {
   if (/comfort/i.test(name)) return rideEstimateIcons.comfort;
@@ -133,9 +134,7 @@ export default function RideEstimateScreen() {
     rideCategory ?? (mappedOptions[0]?.id ?? 'ride'),
   );
   const [customFare, setCustomFare] = useState<number | undefined>(initialOfferedFare);
-  const [paymentMethodId, setPaymentMethodId] = useState<PaymentMethodId>(
-    () => initialPaymentMethodId ?? lastSelectedPaymentMethodId,
-  );
+  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<PaymentMethodId | null>(null);
   const [isPaymentMethodVisible, setIsPaymentMethodVisible] = useState(false);
   const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
   const [wantsScheduledRide, setWantsScheduledRide] = useState(rideType === 'schedule');
@@ -158,12 +157,32 @@ export default function RideEstimateScreen() {
   }), [courierActiveTab, courierToBuilding, courierToDoor]);
 
   useEffect(() => {
-    if (!initialPaymentMethodId) {
-      return;
-    }
+    let isMounted = true;
 
-    setPaymentMethodId(initialPaymentMethodId);
-    lastSelectedPaymentMethodId = initialPaymentMethodId;
+    const hydratePaymentMethod = async () => {
+      if (initialPaymentMethodId) {
+        if (!isMounted) {
+          return;
+        }
+
+        setSelectedPaymentMethodId(initialPaymentMethodId);
+        await saveRideEstimatePaymentMethod(initialPaymentMethodId);
+        return;
+      }
+
+      const storedPaymentMethodId = await getSavedRideEstimatePaymentMethod();
+      if (!isMounted || !storedPaymentMethodId) {
+        return;
+      }
+
+      setSelectedPaymentMethodId(storedPaymentMethodId);
+    };
+
+    void hydratePaymentMethod();
+
+    return () => {
+      isMounted = false;
+    };
   }, [initialPaymentMethodId]);
 
   useEffect(() => {
@@ -190,13 +209,22 @@ export default function RideEstimateScreen() {
   const selectedOption = options.find((item) => item.id === resolvedSelectedOptionId) ?? options[0];
   const selectedOptionRecommendedFare = selectedOption.fare;
   const selectedOptionCurrentFare = customFare ?? selectedOptionRecommendedFare;
-  const paymentMethod = getPaymentMethodOption(paymentMethodId);
-  const paymentMethodLabel = paymentMethod.value
-    ?? (paymentMethodId === 'cash' ? t('ride_payment_cash') : '');
+  const selectedPaymentMethod = selectedPaymentMethodId
+    ? getPaymentMethodOption(selectedPaymentMethodId)
+    : null;
+  const paymentMethodLabel = selectedPaymentMethod
+    ? (selectedPaymentMethod.value
+      ?? (selectedPaymentMethodId === 'cash' ? t('ride_payment_cash') : ''))
+    : t('ride_active_payment');
   const offerMode = resolveRideOfferMode(rideType, initialOfferMode);
   const isHourlyRide = offerMode === 'hourly';
   const isCourierFlow = rideType === 'courier' || isCourierRideRequest(selectedOption.title);
   const isCourierDetailsValid = isCourierBookingValid(courierBooking);
+  const isConfirmDisabled = !selectedPaymentMethodId
+    || quoteQuery.isLoading
+    || quoteQuery.isFetching
+    || !quoteQuery.data
+    || (isCourierFlow && !isCourierDetailsValid);
   const courierComment = getCourierComment(courierBooking);
   const hourlyMetaLabel = isHourlyRide && typeof initialHourlyHours === 'number'
     ? (initialHourlyHours === 1
@@ -298,7 +326,7 @@ export default function RideEstimateScreen() {
       stops,
       offeredFare: selectedOptionCurrentFare,
       recommendedFare: selectedOptionRecommendedFare,
-      paymentMethodId,
+      paymentMethodId: selectedPaymentMethodId ?? undefined,
       offerMode: 'hourly',
     });
   }, [
@@ -306,9 +334,9 @@ export default function RideEstimateScreen() {
     initialHourlyHours,
     isHourlyRide,
     navigation,
-    paymentMethodId,
     rideCategory,
     rideType,
+    selectedPaymentMethodId,
     selectedOptionCurrentFare,
     selectedOptionRecommendedFare,
     stops,
@@ -341,6 +369,11 @@ export default function RideEstimateScreen() {
       return;
     }
 
+    if (!selectedPaymentMethodId) {
+      setIsPaymentMethodVisible(true);
+      return;
+    }
+
     if (wantsScheduledRide && !scheduledAt) {
       setIsSchedulePickerVisible(true);
       return;
@@ -354,7 +387,7 @@ export default function RideEstimateScreen() {
         toAddress,
         stops,
         offeredFare: selectedOptionCurrentFare,
-        paymentMethodId,
+        paymentMethodId: selectedPaymentMethodId,
         offerMode,
         hourlyHours: initialHourlyHours,
         source: 'rideEstimate',
@@ -373,7 +406,7 @@ export default function RideEstimateScreen() {
       },
       ride_type_id: String(selectedOption.id),
       fare: resolvedFare,
-      payment_via: mapPaymentMethodToApi(paymentMethodId),
+      payment_via: mapPaymentMethodToApi(selectedPaymentMethodId),
       is_hourly: isHourlyRide,
       stops: toCreateRideStops(stops),
       pickup_address: fromAddress.description,
@@ -458,9 +491,9 @@ export default function RideEstimateScreen() {
   };
 
   const handleSelectPaymentMethod = (nextPaymentMethodId: PaymentMethodId) => {
-    setPaymentMethodId(nextPaymentMethodId);
-    lastSelectedPaymentMethodId = nextPaymentMethodId;
+    setSelectedPaymentMethodId(nextPaymentMethodId);
     setIsPaymentMethodVisible(false);
+    void saveRideEstimatePaymentMethod(nextPaymentMethodId);
   };
 
   return (
@@ -518,7 +551,7 @@ export default function RideEstimateScreen() {
           />
         ) : null}
         paymentMethodLabel={paymentMethodLabel}
-        paymentMethodBadge={<PaymentMethodBadge paymentMethodId={paymentMethodId} size="sm" />}
+        paymentMethodBadge={selectedPaymentMethodId ? <PaymentMethodBadge paymentMethodId={selectedPaymentMethodId} size="sm" /> : undefined}
         onPaymentMethodPress={() => setIsPaymentMethodVisible(true)}
         selectedOptionMetaLabel={hourlyMetaLabel}
         isCourierFlow={isCourierFlow}
@@ -530,7 +563,7 @@ export default function RideEstimateScreen() {
           toAddress,
           stops,
           offeredFare: selectedOptionCurrentFare,
-          paymentMethodId,
+          paymentMethodId: selectedPaymentMethodId ?? undefined,
           offerMode,
           hourlyHours: initialHourlyHours,
           source: 'rideEstimate',
@@ -554,7 +587,7 @@ export default function RideEstimateScreen() {
           stops,
           offeredFare: selectedOptionCurrentFare,
           recommendedFare: selectedOptionRecommendedFare,
-          paymentMethodId,
+          paymentMethodId: selectedPaymentMethodId ?? undefined,
           offerMode,
           hourlyHours: initialHourlyHours,
         })}
@@ -578,14 +611,14 @@ export default function RideEstimateScreen() {
         isLoading={isQuoteLoading}
         errorMessage={quoteErrorMessage}
         onRetry={() => quoteQuery.refetch()}
-        isConfirmDisabled={quoteQuery.isLoading || quoteQuery.isFetching || !quoteQuery.data || (isCourierFlow && !isCourierDetailsValid)}
+        isConfirmDisabled={isConfirmDisabled}
         isConfirmLoading={createRideMutation.isPending}
         onHeightChange={handleBottomSheetHeightChange}
       />
 
       <PaymentMethodBottomSheet
         visible={isPaymentMethodVisible}
-        selectedPaymentMethodId={paymentMethodId}
+        selectedPaymentMethodId={selectedPaymentMethodId}
         onClose={() => setIsPaymentMethodVisible(false)}
         onSelect={handleSelectPaymentMethod}
       />
