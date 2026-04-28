@@ -17,6 +17,7 @@ const en = {
   ride_option_ac_title: 'Ride A/C',
   ride_option_premium_title: 'Premium',
   ride_search_placeholder: 'Where to & for how much?',
+  ride_options_empty_destination: 'Search for the destination where you want to go!',
   ride_current_location: 'Current location',
   ride_types_error_title: 'Unable to load ride types',
   ride_types_error_description: 'Please refresh and try again. Ride options are temporarily unavailable.',
