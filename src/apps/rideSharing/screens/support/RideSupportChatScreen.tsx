@@ -3,6 +3,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   View,
@@ -11,17 +12,27 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRoute, type RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import ScreenHeader from '../../../../general/components/ScreenHeader';
+import SupportHeader from '../../../../general/components/support/SupportHeader';
 import { showToast } from '../../../../general/components/AppToast';
-import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
 import { useTheme } from '../../../../general/theme/theme';
 import ChatMessageBubble from '../../../../general/components/chat/ChatMessageBubble';
 import ChatQuickReplyChip from '../../../../general/components/chat/ChatQuickReplyChip';
 import type { RideSharingStackParamList } from '../../navigation/RideSharingNavigator';
 import RideChatFooter from '../riderChat/components/RideChatFooter';
-import { useSendRideSupportChatMessage } from '../../hooks/useRideSupportChatMutations';
-import { useRideSupportChatMessages } from '../../hooks/useRideSupportChatQueries';
+import { useProfile } from '../../hooks/useProfile';
 import {
+  useSendRideSupportChatMessageToChatBox,
+} from '../../hooks/useRideSupportChatMutations';
+import {
+  useRideSupportChatBox,
+  useRideSupportChatMessages,
+  useRideSupportMyActiveMessages,
+  useRideSupportUserChatBoxes,
+} from '../../hooks/useRideSupportChatQueries';
+import {
+  getFirstRideSupportChatBox,
+  getRideSupportChatBox,
+  getRideSupportChatBoxId,
   getRideSupportChatMessageId,
   getRideSupportChatMessages,
   getRideSupportChatParticipantId,
@@ -43,52 +54,85 @@ export default function RideSupportChatScreen() {
   const { t } = useTranslation('rideSharing');
   const insets = useSafeAreaInsets();
   const route = useRoute<RouteProps>();
-  const sessionQuery = useAuthSessionQuery();
-  const senderId = sessionQuery.data?.user?.id;
+  const { userProfile } = useProfile();
+  const currentUserId = userProfile?.id;
   const [draftMessage, setDraftMessage] = useState('');
   const [chatBoxId, setChatBoxId] = useState(route.params?.chatBoxId);
   const [pendingMessages, setPendingMessages] = useState<SupportMessageItem[]>([]);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const myActiveMessagesQuery = useRideSupportMyActiveMessages(currentUserId);
+  const chatBoxesQuery = useRideSupportUserChatBoxes(currentUserId);
+  const fallbackChatBox = useMemo(
+    () => getFirstRideSupportChatBox(chatBoxesQuery.data),
+    [chatBoxesQuery.data],
+  );
+  const supportChatBoxQuery = useRideSupportChatBox(chatBoxId);
   const chatMessagesQuery = useRideSupportChatMessages(chatBoxId);
-  const receiverId = route.params?.receiverId;
-
-  const sendMessageMutation = useSendRideSupportChatMessage({
+  const activeChatBox = useMemo(
+    () => getRideSupportChatBox(supportChatBoxQuery.data) ?? fallbackChatBox,
+    [fallbackChatBox, supportChatBoxQuery.data],
+  );
+  const sendToChatBoxMutation = useSendRideSupportChatMessageToChatBox({
     onError: (error) => {
       setPendingMessages((current) => current.slice(0, -1));
       showToast.error(t('ride_support_chat_send_error_title'), error.message || t('ride_support_chat_send_error_message'));
     },
     onSuccess: (response) => {
       const nextChatBoxId =
-        response.chatBoxId ??
-        response.data?.chatBoxId ??
-        response.detail?.chatBoxId ??
-        response.detail?.chat_box_id;
+        response.chatBoxId
+        ?? response.data?.chatBoxId
+        ?? response.detail?.chatBoxId
+        ?? response.detail?.chat_box_id;
 
       if (nextChatBoxId) {
         setChatBoxId(nextChatBoxId);
       }
 
       setDraftMessage('');
+      void myActiveMessagesQuery.refetch();
       void chatMessagesQuery.refetch();
+      void chatBoxesQuery.refetch();
     },
   });
 
   useEffect(() => {
-    if (!chatBoxId && route.params?.chatBoxId) {
-      setChatBoxId(route.params.chatBoxId);
+    if (chatBoxId) {
+      return;
     }
-  }, [chatBoxId, route.params?.chatBoxId]);
+
+    const firstActiveMessage = getRideSupportChatMessages(myActiveMessagesQuery.data)[0];
+    const chatBoxIdFromActiveMessages =
+      firstActiveMessage?.chatBoxId ?? firstActiveMessage?.chat_box_id;
+    if (chatBoxIdFromActiveMessages) {
+      setChatBoxId(chatBoxIdFromActiveMessages);
+      return;
+    }
+
+    const nextChatBoxId = route.params?.chatBoxId || getRideSupportChatBoxId(fallbackChatBox) || undefined;
+
+    if (nextChatBoxId) {
+      setChatBoxId(nextChatBoxId);
+    }
+  }, [chatBoxId, fallbackChatBox, myActiveMessagesQuery.data, route.params?.chatBoxId]);
 
   useEffect(() => {
-    const serverMessages = getRideSupportChatMessages(chatMessagesQuery.data);
-
-    if (serverMessages.length > 0 && pendingMessages.length > 0) {
+    if (baseServerMessages.length > 0 && pendingMessages.length > 0) {
       setPendingMessages([]);
     }
-  }, [chatMessagesQuery.data, pendingMessages.length]);
+  }, [baseServerMessages, pendingMessages.length]);
+
+  const baseServerMessages = useMemo(() => {
+    const activeMessages = getRideSupportChatMessages(myActiveMessagesQuery.data);
+    if (activeMessages.length > 0) {
+      return activeMessages;
+    }
+
+    return getRideSupportChatMessages(chatMessagesQuery.data);
+  }, [chatMessagesQuery.data, myActiveMessagesQuery.data]);
 
   const conversationMessages = useMemo(() => {
-    return getRideSupportChatMessages(chatMessagesQuery.data).map((message, index) => {
+    return baseServerMessages.map((message, index) => {
       const messageSenderId = getRideSupportChatParticipantId(
         message.sender,
         message.senderId ?? message.sender_id,
@@ -96,12 +140,12 @@ export default function RideSupportChatScreen() {
 
       return {
         id: getRideSupportChatMessageId(message, index),
-        isCurrentUser: messageSenderId === senderId,
+        isCurrentUser: messageSenderId === currentUserId,
         text: message.text ?? message.message ?? '',
         timeLabel: formatRideChatTimeLabel(message.createdAt ?? message.created_at),
       };
     });
-  }, [chatMessagesQuery.data, senderId]);
+  }, [baseServerMessages, currentUserId]);
 
   const messages = useMemo(
     () => [...conversationMessages, ...pendingMessages],
@@ -147,7 +191,7 @@ export default function RideSupportChatScreen() {
       return;
     }
 
-    if (!senderId) {
+    if (!currentUserId) {
       showToast.error(t('ride_support_chat_send_error_title'), t('ride_chat_missing_session_error'));
       return;
     }
@@ -162,13 +206,14 @@ export default function RideSupportChatScreen() {
       },
     ]);
 
-    sendMessageMutation.mutate({
-      senderId,
-      receiverId,
+    const resolvedChatBoxId = chatBoxId ?? getRideSupportChatBoxId(activeChatBox) ?? undefined;
+
+    sendToChatBoxMutation.mutate({
+      senderId: currentUserId,
+      chatBoxId: resolvedChatBoxId,
       text: trimmed,
-      chatBoxId,
     });
-  }, [chatBoxId, receiverId, senderId, sendMessageMutation, t]);
+  }, [activeChatBox, chatBoxId, currentUserId, sendToChatBoxMutation, t]);
 
   const handleAttachmentPress = useCallback(async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -202,10 +247,26 @@ export default function RideSupportChatScreen() {
   }, [t]);
 
   const shouldShowQuickReplies = !messages.length && !isKeyboardVisible;
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([
+        myActiveMessagesQuery.refetch(),
+        chatBoxesQuery.refetch(),
+        chatMessagesQuery.refetch(),
+      ]);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [chatBoxesQuery, chatMessagesQuery, myActiveMessagesQuery]);
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
-      <ScreenHeader title={t('ride_support_chat_title')} />
+      <SupportHeader
+        backAccessibilityLabel={t('back_button')}
+        rightAccessibilityLabel={t('sidebar_support')}
+        title={t('ride_support_chat_title')}
+      />
 
       <KeyboardAvoidingView
         style={styles.chatLayout}
@@ -217,12 +278,29 @@ export default function RideSupportChatScreen() {
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          refreshControl={(
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={() => {
+                void handleRefresh();
+              }}
+              tintColor={colors.findingRidePrimary}
+              colors={[colors.findingRidePrimary]}
+            />
+          )}
         >
-          {chatMessagesQuery.isPending ? (
+          {myActiveMessagesQuery.isPending || chatBoxesQuery.isPending || (chatBoxId && chatMessagesQuery.isPending) ? (
             <View style={styles.centerState}>
               <ChatMessageBubble
                 isCurrentUser={false}
                 text={t('ride_chat_loading')}
+              />
+            </View>
+          ) : chatMessagesQuery.isError && getRideSupportChatMessages(myActiveMessagesQuery.data).length === 0 ? (
+            <View style={styles.centerState}>
+              <ChatMessageBubble
+                isCurrentUser={false}
+                text={chatMessagesQuery.error.message}
               />
             </View>
           ) : messages.length ? (
@@ -258,7 +336,7 @@ export default function RideSupportChatScreen() {
               {quickReplies.map((reply) => (
                 <ChatQuickReplyChip
                   key={reply}
-                  disabled={sendMessageMutation.isPending}
+                  disabled={sendToChatBoxMutation.isPending}
                   label={reply}
                   onPress={() => appendMessage(reply)}
                 />
@@ -271,7 +349,7 @@ export default function RideSupportChatScreen() {
           attachmentAccessibilityLabel={t('ride_chat_add_attachment')}
           bottomInset={insets.bottom}
           isKeyboardVisible={isKeyboardVisible}
-          isSending={sendMessageMutation.isPending}
+          isSending={sendToChatBoxMutation.isPending}
           messageAccessibilityLabel={t('ride_chat_send_message')}
           onAttachmentPress={handleAttachmentPress}
           onChangeText={setDraftMessage}

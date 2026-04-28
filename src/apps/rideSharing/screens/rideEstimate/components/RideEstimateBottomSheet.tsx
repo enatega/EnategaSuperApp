@@ -47,6 +47,7 @@ type Props = {
   onRetry?: () => void;
   isConfirmDisabled?: boolean;
   isConfirmLoading?: boolean;
+  onHeightChange?: (height: number) => void;
 };
 
 function RideEstimateBottomSheet({
@@ -77,6 +78,7 @@ function RideEstimateBottomSheet({
   onRetry,
   isConfirmDisabled = false,
   isConfirmLoading = false,
+  onHeightChange,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
@@ -126,6 +128,7 @@ function RideEstimateBottomSheet({
         },
       ]}
       handle={<BottomSheetHandle color={colors.border} />}
+      onHeightChange={onHeightChange}
     >
       <View style={styles.content}>
         {isLoading ? (

@@ -45,6 +45,7 @@ export default function SharedNavigator() {
     async (
       id: MiniAppId,
       navigation: NativeStackNavigationProp<SharedStackParamList, "Home">,
+      params?: SharedStackParamList[SharedAppRouteName],
     ) => {
       const routeName = APP_ROUTES[id];
       if (routeName === "DeveloperMode") {
@@ -60,7 +61,7 @@ export default function SharedNavigator() {
 
       if (token) {
         await setActiveAppRoute(routeName);
-        resetToSharedRoute(routeName);
+        resetToSharedRoute(routeName, params);
         return;
       }
 
@@ -80,8 +81,8 @@ export default function SharedNavigator() {
         {(props) => (
           <HomeScreen
             {...props}
-            onSelectMiniApp={(id) => {
-              void handleSelectMiniApp(id, props.navigation);
+            onSelectMiniApp={(id, params) => {
+              void handleSelectMiniApp(id, props.navigation, params);
             }}
           />
         )}

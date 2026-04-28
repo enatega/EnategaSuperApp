@@ -22,6 +22,7 @@ import { useActiveRideRequestStore } from '../../stores/useActiveRideRequestStor
 
 type RouteParams = {
   rideType?: RideIntent;
+  directCourierOnly?: boolean;
 };
 
 const defaultRideIcon = 'https://www.figma.com/api/mcp/asset/06c62618-d47d-4594-aa0c-3e1886f000ba';
@@ -86,6 +87,7 @@ export default function RideOptionsScreen() {
   const { userProfile: apiProfile } = useProfile();
   const route = useRoute();
   const rideType = (route.params as RouteParams | undefined)?.rideType;
+  const directCourierOnly = (route.params as RouteParams | undefined)?.directCourierOnly ?? false;
   const { recentAddresses } = useRecentRideAddresses();
   const activeRide = useActiveRideStore((state) => state.activeRide);
   const activeRideRequest = useActiveRideRequestStore((state) => state.activeRideRequest);
@@ -100,27 +102,35 @@ export default function RideOptionsScreen() {
     () => (rideTypesQuery.data ?? []).map(toRideOption),
     [rideTypesQuery.data],
   );
+  const visibleRideOptions = useMemo(() => {
+    if (!directCourierOnly) {
+      return rideOptions;
+    }
+
+    const courierOnlyOptions = rideOptions.filter((option) => option.title.toLowerCase().includes('courier'));
+    return courierOnlyOptions.length ? courierOnlyOptions : rideOptions;
+  }, [directCourierOnly, rideOptions]);
   const resolvedRideType = useMemo(
     () => resolveRideIntentFromSelection({
-      rideOptions,
+      rideOptions: visibleRideOptions,
       selectedCategory,
       routeRideType: rideType,
     }),
-    [rideOptions, rideType, selectedCategory],
+    [rideType, selectedCategory, visibleRideOptions],
   );
 
   useEffect(() => {
-    if (!rideOptions.length) {
+    if (!visibleRideOptions.length) {
       setSelectedCategory(null);
       return;
     }
 
-    const exists = rideOptions.some((option) => option.id === selectedCategory);
+    const exists = visibleRideOptions.some((option) => option.id === selectedCategory);
 
     if (!exists) {
-      setSelectedCategory(resolveInitialRideTypeId(rideOptions, rideType));
+      setSelectedCategory(resolveInitialRideTypeId(visibleRideOptions, rideType));
     }
-  }, [rideOptions, rideType, selectedCategory]);
+  }, [rideType, selectedCategory, visibleRideOptions]);
 
   const cachedAddresses = useMemo<CachedAddress[]>(
     () => recentAddresses.map(toCachedAddress),
@@ -182,7 +192,7 @@ export default function RideOptionsScreen() {
   return (
     <View style={styles.container}>
       <RideOptionsLayout
-        rideOptions={rideOptions}
+        rideOptions={visibleRideOptions}
         cachedAddresses={cachedAddresses}
         enableNearbyDrivers={enableNearbyDrivers}
         selectedCategory={selectedCategory}
@@ -194,6 +204,7 @@ export default function RideOptionsScreen() {
         onRetryRideTypes={() => {
           void rideTypesQuery.refetch();
         }}
+        isDirectCourierFlow={directCourierOnly}
       />
 
       <HamburgerMenu

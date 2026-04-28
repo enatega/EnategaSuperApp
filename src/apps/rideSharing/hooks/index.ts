@@ -10,6 +10,7 @@ export {
     useRideEstimates,
     usePrefetchRideDetails,
     useDriverStats,
+    useRiderVehicleInfo,
 } from './useRideQueries';
 export { useInitializeRideSharingConfig } from './useInitializeRideSharingConfig';
 
@@ -22,7 +23,7 @@ export {
 } from './useRideMutations';
 
 // User Queries
-export { useUser } from './useUserQueries';
+export { useUser, useWalletBalance, useTodayNotifications, usePastNotifications } from './useUserQueries';
 
 // User Mutations
 export { useUpdateUser, useUpdateProfileImage, useUpdatePassword } from './useUserMutations';

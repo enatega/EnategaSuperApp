@@ -4,12 +4,12 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
-  Dimensions,
   Animated,
   Pressable,
   ScrollView,
   Image,
   ViewStyle,
+  useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Text from "../../../general/components/Text";
@@ -50,9 +50,6 @@ type Props = {
   onProfilePress?: () => void;
 };
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const SIDEBAR_WIDTH = SCREEN_WIDTH * 0.85;
-
 export default function Sidebar({
   visible,
   onClose,
@@ -64,14 +61,23 @@ export default function Sidebar({
   const { colors } = useTheme();
   const { t } = useTranslation("rideSharing");
   const insets = useSafeAreaInsets();
-  const slideAnim = React.useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
+  const { width: windowWidth } = useWindowDimensions();
+  const sidebarWidth = React.useMemo(
+    () => Math.min(420, Math.max(280, windowWidth * 0.85)),
+    [windowWidth]
+  );
+  const slideAnim = React.useRef(new Animated.Value(-sidebarWidth)).current;
   const overlayAnim = React.useRef(new Animated.Value(0)).current;
   const visibleRef = React.useRef(visible);
 
   React.useEffect(() => {
+    if (!visibleRef.current && !visible) {
+      slideAnim.setValue(-sidebarWidth);
+    }
+
     // If opening and was previously closed, reset position first
     if (visible && !visibleRef.current) {
-      slideAnim.setValue(-SIDEBAR_WIDTH);
+      slideAnim.setValue(-sidebarWidth);
       overlayAnim.setValue(0);
     }
     visibleRef.current = visible;
@@ -92,7 +98,7 @@ export default function Sidebar({
     } else {
       Animated.parallel([
         Animated.timing(slideAnim, {
-          toValue: -SIDEBAR_WIDTH,
+          toValue: -sidebarWidth,
           duration: 300,
           useNativeDriver: true,
         }),
@@ -103,7 +109,7 @@ export default function Sidebar({
         }),
       ]).start();
     }
-  }, [visible]);
+  }, [overlayAnim, sidebarWidth, slideAnim, visible]);
 
   const handleClose = useCallback(() => {
     onClose();
@@ -143,7 +149,7 @@ export default function Sidebar({
             styles.sidebar,
             {
               backgroundColor: colors.surface,
-              width: SIDEBAR_WIDTH,
+              width: sidebarWidth,
               transform: [{ translateX: slideAnim }],
               paddingTop: Math.max(insets.top, 20),
               paddingBottom: Math.max(insets.bottom, 20),
@@ -341,16 +347,16 @@ const styles = StyleSheet.create({
     // borderTopWidth: 1,
     // borderTopColor: '#E5E7EB',
     paddingTop: 16,
-    paddingHorizontal: 8,
+    paddingHorizontal: 16,
     alignItems: "center",
   },
   logoutButton: {
     paddingVertical: 14,
-    paddingHorizontal: 48,
+    paddingHorizontal: 32,
     borderRadius: 12,
     borderWidth: 1.5,
     alignItems: "center",
     justifyContent: "center",
-    minWidth: 320,
+    width: "100%",
   },
 });

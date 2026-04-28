@@ -22,6 +22,7 @@ type Props = {
   onEditPress?: () => void;
   visible?: boolean;
   onClose?: () => void;
+  showAvatar?: boolean;
 };
 
 export default function ProfilePhoto({
@@ -29,6 +30,7 @@ export default function ProfilePhoto({
   onEditPress,
   visible = false,
   onClose,
+  showAvatar = true,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
@@ -111,24 +113,25 @@ export default function ProfilePhoto({
 
   return (
     <>
-      {/* Profile Photo with Edit Button */}
-      <View style={styles.profilePhotoContainer}>
-        {isPending ? (
-          <View style={[styles.avatarContainer, styles.loadingOverlay, { backgroundColor: colors.cardSoft }]}>
-            <ActivityIndicator color={colors.primary} />
-          </View>
-        ) : (
-          renderAvatar()
-        )}
-        <TouchableOpacity
-          onPress={onEditPress}
-          style={[styles.editButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
-          disabled={isPending}
-          accessibilityLabel="Edit profile photo"
-        >
-          <Icon type="Ionicons" name="pencil" size={16} color={colors.text} />
-        </TouchableOpacity>
-      </View>
+      {showAvatar ? (
+        <View style={styles.profilePhotoContainer}>
+          {isPending ? (
+            <View style={[styles.avatarContainer, styles.loadingOverlay, { backgroundColor: colors.cardSoft }]}>
+              <ActivityIndicator color={colors.primary} />
+            </View>
+          ) : (
+            renderAvatar()
+          )}
+          <TouchableOpacity
+            onPress={onEditPress}
+            style={[styles.editButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            disabled={isPending}
+            accessibilityLabel="Edit profile photo"
+          >
+            <Icon type="Ionicons" name="pencil" size={16} color={colors.text} />
+          </TouchableOpacity>
+        </View>
+      ) : null}
 
       {/* Photo Options Modal */}
       <Modal
