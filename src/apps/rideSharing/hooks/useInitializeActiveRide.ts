@@ -11,10 +11,20 @@ type Options = {
   enabled?: boolean;
 };
 
+const MAX_BOOTSTRAP_RETRIES = 2;
+const BOOTSTRAP_RETRY_DELAY_MS = 450;
+
+function delay(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 export default function useInitializeActiveRide(options?: Options) {
   const isEnabled = options?.enabled ?? true;
   const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
   const queryClient = useQueryClient();
+  const activeRide = useActiveRideStore((state) => state.activeRide);
   const setActiveRide = useActiveRideStore((state) => state.setActiveRide);
   const clearActiveRide = useActiveRideStore((state) => state.clearActiveRide);
   const [hasChecked, setHasChecked] = useState(false);
@@ -37,31 +47,46 @@ export default function useInitializeActiveRide(options?: Options) {
     hasStartedRef.current = true;
 
     const initializeActiveRide = async () => {
+      const hasLocalActiveRideAtStart = Boolean(activeRide?.ride_id);
+
+      // Avoid clearing a live in-memory ride when server-read lags immediately after status changes.
       try {
-        const nextActiveRide = await rideService.getActiveRide();
-        if (!isMountedRef.current) {
-          return;
-        }
-
-        queryClient.setQueryData(rideKeys.activeRide(), nextActiveRide);
-
-        if (nextActiveRide) {
-          setActiveRide(nextActiveRide);
-
-          const navigationState = navigation.getState();
-          if (navigationState.index > 0) {
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'RideSharingHome' }],
-            });
+        for (let attempt = 0; attempt <= MAX_BOOTSTRAP_RETRIES; attempt += 1) {
+          const nextActiveRide = await rideService.getActiveRide();
+          if (!isMountedRef.current) {
+            return;
           }
-        } else {
+
+          queryClient.setQueryData(rideKeys.activeRide(), nextActiveRide);
+
+          if (nextActiveRide) {
+            setActiveRide(nextActiveRide);
+
+            const navigationState = navigation.getState();
+            if (navigationState.index > 0) {
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'RideSharingHome' }],
+              });
+            }
+            return;
+          }
+
+          const canRetry = hasLocalActiveRideAtStart && attempt < MAX_BOOTSTRAP_RETRIES;
+          if (canRetry) {
+            await delay(BOOTSTRAP_RETRY_DELAY_MS * (attempt + 1));
+            continue;
+          }
+
           clearActiveRide();
+          return;
         }
       } catch {
         if (isMountedRef.current) {
-          queryClient.setQueryData(rideKeys.activeRide(), null);
-          clearActiveRide();
+          if (!hasLocalActiveRideAtStart) {
+            queryClient.setQueryData(rideKeys.activeRide(), null);
+            clearActiveRide();
+          }
         }
       } finally {
         if (isMountedRef.current) {
@@ -71,7 +96,7 @@ export default function useInitializeActiveRide(options?: Options) {
     };
 
     void initializeActiveRide();
-  }, [clearActiveRide, isEnabled, navigation, queryClient, setActiveRide]);
+  }, [activeRide?.ride_id, clearActiveRide, isEnabled, navigation, queryClient, setActiveRide]);
 
   return {
     hasChecked,

@@ -13,7 +13,7 @@ type Props = {
   onAvatarPress?: () => void;
 };
 
-export default function ProfileHeroCard({ data }: Props) {
+export default function ProfileHeroCard({ data,onAvatarPress }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('rideSharing');
   const joinedLabel = formatJoinYear(data.joiningTime);

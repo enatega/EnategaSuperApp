@@ -65,6 +65,19 @@ function delay(ms: number) {
   });
 }
 
+function getRemainingSearchSeconds(expiresAt?: string | null, fallback = SEARCH_DURATION_SECONDS) {
+  if (!expiresAt) {
+    return fallback;
+  }
+
+  const expiresAtMs = Date.parse(expiresAt);
+  if (!Number.isFinite(expiresAtMs)) {
+    return fallback;
+  }
+
+  return Math.max(0, Math.floor((expiresAtMs - Date.now()) / 1000));
+}
+
 async function waitForSocketConnection(timeoutMs: number = SOCKET_CONNECT_TIMEOUT_MS) {
   const existingSocket = socketClient.getSocket();
   if (existingSocket?.connected) {
@@ -164,9 +177,12 @@ export function useFindingRideController({
 
   const minimumFare = selectedRide.recommendedFare ?? selectedRide.fare ?? 0;
   const resolvedRideRequestId = currentActiveRideRequest.id ?? activeRideRequestId;
+  const resolvedExpiresAt = currentActiveRideRequest.expiresAt ?? activeRideRequest?.expiresAt ?? null;
 
   const [currentFare, setCurrentFare] = useState<number>(selectedRide.fare ?? minimumFare);
-  const [timeLeftSec, setTimeLeftSec] = useState(SEARCH_DURATION_SECONDS);
+  const [timeLeftSec, setTimeLeftSec] = useState(
+    getRemainingSearchSeconds(resolvedExpiresAt, SEARCH_DURATION_SECONDS),
+  );
   const [isKeepSearchingPending, setIsKeepSearchingPending] = useState(false);
   const [acceptingBidId, setAcceptingBidId] = useState<string | null>(null);
   const [decliningBidId, setDecliningBidId] = useState<string | null>(null);
@@ -261,16 +277,26 @@ export function useFindingRideController({
   }, [minimumFare, selectedRide.fare]);
 
   useEffect(() => {
-    if (timeLeftSec <= 0) {
-      return undefined;
-    }
+    setTimeLeftSec(getRemainingSearchSeconds(resolvedExpiresAt, SEARCH_DURATION_SECONDS));
+  }, [resolvedExpiresAt]);
 
+  useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeftSec((previous) => Math.max(previous - 1, 0));
+      if (resolvedExpiresAt) {
+        setTimeLeftSec(getRemainingSearchSeconds(resolvedExpiresAt, 0));
+        return;
+      }
+
+      setTimeLeftSec((previous) => {
+        if (previous <= 0) {
+          return 0;
+        }
+        return previous - 1;
+      });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeftSec]);
+  }, [resolvedExpiresAt]);
 
   useEffect(() => {
     if (incomingBids) {

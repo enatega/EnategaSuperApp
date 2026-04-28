@@ -62,7 +62,7 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
       return;
     }
 
-    (navigation as any).navigate('RideOptions', { rideType: rideIntent });
+    (navigation as any).navigate('RideSharingHome');
   }
 
   return (

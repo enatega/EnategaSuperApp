@@ -1,7 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import RideSharingHomeScreen from '../screens/home/HomeScreen';
-import RideOptionsScreen from '../screens/rideOptions/RideOptionsScreen';
 import RideDetails from '../screens/rideDetails/RideDetails';
 import DriverProfileScreen from '../screens/driverProfile/DriverProfileScreen';
 import PersonalInfoScreen from '../screens/profile/PersonalInfoScreen';
@@ -39,10 +38,6 @@ import { useInitializeRideSharingConfig } from '../hooks/useInitializeRideSharin
 
 export type RideSharingStackParamList = {
   RideSharingHome: undefined;
-  RideOptions: {
-    rideType?: RideIntent;
-    directCourierOnly?: boolean;
-  } | undefined;
   RideAddressSearch: {
     rideType?: RideIntent;
     rideCategory?: RideCategory;
@@ -145,7 +140,6 @@ export default function RideSharingNavigator() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="RideSharingHome" component={RideSharingHomeScreen} options={{ headerShown:false, title: t('header_title') }} />
-      <Stack.Screen name="RideOptions" component={RideOptionsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="RideAddressSearch" component={RideAddressSearchScreen} options={{ headerShown: false }} />
       <Stack.Screen name="RideEstimate" component={RideEstimateScreen} options={{ headerShown: false }} />
       <Stack.Screen name="OfferFare" component={OfferFareScreen} options={{ headerShown: false }} />
