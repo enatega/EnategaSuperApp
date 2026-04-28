@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  FlatList,
   Pressable,
   StyleSheet,
   View,
@@ -76,15 +75,10 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
       >
         {t('ride_options_title')}
       </Text>
-      <FlatList
-        horizontal
-        data={items}
-        keyExtractor={(item) => item.id}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        renderItem={({ item }) => (
+      <View style={styles.grid}>
+        {items.map((item) => (
           <Pressable
+            key={item.id}
             style={styles.item}
             onPress={() => handleSelectOption(item.id)}
           >
@@ -102,8 +96,8 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
               {item.title}
             </Text>
           </Pressable>
-        )}
-      />
+        ))}
+      </View>
     </View>
   );
 }
@@ -114,15 +108,14 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
   },
-  listContent: {
-    paddingRight: 4,
-  },
-  separator: {
-    width: 12,
+  grid: {
+    flexDirection: 'row',
+    gap: 12,
   },
   item: {
     alignItems: 'center',
     gap: 12,
+    flex: 1,
   },
   iconWrap: {
     width: 80,

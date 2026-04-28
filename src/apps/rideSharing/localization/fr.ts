@@ -89,7 +89,7 @@ const fr = {
   // Sidebar
   logout: 'Déconnexion',
   // Sidebar menu items
-  sidebar_lo_drive: 'LO Drive',
+  sidebar_lo_drive: 'Super App',
   sidebar_lo_drive_subtitle: 'Réservez et gérez vos trajets réguliers avec des options de prise en charge et de dépôt faciles.',
   sidebar_reservations: 'Réservations',
   sidebar_reservations_subtitle: 'Consultez et gérez vos réservations à venir et passées en un seul endroit.',

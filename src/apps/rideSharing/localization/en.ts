@@ -89,7 +89,7 @@ const en = {
   // Sidebar
   logout: 'Logout',
   // Sidebar menu items
-  sidebar_lo_drive: 'LO Drive',
+  sidebar_lo_drive: 'Super App',
   sidebar_lo_drive_subtitle: 'Book and manage your regular rides with easy pickup and drop-off options.',
   sidebar_reservations: 'Reservations',
   sidebar_reservations_subtitle: 'View and manage your upcoming and past reservations in one place.',
@@ -223,7 +223,7 @@ const en = {
   ride_active_contact_driver: 'Contact Driver',
   ride_active_contact_courier: 'Contact Courier',
   ride_chat_loading: 'Loading conversation...',
-  ride_chat_auto_message: 'How can we help you?\n[Automessage]',
+  ride_chat_auto_message: 'How can we help you?',
   ride_chat_auto_time: '8:29 pm',
   ride_chat_quick_reply_here: 'I’m here',
   ride_chat_quick_reply_hello: 'Hello',
