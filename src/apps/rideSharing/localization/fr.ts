@@ -124,6 +124,7 @@ const fr = {
   update_photo_button: 'Mettre à jour la photo',
   cancel_button: 'Annuler',
   label_name: 'Nom',
+  label_name_short: 'Nom',
   label_phone: 'Numéro de téléphone',
   label_email: 'Email',
   label_first_name: 'Prénom',
