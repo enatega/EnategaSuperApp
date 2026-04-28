@@ -1,5 +1,5 @@
-import React, { memo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { memo, useCallback, useMemo, useState } from 'react';
+import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { RideCategory } from '../../utils/rideOptions';
 import RideOptionsBottomSheet from './RideOptionsBottomSheet';
 import RideOptionsMapLayer from './RideOptionsMapLayer';
@@ -36,13 +36,44 @@ function RideOptionsLayout({
     isLoadingCurrentLocation,
     refreshCurrentLocation,
   } = useCurrentLocation();
+  const [layoutHeight, setLayoutHeight] = useState(0);
+  const [bottomSheetHeight, setBottomSheetHeight] = useState(0);
+
+  const handleLayout = useCallback((event: LayoutChangeEvent) => {
+    setLayoutHeight(event.nativeEvent.layout.height);
+  }, []);
+
+  const handleBottomSheetHeightChange = useCallback((height: number) => {
+    setBottomSheetHeight((previousHeight) => {
+      if (Math.abs(previousHeight - height) < 1) {
+        return previousHeight;
+      }
+
+      return height;
+    });
+  }, []);
+
+  const mapHeight = useMemo(() => {
+    if (layoutHeight <= 0) {
+      return null;
+    }
+
+    return Math.max(layoutHeight - bottomSheetHeight, 0);
+  }, [bottomSheetHeight, layoutHeight]);
 
   return (
-    <View style={styles.container}>
-      <RideOptionsMapLayer
-        currentCoordinates={currentCoordinates}
-        cachedAddresses={cachedAddresses}
-      />
+    <View style={styles.container} onLayout={handleLayout}>
+      <View
+        style={[
+          styles.mapContainer,
+          mapHeight === null ? styles.mapContainerFallback : { height: mapHeight },
+        ]}
+      >
+        <RideOptionsMapLayer
+          currentCoordinates={currentCoordinates}
+          cachedAddresses={cachedAddresses}
+        />
+      </View>
       <RideOptionsBottomSheet
         rideOptions={rideOptions}
         cachedAddresses={cachedAddresses}
@@ -55,6 +86,7 @@ function RideOptionsLayout({
         isLoadingRideTypes={isLoadingRideTypes}
         rideTypesErrorMessage={rideTypesErrorMessage}
         onRetryRideTypes={onRetryRideTypes}
+        onHeightChange={handleBottomSheetHeightChange}
         isDirectCourierFlow={isDirectCourierFlow}
       />
     </View>
@@ -65,6 +97,13 @@ export default memo(RideOptionsLayout);
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  mapContainer: {
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  mapContainerFallback: {
     flex: 1,
   },
 });

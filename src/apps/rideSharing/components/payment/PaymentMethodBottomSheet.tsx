@@ -22,7 +22,7 @@ import {
 
 type Props = {
   visible: boolean;
-  selectedPaymentMethodId: PaymentMethodId;
+  selectedPaymentMethodId?: PaymentMethodId | null;
   onClose: () => void;
   onSelect: (paymentMethodId: PaymentMethodId) => void;
 };

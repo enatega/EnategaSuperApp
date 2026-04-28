@@ -6,12 +6,14 @@ import type { LatLng } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '../../../../../general/components/AppToast';
 import { useTheme } from '../../../../../general/theme/theme';
+import { useRideSharingEmergencyContact } from '../../../../../general/stores/useAppConfigStore';
 import CancelRideBottomSheet from '../../../components/reservation/CancelRideBottomSheet';
 import type { ActiveRidePayload, RideAddressSelection } from '../../../api/types';
 import type { RideSharingStackParamList } from '../../../navigation/RideSharingNavigator';
 import { useActiveRideCancellation } from '../hooks';
 import { getActiveRideDriverUserId } from '../../../utils/activeRideMapper';
 import { isCourierRideRequest } from '../../../utils/courierBooking';
+import { openEmergencyDialer } from '../../../utils/safety';
 import ActiveRideMapLayer from './ActiveRideMapLayer';
 import ActiveRideBottomSheet from './ActiveRideBottomSheet';
 
@@ -164,6 +166,7 @@ function ActiveRideView({ activeRide }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
   const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
+  const emergencyContact = useRideSharingEmergencyContact();
   const rideId = activeRide.ride_id;
   const status = activeRide.ride_status;
   const statusCode = status?.toUpperCase();
@@ -315,8 +318,10 @@ function ActiveRideView({ activeRide }: Props) {
   ]);
 
   const handleEmergencyPress = useCallback(() => {
-    showToast.info(t('ride_active_emergency_coming_soon'));
-  }, [t]);
+    void openEmergencyDialer(emergencyContact?.contact_number).catch(() => {
+      showToast.info(t('ride_active_emergency_coming_soon'));
+    });
+  }, [emergencyContact?.contact_number, t]);
 
   const handleDriverPress = useCallback(() => {
     navigation.navigate('DriverProfile', { userId: driverUserId });

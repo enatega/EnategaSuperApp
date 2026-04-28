@@ -26,6 +26,7 @@ type Props = {
   isLoadingRideTypes?: boolean;
   rideTypesErrorMessage?: string | null;
   onRetryRideTypes?: () => void;
+  onHeightChange?: (height: number) => void;
   isDirectCourierFlow?: boolean;
 };
 
@@ -41,6 +42,7 @@ function RideOptionsBottomSheet({
   isLoadingRideTypes = false,
   rideTypesErrorMessage = null,
   onRetryRideTypes,
+  onHeightChange,
   isDirectCourierFlow = false,
 }: Props) {
   const { colors } = useTheme();
@@ -94,6 +96,7 @@ function RideOptionsBottomSheet({
         },
       ]}
       handle={<BottomSheetHandle color={colors.border} />}
+      onHeightChange={onHeightChange}
     >
       {isLoadingRideTypes ? (
         <RideOptionsBottomSheetSkeleton />

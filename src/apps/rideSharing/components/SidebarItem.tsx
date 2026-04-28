@@ -46,7 +46,12 @@ export default function SidebarItem({
           />
         </View>
         <View style={styles.textContainer}>
-          <Text variant="subtitle" weight="semiBold" color={colors.text}>
+          <Text
+            variant="subtitle"
+            weight="semiBold"
+            color={colors.text}
+            numberOfLines={1}
+          >
             {title}
           </Text>
           {subtitle ? (
@@ -89,6 +94,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
+    minWidth: 0,
     gap: 4,
   },
 });
