@@ -53,15 +53,6 @@ export function useSidebarMenu() {
   // Default ride-sharing menu items
   const menuItems: MenuItem[] = [
     {
-      id: 'lo-drive',
-      icon: 'car-outline',
-      iconLibrary: 'Ionicons',
-      titleKey: 'sidebar_lo_drive',
-      subtitleKey: 'sidebar_lo_drive_subtitle',
-      showChevron: true,
-      onPress: () => console.log('LO Drive pressed'),
-    },
-    {
       id: 'reservations',
       icon: 'calendar-outline',
       iconLibrary: 'Ionicons',

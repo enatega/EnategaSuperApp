@@ -89,7 +89,7 @@ const en = {
   // Sidebar
   logout: 'Logout',
   // Sidebar menu items
-  sidebar_lo_drive: 'LO Drive',
+  sidebar_lo_drive: 'Super App',
   sidebar_lo_drive_subtitle: 'Book and manage your regular rides with easy pickup and drop-off options.',
   sidebar_reservations: 'Reservations',
   sidebar_reservations_subtitle: 'View and manage your upcoming and past reservations in one place.',
