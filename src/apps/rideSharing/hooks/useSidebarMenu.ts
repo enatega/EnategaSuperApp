@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAppLogout } from '../../../general/hooks/useAppLogout';
-import type { RideIntent } from '../utils/rideOptions';
+import type { RideSharingStackParamList } from '../navigation/RideSharingNavigator';
 
 type MenuItem = {
   id: string;
@@ -20,36 +20,6 @@ type UserProfile = {
   rating?: number;
   reviewCount?: number;
   avatarUri?: string;
-};
-
-export type RideSharingStackParamList = {
-  RideSharingHome: undefined;
-  RideOptions: {
-    rideType?: RideIntent;
-  } | undefined;
-  RideAddressSearch: undefined;
-  RideEstimate: undefined;
-  RideDetails: undefined;
-  DriverProfile: undefined;
-  PersonalInfo: undefined;
-  EditName: undefined;
-  EditPhone: undefined;
-  Settings: undefined;
-  UpdatePassword: undefined;
-  Language: undefined;
-  Appearance: undefined;
-  RulesAndTerms: undefined;
-  PrivacyPolicy: undefined;
-  TermsAndConditions: undefined;
-  Licences: undefined;
-  ReservationsList: undefined;
-  ReservationDetail: {
-    rideId: string;
-  };
-  RideSupportChat: {
-    chatBoxId?: string;
-    receiverId?: string;
-  } | undefined;
 };
 
 export type ProfileStackParamList = {
@@ -110,7 +80,10 @@ export function useSidebarMenu() {
       titleKey: 'sidebar_ride_history',
       subtitleKey: 'sidebar_ride_history_subtitle',
       showChevron: true,
-      onPress: () => console.log('Ride History pressed'),
+      onPress: () => {
+        closeSidebar();
+        navigation.navigate('RideHistory');
+      },
     },
     {
       id: 'payment-methods',
@@ -164,7 +137,10 @@ export function useSidebarMenu() {
       titleKey: 'sidebar_notifications',
       subtitleKey: 'sidebar_notifications_subtitle',
       showChevron: true,
-      onPress: () => console.log('Notifications pressed'),
+      onPress: () => {
+        closeSidebar();
+        navigation.navigate('Notifications');
+      },
     },
   ];
 

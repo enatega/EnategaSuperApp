@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useTheme } from '../../../../general/theme/theme';
 import Text from '../../../../general/components/Text';
+import { useTheme } from '../../../../general/theme/theme';
 import ProfileAvatar from './ProfileAvatar';
 import StarRating from './StarRating';
 import { formatDate } from './helpers';
@@ -12,59 +12,74 @@ type Props = {
 };
 
 export default function ReviewCard({ review }: Props) {
-  const { colors } = useTheme();
+  const { colors, typography } = useTheme();
 
   return (
-    <View style={[styles.reviewCard, { backgroundColor: colors.surface }]}>
-      {/* Header row */}
-      <View style={styles.reviewHeader}>
-        <ProfileAvatar
-          uri={review.reviewerProfile}
-          name={review.reviewerName}
-          size={42}
-        />
-        <View style={{ flex: 1, marginLeft: 12 }}>
-          <View style={styles.reviewNameRow}>
-            <Text variant="body" weight="semiBold" style={{ flex: 1 }}>
-              {review.reviewerName}
-            </Text>
-            <Text variant="caption" color={colors.mutedText}>
-              {formatDate(review.createdAt)}
-            </Text>
-          </View>
-          <StarRating rating={review.rating} size={14} />
+    <View style={[styles.container, { borderBottomColor: colors.border }]}>
+      <View style={styles.topRow}>
+        <View style={styles.userRow}>
+          <ProfileAvatar
+            uri={review.reviewerProfile}
+            name={review.reviewerName}
+            size={40}
+          />
+
+          <Text
+            weight="medium"
+            style={{
+              color: colors.text,
+              fontSize: typography.size.sm2,
+              lineHeight: typography.lineHeight.md,
+            }}
+          >
+            {review.reviewerName}
+          </Text>
         </View>
+
+        <Text
+          weight="medium"
+          style={{
+            color: colors.mutedText,
+            fontSize: typography.size.xs2,
+            lineHeight: typography.lineHeight.sm,
+          }}
+        >
+          {formatDate(review.createdAt)}
+        </Text>
       </View>
 
-      {/* Comment — only rendered when non-empty */}
-      {review.comment.trim().length > 0 && (
-        <Text variant="body" color={colors.mutedText} style={styles.reviewComment}>
+      <StarRating rating={review.rating} size={16} />
+
+      {review.comment?.trim() ? (
+        <Text
+          style={{
+            color: colors.mutedText,
+            fontSize: typography.size.sm2,
+            lineHeight: typography.lineHeight.md,
+          }}
+        >
           {review.comment}
         </Text>
-      )}
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  reviewCard: {
-    borderRadius: 16,
-    padding: 16,
-    gap: 10,
-    boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
-  } as any,
-  reviewHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+  container: {
+    borderBottomWidth: 1,
+    gap: 5,
+    paddingBottom: 20,
+    paddingTop: 8,
   },
-  reviewNameRow: {
-    flexDirection: 'row',
+  topRow: {
     alignItems: 'center',
+    flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
-    gap: 8,
   },
-  reviewComment: {
-    lineHeight: 20,
+  userRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 10,
   },
 });

@@ -2,6 +2,7 @@ import React, { memo, useMemo, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   StyleSheet,
   TextInput,
   View,
@@ -11,7 +12,6 @@ import { useTranslation } from 'react-i18next';
 import BottomSheetHandle from '../../../../../general/components/BottomSheetHandle';
 import SwipeableBottomSheet from '../../../../../general/components/SwipeableBottomSheet';
 import Text from '../../../../../general/components/Text';
-import Image from '../../../../../general/components/Image';
 import Button from '../../../../../general/components/Button';
 import RatingStars from '../../../../../general/components/RatingStars';
 import { useTheme } from '../../../../../general/theme/theme';
@@ -41,23 +41,46 @@ function CompletedRideFeedbackSheet({
   const insets = useSafeAreaInsets();
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const isCourierFlow = isCourierRideRequest(feedbackRide.rawRideData?.ride_type?.name)
     || isCourierRideRequest(feedbackRide.rawRideData?.ride_type?.id)
     || Boolean(feedbackRide.rawRideData?.courierDetail);
+  const feedbackTags = useMemo(
+    () => [
+      'ride_feedback_tag_good_music',
+      'ride_feedback_tag_clean_and_neat',
+      'ride_feedback_tag_careful_driving',
+      'ride_feedback_tag_nice_car',
+      'ride_feedback_tag_polite_driver',
+      'ride_feedback_tag_driver_arrived_quickly',
+    ],
+    [],
+  );
 
   const isSubmitDisabled = useMemo(
     () => rating <= 0 || isSubmitting,
     [isSubmitting, rating],
   );
 
+  const toggleTag = (tag: string) => {
+    setSelectedTags((previous) => (
+      previous.includes(tag)
+        ? previous.filter((item) => item !== tag)
+        : [...previous, tag]
+    ));
+  };
+
   const handleSubmit = () => {
     if (isSubmitDisabled) {
       return;
     }
 
+    const selectedTagLabels = selectedTags.map((tag) => t(tag)).join(', ');
+    const composedFeedback = [selectedTagLabels, feedback.trim()].filter(Boolean).join('. ');
+
     onSubmit({
       rating,
-      feedback: feedback.trim(),
+      feedback: composedFeedback,
     });
   };
 
@@ -68,7 +91,7 @@ function CompletedRideFeedbackSheet({
       pointerEvents="box-none"
     >
       <SwipeableBottomSheet
-        expandedHeight={540 + insets.bottom}
+        expandedHeight={640 + insets.bottom}
         collapsedHeight={0}
         initialState="expanded"
         modal
@@ -87,28 +110,43 @@ function CompletedRideFeedbackSheet({
             {isCourierFlow ? t('ride_feedback_courier_title') : t('ride_feedback_title')}
           </Text>
 
-          {feedbackRide.driverAvatarUri ? (
-            <Image source={{ uri: feedbackRide.driverAvatarUri }} style={styles.avatar} />
-          ) : (
-            <View style={[styles.avatarFallback, { backgroundColor: colors.cardSoft }]}>
-              <Text weight="extraBold" style={[styles.avatarInitial, { color: colors.text }]}>
-                {(feedbackRide.driverName ?? 'D').slice(0, 1).toUpperCase()}
-              </Text>
-            </View>
-          )}
-
-          <Text weight="semiBold" style={[styles.subtitle, { color: colors.text }]}>
-            {isCourierFlow ? t('ride_feedback_rate_courier') : t('ride_feedback_rate_trip')}
+          <Text weight="medium" style={[styles.subtitle, { color: '#374151' }]}>
+            {t('ride_feedback_tip_subtitle')}
           </Text>
 
           <RatingStars
             value={rating}
             onChange={setRating}
             size={48}
-            filledColor="#D7B24A"
+            filledColor={colors.warning}
             emptyColor={colors.border}
             style={styles.starsRow}
           />
+
+          <View style={styles.tagsWrap}>
+            {feedbackTags.map((tag) => {
+              const selected = selectedTags.includes(tag);
+              return (
+                <Pressable
+                  key={tag}
+                  onPress={() => toggleTag(tag)}
+                  style={[
+                    styles.tagChip,
+                    {
+                      backgroundColor: selected ? colors.findingRidePrimarySoft : colors.gray100,
+                    },
+                  ]}
+                >
+                  <Text
+                    weight="medium"
+                    style={{ color: selected ? colors.findingRidePrimary : '#374151' }}
+                  >
+                    {t(tag)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
 
           <TextInput
             multiline
@@ -175,40 +213,36 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingTop: 6,
   },
   title: {
     fontSize: 32,
     lineHeight: 38,
     textAlign: 'center',
     letterSpacing: -0.48,
-    marginBottom: 24,
-  },
-  avatar: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    marginBottom: 20,
-  },
-  avatarFallback: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  avatarInitial: {
-    fontSize: 34,
-    lineHeight: 40,
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 16,
-    lineHeight: 24,
-    marginBottom: 18,
+    fontSize: 14,
+    lineHeight: 22,
+    marginBottom: 16,
   },
   starsRow: {
-    marginBottom: 20,
+    marginBottom: 14,
+  },
+  tagChip: {
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  tagsWrap: {
+    alignItems: 'center',
+    columnGap: 8,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginBottom: 16,
+    rowGap: 8,
   },
   input: {
     width: '100%',

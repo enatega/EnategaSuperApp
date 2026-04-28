@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useTheme } from '../../../../general/theme/theme';
+import { useTranslation } from 'react-i18next';
 import Text from '../../../../general/components/Text';
+import { useTheme } from '../../../../general/theme/theme';
 import StarRating from './StarRating';
 import type { RatingBreakdown } from './types';
 
@@ -11,133 +12,157 @@ type Props = {
   ratingBreakdown: RatingBreakdown[];
 };
 
-function RatingBar({
-  star,
-  count,
-  max,
-}: {
-  star: number;
-  count: number;
-  max: number;
-}) {
-  const { colors } = useTheme();
-  const fillRatio = max > 0 ? count / max : 0;
-
-  return (
-    <View style={styles.ratingBarRow}>
-      <Text variant="caption" color={colors.mutedText} style={styles.ratingBarLabel}>
-        {star} star
-      </Text>
-      <View style={[styles.ratingBarTrack, { backgroundColor: colors.border }]}>
-        <View
-          style={[
-            styles.ratingBarFill,
-            { width: `${fillRatio * 100}%`, backgroundColor: '#F59E0B' },
-          ]}
-        />
-      </View>
-      <Text
-        variant="caption"
-        style={[
-          styles.ratingBarCount,
-          { color: colors.mutedText, fontVariant: ['tabular-nums'] as any },
-        ]}
-      >
-        {count}
-      </Text>
-    </View>
-  );
-}
-
 export default function RatingSummary({
   averageRating,
   totalReviews,
   ratingBreakdown,
 }: Props) {
-  const { colors } = useTheme();
-  const maxCount = Math.max(...ratingBreakdown.map((r) => r.count));
+  const { colors, typography } = useTheme();
+  const { t } = useTranslation('rideSharing');
+
+  const rows = useMemo(() => {
+    const byStar = new Map<number, number>();
+    ratingBreakdown.forEach((item) => {
+      byStar.set(item.star, item.count);
+    });
+
+    return [5, 4, 3, 2, 1].map((star) => ({
+      star,
+      count: byStar.get(star) ?? 0,
+    }));
+  }, [ratingBreakdown]);
+
+  const maxCount = Math.max(1, ...rows.map((item) => item.count));
+  const roundedRating = Math.max(0, Math.min(5, Math.round(Number(averageRating) || 0)));
+  const displayRating = Number(averageRating || 0).toFixed(1);
 
   return (
-    <View style={[styles.section, { backgroundColor: colors.surface }]}>
-      <Text variant="subtitle" weight="bold" style={styles.sectionTitle}>
-        Top Reviews
-      </Text>
-
-      {/* Big rating + stars */}
-      <View style={styles.ratingOverview}>
-        <Text style={[styles.bigRating, { color: colors.text }]}>
-          {averageRating}
+    <View style={styles.wrapper}>
+      <View style={styles.headerRow}>
+        <Text
+          weight="extraBold"
+          style={{
+            color: colors.text,
+            fontSize: typography.size.lg,
+            lineHeight: typography.lineHeight.h5,
+          }}
+        >
+          {t('driver_profile_top_reviews')}
         </Text>
-        <View style={{ gap: 4 }}>
-          <StarRating rating={Math.round(Number(averageRating))} size={22} />
-          <Text variant="caption" color={colors.mutedText}>
-            Based on {totalReviews} Reviews
+
+        <View style={[styles.totalBadge, { backgroundColor: colors.gray100 }]}>
+          <Text weight="medium" style={{ color: colors.text }}>
+            {t('driver_profile_total_reviews', { count: totalReviews })}
           </Text>
         </View>
       </View>
 
-      {/* Rating bars — 5 → 1 */}
-      <View style={styles.ratingBars}>
-        {[...ratingBreakdown]
-          .sort((a, b) => b.star - a.star)
-          .map((item) => (
-            <RatingBar
-              key={item.star}
-              star={item.star}
-              count={item.count}
-              max={maxCount}
-            />
+      <View style={styles.overviewRow}>
+        <View style={styles.bigScoreCol}>
+          <Text
+            weight="extraBold"
+            style={{
+              color: colors.text,
+              fontSize: 42,
+              lineHeight: 86,
+              letterSpacing: -1.08,
+            }}
+          >
+            {displayRating}
+          </Text>
+          <StarRating rating={roundedRating} size={16} />
+          {/* <Text
+            style={{
+              color: colors.mutedText,
+              fontSize: typography.size.sm2,
+              lineHeight: typography.lineHeight.md,
+            }}
+          >
+            {t('driver_profile_reviews_based_on', { count: totalReviews })}
+          </Text> */}
+        </View>
+
+        <View style={styles.barsCol}>
+          {rows.map((item) => (
+            <View key={item.star} style={styles.barRow}>
+              <Text style={[styles.starLabel, { color: colors.mutedText }]} weight="medium">
+                {item.star}
+              </Text>
+              <View style={[styles.track, { backgroundColor: colors.border }]}>
+                <View
+                  style={[
+                    styles.fill,
+                    {
+                      backgroundColor: item.star >= 4
+                        ? colors.yellow500
+                        : item.star === 3
+                          ? colors.warning
+                          : colors.danger,
+                      width: `${(item.count / maxCount) * 100}%`,
+                    },
+                  ]}
+                />
+              </View>
+              <Text style={[styles.countLabel, { color: colors.mutedText }]} weight="medium">
+                {item.count}
+              </Text>
+            </View>
           ))}
+        </View>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  section: {
-    marginHorizontal: 16,
-    borderRadius: 20,
-    padding: 20,
-    boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
-  } as any,
-  sectionTitle: {
-    marginBottom: 16,
-  },
-  ratingOverview: {
-    flexDirection: 'row',
+  barRow: {
     alignItems: 'center',
-    gap: 16,
-    marginBottom: 20,
-  },
-  bigRating: {
-    fontSize: 52,
-    fontWeight: '700',
-    lineHeight: 56,
-  },
-  ratingBars: {
-    gap: 10,
-  },
-  ratingBarRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     gap: 8,
   },
-  ratingBarLabel: {
-    width: 42,
+  barsCol: {
+    flex: 1,
+    gap: 4,
+    paddingTop: 10,
+  },
+  bigScoreCol: {
+    gap: 10,
+    marginRight: 12,
+    width: 94,
+  },
+  countLabel: {
+    minWidth: 24,
     textAlign: 'right',
   },
-  ratingBarTrack: {
+  fill: {
+    borderRadius: 4,
+    height: '100%',
+  },
+  headerRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  overviewRow: {
+    flexDirection: 'row',
+  },
+  starLabel: {
+    minWidth: 10,
+    textAlign: 'right',
+  },
+  totalBadge: {
+    borderRadius: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+  },
+  track: {
+    borderRadius: 999,
     flex: 1,
     height: 8,
-    borderRadius: 4,
     overflow: 'hidden',
   },
-  ratingBarFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  ratingBarCount: {
-    width: 24,
-    textAlign: 'right',
+  wrapper: {
+    paddingHorizontal: 16,
   },
 });

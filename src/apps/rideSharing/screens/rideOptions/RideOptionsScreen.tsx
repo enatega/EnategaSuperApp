@@ -198,6 +198,7 @@ export default function RideOptionsScreen() {
         onRetryRideTypes={() => {
           void rideTypesQuery.refetch();
         }}
+        isDirectCourierFlow={directCourierOnly}
       />
 
       <HamburgerMenu
