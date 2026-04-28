@@ -24,6 +24,11 @@ export default function SupportHeader({
   const { colors, typography } = useTheme();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const handleBackPress = React.useCallback(() => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    }
+  }, [navigation]);
 
   return (
     <View
@@ -40,7 +45,7 @@ export default function SupportHeader({
           accessibilityLabel={backAccessibilityLabel}
           accessibilityRole="button"
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          onPress={() => navigation.goBack()}
+          onPress={handleBackPress}
           style={[styles.iconButton, { backgroundColor: colors.backgroundTertiary }]}
         >
           <Ionicons

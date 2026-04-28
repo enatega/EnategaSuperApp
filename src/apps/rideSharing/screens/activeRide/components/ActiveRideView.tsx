@@ -245,8 +245,23 @@ function ActiveRideView({ activeRide }: Props) {
       driverAvatarUri: driverAvatarUri ?? undefined,
       driverRating: driverRating ?? undefined,
       vehicleLabel: [vehicleName, vehicleColor].filter(Boolean).join(' • ') || undefined,
+      pickupLatitude: fromAddress?.coordinates.latitude,
+      pickupLongitude: fromAddress?.coordinates.longitude,
+      dropoffLatitude: toAddress?.coordinates.latitude,
+      dropoffLongitude: toAddress?.coordinates.longitude,
     });
-  }, [driverAvatarUri, driverName, driverRating, vehicleColor, vehicleName, navigation]);
+  }, [
+    driverAvatarUri,
+    driverName,
+    driverRating,
+    fromAddress?.coordinates.latitude,
+    fromAddress?.coordinates.longitude,
+    toAddress?.coordinates.latitude,
+    toAddress?.coordinates.longitude,
+    vehicleColor,
+    vehicleName,
+    navigation,
+  ]);
 
   const handleShareRide = useCallback(() => {
     const originLatitude = fromAddress?.coordinates.latitude;

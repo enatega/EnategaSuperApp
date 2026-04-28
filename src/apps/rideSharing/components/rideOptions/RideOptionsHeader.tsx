@@ -1,5 +1,5 @@
-import React, { memo, useCallback } from 'react';
-import { FlatList, ListRenderItemInfo, Pressable, StyleSheet } from 'react-native';
+import React, { memo, useMemo } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
 import Text from '../../../../general/components/Text';
@@ -28,28 +28,80 @@ function RideOptionsHeader({
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
 
-  const renderRideOption = useCallback(
-    ({ item }: ListRenderItemInfo<RideOptionItem>) => (
-      <RideOptionCard
-        item={item}
-        isActive={item.id === selectedCategory}
-        onPress={onSelectCategory}
-      />
-    ),
-    [onSelectCategory, selectedCategory],
+  const optionRows = useMemo(() => {
+    if (rideOptions.length === 0) {
+      return [];
+    }
+
+    const rows: RideOptionItem[][] = [];
+    rows.push(rideOptions.slice(0, 2));
+
+    const remaining = rideOptions.slice(2);
+    for (let index = 0; index < remaining.length; index += 3) {
+      rows.push(remaining.slice(index, index + 3));
+    }
+
+    return rows;
+  }, [rideOptions]);
+
+  const getCellStyle = (rowIndex: number) => {
+    if (rowIndex === 0) {
+      return styles.twoColumnCell;
+    }
+
+    return styles.threeColumnCell;
+  };
+
+  const getRowStyle = (rowIndex: number) => {
+    if (rowIndex === 0) {
+      return styles.twoColumnRow;
+    }
+
+    return styles.threeColumnRow;
+  };
+
+  const getCardContainerStyle = (rowIndex: number) => {
+    if (rowIndex === 0) {
+      return styles.twoColumnCardContainer;
+    }
+
+    return styles.threeColumnCardContainer;
+  };
+
+  const getSpacerCount = (rowIndex: number, itemCount: number) => {
+    const maxColumns = rowIndex === 0 ? 2 : 3;
+    return Math.max(0, maxColumns - itemCount);
+  };
+
+  const renderOptionGrid = useMemo(
+    () =>
+      optionRows.map((row, rowIndex) => (
+        <View key={`row-${rowIndex}`} style={[styles.optionsRow, getRowStyle(rowIndex)]}>
+          {row.map((item) => (
+            <View key={item.id} style={[styles.optionCell, getCellStyle(rowIndex)]}>
+              <RideOptionCard
+                item={item}
+                isActive={item.id === selectedCategory}
+                onPress={onSelectCategory}
+                containerStyle={getCardContainerStyle(rowIndex)}
+              />
+            </View>
+          ))}
+          {Array.from({ length: getSpacerCount(rowIndex, row.length) }).map((_, spacerIndex) => (
+            <View
+              key={`spacer-${rowIndex}-${spacerIndex}`}
+              style={[styles.optionCell, getCellStyle(rowIndex)]}
+            />
+          ))}
+        </View>
+      )),
+    [onSelectCategory, optionRows, selectedCategory],
   );
 
   return (
     <>
       {hideOptionsRow ? null : (
-        <FlatList
-          data={rideOptions}
-          keyExtractor={(item) => item.id}
-          renderItem={renderRideOption}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.optionsRow}
-        />
+        <View style={styles.optionsGrid}>{renderOptionGrid}</View>
       )}
       <Pressable
         onPress={() => onSearchPress()}
@@ -76,10 +128,35 @@ function RideOptionsHeader({
 export default memo(RideOptionsHeader);
 
 const styles = StyleSheet.create({
-  optionsRow: {
+  optionsGrid: {
     paddingHorizontal: 16,
-    paddingBottom:8,
+    paddingBottom: 8,
+  },
+  optionsRow: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    marginBottom: 8,
+  },
+  twoColumnRow: {
     gap: 8,
+  },
+  threeColumnRow: {
+    gap: 8,
+  },
+  optionCell: {
+    minWidth: 0,
+  },
+  twoColumnCell: {
+    flex: 1,
+  },
+  threeColumnCell: {
+    flex: 1,
+  },
+  twoColumnCardContainer: {
+    minHeight: 86,
+  },
+  threeColumnCardContainer: {
+    minHeight: 84,
   },
   searchInput: {
     marginTop: 12,
