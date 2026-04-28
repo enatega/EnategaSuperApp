@@ -124,6 +124,7 @@ const en = {
   update_photo_button: 'Update photo',
   cancel_button: 'Cancel',
   label_name: 'Full Name',
+  label_name_short: 'Name',
   label_phone: 'Phone number',
   label_email: 'Email',
   label_first_name: 'First name',
