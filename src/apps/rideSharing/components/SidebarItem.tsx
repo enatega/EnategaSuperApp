@@ -31,24 +31,17 @@ export default function SidebarItem({
       style={({ pressed }) => [
         styles.container,
         {
-          backgroundColor: pressed ? colors.cardSoft : 'transparent',
+          backgroundColor: pressed ? colors.backgroundTertiary : 'transparent',
         },
         style,
       ]}
     >
       <View style={styles.content}>
-        <View style={[styles.iconContainer, { backgroundColor: colors.cardSoft }]}>
-          <Icon
-            type={iconLibrary}
-            name={icon}
-            size={24}
-            color={colors.text}
-          />
-        </View>
+        <Icon type={iconLibrary} name={icon} size={24} color={colors.iconColor} />
         <View style={styles.textContainer}>
           <Text
-            variant="subtitle"
-            weight="semiBold"
+            variant="body"
+            weight="medium"
             color={colors.text}
             numberOfLines={1}
           >
@@ -75,26 +68,17 @@ export default function SidebarItem({
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 16,
-    borderRadius: 12,
-    marginHorizontal: 8,
+    borderRadius: 8,
   },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
-  iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   textContainer: {
     flex: 1,
     minWidth: 0,
-    gap: 4,
   },
 });

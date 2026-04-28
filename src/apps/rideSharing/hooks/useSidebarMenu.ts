@@ -57,7 +57,6 @@ export function useSidebarMenu() {
       icon: 'car-outline',
       iconLibrary: 'Ionicons',
       titleKey: 'sidebar_lo_drive',
-      subtitleKey: 'sidebar_lo_drive_subtitle',
       showChevron: true,
       onPress: () => console.log('LO Drive pressed'),
     },
@@ -66,7 +65,6 @@ export function useSidebarMenu() {
       icon: 'calendar-outline',
       iconLibrary: 'Ionicons',
       titleKey: 'sidebar_reservations',
-      subtitleKey: 'sidebar_reservations_subtitle',
       showChevron: true,
       onPress: () => {
         closeSidebar();
@@ -78,7 +76,6 @@ export function useSidebarMenu() {
       icon: 'time-outline',
       iconLibrary: 'Ionicons',
       titleKey: 'sidebar_ride_history',
-      subtitleKey: 'sidebar_ride_history_subtitle',
       showChevron: true,
       onPress: () => {
         closeSidebar();
@@ -90,7 +87,6 @@ export function useSidebarMenu() {
       icon: 'card-outline',
       iconLibrary: 'Ionicons',
       titleKey: 'sidebar_payment_methods',
-      subtitleKey: 'sidebar_payment_methods_subtitle',
       showChevron: true,
       onPress: () => console.log('Payment Methods pressed'),
     },
@@ -99,7 +95,6 @@ export function useSidebarMenu() {
       icon: 'wallet-outline',
       iconLibrary: 'Ionicons',
       titleKey: 'sidebar_wallet',
-      subtitleKey: 'sidebar_wallet_subtitle',
       showChevron: true,
       onPress: () => {
         closeSidebar();
@@ -111,7 +106,6 @@ export function useSidebarMenu() {
       icon: 'help-buoy-outline',
       iconLibrary: 'Ionicons',
       titleKey: 'sidebar_support',
-      subtitleKey: 'sidebar_support_subtitle',
       showChevron: true,
       onPress: () => {
         closeSidebar();
@@ -123,7 +117,6 @@ export function useSidebarMenu() {
       icon: 'settings-outline',
       iconLibrary: 'Ionicons',
       titleKey: 'sidebar_security',
-      subtitleKey: 'sidebar_security_subtitle',
       showChevron: true,
       onPress: () => {
         closeSidebar();
@@ -135,7 +128,6 @@ export function useSidebarMenu() {
       icon: 'notifications-outline',
       iconLibrary: 'Ionicons',
       titleKey: 'sidebar_notifications',
-      subtitleKey: 'sidebar_notifications_subtitle',
       showChevron: true,
       onPress: () => {
         closeSidebar();

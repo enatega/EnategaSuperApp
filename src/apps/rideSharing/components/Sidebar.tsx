@@ -63,7 +63,7 @@ export default function Sidebar({
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
   const sidebarWidth = React.useMemo(
-    () => Math.min(420, Math.max(280, windowWidth * 0.85)),
+    () => Math.min(420, Math.max(280, windowWidth * 0.86)),
     [windowWidth]
   );
   const slideAnim = React.useRef(new Animated.Value(-sidebarWidth)).current;
@@ -170,12 +170,7 @@ export default function Sidebar({
                 }}
                 style={styles.profileHeader}
               >
-                <View
-                  style={[
-                    styles.avatarContainer,
-                    { backgroundColor: colors.cardSoft },
-                  ]}
-                >
+                <View style={styles.avatarContainer}>
                   {userProfile.avatarUri ? (
                     <Image
                       source={{ uri: userProfile.avatarUri }}
@@ -197,11 +192,11 @@ export default function Sidebar({
                   )}
                 </View>
                 <View style={styles.profileInfo}>
-                  <Text variant="title" weight="bold" color={colors.text}>
+                  <Text variant="subtitle" weight="semiBold" color={colors.text}>
                     {userProfile.name}
                   </Text>
                   {userProfile.email && (
-                    <Text variant="caption" color={colors.mutedText}>
+                    <Text variant="body" color={colors.mutedText}>
                       {userProfile.email}
                     </Text>
                   )}
@@ -215,8 +210,8 @@ export default function Sidebar({
                       />
                       <Text
                         variant="caption"
-                        weight="semiBold"
-                        color={colors.text}
+                        weight="medium"
+                        color={colors.mutedText}
                       >
                         {userProfile.rating.toFixed(2)} (
                         {userProfile.reviewCount || 0})
@@ -254,12 +249,15 @@ export default function Sidebar({
             {/* Logout Button */}
             {onLogout ? (
               <View style={styles.logoutContainer}>
+                <View
+                  style={[styles.logoutDivider, { backgroundColor: colors.border }]}
+                />
                 <TouchableOpacity
                   onPress={onLogout}
                   style={[styles.logoutButton, { borderColor: colors.danger }]}
                 >
                   <Text
-                    variant="subtitle"
+                    variant="body"
                     weight="semiBold"
                     color={colors.danger}
                   >
@@ -297,29 +295,28 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingVertical: 20,
+    paddingTop: 20,
+    paddingBottom: 12,
   },
   profileHeader: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingBottom: 24,
-    // borderBottomWidth: 1,
-    // borderBottomColor: '#E5E7EB',
-    marginBottom: 16,
+    paddingBottom: 20,
+    marginBottom: 8,
   },
   avatarContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
+    overflow: "hidden",
   },
   avatarImage: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: "100%",
+    height: "100%",
   },
   avatarPlaceholder: {
     width: 56,
@@ -331,30 +328,33 @@ const styles = StyleSheet.create({
   },
   profileInfo: {
     flex: 1,
-    gap: 4,
+    gap: 2,
   },
   ratingContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
+    marginTop: 2,
   },
   menuContainer: {
     flex: 1,
-    gap: 4,
   },
   logoutContainer: {
-    marginTop: 16,
-    // borderTopWidth: 1,
-    // borderTopColor: '#E5E7EB',
-    paddingTop: 16,
+    marginTop: 12,
     paddingHorizontal: 16,
+    paddingBottom: 8,
     alignItems: "center",
   },
+  logoutDivider: {
+    width: "100%",
+    height: 1,
+    marginBottom: 14,
+  },
   logoutButton: {
-    paddingVertical: 14,
+    paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 12,
-    borderWidth: 1.5,
+    borderRadius: 6,
+    borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
     width: "100%",
