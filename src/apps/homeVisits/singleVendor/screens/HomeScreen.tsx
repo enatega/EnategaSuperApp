@@ -1,35 +1,37 @@
-import SingleVendorSpecialOffersBanner from '../components/HomeScreen/SingleVendorSpecialOffersBanner';
-import React, { useCallback } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useTranslation } from 'react-i18next';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AddressSelectionBottomSheet from '../../../../general/components/address/AddressSelectionBottomSheet';
-import HomeVisitsAddressHeader from '../../components/HomeVisitsAddressHeader';
-import { showToast } from '../../../../general/components/AppToast';
-import { useTheme } from '../../../../general/theme/theme';
-import useAddress from '../../../../general/hooks/useAddress';
-import useAddressSelectionSheet from '../../../../general/hooks/useAddressSelectionSheet';
-import useSavedAddresses from '../../../../general/hooks/useSavedAddresses';
-import useSelectSavedAddress from '../../../../general/hooks/useSelectSavedAddress';
-import { createSelectedDeliveryAddress } from '../../../../general/utils/address';
-import SingleVendorCategorySection from '../components/HomeScreen/SingleVendorCategorySection';
-import DealsSection from '../components/HomeScreen/DealsSection';
-import MostPopularServicesSection from '../components/HomeScreen/MostPopularServicesSection';
-import NearbyYourLocationSection from '../components/HomeScreen/NearbyYourLocationSection';
-import ActiveServiceCard from '../components/HomeScreen/ActiveServiceCard';
-import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
-import useSingleVendorActiveBooking from '../hooks/useSingleVendorActiveBooking';
+import SingleVendorSpecialOffersBanner from "../components/HomeScreen/SingleVendorSpecialOffersBanner";
+import React, { useCallback } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import AddressSelectionBottomSheet from "../../../../general/components/address/AddressSelectionBottomSheet";
+import HomeVisitsAddressHeader from "../../components/HomeVisitsAddressHeader";
+import { showToast } from "../../../../general/components/AppToast";
+import { useTheme } from "../../../../general/theme/theme";
+import useAddress from "../../../../general/hooks/useAddress";
+import useAddressSelectionSheet from "../../../../general/hooks/useAddressSelectionSheet";
+import useSavedAddresses from "../../../../general/hooks/useSavedAddresses";
+import useSelectSavedAddress from "../../../../general/hooks/useSelectSavedAddress";
+import { createSelectedDeliveryAddress } from "../../../../general/utils/address";
+import SingleVendorCategorySection from "../components/HomeScreen/SingleVendorCategorySection";
+import DealsSection from "../components/HomeScreen/DealsSection";
+import MostPopularServicesSection from "../components/HomeScreen/MostPopularServicesSection";
+import NearbyYourLocationSection from "../components/HomeScreen/NearbyYourLocationSection";
+import ActiveServiceCard from "../components/HomeScreen/ActiveServiceCard";
+import type { HomeVisitsSingleVendorNavigationParamList } from "../navigation/types";
+import useSingleVendorActiveBooking from "../hooks/useSingleVendorActiveBooking";
 
 type Props = Record<string, never>;
 
-export default function SingleVendorHomeScreen({ }: Props) {
+export default function SingleVendorHomeScreen({}: Props) {
   const { colors } = useTheme();
-  const { t } = useTranslation('homeVisits');
+  const { t } = useTranslation("homeVisits");
   const insets = useSafeAreaInsets();
   const navigation =
-    useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
+    useNavigation<
+      NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>
+    >();
   const {
     addresses,
     isLoading: isAddressesLoading,
@@ -42,7 +44,8 @@ export default function SingleVendorHomeScreen({ }: Props) {
     [addresses],
   );
   const resolvedSelectedAddress = apiSelectedAddress ?? selectedAddress;
-  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("home-services");
+  const { selectSavedAddress, selectingAddressId } =
+    useSelectSavedAddress("home-services");
   const {
     isVisible: isAddressSheetVisible,
     open: handleOpenAddressSheet,
@@ -64,7 +67,7 @@ export default function SingleVendorHomeScreen({ }: Props) {
         void refetch();
         handleCloseAddressSheet();
       } catch {
-        showToast.error(t('address_select_error'));
+        showToast.error(t("address_select_error"));
       }
     },
     [handleCloseAddressSheet, refetch, selectSavedAddress, t],
@@ -87,7 +90,9 @@ export default function SingleVendorHomeScreen({ }: Props) {
   }, [handleCloseAddressSheet, navigation]);
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background, gap: 10 }]}>
+    <View
+      style={[styles.screen, { backgroundColor: colors.background, gap: 10 }]}
+    >
       <HomeVisitsAddressHeader
         addresses={addresses}
         onAddAddressPress={handleOpenAddressSheet}
@@ -102,25 +107,28 @@ export default function SingleVendorHomeScreen({ }: Props) {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <SingleVendorSpecialOffersBanner />
+        
         {activeBooking ? (
           <ActiveServiceCard
             booking={activeBooking}
             onPress={() => {
-              navigation.navigate('SingleVendorTrackWorker', {
+              navigation.navigate("SingleVendorTrackWorker", {
                 orderId: activeBooking.orderId,
-                source: 'home_active_service',
+                source: "home_active_service",
               });
             }}
           />
         ) : null}
-        <SingleVendorCategorySection />
+        <MostPopularServicesSection />
         <NearbyYourLocationSection
           latitude={resolvedSelectedAddress?.latitude}
           longitude={resolvedSelectedAddress?.longitude}
         />
+        
+        <SingleVendorSpecialOffersBanner />
+        <SingleVendorCategorySection />
+
         <DealsSection />
-        <MostPopularServicesSection />
       </ScrollView>
 
       <AddressSelectionBottomSheet
