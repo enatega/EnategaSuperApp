@@ -107,9 +107,12 @@ export function useNearbyDrivers(
     return useQuery<NearbyDriver[], ApiError>({
         queryKey: rideKeys.nearbyDrivers(latitude, longitude, radiusKm),
         queryFn: () => rideService.getNearbyDrivers(latitude!, longitude!, radiusKm),
-        enabled: typeof latitude === 'number' && typeof longitude === 'number',
-        staleTime: 8 * 1000,
-        refetchInterval: 10 * 1000,
+        staleTime: Infinity,
+        gcTime: Infinity,
+        retry: false,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
         ...options,
     });
 }
