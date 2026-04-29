@@ -1,5 +1,4 @@
 import React from 'react';
-import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View } from 'react-native';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
@@ -32,12 +31,7 @@ export default function SpecialOffersBannerCard({
       )}
 
       <View style={styles.bannerCard}>
-        <LinearGradient
-          colors={['rgba(0, 0, 0, 0.08)', 'rgba(0, 0, 0, 0.72)']}
-          end={{ x: 0.9, y: 1 }}
-          start={{ x: 0.2, y: 0 }}
-          style={styles.overlay}
-        />
+        
 
         <View style={styles.content}>
           {storeAddress ? (

@@ -107,7 +107,8 @@ export default function SingleVendorHomeScreen({}: Props) {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        
+         <SingleVendorSpecialOffersBanner />
+           <SingleVendorCategorySection />
         {activeBooking ? (
           <ActiveServiceCard
             booking={activeBooking}
@@ -125,8 +126,8 @@ export default function SingleVendorHomeScreen({}: Props) {
           longitude={resolvedSelectedAddress?.longitude}
         />
         
-        <SingleVendorSpecialOffersBanner />
-        <SingleVendorCategorySection />
+       
+      
 
         <DealsSection />
       </ScrollView>

@@ -45,7 +45,7 @@ export default function SectionActionHeader({
         <Text
           weight="medium"
           style={{
-            color: colors.text,
+            color: colors.primary,
             fontSize: typography.size.sm2,
             lineHeight: 22,
           }}

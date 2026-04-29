@@ -41,14 +41,14 @@ const styles = StyleSheet.create({
   },
   image: {
     borderRadius: 8,
-    height: '72%',
-    width: '72%',
+    height: '65%',
+    width: '65%',
     alignSelf: 'center',
     resizeMode: 'contain',
   },
   imageWrap: {
     borderRadius: 14,
-    height: 116,
+    height: 96,
     padding: 12,
     width: '100%',
   },

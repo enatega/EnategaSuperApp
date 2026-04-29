@@ -48,7 +48,7 @@ export default function TeamAndSchedule() {
   } = route.params;
 
   const [teamSize, setTeamSize] = useState(1);
-  const [workingHours, setWorkingHours] = useState(6);
+  const [workingHours, setWorkingHours] = useState(1);
   const [serviceMode, setServiceMode] = useState<'one-time' | 'contract'>('one-time');
   const [contractDays, setContractDays] = useState(30);
   const [isCustomSheetOpen, setIsCustomSheetOpen] = useState(false);

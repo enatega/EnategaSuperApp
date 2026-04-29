@@ -117,6 +117,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingBottom: 12,
+    width: '100%',
+    maxWidth: 460,
+    alignSelf: 'center',
   },
   backButton: {
     width: 44,
@@ -127,6 +130,6 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   searchInput: {
-    flex: 1,
+    width: '72%',
   },
 });

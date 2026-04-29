@@ -10,6 +10,8 @@ export default function SingleVendorSpecialOffersBanner() {
     isFetchingNextPage,
     fetchNextPage,
   } = useSingleVendorBanners();
+  console.log('banners_____', banners);
+  
 
   const handleIndexChange = React.useCallback(
     (index: number) => {

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import type { HomeVisitsSingleVendorCategory } from '../../singleVendor/api/types';
 import CategorySeeAllGridEmptyState from './CategorySeeAllGridEmptyState';
 import CategorySeeAllGridErrorState from './CategorySeeAllGridErrorState';
@@ -32,8 +32,7 @@ export default function CategorySeeAllGrid({
   refetch,
   title,
 }: Props) {
-  const { width } = useWindowDimensions();
-  const numColumns = width < 420 ? 2 : 3;
+  const numColumns = 3;
 
   const handleLoadMore = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -84,13 +83,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 4,
     paddingBottom: 24,
+    width: '100%',
+    maxWidth: 460,
+    alignSelf: 'center',
   },
   row: {
-    justifyContent: 'space-between',
-    marginBottom: 24,
+    justifyContent: 'flex-start',
   },
   itemColumn: {
-    flex: 1,
-    marginHorizontal: 4,
+    width: '33.333%',
+    paddingHorizontal: 4,
+    marginBottom: 24,
   },
 });

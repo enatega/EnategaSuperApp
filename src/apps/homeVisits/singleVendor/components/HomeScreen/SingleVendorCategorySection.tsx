@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -16,8 +16,22 @@ export default function SingleVendorCategorySection() {
   const { t } = useTranslation('homeVisits');
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
-  const { data = [], isPending } = useSingleVendorCategories();
+  const {
+    data = [],
+    isPending,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useSingleVendorCategories();
   const serviceSections = useSingleVendorCategoryServiceSections(data);
+
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage) {
+      return;
+    }
+
+    void fetchNextPage();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const handleSeeAllPress = useCallback(() => {
     navigation.navigate('SingleVendorCategoriesSeeAll');

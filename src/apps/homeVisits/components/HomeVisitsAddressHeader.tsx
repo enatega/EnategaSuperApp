@@ -57,13 +57,20 @@ export default function HomeVisitsAddressHeader({
             },
           ]}
         >
+          <Icon
+            color={colors.primary}
+            name="location-outline"
+            size={18}
+            style={styles.addressLeadingIcon}
+            type="Ionicons"
+          />
           <Text
             numberOfLines={1}
             weight="medium"
             style={[
               styles.addressLabelText,
               {
-                color: colors.text,
+                color: colors.primary,
                 fontSize: typography.size.sm2,
                 lineHeight: typography.lineHeight.md,
               },
@@ -86,13 +93,20 @@ export default function HomeVisitsAddressHeader({
             },
           ]}
         >
+          <Icon
+            color={colors.primary}
+            name="location-outline"
+            size={18}
+            style={styles.addressLeadingIcon}
+            type="Ionicons"
+          />
           <Text
             numberOfLines={1}
             weight="medium"
             style={[
               styles.addressText,
               {
-                color: colors.text,
+                color: colors.primary,
                 fontSize: typography.size.md,
                 lineHeight: typography.lineHeight.md,
               },
@@ -101,7 +115,7 @@ export default function HomeVisitsAddressHeader({
             {resolvedSelectedAddressLabel ?? t('home_visits_address_label')}
           </Text>
           <Icon
-            color={colors.text}
+            color={colors.primary}
             name="chevron-down"
             size={20}
             type="Ionicons"
@@ -153,6 +167,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 6,
     justifyContent: 'flex-start',
+    maxWidth: '60%',
     minHeight: 44,
     paddingHorizontal: 0,
     paddingVertical: 12,
@@ -161,8 +176,11 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   addressLabelContainer: {
+    alignItems: 'center',
     flex: 1,
+    flexDirection: 'row',
     justifyContent: 'center',
+    maxWidth: '60%',
     minHeight: 44,
     paddingRight: 12,
     paddingVertical: 10,
@@ -176,6 +194,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     gap: 6,
+    maxWidth: '60%',
     minHeight: 44,
     paddingHorizontal: 0,
     paddingVertical: 12,
@@ -183,6 +202,9 @@ const styles = StyleSheet.create({
   addressText: {
     flex: 1,
     letterSpacing: 0,
+  },
+  addressLeadingIcon: {
+    marginRight: 4,
   },
   container: {
     alignItems: 'center',
