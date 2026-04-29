@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { useTheme } from '../../../../general/theme/theme';
 import Text from '../../../../general/components/Text';
 import Image from '../../../../general/components/Image';
@@ -11,9 +11,10 @@ type Props = {
   item: RideOptionItem;
   isActive: boolean;
   onPress: (id: RideOptionItem['id']) => void;
+  containerStyle?: StyleProp<ViewStyle>;
 };
 
-function RideOptionCard({ item, isActive, onPress }: Props) {
+function RideOptionCard({ item, isActive, onPress, containerStyle }: Props) {
   const { colors, typography } = useTheme();
 
   const handlePress = useCallback(() => {
@@ -25,6 +26,7 @@ function RideOptionCard({ item, isActive, onPress }: Props) {
       onPress={handlePress}
       style={[
         styles.optionButton,
+        containerStyle,
         {
           backgroundColor: isActive ? colors.blue50 : colors.surface,
           shadowColor: colors.shadowColor,
@@ -53,6 +55,7 @@ function RideOptionCard({ item, isActive, onPress }: Props) {
       <View style={styles.optionMeta}>
         <Text
           weight="medium"
+          numberOfLines={1}
           style={[
             styles.optionTitle,
             { color: isActive ? colors.blue800 : colors.text },
@@ -135,14 +138,20 @@ const styles = StyleSheet.create({
   optionMeta: {
     flexDirection: 'row',
     alignItems: 'center',
+    width: '100%',
+    justifyContent: 'space-between',
     gap: 10,
   },
   optionTitle: {
     fontSize: 14,
+    flex: 1,
+    flexShrink: 1,
+    marginRight: 6,
   },
   optionSeats: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    flexShrink: 0,
   },
 });

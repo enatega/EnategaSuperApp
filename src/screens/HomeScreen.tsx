@@ -8,9 +8,14 @@ import { MiniAppId } from '../general/utils/constants';
 import { authSession } from '../general/auth/authSession';
 import { LinearGradient } from 'expo-linear-gradient';
 import { homeVisitOnboardingImages } from '../general/assets/images';
+import { NavigatorScreenParams } from '@react-navigation/native';
+import { RideSharingStackParamList } from '../apps/rideSharing/navigation/RideSharingNavigator';
 
 type Props = {
-  onSelectMiniApp?: (id: MiniAppId) => void;
+  onSelectMiniApp?: (
+    id: MiniAppId,
+    params?: NavigatorScreenParams<RideSharingStackParamList>,
+  ) => void;
 };
 
 type Slide = {

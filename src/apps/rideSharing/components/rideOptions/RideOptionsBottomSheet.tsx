@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
 import BottomSheetHandle from '../../../../general/components/BottomSheetHandle';
 import SwipeableBottomSheet from '../../../../general/components/SwipeableBottomSheet';
@@ -13,6 +12,7 @@ import RideOptionsHeader from './RideOptionsHeader';
 import CachedAddressList from './CachedAddressList';
 import RideOptionsBottomSheetSkeleton from './RideOptionsBottomSheetSkeleton';
 import RideOptionsBottomSheetError from './RideOptionsBottomSheetError';
+import NoAddressEmptyState from './NoAddressEmptyState';
 
 type Props = {
   rideOptions: RideOptionItem[];
@@ -26,6 +26,8 @@ type Props = {
   isLoadingRideTypes?: boolean;
   rideTypesErrorMessage?: string | null;
   onRetryRideTypes?: () => void;
+  onHeightChange?: (height: number) => void;
+  isDirectCourierFlow?: boolean;
 };
 
 function RideOptionsBottomSheet({
@@ -40,12 +42,18 @@ function RideOptionsBottomSheet({
   isLoadingRideTypes = false,
   rideTypesErrorMessage = null,
   onRetryRideTypes,
+  onHeightChange,
+  isDirectCourierFlow = false,
 }: Props) {
   const { colors } = useTheme();
-  const { t } = useTranslation('rideSharing');
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
-  const expandedHeight = Math.min(screenHeight * 0.6, 520);
+  const expandedHeight = isDirectCourierFlow
+    ? Math.min(screenHeight * 0.8, screenHeight - 32)
+    : Math.min(screenHeight * 0.6, 520);
+  const defaultHeight = isDirectCourierFlow
+    ? expandedHeight
+    : undefined;
   const collapsedHeight = 120;
   const showErrorState = Boolean(rideTypesErrorMessage) && !isLoadingRideTypes;
   const searchDisabled = !selectedCategory || isLoadingRideTypes || showErrorState;
@@ -53,6 +61,7 @@ function RideOptionsBottomSheet({
   return (
     <SwipeableBottomSheet
       expandedHeight={expandedHeight}
+      defaultHeight={defaultHeight}
       collapsedHeight={collapsedHeight + insets.bottom}
       floatingAccessory={(
         <View style={styles.floatingAccessoryContent}>
@@ -70,9 +79,9 @@ function RideOptionsBottomSheet({
             <Icon type="Ionicons" name="arrow-back" size={22} color={colors.text} />
           </Pressable>
           <MapCurrentLocationButton
-            label={t('ride_current_location')}
             onPress={onLocatePress}
             isLoading={isLocating}
+            style={styles.locateIconOnlyButton}
           />
         </View>
       )}
@@ -86,6 +95,7 @@ function RideOptionsBottomSheet({
         },
       ]}
       handle={<BottomSheetHandle color={colors.border} />}
+      onHeightChange={onHeightChange}
     >
       {isLoadingRideTypes ? (
         <RideOptionsBottomSheetSkeleton />
@@ -99,6 +109,7 @@ function RideOptionsBottomSheet({
           data={cachedAddresses}
           onSelect={onSearchPress}
           contentContainerStyle={styles.sheetContent}
+          ListEmptyComponent={<NoAddressEmptyState />}
           ListHeaderComponent={(
             <RideOptionsHeader
               rideOptions={rideOptions}
@@ -106,6 +117,7 @@ function RideOptionsBottomSheet({
               onSelectCategory={onSelectCategory}
               onSearchPress={onSearchPress}
               searchDisabled={searchDisabled}
+              hideOptionsRow={isDirectCourierFlow}
             />
           )}
         />
@@ -159,5 +171,13 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
+  },
+  locateIconOnlyButton: {
+    width: 40,
+    height: 40,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

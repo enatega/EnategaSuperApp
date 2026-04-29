@@ -258,6 +258,9 @@ export interface ActiveRidePayload {
     dropoff_location: string;
     agreed_price?: number | string | null;
     ride_status: string;
+    driver_reached_at?: string | null;
+    in_progress_at?: string | null;
+    waiting_window_sec?: number | null;
     payment_via: string;
     isScheduled?: boolean;
     scheduledAt?: string | null;
@@ -519,6 +522,16 @@ export interface DriverProfileStats {
     totalReviews: number;
     ratingBreakdown: DriverRatingBreakdown[];
     reviews: DriverReview[];
+}
+
+// ---------------------------------------------------------------------------
+// Rider Vehicle Info (/api/v1/ride-vehicles/rider/:riderId/vehicle-info)
+// ---------------------------------------------------------------------------
+
+export interface RiderVehicleInfo {
+    vehicleName: string | null;
+    vehicleNo: string | null;
+    vehicleColor: string | null;
 }
 
 // ---------------------------------------------------------------------------

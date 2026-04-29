@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAppLogout } from '../../../general/hooks/useAppLogout';
-import type { RideIntent } from '../utils/rideOptions';
+import type { RideSharingStackParamList } from '../navigation/RideSharingNavigator';
 
 type MenuItem = {
   id: string;
@@ -22,36 +22,6 @@ type UserProfile = {
   avatarUri?: string;
 };
 
-export type RideSharingStackParamList = {
-  RideSharingHome: undefined;
-  RideOptions: {
-    rideType?: RideIntent;
-  } | undefined;
-  RideAddressSearch: undefined;
-  RideEstimate: undefined;
-  RideDetails: undefined;
-  DriverProfile: undefined;
-  PersonalInfo: undefined;
-  EditName: undefined;
-  EditPhone: undefined;
-  Settings: undefined;
-  UpdatePassword: undefined;
-  Language: undefined;
-  Appearance: undefined;
-  RulesAndTerms: undefined;
-  PrivacyPolicy: undefined;
-  TermsAndConditions: undefined;
-  Licences: undefined;
-  ReservationsList: undefined;
-  ReservationDetail: {
-    rideId: string;
-  };
-  RideSupportChat: {
-    chatBoxId?: string;
-    receiverId?: string;
-  } | undefined;
-};
-
 export type ProfileStackParamList = {
   PersonalInfo: undefined;
   EditName: undefined;
@@ -63,7 +33,11 @@ export type ProfileStackParamList = {
   Appearance: undefined;
 };
 
-export function useSidebarMenu() {
+type UseSidebarMenuParams = {
+  onPaymentMethodsPress?: () => void;
+};
+
+export function useSidebarMenu({ onPaymentMethodsPress }: UseSidebarMenuParams = {}) {
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
   const { mutate: logout } = useAppLogout();
@@ -82,21 +56,19 @@ export function useSidebarMenu() {
 
   // Default ride-sharing menu items
   const menuItems: MenuItem[] = [
-    {
-      id: 'lo-drive',
-      icon: 'car-outline',
-      iconLibrary: 'Ionicons',
-      titleKey: 'sidebar_lo_drive',
-      subtitleKey: 'sidebar_lo_drive_subtitle',
-      showChevron: true,
-      onPress: () => console.log('LO Drive pressed'),
-    },
+    // {
+    //   id: 'lo-drive',
+    //   icon: 'car-outline',
+    //   iconLibrary: 'Ionicons',
+    //   titleKey: 'sidebar_lo_drive',
+    //   showChevron: true,
+    //   onPress: () => console.log('LO Drive pressed'),
+    // },
     {
       id: 'reservations',
       icon: 'calendar-outline',
       iconLibrary: 'Ionicons',
       titleKey: 'sidebar_reservations',
-      subtitleKey: 'sidebar_reservations_subtitle',
       showChevron: true,
       onPress: () => {
         closeSidebar();
@@ -108,25 +80,25 @@ export function useSidebarMenu() {
       icon: 'time-outline',
       iconLibrary: 'Ionicons',
       titleKey: 'sidebar_ride_history',
-      subtitleKey: 'sidebar_ride_history_subtitle',
       showChevron: true,
-      onPress: () => console.log('Ride History pressed'),
+      onPress: () => {
+        closeSidebar();
+        navigation.navigate('RideHistory');
+      },
     },
-    {
-      id: 'payment-methods',
-      icon: 'card-outline',
-      iconLibrary: 'Ionicons',
-      titleKey: 'sidebar_payment_methods',
-      subtitleKey: 'sidebar_payment_methods_subtitle',
-      showChevron: true,
-      onPress: () => console.log('Payment Methods pressed'),
-    },
+    // {
+    //   id: 'payment-methods',
+    //   icon: 'card-outline',
+    //   iconLibrary: 'Ionicons',
+    //   titleKey: 'sidebar_payment_methods',
+    //   showChevron: true,
+    //   onPress: onPaymentMethodsPress,
+    // },
     {
       id: 'wallet',
       icon: 'wallet-outline',
       iconLibrary: 'Ionicons',
       titleKey: 'sidebar_wallet',
-      subtitleKey: 'sidebar_wallet_subtitle',
       showChevron: true,
       onPress: () => {
         closeSidebar();
@@ -138,7 +110,6 @@ export function useSidebarMenu() {
       icon: 'help-buoy-outline',
       iconLibrary: 'Ionicons',
       titleKey: 'sidebar_support',
-      subtitleKey: 'sidebar_support_subtitle',
       showChevron: true,
       onPress: () => {
         closeSidebar();
@@ -150,7 +121,6 @@ export function useSidebarMenu() {
       icon: 'settings-outline',
       iconLibrary: 'Ionicons',
       titleKey: 'sidebar_security',
-      subtitleKey: 'sidebar_security_subtitle',
       showChevron: true,
       onPress: () => {
         closeSidebar();
@@ -162,9 +132,11 @@ export function useSidebarMenu() {
       icon: 'notifications-outline',
       iconLibrary: 'Ionicons',
       titleKey: 'sidebar_notifications',
-      subtitleKey: 'sidebar_notifications_subtitle',
       showChevron: true,
-      onPress: () => console.log('Notifications pressed'),
+      onPress: () => {
+        closeSidebar();
+        navigation.navigate('Notifications');
+      },
     },
   ];
 

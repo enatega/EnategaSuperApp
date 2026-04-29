@@ -15,9 +15,9 @@ type Props = {
   heading: string;
   description: string;
   buttonLabel?: string;
-  onContinue: (email: string) => void;
+  onContinue: (email: string) => void | Promise<void>;
   styles: any;
-  emailId?:string
+  emailId?: string;
 };
 
 export default function EmailInputComponent({
@@ -30,8 +30,9 @@ export default function EmailInputComponent({
 }: Props) {
   const navigation = useNavigation();
   const { t } = useTranslation();
-  const [email, setEmail] = useState(emailId ?? '');
+  const [email, setEmail] = useState(emailId ?? "");
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [isContinuing, setIsContinuing] = useState(false);
 
   useEffect(() => {
     setEmail(emailId ?? "");
@@ -66,8 +67,17 @@ export default function EmailInputComponent({
         <Button
           variant={isFormValid ? "primary" : "secondary"}
           label={t(buttonLabel)}
-          onPress={() => onContinue(email)}
-          disabled={!isFormValid}
+          onPress={async () => {
+            if (isContinuing) return;
+            setIsContinuing(true);
+            try {
+              await onContinue(email);
+            } finally {
+              setIsContinuing(false);
+            }
+          }}
+          disabled={!isFormValid || isContinuing}
+          isLoading={isContinuing}
         />
       </Footer>
     </KeyboardDismissWrapper>

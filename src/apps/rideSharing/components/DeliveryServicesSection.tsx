@@ -17,7 +17,7 @@ type Props = {
 
 const foodImage = require('../../rideSharing/assets/images/pizza.png');
 const groceryImage = require('../../rideSharing/assets/images/basket.png');
-const giftImage =  require('../../rideSharing/assets/images/gift.png');
+const giftImage = require('../../rideSharing/assets/images/gift.png');
 const medicineImage = require('../../rideSharing/assets/images/medicine.png');
 
 export default function DeliveryServicesSection({ onSelectService }: Props) {
@@ -70,7 +70,7 @@ export default function DeliveryServicesSection({ onSelectService }: Props) {
           >
             <Text
               weight="semiBold"
-              style={{ fontSize: typography.size.xs2, lineHeight: typography.lineHeight.xs2,maxWidth:80 }}
+              style={{ fontSize: typography.size.xs2, lineHeight: typography.lineHeight.xs2, maxWidth: 80 }}
             >
               {item.title}
             </Text>
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
    
   },
   card: {
-    width: 174.5,
+    width: '48%',
     height: 81,
     borderRadius: 16,
     padding: 16,

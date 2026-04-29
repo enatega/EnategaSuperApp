@@ -23,6 +23,7 @@ import type {
     CustomerRideDetail,
     NearbyDriver,
     ActiveRidePayload,
+    RiderVehicleInfo,
 } from '../api/types';
 import { ApiError } from '../../../general/api/apiClient';
 
@@ -106,9 +107,12 @@ export function useNearbyDrivers(
     return useQuery<NearbyDriver[], ApiError>({
         queryKey: rideKeys.nearbyDrivers(latitude, longitude, radiusKm),
         queryFn: () => rideService.getNearbyDrivers(latitude!, longitude!, radiusKm),
-        enabled: typeof latitude === 'number' && typeof longitude === 'number',
-        staleTime: 8 * 1000,
-        refetchInterval: 10 * 1000,
+        staleTime: Infinity,
+        gcTime: Infinity,
+        retry: false,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
         ...options,
     });
 }
@@ -142,6 +146,7 @@ export function useRideEstimates(
 // ---------------------------------------------------------------------------
 
 type UseCustomerRidesOptions = any;
+const CUSTOMER_RIDES_LIMIT = 10;
 
 export function useCustomerRides(options?: UseCustomerRidesOptions) {
 
@@ -153,7 +158,28 @@ export function useCustomerRides(options?: UseCustomerRidesOptions) {
         number
     >({
         queryKey: rideKeys.customerRides(),
-        queryFn: ({ pageParam }) => rideService.getCustomerRides(pageParam),
+        queryFn: ({ pageParam }) => rideService.getCustomerRides(pageParam, CUSTOMER_RIDES_LIMIT),
+        initialPageParam: 0,
+        getNextPageParam: (lastPage) => {
+            if (lastPage.data.length < lastPage.limit) return undefined;
+            return lastPage.offset + lastPage.limit;
+        },
+        staleTime: 1 * 60 * 1000, // 1 minute
+        ...options,
+    });
+}
+
+export function useCustomerScheduledRides(options?: UseCustomerRidesOptions) {
+    return useInfiniteQuery<
+        CustomerRidesResponse,
+        ApiError,
+        InfiniteData<CustomerRidesResponse>,
+        readonly string[],
+        number
+    >({
+        queryKey: rideKeys.customerScheduledRides(),
+        queryFn: ({ pageParam }) =>
+            rideService.getCustomerScheduledRides(pageParam, CUSTOMER_RIDES_LIMIT),
         initialPageParam: 0,
         getNextPageParam: (lastPage) => {
             if (lastPage.data.length < lastPage.limit) return undefined;
@@ -261,6 +287,24 @@ export function useDriverStats(
         queryFn: () => rideService.getDriverStats(userId!),
         staleTime: 5 * 60 * 1000, // 5 minutes
         enabled: !!userId,
+        ...options,
+    });
+}
+
+type UseRiderVehicleInfoOptions = Omit<
+    UseQueryOptions<RiderVehicleInfo, ApiError>,
+    'queryKey' | 'queryFn'
+>;
+
+export function useRiderVehicleInfo(
+    riderId: string | undefined,
+    options?: UseRiderVehicleInfoOptions,
+) {
+    return useQuery<RiderVehicleInfo, ApiError>({
+        queryKey: rideKeys.riderVehicleInfo(riderId!),
+        queryFn: () => rideService.getRiderVehicleInfo(riderId!),
+        staleTime: 5 * 60 * 1000,
+        enabled: !!riderId,
         ...options,
     });
 }
