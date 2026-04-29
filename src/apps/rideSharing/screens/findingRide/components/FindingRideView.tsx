@@ -49,6 +49,26 @@ function toNumber(value: number | string | null | undefined) {
   return undefined;
 }
 
+function readRequestCoordinates(value: {
+  lat?: number | string | null;
+  lng?: number | string | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
+} | null | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  const lat = toNumber(value.lat ?? value.latitude);
+  const lng = toNumber(value.lng ?? value.longitude);
+
+  if (typeof lat !== 'number' || typeof lng !== 'number') {
+    return null;
+  }
+
+  return { lat, lng };
+}
+
 function readStopCoordinates(stop: ActiveRideStop) {
   const lat = toNumber(stop.lat);
   const lng = toNumber(stop.lng);
@@ -94,25 +114,33 @@ export default function FindingRideView({
   const { t } = useTranslation('rideSharing');
   const bidsCount = useRideBidsStore((state) => state.bids.length);
   const [isCancelSheetVisible, setIsCancelSheetVisible] = useState(false);
+  const pickupCoordinates = useMemo(
+    () => readRequestCoordinates(activeRideRequest.pickup),
+    [activeRideRequest.pickup],
+  );
+  const dropoffCoordinates = useMemo(
+    () => readRequestCoordinates(activeRideRequest.dropoff),
+    [activeRideRequest.dropoff],
+  );
   const fromAddress = useMemo(() => toAddressSelection(
     activeRideRequest.id,
     'pickup',
     activeRideRequest.pickup_location,
-    activeRideRequest.pickup,
+    pickupCoordinates!,
   ), [
     activeRideRequest.id,
-    activeRideRequest.pickup,
     activeRideRequest.pickup_location,
+    pickupCoordinates,
   ]);
   const toAddress = useMemo(() => toAddressSelection(
     activeRideRequest.id,
     'dropoff',
     activeRideRequest.dropoff_location,
-    activeRideRequest.dropoff,
+    dropoffCoordinates!,
   ), [
-    activeRideRequest.dropoff,
     activeRideRequest.dropoff_location,
     activeRideRequest.id,
+    dropoffCoordinates,
   ]);
   const stopAddresses = useMemo(() => (
     (activeRideRequest.stops ?? [])

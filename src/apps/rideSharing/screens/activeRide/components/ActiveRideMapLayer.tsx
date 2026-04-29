@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useMemo, useRef } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import MapView, { type LatLng } from 'react-native-maps';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import Map, { type MapMarker, type MapPolyline } from '../../../../../general/components/Map';
@@ -205,27 +205,21 @@ function ActiveRideMapLayer({
         zIndex: 3,
         rotation: normalizedDriverHeading,
         flat: true,
-        ...(Platform.OS === 'android'
-          ? {
-              image: require('../../../assets/images/car.png'),
-              tracksViewChanges: false,
-            }
-          : {
-              render: (
-                <View style={[styles.driverMarker, { shadowColor: colors.shadowColor }]}>
-                  <Image
-                    source={require('../../../assets/images/car.png')}
-                    style={styles.driverMarkerImage}
-                    resizeMode="contain"
-                  />
-                </View>
-              ),
-            }),
+        tracksViewChanges: false,
+        render: (
+          <View style={[styles.driverMarker, { shadowColor: colors.shadowColor }]}>
+            <Image
+              source={require('../../../assets/images/car.png')}
+              style={styles.driverMarkerImage}
+              resizeMode="contain"
+            />
+          </View>
+        ),
       });
     }
 
     return nextMarkers;
-  }, [colors.shadowColor, colors.surface, colors.text, fromAddress.coordinates, normalizedDriverHeading, snappedDriverCoordinate, stopAddresses, toAddress.coordinates]);
+  }, [colors.shadowColor, colors.surface, fromAddress.coordinates, normalizedDriverHeading, snappedDriverCoordinate, stopAddresses, toAddress.coordinates]);
 
   const driverApproachPolyline = useMemo<MapPolyline | null>(() => {
     if (!snappedDriverCoordinate) {
@@ -352,9 +346,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   driverMarker: {
-    width: 34,
-    height: 20,
-    borderRadius: 10,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
     shadowOpacity: 0.18,
@@ -363,7 +357,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   driverMarkerImage: {
-    width: 30,
-    height: 30,
+    width: 24,
+    height: 24,
   },
 });

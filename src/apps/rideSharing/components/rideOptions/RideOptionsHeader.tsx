@@ -33,65 +33,32 @@ function RideOptionsHeader({
       return [];
     }
 
-    const rows: RideOptionItem[][] = [];
-    rows.push(rideOptions.slice(0, 2));
-
-    const remaining = rideOptions.slice(2);
-    for (let index = 0; index < remaining.length; index += 3) {
-      rows.push(remaining.slice(index, index + 3));
+    if (rideOptions.length <= 3) {
+      return [rideOptions];
     }
+
+    const firstRowSize = Math.ceil(rideOptions.length / 2);
+    const rows: RideOptionItem[][] = [
+      rideOptions.slice(0, firstRowSize),
+      rideOptions.slice(firstRowSize),
+    ];
 
     return rows;
   }, [rideOptions]);
 
-  const getCellStyle = (rowIndex: number) => {
-    if (rowIndex === 0) {
-      return styles.twoColumnCell;
-    }
-
-    return styles.threeColumnCell;
-  };
-
-  const getRowStyle = (rowIndex: number) => {
-    if (rowIndex === 0) {
-      return styles.twoColumnRow;
-    }
-
-    return styles.threeColumnRow;
-  };
-
-  const getCardContainerStyle = (rowIndex: number) => {
-    if (rowIndex === 0) {
-      return styles.twoColumnCardContainer;
-    }
-
-    return styles.threeColumnCardContainer;
-  };
-
-  const getSpacerCount = (rowIndex: number, itemCount: number) => {
-    const maxColumns = rowIndex === 0 ? 2 : 3;
-    return Math.max(0, maxColumns - itemCount);
-  };
-
   const renderOptionGrid = useMemo(
     () =>
       optionRows.map((row, rowIndex) => (
-        <View key={`row-${rowIndex}`} style={[styles.optionsRow, getRowStyle(rowIndex)]}>
+        <View key={`row-${rowIndex}`} style={styles.optionsRow}>
           {row.map((item) => (
-            <View key={item.id} style={[styles.optionCell, getCellStyle(rowIndex)]}>
+            <View key={item.id} style={styles.optionCell}>
               <RideOptionCard
                 item={item}
                 isActive={item.id === selectedCategory}
                 onPress={onSelectCategory}
-                containerStyle={getCardContainerStyle(rowIndex)}
+                containerStyle={styles.optionCardContainer}
               />
             </View>
-          ))}
-          {Array.from({ length: getSpacerCount(rowIndex, row.length) }).map((_, spacerIndex) => (
-            <View
-              key={`spacer-${rowIndex}-${spacerIndex}`}
-              style={[styles.optionCell, getCellStyle(rowIndex)]}
-            />
           ))}
         </View>
       )),
@@ -136,27 +103,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'stretch',
     marginBottom: 8,
-  },
-  twoColumnRow: {
-    gap: 8,
-  },
-  threeColumnRow: {
     gap: 8,
   },
   optionCell: {
+    flex: 1,
     minWidth: 0,
   },
-  twoColumnCell: {
-    flex: 1,
-  },
-  threeColumnCell: {
-    flex: 1,
-  },
-  twoColumnCardContainer: {
+  optionCardContainer: {
     minHeight: 86,
-  },
-  threeColumnCardContainer: {
-    minHeight: 84,
   },
   searchInput: {
     marginTop: 12,

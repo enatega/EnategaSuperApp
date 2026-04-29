@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
 import BottomSheetHandle from '../../../../general/components/BottomSheetHandle';
 import SwipeableBottomSheet from '../../../../general/components/SwipeableBottomSheet';
@@ -47,7 +46,6 @@ function RideOptionsBottomSheet({
   isDirectCourierFlow = false,
 }: Props) {
   const { colors } = useTheme();
-  const { t } = useTranslation('rideSharing');
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const expandedHeight = isDirectCourierFlow
@@ -81,9 +79,9 @@ function RideOptionsBottomSheet({
             <Icon type="Ionicons" name="arrow-back" size={22} color={colors.text} />
           </Pressable>
           <MapCurrentLocationButton
-            label={t('ride_current_location')}
             onPress={onLocatePress}
             isLoading={isLocating}
+            style={styles.locateIconOnlyButton}
           />
         </View>
       )}
@@ -173,5 +171,13 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
+  },
+  locateIconOnlyButton: {
+    width: 40,
+    height: 40,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

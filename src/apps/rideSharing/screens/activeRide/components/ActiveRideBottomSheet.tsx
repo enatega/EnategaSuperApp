@@ -1,5 +1,5 @@
 import React, { memo, useEffect } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import SwipeableBottomSheet from '../../../../../general/components/SwipeableBottomSheet';
@@ -96,13 +96,23 @@ type Props = {
   licensePlate?: string;
   isCourierFlow?: boolean;
   canCancelRide?: boolean;
+  waitingRemainingSec?: number;
+  hideWaitingCard?: boolean;
   onDriverPress?: () => void;
   onContactDriver?: () => void;
   onSafetyPress?: () => void;
   onShareRide?: () => void;
   onEmergencyPress?: () => void;
   onCancelRide?: () => void;
+  onAcknowledgeDriverWaiting?: () => void;
 };
+
+function formatCountdown(totalSeconds: number) {
+  const safeSeconds = Math.max(0, Math.floor(totalSeconds));
+  const minutes = Math.floor(safeSeconds / 60);
+  const seconds = safeSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
 
 function ActiveRideBottomSheet({
   fromAddress,
@@ -121,18 +131,22 @@ function ActiveRideBottomSheet({
   licensePlate,
   isCourierFlow = false,
   canCancelRide = false,
+  waitingRemainingSec = 0,
+  hideWaitingCard = false,
   onDriverPress,
   onContactDriver,
   onSafetyPress,
   onShareRide,
   onEmergencyPress,
   onCancelRide,
+  onAcknowledgeDriverWaiting,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
   const insets = useSafeAreaInsets();
   const resolvedVehicleSubtitle = [vehicleName, vehicleColor].filter(Boolean).join(' • ');
   const shouldShowCancelAction = canCancelRide && statusCode !== 'IN_PROGRESS';
+  const isDriverWaitingState = statusCode === 'DRIVER_REACHED' && !hideWaitingCard;
 
   useEffect(() => {
     console.log('ActiveRideBottomSheet data', {
@@ -188,7 +202,12 @@ function ActiveRideBottomSheet({
       ]}
       handle={<BottomSheetHandle color={colors.findingRideHandle} />}
     >
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
         <View style={styles.headerBlock}>
           <Text weight="extraBold" style={[styles.title, { color: colors.text }]}>
             {title}
@@ -209,6 +228,27 @@ function ActiveRideBottomSheet({
             </Text>
           ) : null}
         </View>
+
+        {isDriverWaitingState ? (
+          <View style={[styles.waitingCard, { backgroundColor: '#F3F4F6' }]}>
+            <View style={styles.waitingHeader}>
+              <Text style={[styles.waitingText, { color: colors.mutedText }]}>
+                Please don&apos;t be late, it may affect your rating
+              </Text>
+              <Text weight="extraBold" style={[styles.waitingTimer, { color: colors.text }]}>
+                {formatCountdown(waitingRemainingSec)}
+              </Text>
+            </View>
+            <Pressable
+              onPress={onAcknowledgeDriverWaiting}
+              style={[styles.waitingButton, { backgroundColor: colors.findingRidePrimary }]}
+            >
+              <Text weight="medium" style={styles.waitingButtonLabel}>
+                Ok, I&apos;m coming
+              </Text>
+            </Pressable>
+          </View>
+        ) : null}
 
         <View style={[styles.actionsRow, { borderTopColor: colors.border, borderBottomColor: colors.border }]}>
           <Pressable onPress={onDriverPress} style={styles.driverCard}>
@@ -324,7 +364,7 @@ function ActiveRideBottomSheet({
             />
           ) : null}
         </View>
-      </View>
+      </ScrollView>
     </SwipeableBottomSheet>
   );
 }
@@ -352,6 +392,9 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingBottom: 16,
+  },
+  scroll: {
+    maxHeight: '100%',
   },
   headerBlock: {
     paddingHorizontal: 16,
@@ -382,6 +425,43 @@ const styles = StyleSheet.create({
   status: {
     fontSize: 13,
     lineHeight: 18,
+  },
+  waitingCard: {
+    marginHorizontal: 16,
+    marginBottom: 4,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 8,
+  },
+  waitingHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  waitingText: {
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 22,
+  },
+  waitingTimer: {
+    fontSize: 42,
+    lineHeight: 42,
+    letterSpacing: -0.8,
+  },
+  waitingButton: {
+    minHeight: 44,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    width: 164,
+  },
+  waitingButtonLabel: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: '#FFFFFF',
   },
   actionsRow: {
     flexDirection: 'row',

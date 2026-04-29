@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { Linking, Platform, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -70,6 +70,8 @@ function readNumber(...values: Array<unknown>) {
 function readCoordinates(value: {
   lat?: unknown;
   lng?: unknown;
+  latitude?: unknown;
+  longitude?: unknown;
   heading?: unknown;
   coordinates?: {
     coordinates?: unknown;
@@ -79,8 +81,8 @@ function readCoordinates(value: {
     return undefined;
   }
 
-  const latitude = readNumber(value.lat);
-  const longitude = readNumber(value.lng);
+  const latitude = readNumber(value.lat, value.latitude);
+  const longitude = readNumber(value.lng, value.longitude);
 
   if (latitude !== undefined && longitude !== undefined) {
     return {
@@ -149,12 +151,68 @@ function formatPaymentMethod(paymentMethod?: string) {
     .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
-function getTitle(status?: string) {
+function toRad(value: number) {
+  return (value * Math.PI) / 180;
+}
+
+function getDistanceKm(origin: LatLng, destination: LatLng) {
+  const EARTH_RADIUS_KM = 6371;
+  const dLat = toRad(destination.latitude - origin.latitude);
+  const dLng = toRad(destination.longitude - origin.longitude);
+  const lat1 = toRad(origin.latitude);
+  const lat2 = toRad(destination.latitude);
+
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+    + Math.sin(dLng / 2) * Math.sin(dLng / 2) * Math.cos(lat1) * Math.cos(lat2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return EARTH_RADIUS_KM * c;
+}
+
+function estimateMinutesBetween(origin?: LatLng, destination?: LatLng) {
+  if (!origin || !destination) {
+    return undefined;
+  }
+
+  const distanceKm = getDistanceKm(origin, destination);
+  if (!Number.isFinite(distanceKm) || distanceKm <= 0) {
+    return undefined;
+  }
+
+  const ASSUMED_CITY_SPEED_KMH = 30;
+  const estimatedMinutes = (distanceKm / ASSUMED_CITY_SPEED_KMH) * 60;
+  return Math.max(1, Math.round(estimatedMinutes));
+}
+
+function formatDropoffClock(minutesFromNow?: number) {
+  if (typeof minutesFromNow !== 'number' || minutesFromNow <= 0) {
+    return undefined;
+  }
+
+  const arrivalDate = new Date(Date.now() + minutesFromNow * 60_000);
+  return arrivalDate.toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
+function getTitle(
+  status: string | undefined,
+  options: {
+    pickupEtaMin?: number;
+    dropoffEtaMin?: number;
+  },
+) {
   switch (status?.trim().toUpperCase()) {
     case 'ASSIGNED':
-      return 'Arriving soon';
-    case 'IN_PROGRESS':
-      return 'On your trip';
+      return typeof options.pickupEtaMin === 'number'
+        ? `Arriving in ${options.pickupEtaMin} min${options.pickupEtaMin === 1 ? '' : 's'}`
+        : 'Arriving soon';
+    case 'DRIVER_REACHED':
+      return 'Driver is waiting for you';
+    case 'IN_PROGRESS': {
+      const dropoffAt = formatDropoffClock(options.dropoffEtaMin);
+      return dropoffAt ? `Dropoff at ${dropoffAt}` : 'On your trip';
+    }
     case 'COMPLETED':
       return 'Trip completed';
     default:
@@ -184,7 +242,6 @@ function ActiveRideView({ activeRide }: Props) {
   const vehicleName = readDisplayString(vehicle?.name);
   const vehicleColor = readDisplayString(vehicle?.colour);
   const licensePlate = readDisplayString(vehicle?.no);
-  const title = getTitle(status);
   const driverLocation = readCoordinates(driver?.user?.current_location);
   const driverCoordinate = driverLocation
     ? { latitude: driverLocation.latitude, longitude: driverLocation.longitude }
@@ -200,6 +257,20 @@ function ActiveRideView({ activeRide }: Props) {
   const toAddress = rideId && dropoffLabel && dropoffCoordinates
     ? createAddressSelection(rideId, 'dropoff', dropoffLabel, dropoffCoordinates)
     : null;
+  const pickupEtaMin = estimateMinutesBetween(driverCoordinate, fromAddress?.coordinates);
+  const dropoffEtaMin = estimateMinutesBetween(driverCoordinate, toAddress?.coordinates);
+  const title = getTitle(status, { pickupEtaMin, dropoffEtaMin });
+  const waitingWindowSec = readNumber(activeRide.waiting_window_sec) ?? 300;
+  const driverReachedAt = readString(activeRide.driver_reached_at);
+  const driverReachedAtMs = driverReachedAt ? Date.parse(driverReachedAt) : Number.NaN;
+  const waitingRemainingSec = Number.isFinite(driverReachedAtMs)
+    ? Math.max(0, Math.floor(waitingWindowSec - ((Date.now() - driverReachedAtMs) / 1000)))
+    : waitingWindowSec;
+  const [hasAcknowledgedWaitingCard, setHasAcknowledgedWaitingCard] = useState(false);
+  const [nowTick, setNowTick] = useState(() => Date.now());
+  const waitingRemainingSecLive = Number.isFinite(driverReachedAtMs)
+    ? Math.max(0, Math.floor(waitingWindowSec - ((nowTick - driverReachedAtMs) / 1000)))
+    : waitingRemainingSec;
   const stopAddresses = rideId
     ? activeRide.stops.flatMap((stop, index) => {
       const stopLabel = readString(stop?.address);
@@ -224,6 +295,19 @@ function ActiveRideView({ activeRide }: Props) {
     driverUserId,
     statusCode,
   });
+
+  useEffect(() => {
+    if (statusCode !== 'DRIVER_REACHED') {
+      setHasAcknowledgedWaitingCard(false);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setNowTick(Date.now());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [statusCode]);
 
   const handleContactDriver = useCallback(() => {
     if (!driverUserId) {
@@ -373,12 +457,17 @@ function ActiveRideView({ activeRide }: Props) {
         licensePlate={licensePlate}
         isCourierFlow={isCourierFlow}
         canCancelRide={canCancelRide}
+        waitingRemainingSec={waitingRemainingSecLive}
+        hideWaitingCard={hasAcknowledgedWaitingCard}
         onDriverPress={handleDriverPress}
         onContactDriver={handleContactDriver}
         onSafetyPress={handleSafetyPress}
         onShareRide={handleShareRide}
         onEmergencyPress={handleEmergencyPress}
         onCancelRide={openCancelSheet}
+        onAcknowledgeDriverWaiting={() => {
+          setHasAcknowledgedWaitingCard(true);
+        }}
       />
       <CancelRideBottomSheet
         isVisible={isCancelSheetVisible}
