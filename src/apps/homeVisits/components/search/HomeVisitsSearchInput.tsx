@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { StyleProp, StyleSheet, TextInput, View, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../../../general/theme/theme';
 
@@ -7,12 +7,14 @@ type Props = {
   value: string;
   onChangeText: (value: string) => void;
   placeholder: string;
+  containerStyle?: StyleProp<ViewStyle>;
 };
 
 export default function HomeVisitsSearchInput({
   value,
   onChangeText,
   placeholder,
+  containerStyle,
 }: Props) {
   const { colors, typography } = useTheme();
 
@@ -24,6 +26,7 @@ export default function HomeVisitsSearchInput({
           backgroundColor: colors.surface,
           borderColor: colors.border,
         },
+        containerStyle,
       ]}
     >
       <Ionicons name="search" size={18} color={colors.mutedText} />

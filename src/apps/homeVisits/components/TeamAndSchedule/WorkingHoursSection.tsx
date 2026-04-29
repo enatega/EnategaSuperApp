@@ -1,5 +1,6 @@
-import React, { memo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import React, { memo, useEffect, useMemo, useState } from 'react';
+import { StyleSheet, TextInput, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 
@@ -21,8 +22,41 @@ function WorkingHoursSection({
   title,
 }: Props) {
   const { colors, typography } = useTheme();
-  const stepCount = maxHours - minHours + 1;
-  const progressRatio = stepCount <= 1 ? 0 : (hours - minHours) / (stepCount - 1);
+  const { t } = useTranslation('homeVisits');
+  const [hoursInput, setHoursInput] = useState(String(hours));
+
+  useEffect(() => {
+    setHoursInput(String(hours));
+  }, [hours]);
+
+  const hoursLabel = useMemo(
+    () => `${hours} ${hours === 1 ? t('team_schedule_hour_singular') : t('team_schedule_hour_plural')}`,
+    [hours, t],
+  );
+
+  const clampHours = (value: number) => Math.max(minHours, Math.min(maxHours, value));
+
+  const handleChangeHoursText = (nextValue: string) => {
+    const digitsOnly = nextValue.replace(/[^0-9]/g, '');
+    setHoursInput(digitsOnly);
+  };
+
+  const commitHours = () => {
+    if (!hoursInput) {
+      setHoursInput(String(hours));
+      return;
+    }
+
+    const parsedHours = Number(hoursInput);
+    if (!Number.isFinite(parsedHours)) {
+      setHoursInput(String(hours));
+      return;
+    }
+
+    const clampedHours = clampHours(parsedHours);
+    onChangeHours(clampedHours);
+    setHoursInput(String(clampedHours));
+  };
 
   return (
     <View style={styles.section}>
@@ -47,51 +81,35 @@ function WorkingHoursSection({
         {helperText}
       </Text>
 
-      <View style={styles.sliderRow}>
-        <View style={styles.trackWrap}>
-          <View style={[styles.trackBase, { backgroundColor: colors.border }]} />
-          <View
-            style={[
-              styles.trackActive,
-              {
-                backgroundColor: colors.warning,
-                width: `${Math.max(0, Math.min(100, progressRatio * 100))}%`,
-              },
-            ]}
-          />
-
-          <View style={styles.steps}>
-            {Array.from({ length: stepCount }).map((_, index) => {
-              const value = minHours + index;
-              const isActive = value <= hours;
-
-              return (
-                <Pressable
-                  key={value}
-                  onPress={() => onChangeHours(value)}
-                  style={[
-                    styles.stepDot,
-                    {
-                      backgroundColor: isActive ? colors.warning : colors.border,
-                    },
-                  ]}
-                />
-              );
-            })}
-          </View>
-        </View>
-
+      <View style={styles.inputRow}>
+        <TextInput
+          value={hoursInput}
+          onChangeText={handleChangeHoursText}
+          onBlur={commitHours}
+          onSubmitEditing={commitHours}
+          keyboardType="number-pad"
+          maxLength={2}
+          placeholder={t('team_schedule_working_hours_input_placeholder')}
+          placeholderTextColor={colors.iconMuted}
+          style={[
+            styles.input,
+            {
+              borderColor: colors.border,
+              color: colors.text,
+              fontFamily: typography.fontFamily.medium,
+            },
+          ]}
+        />
         <Text
           weight="medium"
           style={{
             color: colors.text,
             fontSize: typography.size.sm2,
             lineHeight: typography.lineHeight.md,
-            minWidth: 62,
-            textAlign: 'right',
+            minWidth: 72,
           }}
         >
-          {`${hours} ${hours === 1 ? 'Hour' : 'Hours'}`}
+          {hoursLabel}
         </Text>
       </View>
     </View>
@@ -106,41 +124,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  sliderRow: {
+  inputRow: {
     alignItems: 'center',
     flexDirection: 'row',
     gap: 10,
     paddingTop: 8,
   },
-  stepDot: {
-    borderRadius: 4,
-    height: 8,
-    width: 8,
-  },
-  steps: {
-    alignItems: 'center',
+  input: {
+    borderWidth: 1,
+    borderRadius: 12,
     flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  trackActive: {
-    borderRadius: 4,
-    height: 4,
-    left: 0,
-    position: 'absolute',
-    top: 4,
-  },
-  trackBase: {
-    borderRadius: 4,
-    height: 4,
-    left: 0,
-    position: 'absolute',
-    right: 0,
-    top: 4,
-  },
-  trackWrap: {
-    flex: 1,
-    height: 12,
-    justifyContent: 'center',
+    fontSize: 16,
+    minHeight: 48,
+    paddingHorizontal: 14,
   },
 });

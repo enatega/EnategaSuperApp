@@ -196,6 +196,7 @@ const en = {
   team_schedule_team_size_helper: 'Pricing is calculated per worker and per hour.',
   team_schedule_working_hours_title: 'Working Hours',
   team_schedule_working_hours_helper: 'Each worker is charged at $12 per hour',
+  team_schedule_working_hours_input_placeholder: 'Enter hours (1-12)',
   team_schedule_service_mode_title: 'Service type',
   team_schedule_service_mode_one_time_title: 'One-time Service',
   team_schedule_service_mode_one_time_description: 'Just for now',

@@ -200,6 +200,7 @@ const fr = {
   team_schedule_team_size_helper: 'Le prix est calcule par travailleur et par heure.',
   team_schedule_working_hours_title: 'Heures de travail',
   team_schedule_working_hours_helper: 'Chaque travailleur est facture a 12 $ par heure',
+  team_schedule_working_hours_input_placeholder: "Entrer le nombre d'heures (1-12)",
   team_schedule_service_mode_title: 'Type de service',
   team_schedule_service_mode_one_time_title: 'Service ponctuel',
   team_schedule_service_mode_one_time_description: 'Juste pour maintenant',
