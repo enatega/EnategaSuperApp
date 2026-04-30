@@ -1,9 +1,11 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import React, { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import type { LatLng, Region } from 'react-native-maps';
 import Map, { type MapMarker, type MapPolyline } from '../../../../../general/components/Map';
 import { useTheme } from '../../../../../general/theme/theme';
+import storeMarker from '../../../assets/images/store-marker.png';
+import personMarker from '../../../assets/images/person-marker.png';
 
 type Props = {
   variant?: 'card' | 'full';
@@ -75,13 +77,9 @@ export default function TrackWorkerMapPreview({
       next.push({
         id: 'worker-location',
         coordinate: workerLocation,
-        anchor: { x: 0.5, y: 0.5 },
+        anchor: { x: 0.5, y: 1 },
         zIndex: 3,
-        render: (
-          <View style={[styles.workerMarkerWrap, { backgroundColor: colors.surface }]}>
-            <MaterialCommunityIcons color={colors.text} name="car" size={14} />
-          </View>
-        ),
+        render: <Image source={personMarker} style={styles.markerImage} />,
       });
     }
 
@@ -89,23 +87,14 @@ export default function TrackWorkerMapPreview({
       next.push({
         id: 'customer-location',
         coordinate: customerLocation,
-        anchor: { x: 0.5, y: 0.8 },
+        anchor: { x: 0.5, y: 1 },
         zIndex: 2,
-        render: (
-          <View style={styles.markerStack}>
-            <View style={[styles.markerMain, { backgroundColor: '#DBEAFE' }]}>
-              <MaterialCommunityIcons color={colors.primary} name="map-marker" size={20} />
-            </View>
-            <View style={[styles.markerSmall, { backgroundColor: '#DBEAFE' }]}>
-              <MaterialCommunityIcons color={colors.primary} name="account" size={11} />
-            </View>
-          </View>
-        ),
+        render: <Image source={storeMarker} style={styles.markerImage} />,
       });
     }
 
     return next;
-  }, [colors.primary, colors.surface, colors.text, customerLocation, workerLocation]);
+  }, [customerLocation, workerLocation]);
 
   const polylines = useMemo<MapPolyline[]>(() => {
     if (!workerLocation || !customerLocation) {
@@ -188,29 +177,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
   },
-  markerMain: {
-    alignItems: 'center',
-    borderRadius: 17,
-    height: 34,
-    justifyContent: 'center',
-    width: 34,
-  },
-  markerSmall: {
-    alignItems: 'center',
-    borderRadius: 11,
-    height: 22,
-    justifyContent: 'center',
-    marginTop: -6,
-    width: 22,
-  },
-  markerStack: {
-    alignItems: 'center',
-  },
-  workerMarkerWrap: {
-    alignItems: 'center',
-    borderRadius: 10,
-    height: 20,
-    justifyContent: 'center',
-    width: 30,
+  markerImage: {
+    height: 42,
+    resizeMode: 'contain',
+    width: 42,
   },
 });

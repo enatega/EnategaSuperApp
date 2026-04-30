@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../../../../general/theme/theme";
 import { useTranslation } from "react-i18next";
@@ -16,6 +16,7 @@ import { Pressable } from "react-native";
 import Text from "../../../../../general/components/Text";
 import Icon from "../../../../../general/components/Icon";
 import { typography } from "../../../../../general/theme/typography";
+import fixRightImage from "../../../assets/images/fix-right.png";
 
 export default function SingleVendorSearchWithFiltersContainer() {
   const { colors } = useTheme();
@@ -28,6 +29,27 @@ export default function SingleVendorSearchWithFiltersContainer() {
       style={[styles.safeArea, { backgroundColor: colors.background }]}
     >
       <View style={styles.container}>
+        <View style={styles.headerRow}>
+          <Text
+            weight="extraBold"
+            style={[styles.headerTitle, { color: colors.text }]}
+          >
+            What service are you looking for?
+          </Text>
+          <View
+            style={[
+              styles.headerIconWrap,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+                shadowColor: colors.shadowColor,
+              },
+            ]}
+          >
+            <Image source={fixRightImage} style={styles.headerIcon} />
+          </View>
+        </View>
+
         <HomeVisitsSearchInputWithFilter
           searchValue={searchFlow.searchQuery}
           onSearchChangeText={searchFlow.handleChangeText}
@@ -53,7 +75,13 @@ export default function SingleVendorSearchWithFiltersContainer() {
           />
         )}
 
-        <View style={styles.content}>
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.contentContainer}
+          keyboardShouldPersistTaps="handled"
+          nestedScrollEnabled
+          showsVerticalScrollIndicator={false}
+        >
           {searchFlow.showRecentSearches ? (
             <RecentSearches
               items={searchFlow.recentSearches}
@@ -74,6 +102,12 @@ export default function SingleVendorSearchWithFiltersContainer() {
                 onPress={searchFlow.addressSheet.onOpen}
                 style={styles.addressButton}
               >
+                <Icon
+                  type="Ionicons"
+                  name="location-outline"
+                  size={20}
+                  color={colors.iconMuted}
+                />
                 <Text
                   color={colors.mutedText}
                   variant="caption"
@@ -123,7 +157,7 @@ export default function SingleVendorSearchWithFiltersContainer() {
             onLoadMoreServiceCenters={searchFlow.handleLoadMoreServiceCenters}
             horizontal={false}
           />
-        </View>
+        </ScrollView>
       </View>
 
       <AddressSelectionBottomSheet
@@ -159,13 +193,46 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  headerRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 12,
+    justifyContent: "space-between",
+  },
+  headerTitle: {
+    flex: 1,
+    fontSize: typography.size.h3,
+    lineHeight: typography.lineHeight.h3,
+    letterSpacing: -0.35,
+  },
+  headerIconWrap: {
+    alignItems: "center",
+    borderRadius: 34,
+    borderWidth: 1,
+    elevation: 3,
+    height: 58,
+    justifyContent: "center",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    width: 58,
+  },
+  headerIcon: {
+    height: 40,
+    resizeMode: "contain",
+    width: 40,
+  },
   container: {
     flex: 1,
     paddingHorizontal: 16,
-    gap: 12,
+    gap: 14,
   },
   content: {
     flex: 1,
+  },
+  contentContainer: {
+    flexGrow: 1,
+    paddingBottom: 16,
   },
   idleState: {
     gap: 12,
