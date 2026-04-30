@@ -3,6 +3,7 @@ import React, { useCallback } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AddressSelectionBottomSheet from "../../../../general/components/address/AddressSelectionBottomSheet";
@@ -28,6 +29,7 @@ export default function SingleVendorHomeScreen({}: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation("homeVisits");
   const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
   const navigation =
     useNavigation<
       NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>
@@ -102,24 +104,16 @@ export default function SingleVendorHomeScreen({}: Props) {
         contentContainerStyle={[
           styles.scrollContent,
           {
-            paddingBottom: insets.bottom + 28,
+            paddingBottom: activeBooking
+              ? insets.bottom + tabBarHeight + 120
+              : insets.bottom + 28,
           },
         ]}
         showsVerticalScrollIndicator={false}
       >
          <SingleVendorSpecialOffersBanner />
            <SingleVendorCategorySection />
-        {activeBooking ? (
-          <ActiveServiceCard
-            booking={activeBooking}
-            onPress={() => {
-              navigation.navigate("SingleVendorTrackWorker", {
-                orderId: activeBooking.orderId,
-                source: "home_active_service",
-              });
-            }}
-          />
-        ) : null}
+       
         <MostPopularServicesSection />
         <NearbyYourLocationSection
           latitude={resolvedSelectedAddress?.latitude}
@@ -131,7 +125,25 @@ export default function SingleVendorHomeScreen({}: Props) {
 
         <DealsSection />
       </ScrollView>
-
+      {activeBooking ? (
+        <View
+          pointerEvents="box-none"
+          style={[
+            styles.activeCardFloatingContainer,
+            { bottom:   10 },
+          ]}
+        >
+          <ActiveServiceCard
+            booking={activeBooking}
+            onPress={() => {
+              navigation.navigate("SingleVendorTrackWorker", {
+                orderId: activeBooking.orderId,
+                source: "home_active_service",
+              });
+            }}
+          />
+        </View>
+      ) : null}
       <AddressSelectionBottomSheet
         addresses={addresses}
         isLoading={isAddressesLoading}
@@ -153,5 +165,11 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     gap: 20,
+  },
+  activeCardFloatingContainer: {
+    left: 0,
+    position: "absolute",
+    right: 0,
+    zIndex: 20,
   },
 });
