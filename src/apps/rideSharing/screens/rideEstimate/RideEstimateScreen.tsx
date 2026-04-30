@@ -243,9 +243,7 @@ export default function RideEstimateScreen() {
       }
       : item
   ));
-  const bottomSheetOptions = isCourierFlow
-    ? displayOptions.filter((item) => item.id === resolvedSelectedOptionId)
-    : displayOptions;
+  const bottomSheetOptions = displayOptions;
 
   const handleLayout = useCallback((event: LayoutChangeEvent) => {
     setLayoutHeight(event.nativeEvent.layout.height);

@@ -49,6 +49,7 @@ const fr = {
   ride_offer_fare_hour_plural: '{{count}} heures',
   ride_offer_fare_miles_included: '{{miles}} miles inclus',
   ride_offer_fare_promo_coming_soon: 'Les codes promo arrivent bientôt',
+  ride_finding_driver_offer_label: 'Offre du chauffeur',
   ride_pickup_point_label: 'Point de départ',
   ride_pickup_point_value: 'New Jersey',
   delivery_services_title: 'Faites tout livrer',

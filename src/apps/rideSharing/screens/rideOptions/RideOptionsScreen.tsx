@@ -45,6 +45,43 @@ function toRideOption(ride: RideTypeCatalogItem): RideOptionItem {
   };
 }
 
+function normalizeRideOptionTitle(title: string) {
+  return title.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function prioritizeRideOptionsForHeader(rideOptions: RideOptionItem[]) {
+  if (rideOptions.length <= 2) {
+    return rideOptions;
+  }
+
+  const premiumOption = rideOptions.find((option) => {
+    const normalizedTitle = normalizeRideOptionTitle(option.title);
+    return normalizedTitle.includes('premium');
+  });
+
+  const rideOption = rideOptions.find((option) => {
+    const normalizedTitle = normalizeRideOptionTitle(option.title);
+    return normalizedTitle === 'ride';
+  });
+
+  const prioritizedIds = new Set<string>();
+  const prioritized: RideOptionItem[] = [];
+
+  if (premiumOption) {
+    prioritized.push(premiumOption);
+    prioritizedIds.add(premiumOption.id);
+  }
+
+  if (rideOption && !prioritizedIds.has(rideOption.id)) {
+    prioritized.push(rideOption);
+    prioritizedIds.add(rideOption.id);
+  }
+
+  const remaining = rideOptions.filter((option) => !prioritizedIds.has(option.id));
+
+  return [...prioritized, ...remaining];
+}
+
 function resolveInitialRideTypeId(
   rideOptions: RideOptionItem[],
   rideType?: RideIntent,
@@ -119,11 +156,12 @@ export default function RideOptionsScreen() {
   );
   const visibleRideOptions = useMemo(() => {
     if (!directCourierOnly) {
-      return rideOptions;
+      return prioritizeRideOptionsForHeader(rideOptions);
     }
 
     const courierOnlyOptions = rideOptions.filter((option) => option.title.toLowerCase().includes('courier'));
-    return courierOnlyOptions.length ? courierOnlyOptions : rideOptions;
+    const options = courierOnlyOptions.length ? courierOnlyOptions : rideOptions;
+    return prioritizeRideOptionsForHeader(options);
   }, [directCourierOnly, rideOptions]);
   const resolvedRideType = useMemo(
     () => resolveRideIntentFromSelection({
