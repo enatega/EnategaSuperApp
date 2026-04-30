@@ -15,6 +15,7 @@ import {
 type Props = {
   addresses?: ProfileAddress[];
   addressVariant?: 'button' | 'label';
+  horizontalPadding?: number;
   onAddAddressPress?: () => void;
   onAddressPress?: () => void;
   rightAccessory?: ReactNode;
@@ -23,6 +24,7 @@ type Props = {
 export default function HomeVisitsAddressHeader({
   addresses = [],
   addressVariant = 'button',
+  horizontalPadding = 16,
   onAddAddressPress,
   onAddressPress,
   rightAccessory,
@@ -41,120 +43,139 @@ export default function HomeVisitsAddressHeader({
     selectedAddressLabel;
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 8 }]}>
-      {resolvedSelectedAddress && addressVariant === 'label' ? (
-        <Pressable
-          accessibilityLabel={
-            resolvedSelectedAddressLabel ?? t('home_visits_address_label')
-          }
-          accessibilityRole="button"
-          disabled={!onAddressPress}
-          onPress={onAddressPress}
-          style={({ pressed }) => [
-            styles.addressLabelContainer,
-            {
-              opacity: onAddressPress && pressed ? 0.72 : 1,
-            },
-          ]}
-        >
-          <Text
-            numberOfLines={1}
-            weight="medium"
-            style={[
-              styles.addressLabelText,
+    <View
+      style={[
+        styles.container,
+        { paddingHorizontal: horizontalPadding, paddingTop: insets.top + 8 },
+      ]}
+    >
+      <View style={styles.leftSlot}>
+        {resolvedSelectedAddress && addressVariant === 'label' ? (
+          <Pressable
+            accessibilityLabel={
+              resolvedSelectedAddressLabel ?? t('home_visits_address_label')
+            }
+            accessibilityRole="button"
+            disabled={!onAddressPress}
+            onPress={onAddressPress}
+            style={({ pressed }) => [
+              styles.addressLabelContainer,
               {
-                color: colors.text,
-                fontSize: typography.size.sm2,
-                lineHeight: typography.lineHeight.md,
+                opacity: onAddressPress && pressed ? 0.72 : 1,
               },
             ]}
           >
-            {resolvedSelectedAddressLabel ?? t('home_visits_address_label')}
-          </Text>
-        </Pressable>
-      ) : resolvedSelectedAddress ? (
-        <Pressable
-          accessibilityLabel={
-            resolvedSelectedAddressLabel ?? t('home_visits_address_label')
-          }
-          accessibilityRole="button"
-          onPress={onAddressPress}
-          style={({ pressed }) => [
-            styles.addressButton,
-            {
-              backgroundColor: colors.surface,
-              borderColor: 'rgba(17, 24, 39, 0.06)',
-              opacity: pressed ? 0.92 : 1,
-              shadowColor: colors.shadowColor,
-            },
-          ]}
-        >
-          <Icon
-            color={colors.iconMuted}
-            name="home-outline"
-            size={18}
-            type="Ionicons"
-          />
-          <Text
-            numberOfLines={1}
-            weight="medium"
-            style={[
-              styles.addressText,
+            <Icon
+              color={colors.primary}
+              name="location-outline"
+              size={18}
+              type="Ionicons"
+            />
+            <Text
+              numberOfLines={1}
+              weight="medium"
+              style={[
+                styles.addressLabelText,
+                {
+                  color: colors.primary,
+                  fontSize: typography.size.sm2,
+                  lineHeight: typography.lineHeight.md,
+                },
+              ]}
+            >
+              {resolvedSelectedAddressLabel ?? t('home_visits_address_label')}
+            </Text>
+            <Icon
+              color={colors.primary}
+              name="chevron-down"
+              size={14}
+              type="Ionicons"
+            />
+          </Pressable>
+        ) : resolvedSelectedAddress ? (
+          <Pressable
+            accessibilityLabel={
+              resolvedSelectedAddressLabel ?? t('home_visits_address_label')
+            }
+            accessibilityRole="button"
+            onPress={onAddressPress}
+            style={({ pressed }) => [
+              styles.addressButton,
               {
-                color: colors.text,
-                fontSize: typography.size.md,
-                lineHeight: typography.lineHeight.md,
+                backgroundColor: colors.surface,
+                borderColor: 'rgba(17, 24, 39, 0.06)',
+                opacity: pressed ? 0.92 : 1,
+                shadowColor: colors.shadowColor,
               },
             ]}
           >
-            {resolvedSelectedAddressLabel ?? t('home_visits_address_label')}
-          </Text>
-          <Icon
-            color={colors.mutedText}
-            name="chevron-down"
-            size={14}
-            type="Ionicons"
-          />
-        </Pressable>
-      ) : (
-        <Pressable
-          accessibilityLabel={t('add_service_address')}
-          accessibilityRole="button"
-          onPress={onAddAddressPress}
-          style={({ pressed }) => [
-            styles.addAddressButton,
-            {
-              backgroundColor: colors.surface,
-              borderColor: 'rgba(17, 24, 39, 0.06)',
-              opacity: pressed ? 0.92 : 1,
-              shadowColor: colors.shadowColor,
-            },
-          ]}
-        >
-          <Icon
-            color={colors.primary}
-            name="add"
-            size={18}
-            type="Ionicons"
-          />
-          <Text
-            numberOfLines={1}
-            weight="semiBold"
-            style={[
-              styles.addAddressText,
+            <Icon
+              color={colors.iconMuted}
+              name="home-outline"
+              size={18}
+              type="Ionicons"
+            />
+            <Text
+              numberOfLines={1}
+              weight="medium"
+              style={[
+                styles.addressText,
+                {
+                  color: colors.text,
+                  fontSize: typography.size.md,
+                  lineHeight: typography.lineHeight.md,
+                },
+              ]}
+            >
+              {resolvedSelectedAddressLabel ?? t('home_visits_address_label')}
+            </Text>
+            <Icon
+              color={colors.mutedText}
+              name="chevron-down"
+              size={14}
+              type="Ionicons"
+            />
+          </Pressable>
+        ) : (
+          <Pressable
+            accessibilityLabel={t('add_service_address')}
+            accessibilityRole="button"
+            onPress={onAddAddressPress}
+            style={({ pressed }) => [
+              styles.addAddressButton,
               {
-                color: colors.primary,
-                fontSize: typography.size.md,
-                lineHeight: typography.lineHeight.md,
+                backgroundColor: colors.surface,
+                borderColor: 'rgba(17, 24, 39, 0.06)',
+                opacity: pressed ? 0.92 : 1,
+                shadowColor: colors.shadowColor,
               },
             ]}
           >
-            {t('add_service_address')}
-          </Text>
-        </Pressable>
-      )}
+            <Icon
+              color={colors.primary}
+              name="add"
+              size={18}
+              type="Ionicons"
+            />
+            <Text
+              numberOfLines={1}
+              weight="semiBold"
+              style={[
+                styles.addAddressText,
+                {
+                  color: colors.primary,
+                  fontSize: typography.size.md,
+                  lineHeight: typography.lineHeight.md,
+                },
+              ]}
+            >
+              {t('add_service_address')}
+            </Text>
+          </Pressable>
+        )}
+      </View>
 
-      {rightAccessory}
+      {rightAccessory ? <View style={styles.rightSlot}>{rightAccessory}</View> : null}
     </View>
   );
 }
@@ -179,8 +200,11 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   addressLabelContainer: {
+    alignItems: 'center',
     flex: 1,
-    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 6,
+    justifyContent: 'flex-start',
     minHeight: 44,
     paddingRight: 12,
     paddingVertical: 10,
@@ -211,8 +235,13 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 12,
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    justifyContent: 'flex-start',
+  },
+  leftSlot: {
+    flex: 1,
+    minWidth: 0,
+  },
+  rightSlot: {
+    marginLeft: 10,
   },
 });

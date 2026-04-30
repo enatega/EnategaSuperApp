@@ -62,7 +62,7 @@ export default function SpecialOffersBanner({
               {
                 backgroundColor:
                   index === activeBannerIndex
-                    ? colors.iconMuted
+                    ? colors.primary
                     : colors.iconDisabled,
               },
             ]}
@@ -79,18 +79,18 @@ const styles = StyleSheet.create({
   },
   bannerDots: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 10,
     justifyContent: 'center',
     marginTop: 10,
   },
   bannerDot: {
     borderRadius: 999,
-    height: 8,
+    height: 12,
   },
   bannerDotActive: {
-    width: 24,
+    width: 42,
   },
   bannerDotInactive: {
-    width: 8,
+    width: 12,
   },
 });
