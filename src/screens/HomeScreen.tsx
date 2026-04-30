@@ -112,9 +112,15 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
     }
   }
 
-  function handleSelectRideOption(_rideIntent: RideIntent) {
+  function handleSelectRideOption(rideIntent: RideIntent) {
+    const isCourier = rideIntent === 'courier';
+
     onSelectMiniApp?.('rideSharing', {
       screen: 'RideSharingHome',
+      params: {
+        rideType: rideIntent,
+        directCourierOnly: isCourier,
+      },
     });
   }
 
