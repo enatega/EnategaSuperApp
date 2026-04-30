@@ -219,6 +219,7 @@ export default function FindingRideView({
         stopAddresses={stopAddresses}
         toAddress={toAddress}
         routeCoordinates={routeQuery.data ?? []}
+        searchRadiusKm={controller.searchRadiusKm}
       />
 
       <FindingRideBottomSheet
