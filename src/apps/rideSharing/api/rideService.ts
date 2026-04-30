@@ -130,10 +130,10 @@ export const rideService = {
         const rootRecord = rawVehicle as Record<string, unknown>;
         const nestedVehicleCandidate = (
             rootRecord.data
-            && typeof rootRecord.data === 'object'
+                && typeof rootRecord.data === 'object'
                 ? rootRecord.data
                 : rootRecord.vehicle
-                && typeof rootRecord.vehicle === 'object'
+                    && typeof rootRecord.vehicle === 'object'
                     ? rootRecord.vehicle
                     : rootRecord
         ) as Record<string, unknown>;
@@ -355,11 +355,11 @@ export const rideService = {
 
     /** Submit a customer review for a completed ride. */
     submitRideReview: (payload: SubmitRideReviewPayload): Promise<unknown> =>
-        apiClient.post('/api/v1/reviews', payload),
+        apiClient.post('/api/v1/ride-hailing/reviews', payload),
 
     /** Fetch profile stats for a driver/rider by userId. */
     getDriverStats: (userId: string): Promise<DriverProfileStats> =>
-        apiClient.get<DriverProfileStats>(`api/v1/rides/get-stats/${userId}`),
+        apiClient.get<DriverProfileStats>(`/api/v1/rides/get-stats/${userId}`),
 
     /** Fetch rider vehicle details by riderId. */
     getRiderVehicleInfo: async (riderId: string): Promise<RiderVehicleInfo> => {

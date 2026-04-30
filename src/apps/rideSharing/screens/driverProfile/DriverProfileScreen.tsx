@@ -96,6 +96,7 @@ export default function DriverProfileScreen() {
   }
 
   const profileData = toDriverProfileData(data);
+  console.log("my profile data is : ", profileData);
   const profileDataWithVehicle: DriverProfileData = {
     ...profileData,
     vehicle: {
@@ -121,7 +122,7 @@ export default function DriverProfileScreen() {
       <ScreenHeader style={{ backgroundColor: colors.backgroundTertiary }} />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <ProfileHeroCard data={profileDataWithVehicle} onAvatarPress={handleAvatarPress}/>
+        <ProfileHeroCard data={profileDataWithVehicle} onAvatarPress={handleAvatarPress} />
 
         <DriverProfileTabs
           activeTab={activeTab}

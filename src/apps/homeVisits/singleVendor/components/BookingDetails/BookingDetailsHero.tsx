@@ -15,6 +15,7 @@ export default function BookingDetailsHero({ heroImage, topInset, onBack, onClos
 
   return (
     <ImageBackground
+    resizeMode='contain'
       source={{ uri: heroImage }}
       style={styles.hero}
     >
