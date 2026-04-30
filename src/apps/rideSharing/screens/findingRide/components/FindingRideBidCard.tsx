@@ -1,6 +1,8 @@
 import React, { memo, useEffect, useRef } from 'react';
 import { ActivityIndicator, Animated, Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Text from '../../../../../general/components/Text';
+import Icon from '../../../../../general/components/Icon';
 import { useTheme } from '../../../../../general/theme/theme';
 import { formatRideCurrency } from '../../../utils/rideFormatting';
 import type { FindingRideBid } from '../types/bids';
@@ -16,6 +18,19 @@ type Props = {
   isInteractionLocked?: boolean;
 };
 
+function buildInitials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) {
+    return 'DR';
+  }
+
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+
+  return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`.toUpperCase();
+}
+
 function FindingRideBidCard({
   bid,
   onPressDecline,
@@ -25,12 +40,22 @@ function FindingRideBidCard({
   isInteractionLocked = false,
 }: Props) {
   const { colors } = useTheme();
+  const { t } = useTranslation('rideSharing');
   const isBusy = isAccepting || isDeclining || isInteractionLocked;
   const remainingTimeMs = bid.remainingTimeMs ?? BID_VALIDITY_MS;
   const isExpired = remainingTimeMs <= 0;
   const fallbackMetaText = isExpired ? 'Expired' : `${Math.ceil(remainingTimeMs / 1000)}s left`;
   const statusLabel = bid.status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (character) => character.toUpperCase());
   const progress = useRef(new Animated.Value(Math.max(Math.min(remainingTimeMs / BID_VALIDITY_MS, 1), 0))).current;
+  const riderName = bid.driverName
+    ?? bid.rider?.userProfile?.user?.name
+    ?? t('ride_finding_driver_offer_label');
+  const initials = buildInitials(riderName);
+  const ratingValue = bid.rating?.average ?? bid.stats?.averageRating;
+  const ridesCount = bid.stats?.totalRides;
+  const vehicleLabel = bid.vehicle?.name ?? bid.rider?.vehicle_name ?? `Bid #${bid.id.slice(0, 8)}`;
+  const fareValue = typeof bid.offeredFare === 'number' ? bid.offeredFare : bid.price;
+
 
   useEffect(() => {
     const normalizedProgress = Math.max(Math.min(remainingTimeMs / BID_VALIDITY_MS, 1), 0);
@@ -74,12 +99,36 @@ function FindingRideBidCard({
     >
       <View style={styles.content}>
         <View style={styles.rowTop}>
-          <View style={styles.leftBlock}>
-            <Text style={[styles.driverName, { color: colors.text }]} numberOfLines={1}>
-              Driver offer
+          <View style={[styles.avatar, { backgroundColor: colors.cardBlue }]}>
+            <Text weight="semiBold" style={{ color: colors.text, fontSize: 12, lineHeight: 18 }}>
+              {initials}
             </Text>
-            <Text style={[styles.vehicleText, { color: colors.mutedText }]} numberOfLines={1}>
-              {`Bid #${bid.id.slice(0, 8)}`}
+          </View>
+
+          <View style={styles.leftBlock}>
+            <View style={styles.nameRatingRow}>
+              <Text style={[styles.driverName, { color: colors.text }]} numberOfLines={1}>
+                {riderName}
+              </Text>
+
+              {typeof ratingValue === 'number' ? (
+                <View style={styles.ratingRow}>
+                  <Icon type="MaterialCommunityIcons" name="star" size={16} color={colors.yellow500} />
+                  <Text style={[styles.driverName, { color: colors.text }]} numberOfLines={1}>
+                    {ratingValue.toFixed(2)}
+                  </Text>
+                </View>
+              ) : null}
+
+              {typeof ridesCount === 'number' ? (
+                <Text style={[styles.vehicleText, { color: colors.mutedText }]} numberOfLines={1}>
+                  ({ridesCount.toLocaleString()} rides)
+                </Text>
+              ) : null}
+            </View>
+
+            <Text style={[styles.vehicleText, { color: colors.text }]} numberOfLines={1}>
+              {vehicleLabel}
             </Text>
           </View>
 
@@ -94,7 +143,7 @@ function FindingRideBidCard({
         </View>
 
         <Text weight="extraBold" style={[styles.amount, { color: colors.findingRidePrimary }]}>
-          {formatRideCurrency(bid.price)}
+          {formatRideCurrency(fareValue)}
         </Text>
 
         <View style={styles.actions}>
@@ -168,9 +217,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 10,
   },
+  avatar: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   leftBlock: {
     flex: 1,
     gap: 2,
+  },
+  nameRatingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   rightBlock: {
     alignItems: 'flex-end',

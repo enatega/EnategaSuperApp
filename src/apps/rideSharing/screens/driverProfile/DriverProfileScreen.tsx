@@ -106,6 +106,7 @@ export default function DriverProfileScreen() {
     },
   };
   const profileImageUri = profileData.profile.profilePic?.trim() ?? '';
+  const hasMoreReviews = profileData.totalReviews > profileDataWithVehicle.reviews.length;
 
   const handleAvatarPress = () => {
     if (!profileImageUri) {
@@ -148,11 +149,15 @@ export default function DriverProfileScreen() {
               ))}
             </View>
 
-            <Pressable style={[styles.viewAllButton, { backgroundColor: colors.backgroundTertiary }]}>
-              <Text weight="medium" style={{ color: colors.text }}>
-                {t('driver_profile_view_all_reviews', { count: profileData.totalReviews })}
-              </Text>
-            </Pressable>
+            {hasMoreReviews ? (
+              <Pressable
+                style={[styles.viewAllButton, { backgroundColor: colors.backgroundTertiary }]}
+              >
+                <Text weight="medium" style={{ color: colors.text }}>
+                  {t('driver_profile_view_all_reviews', { count: profileData.totalReviews })}
+                </Text>
+              </Pressable>
+            ) : null}
           </View>
         ) : (
           <DriverInformationSection data={profileDataWithVehicle} />

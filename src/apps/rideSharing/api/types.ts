@@ -180,7 +180,35 @@ export interface RideBidPayload {
     rider_id: string;
     riderSId: string;
     price: number;
+    offeredFare?: number | null;
     status: string;
+    driverName?: string;
+    rider?: {
+        id?: string;
+        vehicle_name?: string;
+        vehicle_colour?: string;
+        vehicle_no?: string;
+        userProfile?: {
+            user?: {
+                id?: string;
+                name?: string;
+            } | null;
+        } | null;
+    } | null;
+    vehicle?: {
+        name?: string;
+        colour?: string;
+        no?: string;
+    } | null;
+    rating?: {
+        average?: number | null;
+        totalRatings?: number | null;
+    } | null;
+    stats?: {
+        totalRides?: number | null;
+        totalRatings?: number | null;
+        averageRating?: number | null;
+    } | null;
     createdAt?: string;
     expiresAt?: string;
     remainingTimeMs?: number;

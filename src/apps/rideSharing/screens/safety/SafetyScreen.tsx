@@ -34,6 +34,7 @@ function SafetyScreen() {
     dropoffLongitude,
   } = route.params ?? {};
 
+
   const handleShareRide = useCallback(() => {
     if (
       pickupLatitude === undefined
