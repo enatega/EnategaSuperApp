@@ -29,10 +29,11 @@ import {
 import useSingleVendorBookingDetails from "../hooks/useSingleVendorBookingDetails";
 import type {
   HomeVisitsSingleVendorBookingDetails,
+  HomeVisitsSingleVendorBookingItem,
   HomeVisitsSingleVendorBookingServiceItem,
 } from "../api/types";
 import type { HomeVisitsSingleVendorNavigationParamList } from "../navigation/types";
-import { normalizeJobStatus } from "../utils/trackWorkerStatus";
+import { resolveBookingStatusLabel } from "../utils/bookingStatusLabel";
 import BookingDetailsActionsSection from "../components/BookingDetails/BookingDetailsActionsSection";
 import BookingDetailsEventsFeed from "../components/BookingDetails/BookingDetailsEventsFeed";
 import BookingDetailsHero from "../components/BookingDetails/BookingDetailsHero";
@@ -48,6 +49,24 @@ type Props = NativeStackScreenProps<
 
 const HERO_FALLBACK_IMAGE = "https://placehold.co/900x500/png";
 const MAX_LIVE_EVENTS = 10;
+const ACTIVE_BOOKING_QUERY_KEY = homeVisitsKeys.singleVendorBookings({
+  limit: 1,
+  tab: "ongoing",
+});
+const TERMINAL_BOOKING_STATUSES = new Set([
+  "completed",
+  "cancelled",
+  "canceled",
+  "failed",
+  "rejected",
+  "finished",
+  "done",
+]);
+
+function isTerminalBookingStatus(value: string | null | undefined) {
+  const normalized = `${value ?? ""}`.trim().toLowerCase();
+  return TERMINAL_BOOKING_STATUSES.has(normalized);
+}
 
 export default function BookingDetailsScreen({ navigation, route }: Props) {
   const { t } = useTranslation("homeVisits");
@@ -221,6 +240,39 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
           };
         },
       );
+
+      queryClient.setQueryData<HomeVisitsSingleVendorBookingItem | null>(
+        ACTIVE_BOOKING_QUERY_KEY,
+        (cached) => {
+          if (!cached || cached.orderId !== activeOrderId) {
+            return cached;
+          }
+
+          return {
+            ...cached,
+            jobStatus: payload.jobStatus,
+            status: payload.jobStatus,
+            statusLabel: resolveBookingStatusLabel(
+              payload.jobStatus,
+              cached.statusLabel,
+              t,
+            ),
+          };
+        },
+      );
+
+      if (isTerminalBookingStatus(payload.jobStatus)) {
+        queryClient.setQueryData<{ orderId: string } | null>(
+          ACTIVE_BOOKING_QUERY_KEY,
+          (cached) => {
+            if (!cached || cached.orderId !== activeOrderId) {
+              return cached;
+            }
+
+            return null;
+          },
+        );
+      }
     });
   }, [queryClient, token]);
 
@@ -237,8 +289,40 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
 
     lastApiEventKeyRef.current = apiEventKey;
 
+    if (isTerminalBookingStatus(data.jobStatus) || isTerminalBookingStatus(data.status)) {
+      queryClient.setQueryData<{ orderId: string } | null>(
+        ACTIVE_BOOKING_QUERY_KEY,
+        (cached) => {
+          if (!cached || cached.orderId !== data.orderId) {
+            return cached;
+          }
 
-  }, [data]);
+          return null;
+        },
+      );
+      return;
+    }
+
+    queryClient.setQueryData<HomeVisitsSingleVendorBookingItem | null>(
+      ACTIVE_BOOKING_QUERY_KEY,
+      (cached) => {
+        if (!cached || cached.orderId !== data.orderId) {
+          return cached;
+        }
+
+        return {
+          ...cached,
+          jobStatus: data.jobStatus ?? cached.jobStatus,
+          status: data.status ?? cached.status,
+          statusLabel: resolveBookingStatusLabel(
+            data.jobStatus ?? data.status,
+            data.statusLabel ?? cached.statusLabel,
+            t,
+          ),
+        };
+      },
+    );
+  }, [data, queryClient, t]);
 
   const handleAddToCalendar = React.useCallback(async () => {
     try {
@@ -444,37 +528,6 @@ function formatAmount(value?: number | string | null) {
   }
 
   return `$${numericValue.toFixed(2)}`;
-}
-
-function toTitleCase(value: string) {
-  return value
-    .replace(/_/g, " ")
-    .split(" ")
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function resolveBookingStatusLabel(
-  jobStatus: string | null | undefined,
-  fallbackStatusLabel: string | null | undefined,
-  t: (key: string) => string,
-) {
-  const normalized = normalizeJobStatus(jobStatus);
-
-  if (normalized === "confirmed") {
-    return t("single_vendor_booking_status_confirmed");
-  }
-
-  if (normalized) {
-    return toTitleCase(normalized);
-  }
-
-  if (fallbackStatusLabel && fallbackStatusLabel.trim().length > 0) {
-    return fallbackStatusLabel;
-  }
-
-  return t("single_vendor_booking_status_confirmed");
 }
 
 function resolveServiceTotalPrice(
