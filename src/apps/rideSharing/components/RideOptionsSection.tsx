@@ -1,5 +1,10 @@
 import React from 'react';
-import { Pressable, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  View,
+  type ImageSourcePropType,
+} from 'react-native';
 import Text from '../../../general/components/Text';
 import Image from '../../../general/components/Image';
 import { useTheme } from '../../../general/theme/theme';
@@ -56,7 +61,7 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
       return;
     }
 
-    (navigation as any).navigate('RideOptions', { rideType: rideIntent });
+    (navigation as any).navigate('RideSharingHome');
   }
 
   return (
@@ -78,7 +83,7 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
             onPress={() => handleSelectOption(item.id)}
           >
             <View style={[styles.iconWrap, { backgroundColor: colors.blue50 }]}>
-              <Image source={item.icon } style={styles.icon} />
+              <Image source={item.icon} style={styles.icon} />
             </View>
             <Text
               weight="semiBold"
@@ -110,6 +115,7 @@ const styles = StyleSheet.create({
   item: {
     alignItems: 'center',
     gap: 12,
+    flex: 1,
   },
   iconWrap: {
     width: 80,

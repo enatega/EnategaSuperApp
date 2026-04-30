@@ -38,12 +38,6 @@ export default function StoreDeliveryInfo({ price, deliveryTime, distance }: Sto
           color={colors.mutedText}
         />
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Icon
-            type="MaterialIcons"
-            name="attach-money"
-            size={16}
-            color={colors.mutedText}
-          />
           <Text
             weight="medium"
             style={{ color: colors.mutedText, fontSize: 12, lineHeight: 18 }}

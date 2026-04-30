@@ -29,10 +29,10 @@ export default function HomeScreen() {
     addresses,
     isLoading: isAddressesLoading,
     refetch,
-  } = useSavedAddresses();
+  } = useSavedAddresses("deliveries");
   const { data: cartCount } = useCartCount();
   const { selectedAddress } = useAddress();
-  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress();
+  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("deliveries");
   const {
     isVisible: isAddressSheetVisible,
     open: handleOpenAddressSheet,
@@ -62,12 +62,18 @@ export default function HomeScreen() {
 
   const handleAddAddressPress = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate('AddressSearch', { origin: 'single-vendor-home' });
+    navigation.navigate('AddressSearch', { 
+      appPrefix: "deliveries",
+      origin: 'single-vendor-home' 
+    });
   }, [handleCloseAddressSheet, navigation]);
 
   const handleUseCurrentLocation = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate('AddressChooseOnMap', { origin: 'single-vendor-home' });
+    navigation.navigate('AddressChooseOnMap', { 
+      appPrefix: "deliveries",
+      origin: 'single-vendor-home' 
+    });
   }, [handleCloseAddressSheet, navigation]);
 
   const handleCartPress = useCallback(() => {
@@ -75,7 +81,14 @@ export default function HomeScreen() {
   }, [navigation]);
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+    <View style={[styles.screen, { backgroundColor: colors.background, gap: 10 }]}>
+      <MultiVendorAddressHeader
+        addresses={addresses}
+        cartCount={cartCount?.totalItems}
+        onAddAddressPress={handleOpenAddressSheet}
+        onAddressPress={handleOpenAddressSheet}
+        onCartPress={handleCartPress}
+      />
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
@@ -85,13 +98,6 @@ export default function HomeScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <MultiVendorAddressHeader
-          addresses={addresses}
-          cartCount={cartCount?.totalItems}
-          onAddAddressPress={handleOpenAddressSheet}
-          onAddressPress={handleOpenAddressSheet}
-          onCartPress={handleCartPress}
-        />
 
         {/* <View style={styles.content}>
           <Header

@@ -6,6 +6,19 @@ import ChainNavigator from '../chain/navigation/ChainNavigator';
 import HomeVisitsMyProfileScreen from '../screens/profile/HomeVisitsMyProfileScreen';
 import HomeVisitsEditProfileScreen from '../screens/profile/HomeVisitsEditProfileScreen';
 import HomeVisitsFeaturePlaceholderScreen from '../screens/profile/HomeVisitsFeaturePlaceholderScreen';
+import HomeVisitsSupportScreen from '../screens/support/HomeVisitsSupportScreen';
+import HomeVisitsSupportFaqScreen from '../screens/support/HomeVisitsSupportFaqScreen';
+import HomeVisitsSupportChatScreen from '../screens/support/HomeVisitsSupportChatScreen';
+import HomeVisitsSupportConversationsScreen from '../screens/support/HomeVisitsSupportConversationsScreen';
+import HomeVisitsSupportTicketsScreen from '../screens/support/HomeVisitsSupportTicketsScreen';
+import HomeVisitsSupportContactFormScreen from '../screens/support/HomeVisitsSupportContactFormScreen';
+import HomeVisitsSettingsScreen from '../screens/SettingsScreen/SettingsScreen';
+import NotificationSettingsScreen from '../screens/NotificationSettingsScreen/NotificationSettingsScreen';
+import ChangePasswordScreen from '../screens/ChangePasswordScreen/ChangePasswordScreen';
+import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen/PrivacyPolicyScreen';
+import TermsOfServiceScreen from '../screens/TermsOfServiceScreen/TermsOfServiceScreen';
+import TermsOfUseScreen from '../screens/TermsOfUseScreen/TermsOfUseScreen';
+import DeleteAccountScreen from '../screens/DeleteAccountScreen/DeleteAccountScreen';
 import ColorModeScreen from '../../../general/screens/settings/ColorModeScreen';
 import LanguageScreen from '../../../general/screens/settings/LanguageScreen';
 import AddressSearchScreen from '../../../general/screens/address/AddressSearchScreen';
@@ -84,26 +97,69 @@ export default function HomeVisitsNavigator() {
       />
       <Stack.Screen
         name="Settings"
+        component={HomeVisitsSettingsScreen}
         options={hiddenHeaderOptions}
-      >
-        {() => (
-          <HomeVisitsFeaturePlaceholderScreen
-            bodyKey="home_visits_settings_body"
-            titleKey="settings_title"
-          />
-        )}
-      </Stack.Screen>
+      />
+      <Stack.Screen
+        name="NotificationSettings"
+        component={NotificationSettingsScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="ChangePassword"
+        component={ChangePasswordScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicyScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="TermsOfService"
+        component={TermsOfServiceScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="TermsOfUse"
+        component={TermsOfUseScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="DeleteAccount"
+        component={DeleteAccountScreen}
+        options={hiddenHeaderOptions}
+      />
       <Stack.Screen
         name="Support"
+        component={HomeVisitsSupportScreen}
         options={hiddenHeaderOptions}
-      >
-        {() => (
-          <HomeVisitsFeaturePlaceholderScreen
-            bodyKey="home_visits_support_body"
-            titleKey="profile_menu_support"
-          />
-        )}
-      </Stack.Screen>
+      />
+      <Stack.Screen
+        name="SupportFaq"
+        component={HomeVisitsSupportFaqScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="SupportContactForm"
+        component={HomeVisitsSupportContactFormScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="SupportConversations"
+        component={HomeVisitsSupportConversationsScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="SupportTickets"
+        component={HomeVisitsSupportTicketsScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="SupportChat"
+        component={HomeVisitsSupportChatScreen}
+        options={hiddenHeaderOptions}
+      />
       <Stack.Screen
         name="Wallet"
         options={hiddenHeaderOptions}

@@ -22,7 +22,7 @@ import useAddress from "../../../../general/hooks/useAddress";
 import useAddressSelectionSheet from "../../../../general/hooks/useAddressSelectionSheet";
 import useRecentSearchActions from "./useRecentSearchActions";
 import useSavedAddresses from "../../../../general/hooks/useSavedAddresses";
-import useSearchKeyboardState from "./useSearchKeyboardState";
+import useSearchKeyboardState from "../../../../general/hooks/searchFlow/useSearchKeyboardState";
 import useSelectSavedAddress from "../../../../general/hooks/useSelectSavedAddress";
 import { type DeliverySearchFlowOptions } from "./types";
 
@@ -65,8 +65,8 @@ export default function useDeliverySearchFlow(
     addresses,
     isLoading: isAddressesLoading,
     refetch,
-  } = useSavedAddresses();
-  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress();
+  } = useSavedAddresses("deliveries");
+  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("deliveries");
   const {
     isVisible: isAddressSheetVisible,
     open: handleOpenAddressSheet,
@@ -225,12 +225,18 @@ export default function useDeliverySearchFlow(
 
   const handleAddAddressPress = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate("AddressSearch", { origin });
+    navigation.navigate("AddressSearch", { 
+      appPrefix: "deliveries",
+      origin 
+    });
   }, [handleCloseAddressSheet, navigation, origin]);
 
   const handleUseCurrentLocation = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate("AddressChooseOnMap", { origin });
+    navigation.navigate("AddressChooseOnMap", { 
+      appPrefix: "deliveries",
+      origin 
+    });
   }, [handleCloseAddressSheet, navigation, origin]);
 
   return {

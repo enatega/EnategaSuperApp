@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { AppState, type AppStateStatus } from "react-native";
 import { useAuthSessionQuery } from "../../../general/hooks/useAuthQueries";
 import { deliveryKeys } from "../api/queryKeys";
+import type { OrderDetailsResponse } from "../api/ordersServiceTypes";
 import { deliveriesSocketClient, subscribeDeliveriesEvent } from "../socket/deliveriesSocket";
 import type { DeliveriesServerEventMap } from "../socket/deliveriesSocket.types";
 
@@ -67,7 +68,7 @@ export function useOrderStatusSocketSync(orderId?: string, options?: Options) {
         previousState === "active"
         && nextState !== "active"
       ) {
-        deliveriesSocketClient.disconnect();
+        deliveriesSocketClient.disconnectIfIdle();
         return;
       }
 
@@ -112,16 +113,49 @@ export function useOrderStatusSocketSync(orderId?: string, options?: Options) {
           return;
         }
 
-        console.log("[deliveries][socket] refreshing order details after status update", {
+        console.log("[deliveries][socket] applying order-status-updated payload to order cache", {
           orderId: activeOrderId,
           status: payload.status,
           updatedAt: payload.updatedAt,
         });
 
-        void queryClient.invalidateQueries({
-          queryKey: deliveryKeys.orderDetail(activeOrderId),
-          exact: true,
-        });
+        queryClient.setQueryData<OrderDetailsResponse>(
+          deliveryKeys.orderDetail(activeOrderId),
+          (current) => {
+            if (!current) {
+              return current;
+            }
+
+            const nextStatus = payload.status ?? current.status;
+            const nextRider =
+              payload.riderId
+                ? {
+                    ...(current.rider ?? {}),
+                    id: payload.riderId,
+                    userId: current.rider?.userId ?? payload.riderId,
+                  }
+                : current.rider;
+            const nextOrderLogs =
+              payload.status
+                ? [
+                    {
+                      status: payload.status,
+                      actor: null,
+                      timestamp: payload.updatedAt ?? new Date().toISOString(),
+                      message: null,
+                    },
+                    ...(current.orderLogs ?? []),
+                  ]
+                : current.orderLogs;
+
+            return {
+              ...current,
+              status: nextStatus,
+              rider: nextRider,
+              orderLogs: nextOrderLogs,
+            };
+          },
+        );
       },
     );
   }, [isEnabled, queryClient, token]);

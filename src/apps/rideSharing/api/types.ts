@@ -180,7 +180,35 @@ export interface RideBidPayload {
     rider_id: string;
     riderSId: string;
     price: number;
+    offeredFare?: number | null;
     status: string;
+    driverName?: string;
+    rider?: {
+        id?: string;
+        vehicle_name?: string;
+        vehicle_colour?: string;
+        vehicle_no?: string;
+        userProfile?: {
+            user?: {
+                id?: string;
+                name?: string;
+            } | null;
+        } | null;
+    } | null;
+    vehicle?: {
+        name?: string;
+        colour?: string;
+        no?: string;
+    } | null;
+    rating?: {
+        average?: number | null;
+        totalRatings?: number | null;
+    } | null;
+    stats?: {
+        totalRides?: number | null;
+        totalRatings?: number | null;
+        averageRating?: number | null;
+    } | null;
     createdAt?: string;
     expiresAt?: string;
     remainingTimeMs?: number;
@@ -258,6 +286,9 @@ export interface ActiveRidePayload {
     dropoff_location: string;
     agreed_price?: number | string | null;
     ride_status: string;
+    driver_reached_at?: string | null;
+    in_progress_at?: string | null;
+    waiting_window_sec?: number | null;
     payment_via: string;
     isScheduled?: boolean;
     scheduledAt?: string | null;
@@ -519,6 +550,16 @@ export interface DriverProfileStats {
     totalReviews: number;
     ratingBreakdown: DriverRatingBreakdown[];
     reviews: DriverReview[];
+}
+
+// ---------------------------------------------------------------------------
+// Rider Vehicle Info (/api/v1/ride-vehicles/rider/:riderId/vehicle-info)
+// ---------------------------------------------------------------------------
+
+export interface RiderVehicleInfo {
+    vehicleName: string | null;
+    vehicleNo: string | null;
+    vehicleColor: string | null;
 }
 
 // ---------------------------------------------------------------------------

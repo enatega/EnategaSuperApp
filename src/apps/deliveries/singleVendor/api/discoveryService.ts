@@ -70,7 +70,7 @@ function toCategoryProductsQueryParams(
     search: search?.trim() || undefined,
     stock,
     subcategory_id,
-    price_tiers: Array.isArray(price_tiers) ? price_tiers[0] : price_tiers,
+    price_tiers,
     sort_by,
   };
 }

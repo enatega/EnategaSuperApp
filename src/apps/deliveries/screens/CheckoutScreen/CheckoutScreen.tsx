@@ -24,6 +24,7 @@ import { formatCartPrice } from '../../components/cart/cartUtils';
 import { formatDeliveryAddressLabel } from '../../../../general/utils/address';
 import { usePlaceOrder } from '../../hooks/usePlaceOrder';
 import CheckoutMessageEditorScreen from '../../components/checkout/CheckoutMessageEditorScreen';
+import CheckoutCustomTipScreen from '../../components/checkout/CheckoutCustomTipScreen';
 import {
   buildCustomerNote,
   clampCheckoutMessageLength,
@@ -104,6 +105,7 @@ export default function CheckoutScreen() {
   const [isAddressSheetVisible, setIsAddressSheetVisible] = React.useState(false);
   const [isPaymentMethodScreenVisible, setIsPaymentMethodScreenVisible] = React.useState(false);
   const [isScheduleScreenVisible, setIsScheduleScreenVisible] = React.useState(false);
+  const [isCustomTipScreenVisible, setIsCustomTipScreenVisible] = React.useState(false);
   const [stripeCheckout, setStripeCheckout] = React.useState<{
     checkoutUrl: string;
   } | null>(null);
@@ -112,8 +114,8 @@ export default function CheckoutScreen() {
     addresses,
     isLoading: isAddressesLoading,
     refetch: refetchAddresses,
-  } = useSavedAddresses();
-  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress();
+  } = useSavedAddresses("deliveries");
+  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("deliveries");
   const [orderType, setOrderType] = React.useState<CheckoutOrderType>('delivery');
   const [leaveAtDoor, setLeaveAtDoor] = React.useState(false);
   const [deliveryTimeMode, setDeliveryTimeMode] = React.useState<CheckoutDeliveryTimeMode>('standard');
@@ -124,6 +126,7 @@ export default function CheckoutScreen() {
     courier: '',
   });
   const [selectedTip, setSelectedTip] = React.useState(0);
+  const [customTipValue, setCustomTipValue] = React.useState('');
   const {
     data: cart,
     isPending: isCartPending,
@@ -213,6 +216,8 @@ export default function CheckoutScreen() {
 
     setLeaveAtDoor(false);
     setSelectedTip(0);
+    setCustomTipValue('');
+    setIsCustomTipScreenVisible(false);
     setMessages((currentMessages) => {
       if (!currentMessages.courier) {
         return currentMessages;
@@ -278,17 +283,17 @@ export default function CheckoutScreen() {
 
   const handleAddAddressPress = React.useCallback(() => {
     setIsAddressSheetVisible(false);
-    navigation.navigate('MultiVendor', {
-      screen: 'AddressSearch',
-      params: { origin: 'home-header' },
+    navigation.navigate('AddressSearch', {
+      appPrefix: 'deliveries',
+      origin: 'checkout',
     });
   }, [navigation]);
 
   const handleUseCurrentLocation = React.useCallback(() => {
     setIsAddressSheetVisible(false);
-    navigation.navigate('MultiVendor', {
-      screen: 'AddressChooseOnMap',
-      params: { origin: 'home-header' },
+    navigation.navigate('AddressChooseOnMap', {
+      appPrefix: 'deliveries',
+      origin: 'checkout',
     });
   }, [navigation]);
 
@@ -412,6 +417,40 @@ export default function CheckoutScreen() {
     setActiveMessageTarget(target);
   }, []);
 
+  const handleCustomTipPress = React.useCallback(() => {
+    setCustomTipValue(selectedTip > 0 ? selectedTip.toFixed(2) : '');
+    setIsCustomTipScreenVisible(true);
+  }, [selectedTip]);
+
+  const handleCustomTipValueChange = React.useCallback((value: string) => {
+    const normalizedValue = value.replace(',', '.');
+    const numericValue = normalizedValue.replace(/[^0-9.]/g, '');
+    const [integerPart = '', ...decimalParts] = numericValue.split('.');
+
+    if (decimalParts.length === 0) {
+      setCustomTipValue(integerPart);
+      return;
+    }
+
+    const mergedDecimalPart = decimalParts.join('').slice(0, 2);
+    setCustomTipValue(`${integerPart}.${mergedDecimalPart}`);
+  }, []);
+
+  const handleCustomTipSave = React.useCallback(() => {
+    const parsedTip = Number.parseFloat(customTipValue);
+
+    if (!Number.isFinite(parsedTip) || parsedTip <= 0) {
+      return;
+    }
+
+    setSelectedTip(parsedTip);
+    setIsCustomTipScreenVisible(false);
+  }, [customTipValue]);
+
+  const handleCloseCustomTipScreen = React.useCallback(() => {
+    setIsCustomTipScreenVisible(false);
+  }, []);
+
   const handleCloseMessageScreen = React.useCallback(() => {
     setActiveMessageTarget(null);
   }, []);
@@ -505,6 +544,17 @@ export default function CheckoutScreen() {
     );
   }
 
+  if (isCustomTipScreenVisible) {
+    return (
+      <CheckoutCustomTipScreen
+        onBackPress={handleCloseCustomTipScreen}
+        onChangeTipValue={handleCustomTipValueChange}
+        onSavePress={handleCustomTipSave}
+        tipValue={customTipValue}
+      />
+    );
+  }
+
   if (activeMessageTarget) {
     const isRestaurantMessage = activeMessageTarget === 'restaurant';
 
@@ -563,6 +613,7 @@ export default function CheckoutScreen() {
         onRetryPreview={() => {
           void refetchPreview();
         }}
+        onCustomTipPress={handleCustomTipPress}
         onTipChange={setSelectedTip}
         orderType={orderType}
         paymentErrorMessage={paymentErrorMessage}

@@ -13,9 +13,11 @@ import Text from "../../../components/Text";
 import Icon from "../../../components/Icon";
 import { useResetPassword } from "../../../hooks/useAuthMutations";
 import { showToast } from "../../../components/AppToast";
+import { useAuthStore } from "../../../stores/useAuthStore";
+import KeyboardDismissWrapper from "../../../components/KeyboardDismissWrapper";
 
 const CreateNewPassword = ({ route }) => {
-  const { userId } = route.params;
+  const { userId, emailId } = route.params;
   const { colors } = useTheme();
   const navigation = useNavigation();
   const styles = useStyles(colors);
@@ -25,11 +27,19 @@ const CreateNewPassword = ({ route }) => {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [hasError, setHasError] = useState(false);
   const [errorMeessage, seterrorMeessage] = useState<string>("");
+  const { setFlowType } = useAuthStore();
 
   const resetPasswordMutation = useResetPassword({
     onSuccess: (data) => {
       showToast.success("Success!", data.message);
-      navigation.navigate("login" as never);
+      setFlowType("login");
+      navigation.reset({
+        index: 1,
+        routes: [
+          { name: "login" as never },
+          { name: "enterEmail" as never, params: { emailId } as never },
+        ],
+      });
     },
     onError: (error) => {
       setHasError(true);
@@ -44,7 +54,7 @@ const CreateNewPassword = ({ route }) => {
     password === confirmPassword;
 
   return (
-    <View style={[styles.container]}>
+    <KeyboardDismissWrapper style={styles.container}>
       <ScreenHeader onBack={() => navigation.goBack()} />
 
       {/* Center content container */}
@@ -108,7 +118,7 @@ const CreateNewPassword = ({ route }) => {
           isLoading={resetPasswordMutation.isPending}
         />
       </Footer>
-    </View>
+    </KeyboardDismissWrapper>
   );
 };
 

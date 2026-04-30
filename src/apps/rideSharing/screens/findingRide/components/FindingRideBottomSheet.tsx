@@ -61,6 +61,9 @@ function FindingRideBottomSheet({
   const collapsedSheetHeight = collapsedHeight + insets.bottom;
   const hasTimedOut = timeLeftSec <= 0;
   const effectiveFare = fare ?? recommendedFare ?? 0;
+  const timerMinutes = Math.floor(Math.max(0, timeLeftSec) / 60);
+  const timerSeconds = Math.max(0, timeLeftSec) % 60;
+  const timerLabel = `${timerMinutes}:${timerSeconds.toString().padStart(2, '0')}`;
 
   return (
     <SwipeableBottomSheet
@@ -83,9 +86,16 @@ function FindingRideBottomSheet({
     >
       <View style={styles.content}>
         <View style={styles.headerBlock}>
-          <Text weight="extraBold" style={[styles.title, { color: colors.text }]}>
-            {hasTimedOut ? t('ride_finding_timeout_title') : (findingTitle ?? t('ride_finding_driver_title'))}
-          </Text>
+          <View style={styles.titleRow}>
+            <Text weight="extraBold" style={[styles.title, { color: colors.text }]}>
+              {hasTimedOut ? t('ride_finding_timeout_title') : (findingTitle ?? t('ride_finding_driver_title'))}
+            </Text>
+            {!hasTimedOut ? (
+              <Text weight="extraBold" style={[styles.timer, { color: colors.text }]}>
+                {timerLabel}
+              </Text>
+            ) : null}
+          </View>
 
           <AnimatedSweepBar width={trackWidth} />
         </View>
@@ -199,15 +209,28 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   headerBlock: {
-    alignItems: 'center',
+    alignItems: 'stretch',
     gap: 14,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
   title: {
+    flex: 1,
     fontSize: 17,
     lineHeight: 22,
     letterSpacing: -0.2,
-    textAlign: 'center',
+    textAlign: 'left',
     marginTop: 4,
+  },
+  timer: {
+    fontSize: 28,
+    lineHeight: 32,
+    letterSpacing: -0.4,
+    marginTop: 2,
   },
   fareRow: {
     flexDirection: 'row',

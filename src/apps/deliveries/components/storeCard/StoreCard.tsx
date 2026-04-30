@@ -14,6 +14,7 @@ import StoreImage from "./subComponents/StoreImage";
 import StoreInfo from "./subComponents/StoreInfo";
 import StoreRating from "./subComponents/StoreRating";
 import StoreDeliveryInfo from "./subComponents/StoreDeliveryInfo";
+import { useTranslations } from "../../../../general/localization/LocalizationProvider";
 
 type StoreCardData =
   | DeliveryNearbyStore
@@ -35,6 +36,27 @@ function isProductStoreCardData(
   return "productId" in store && "productName" in store;
 }
 
+function resolveOfferLabel(
+  dealAmount: number | null | undefined,
+  dealType: string | null | undefined,
+  deal: string | null | undefined,
+  offLabel: string,
+) {
+  const hasValidAmount =
+    typeof dealAmount === "number" && Number.isFinite(dealAmount) && dealAmount > 0;
+
+  if (hasValidAmount) {
+    if (dealType === "percentage") {
+      return `${dealAmount} % ${offLabel}`;
+    }
+
+    return `${dealAmount} ${offLabel}`;
+  }
+
+  const trimmedDeal = typeof deal === "string" ? deal.trim() : "";
+  return trimmedDeal.length > 0 ? trimmedDeal : undefined;
+}
+
 export default function StoreCard({
   store,
   actionSlot,
@@ -42,6 +64,7 @@ export default function StoreCard({
   onPress,
 }: StoreCardProps) {
   const { colors } = useTheme();
+  const { t } = useTranslations("deliveries")
   const navigation = useNavigation<NavigationProp>();
   const isProductItem = isProductStoreCardData(store);
   const isPressable = Boolean(onPress) || !isProductItem;
@@ -51,7 +74,12 @@ export default function StoreCard({
       store.storeLogo ||
       "https://placehold.co/400x400.png"
     : store.coverImage || store.logo || "https://placehold.co/400x400.png";
-  const resolvedOffer = store.deal ?? undefined;
+  const resolvedOffer = resolveOfferLabel(
+    store.dealAmount,
+    store.dealType,
+    store.deal,
+    t("off"),
+  );
   const resolvedName = isProductItem ? store.productName : store.name;
   const resolvedLocation = !isProductItem ? store.address ?? undefined : undefined;
   const resolvedRating = store.averageRating ?? undefined;

@@ -3,12 +3,13 @@ import type {
   SearchProductItem,
   SearchStoreItem,
 } from "../../api/searchServiceTypes";
-import type { TextInput, TextInputProps } from "react-native";
+import type { TextInput } from "react-native";
 import type {
   RecentSearchItem,
   SearchRecommendation,
 } from "../../api/searchServiceTypes";
 import type { SearchAddressSheetConfig } from "../../hooks/searchFlow/types";
+import type { ReactNode } from "react";
 
 export type ProductMiniCardScrollerProps = {
   products: SearchProductItem[];
@@ -79,6 +80,7 @@ export type SearchMainContainerProps = {
   onDeleteRecentSearch: (id: string) => void;
   onClearRecentSearches: () => void;
   addressSheet: SearchAddressSheetConfig;
+  children?: ReactNode;
 };
 
 export type SearchResultsSkeletonProps = {
@@ -86,48 +88,3 @@ export type SearchResultsSkeletonProps = {
 };
 
 export type SearchSuggestionsSkeletonProps = Record<string, never>;
-
-export type EmptySearchProps = {
-  title?: string;
-  subtitle?: string;
-  showIcon?: boolean;
-};
-
-export type RecentSearchProps = {
-  search: string;
-  onDeletePress: () => void;
-  onItemPress: () => void;
-  isDeleting?: boolean;
-  isDeleteDisabled?: boolean;
-};
-
-export type RecentSearchesProps = {
-  items: RecentSearchItem[];
-  onDeletePress: (id: string) => void;
-  onDeleteAllPress: () => void;
-  onItemPress: (term: string) => void;
-  deletingRecentSearchId?: string | null;
-  isDeletingRecentSearch?: boolean;
-  isClearingRecentSearches?: boolean;
-};
-
-export type SearchChipProps = {
-  label: string;
-  onPress: (label: string) => void;
-};
-
-export type SearchInputProps = {
-  value: string;
-  onChangeText: (text: string) => void;
-  placeholder?: string;
-  onClear?: () => void;
-  onFocus?: TextInputProps["onFocus"];
-  onBlur?: TextInputProps["onBlur"];
-  onSubmitEditing?: TextInputProps["onSubmitEditing"];
-  autoFocus?: boolean;
-};
-
-export type SearchSuggestionsProps = {
-  recommendations: SearchRecommendation[];
-  onSuggestionPress: (name: string) => void;
-};

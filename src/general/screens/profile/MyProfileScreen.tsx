@@ -50,7 +50,7 @@ export default function MyProfileScreen({ profilePrefix }: Props) {
     clearSelectedAddress,
     selectedAddress,
   } = useAddress();
-  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress();
+  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress(profilePrefix);
   const isSelectionMode = route.params?.selectionMode ?? false;
 
   const handleUploadComplete = () => {
@@ -82,15 +82,17 @@ export default function MyProfileScreen({ profilePrefix }: Props) {
 
   const handleAddAddress = useCallback(() => {
     navigation.navigate('AddressSearch', {
+      appPrefix: profilePrefix,
       origin: isSelectionMode
         ? 'multi-vendor-home'
         : 'profile',
     });
-  }, [isSelectionMode, navigation]);
+  }, [isSelectionMode, navigation, profilePrefix]);
 
   const handleEditAddress = useCallback(() => {
     if (!addressMenuTarget) return;
     navigation.navigate('AddressSearch', {
+      appPrefix: profilePrefix,
       editAddressId: addressMenuTarget.id,
       editType: addressMenuTarget.type,
       editLocationName: addressMenuTarget.location_name ?? '',
@@ -98,7 +100,7 @@ export default function MyProfileScreen({ profilePrefix }: Props) {
         ? 'multi-vendor-home'
         : 'profile',
     });
-  }, [addressMenuTarget, isSelectionMode, navigation]);
+  }, [addressMenuTarget, isSelectionMode, navigation, profilePrefix]);
 
   const handleSelectAddress = useCallback(
     async (address: ProfileAddress) => {
@@ -124,7 +126,7 @@ export default function MyProfileScreen({ profilePrefix }: Props) {
   const handleDeleteAddress = useCallback(async () => {
     if (!addressMenuTarget) return;
     try {
-      await addressService.deleteAddress(String(addressMenuTarget.id));
+      await addressService.deleteAddress(profilePrefix, String(addressMenuTarget.id));
 
       if (selectedAddress?.id === addressMenuTarget.id) {
         clearSelectedAddress();

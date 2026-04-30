@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
@@ -9,13 +9,15 @@ import Footer from "../Footer";
 import Button from "../Button";
 import TextInputField from "./TextInputField";
 import { isValidEmail } from "../../utils/validation";
+import KeyboardDismissWrapper from "../KeyboardDismissWrapper";
 
 type Props = {
   heading: string;
   description: string;
   buttonLabel?: string;
-  onContinue: (email: string) => void;
+  onContinue: (email: string) => void | Promise<void>;
   styles: any;
+  emailId?: string;
 };
 
 export default function EmailInputComponent({
@@ -24,16 +26,22 @@ export default function EmailInputComponent({
   buttonLabel = "continue",
   onContinue,
   styles,
+  emailId
 }: Props) {
   const navigation = useNavigation();
   const { t } = useTranslation();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(emailId ?? "");
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [isContinuing, setIsContinuing] = useState(false);
+
+  useEffect(() => {
+    setEmail(emailId ?? "");
+  }, [emailId]);
 
   const isFormValid = email.trim().length > 0 && isValidEmail(email);
 
   return (
-    <View style={styles.container}>
+    <KeyboardDismissWrapper style={styles.container}>
       <ScreenHeader onBack={() => navigation.goBack()} />
 
       <View style={styles.centerContent}>
@@ -59,10 +67,19 @@ export default function EmailInputComponent({
         <Button
           variant={isFormValid ? "primary" : "secondary"}
           label={t(buttonLabel)}
-          onPress={() => onContinue(email)}
-          disabled={!isFormValid}
+          onPress={async () => {
+            if (isContinuing) return;
+            setIsContinuing(true);
+            try {
+              await onContinue(email);
+            } finally {
+              setIsContinuing(false);
+            }
+          }}
+          disabled={!isFormValid || isContinuing}
+          isLoading={isContinuing}
         />
       </Footer>
-    </View>
+    </KeyboardDismissWrapper>
   );
 }

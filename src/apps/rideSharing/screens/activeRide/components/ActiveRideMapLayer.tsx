@@ -4,7 +4,6 @@ import MapView, { type LatLng } from 'react-native-maps';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import Map, { type MapMarker, type MapPolyline } from '../../../../../general/components/Map';
 import Icon from '../../../../../general/components/Icon';
-import Image from '../../../../../general/components/Image';
 import { useTheme } from '../../../../../general/theme/theme';
 import type { RideAddressSelection } from '../../../api/types';
 import { rideKeys } from '../../../api/queryKeys';
@@ -24,12 +23,70 @@ type Props = {
   driverHeading?: number;
 };
 
-function toRouteKeyValue(value: number | undefined) {
+function getNearestCoordinateOnPath(point: LatLng, path: LatLng[]) {
+  if (path.length === 0) {
+    return point;
+  }
+
+  let nearestPoint = path[0];
+  let nearestDistanceSquared = Number.POSITIVE_INFINITY;
+
+  for (const candidate of path) {
+    const latitudeDiff = candidate.latitude - point.latitude;
+    const longitudeDiff = candidate.longitude - point.longitude;
+    const distanceSquared = (latitudeDiff * latitudeDiff) + (longitudeDiff * longitudeDiff);
+
+    if (distanceSquared < nearestDistanceSquared) {
+      nearestDistanceSquared = distanceSquared;
+      nearestPoint = candidate;
+    }
+  }
+
+  return nearestPoint;
+}
+
+function getNearestRoutePointMeta(point: LatLng, path: LatLng[]) {
+  if (path.length === 0) {
+    return null;
+  }
+
+  let nearestIndex = 0;
+  let nearestDistanceSquared = Number.POSITIVE_INFINITY;
+
+  for (let index = 0; index < path.length; index += 1) {
+    const candidate = path[index];
+    const latitudeDiff = candidate.latitude - point.latitude;
+    const longitudeDiff = candidate.longitude - point.longitude;
+    const distanceSquared = (latitudeDiff * latitudeDiff) + (longitudeDiff * longitudeDiff);
+
+    if (distanceSquared < nearestDistanceSquared) {
+      nearestDistanceSquared = distanceSquared;
+      nearestIndex = index;
+    }
+  }
+
+  return {
+    index: nearestIndex,
+    distanceSquared: nearestDistanceSquared,
+  };
+}
+
+function toSnappedRouteKeyValue(value: number | undefined) {
   if (typeof value !== 'number' || !Number.isFinite(value)) {
     return 'unknown';
   }
 
-  return value.toFixed(4);
+  // 3 decimal places ~= 111m. This prevents route refetch on every tiny GPS tick.
+  return value.toFixed(3);
+}
+
+function normalizeHeading(value: number | undefined) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return undefined;
+  }
+
+  const normalized = value % 360;
+  return normalized >= 0 ? normalized : normalized + 360;
 }
 
 function ActiveRideMapLayer({
@@ -59,13 +116,14 @@ function ActiveRideMapLayer({
   const driverRouteQuery = useQuery({
     queryKey: [
       ...rideKeys.route(
-        `driver:${toRouteKeyValue(driverCoordinate?.latitude)}:${toRouteKeyValue(driverCoordinate?.longitude)}`,
+        `driver:${toSnappedRouteKeyValue(driverCoordinate?.latitude)}:${toSnappedRouteKeyValue(driverCoordinate?.longitude)}`,
         targetAddress.placeId,
       ),
       statusCode ?? 'unknown',
     ],
     enabled: Boolean(driverCoordinate),
-    staleTime: 5 * 1000,
+    staleTime: 20 * 1000,
+    refetchOnWindowFocus: false,
     queryFn: () =>
       rideService.getRoutePath(
         {
@@ -95,6 +153,25 @@ function ActiveRideMapLayer({
       staleTime: 5 * 60 * 1000,
     })),
   });
+  const routedDriverPath = useMemo(
+    () => ((driverRouteQuery.data?.length ?? 0) >= 2 ? driverRouteQuery.data! : []),
+    [driverRouteQuery.data],
+  );
+  const normalizedDriverHeading = useMemo(
+    () => normalizeHeading(driverHeading),
+    [driverHeading],
+  );
+  const snappedDriverCoordinate = useMemo(() => {
+    if (!driverCoordinate) {
+      return undefined;
+    }
+
+    if (routedDriverPath.length < 2) {
+      return driverCoordinate;
+    }
+
+    return getNearestCoordinateOnPath(driverCoordinate, routedDriverPath);
+  }, [driverCoordinate, routedDriverPath]);
 
   const markers = useMemo<MapMarker[]>(() => {
     const nextMarkers: MapMarker[] = [
@@ -145,37 +222,45 @@ function ActiveRideMapLayer({
       },
     ];
 
-    if (driverCoordinate) {
+    if (snappedDriverCoordinate) {
       nextMarkers.push({
         id: 'driver',
-        coordinate: driverCoordinate,
+        coordinate: snappedDriverCoordinate,
         anchor: { x: 0.5, y: 0.5 },
         zIndex: 3,
-        rotation: driverHeading,
-        render: (
-          <View style={[styles.driverMarker, {  shadowColor: colors.shadowColor }]}>
-            <Image
-              source={require('../../../assets/images/car.png')}
-              style={styles.driverMarkerImage}
-              resizeMode="contain"
-            />
-          </View>
-        ),
+        rotation: normalizedDriverHeading,
+        flat: true,
+        tracksViewChanges: false,
+        image: require('../../../assets/images/car-marker-small.png'),
       });
     }
 
     return nextMarkers;
-  }, [colors.shadowColor, colors.surface, colors.text, driverCoordinate, driverHeading, fromAddress.coordinates, stopAddresses, toAddress.coordinates]);
+  }, [colors.surface, fromAddress.coordinates, normalizedDriverHeading, snappedDriverCoordinate, stopAddresses, toAddress.coordinates]);
 
   const driverApproachPolyline = useMemo<MapPolyline | null>(() => {
-    if (!driverCoordinate) {
+    if (!snappedDriverCoordinate) {
       return null;
     }
 
-    const routedCoordinates =
-      (driverRouteQuery.data?.length ?? 0) >= 2
-        ? driverRouteQuery.data!
-        : [driverCoordinate, targetAddress.coordinates];
+    const nearestRoutePointMeta = getNearestRoutePointMeta(
+      snappedDriverCoordinate,
+      routedDriverPath,
+    );
+
+    const routedCoordinates = routedDriverPath.length >= 2 && nearestRoutePointMeta
+      // Start from the nearest point on the current route segment, not always index 1.
+      ? [
+        snappedDriverCoordinate,
+        ...routedDriverPath.slice(
+          Math.min(nearestRoutePointMeta.index + 1, routedDriverPath.length),
+        ),
+      ]
+      : [snappedDriverCoordinate, targetAddress.coordinates];
+
+    if (routedCoordinates.length < 2) {
+      return null;
+    }
 
     return {
       id: 'driver-progress',
@@ -184,7 +269,7 @@ function ActiveRideMapLayer({
       strokeWidth: 4,
       zIndex: 3,
     };
-  }, [driverCoordinate, driverRouteQuery.data, statusCode, targetAddress.coordinates]);
+  }, [routedDriverPath, snappedDriverCoordinate, statusCode, targetAddress.coordinates]);
 
   const tripPolylines = useMemo<MapPolyline[]>(
     () =>
@@ -213,8 +298,8 @@ function ActiveRideMapLayer({
 
   const initialRegion = useMemo(() => {
     const coordinates = orderedTripPoints.map((point) => point.coordinates);
-    if (driverCoordinate) {
-      coordinates.push(driverCoordinate);
+    if (snappedDriverCoordinate) {
+      coordinates.push(snappedDriverCoordinate);
     }
 
     const latitudeValues = coordinates.map((coordinate) => coordinate.latitude);
@@ -230,12 +315,12 @@ function ActiveRideMapLayer({
       latitudeDelta: Math.max(maxLatitude - minLatitude, 0.02) * 1.9,
       longitudeDelta: Math.max(maxLongitude - minLongitude, 0.02) * 1.9,
     };
-  }, [driverCoordinate, orderedTripPoints]);
+  }, [orderedTripPoints, snappedDriverCoordinate]);
 
   useEffect(() => {
     const coordinates = orderedTripPoints.map((point) => point.coordinates);
-    if (driverCoordinate) {
-      coordinates.push(driverCoordinate);
+    if (snappedDriverCoordinate) {
+      coordinates.push(snappedDriverCoordinate);
     }
 
     if (coordinates.length < 2) {
@@ -251,7 +336,7 @@ function ActiveRideMapLayer({
       },
       animated: true,
     });
-  }, [driverCoordinate, orderedTripPoints, statusCode]);
+  }, [orderedTripPoints, snappedDriverCoordinate, statusCode]);
 
   return (
     <Map
@@ -290,20 +375,5 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  driverMarker: {
-    width: 34,
-    height: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowOpacity: 0.18,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 4,
-  },
-  driverMarkerImage: {
-    width: 30,
-    height: 30,
   },
 });

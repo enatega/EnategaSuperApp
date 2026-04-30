@@ -21,6 +21,7 @@ export type SupportNavigationParamList = {
   };
   SupportTickets: undefined;
   SupportTicketDetail: {
+    openMode?: 'fresh';
     ticket: SupportTicketListItemModel;
   };
 };

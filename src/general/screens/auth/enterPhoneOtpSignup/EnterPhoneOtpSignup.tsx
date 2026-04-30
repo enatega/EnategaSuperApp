@@ -11,6 +11,7 @@ import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal"
 import AppPopup from "../../../components/AppPopup";
 import { showToast } from "../../../components/AppToast";
 import { useAuthStore } from "../../../stores/useAuthStore";
+import KeyboardDismissWrapper from "../../../components/KeyboardDismissWrapper";
 
 const EnterPhoneOtpSignup = () => {
   const navigation = useNavigation();
@@ -111,7 +112,7 @@ const EnterPhoneOtpSignup = () => {
   ];
 
   return (
-    <>
+    <KeyboardDismissWrapper>
       <OtpVerificationComponent
         heading="verify_your_phone_number"
         description={t("enter_otp_sent_to", { contact: formData.phone })}
@@ -139,7 +140,7 @@ const EnterPhoneOtpSignup = () => {
           variant: "danger",
         }}
       />
-    </>
+    </KeyboardDismissWrapper>
   );
 };
 

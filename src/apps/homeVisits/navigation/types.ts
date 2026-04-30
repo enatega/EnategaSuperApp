@@ -9,7 +9,27 @@ export type HomeVisitsStackParamList = ProfileNavigationParamList &
   MultiVendor: undefined;
   Chain: undefined;
   Settings: undefined;
+  NotificationSettings: undefined;
+  ChangePassword: undefined;
+  PrivacyPolicy: undefined;
+  TermsOfService: undefined;
+  TermsOfUse: undefined;
+  DeleteAccount: undefined;
   Support: undefined;
+  SupportFaq: undefined;
+  SupportContactForm: {
+    issueLabel: string;
+    issueValue: string;
+  };
+  SupportConversations: undefined;
+  SupportTickets: undefined;
+  SupportChat:
+    | {
+        agentName?: string;
+        chatBoxId?: string;
+        receiverId?: string;
+      }
+    | undefined;
   Wallet: undefined;
   ColorMode: undefined;
   Language: undefined;

@@ -29,5 +29,7 @@ export type SocketLifecycleState =
 
 export type SocketSubscriptionCleanup = () => void;
 
-export type SocketTransportOrder = readonly ['polling', 'websocket']
-  | readonly ['websocket', 'polling'];
+export type SocketTransportOrder =
+  | readonly ['polling', 'websocket']
+  | readonly ['websocket', 'polling']
+  | readonly ['websocket'];

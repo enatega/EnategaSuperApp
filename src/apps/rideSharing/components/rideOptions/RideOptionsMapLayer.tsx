@@ -2,15 +2,11 @@ import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { LatLng, Region } from 'react-native-maps';
 import { useTheme } from '../../../../general/theme/theme';
-import Image from '../../../../general/components/Image';
 import Icon from '../../../../general/components/Icon';
 import Map, { MapMarker } from '../../../../general/components/Map';
 import type { RideAddressSelection } from '../../api/types';
 import type { CachedAddress } from './types';
 import { useNearbyDrivers } from '../../hooks/useRideQueries';
-
-const mapMarkerIcon = require('../../../rideSharing/assets/images/map-pin.png');
-const pickupMarkerIcon = require('../../../rideSharing/assets/images/map-pin.png') //'https://www.figma.com/api/mcp/asset/e71a825a-9a77-4f55-9458-a571fb6334e0';
 
 const DEFAULT_REGION: Region = {
   latitude: 24.8607,
@@ -55,9 +51,19 @@ function RideOptionsMapLayer({
     () => [fromAddress, ...stopAddresses, toAddress].filter(Boolean) as RideAddressSelection[],
     [fromAddress, stopAddresses, toAddress],
   );
+  const nearbyDriversLatitude = currentCoordinates?.latitude
+    ?? firstCachedCoordinates?.latitude
+    ?? DEFAULT_REGION.latitude;
+  const nearbyDriversLongitude = currentCoordinates?.longitude
+    ?? firstCachedCoordinates?.longitude
+    ?? DEFAULT_REGION.longitude;
+  const nearbyDriversCenterRef = useRef({
+    latitude: nearbyDriversLatitude,
+    longitude: nearbyDriversLongitude,
+  });
   const nearbyDriversQuery = useNearbyDrivers(
-    currentCoordinates?.latitude,
-    currentCoordinates?.longitude,
+    nearbyDriversCenterRef.current.latitude,
+    nearbyDriversCenterRef.current.longitude,
     NEARBY_RADIUS_KM,
     {
       placeholderData: (previousData) => previousData,
@@ -67,54 +73,6 @@ function RideOptionsMapLayer({
   const markers = useMemo<MapMarker[]>(
     () =>
       [
-        ...cachedAddresses
-          .filter((item) => item.coordinates)
-          .slice(0, 2)
-          .map((item, index) => ({
-          id: item.placeId,
-          coordinate: item.coordinates!,
-          active: true,
-          tracksViewChanges: false,
-          render: (
-            <Image
-              source={index === 0 ? pickupMarkerIcon : mapMarkerIcon}
-              style={index === 0 ? styles.pickupMarkerIcon : styles.markerIcon}
-            />
-          ),
-          })),
-        ...tripPoints.map((point, index) => ({
-          id: `trip-point:${point.placeId}`,
-          coordinate: point.coordinates,
-          zIndex: 2,
-          render: (
-            <View
-              style={[
-                index === 0 || index === tripPoints.length - 1 ? styles.tripPin : styles.stopPin,
-                {
-                  borderColor: index === 0
-                    ? '#10B981'
-                    : index === tripPoints.length - 1
-                      ? '#F87171'
-                      : '#FBBF24',
-                  backgroundColor: colors.surface,
-                },
-              ]}
-            >
-              <View
-                style={[
-                  styles.tripPinDot,
-                  {
-                    backgroundColor: index === 0
-                      ? '#10B981'
-                      : index === tripPoints.length - 1
-                        ? '#F87171'
-                        : '#F59E0B',
-                  },
-                ]}
-              />
-            </View>
-          ),
-        })),
         ...(nearbyDriversQuery.data ?? []).map((driver) => ({
           id: `nearby-driver:${driver.id}`,
           coordinate: {
@@ -132,7 +90,7 @@ function RideOptionsMapLayer({
           ),
         })),
       ],
-    [cachedAddresses, colors.shadowColor, colors.surface, colors.text, nearbyDriversQuery.data, tripPoints]
+    [colors.shadowColor, colors.surface, colors.text, nearbyDriversQuery.data]
   );
 
   const initialRegion = tripPoints.length
@@ -189,35 +147,6 @@ function RideOptionsMapLayer({
 export default memo(RideOptionsMapLayer);
 
 const styles = StyleSheet.create({
-  markerIcon: {
-    width: 20,
-    height: 20,
-  },
-  tripPin: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stopPin: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tripPinDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-  },
-  pickupMarkerIcon: {
-    width: 36,
-    height: 46,
-  },
   driverMarker: {
     width: 28,
     height: 18,

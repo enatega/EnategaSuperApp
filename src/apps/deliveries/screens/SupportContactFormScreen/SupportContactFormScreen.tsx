@@ -1,21 +1,25 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showToast } from '../../../../general/components/AppToast';
 import Button from '../../../../general/components/Button';
+import SupportHeader from '../../../../general/components/support/SupportHeader';
+import SupportIssueDropdown from '../../../../general/components/support/SupportIssueDropdown';
 import Text from '../../../../general/components/Text';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
 import { useTheme } from '../../../../general/theme/theme';
 import SupportAttachmentDropzone from '../../components/support/SupportAttachmentDropzone';
-import SupportHeader from '../../components/support/SupportHeader';
-import SupportIssueDropdown from '../../components/support/SupportIssueDropdown';
+import { deliveryKeys } from '../../api/queryKeys';
+import { supportTicketService } from '../../api/supportTicketService';
 import SupportLabeledField from '../../components/support/SupportLabeledField';
 import { useCreateSupportTicketMutation } from '../../hooks/useCreateSupportTicketMutation';
 import { useSupportTicketFormConfigQuery } from '../../hooks/useSupportTicketFormConfigQuery';
 import { SupportHomeNavigationProp, SupportNavigationParamList } from '../../navigation/supportNavigationTypes';
 import { buildSupportOptions, orderSupportCategoryKeys } from '../../utils/supportFormOptions';
+import { mapSupportTicketToListItem } from '../../utils/supportTicketMappers';
 
 type SupportContactFormRouteProp = RouteProp<SupportNavigationParamList, 'SupportContactForm'>;
 const BUSINESS_JOINING_ISSUE = 'joining_as_a_business';
@@ -75,11 +79,30 @@ function normalizeTextValue(value: unknown) {
   return String(value).trim();
 }
 
+function extractCreatedTicketId(response: {
+  data?: {
+    id?: string;
+    _id?: string;
+    ticketId?: string;
+  };
+  detail?: {
+    id?: string;
+  };
+}) {
+  const createdTicketId = response.data?.id
+    ?? response.data?._id
+    ?? response.data?.ticketId
+    ?? response.detail?.id;
+
+  return createdTicketId?.trim();
+}
+
 export default function SupportContactFormScreen() {
   const { colors, typography } = useTheme();
   const { t, i18n } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<SupportHomeNavigationProp>();
+  const queryClient = useQueryClient();
   const route = useRoute<SupportContactFormRouteProp>();
   const sessionQuery = useAuthSessionQuery();
   const supportTicketFormConfigQuery = useSupportTicketFormConfigQuery();
@@ -94,12 +117,41 @@ export default function SupportContactFormScreen() {
   const [businessType, setBusinessType] = useState<string>();
   const [teamSize, setTeamSize] = useState<string>();
   const createSupportTicketMutation = useCreateSupportTicketMutation({
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       console.log('[SupportContactForm] ticket submit success:', response);
       showToast.success(
         t('support_form_submit_success_title'),
         t('support_form_submit_success_message'),
       );
+
+      const createdTicketId = extractCreatedTicketId(response);
+
+      try {
+        const supportMyTickets = await supportTicketService.getMyTickets();
+        const createdTicket = createdTicketId
+          ? supportMyTickets.tickets.find((ticket) => ticket.id === createdTicketId)
+          : undefined;
+        const fallbackLatestTicket = supportMyTickets.tickets[0];
+        const targetTicket = createdTicket ?? fallbackLatestTicket;
+
+        if (targetTicket) {
+          queryClient.setQueryData(deliveryKeys.supportMyTickets(), supportMyTickets);
+          navigation.navigate('SupportTicketDetail', {
+            openMode: 'fresh',
+            ticket: mapSupportTicketToListItem(
+              targetTicket,
+              (orderId) => t('support_tickets_order_id', { orderId }),
+            ),
+          });
+          return;
+        }
+
+        navigation.navigate('SupportTickets');
+        return;
+      } catch {
+        // Fall back to previous behavior if fetching my tickets fails.
+      }
+
       navigation.goBack();
     },
     onError: (error) => {
@@ -352,9 +404,10 @@ export default function SupportContactFormScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <SupportHeader
-        title={t('support_title')}
+        backAccessibilityLabel={t('support_back_action')}
         rightAccessibilityLabel={t('support_close_action')}
         rightIconName="close-outline"
+        title={t('support_title')}
         onRightPress={() => navigation.goBack()}
       />
 
@@ -365,6 +418,7 @@ export default function SupportContactFormScreen() {
       >
         <SupportLabeledField label={t('support_form_how_help_label')}>
           <SupportIssueDropdown
+            sheetTitle={t('support_issue_select_title')}
             options={howCanWeHelpOptions}
             placeholder={t('support_issue_placeholder')}
             value={issueValue}
@@ -406,6 +460,7 @@ export default function SupportContactFormScreen() {
 
             <SupportLabeledField label={t('support_form_country_region_label')} isRequired>
               <SupportIssueDropdown
+                sheetTitle={t('support_issue_select_title')}
                 options={countryRegionOptions}
                 placeholder={t('support_form_country_region_placeholder')}
                 value={countryRegion}
@@ -440,6 +495,7 @@ export default function SupportContactFormScreen() {
 
             <SupportLabeledField label={t('support_form_business_type_label')} isRequired>
               <SupportIssueDropdown
+                sheetTitle={t('support_issue_select_title')}
                 options={businessTypeOptions}
                 placeholder={t('support_form_business_type_placeholder')}
                 value={businessType}
@@ -449,6 +505,7 @@ export default function SupportContactFormScreen() {
 
             <SupportLabeledField label={t('support_form_team_size_label')} isRequired>
               <SupportIssueDropdown
+                sheetTitle={t('support_issue_select_title')}
                 options={teamSizeOptions}
                 placeholder={t('support_form_team_size_placeholder')}
                 value={teamSize}
@@ -458,6 +515,7 @@ export default function SupportContactFormScreen() {
 
             <SupportLabeledField label={t('support_form_reason_label')} isRequired>
               <SupportIssueDropdown
+                sheetTitle={t('support_issue_select_title')}
                 options={reasonOptions}
                 placeholder={t('support_form_reason_placeholder')}
                 value={reasonValue}
@@ -468,6 +526,7 @@ export default function SupportContactFormScreen() {
         ) : (
           <SupportLabeledField label={t('support_form_reason_label')} isRequired>
             <SupportIssueDropdown
+              sheetTitle={t('support_issue_select_title')}
               options={reasonOptions}
               placeholder={t('support_form_reason_placeholder')}
               value={reasonValue}

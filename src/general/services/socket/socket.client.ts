@@ -71,9 +71,11 @@ class SocketClient {
 
     socket.on('connect_error', (error: Error) => {
       this.setLifecycleState('disconnected');
+      const transportName = socket.io.engine?.transport?.name;
       socketLogger.warn('Connect error', {
         message: error.message,
         active: socket.active,
+        transport: transportName,
       });
     });
 
@@ -88,7 +90,11 @@ class SocketClient {
     });
 
     socket.io.on('reconnect_error', (error: Error) => {
-      socketLogger.warn('Reconnect error', { message: error.message });
+      const transportName = socket.io.engine?.transport?.name;
+      socketLogger.warn('Reconnect error', {
+        message: error.message,
+        transport: transportName,
+      });
     });
 
     socket.io.on('reconnect_failed', () => {

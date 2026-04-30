@@ -2,11 +2,11 @@ import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import SupportChatFooter from '../../../../general/components/support/SupportChatFooter';
+import SupportFaqListItem from '../../../../general/components/support/SupportFaqListItem';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
-import SupportFaqListItem from '../../components/support/SupportFaqListItem';
-import SupportChatFooter from '../../components/support/SupportChatFooter';
 import { SupportFaqNavigationProp } from '../../navigation/supportNavigationTypes';
 import { supportFaqArticles } from '../../utils/supportFaqArticles';
 
@@ -43,7 +43,10 @@ export default function SupportFaqScreen() {
         </View>
       </ScrollView>
 
-      <SupportChatFooter />
+      <SupportChatFooter
+        ctaLabel={t('support_chat_cta')}
+        onPress={() => navigation.navigate('SupportChat', { agentName: t('support_chat_agent_name') })}
+      />
     </View>
   );
 }

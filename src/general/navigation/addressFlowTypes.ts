@@ -1,10 +1,14 @@
+import { ProfileAppPrefix } from "../api/profileService";
+
 export type AddressFlowOrigin =
   | 'multi-vendor-home'
   | 'profile'
   | 'single-vendor-home'
-  | 'chain-home';
+  | 'chain-home'
+  | 'checkout';
 
 export type AddressFlowParams = {
+  appPrefix: ProfileAppPrefix;
   editAddressId?: string;
   editType?: string;
   editLocationName?: string;
@@ -15,6 +19,7 @@ export type AddressDetailParams = {
   address: string;
   latitude: number;
   longitude: number;
+  appPrefix: ProfileAppPrefix;
   editAddressId?: string;
   editType?: string;
   editLocationName?: string;
@@ -22,7 +27,7 @@ export type AddressDetailParams = {
 };
 
 export type AddressFlowParamList = {
-  AddressSearch: AddressFlowParams | undefined;
-  AddressChooseOnMap: AddressFlowParams | undefined;
+  AddressSearch: AddressFlowParams;
+  AddressChooseOnMap: AddressFlowParams;
   AddressDetail: AddressDetailParams;
 };

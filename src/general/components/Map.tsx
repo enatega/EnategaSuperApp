@@ -24,6 +24,7 @@ export type MapMarker = {
   anchor?: MapMarkerProps['anchor'];
   zIndex?: number;
   rotation?: number;
+  flat?: MapMarkerProps['flat'];
   draggable?: boolean;
   tappable?: boolean;
   onPress?: MapMarkerProps['onPress'];
@@ -70,6 +71,7 @@ function MapMarkerItem({ marker }: { marker: MapMarker }) {
       anchor={marker.anchor}
       zIndex={marker.zIndex}
       rotation={marker.rotation}
+      flat={marker.flat}
       draggable={marker.draggable}
       tappable={tappable}
       onPress={marker.onPress}
@@ -96,6 +98,7 @@ const MemoizedMarker = memo(MapMarkerItem, (prev, next) => {
   if (a.anchor !== b.anchor) return false;
   if (a.zIndex !== b.zIndex) return false;
   if (a.rotation !== b.rotation) return false;
+  if (a.flat !== b.flat) return false;
   if (a.draggable !== b.draggable) return false;
   if (a.tappable !== b.tappable) return false;
   if (a.onPress !== b.onPress) return false;

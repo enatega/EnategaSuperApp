@@ -5,8 +5,8 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../../../general/theme/theme";
 import DealsSeeAllContainer from "../../components/DealsSeeAll/DealsSeeAllContainer";
-import SeeAllHeader from "../SeeAllScreen/components/SeeAllHeader";
-import SeeAllFilterSheet from "../SeeAllScreen/components/SeeAllFilterSheet";
+import DeliveriesSeeAllHeader from "../SeeAllScreen/components/DeliveriesSeeAllHeader";
+import DeliveriesSeeAllFilterSheet from "../SeeAllScreen/components/DeliveriesSeeAllFilterSheet";
 import type {
   DeliveryDealsTabType,
   DeliveryDealItem,
@@ -93,7 +93,7 @@ export default function DealsSeeAll() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
-      <SeeAllHeader
+      <DeliveriesSeeAllHeader
         searchPlaceholder={t("generic_list_search_placeholder")}
         searchValue={searchText}
         isSearchEditable={true}
@@ -120,7 +120,7 @@ export default function DealsSeeAll() {
         title={getDealsSectionTitle(source, selectedTab, t)}
       />
       {isMultiVendorSource ? (
-        <SeeAllFilterSheet
+        <DeliveriesSeeAllFilterSheet
           visible={isFilterSheetVisible}
           draftFilters={draftFilters}
           isApplyDisabled={!hasDraftFilters && !hasAppliedFilters}

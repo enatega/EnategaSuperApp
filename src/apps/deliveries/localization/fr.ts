@@ -335,14 +335,9 @@ const fr = {
   tou_contact_email: 'E-mail : contact@fooddelivery.com',
   tou_contact_address: 'Adresse : Doha, Qatar',
   // Search / map
-  searching_near: 'Recherche près de',
-  search_input_placeholder: 'Rechercher des restaurants, magasins ou articles',
-  no_results_found: 'Aucun résultat trouvé',
   products: 'Produits',
   stores: 'Magasins',
   see_all: 'Voir tout',
-  recent_searches: 'Recherches récentes',
-  clear_all: 'Tout effacer',
   filter_title: 'Filtrer',
   filter_close_label: 'Fermer les filtres',
   filter_apply_results: 'Appliquer les filtres',
@@ -356,7 +351,7 @@ const fr = {
   generic_list_retry: 'Réessayer',
   generic_list_empty_title: 'Aucun résultat trouvé',
   generic_list_empty_description: 'Essayez une autre recherche ou modifiez vos filtres.',
-  generic_list_search_placeholder: 'Rechercher des restaurants, magasins ou articles',
+  generic_list_search_placeholder: 'Recherche',
   see_all_map_loading_title: 'Recherche de {{title}}',
   see_all_map_loading_description: 'Cela peut prendre quelques instants. Veuillez rester sur cet écran.',
   see_all_map_sheet_title: 'Restaurant',
@@ -516,6 +511,9 @@ const fr = {
   checkout_tip_title: 'Donnez un pourboire à votre livreur',
   checkout_tip_description: 'Le pourboire sera versé intégralement au livreur.',
   checkout_tip_custom: 'Personnalisé',
+  checkout_tip_custom_title: 'Ajouter un pourboire personnalisé',
+  checkout_tip_custom_placeholder: '0.00',
+  checkout_tip_custom_done: 'Terminé',
   checkout_summary_title: 'Résumé',
   checkout_summary_hint: 'taxes incluses (si applicables)',
   checkout_summary_subtotal: 'Sous-total',
@@ -872,6 +870,7 @@ const fr = {
   wallet_security_code_label: 'Code de sécurité',
   wallet_pay_securely: 'Paiement sécurisé avec',
   wallet_save_card: 'Enregistrer',
+  off: 'désactivé'
 };
 
 export default fr;

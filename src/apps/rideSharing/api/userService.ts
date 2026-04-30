@@ -39,6 +39,28 @@ export type WalletTopUpResponse = {
     mode: string;
 };
 
+export type UserNotificationsQueryParams = {
+    offset?: number;
+    limit?: number;
+    search?: string;
+};
+
+export type UserNotificationItem = {
+    id: string;
+    title: string;
+    description: string;
+    createdAt: string;
+};
+
+export type UserNotificationsResponse = {
+    items: UserNotificationItem[];
+    offset: number;
+    limit: number;
+    total: number;
+    isEnd: boolean;
+    nextOffset: number | null;
+};
+
 export const userService = {
     // ── Queries ───────────────────────────────────────────────────────────
 
@@ -55,6 +77,46 @@ export const userService = {
     /** Create a Stripe checkout session for wallet top-up. */
     topUpWallet: async (payload: WalletTopUpPayload): Promise<WalletTopUpResponse> =>
         apiClient.post<WalletTopUpResponse>('/api/v1/wallet/topup', payload),
+
+    /** Fetch today's notifications for a ride-hailing user. */
+    getTodayNotifications: async (
+        userId: string,
+        params?: UserNotificationsQueryParams,
+    ): Promise<UserNotificationsResponse> => {
+        const response = await apiClient.get<UserNotificationsResponse>(
+            `/users-notifications/user/today/${userId}`,
+            params,
+        );
+        console.log('[userService.getTodayNotifications] response:', {
+            userId,
+            params,
+            count: response.items?.length ?? 0,
+            total: response.total,
+            offset: response.offset,
+            nextOffset: response.nextOffset,
+        });
+        return response;
+    },
+
+    /** Fetch past notifications for a ride-hailing user. */
+    getPastNotifications: async (
+        userId: string,
+        params?: UserNotificationsQueryParams,
+    ): Promise<UserNotificationsResponse> => {
+        const response = await apiClient.get<UserNotificationsResponse>(
+            `/users-notifications/user/past/${userId}`,
+            params,
+        );
+        console.log('[userService.getPastNotifications] response:', {
+            userId,
+            params,
+            count: response.items?.length ?? 0,
+            total: response.total,
+            offset: response.offset,
+            nextOffset: response.nextOffset,
+        });
+        return response;
+    },
 
     // ── Mutations ─────────────────────────────────────────────────────────
 

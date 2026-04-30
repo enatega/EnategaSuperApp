@@ -33,20 +33,27 @@ export function useCompletedRideFeedbackController() {
 
   const handleSubmit = useCallback(async ({ rating, feedback }: SubmitPayload) => {
     const reviewerId = authSessionQuery.data?.user?.id;
+    console.log("my reviewerId is : ", reviewerId);
     const reviewedId = getReviewedId(feedbackRide?.rawRideData, feedbackRide?.driverUserId);
+    console.log("my reviewedId is : ", reviewedId);
+    console.log('my feedbackRide is : ', feedbackRide);
 
     if (!feedbackRide?.rideId || !reviewerId || rateRideMutation.isPending) {
       return;
     }
 
     try {
-      await rateRideMutation.mutateAsync({
+      const payload = {
         description: feedback,
         rideId: feedbackRide.rideId,
         rating,
         reviewedId,
         reviewerId,
-      });
+      };
+
+      console.log('[handleSubmit] rateRide payload:', payload);
+
+      await rateRideMutation.mutateAsync(payload);
 
       clearFeedbackRide();
       showToast.success(

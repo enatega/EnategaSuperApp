@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { useTheme } from "../../../theme/theme";
 import ScreenHeader from "../../../components/ScreenHeader";
@@ -16,24 +16,45 @@ import { getPendingAppRoute } from "../../../navigation/pendingAppRedirect";
 import { showToast } from "../../../components/AppToast";
 import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal";
 import AppPopup from "../../../components/AppPopup";
+import KeyboardDismissWrapper from "../../../components/KeyboardDismissWrapper";
+import { rememberedCredentials } from "../../../auth/rememberedCredentials";
 
 const EnterPassword = ({ route }) => {
-  const { emailId } = route.params;
+  const {
+    emailId = "",
+    prefilledPassword = "",
+    rememberedFromStore = false,
+  } = route.params ?? {};
   const { colors } = useTheme();
   const navigation = useNavigation();
   const styles = useStyles(colors);
   const { t } = useTranslation();
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState(prefilledPassword);
   const [focusedField, setFocusedField] = useState<string | null>(null);
-  const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const [rememberMe, setRememberMe] = useState<boolean>(rememberedFromStore);
   const [hasError, setHasError] = useState<boolean>(false);
   const [errorMessage, seterrorMessage] = useState<string>("");
 
   const isFormValid = password.trim().length > 0;
   const rateLimitModal = useTooManyRequestsModal();
 
+  useEffect(() => {
+    setPassword(prefilledPassword);
+    setRememberMe(rememberedFromStore);
+  }, [prefilledPassword, rememberedFromStore, emailId]);
+
   const mutateEmailLogin = useEmailLogin({
     onSuccess: async () => {
+      try {
+        if (rememberMe) {
+          await rememberedCredentials.save(emailId, password);
+        } else {
+          await rememberedCredentials.remove(emailId);
+        }
+      } catch {
+        // Do not interrupt login success flow if secure storage fails.
+      }
+
       showToast.success("Success!", "Welcome back.");
       const pendingRoute = await getPendingAppRoute();
 
@@ -57,7 +78,7 @@ const EnterPassword = ({ route }) => {
   };
 
   return (
-    <View style={[styles.container]}>
+    <KeyboardDismissWrapper style={styles.container}>
       <ScreenHeader onBack={() => navigation.goBack()} />
 
       {/* Center content container */}
@@ -110,7 +131,7 @@ const EnterPassword = ({ route }) => {
           <TouchableOpacity
             onPress={() =>
               navigation.navigate("forgetPasswordEnterEmail", {
-                email: "test@gmail.com",
+                emailId,
               })
             }
           >
@@ -143,7 +164,7 @@ const EnterPassword = ({ route }) => {
           variant: "danger",
         }}
       />
-    </View>
+    </KeyboardDismissWrapper>
   );
 };
 

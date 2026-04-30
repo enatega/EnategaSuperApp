@@ -1,5 +1,5 @@
-import React, { memo, useCallback } from 'react';
-import { FlatList, ListRenderItemInfo, Pressable, StyleSheet } from 'react-native';
+import React, { memo, useMemo } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
 import Text from '../../../../general/components/Text';
@@ -14,6 +14,7 @@ type Props = {
   onSelectCategory: (category: RideCategory) => void;
   onSearchPress: () => void;
   searchDisabled?: boolean;
+  hideOptionsRow?: boolean;
 };
 
 function RideOptionsHeader({
@@ -22,31 +23,59 @@ function RideOptionsHeader({
   onSelectCategory,
   onSearchPress,
   searchDisabled = false,
+  hideOptionsRow = false,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
 
-  const renderRideOption = useCallback(
-    ({ item }: ListRenderItemInfo<RideOptionItem>) => (
-      <RideOptionCard
-        item={item}
-        isActive={item.id === selectedCategory}
-        onPress={onSelectCategory}
-      />
-    ),
-    [onSelectCategory, selectedCategory],
-  );
+  const fixedColumnItems = useMemo(() => rideOptions.slice(0, 2), [rideOptions]);
+  const scrollItems = useMemo(() => rideOptions.slice(2), [rideOptions]);
+
+  const optionLayout = useMemo(() => {
+    if (rideOptions.length === 0) {
+      return null;
+    }
+
+    return (
+      <View style={styles.optionsLayout}>
+        <View style={styles.fixedRow}>
+          {fixedColumnItems.map((item) => (
+            <View key={item.id} style={styles.fixedRowItem}>
+              <RideOptionCard
+                item={item}
+                isActive={item.id === selectedCategory}
+                onPress={onSelectCategory}
+                containerStyle={styles.optionCardContainer}
+              />
+            </View>
+          ))}
+        </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollRowContainer}
+        >
+          {scrollItems.map((item) => (
+            <View key={item.id} style={styles.scrollRowItem}>
+              <RideOptionCard
+                item={item}
+                isActive={item.id === selectedCategory}
+                onPress={onSelectCategory}
+                containerStyle={styles.optionCardContainer}
+              />
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  }, [fixedColumnItems, onSelectCategory, rideOptions.length, scrollItems, selectedCategory]);
 
   return (
     <>
-      <FlatList
-        data={rideOptions}
-        keyExtractor={(item) => item.id}
-        renderItem={renderRideOption}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.optionsRow}
-      />
+      {hideOptionsRow ? null : (
+        <View style={styles.optionsGrid}>{optionLayout}</View>
+      )}
       <Pressable
         onPress={() => onSearchPress()}
         disabled={searchDisabled}
@@ -72,10 +101,33 @@ function RideOptionsHeader({
 export default memo(RideOptionsHeader);
 
 const styles = StyleSheet.create({
-  optionsRow: {
+  optionsGrid: {
     paddingHorizontal: 16,
-    paddingBottom:8,
+    paddingBottom: 8,
+  },
+  optionsLayout: {
+    flexDirection: 'column',
     gap: 8,
+  },
+  fixedRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  fixedRowItem: {
+    flex: 1,
+    minWidth: 0,
+  },
+  scrollRowContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingRight: 12,
+  },
+  scrollRowItem: {
+    width: 110,
+    flexShrink: 0,
+  },
+  optionCardContainer: {
+    minHeight: 86,
   },
   searchInput: {
     marginTop: 12,

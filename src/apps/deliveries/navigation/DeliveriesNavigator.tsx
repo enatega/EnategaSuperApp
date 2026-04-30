@@ -24,6 +24,7 @@ import AddressSearchScreen from "../../../general/screens/address/AddressSearchS
 import AddressChooseOnMapScreen from "../../../general/screens/address/AddressChooseOnMapScreen";
 import AddressDetailScreen from "../../../general/screens/address/AddressDetailScreen";
 import WalletScreen from "../screens/wallet/WalletScreen/WalletScreen";
+import NotificationsScreen from "../../../general/screens/notifications/NotificationsScreen";
 import AddCardScreen from "../screens/wallet/AddCardScreen/AddCardScreen";
 import WalletTransactionsScreen from "../screens/wallet/WalletTransactionsScreen/WalletTransactionsScreen";
 import SupportScreen from "../screens/SupportScreen/SupportScreen";
@@ -39,7 +40,7 @@ import {
   mapDeliveryModeToRoute,
 } from "./deliveryModePreference";
 import type { DeliveriesStackParamList } from "./types";
-import SeeAllScreen from "../screens/SeeAllScreen/SeeAllScreen";
+import DeliveriesSeeAllScreen from "../screens/SeeAllScreen/DeliveriesSeeAllScreen";
 import DealsSeeAll from "../screens/DealsSeeAll/DealsSeeAll";
 import SingleVendorCategoriesSeeAll from "../screens/SingleVendorCategoriesSeeAll/SingleVendorCategoriesSeeAll";
 import SingleVendorCategoryProductsSeeAll from "../screens/SingleVendorCategoryProductsSeeAll/SingleVendorCategoryProductsSeeAll";
@@ -154,6 +155,12 @@ export default function DeliveriesNavigator() {
         options={sharedScreenOptions}
       />
       <Stack.Screen
+        name="Notifications"
+        options={sharedScreenOptions}
+      >
+        {() => <NotificationsScreen appPrefix="deliveries" />}
+      </Stack.Screen>
+      <Stack.Screen
         name="AddCard"
         component={AddCardScreen}
         options={sharedScreenOptions}
@@ -240,7 +247,7 @@ export default function DeliveriesNavigator() {
       />
       <Stack.Screen
         name="SeeAllScreen"
-        component={SeeAllScreen}
+        component={DeliveriesSeeAllScreen}
         options={sharedScreenOptions}
       />
       <Stack.Screen

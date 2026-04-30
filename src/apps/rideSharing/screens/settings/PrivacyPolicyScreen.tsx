@@ -13,15 +13,15 @@ export default function PrivacyPolicyScreen() {
     <LegalScreenContainer title={t('settings_privacy')}>
       <LegalCard title="Privacy policy" lastUpdated="last updated 2 months ago">
         <LegalParagraph>
-          At LO Drive, your privacy and trust are our top priority. This Privacy Policy explains how we handle your information when you use our app. By using LO Drive, you agree to the practices described below.
+          At Super App, your privacy and trust are our top priority. This Privacy Policy explains how we handle your information when you use our app. By using Super App, you agree to the practices described below.
         </LegalParagraph>
 
         <LegalSection title="Information We Collect" />
         <LegalParagraph>
-          When you use LO Drive, we may collect the following types of information:
+          When you use Super App, we may collect the following types of information:
         </LegalParagraph>
         <LegalListItem>1. Account Information - When you create an account, we collect your name, email address, password, and any other details you provide during registration.</LegalListItem>
-        <LegalListItem>2. Files & Content - The documents, photos, videos, and other files you upload, store, or share through LO Drive.</LegalListItem>
+        <LegalListItem>2. Files & Content - The documents, photos, videos, and other files you upload, store, or share through Super App.</LegalListItem>
         <LegalListItem>3. Device & Technical Data — Device type, operating system, app version, IP address, log files, and usage Statistics that help us improve our services.</LegalListItem>
         <LegalListItem>4. Support & Communication — Any messages, feedback, or support requests you send to us.</LegalListItem>
         <LegalListItem>5. Optional Information — Preferences or settings you adjust within the app.</LegalListItem>
@@ -32,7 +32,7 @@ export default function PrivacyPolicyScreen() {
         </LegalParagraph>
         <LegalListItem>• Service Delivery: To provide secure file storage, sharing, and related features.</LegalListItem>
         <LegalListItem>• Account Management: To authenticate users, manage accounts, and provide customer support.</LegalListItem>
-        <LegalListItem>• Improvement & Personalization: To understand how LO Drive is used and enhance user experience.</LegalListItem>
+        <LegalListItem>• Improvement & Personalization: To understand how Super App is used and enhance user experience.</LegalListItem>
         <LegalListItem>• Security & Safety: To prevent fraud, unauthorized access, and abuse of our platform.</LegalListItem>
         <LegalListItem>• Legal Compliance: To comply with applicable laws and regulations.</LegalListItem>
         <LegalListItem>• Communication: To send you service-related updates, notifications, or responses to your inquiries.</LegalListItem>
@@ -44,7 +44,7 @@ export default function PrivacyPolicyScreen() {
         <LegalListItem>• With Your Consent: When you choose to share files or invite collaborators.</LegalListItem>
         <LegalListItem>• Service Providers: With trusted third parties that provide hosting, storage, analytics, or customer support.</LegalListItem>
         <LegalListItem>• Legal Requirements: If required by law, regulation, or valid legal process.</LegalListItem>
-        <LegalListItem>• Protection: When necessary to protect the rights, safety, or property of LO Drive, our users, or the public.</LegalListItem>
+        <LegalListItem>• Protection: When necessary to protect the rights, safety, or property of Super App, our users, or the public.</LegalListItem>
 
         <LegalSection title="Data Security" />
         <LegalParagraph>

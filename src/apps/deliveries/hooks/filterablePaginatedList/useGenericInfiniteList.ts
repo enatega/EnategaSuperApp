@@ -2,7 +2,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import type { ApiError } from '../../api';
 import type { GenericListFilters } from '../../components/filters/types';
 import { buildQueryFilterPayload } from '../../components/filters/utils';
-import type { QueryBuilderContext } from '../../components/filterablePaginatedList/types';
+import type { QueryBuilderContext } from '../../../../general/components/filterablePaginatedList/types';
 
 type Props<TResponse, TQueryParams extends object, TPageParam> = {
   queryKey: readonly unknown[];

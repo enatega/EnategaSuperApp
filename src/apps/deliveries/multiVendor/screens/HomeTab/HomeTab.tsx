@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
@@ -33,9 +33,9 @@ export default function HomeTab() {
     addresses,
     isLoading: isAddressesLoading,
     refetch,
-  } = useSavedAddresses();
+  } = useSavedAddresses("deliveries");
   const { selectedAddress } = useAddress();
-  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress();
+  const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("deliveries");
   const {
     isVisible: isAddressSheetVisible,
     open: handleOpenAddressSheet,
@@ -65,12 +65,18 @@ export default function HomeTab() {
 
   const handleAddAddressPress = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate('AddressSearch', { origin: 'multi-vendor-home' });
+    navigation.navigate('AddressSearch', { 
+      appPrefix: "deliveries",
+      origin: 'multi-vendor-home' 
+    });
   }, [handleCloseAddressSheet, navigation]);
 
   const handleUseCurrentLocation = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate('AddressChooseOnMap', { origin: 'multi-vendor-home' });
+    navigation.navigate('AddressChooseOnMap', { 
+      appPrefix: "deliveries",
+      origin: 'multi-vendor-home' 
+    });
   }, [handleCloseAddressSheet, navigation]);
 
   const handleCartPress = useCallback(() => {
@@ -78,22 +84,20 @@ export default function HomeTab() {
   }, [navigation]);
 
   return (
-    <>
+    <View style={{flex: 1, backgroundColor: colors.background, gap: 10}}>
+      <MultiVendorAddressHeader
+        addresses={addresses}
+        onAddAddressPress={handleOpenAddressSheet}
+        onAddressPress={handleOpenAddressSheet}
+        cartCount={cartCount?.totalItems}
+        onCartPress={handleCartPress}
+      />
       <ScrollView
         contentContainerStyle={[
           styles.contentContainer,
-          { backgroundColor: colors.background },
         ]}
         showsVerticalScrollIndicator={false}
-        style={{ backgroundColor: colors.background }}
       >
-        <MultiVendorAddressHeader
-          addresses={addresses}
-          onAddAddressPress={handleOpenAddressSheet}
-          onAddressPress={handleOpenAddressSheet}
-          cartCount={cartCount?.totalItems}
-          onCartPress={handleCartPress}
-        />
         <MultiVendorSpecialOffers />
         <ShopTypeList />
         <TopBrandsList />
@@ -113,6 +117,6 @@ export default function HomeTab() {
         selectingAddressId={selectingAddressId}
         selectedAddressId={selectedAddress?.id}
       />
-    </>
+    </View>
   );
 }

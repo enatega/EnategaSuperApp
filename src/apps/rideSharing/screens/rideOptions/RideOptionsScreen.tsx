@@ -17,9 +17,16 @@ import Sidebar, { type UserProfile } from '../../components/Sidebar';
 import { useSidebarMenu } from '../../hooks/useSidebarMenu';
 import { useProfile } from '../../hooks/useProfile';
 import { resetToSharedHome } from '../../../../general/navigation/rootNavigation';
+import PaymentMethodBottomSheet from '../../components/payment/PaymentMethodBottomSheet';
+import type { PaymentMethodId } from '../../components/payment/paymentTypes';
+import {
+  getSavedRideEstimatePaymentMethod,
+  saveRideEstimatePaymentMethod,
+} from '../../storage/rideEstimatePaymentMethod';
 
 type RouteParams = {
   rideType?: RideIntent;
+  directCourierOnly?: boolean;
 };
 
 const defaultRideIcon = 'https://www.figma.com/api/mcp/asset/06c62618-d47d-4594-aa0c-3e1886f000ba';
@@ -36,6 +43,43 @@ function toRideOption(ride: RideTypeCatalogItem): RideOptionItem {
     seats: ride.seatCount || undefined,
     description: ride.description,
   };
+}
+
+function normalizeRideOptionTitle(title: string) {
+  return title.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function prioritizeRideOptionsForHeader(rideOptions: RideOptionItem[]) {
+  if (rideOptions.length <= 2) {
+    return rideOptions;
+  }
+
+  const premiumOption = rideOptions.find((option) => {
+    const normalizedTitle = normalizeRideOptionTitle(option.title);
+    return normalizedTitle.includes('premium');
+  });
+
+  const rideOption = rideOptions.find((option) => {
+    const normalizedTitle = normalizeRideOptionTitle(option.title);
+    return normalizedTitle === 'ride';
+  });
+
+  const prioritizedIds = new Set<string>();
+  const prioritized: RideOptionItem[] = [];
+
+  if (premiumOption) {
+    prioritized.push(premiumOption);
+    prioritizedIds.add(premiumOption.id);
+  }
+
+  if (rideOption && !prioritizedIds.has(rideOption.id)) {
+    prioritized.push(rideOption);
+    prioritizedIds.add(rideOption.id);
+  }
+
+  const remaining = rideOptions.filter((option) => !prioritizedIds.has(option.id));
+
+  return [...prioritized, ...remaining];
 }
 
 function resolveInitialRideTypeId(
@@ -80,12 +124,27 @@ export default function RideOptionsScreen() {
   const { t } = useTranslation('rideSharing');
   const { colors } = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
-  const { sidebarVisible, openSidebar, closeSidebar, menuItems, handleLogout, handleProfilePress } = useSidebarMenu();
   const { userProfile: apiProfile } = useProfile();
   const route = useRoute();
   const rideType = (route.params as RouteParams | undefined)?.rideType;
+  const directCourierOnly = (route.params as RouteParams | undefined)?.directCourierOnly ?? false;
   const { recentAddresses } = useRecentRideAddresses();
   const [selectedCategory, setSelectedCategory] = useState<RideCategory | null>(null);
+  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<PaymentMethodId | null>(null);
+  const [isPaymentMethodVisible, setIsPaymentMethodVisible] = useState(false);
+  const {
+    sidebarVisible,
+    openSidebar,
+    closeSidebar,
+    menuItems,
+    handleLogout,
+    handleProfilePress,
+  } = useSidebarMenu({
+    onPaymentMethodsPress: () => {
+      closeSidebar();
+      setIsPaymentMethodVisible(true);
+    },
+  });
 
   const rideTypesQuery = useRideTypes({
     gcTime: 5 * 60 * 1000,
@@ -95,27 +154,55 @@ export default function RideOptionsScreen() {
     () => (rideTypesQuery.data ?? []).map(toRideOption),
     [rideTypesQuery.data],
   );
+  const visibleRideOptions = useMemo(() => {
+    if (!directCourierOnly) {
+      return prioritizeRideOptionsForHeader(rideOptions);
+    }
+
+    const courierOnlyOptions = rideOptions.filter((option) => option.title.toLowerCase().includes('courier'));
+    const options = courierOnlyOptions.length ? courierOnlyOptions : rideOptions;
+    return prioritizeRideOptionsForHeader(options);
+  }, [directCourierOnly, rideOptions]);
   const resolvedRideType = useMemo(
     () => resolveRideIntentFromSelection({
-      rideOptions,
+      rideOptions: visibleRideOptions,
       selectedCategory,
       routeRideType: rideType,
     }),
-    [rideOptions, rideType, selectedCategory],
+    [rideType, selectedCategory, visibleRideOptions],
   );
 
   useEffect(() => {
-    if (!rideOptions.length) {
+    if (!visibleRideOptions.length) {
       setSelectedCategory(null);
       return;
     }
 
-    const exists = rideOptions.some((option) => option.id === selectedCategory);
+    const exists = visibleRideOptions.some((option) => option.id === selectedCategory);
 
     if (!exists) {
-      setSelectedCategory(resolveInitialRideTypeId(rideOptions, rideType));
+      setSelectedCategory(resolveInitialRideTypeId(visibleRideOptions, rideType));
     }
-  }, [rideOptions, rideType, selectedCategory]);
+  }, [rideType, selectedCategory, visibleRideOptions]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const hydratePaymentMethod = async () => {
+      const savedPaymentMethodId = await getSavedRideEstimatePaymentMethod();
+      if (!isMounted) {
+        return;
+      }
+
+      setSelectedPaymentMethodId(savedPaymentMethodId);
+    };
+
+    void hydratePaymentMethod();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const cachedAddresses = useMemo<CachedAddress[]>(
     () => recentAddresses.map(toCachedAddress),
@@ -177,7 +264,7 @@ export default function RideOptionsScreen() {
   return (
     <View style={styles.container}>
       <RideOptionsLayout
-        rideOptions={rideOptions}
+        rideOptions={visibleRideOptions}
         cachedAddresses={cachedAddresses}
         selectedCategory={selectedCategory}
         onSelectCategory={handleSelectCategory}
@@ -188,6 +275,7 @@ export default function RideOptionsScreen() {
         onRetryRideTypes={() => {
           void rideTypesQuery.refetch();
         }}
+        isDirectCourierFlow={directCourierOnly}
       />
 
       <HamburgerMenu
@@ -207,6 +295,17 @@ export default function RideOptionsScreen() {
         menuItems={menuItems}
         onLogout={handleLogout}
         onProfilePress={handleProfilePress}
+      />
+
+      <PaymentMethodBottomSheet
+        visible={isPaymentMethodVisible}
+        selectedPaymentMethodId={selectedPaymentMethodId}
+        onClose={() => setIsPaymentMethodVisible(false)}
+        onSelect={(paymentMethodId) => {
+          setSelectedPaymentMethodId(paymentMethodId);
+          void saveRideEstimatePaymentMethod(paymentMethodId);
+          setIsPaymentMethodVisible(false);
+        }}
       />
     </View>
   );

@@ -11,6 +11,10 @@ type Props = {
 
 export default function EstimatedTimeBanner({ etaLabel, etaValue }: Props) {
   const { colors, typography } = useTheme();
+  const normalizedEtaValue = etaValue.trim();
+  const etaWithUnitMatch = normalizedEtaValue.match(/^(\d+(?:\.\d+)?)\s*(min|mins)$/i);
+  const etaAmount = etaWithUnitMatch?.[1];
+  const etaUnit = etaWithUnitMatch?.[2]?.toLowerCase() === "mins" ? "min" : etaWithUnitMatch?.[2]?.toLowerCase();
 
   return (
     <LinearGradient
@@ -23,20 +27,52 @@ export default function EstimatedTimeBanner({ etaLabel, etaValue }: Props) {
         {etaLabel}
       </Text>
       <View style={styles.content}>
-        <Text
-          color={colors.white}
-          style={[
-            styles.value,
-            {
-              fontFamily: typography.fontFamily.bold,
-              fontSize: typography.size.xxl,
-              lineHeight: typography.lineHeight.xl,
-            },
-          ]}
-          weight="bold"
-        >
-          {etaValue}
-        </Text>
+        {etaAmount && etaUnit ? (
+          <View style={styles.valueRow}>
+            <Text
+              color={colors.white}
+              style={[
+                styles.valueAmount,
+                {
+                  fontFamily: typography.fontFamily.bold,
+                  fontSize: typography.size.xxl,
+                  lineHeight: typography.lineHeight.xl,
+                },
+              ]}
+              weight="bold"
+            >
+              {etaAmount}
+            </Text>
+            <Text
+              color={colors.white}
+              style={[
+                styles.valueUnit,
+                {
+                  fontSize: typography.size.md,
+                  lineHeight: typography.lineHeight.md,
+                },
+              ]}
+              weight="semiBold"
+            >
+              {etaUnit}
+            </Text>
+          </View>
+        ) : (
+          <Text
+            color={colors.white}
+            style={[
+              styles.valueFallback,
+              {
+                fontFamily: typography.fontFamily.bold,
+                fontSize: typography.size.xxl,
+                lineHeight: typography.lineHeight.xl,
+              },
+            ]}
+            weight="bold"
+          >
+            {etaValue}
+          </Text>
+        )}
       </View>
     </LinearGradient>
   );
@@ -55,7 +91,20 @@ const styles = StyleSheet.create({
   label: {
     opacity: 0.92,
   },
-  value: {
+  valueAmount: {
     letterSpacing: -0.48,
+  },
+  valueFallback: {
+    letterSpacing: -0.48,
+  },
+  valueRow: {
+    alignItems: "flex-end",
+    flexDirection: "row",
+    gap: 6,
+    justifyContent: "center",
+  },
+  valueUnit: {
+    opacity: 0.95,
+    paddingBottom: 3,
   },
 });

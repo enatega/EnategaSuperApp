@@ -30,11 +30,10 @@ export default function useSingleVendorCategoryServiceSections(
   const results = useQueries({
     queries: featuredCategories.map((category) => ({
       queryKey: [
-        ...homeVisitsKeys.singleVendorCategoryServices(
-          category.id,
-          0,
-          SINGLE_VENDOR_CATEGORY_SERVICES_LIMIT,
-        ),
+        ...homeVisitsKeys.singleVendorCategoryServices(category.id, {
+          offset: 0,
+          limit: SINGLE_VENDOR_CATEGORY_SERVICES_LIMIT,
+        }),
         { scope: 'featured-section' },
       ],
       queryFn: () =>

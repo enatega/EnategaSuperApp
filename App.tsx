@@ -8,7 +8,7 @@ import { LocalizationProvider } from "./src/general/localization/LocalizationPro
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import QueryProvider from "./src/general/providers/QueryProvider";
 import "./src/general/localization/i18n";
-import Toast from "react-native-toast-message";
+import AppToast from "./src/general/components/AppToast";
 import { useSocketSession } from "./src/general/hooks/useSocketSession";
 
 function ThemedApp() {
@@ -33,7 +33,7 @@ export default function App() {
         <QueryProvider>
         <LocalizationProvider>
             <ThemedApp />
-            <Toast />
+            <AppToast />
           </LocalizationProvider>
           </QueryProvider>
       </SafeAreaProvider>

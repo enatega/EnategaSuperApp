@@ -1,6 +1,6 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { LatLng } from 'react-native-maps';
+import MapView, { Circle, LatLng } from 'react-native-maps';
 import { useTheme } from '../../../../../general/theme/theme';
 import Map, {
   MapMarker,
@@ -13,6 +13,8 @@ type Props = {
   stopAddresses?: RideAddressSelection[];
   toAddress: RideAddressSelection;
   routeCoordinates: LatLng[];
+  searchRadiusKm?: number;
+  isInteractionEnabled?: boolean;
 };
 
 function RideEstimateMapLayer({
@@ -20,8 +22,11 @@ function RideEstimateMapLayer({
   stopAddresses = [],
   toAddress,
   routeCoordinates,
+  searchRadiusKm,
+  isInteractionEnabled = true,
 }: Props) {
   const { colors } = useTheme();
+  const mapRef = useRef<MapView | null>(null);
 
   const markers = useMemo<MapMarker[]>(
     () => [
@@ -90,16 +95,57 @@ function RideEstimateMapLayer({
     };
   }, [fromAddress, stopAddresses, toAddress]);
 
+  const region = useMemo(() => {
+    if (!searchRadiusKm || searchRadiusKm <= 0) {
+      return initialRegion;
+    }
+
+    const radiusDiameterKm = searchRadiusKm * 2;
+    const radiusLatitudeDelta = (radiusDiameterKm / 111) * 1.3;
+    const latitudeInRadians = (fromAddress.coordinates.latitude * Math.PI) / 180;
+    const longitudeScale = Math.max(Math.cos(latitudeInRadians), 0.2);
+    const radiusLongitudeDelta = (radiusLatitudeDelta / longitudeScale) * 1.3;
+
+    return {
+      ...initialRegion,
+      latitudeDelta: Math.max(initialRegion.latitudeDelta, radiusLatitudeDelta),
+      longitudeDelta: Math.max(initialRegion.longitudeDelta, radiusLongitudeDelta),
+    };
+  }, [fromAddress.coordinates.latitude, initialRegion, searchRadiusKm]);
+
+  useEffect(() => {
+    if (!searchRadiusKm || !mapRef.current) {
+      return;
+    }
+
+    mapRef.current.animateToRegion(region, 250);
+  }, [region, searchRadiusKm]);
+
   return (
     <Map
-      initialRegion={initialRegion}
+      ref={mapRef}
+      initialRegion={region}
       markers={markers}
       polylines={polylines}
+      scrollEnabled={isInteractionEnabled}
+      zoomEnabled={isInteractionEnabled}
+      rotateEnabled={isInteractionEnabled}
+      pitchEnabled={isInteractionEnabled}
       showsCompass={false}
       showsMyLocationButton={false}
       toolbarEnabled={false}
       useGoogleProvider
-    />
+    >
+      {searchRadiusKm ? (
+        <Circle
+          center={fromAddress.coordinates}
+          radius={searchRadiusKm * 1000}
+          strokeWidth={2}
+          strokeColor="rgba(15, 142, 199, 0.35)"
+          fillColor="rgba(15, 142, 199, 0.10)"
+        />
+      ) : null}
+    </Map>
   );
 }
 

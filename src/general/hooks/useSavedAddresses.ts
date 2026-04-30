@@ -1,8 +1,9 @@
-import { useCallback, useRef, useState } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
-import { addressService } from '../api/addressService';
-import type { SavedAddress } from '../api/addressService';
-import useSyncSelectedSavedAddress from './useSyncSelectedSavedAddress';
+import { useCallback, useRef, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { addressService } from "../api/addressService";
+import type { SavedAddress } from "../api/addressService";
+import useSyncSelectedSavedAddress from "./useSyncSelectedSavedAddress";
+import { ProfileAppPrefix } from "../api/profileService";
 
 type SavedAddressesState = {
   addresses: SavedAddress[];
@@ -10,7 +11,7 @@ type SavedAddressesState = {
   error: string | null;
 };
 
-export default function useSavedAddresses() {
+export default function useSavedAddresses(appPrefix: ProfileAppPrefix) {
   const [state, setState] = useState<SavedAddressesState>({
     addresses: [],
     isLoading: true,
@@ -25,7 +26,7 @@ export default function useSavedAddresses() {
     }
 
     try {
-      const addresses = await addressService.getSavedAddresses();
+      const addresses = await addressService.getSavedAddresses(appPrefix);
 
       setState({
         addresses,
@@ -34,7 +35,7 @@ export default function useSavedAddresses() {
       });
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : 'Failed to load addresses';
+        error instanceof Error ? error.message : "Failed to load addresses";
 
       setState((prev) => ({
         ...prev,

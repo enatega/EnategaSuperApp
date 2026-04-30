@@ -38,15 +38,7 @@ export default function SplashScreen({ onFinish }: Props) {
       end={{ x: 0.5, y: 1 }}
       style={styles.container}
     >
-      <View style={styles.centerBlock}>
-        {/* <Text
-          weight="bold"
-          color={colors.white}
-          style={[styles.title, { fontSize: typography.size.splash, lineHeight: typography.lineHeight.splash }]}
-        >
-          {t('splash_title')}
-        </Text> */}
-      </View>
+      
       <View style={styles.loader}>
         <View style={[styles.progressCircle, { borderColor: colors.white }]}>
           <Text variant="caption" color={colors.white}>

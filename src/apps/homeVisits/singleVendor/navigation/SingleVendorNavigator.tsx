@@ -2,11 +2,20 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import VisitDetails from '../../screens/VisitDetails';
+import BookingDetailsScreen from '../screens/BookingDetailsScreen';
+import ManageAppointmentScreen from '../screens/ManageAppointmentScreen';
+import CancelAppointmentScreen from '../screens/CancelAppointmentScreen';
+import ServiceDetails from '../../screens/ServiceDetails/ServiceDetails';
+import ServiceDetailsBooking from '../../screens/ServiceDetails/ServiceDetailsBooking';
+import TeamAndSchedule from '../../screens/TeamAndSchedule/TeamAndSchedule';
+import ReviewAndConfirm from '../../screens/ReviewAndConfirm/ReviewAndConfirm';
 import SingleVendorBottomTabNavigator from './SingleVendorBottomTabNavigator';
-import AddressSearchScreen from '../../../../general/screens/address/AddressSearchScreen';
-import AddressChooseOnMapScreen from '../../../../general/screens/address/AddressChooseOnMapScreen';
-import AddressDetailScreen from '../../../../general/screens/address/AddressDetailScreen';
 import type { HomeVisitsSingleVendorNavigationParamList } from './types';
+import HomeVisitsSingleVendorSeeAllScreen from '../screens/SeeAllScreen/HomeVisitsSingleVendorSeeAllScreen';
+import SingleVendorCategoriesSeeAll from '../../screens/SingleVendorCategoriesSeeAll/SingleVendorCategoriesSeeAll';
+import FavoriteServicesScreen from '../screens/FavoriteServicesScreen';
+import TrackWorkerScreen from '../screens/TrackWorkerScreen';
+import NotificationsScreen from '../../../../general/screens/notifications/NotificationsScreen';
 
 const Stack = createNativeStackNavigator<HomeVisitsSingleVendorNavigationParamList>();
 
@@ -25,21 +34,66 @@ export default function SingleVendorNavigator() {
       <Stack.Screen
         name="SingleVendorDetails"
         component={VisitDetails}
-        options={{ title: t('details_title') }}
+        options={{ headerShown: true, title: t('details_title') }}
       />
       <Stack.Screen
-        name="AddressSearch"
-        component={AddressSearchScreen}
+        name="SingleVendorCategoriesSeeAll"
+        component={SingleVendorCategoriesSeeAll}
         options={sharedScreenOptions}
       />
       <Stack.Screen
-        name="AddressChooseOnMap"
-        component={AddressChooseOnMapScreen}
+        name="SingleVendorFavorites"
+        component={FavoriteServicesScreen}
         options={sharedScreenOptions}
       />
       <Stack.Screen
-        name="AddressDetail"
-        component={AddressDetailScreen}
+        name="SingleVendorNotifications"
+        component={NotificationsScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SeeAllScreen"
+        component={HomeVisitsSingleVendorSeeAllScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SingleVendorBookingDetails"
+        component={BookingDetailsScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SingleVendorTrackWorker"
+        component={TrackWorkerScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SingleVendorManageAppointment"
+        component={ManageAppointmentScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SingleVendorCancelAppointment"
+        component={CancelAppointmentScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="ServiceDetails"
+        component={ServiceDetails}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="ServiceDetailsBooking"
+        component={ServiceDetailsBooking}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="TeamAndSchedule"
+        component={TeamAndSchedule}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="ReviewAndConfirm"
+        component={ReviewAndConfirm}
         options={sharedScreenOptions}
       />
     </Stack.Navigator>

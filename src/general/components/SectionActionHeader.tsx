@@ -23,9 +23,9 @@ export default function SectionActionHeader({
       <Text
         weight="extraBold"
         style={{
-          fontSize: typography.size.h5,
+          fontSize: typography.size.lg,
           letterSpacing: -0.36,
-          lineHeight: typography.lineHeight.h5,
+          lineHeight: typography.lineHeight.lg,
         }}
       >
         {title}
@@ -65,12 +65,12 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     alignItems: 'center',
-    borderRadius: 6,
+    borderRadius: 999,
     justifyContent: 'center',
-    minHeight: 32,
-    minWidth: 88,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+    minHeight: 30,
+    minWidth: 76,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,

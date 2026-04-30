@@ -9,9 +9,14 @@ import SpecialOffersBannerSkeleton from './SpecialOffersBannerSkeleton';
 type Props = {
   banners: DeliveryBanner[];
   isPending: boolean;
+  onIndexChange?: (index: number) => void;
 };
 
-export default function SpecialOffersBanner({ banners, isPending }: Props) {
+export default function SpecialOffersBanner({
+  banners,
+  isPending,
+  onIndexChange,
+}: Props) {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const [bannerIndex, setBannerIndex] = useState(0);
@@ -32,7 +37,10 @@ export default function SpecialOffersBanner({ banners, isPending }: Props) {
     <View style={[styles.wrapper, { width: bannerWidth + bannerSidePadding * 2 }]}>
       <BannerSwiper
         data={banners}
-        onIndexChange={setBannerIndex}
+        onIndexChange={(index) => {
+          setBannerIndex(index);
+          onIndexChange?.(index);
+        }}
         renderItem={({ item }) => (
           <SpecialOffersBannerCard
             banner={item}
@@ -54,7 +62,7 @@ export default function SpecialOffersBanner({ banners, isPending }: Props) {
               {
                 backgroundColor:
                   index === activeBannerIndex
-                    ? colors.iconMuted
+                    ? colors.primary
                     : colors.iconDisabled,
               },
             ]}
@@ -71,18 +79,18 @@ const styles = StyleSheet.create({
   },
   bannerDots: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 10,
     justifyContent: 'center',
     marginTop: 10,
   },
   bannerDot: {
     borderRadius: 999,
-    height: 8,
+    height: 12,
   },
   bannerDotActive: {
-    width: 24,
+    width: 42,
   },
   bannerDotInactive: {
-    width: 8,
+    width: 12,
   },
 });

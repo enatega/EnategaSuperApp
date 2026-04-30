@@ -4,7 +4,7 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Toast from 'react-native-toast-message';
+import { showToast } from '../../components/AppToast';
 import Button from '../../components/Button';
 import ScreenHeader from '../../components/ScreenHeader';
 import { useTheme } from '../../theme/theme';
@@ -15,6 +15,7 @@ import type { AddressFlowParamList } from '../../navigation/addressFlowTypes';
 import type { AddressPayload, AddressType } from '../../api/addressService';
 
 type AddressFlowHostParamList = AddressFlowParamList & {
+  Checkout: undefined;
   Chain: { screen: 'ChainTabs' } | undefined;
   MultiVendor: { screen: 'MultiVendorTabs' } | undefined;
   MyProfile: undefined;
@@ -32,6 +33,7 @@ export default function AddressDetailScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
   const params = route.params;
+  console.log("🚀 ~ AddressDetailScreen ~ params:", params)
   const isEditing = Boolean(params.editAddressId);
 
   useEffect(() => {
@@ -58,11 +60,11 @@ export default function AddressDetailScreen() {
 
       try {
         if (isEditing && params.editAddressId) {
-          await addressService.updateAddress(params.editAddressId, payload);
-          Toast.show({ type: 'success', text1: t('address_update_success') });
+          await addressService.updateAddress(params?.appPrefix, params.editAddressId, payload);
+          showToast.success(t('address_update_success'));
         } else {
-          await addressService.addAddress(payload);
-          Toast.show({ type: 'success', text1: t('address_save_success') });
+          await addressService.addAddress(params?.appPrefix, payload);
+          showToast.success(t('address_save_success'));
         }
 
         if (params.origin === 'multi-vendor-home') {
@@ -80,9 +82,14 @@ export default function AddressDetailScreen() {
           return;
         }
 
+        if (params.origin === 'checkout') {
+          nav.navigate('Checkout');
+          return;
+        }
+
         nav.navigate('MyProfile');
       } catch {
-        Toast.show({ type: 'error', text1: t('address_save_error') });
+        showToast.error(t('address_save_error'));
       }
     },
     [isEditing, nav, params.editAddressId, params.origin, t],

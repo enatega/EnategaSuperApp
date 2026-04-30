@@ -27,6 +27,7 @@ import type {
     NearbyDriver,
     SubmitRideReviewPayload,
     ActiveRidePayload,
+    RiderVehicleInfo,
 } from './types';
 
 // ---------------------------------------------------------------------------
@@ -115,6 +116,58 @@ export const rideService = {
                 vehicleType,
             }];
         });
+    },
+
+    normalizeRiderVehicleInfo(rawVehicle: unknown): RiderVehicleInfo {
+        if (!rawVehicle || typeof rawVehicle !== 'object') {
+            return {
+                vehicleName: null,
+                vehicleNo: null,
+                vehicleColor: null,
+            };
+        }
+
+        const rootRecord = rawVehicle as Record<string, unknown>;
+        const nestedVehicleCandidate = (
+            rootRecord.data
+                && typeof rootRecord.data === 'object'
+                ? rootRecord.data
+                : rootRecord.vehicle
+                    && typeof rootRecord.vehicle === 'object'
+                    ? rootRecord.vehicle
+                    : rootRecord
+        ) as Record<string, unknown>;
+        const readString = (...values: Array<unknown>) => {
+            for (const value of values) {
+                if (typeof value === 'string' && value.trim().length > 0) {
+                    return value.trim();
+                }
+            }
+
+            return null;
+        };
+
+        return {
+            vehicleName: readString(
+                nestedVehicleCandidate.vehicleName,
+                nestedVehicleCandidate.vehicle_name,
+                nestedVehicleCandidate.name,
+                nestedVehicleCandidate.model,
+            ),
+            vehicleNo: readString(
+                nestedVehicleCandidate.vehicleNo,
+                nestedVehicleCandidate.vehicle_no,
+                nestedVehicleCandidate.no,
+                nestedVehicleCandidate.licensePlate,
+                nestedVehicleCandidate.license_plate,
+            ),
+            vehicleColor: readString(
+                nestedVehicleCandidate.vehicleColor,
+                nestedVehicleCandidate.vehicle_color,
+                nestedVehicleCandidate.colour,
+                nestedVehicleCandidate.color,
+            ),
+        };
     },
 
     // ── Queries ───────────────────────────────────────────────────────────
@@ -227,7 +280,6 @@ export const rideService = {
         const response = await apiClient.get<unknown>(
             `/api/v1/rides/drivers/nearby/${latitude}/${longitude}/${radiusKm}`,
             undefined,
-            { skipAuth: true },
         );
 
         return rideService.normalizeNearbyDrivers(response);
@@ -303,15 +355,25 @@ export const rideService = {
 
     /** Submit a customer review for a completed ride. */
     submitRideReview: (payload: SubmitRideReviewPayload): Promise<unknown> =>
-        apiClient.post('/api/v1/reviews', payload),
+        apiClient.post('/api/v1/ride-hailing/reviews', payload),
 
     /** Fetch profile stats for a driver/rider by userId. */
     getDriverStats: (userId: string): Promise<DriverProfileStats> =>
-        apiClient.get<DriverProfileStats>(`api/v1/rides/get-stats/${userId}`),
+        apiClient.get<DriverProfileStats>(`/api/v1/rides/get-stats/${userId}`),
+
+    /** Fetch rider vehicle details by riderId. */
+    getRiderVehicleInfo: async (riderId: string): Promise<RiderVehicleInfo> => {
+        const response = await apiClient.get<unknown>(`/api/v1/ride-vehicles/rider/${riderId}/vehicle-info`);
+        return rideService.normalizeRiderVehicleInfo(response);
+    },
 
     /** Fetch customer rides history. */
-    getCustomerRides: (offset: number = 0): Promise<CustomerRidesResponse> =>
-        apiClient.get<CustomerRidesResponse>(`/api/v1/rides/customers?offset=${offset}`),
+    getCustomerRides: (offset: number = 0, limit: number = 10): Promise<CustomerRidesResponse> =>
+        apiClient.get<CustomerRidesResponse>('/api/v1/rides/customers', { offset, limit }),
+
+    /** Fetch scheduled customer rides for reservations. */
+    getCustomerScheduledRides: (offset: number = 0, limit: number = 10): Promise<CustomerRidesResponse> =>
+        apiClient.get<CustomerRidesResponse>('/api/v1/rides/customer/scheduled', { offset, limit }),
 
     /** Fetch single customer ride detail. */
     getCustomerRideDetail: (rideId: string): Promise<CustomerRideDetail> =>

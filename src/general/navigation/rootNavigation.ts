@@ -1,5 +1,5 @@
 import { createNavigationContainerRef } from '@react-navigation/native';
-import type { RootStackParamList, SharedAppRouteName } from './navigationTypes';
+import type { RootStackParamList, SharedAppRouteName, SharedStackParamList } from './navigationTypes';
 import { clearPendingAppRoute, getPendingAppRoute, setActiveAppRoute } from './pendingAppRedirect';
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
@@ -28,7 +28,10 @@ export async function redirectToPendingAppIfNeeded() {
   return true;
 }
 
-export function resetToSharedRoute(routeName: SharedAppRouteName) {
+export function resetToSharedRoute(
+  routeName: SharedAppRouteName,
+  params?: SharedStackParamList[SharedAppRouteName],
+) {
   if (!navigationRef.isReady()) {
     return false;
   }
@@ -40,6 +43,7 @@ export function resetToSharedRoute(routeName: SharedAppRouteName) {
         name: 'Main',
         params: {
           screen: routeName,
+          params,
         },
       },
     ],

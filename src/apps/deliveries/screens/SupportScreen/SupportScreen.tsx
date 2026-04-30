@@ -2,14 +2,14 @@ import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import SupportChatFooter from '../../../../general/components/support/SupportChatFooter';
+import SupportIssueDropdown from '../../../../general/components/support/SupportIssueDropdown';
+import SupportHeader from '../../../../general/components/support/SupportHeader';
+import SupportTopicItem from '../../../../general/components/support/SupportTopicItem';
 import Text from '../../../../general/components/Text';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
 import { useTheme } from '../../../../general/theme/theme';
 import SupportAdminPickerBottomSheet from '../../components/support/SupportAdminPickerBottomSheet';
-import SupportChatFooter from '../../components/support/SupportChatFooter';
-import SupportHeader from '../../components/support/SupportHeader';
-import SupportIssueDropdown from '../../components/support/SupportIssueDropdown';
-import SupportTopicItem from '../../components/support/SupportTopicItem';
 import { useSupportAdmins } from '../../hooks/useSupportChatQueries';
 import { useSupportTicketFormConfigQuery } from '../../hooks/useSupportTicketFormConfigQuery';
 import { SupportHomeNavigationProp } from '../../navigation/supportNavigationTypes';
@@ -54,7 +54,11 @@ export default function SupportScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
-      <SupportHeader title={t('support_title')} rightAccessibilityLabel={t('support_call_action')} />
+      <SupportHeader
+        backAccessibilityLabel={t('support_back_action')}
+        rightAccessibilityLabel={t('support_call_action')}
+        title={t('support_title')}
+      />
 
       <ScrollView
         style={styles.scroll}
@@ -115,6 +119,7 @@ export default function SupportScreen() {
           <SupportIssueDropdown
             options={issueOptions}
             placeholder={t('support_issue_placeholder')}
+            sheetTitle={t('support_issue_select_title')}
             value={undefined}
             onChange={(nextValue) => {
               const selectedOption = issueOptions.find((option) => option.value === nextValue);
@@ -132,7 +137,10 @@ export default function SupportScreen() {
         </View>
       </ScrollView>
 
-      <SupportChatFooter onPress={handleOpenAdminPicker} />
+      <SupportChatFooter
+        ctaLabel={t('support_chat_cta')}
+        onPress={handleOpenAdminPicker}
+      />
 
       <SupportAdminPickerBottomSheet
         admins={supportAdminsQuery.data?.admins ?? []}

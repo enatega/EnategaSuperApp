@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Image from '../../../general/components/Image';
 import Text from '../../../general/components/Text';
 import Icon from '../../../general/components/Icon';
@@ -8,35 +10,79 @@ import { useTheme } from '../../../general/theme/theme';
 import type {
   HomeVisitsSingleVendorCategoryService,
   HomeVisitsSingleVendorDeal,
+  HomeVisitsSingleVendorMostPopularService,
+  HomeVisitsSingleVendorNearbyService,
 } from '../singleVendor/api/types';
+import type { SearchServiceItem } from '../api/searchServiceTypes';
+import type { HomeVisitsSingleVendorNavigationParamList } from '../singleVendor/navigation/types';
+import { useTranslations } from '../../../general/localization/LocalizationProvider';
 
 interface DealCardProps {
-  item: HomeVisitsSingleVendorDeal | HomeVisitsSingleVendorCategoryService;
+  item:
+    | HomeVisitsSingleVendorDeal
+    | HomeVisitsSingleVendorCategoryService
+    | HomeVisitsSingleVendorMostPopularService
+    | HomeVisitsSingleVendorNearbyService
+    | SearchServiceItem;
   onPress?: () => void;
+  layout?: 'compact' | 'fullWidth';
 }
 
-export default function ServicesCard({ item, onPress }: DealCardProps) {
-  const { colors, typography } = useTheme();
+export default function ServicesCard({
+  item,
+  onPress,
+  layout = 'compact',
+}: DealCardProps) {
+  const { colors } = useTheme();
+  const { t } = useTranslations('homeVisits')
+  const navigation =
+    useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const imageUrl =
     item.productImage || item.storeImage || item.storeLogo || 'https://placehold.co/400x400.png';
+  const shouldShowFavoriteIcon = typeof item.isFavorite === 'boolean';
+  const favoriteIconName = item.isFavorite ? 'heart' : 'heart-outline';
+  const resolvedDeal = item?.dealType === 'percentage' ? item?.dealAmount + ' % ' + t('off') : item?.dealAmount + t('off');
+
+  const handlePress = () => {
+    if (onPress) {
+      onPress();
+      return;
+    }
+
+    navigation.push('ServiceDetails', { serviceId: item.productId });
+  };
 
   return (
     <TouchableOpacity
-      activeOpacity={onPress ? 0.7 : 1}
-      disabled={!onPress}
-      onPress={onPress}
+      activeOpacity={0.7}
+      onPress={handlePress}
       style={[
         styles.container,
+        layout === 'fullWidth' ? styles.fullWidthContainer : styles.compactContainer,
         { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.shadowColor },
       ]}
     >
       <View style={styles.imageContainer}>
         <Image source={{ uri: imageUrl }} style={styles.image} />
+        {shouldShowFavoriteIcon ? (
+          <View
+            style={[
+              styles.favoriteBadge,
+              { backgroundColor: colors.white, shadowColor: colors.shadowColor },
+            ]}
+          >
+            <Ionicons
+              name={favoriteIconName}
+              size={20}
+              color={item.isFavorite ? colors.danger : colors.text}
+            />
+          </View>
+        ) : null}
         {item.deal && (
           <View style={[styles.badge, { backgroundColor: colors.primary }]}>
             <Ionicons name="pricetag" size={12} color={colors.white} style={styles.badgeIcon} />
             <Text variant="caption" weight="semiBold" style={{ color: colors.white, fontSize: 12 }}>
-              {item.deal}
+              {resolvedDeal ?? undefined}
             </Text>
           </View>
         )}
@@ -111,13 +157,18 @@ export default function ServicesCard({ item, onPress }: DealCardProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: 280,
     borderRadius: 8,
     borderWidth: 1,
     overflow: 'hidden',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 3,
+  },
+  compactContainer: {
+    width: 280,
+  },
+  fullWidthContainer: {
+    width: '100%',
   },
   imageContainer: {
     width: '100%',
@@ -145,6 +196,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingTop: 6,
     paddingBottom: 8,
+  },
+  favoriteBadge: {
+    alignItems: 'center',
+    borderRadius: 22,
+    elevation: 3,
+    height: 44,
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 10,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    top: 10,
+    width: 44,
   },
   row: {
     flexDirection: 'row',

@@ -12,15 +12,15 @@ export default function LicencesScreen() {
     <LegalScreenContainer title={t('settings_licences')}>
       <LegalCard title="Licenses" lastUpdated="Effective Date: 23 September 2025">
         <LegalParagraph>
-          This License Agreement is a legal contract between you and LO Drive. By downloading or using the app, you agree to these terms.
+          This License Agreement is a legal contract between you and Super App. By downloading or using the app, you agree to these terms.
         </LegalParagraph>
 
         <LegalParagraph>
-          You are granted a limited, non-exclusive, non-transferable license to use LO Drive on your device for personal or internal business purposes. You may not copy, modify, distribute, or sell the app. You also may not attempt to reverse engineer, decompile, or interfere with its operation or security. All rights to the app, including its code, design, logos, and trademarks, remain the property of LO Drive.
+          You are granted a limited, non-exclusive, non-transferable license to use Super App on your device for personal or internal business purposes. You may not copy, modify, distribute, or sell the app. You also may not attempt to reverse engineer, decompile, or interfere with its operation or security. All rights to the app, including its code, design, logos, and trademarks, remain the property of Super App.
         </LegalParagraph>
 
         <LegalParagraph>
-          The content you upload remains yours. LO Drive only stores, processes, and transmits it to provide the service. You are responsible for ensuring that your content is lawful and does not infringe on the rights of others. Sharing your content with others is your choice and responsibility.
+          The content you upload remains yours. Super App only stores, processes, and transmits it to provide the service. You are responsible for ensuring that your content is lawful and does not infringe on the rights of others. Sharing your content with others is your choice and responsibility.
         </LegalParagraph>
 
         <LegalParagraph>
@@ -32,7 +32,7 @@ export default function LicencesScreen() {
         </LegalParagraph>
 
         <LegalParagraph>
-          LO Drive is provided on an "as is" basis without warranties of any kind. While we work to keep services reliable and secure, we do not guarantee uninterrupted availability, complete security, or error-free performance. To the maximum extent allowed by Qatari law, we are not responsible for indirect or consequential damages such as lost files, lost profits, or device issues caused by the use of the app.
+          Super App is provided on an "as is" basis without warranties of any kind. While we work to keep services reliable and secure, we do not guarantee uninterrupted availability, complete security, or error-free performance. To the maximum extent allowed by Qatari law, we are not responsible for indirect or consequential damages such as lost files, lost profits, or device issues caused by the use of the app.
         </LegalParagraph>
 
         <LegalParagraph>

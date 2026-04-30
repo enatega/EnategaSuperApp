@@ -1,7 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import RideSharingHomeScreen from '../screens/home/HomeScreen';
-import RideOptionsScreen from '../screens/rideOptions/RideOptionsScreen';
 import RideDetails from '../screens/rideDetails/RideDetails';
 import DriverProfileScreen from '../screens/driverProfile/DriverProfileScreen';
 import PersonalInfoScreen from '../screens/profile/PersonalInfoScreen';
@@ -26,6 +25,9 @@ import SafetyScreen from '../screens/safety/SafetyScreen';
 import WalletHomeScreen from '../screens/wallet/WalletHomeScreen';
 import AddFundsScreen from '../screens/wallet/AddFundsScreen';
 import RideSupportChatScreen from '../screens/support/RideSupportChatScreen';
+import NotificationsScreen from '../screens/notifications/NotificationsScreen';
+import NotificationDetailScreen from '../screens/notifications/NotificationDetailScreen';
+import RideHistoryScreen from '../screens/rideHistory/RideHistoryScreen';
 import { useTranslation } from 'react-i18next';
 import type { RideAddressSelection } from '../api/types';
 import type { CachedAddress } from '../components/rideOptions/types';
@@ -35,9 +37,9 @@ import type { RideCategory, RideIntent } from '../utils/rideOptions';
 import { useInitializeRideSharingConfig } from '../hooks/useInitializeRideSharingConfig';
 
 export type RideSharingStackParamList = {
-  RideSharingHome: undefined;
-  RideOptions: {
+  RideSharingHome: {
     rideType?: RideIntent;
+    directCourierOnly?: boolean;
   } | undefined;
   RideAddressSearch: {
     rideType?: RideIntent;
@@ -115,6 +117,10 @@ export type RideSharingStackParamList = {
     driverAvatarUri?: string;
     driverRating?: number;
     vehicleLabel?: string;
+    pickupLatitude?: number;
+    pickupLongitude?: number;
+    dropoffLatitude?: number;
+    dropoffLongitude?: number;
   };
   RideSupportChat: {
     chatBoxId?: string;
@@ -122,6 +128,14 @@ export type RideSharingStackParamList = {
   } | undefined;
   WalletHome: undefined;
   WalletAddFunds: undefined;
+  Notifications: undefined;
+  RideHistory: undefined;
+  NotificationDetail: {
+    notificationId: string;
+    title: string;
+    description: string;
+    createdAt: string;
+  };
 };
 
 const Stack = createNativeStackNavigator();
@@ -133,7 +147,6 @@ export default function RideSharingNavigator() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="RideSharingHome" component={RideSharingHomeScreen} options={{ headerShown:false, title: t('header_title') }} />
-      <Stack.Screen name="RideOptions" component={RideOptionsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="RideAddressSearch" component={RideAddressSearchScreen} options={{ headerShown: false }} />
       <Stack.Screen name="RideEstimate" component={RideEstimateScreen} options={{ headerShown: false }} />
       <Stack.Screen name="OfferFare" component={OfferFareScreen} options={{ headerShown: false }} />
@@ -236,6 +249,21 @@ export default function RideSharingNavigator() {
       <Stack.Screen
         name="WalletAddFunds"
         component={AddFundsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="RideHistory"
+        component={RideHistoryScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="NotificationDetail"
+        component={NotificationDetailScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
