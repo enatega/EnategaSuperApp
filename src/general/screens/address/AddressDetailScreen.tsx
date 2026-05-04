@@ -13,6 +13,8 @@ import AddressDetailForm from '../../components/address/AddressDetailForm';
 import type { AddressDetailFormHandle } from '../../components/address/AddressDetailForm';
 import type { AddressFlowParamList } from '../../navigation/addressFlowTypes';
 import type { AddressPayload, AddressType } from '../../api/addressService';
+import { createDeliveryAddressFromSavedAddress } from '../../utils/address';
+import useAddress from '../../hooks/useAddress';
 
 type AddressFlowHostParamList = AddressFlowParamList & {
   Checkout: undefined;
@@ -33,7 +35,7 @@ export default function AddressDetailScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
   const params = route.params;
-  console.log("🚀 ~ AddressDetailScreen ~ params:", params)
+  const { setSelectedAddress } = useAddress();
   const isEditing = Boolean(params.editAddressId);
 
   useEffect(() => {
@@ -67,6 +69,31 @@ export default function AddressDetailScreen() {
           showToast.success(t('address_save_success'));
         }
 
+        // Keep the just-saved address selected so users don't need to reselect it.
+        const savedAddresses = await addressService.getSavedAddresses(params.appPrefix);
+        const savedAddressToSelect = isEditing
+          ? savedAddresses.find((address) => address.id === params.editAddressId)
+          : savedAddresses.find((address) =>
+            address.address === payload.address
+            && address.location_name === payload.location_name
+            && address.type === payload.type
+            && Number(address.location?.coordinates?.[0]) === payload.longitude
+            && Number(address.location?.coordinates?.[1]) === payload.latitude);
+
+        if (savedAddressToSelect) {
+          const selectedResponse = await addressService.selectAddress(
+            params.appPrefix,
+            savedAddressToSelect.id,
+          );
+          const nextAddress = createDeliveryAddressFromSavedAddress(
+            selectedResponse.data,
+          );
+
+          if (nextAddress) {
+            setSelectedAddress(nextAddress);
+          }
+        }
+
         if (params.origin === 'multi-vendor-home') {
           nav.navigate('MultiVendor', { screen: 'MultiVendorTabs' });
           return;
@@ -92,7 +119,7 @@ export default function AddressDetailScreen() {
         showToast.error(t('address_save_error'));
       }
     },
-    [isEditing, nav, params.editAddressId, params.origin, t],
+    [isEditing, nav, params.appPrefix, params.editAddressId, params.origin, setSelectedAddress, t],
   );
 
   const handleButtonPress = useCallback(async () => {

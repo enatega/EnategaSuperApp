@@ -109,6 +109,16 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
+  scrollRowContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingRight: 12,
+    paddingBottom: 2,
+  },
+  scrollRowItem: {
+    width: 110,
+    flexShrink: 0,
+  },
   optionCardContainer: {
     minHeight: 86,
   },
