@@ -25,6 +25,9 @@ import type {
     CustomerRidesResponse,
     CustomerRideDetail,
     NearbyDriver,
+    CancelRideParams,
+    UpdateRiderPhonePayload,
+    VerifyRiderPhoneUpdateOtpPayload,
     SubmitRideReviewPayload,
     ActiveRidePayload,
     RiderVehicleInfo,
@@ -321,12 +324,45 @@ export const rideService = {
     },
 
     /** Cancel a ride. */
-    cancelRide: (rideId: string): Promise<void> =>
-        apiClient.patch(`/api/v1/rides/${rideId}/customer/cancel`),
+    cancelRide: ({ rideId, chatBoxId }: CancelRideParams): Promise<void> => {
+        const encodedChatBoxId = chatBoxId?.trim()
+            ? encodeURIComponent(chatBoxId.trim())
+            : '';
+        const query = encodedChatBoxId ? `?chatBoxId=${encodedChatBoxId}` : '';
+        console.log('[rideService.cancelRide] request:', {
+            rideId,
+            chatBoxId,
+            endpoint: `/api/v1/rides/${rideId}/customer/cancel${query}`,
+        });
+        return apiClient.patch(`/api/v1/rides/${rideId}/customer/cancel${query}`);
+    },
 
     /** Cancel a pending ride request before a ride is accepted. */
     cancelRideRequest: (rideId: string): Promise<void> =>
         apiClient.patch(`/api/v1/rides/${rideId}/cancel`),
+
+    /** Start rider phone update flow and trigger OTP. */
+    updateRiderPhone: (payload: UpdateRiderPhonePayload): Promise<{ message?: string }> =>
+        apiClient.patch<{ message?: string }>(
+            '/api/v1/ride-vehicles/ride-hailing/rider/update-phone',
+            payload,
+        ),
+
+    /** Verify rider phone update OTP. */
+    verifyRiderPhoneUpdateOtp: (
+        payload: VerifyRiderPhoneUpdateOtpPayload,
+    ): Promise<{ message?: string }> =>
+        apiClient.post<{ message?: string }>(
+            '/api/v1/ride-vehicles/ride-hailing/rider/verify-phone-update',
+            payload,
+        ),
+
+    /** Resend rider phone update OTP. */
+    resendRiderPhoneUpdateOtp: (payload: UpdateRiderPhonePayload): Promise<{ message?: string }> =>
+        apiClient.post<{ message?: string }>(
+            '/api/v1/ride-vehicles/ride-hailing/rider/resend-phone-update-otp',
+            payload,
+        ),
 
     /** Raise fare for an active ride request and continue searching. */
     raiseRideFare: async (

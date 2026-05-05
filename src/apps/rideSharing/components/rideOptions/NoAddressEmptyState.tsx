@@ -28,11 +28,11 @@ const styles = StyleSheet.create({
     paddingTop: 28,
   },
   illustration: {
-    height: 120,
-    width: 120,
+    height: 100,
+    width: 100,
   },
   message: {
-    fontSize: 16,
+    fontSize: 12,
     lineHeight: 24,
     marginTop: 16,
     textAlign: 'center',

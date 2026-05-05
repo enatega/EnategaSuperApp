@@ -752,6 +752,8 @@ const fr = {
   support_conversations_delete_confirm: 'Oui, supprimer',
   support_conversations_loading: 'Chargement des conversations...',
   support_conversations_empty: 'Aucune conversation pour le moment.',
+  support_conversations_search_placeholder: 'Rechercher par nom ou message',
+  support_conversations_no_results: 'Aucune conversation ne correspond a votre recherche.',
   support_tickets_title: 'Mes tickets',
   support_tickets_heading: 'Tous les tickets',
   support_tickets_loading: 'Chargement des tickets...',

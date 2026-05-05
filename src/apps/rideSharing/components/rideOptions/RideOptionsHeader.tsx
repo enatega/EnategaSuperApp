@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
     paddingRight: 12,
+    paddingBottom: 2,
   },
   scrollRowItem: {
     width: 110,

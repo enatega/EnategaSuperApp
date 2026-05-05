@@ -25,8 +25,11 @@ type Props = {
   timeLeftSec: number;
   onIncreaseFare: () => void;
   onDecreaseFare: () => void;
+  onCommitFare: () => void;
   isIncreaseDisabled?: boolean;
   isDecreaseDisabled?: boolean;
+  isCommitFareVisible?: boolean;
+  isCommitFareLoading?: boolean;
   onCancelRide: () => void;
   onKeepSearching: () => void;
   isKeepSearchingLoading?: boolean;
@@ -42,8 +45,11 @@ function FindingRideBottomSheet({
   timeLeftSec,
   onIncreaseFare,
   onDecreaseFare,
+  onCommitFare,
   isIncreaseDisabled = false,
   isDecreaseDisabled = false,
+  isCommitFareVisible = false,
+  isCommitFareLoading = false,
   onCancelRide,
   onKeepSearching,
   isKeepSearchingLoading = false,
@@ -142,6 +148,21 @@ function FindingRideBottomSheet({
             </Text>
           </Pressable>
         </View>
+
+        {isCommitFareVisible ? (
+          <Button
+            label={t('ride_finding_raise_fare')}
+            onPress={onCommitFare}
+            isLoading={isCommitFareLoading}
+            style={[
+              styles.primaryButton,
+              {
+                backgroundColor: colors.findingRidePrimary,
+                borderColor: colors.findingRidePrimary,
+              },
+            ]}
+          />
+        ) : null}
 
         {hasTimedOut ? (
           <Button

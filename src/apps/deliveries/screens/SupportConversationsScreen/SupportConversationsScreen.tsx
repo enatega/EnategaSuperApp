@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import SupportHeader from '../../../../general/components/support/SupportHeader';
 import Text from '../../../../general/components/Text';
@@ -25,12 +25,14 @@ import {
 } from '../../utils/supportChatMappers';
 
 export default function SupportConversationsScreen() {
-  const { colors } = useTheme();
+  const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<SupportHomeNavigationProp>();
   const sessionQuery = useAuthSessionQuery();
   const supportChatBoxesQuery = useSupportConversations();
   const [deletedConversationIds, setDeletedConversationIds] = useState<string[]>([]);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [pendingDelete, setPendingDelete] = useState<{
     agentName: string;
     chatBoxId: string;
@@ -67,6 +69,25 @@ export default function SupportConversationsScreen() {
       recent: mapItems(rawGroups.recent),
     };
   }, [deletedConversationIds, sessionQuery.data?.user?.id, supportChatBoxesQuery.data, t]);
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+  const filteredConversationGroups = useMemo(() => {
+    if (!normalizedSearchQuery) {
+      return conversationGroups;
+    }
+
+    const matchesQuery = (name: string, message: string) =>
+      name.toLowerCase().includes(normalizedSearchQuery)
+      || message.toLowerCase().includes(normalizedSearchQuery);
+
+    return {
+      past: conversationGroups.past.filter((conversation) =>
+        matchesQuery(conversation.agentName, conversation.message),
+      ),
+      recent: conversationGroups.recent.filter((conversation) =>
+        matchesQuery(conversation.agentName, conversation.message),
+      ),
+    };
+  }, [conversationGroups, normalizedSearchQuery]);
 
   const handleRequestDelete = (
     chatBoxId: string,
@@ -89,15 +110,47 @@ export default function SupportConversationsScreen() {
     setDeletedConversationIds((current) => [...current, pendingDelete.chatBoxId]);
     setPendingDelete(null);
   };
+  const handleSearchToggle = () => {
+    if (isSearchOpen) {
+      setSearchQuery('');
+    }
+
+    setIsSearchOpen((current) => !current);
+  };
+  const hasConversationResults =
+    filteredConversationGroups.recent.length > 0 || filteredConversationGroups.past.length > 0;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <SupportHeader
         backAccessibilityLabel={t('support_back_action')}
+        onRightPress={handleSearchToggle}
         rightAccessibilityLabel={t('support_search_action')}
-        rightIconName="search-outline"
+        rightIconName={isSearchOpen ? 'close-outline' : 'search-outline'}
         title={t('support_conversations_title')}
       />
+
+      {isSearchOpen ? (
+        <View style={styles.searchContainer}>
+          <TextInput
+            accessibilityLabel={t('support_search_action')}
+            autoCapitalize="none"
+            autoCorrect={false}
+            onChangeText={setSearchQuery}
+            placeholder={t('support_conversations_search_placeholder')}
+            placeholderTextColor={colors.mutedText}
+            style={[
+              styles.searchInput,
+              {
+                backgroundColor: colors.backgroundTertiary,
+                color: colors.text,
+                fontSize: typography.size.md,
+              },
+            ]}
+            value={searchQuery}
+          />
+        </View>
+      ) : null}
 
       <ScrollView
         style={styles.scroll}
@@ -112,10 +165,10 @@ export default function SupportConversationsScreen() {
           </View>
         ) : (
           <>
-            {conversationGroups.recent.length ? (
+            {filteredConversationGroups.recent.length ? (
               <>
                 <SupportConversationSectionTitle label={t('support_conversations_recent')} />
-                {conversationGroups.recent.map((conversation) => (
+                {filteredConversationGroups.recent.map((conversation) => (
                   <SupportSwipeableConversationItem
                     key={conversation.chatBoxId}
                     avatarTone={conversation.avatarTone}
@@ -144,10 +197,10 @@ export default function SupportConversationsScreen() {
               </>
             ) : null}
 
-            {conversationGroups.past.length ? (
+            {filteredConversationGroups.past.length ? (
               <>
                 <SupportConversationSectionTitle label={t('support_conversations_past')} />
-                {conversationGroups.past.map((conversation) => (
+                {filteredConversationGroups.past.map((conversation) => (
                   <SupportSwipeableConversationItem
                     key={conversation.chatBoxId}
                     avatarTone={conversation.avatarTone}
@@ -175,9 +228,13 @@ export default function SupportConversationsScreen() {
               </>
             ) : null}
 
-            {!conversationGroups.recent.length && !conversationGroups.past.length ? (
+            {!hasConversationResults ? (
               <View style={styles.centerState}>
-                <Text color={colors.mutedText}>{t('support_conversations_empty')}</Text>
+                <Text color={colors.mutedText}>
+                  {normalizedSearchQuery
+                    ? t('support_conversations_no_results')
+                    : t('support_conversations_empty')}
+                </Text>
               </View>
             ) : null}
           </>
@@ -201,6 +258,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 24,
     paddingTop: 48,
+  },
+  searchContainer: {
+    paddingBottom: 12,
+    paddingHorizontal: 16,
+  },
+  searchInput: {
+    borderRadius: 12,
+    minHeight: 44,
+    paddingHorizontal: 14,
   },
   content: {
     paddingBottom: 28,

@@ -44,12 +44,12 @@ export default function RiderChatScreen() {
   const route = useRoute<RiderChatRouteProp>();
   const sessionQuery = useAuthSessionQuery();
   useSocketSession();
-  const { driverAvatarUri, driverName, driverPhone, driverUserId } = route.params;
+  const { chatBoxId: routeChatBoxId, driverAvatarUri, driverName, driverPhone, driverUserId } = route.params;
   const senderId = sessionQuery.data?.user?.id;
   const [draftMessage, setDraftMessage] = useState('');
   const [pendingMessages, setPendingMessages] = useState<RideChatMessageItem[]>([]);
   const [realtimeMessages, setRealtimeMessages] = useState<RideChatMessageItem[]>([]);
-  const [chatBoxId, setChatBoxId] = useState<string | undefined>();
+  const [chatBoxId, setChatBoxId] = useState<string | undefined>(routeChatBoxId);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   const chatBoxesQuery = useRideChatBoxes(senderId ?? undefined);

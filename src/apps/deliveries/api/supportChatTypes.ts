@@ -121,9 +121,25 @@ export type SupportChatMessagesResponse =
       success?: boolean;
     };
 
+export type SupportMyActiveMessagesResponse = {
+  message?: string;
+  hasActiveChat?: boolean;
+  chatBoxId?: string;
+  chat_box_id?: string;
+  status?: string;
+  totalMessages?: number;
+  messages?: SupportChatMessageRecord[];
+};
+
 export type SendSupportChatMessagePayload = {
   senderId: string;
   receiverId: string;
+  text: string;
+  chatBoxId?: string;
+};
+
+export type SendSupportChatMessageToAdminPayload = {
+  senderId: string;
   text: string;
   chatBoxId?: string;
 };

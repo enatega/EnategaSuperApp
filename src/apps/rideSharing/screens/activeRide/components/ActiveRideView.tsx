@@ -1,17 +1,20 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Linking, Platform, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { LatLng } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '../../../../../general/components/AppToast';
+import { useAuthSessionQuery } from '../../../../../general/hooks/useAuthQueries';
 import { useTheme } from '../../../../../general/theme/theme';
 import { useRideSharingEmergencyContact } from '../../../../../general/stores/useAppConfigStore';
 import CancelRideBottomSheet from '../../../components/reservation/CancelRideBottomSheet';
 import type { ActiveRidePayload, RideAddressSelection } from '../../../api/types';
+import { useRideChatBoxes } from '../../../hooks/useRideChatQueries';
 import type { RideSharingStackParamList } from '../../../navigation/RideSharingNavigator';
 import { useActiveRideCancellation } from '../hooks';
 import { getActiveRideDriverUserId } from '../../../utils/activeRideMapper';
+import { getRideChatBoxes, getRideChatBoxId, getRideChatParticipantId } from '../../../utils/rideChatMappers';
 import { isCourierRideRequest } from '../../../utils/courierBooking';
 import { openEmergencyDialer } from '../../../utils/safety';
 import ActiveRideMapLayer from './ActiveRideMapLayer';
@@ -48,6 +51,16 @@ function readDisplayString(...values: Array<unknown>) {
   }
 
   return resolvedValue;
+}
+
+function readChatBoxId(value: ActiveRidePayload) {
+  const record = value as unknown as Record<string, unknown>;
+  return readString(
+    record.chatBoxId,
+    record.chat_box_id,
+    record.chatboxId,
+    record.chatbox_id,
+  );
 }
 
 function readNumber(...values: Array<unknown>) {
@@ -224,6 +237,7 @@ function ActiveRideView({ activeRide }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
   const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
+  const sessionQuery = useAuthSessionQuery();
   const emergencyContact = useRideSharingEmergencyContact();
   const rideId = activeRide.ride_id;
   const status = activeRide.ride_status;
@@ -234,7 +248,33 @@ function ActiveRideView({ activeRide }: Props) {
   const driver = activeRide.driver;
   const vehicle = driver?.vehicle;
   const isCourierFlow = isCourierRideRequest(activeRide.ride_type?.name) || isCourierRideRequest(activeRide.ride_type?.id) || Boolean(activeRide.courierDetail);
+  const payloadChatBoxId = readChatBoxId(activeRide);
   const driverUserId = getActiveRideDriverUserId(activeRide);
+  const senderId = sessionQuery.data?.user?.id;
+  const chatBoxesQuery = useRideChatBoxes(senderId ?? undefined);
+  const chatBoxes = useMemo(() => getRideChatBoxes(chatBoxesQuery.data), [chatBoxesQuery.data]);
+  const resolvedChatBoxId = useMemo(() => {
+    if (payloadChatBoxId) {
+      return payloadChatBoxId;
+    }
+
+    if (!driverUserId || !senderId) {
+      return undefined;
+    }
+
+    const matchedChatBox = chatBoxes.find((box) => {
+      const chatSenderId = getRideChatParticipantId(box.sender, box.senderId ?? box.sender_id);
+      const chatReceiverId = getRideChatParticipantId(box.receiver, box.receiverId ?? box.receiver_id);
+
+      return (
+        (chatSenderId === senderId && chatReceiverId === driverUserId)
+        || (chatSenderId === driverUserId && chatReceiverId === senderId)
+        || box.participants?.includes(driverUserId)
+      );
+    });
+
+    return getRideChatBoxId(matchedChatBox ?? null) ?? undefined;
+  }, [chatBoxes, driverUserId, payloadChatBoxId, senderId]);
   const driverName = readDisplayString(driver?.user?.name);
   const driverRating = readNumber(driver?.dynamic_info?.averageRating);
   const driverAvatarUri = readString(driver?.user?.profile);
@@ -294,6 +334,10 @@ function ActiveRideView({ activeRide }: Props) {
     rideId,
     driverUserId,
     statusCode,
+    chatBoxId: resolvedChatBoxId,
+    onCancelled: () => {
+      navigation.navigate('RideSharingHome');
+    },
   });
 
   useEffect(() => {
@@ -316,12 +360,13 @@ function ActiveRideView({ activeRide }: Props) {
     }
 
     navigation.navigate('RiderChat', {
+      chatBoxId: resolvedChatBoxId,
       driverAvatarUri: driverAvatarUri ?? undefined,
       driverName: driverName || t('ride_active_driver_fallback'),
       driverPhone: driverPhone ?? undefined,
       driverUserId,
     });
-  }, [driverAvatarUri, driverName, driverPhone, driverUserId, navigation, t]);
+  }, [driverAvatarUri, driverName, driverPhone, driverUserId, navigation, resolvedChatBoxId, t]);
 
   const handleSafetyPress = useCallback(() => {
     navigation.navigate('Safety', {
@@ -455,6 +500,7 @@ function ActiveRideView({ activeRide }: Props) {
         vehicleName={vehicleName}
         vehicleColor={vehicleColor}
         licensePlate={licensePlate}
+        chatBoxId={resolvedChatBoxId}
         isCourierFlow={isCourierFlow}
         canCancelRide={canCancelRide}
         waitingRemainingSec={waitingRemainingSecLive}

@@ -9,6 +9,7 @@ import type {
     AcceptRideBidParams,
     CreateRidePayload,
     RejectRideBidParams,
+    CancelRideParams,
     RaiseRideFarePayload,
     RaiseRideFareResponse,
     RideDetails,
@@ -124,22 +125,22 @@ export function useUpdateRide(options?: UseUpdateRideOptions) {
 // ---------------------------------------------------------------------------
 
 type UseCancelRideOptions = Omit<
-    UseMutationOptions<void, ApiError, string, unknown>,
+    UseMutationOptions<void, ApiError, CancelRideParams, unknown>,
     'mutationFn'
 >;
 
 export function useCancelRide(options?: UseCancelRideOptions) {
     const queryClient = useQueryClient();
 
-    return useMutation<void, ApiError, string, unknown>({
+    return useMutation<void, ApiError, CancelRideParams, unknown>({
         mutationFn: rideService.cancelRide,
-        onSuccess: (data, rideId, onMutateResult, ctx) => {
-            queryClient.invalidateQueries({ queryKey: rideKeys.detail(rideId) });
+        onSuccess: (data, variables, onMutateResult, ctx) => {
+            queryClient.invalidateQueries({ queryKey: rideKeys.detail(variables.rideId) });
             queryClient.invalidateQueries({ queryKey: rideKeys.lists() });
             queryClient.invalidateQueries({ queryKey: rideKeys.customerRides() });
             queryClient.invalidateQueries({ queryKey: rideKeys.activeRide() });
 
-            options?.onSuccess?.(data, rideId, onMutateResult, ctx);
+            options?.onSuccess?.(data, variables, onMutateResult, ctx);
         },
         onError: options?.onError,
         onSettled: options?.onSettled,

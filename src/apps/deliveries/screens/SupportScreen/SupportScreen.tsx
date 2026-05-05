@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -9,8 +9,6 @@ import SupportTopicItem from '../../../../general/components/support/SupportTopi
 import Text from '../../../../general/components/Text';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
 import { useTheme } from '../../../../general/theme/theme';
-import SupportAdminPickerBottomSheet from '../../components/support/SupportAdminPickerBottomSheet';
-import { useSupportAdmins } from '../../hooks/useSupportChatQueries';
 import { useSupportTicketFormConfigQuery } from '../../hooks/useSupportTicketFormConfigQuery';
 import { SupportHomeNavigationProp } from '../../navigation/supportNavigationTypes';
 import { buildSupportOptions, orderSupportCategoryKeys } from '../../utils/supportFormOptions';
@@ -20,9 +18,7 @@ export default function SupportScreen() {
   const { t, i18n } = useTranslation('deliveries');
   const navigation = useNavigation<SupportHomeNavigationProp>();
   const sessionQuery = useAuthSessionQuery();
-  const supportAdminsQuery = useSupportAdmins();
   const supportTicketFormConfigQuery = useSupportTicketFormConfigQuery();
-  const [isAdminPickerVisible, setIsAdminPickerVisible] = useState(false);
   const displayName = sessionQuery.data?.user?.name ?? t('support_guest_name');
   const issueOptions = useMemo(
     () => {
@@ -43,14 +39,6 @@ export default function SupportScreen() {
     },
     [i18n, supportTicketFormConfigQuery.data?.categories, t],
   );
-
-  const handleOpenAdminPicker = () => {
-    setIsAdminPickerVisible(true);
-  };
-
-  const handleCloseAdminPicker = () => {
-    setIsAdminPickerVisible(false);
-  };
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -139,26 +127,7 @@ export default function SupportScreen() {
 
       <SupportChatFooter
         ctaLabel={t('support_chat_cta')}
-        onPress={handleOpenAdminPicker}
-      />
-
-      <SupportAdminPickerBottomSheet
-        admins={supportAdminsQuery.data?.admins ?? []}
-        emptyLabel={t('support_admin_picker_empty')}
-        isLoading={supportAdminsQuery.isPending}
-        isVisible={isAdminPickerVisible}
-        loadingLabel={t('support_admin_picker_loading')}
-        onClose={handleCloseAdminPicker}
-        onSelectAdmin={(admin) => {
-          handleCloseAdminPicker();
-          navigation.navigate('SupportChat', {
-            agentName: admin.name,
-            receiverId: admin.id,
-          });
-        }}
-        rowSubtitle={t('support_admin_picker_row_subtitle')}
-        subtitle={t('support_admin_picker_subtitle')}
-        title={t('support_admin_picker_title')}
+        onPress={() => navigation.navigate('SupportChat', { agentName: t('support_chat_agent_name') })}
       />
     </View>
   );

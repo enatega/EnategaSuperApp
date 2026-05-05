@@ -185,6 +185,8 @@ export const deliveryKeys = {
         [...deliveryKeys.supportChat(), 'box', chatBoxId] as const,
     supportChatMessages: (chatBoxId: string) =>
         [...deliveryKeys.supportChat(), 'messages', chatBoxId] as const,
+    supportChatMyActiveMessages: () =>
+        [...deliveryKeys.supportChat(), 'my-active-messages'] as const,
     supportTicketFormConfig: () =>
         [...deliveryKeys.all, 'support-ticket-form-config'] as const,
     supportMyTickets: () =>

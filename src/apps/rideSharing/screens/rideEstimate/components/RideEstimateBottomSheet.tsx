@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useRef } from 'react';
 import { Dimensions, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -82,6 +82,7 @@ function RideEstimateBottomSheet({
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
+  const listScrollRef = useRef<ScrollView | null>(null);
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const expandedHeight = Math.min(screenHeight * 0.54, 450);
@@ -90,6 +91,12 @@ function RideEstimateBottomSheet({
   const remainingOptions = options.filter((item) => item.id !== selectedOption?.id);
   const showErrorState = Boolean(errorMessage);
   const hasFloatingStatusCard = Boolean(floatingStatusCard);
+  const handleSelectOption = useCallback((id: RideOptionItem['id']) => {
+    onSelectOption(id);
+    requestAnimationFrame(() => {
+      listScrollRef.current?.scrollTo({ y: 0, animated: true });
+    });
+  }, [onSelectOption]);
 
   return (
     <SwipeableBottomSheet
@@ -147,6 +154,7 @@ function RideEstimateBottomSheet({
         {!isLoading && !showErrorState ? (
           <>
             <ScrollView
+              ref={listScrollRef}
               style={styles.listScroll}
               contentContainerStyle={styles.list}
               showsVerticalScrollIndicator={false}
@@ -169,7 +177,7 @@ function RideEstimateBottomSheet({
                   key={item.id}
                   item={item}
                   fare={item.fare}
-                  onPress={onSelectOption}
+                  onPress={handleSelectOption}
                 />
               ))}
             </ScrollView>

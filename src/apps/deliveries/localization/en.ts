@@ -493,6 +493,8 @@ const en = {
   support_conversations_delete_confirm: 'Yes, Delete',
   support_conversations_loading: 'Loading conversations...',
   support_conversations_empty: 'No conversations yet.',
+  support_conversations_search_placeholder: 'Search by name or message',
+  support_conversations_no_results: 'No conversations match your search.',
   support_tickets_title: 'My Tickets',
   support_tickets_heading: 'All Tickets',
   support_tickets_loading: 'Loading tickets...',

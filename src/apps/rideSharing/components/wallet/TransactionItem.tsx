@@ -1,6 +1,5 @@
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import { useRideSharingCurrencyLabel } from '../../../../general/stores/useAppConfigStore';
@@ -64,7 +63,6 @@ export default function TransactionItem({ transaction, onPress }: Props) {
         >
           {formattedAmount}
         </Text>
-        <Ionicons name="chevron-forward" size={24} color={colors.mutedText} />
       </View>
     </Pressable>
   );
@@ -91,6 +89,5 @@ const styles = StyleSheet.create({
   amountRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
 });
