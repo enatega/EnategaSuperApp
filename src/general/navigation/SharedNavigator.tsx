@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   createNativeStackNavigator,
   type NativeStackNavigationProp,
@@ -21,6 +22,8 @@ import {
   setPendingAppRoute,
 } from "./pendingAppRedirect";
 import { resetToSharedRoute } from "./rootNavigation";
+import { useAppTheme } from "../theme/ThemeProvider";
+import type { ThemedMiniAppId } from "../theme/colors";
 
 const Stack = createNativeStackNavigator<SharedStackParamList>();
 const APP_ROUTES: Partial<Record<MiniAppId, SharedAppRouteName>> = {
@@ -30,6 +33,24 @@ const APP_ROUTES: Partial<Record<MiniAppId, SharedAppRouteName>> = {
   appointments: "Appointments",
   developerMode: "DeveloperMode",
 };
+
+type AppThemeScopeProps = {
+  appId: ThemedMiniAppId;
+  children: React.ReactNode;
+};
+
+function AppThemeScope({ appId, children }: AppThemeScopeProps) {
+  const { setActiveMiniApp } = useAppTheme();
+
+  useFocusEffect(
+    useCallback(() => {
+      setActiveMiniApp(appId);
+      return undefined;
+    }, [appId, setActiveMiniApp]),
+  );
+
+  return <>{children}</>;
+}
 
 export default function SharedNavigator() {
   const [initialRouteName, setInitialRouteName] = useState<
@@ -79,44 +100,58 @@ export default function SharedNavigator() {
     <Stack.Navigator initialRouteName={initialRouteName}>
       <Stack.Screen name="Home" options={{ headerShown: false }}>
         {(props) => (
-          <HomeScreen
-            {...props}
-            onSelectMiniApp={(id, params) => {
-              void handleSelectMiniApp(id, props.navigation, params);
-            }}
-          />
+          <AppThemeScope appId="general">
+            <HomeScreen
+              {...props}
+              onSelectMiniApp={(id, params) => {
+                void handleSelectMiniApp(id, props.navigation, params);
+              }}
+            />
+          </AppThemeScope>
         )}
       </Stack.Screen>
-      <Stack.Screen
-        name="Deliveries"
-        component={DeliveriesNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="RideSharing"
-        component={RideSharingNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="HomeVisits"
-        component={HomeVisitsNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Appointments"
-        component={AppointmentsNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="DeveloperMode"
-        component={DeveloperModeNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Auth"
-        component={AuthNavigator}
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="Deliveries" options={{ headerShown: false }}>
+        {() => (
+          <AppThemeScope appId="deliveries">
+            <DeliveriesNavigator />
+          </AppThemeScope>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="RideSharing" options={{ headerShown: false }}>
+        {() => (
+          <AppThemeScope appId="rideSharing">
+            <RideSharingNavigator />
+          </AppThemeScope>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="HomeVisits" options={{ headerShown: false }}>
+        {() => (
+          <AppThemeScope appId="homeVisits">
+            <HomeVisitsNavigator />
+          </AppThemeScope>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="Appointments" options={{ headerShown: false }}>
+        {() => (
+          <AppThemeScope appId="appointments">
+            <AppointmentsNavigator />
+          </AppThemeScope>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="DeveloperMode" options={{ headerShown: false }}>
+        {() => (
+          <AppThemeScope appId="developerMode">
+            <DeveloperModeNavigator />
+          </AppThemeScope>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="Auth" options={{ headerShown: false }}>
+        {() => (
+          <AppThemeScope appId="general">
+            <AuthNavigator />
+          </AppThemeScope>
+        )}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 }

@@ -87,7 +87,6 @@ const styles = StyleSheet.create({
   retryButton: {
     alignSelf: 'stretch',
     borderRadius: 8,
-    backgroundColor: '#1691BF',
     borderColor: '#1691BF',
   },
 });

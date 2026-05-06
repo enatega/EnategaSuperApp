@@ -37,6 +37,7 @@ type RouteParams = {
   rideCategory?: RideCategory;
   prefilledFromAddress?: CachedAddress;
   prefilledStopAddress?: RideAddressSelection;
+  editTarget?: 'from' | 'to';
   fromAddress?: RideAddressSelection;
   toAddress?: RideAddressSelection;
   stops?: RideAddressSelection[];
@@ -55,6 +56,7 @@ export default function RideAddressSearchScreen() {
     rideCategory,
     prefilledFromAddress,
     prefilledStopAddress,
+    editTarget,
     fromAddress: initialFromAddress,
     toAddress: initialToAddress,
     stops = [],
@@ -64,7 +66,13 @@ export default function RideAddressSearchScreen() {
   const isStopMode = stopAction === 'add' || stopAction === 'edit';
   const isAddingStop = stopAction === 'add';
   const isEditingStop = stopAction === 'edit';
-  const [activeField, setActiveField] = useState<'from' | 'to' | 'stop'>(isAddingStop ? 'stop' : 'from');
+  const hasInitialFromAddress = Boolean(initialFromAddress?.coordinates);
+  const hasPrefilledFromAddress = Boolean(prefilledFromAddress?.coordinates);
+  const tripFieldToEdit = editTarget === 'to' ? 'to' : 'from';
+  const defaultTripField = hasPrefilledFromAddress && !hasInitialFromAddress ? 'to' : tripFieldToEdit;
+  const [activeField, setActiveField] = useState<'from' | 'to' | 'stop'>(
+    isAddingStop ? 'stop' : defaultTripField,
+  );
   const [focusSignal, setFocusSignal] = useState(0);
   const [screenMode, setScreenMode] = useState<'search' | 'map'>('search');
   const [fromValue, setFromValue] = useState('');
@@ -104,18 +112,23 @@ export default function RideAddressSearchScreen() {
       }
     }
 
-    if (!prefilledFromAddress?.coordinates || initialFromAddress?.coordinates) {
-      if (!isStopMode && !initialFromAddress?.coordinates) {
-        setActiveField('from');
+    if (!hasPrefilledFromAddress || hasInitialFromAddress) {
+      if (!isStopMode) {
+        setActiveField(defaultTripField);
       }
       return;
     }
 
+    const prefilledSelectionSource = prefilledFromAddress;
+    if (!prefilledSelectionSource?.coordinates) {
+      return;
+    }
+
     const prefilledSelection: RideAddressSelection = {
-      placeId: prefilledFromAddress.placeId,
-      description: prefilledFromAddress.description,
-      structuredFormatting: prefilledFromAddress.structuredFormatting,
-      coordinates: prefilledFromAddress.coordinates,
+      placeId: prefilledSelectionSource.placeId,
+      description: prefilledSelectionSource.description,
+      structuredFormatting: prefilledSelectionSource.structuredFormatting,
+      coordinates: prefilledSelectionSource.coordinates,
     };
 
     selectedFromAddressRef.current = prefilledSelection;
@@ -123,6 +136,9 @@ export default function RideAddressSearchScreen() {
     setFromValue(prefilledSelection.description);
     setActiveField('to');
   }, [
+    defaultTripField,
+    hasInitialFromAddress,
+    hasPrefilledFromAddress,
     initialFromAddress,
     initialToAddress,
     isEditingStop,
@@ -134,6 +150,8 @@ export default function RideAddressSearchScreen() {
   useFocusEffect(
     useCallback(() => {
       if (!isStopMode) {
+        setActiveField(defaultTripField);
+        setFocusSignal((currentValue) => currentValue + 1);
         return undefined;
       }
 
@@ -146,7 +164,7 @@ export default function RideAddressSearchScreen() {
       setFocusSignal((currentValue) => currentValue + 1);
 
       return undefined;
-    }, [isAddingStop, isStopMode]),
+    }, [defaultTripField, isAddingStop, isStopMode]),
   );
 
   const activeValue = activeField === 'from' ? fromValue : activeField === 'stop' ? stopValue : toValue;
@@ -209,12 +227,16 @@ export default function RideAddressSearchScreen() {
         ? stops.map((stop, index) => (index === stopIndex ? selectedAddress : stop))
         : [...stops, selectedAddress];
 
-      navigation.navigate('RideEstimate', {
-        rideType,
-        rideCategory,
-        fromAddress: nextFromAddress,
-        toAddress: nextToAddress,
-        stops: nextStops,
+      navigation.navigate({
+        name: 'RideEstimate',
+        params: {
+          rideType,
+          rideCategory,
+          fromAddress: nextFromAddress,
+          toAddress: nextToAddress,
+          stops: nextStops,
+        },
+        merge: true,
       });
       return;
     }
@@ -255,13 +277,16 @@ export default function RideAddressSearchScreen() {
         );
       } else {
         navigation.navigate(
-          'RideEstimate',
           {
-            rideType,
-            rideCategory,
-            fromAddress: nextFromAddress,
-            toAddress: nextToAddress,
-            stops,
+            name: 'RideEstimate',
+            params: {
+              rideType,
+              rideCategory,
+              fromAddress: nextFromAddress,
+              toAddress: nextToAddress,
+              stops,
+            },
+            merge: true,
           },
         );
       }

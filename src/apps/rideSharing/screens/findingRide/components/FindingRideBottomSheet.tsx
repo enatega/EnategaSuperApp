@@ -156,10 +156,6 @@ function FindingRideBottomSheet({
             isLoading={isCommitFareLoading}
             style={[
               styles.primaryButton,
-              {
-                backgroundColor: colors.findingRidePrimary,
-                borderColor: colors.findingRidePrimary,
-              },
             ]}
           />
         ) : null}
@@ -171,10 +167,7 @@ function FindingRideBottomSheet({
             isLoading={isKeepSearchingLoading}
             style={[
               styles.primaryButton,
-              {
-                backgroundColor: colors.findingRidePrimary,
-                borderColor: colors.findingRidePrimary,
-              },
+
             ]}
           />
         ) : null}
@@ -186,10 +179,6 @@ function FindingRideBottomSheet({
           variant="secondary"
           style={[
             styles.secondaryButton,
-            {
-              backgroundColor: colors.findingRideMutedSurface,
-              borderColor: colors.findingRideMutedSurface,
-            },
           ]}
         />
       </View>
