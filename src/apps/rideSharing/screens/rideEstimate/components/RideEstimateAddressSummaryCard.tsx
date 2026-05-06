@@ -10,9 +10,11 @@ type Props = {
   fromAddress: RideAddressSelection;
   stopAddresses?: RideAddressSelection[];
   toAddress: RideAddressSelection;
+  onFromPress?: () => void;
   onAddStopPress?: () => void;
   onStopPress?: (index: number) => void;
   onRemoveStopPress?: (index: number) => void;
+  onToPress?: () => void;
   onViewStopsPress?: () => void;
   viewStopsLabel?: string;
   moreStopsLabel?: (count: number) => string;
@@ -23,9 +25,11 @@ function RideEstimateAddressSummaryCard({
   fromAddress,
   stopAddresses = [],
   toAddress,
+  onFromPress,
   onAddStopPress,
   onStopPress,
   onRemoveStopPress,
+  onToPress,
   onViewStopsPress,
   viewStopsLabel,
   moreStopsLabel,
@@ -47,12 +51,12 @@ function RideEstimateAddressSummaryCard({
         },
       ]}
     >
-      <View style={styles.row}>
+      <Pressable onPress={onFromPress} style={styles.row} accessibilityRole="button">
         <View style={[styles.statusDot, { borderColor: '#6EE7B7' }]} />
         <Text numberOfLines={1} style={styles.addressText}>
           {fromAddress.description}
         </Text>
-      </View>
+      </Pressable>
 
       {visibleStop ? (
         <Pressable onPress={() => onStopPress?.(0)} style={styles.row} accessibilityRole="button">
@@ -73,10 +77,12 @@ function RideEstimateAddressSummaryCard({
       ) : null}
 
       <View style={styles.row}>
-        <View style={[styles.statusDot, { borderColor: '#F87171' }]} />
-        <Text numberOfLines={1} style={styles.addressText}>
-          {toAddress.description}
-        </Text>
+        <Pressable onPress={onToPress} style={[styles.row, styles.addressRow]} accessibilityRole="button">
+          <View style={[styles.statusDot, { borderColor: '#F87171' }]} />
+          <Text numberOfLines={1} style={styles.addressText}>
+            {toAddress.description}
+          </Text>
+        </Pressable>
         <Pressable
           onPress={onAddStopPress}
           hitSlop={8}
@@ -128,6 +134,9 @@ const styles = StyleSheet.create({
   addressText: {
     flex: 1,
     fontSize: 14,
+  },
+  addressRow: {
+    flex: 1,
   },
   actionButton: {
     alignItems: 'center',

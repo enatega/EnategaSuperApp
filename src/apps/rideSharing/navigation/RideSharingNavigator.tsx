@@ -47,6 +47,7 @@ export type RideSharingStackParamList = {
     rideCategory?: RideCategory;
     prefilledFromAddress?: CachedAddress;
     prefilledStopAddress?: RideAddressSelection;
+    editTarget?: 'from' | 'to';
     fromAddress?: RideAddressSelection;
     toAddress?: RideAddressSelection;
     stops?: RideAddressSelection[];
