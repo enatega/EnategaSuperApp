@@ -8,6 +8,7 @@ import Button from "../Button";
 import Svg from "../Svg";
 import { useTheme } from "../../theme/theme";
 import { useTranslation } from "react-i18next";
+import type { ApiError } from "../../api/apiClient";
 
 const clientId = process.env.EXPO_PUBLIC_IOS_CLIENT_ID;
 GoogleSignin.configure({
@@ -19,6 +20,28 @@ const GoogleLogin = () => {
   const { t } = useTranslation("general");
   const navigation = useNavigation();
 
+  const resolveGoogleLoginErrorMessage = (error: ApiError | Error | unknown) => {
+    const apiError = error as ApiError | undefined;
+    const message =
+      typeof apiError?.message === "string" && apiError.message.trim()
+        ? apiError.message
+        : t("something_went_wrong");
+
+    if (apiError?.status === 400) {
+      return message || "Invalid Google token or unsupported user type.";
+    }
+
+    if (apiError?.status === 401) {
+      return message || "Your account is blocked or inactive.";
+    }
+
+    if (apiError?.status === 0) {
+      return "Network error. Please check your connection and try again.";
+    }
+
+    return message;
+  };
+
   const googleLoginMutation = useGoogleLogin({
     onSuccess: async () => {
       showToast.success("Success!", "Logged in successfully.");
@@ -29,7 +52,7 @@ const GoogleLogin = () => {
       }
     },
     onError: (error) => {
-      showToast.error("Error!", error?.message);
+      showToast.error("Error!", resolveGoogleLoginErrorMessage(error));
     },
   });
 
@@ -37,18 +60,26 @@ const GoogleLogin = () => {
     try {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo.data?.idToken;
 
-      if (userInfo.data?.idToken) {
-        googleLoginMutation.mutate({
-          idToken: userInfo.data.idToken,
-          user_type_id: "1",
-          device_push_token: "",
-        });
+      if (!idToken) {
+        showToast.error("Error!", "Unable to fetch Google token. Please try again.");
+        return;
       }
+
+      googleLoginMutation.mutate({
+        idToken,
+        user_type: "Customer",
+        device_push_token: "",
+      });
     } catch (error: any) {
-      if (error.code !== "SIGN_IN_CANCELLED") {
-        showToast.error("Error!", error?.message || "Google sign in failed");
-      }
+      if (error?.code === "SIGN_IN_CANCELLED") return;
+      if (error?.code === "IN_PROGRESS") return;
+
+      showToast.error(
+        "Error!",
+        error?.message || "Google sign in failed. Please try again.",
+      );
     }
   };
 

@@ -12,6 +12,7 @@ type Options = {
 };
 
 type OrderStatusUpdatedEventPayload = DeliveriesServerEventMap["order-status-updated"];
+type RiderStatusUpdatedEventPayload = DeliveriesServerEventMap["rider-status-updated"];
 
 function isOrderStatusUpdatedEventPayload(
   value: unknown,
@@ -90,7 +91,7 @@ export function useOrderStatusSocketSync(orderId?: string, options?: Options) {
       return undefined;
     }
 
-    return subscribeDeliveriesEvent(
+    const unsubscribeOrderStatus = subscribeDeliveriesEvent(
       "order-status-updated",
       (payload) => {
         console.log("[deliveries][socket] order-status-updated received", {
@@ -156,7 +157,41 @@ export function useOrderStatusSocketSync(orderId?: string, options?: Options) {
             };
           },
         );
+
+        queryClient.invalidateQueries({ queryKey: deliveryKeys.orderDetail(activeOrderId) });
+        queryClient.invalidateQueries({ queryKey: deliveryKeys.orders() });
       },
     );
+
+    const unsubscribeRiderStatus = subscribeDeliveriesEvent(
+      "rider-status-updated",
+      (payload: RiderStatusUpdatedEventPayload) => {
+        console.log("[customer][socket] rider-status-updated received", {
+          activeOrderId: currentOrderIdRef.current,
+          payload,
+        });
+        if (!payload?.orderId) return;
+        const activeOrderId = currentOrderIdRef.current;
+        if (!activeOrderId || payload.orderId !== activeOrderId) {
+          console.log("[customer][socket] ignored rider-status-updated for different order", {
+            activeOrderId,
+            eventOrderId: payload.orderId,
+          });
+          return;
+        }
+
+        console.log("[customer][socket] applying rider-status-updated by invalidating order detail", {
+          orderId: activeOrderId,
+          riderStatus: payload.riderStatus,
+          updatedAt: payload.updatedAt,
+        });
+        queryClient.invalidateQueries({ queryKey: deliveryKeys.orderDetail(activeOrderId) });
+      },
+    );
+
+    return () => {
+      unsubscribeOrderStatus?.();
+      unsubscribeRiderStatus?.();
+    };
   }, [isEnabled, queryClient, token]);
 }

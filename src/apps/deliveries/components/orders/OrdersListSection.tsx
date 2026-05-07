@@ -42,6 +42,8 @@ type Props = {
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   onLoadMore?: () => void;
+  refreshing?: boolean;
+  onRefresh?: () => void;
   showEndLabel?: boolean;
   emptySvgName?: SvgName;
   titleWeight?: "bold" | "extraBold";
@@ -57,6 +59,8 @@ const OrdersListSection = ({
   hasNextPage,
   isFetchingNextPage,
   onLoadMore,
+  refreshing = false,
+  onRefresh,
   showEndLabel = true,
   emptySvgName = "noResultsFound",
   titleWeight = "extraBold",
@@ -148,6 +152,8 @@ const OrdersListSection = ({
           showEndLabel={showEndLabel}
         />
       }
+      refreshing={refreshing}
+      onRefresh={onRefresh}
     />
   );
 };
