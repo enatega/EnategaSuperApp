@@ -31,6 +31,7 @@ import OrderTrackingInfoRow from "./OrderTrackingInfoRow";
 import OrderTrackingLoadingSkeleton from "./OrderTrackingLoadingSkeleton";
 import OrderTrackingTimelineSection from "./OrderTrackingTimelineSection";
 import OrderDetailsSection from "../orderDetails/OrderDetailsSection";
+import OrderDetailsSummaryRow from "../orderDetails/OrderDetailsSummaryRow";
 
 type Props = {
   navigation: NativeStackNavigationProp<
@@ -162,6 +163,9 @@ export default function MainContainer({ navigation, orderId }: Props) {
       ),
     [colors.primary, mapCoordinates, order?.orderType, routePathQuery.data],
   );
+  const restaurantNote = order?.restaurantNote?.trim() || null;
+  const courierNote = order?.courierNote?.trim() || null;
+  const shouldShowNotes = Boolean(restaurantNote || courierNote);
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -306,6 +310,28 @@ export default function MainContainer({ navigation, orderId }: Props) {
               defaultExpanded
               orderItems={order.orderItems}
             />
+
+            {shouldShowNotes ? (
+              <>
+                <View
+                  style={[styles.divider, { backgroundColor: colors.border }]}
+                />
+                <OrderDetailsSection title={t("order_details_notes")}>
+                  {restaurantNote ? (
+                    <OrderDetailsSummaryRow
+                      label={t("order_details_restaurant_note")}
+                      value={restaurantNote}
+                    />
+                  ) : null}
+                  {courierNote ? (
+                    <OrderDetailsSummaryRow
+                      label={t("order_details_courier_note")}
+                      value={courierNote}
+                    />
+                  ) : null}
+                </OrderDetailsSection>
+              </>
+            ) : null}
           </ScrollView>
 
           <ExtendableOrderSummary

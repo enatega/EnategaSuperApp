@@ -32,6 +32,7 @@ export default function SpecialOffersBanner({
   if (banners.length === 0) {
     return null;
   }
+console.log('Special_Offers_Banners:', JSON.stringify(banners, null, 2));
 
   return (
     <View style={[styles.wrapper, { width: bannerWidth + bannerSidePadding * 2 }]}>

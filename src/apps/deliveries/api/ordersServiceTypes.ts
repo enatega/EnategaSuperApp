@@ -139,7 +139,6 @@ export interface DeliveryOrderLogItem {
 
 export interface OrderDetailsResponse {
   orderId: string;
-  chatBoxId?: string;
   status: DeliveryOrderStatus;
   statusTitle: string;
   statusMessage: string;
@@ -148,6 +147,8 @@ export interface OrderDetailsResponse {
   paymentStatus: string;
   orderedAt: string;
   scheduledAt: string | null;
+  restaurantNote?: string | null;
+  courierNote?: string | null;
   store: DeliveryOrderStore;
   deliveryDetails: DeliveryOrderDeliveryDetails;
   rider: DeliveryOrderRider | null;
