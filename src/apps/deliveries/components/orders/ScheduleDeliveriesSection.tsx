@@ -10,6 +10,7 @@ const ScheduleDeliveriesSection = () => {
     isFetchingNextPage,
     isLoading,
     isError,
+    isRefetching,
     refetch,
   } = useScheduledOrders();
 
@@ -31,6 +32,10 @@ const ScheduleDeliveriesSection = () => {
         if (hasNextPage && !isFetchingNextPage) {
           void fetchNextPage();
         }
+      }}
+      refreshing={isRefetching}
+      onRefresh={() => {
+        void refetch();
       }}
       showEndLabel
       emptySvgName="emptyCart2"

@@ -10,6 +10,7 @@ const ActiveOrdersSection = () => {
     isFetchingNextPage,
     isLoading,
     isError,
+    isRefetching,
     refetch,
   } = useActiveOrders();
 
@@ -33,6 +34,10 @@ const ActiveOrdersSection = () => {
         if (hasNextPage && !isFetchingNextPage) {
           void fetchNextPage();
         }
+      }}
+      refreshing={isRefetching}
+      onRefresh={() => {
+        void refetch();
       }}
       showEndLabel
       emptySvgName="emptyCart"
