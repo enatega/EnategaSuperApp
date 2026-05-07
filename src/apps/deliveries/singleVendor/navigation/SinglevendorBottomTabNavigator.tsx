@@ -2,9 +2,11 @@ import React from 'react';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../../../general/theme/theme';
 import DeliveriesTabBar, {
   DELIVERIES_TAB_BAR_HEIGHT,
+  DELIVERIES_TAB_BAR_SAFE_PADDING,
 } from '../../components/navigation/DeliveriesTabBar';
 import SingleVendorTabButton from '../components/navigation/SingleVendorTabButton';
 import HomeScreen from '../screens/HomeScreen/HomeScreen';
@@ -23,6 +25,8 @@ type TabIconProps = {
 export default function SinglevendorBottomTabNavigator() {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
+  const insets = useSafeAreaInsets();
+  const safeBottom = Math.max(insets.bottom, DELIVERIES_TAB_BAR_SAFE_PADDING);
 
   return (
     <Tab.Navigator
@@ -50,7 +54,8 @@ export default function SinglevendorBottomTabNavigator() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          height: DELIVERIES_TAB_BAR_HEIGHT,
+          height: DELIVERIES_TAB_BAR_HEIGHT + safeBottom,
+          paddingBottom: safeBottom,
         },
       }}
     >
@@ -62,7 +67,7 @@ export default function SinglevendorBottomTabNavigator() {
             <MaterialCommunityIcons
               color={color}
               name="home-outline"
-              size={size}
+              size={Math.max(size - 2, 20)}
             />
           ),
           tabBarLabel: t('single_vendor_tab_home'),
@@ -77,7 +82,7 @@ export default function SinglevendorBottomTabNavigator() {
             <MaterialCommunityIcons
               color={color}
               name="magnify"
-              size={size}
+              size={Math.max(size - 2, 20)}
             />
           ),
           tabBarLabel: t('single_vendor_tab_search'),
@@ -92,7 +97,7 @@ export default function SinglevendorBottomTabNavigator() {
             <MaterialCommunityIcons
               color={color}
               name="receipt-text-outline"
-              size={size}
+              size={Math.max(size - 2, 20)}
             />
           ),
           tabBarLabel: t('single_vendor_tab_orders'),
@@ -107,7 +112,7 @@ export default function SinglevendorBottomTabNavigator() {
             <MaterialCommunityIcons
               color={color}
               name="account-outline"
-              size={size}
+              size={Math.max(size - 2, 20)}
             />
           ),
           tabBarLabel: t('single_vendor_tab_profile'),

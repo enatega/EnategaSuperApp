@@ -50,6 +50,15 @@ module.exports = {
     },
     plugins: [
       'expo-secure-store',
+      [
+        '@stripe/stripe-react-native',
+        {
+          merchantIdentifier:
+            process.env.EXPO_IOS_MERCHANT_IDENTIFIER ?? 'merchant.com.enategasuper.app',
+          enableGooglePay: false,
+        },
+      ],
+
       'expo-video',
       [
         'expo-location',
@@ -67,11 +76,11 @@ module.exports = {
       ],
       hasValidGoogleIosUrlScheme
         ? [
-            '@react-native-google-signin/google-signin',
-            {
-              iosUrlScheme,
-            },
-          ]
+          '@react-native-google-signin/google-signin',
+          {
+            iosUrlScheme,
+          },
+        ]
         : null,
     ].filter(Boolean),
   },

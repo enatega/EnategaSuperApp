@@ -10,6 +10,7 @@ import type {
 
 const ORDERS_BASE = '/api/v1/apps/deliveries/orders';
 const CHECKOUT_PREVIEW_PATH = `${ORDERS_BASE}/place-order/preview`;
+const CHECKOUT_PLACE_ORDER_PATH = ORDERS_BASE;
 const ENABLE_DELIVERIES_ORDER_DEBUG = true;
 
 export const orderService = {
@@ -53,6 +54,24 @@ export const orderService = {
     return response;
   },
 
-  placeOrder: (input: PlaceOrderInput) =>
-    apiClient.post<PlaceOrderResponse>(ORDERS_BASE, input),
+  placeOrder: async (input: PlaceOrderInput) => {
+    if (ENABLE_DELIVERIES_ORDER_DEBUG) {
+      console.log('[Deliveries][OrderService][PlaceOrder][Request]', {
+        api: CHECKOUT_PLACE_ORDER_PATH,
+        input,
+        method: 'POST',
+      });
+    }
+
+    const response = await apiClient.post<PlaceOrderResponse>(ORDERS_BASE, input);
+
+    if (ENABLE_DELIVERIES_ORDER_DEBUG) {
+      console.log('[Deliveries][OrderService][PlaceOrder][Response]', {
+        api: CHECKOUT_PLACE_ORDER_PATH,
+        response,
+      });
+    }
+
+    return response;
+  },
 };

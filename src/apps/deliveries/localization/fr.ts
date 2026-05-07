@@ -520,13 +520,15 @@ const fr = {
   checkout_payment_selector_title: 'Mode de paiement',
   checkout_payment_selector_heading: 'Choisissez un mode de paiement',
   checkout_payment_selector_description: 'Selectionnez comment vous souhaitez payer cette commande.',
-  checkout_payment_selector_confirm: 'Confirmer',
+  checkout_payment_selector_confirm: 'Confirmer le mode de paiement',
   checkout_payment_cash_title: 'Espèces',
   checkout_payment_cash_subtitle: 'Payez en espèces à la livraison ou au retrait',
   checkout_payment_card_title: 'Carte',
   checkout_payment_card_subtitle: 'Payez en ligne de manière sécurisée avec votre carte',
+  checkout_payment_card_saved_subtitle: '{{brand}} (•••• {{last4}})',
   checkout_payment_option_cash_description: 'Payez à la livraison ou au retrait.',
   checkout_payment_option_card_description: 'Vous terminerez le paiement dans le parcours sécurisé Stripe.',
+  checkout_payment_add_card_required: 'Ajoutez une carte dans le portefeuille pour payer par carte.',
   checkout_payment_cash_unavailable: 'Le paiement en espèces à la livraison n’est pas disponible pour ce magasin',
   checkout_payment_card_unavailable: 'Le paiement par carte n’est pas disponible pour ce magasin',
   checkout_payment_cod_unavailable_error: 'Ce magasin n’autorise pas le paiement en espèces à la livraison.',
@@ -908,6 +910,15 @@ const fr = {
   wallet_security_code_label: 'Code de sécurité',
   wallet_pay_securely: 'Paiement sécurisé avec',
   wallet_save_card: 'Enregistrer',
+  wallet_no_saved_cards: 'Aucune carte enregistrée',
+  wallet_add_card_error: 'Impossible d’enregistrer la carte',
+  wallet_setup_intent_success_title: 'Configuration de la carte démarrée',
+  wallet_setup_intent_success_message:
+    'Intent de configuration créé. Terminez la confirmation avec le SDK Stripe.',
+  wallet_stripe_publishable_key_missing: 'La clé publique Stripe est manquante.',
+  wallet_card_incomplete: 'Veuillez compléter les détails de la carte.',
+  wallet_card_saved_success_title: 'Carte enregistrée',
+  wallet_card_saved_success_message: 'Votre carte a été ajoutée avec succès.',
   off: 'désactivé'
 };
 

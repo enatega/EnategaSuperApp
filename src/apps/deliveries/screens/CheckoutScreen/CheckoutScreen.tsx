@@ -38,7 +38,7 @@ import {
   isCheckoutScheduledAtInFuture,
   type CheckoutDeliveryTimeMode,
 } from '../../components/checkout/checkoutScheduleUtils';
-import CheckoutPaymentMethodScreen from '../../components/checkout/CheckoutPaymentMethodScreen';
+import CheckoutPaymentMethodBottomSheet from '../../components/checkout/CheckoutPaymentMethodBottomSheet';
 import {
   getCheckoutPaymentMethodSubtitle,
   getCheckoutPaymentMethodTitle,
@@ -55,8 +55,13 @@ import {
 } from '../../components/checkout/checkoutStripeOrderUtils';
 import { deliveryKeys } from '../../api/queryKeys';
 import { useCheckoutCouponStore } from '../../stores/useCheckoutCouponStore';
+import {
+  useWalletSavedCardsQuery,
+  useWalletSetDefaultCardMutation,
+} from '../../../../general/api/walletSavedCardsService';
 
 const DELIVERY_ROOT_ROUTES = ['SingleVendor', 'MultiVendor', 'Chain'] as const;
+const ENABLE_CHECKOUT_PAYMENT_DEBUG = true;
 
 function getCheckoutRootRoute(
   navigation: NavigationProp<Record<string, object | undefined>>,
@@ -142,6 +147,9 @@ export default function CheckoutScreen() {
   const selectedCoupon = useCheckoutCouponStore((state) => state.selectedCoupon);
   const clearCheckoutCoupon = useCheckoutCouponStore((state) => state.clearCoupon);
   const useCouponMutation = useUseCouponMutation();
+  const savedCardsQuery = useWalletSavedCardsQuery('deliveries');
+  const setDefaultCardMutation = useWalletSetDefaultCardMutation('deliveries');
+  const [selectedStripeCardId, setSelectedStripeCardId] = React.useState<string | null>(null);
   const {
     data: cart,
     isPending: isCartPending,
@@ -193,6 +201,19 @@ export default function CheckoutScreen() {
       selectedCouponCode: selectedCoupon?.code ?? null,
     });
   }, [preview, selectedCoupon?.code]);
+
+  React.useEffect(() => {
+    if (!ENABLE_CHECKOUT_PAYMENT_DEBUG) {
+      return;
+    }
+
+    console.log('[Checkout][Payment][State]', {
+      paymentMethod,
+      selectedStripeCardId,
+      defaultSavedCardId: savedCardsQuery.data?.cards.find((card) => card.isDefault)?.id ?? null,
+      savedCardsCount: savedCardsQuery.data?.cards.length ?? 0,
+    });
+  }, [paymentMethod, savedCardsQuery.data?.cards, selectedStripeCardId]);
 
   const navigateToOrderTracking = React.useCallback((orderId: string) => {
     const rootRouteName = getCheckoutRootRoute(navigation);
@@ -373,6 +394,15 @@ export default function CheckoutScreen() {
       cancelUrl: paymentMethod === 'stripe' ? CHECKOUT_STRIPE_CANCEL_URL : undefined,
     };
 
+    if (ENABLE_CHECKOUT_PAYMENT_DEBUG) {
+      console.log('[Checkout][Payment][PlaceOrderPayload]', {
+        payload,
+        paymentMethod,
+        selectedStripeCardId,
+        defaultSavedCardId: savedCardsQuery.data?.cards.find((card) => card.isDefault)?.id ?? null,
+      });
+    }
+
     void placeOrderMutation.mutateAsync(payload).catch(() => {
       // Toast feedback is handled by the mutation callbacks.
     });
@@ -388,6 +418,8 @@ export default function CheckoutScreen() {
     deliveryTimeMode,
     scheduledAt,
     selectedTip,
+    savedCardsQuery.data?.cards,
+    selectedStripeCardId,
     t,
   ]);
 
@@ -471,6 +503,31 @@ export default function CheckoutScreen() {
     setPaymentMethod(nextPaymentMethod);
     setIsPaymentMethodScreenVisible(false);
   }, []);
+  const handleSelectStripeCard = React.useCallback(async (cardId: string) => {
+    setSelectedStripeCardId(cardId);
+    if (ENABLE_CHECKOUT_PAYMENT_DEBUG) {
+      console.log('[Checkout][Payment][SelectCard]', {
+        nextCardId: cardId,
+      });
+    }
+    try {
+      await setDefaultCardMutation.mutateAsync(cardId);
+      if (ENABLE_CHECKOUT_PAYMENT_DEBUG) {
+        console.log('[Checkout][Payment][SelectCard][Success]', {
+          nextCardId: cardId,
+        });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : t('wallet_add_card_error');
+      showToast.error(t('wallet_add_card_error'), message);
+      if (ENABLE_CHECKOUT_PAYMENT_DEBUG) {
+        console.log('[Checkout][Payment][SelectCard][Error]', {
+          nextCardId: cardId,
+          message,
+        });
+      }
+    }
+  }, [setDefaultCardMutation, t]);
 
   const handleDeliveryTimeModeChange = React.useCallback((mode: CheckoutDeliveryTimeMode) => {
     if (mode === 'schedule') {
@@ -568,7 +625,32 @@ export default function CheckoutScreen() {
   const selectedAddressLabel = formatDeliveryAddressLabel(selectedAddress);
   const paymentIconName = paymentMethod === 'stripe' ? 'card-outline' : 'cash-outline';
   const paymentTitle = getCheckoutPaymentMethodTitle(paymentMethod, t);
-  const paymentSubtitle = getCheckoutPaymentMethodSubtitle(paymentMethod, t);
+  const defaultSavedCard = React.useMemo(
+    () => savedCardsQuery.data?.cards.find((card) => card.isDefault) ?? null,
+    [savedCardsQuery.data?.cards],
+  );
+  const selectedSavedCard = React.useMemo(() => {
+    if (!savedCardsQuery.data?.cards?.length) {
+      return null;
+    }
+
+    if (selectedStripeCardId) {
+      const selectedCard = savedCardsQuery.data.cards.find((card) => card.id === selectedStripeCardId);
+      if (selectedCard) {
+        return selectedCard;
+      }
+    }
+
+    return defaultSavedCard;
+  }, [defaultSavedCard, savedCardsQuery.data?.cards, selectedStripeCardId]);
+  const paymentSubtitle = paymentMethod === 'stripe'
+    ? selectedSavedCard
+      ? t('checkout_payment_card_saved_subtitle', {
+        brand: selectedSavedCard.brand.toUpperCase(),
+        last4: selectedSavedCard.last4,
+      })
+      : getCheckoutPaymentMethodSubtitle(paymentMethod, t)
+    : getCheckoutPaymentMethodSubtitle(paymentMethod, t);
   const isPromoApplied = Boolean(selectedCoupon?.code);
   const promoTitle = selectedCoupon?.title ?? t('checkout_promo_title');
   const promoCode = selectedCoupon?.code ?? null;
@@ -598,20 +680,6 @@ export default function CheckoutScreen() {
         onPaymentSuccess={handleStripeCheckoutSuccess}
         successUrlMatcher={CHECKOUT_STRIPE_SUCCESS_MATCHER}
         title={t('checkout_payment_webview_title')}
-      />
-    );
-  }
-
-  if (isPaymentMethodScreenVisible) {
-    return (
-      <CheckoutPaymentMethodScreen
-        isCardEnabled={preview?.store.stripeAllowed ?? false}
-        isCashEnabled={preview?.store.codAllowed ?? true}
-        onBackPress={() => {
-          setIsPaymentMethodScreenVisible(false);
-        }}
-        onConfirm={handlePaymentMethodConfirm}
-        selectedMethod={paymentMethod}
       />
     );
   }
@@ -728,6 +796,27 @@ export default function CheckoutScreen() {
         onUseCurrentLocation={handleUseCurrentLocation}
         selectingAddressId={selectingAddressId}
         selectedAddressId={selectedAddress?.id}
+      />
+
+      <CheckoutPaymentMethodBottomSheet
+        isCardEnabled={preview?.store.stripeAllowed ?? false}
+        isCashEnabled={preview?.store.codAllowed ?? true}
+        isSavingCardSelection={setDefaultCardMutation.isPending}
+        isVisible={isPaymentMethodScreenVisible}
+        onClose={() => {
+          setIsPaymentMethodScreenVisible(false);
+        }}
+        onConfirm={handlePaymentMethodConfirm}
+        onManageCards={() => {
+          setIsPaymentMethodScreenVisible(false);
+          navigation.navigate('Wallet');
+        }}
+        onSelectCard={(cardId) => {
+          void handleSelectStripeCard(cardId);
+        }}
+        savedCards={savedCardsQuery.data?.cards ?? []}
+        selectedCardId={selectedSavedCard?.id ?? null}
+        selectedMethod={paymentMethod}
       />
     </View>
   );

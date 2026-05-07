@@ -5,14 +5,29 @@ import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 
 type Props = {
-  brand: 'visa' | 'mastercard';
+  brand: string;
   holderName: string;
+  subtitle?: string;
+  secondarySubtitle?: string;
+  isDefault?: boolean;
   onPress?: () => void;
 };
 
-export default function SavedCardRow({ brand, holderName, onPress }: Props) {
+export default function SavedCardRow({
+  brand,
+  holderName,
+  subtitle,
+  secondarySubtitle,
+  isDefault = false,
+  onPress,
+}: Props) {
   const { colors } = useTheme();
-  const brandLabel = brand === 'visa' ? 'VISA' : 'MC';
+  const normalizedBrand = brand.toLowerCase();
+  const brandLabel = normalizedBrand === 'visa'
+    ? 'VISA'
+    : normalizedBrand === 'mastercard'
+      ? 'MC'
+      : brand.toUpperCase();
 
   return (
     <Pressable
@@ -21,14 +36,35 @@ export default function SavedCardRow({ brand, holderName, onPress }: Props) {
       accessibilityRole="button"
       accessibilityLabel={`${brand} card ${holderName}`}
     >
-      <View style={[styles.brandBadge, { borderColor: colors.border, backgroundColor: colors.surface }]}>
-        <Text weight="bold" color={colors.primary} style={styles.brandText}>
-          {brandLabel}
-        </Text>
+      <View style={[styles.brandBadge, { backgroundColor: colors.backgroundTertiary }]}>
+        <View style={[styles.brandChip, { borderColor: colors.border, backgroundColor: colors.surface }]}>
+          <Text weight="bold" color={colors.primary} style={styles.brandText}>
+            {brandLabel}
+          </Text>
+        </View>
       </View>
-      <Text weight="medium" color={colors.text} style={styles.name}>
-        {holderName}
-      </Text>
+      <View style={styles.copy}>
+        <Text weight="medium" color={colors.text} style={styles.name}>
+          {holderName}
+        </Text>
+        {subtitle ? (
+          <Text weight="medium" color={colors.mutedText} style={styles.subtitle}>
+            {subtitle}
+          </Text>
+        ) : null}
+        {secondarySubtitle ? (
+          <Text weight="medium" color={colors.mutedText} style={styles.subtitle}>
+            {secondarySubtitle}
+          </Text>
+        ) : null}
+      </View>
+      {isDefault ? (
+        <View style={[styles.defaultBadge, { backgroundColor: colors.successSoft }]}>
+          <Text weight="semiBold" color={colors.success} style={styles.defaultText}>
+            DEFAULT
+          </Text>
+        </View>
+      ) : null}
     </Pressable>
   );
 }
@@ -41,21 +77,45 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
   },
+  copy: {
+    flex: 1,
+    gap: 2,
+  },
+  defaultBadge: {
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  defaultText: {
+    fontSize: 10,
+    lineHeight: 14,
+  },
   brandBadge: {
-    width: 44,
-    height: 44,
-    borderRadius: 8,
+    width: 56,
+    height: 56,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  brandChip: {
+    minWidth: 28,
+    height: 28,
+    borderRadius: 6,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 4,
   },
   brandText: {
     fontSize: 10,
     lineHeight: 14,
   },
   name: {
-    flex: 1,
     fontSize: 16,
     lineHeight: 24,
+  },
+  subtitle: {
+    fontSize: 12,
+    lineHeight: 18,
   },
 });

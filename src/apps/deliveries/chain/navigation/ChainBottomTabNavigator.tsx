@@ -2,9 +2,11 @@ import React from 'react';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../../../general/theme/theme';
 import DeliveriesTabBar, {
   DELIVERIES_TAB_BAR_HEIGHT,
+  DELIVERIES_TAB_BAR_SAFE_PADDING,
 } from '../../components/navigation/DeliveriesTabBar';
 import ChainProfileTabScreen from '../../screens/ProfileTab/ChainProfileTabScreen';
 import OrdersScreen from '../../screens/OrdersScreen/OrdersScreen';
@@ -23,6 +25,8 @@ type TabIconProps = {
 export default function ChainBottomTabNavigator() {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
+  const insets = useSafeAreaInsets();
+  const safeBottom = Math.max(insets.bottom, DELIVERIES_TAB_BAR_SAFE_PADDING);
 
   const renderIcon =
     (name: keyof typeof MaterialCommunityIcons.glyphMap) =>
@@ -30,7 +34,7 @@ export default function ChainBottomTabNavigator() {
       <MaterialCommunityIcons
         color={color}
         name={name}
-        size={size}
+        size={Math.max(size - 2, 20)}
       />
     );
 
@@ -60,7 +64,8 @@ export default function ChainBottomTabNavigator() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          height: DELIVERIES_TAB_BAR_HEIGHT,
+          height: DELIVERIES_TAB_BAR_HEIGHT + safeBottom,
+          paddingBottom: safeBottom,
         },
       }}
     >
