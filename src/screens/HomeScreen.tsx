@@ -20,11 +20,17 @@ import RideOptionsSection from '../apps/rideSharing/components/RideOptionsSectio
 import DeliveryServicesSection from '../apps/rideSharing/components/DeliveryServicesSection';
 import type { RideIntent } from '../apps/rideSharing/utils/rideOptions';
 import type { RideSharingStackParamList } from '../apps/rideSharing/navigation/RideSharingNavigator';
+import type { DeliveriesStackParamList } from '../apps/deliveries/navigation/types';
+import HomeTravelBannerSection from './home/HomeTravelBannerSection';
+import RecommendedStoresSection from './home/RecommendedStoresSection';
+import type { DeliveryNearbyStore } from '../apps/deliveries/api/types';
 
 type Props = {
   onSelectMiniApp?: (
     id: MiniAppId,
-    params?: NavigatorScreenParams<RideSharingStackParamList>,
+    params?:
+      | NavigatorScreenParams<RideSharingStackParamList>
+      | NavigatorScreenParams<DeliveriesStackParamList>,
   ) => void;
 };
 
@@ -132,8 +138,22 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
     onSelectMiniApp?.('deliveries');
   }
 
+  function handleSelectRecommendedStore(store: DeliveryNearbyStore) {
+    onSelectMiniApp?.('deliveries', {
+      screen: 'MultiVendor',
+      params: {
+        screen: 'StoreDetails',
+        params: { store },
+      },
+    });
+  }
+
   function handleSelectHomeVisits() {
     onSelectMiniApp?.('homeVisits');
+  }
+
+  function handleSelectTravelBanner() {
+    handleSelectRideOption('now');
   }
 
   return (
@@ -143,6 +163,8 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <RideOptionsSection onSelectRideOption={handleSelectRideOption} />
           <DeliveryServicesSection onSelectService={handleSelectDeliveryService} />
+          <RecommendedStoresSection onPressStore={handleSelectRecommendedStore} />
+          <HomeTravelBannerSection onPress={handleSelectTravelBanner} />
           <HomeVisitsSection onPress={handleSelectHomeVisits} />
           <RecommendedSection
             title="Our Deliverables"

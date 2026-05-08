@@ -9,6 +9,8 @@ import type {
     DeliveryNearbyStore,
     DeliveryNearbyStoresApiResponse,
     DeliveryNearbyStoresParams,
+    DeliveryRecommendedStoresApiResponse,
+    DeliveryRecommendedStoresParams,
     DeliveryStoreProductsApiResponse,
     DeliveryStoreProductsParams,
     DeliveryStoreViewApiResponse,
@@ -37,6 +39,11 @@ const NEARBY_STORES_DEFAULTS = {
     limit: 10,
     latitude: 33.7039543,
     longitude: 72.9680349,
+} as const;
+
+const RECOMMENDED_STORES_DEFAULTS = {
+    offset: 0,
+    limit: 10,
 } as const;
 
 const DEALS_DEFAULTS = {
@@ -626,6 +633,37 @@ export const discoveryService = {
             return toPaginatedResponse(response, { offset, limit });
         } catch (error) {
             console.error('nearby stores request failed', error);
+            throw error;
+        }
+    },
+
+    /** Fetch recommended stores for deliveries discovery. */
+    getRecommendedStoresPage: async (
+        params: DeliveryRecommendedStoresParams = {},
+    ): Promise<PaginatedDeliveryResponse<DeliveryNearbyStore>> => {
+        const {
+            offset = RECOMMENDED_STORES_DEFAULTS.offset,
+            limit = RECOMMENDED_STORES_DEFAULTS.limit,
+            latitude,
+            longitude,
+            sort_by,
+        } = params;
+
+        try {
+            const response = await apiClient.get<DeliveryRecommendedStoresApiResponse>(
+                '/api/v1/apps/deliveries/discovery/public/recommended-stores',
+                {
+                    offset,
+                    limit,
+                    latitude,
+                    longitude,
+                    sort_by,
+                },
+            );
+
+            return toPaginatedResponse(response, { offset, limit });
+        } catch (error) {
+            console.error('recommended stores request failed', error);
             throw error;
         }
     },

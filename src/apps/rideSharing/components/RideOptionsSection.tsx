@@ -3,29 +3,29 @@ import {
   Pressable,
   StyleSheet,
   View,
-  type ImageSourcePropType,
 } from 'react-native';
+import type { SvgProps } from 'react-native-svg';
 import Text from '../../../general/components/Text';
-import Image from '../../../general/components/Image';
 import { useTheme } from '../../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { RideIntent } from '../utils/rideOptions';
+import CarIcon from '../assets/svgs/car.svg';
+import CalendarIcon from '../assets/svgs/Calender.svg';
+import ClockIcon from '../assets/svgs/Clock.svg';
+import TruckIcon from '../assets/svgs/Truck.svg';
 
 type RideOption = {
   id: RideIntent;
   title: string;
-  icon: ImageSourcePropType;
+  icon: React.FC<SvgProps>;
 };
 
 type Props = {
   onSelectRideOption?: (rideIntent: RideIntent) => void;
 };
 
-const rideIcon = require('../../rideSharing/assets/images/3d-car.png');
-const scheduledIcon = require('../../rideSharing/assets/images/calendar.png');
-const hourlyIcon = require('../../rideSharing/assets/images/3d-alarm.png');
-const courierIcon = require('../../rideSharing/assets/images/3d-truck.png');
+const ICON_SIZE = 48;
 
 export default function RideOptionsSection({ onSelectRideOption }: Props) {
   const { colors, typography } = useTheme();
@@ -36,22 +36,22 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
     {
       id: 'now',
       title: t('ride_option_now_title'),
-      icon: rideIcon,
+      icon: CarIcon,
     },
     {
       id: 'schedule',
       title: t('ride_option_schedule_title'),
-      icon: scheduledIcon,
+      icon: CalendarIcon,
     },
     {
       id: 'rental',
       title: t('ride_option_rental_title'),
-      icon: hourlyIcon,
+      icon: ClockIcon,
     },
     {
       id: 'courier',
       title: t('ride_option_courier_title'),
-      icon: courierIcon,
+      icon: TruckIcon,
     },
   ];
 
@@ -77,13 +77,9 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
       </Text>
       <View style={styles.grid}>
         {items.map((item) => (
-          <Pressable
-            key={item.id}
-            style={styles.item}
-            onPress={() => handleSelectOption(item.id)}
-          >
+          <Pressable key={item.id} style={styles.item} onPress={() => handleSelectOption(item.id)}>
             <View style={[styles.iconWrap, { backgroundColor: colors.blue50 }]}>
-              <Image source={item.icon} style={styles.icon} />
+              <item.icon width={ICON_SIZE} height={ICON_SIZE} />
             </View>
             <Text
               weight="semiBold"
@@ -123,9 +119,5 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  icon: {
-    width: 48,
-    height: 48,
   },
 });
