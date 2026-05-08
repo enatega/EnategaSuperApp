@@ -5,6 +5,7 @@ export {
   useOrderAgain,
   usePaginatedTopBrands,
   usePaginatedShopTypes,
+  useRecommendedStores,
   useShopTypeProducts,
   useShopTypeStores,
   useShopTypeStoresSections,

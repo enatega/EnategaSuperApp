@@ -16,6 +16,7 @@ import type {
   DeliveryBanner,
   DeliveryNearbyStore,
   DeliveryOrderAgainItem,
+  DeliveryRecommendedStoresParams,
   DeliveryShopTypeStoresParams,
   DeliveryStoreProductsApiResponse,
   DeliveryStoreProductsParams,
@@ -72,6 +73,12 @@ type UseNearbyStoresOptions = {
     DeliveryNearbyStoresParams,
     'offset' | 'limit' | 'search'
   >;
+};
+
+type UseRecommendedStoresOptions = {
+  mode?: UseNearbyStoresMode;
+  enabled?: boolean;
+  requestParams?: Omit<DeliveryRecommendedStoresParams, 'offset' | 'limit'>;
 };
 
 type UseStoreViewOptions = Omit<
@@ -570,6 +577,56 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
 
   const items =
     query.data?.pages.flatMap((page) => page.items) ?? [];
+
+  return {
+    ...query,
+    data: mode === 'preview' ? items.slice(0, limit) : items,
+    totalCount: query.data?.pages.length
+      ? query.data.pages[query.data.pages.length - 1]?.total
+      : undefined,
+  };
+}
+
+export function useRecommendedStores(options?: UseRecommendedStoresOptions) {
+  const mode = options?.mode ?? 'preview';
+  const limit = 10;
+  const { latitude, longitude } = useDiscoveryCoordinates();
+  const recommendedStoreParams: Omit<
+    DeliveryRecommendedStoresParams,
+    'offset' | 'limit'
+  > = {
+    ...options?.requestParams,
+    latitude: options?.requestParams?.latitude ?? latitude,
+    longitude: options?.requestParams?.longitude ?? longitude,
+    sort_by: options?.requestParams?.sort_by ?? 'recommended',
+  };
+
+  const query = useInfiniteQuery<
+    PaginatedDeliveryResponse<DeliveryNearbyStore>,
+    ApiError
+  >({
+    queryKey: [
+      ...deliveryKeys.recommendedStores(),
+      {
+        mode,
+        limit,
+        requestParams: recommendedStoreParams,
+      },
+    ],
+    queryFn: ({ pageParam = 0 }) =>
+      discoveryService.getRecommendedStoresPage({
+        offset: pageParam as number,
+        limit,
+        ...recommendedStoreParams,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
+    enabled: options?.enabled ?? true,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const items = query.data?.pages.flatMap((page) => page.items) ?? [];
 
   return {
     ...query,

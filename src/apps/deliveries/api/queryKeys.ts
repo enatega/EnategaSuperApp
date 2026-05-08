@@ -103,6 +103,8 @@ export const deliveryKeys = {
         [...deliveryKeys.discovery(), 'top-brands', filters] as const,
     mobileBanners: () => [...deliveryKeys.discovery(), 'mobile-banners'] as const,
     nearbyStores: () => [...deliveryKeys.discovery(), 'nearby-stores'] as const,
+    recommendedStores: () =>
+        [...deliveryKeys.discovery(), 'recommended-stores'] as const,
     storeView: (storeId: string) =>
         [
             ...deliveryKeys.discovery(),

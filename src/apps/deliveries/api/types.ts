@@ -201,6 +201,14 @@ export interface DeliveryNearbyStoresParams {
     sort_by?: string;
 }
 
+export interface DeliveryRecommendedStoresParams {
+    offset?: number;
+    limit?: number;
+    latitude?: number;
+    longitude?: number;
+    sort_by?: string;
+}
+
 export interface DeliveryStoreProductsParams {
     offset?: number;
     limit?: number;
@@ -391,6 +399,11 @@ export type DeliveryNearbyStoresApiResponse =
     | DeliveryNearbyStore[];
 
 export type DeliveryVendorStoresApiResponse =
+    | ApiResponse<DeliveryNearbyStore[]>
+    | PaginatedDeliveryResponse<DeliveryNearbyStore>
+    | DeliveryNearbyStore[];
+
+export type DeliveryRecommendedStoresApiResponse =
     | ApiResponse<DeliveryNearbyStore[]>
     | PaginatedDeliveryResponse<DeliveryNearbyStore>
     | DeliveryNearbyStore[];

@@ -20,6 +20,8 @@ import RideOptionsSection from '../apps/rideSharing/components/RideOptionsSectio
 import DeliveryServicesSection from '../apps/rideSharing/components/DeliveryServicesSection';
 import type { RideIntent } from '../apps/rideSharing/utils/rideOptions';
 import type { RideSharingStackParamList } from '../apps/rideSharing/navigation/RideSharingNavigator';
+import HomeTravelBannerSection from './home/HomeTravelBannerSection';
+import RecommendedStoresSection from './home/RecommendedStoresSection';
 
 type Props = {
   onSelectMiniApp?: (
@@ -143,6 +145,8 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <RideOptionsSection onSelectRideOption={handleSelectRideOption} />
           <DeliveryServicesSection onSelectService={handleSelectDeliveryService} />
+          <RecommendedStoresSection onPressStore={handleSelectDeliveryService} />
+          <HomeTravelBannerSection />
           <HomeVisitsSection onPress={handleSelectHomeVisits} />
           <RecommendedSection
             title="Our Deliverables"
