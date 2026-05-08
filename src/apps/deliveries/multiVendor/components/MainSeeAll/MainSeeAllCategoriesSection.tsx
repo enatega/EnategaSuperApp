@@ -7,6 +7,7 @@ import {
   DiscoveryCategorySkeleton,
   DiscoverySectionState,
 } from '../../../components/discovery';
+import DeliveriesSectionEmptyState from '../../../components/home/DeliveriesSectionEmptyState';
 import type { DeliveryShopTypeCategory } from '../../../api/categoriesServicesTypes';
 import { useTheme } from '../../../../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
@@ -40,7 +41,7 @@ export default function MainSeeAllCategoriesSection({
     <View style={styles.section}>
       <SectionActionHeader
         title={sectionTitle}
-        actionLabel={actionLabel}
+        actionLabel={isEmpty ? undefined : actionLabel}
         onActionPress={onSeeAllPress}
       />
 
@@ -53,7 +54,7 @@ export default function MainSeeAllCategoriesSection({
           message={t('multi_vendor_shop_type_stores_error')}
         />
       ) : isEmpty ? (
-        <DiscoverySectionState
+        <DeliveriesSectionEmptyState
           title={t('multi_vendor_home_section_empty_title')}
           message={t('multi_vendor_shop_types_empty')}
         />
