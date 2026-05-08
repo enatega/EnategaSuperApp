@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import BannerSwiper from '../../general/components/BannerSwiper';
 import Image from '../../general/components/Image';
 import { useTheme } from '../../general/theme/theme';
@@ -13,7 +13,11 @@ const BANNER_IMAGE_RATIO = 361 / 156;
 const ACTIVE_DOT_WIDTH = 18;
 const INACTIVE_DOT_SIZE = 6;
 
-export default function HomeTravelBannerSection() {
+type Props = {
+  onPress?: () => void;
+};
+
+export default function HomeTravelBannerSection({ onPress }: Props) {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const [bannerIndex, setBannerIndex] = useState(0);
@@ -53,11 +57,13 @@ export default function HomeTravelBannerSection() {
           onIndexChange={setBannerIndex}
           renderItem={({ item }) => (
             <View style={[styles.slide, { width: bannerWidth }]}>
-              <Image
-                source={item.source}
-                style={[styles.bannerImage, { width: bannerWidth, height: bannerHeight }]}
-                resizeMode="cover"
-              />
+              <Pressable onPress={onPress}>
+                <Image
+                  source={item.source}
+                  style={[styles.bannerImage, { width: bannerWidth, height: bannerHeight }]}
+                  resizeMode="cover"
+                />
+              </Pressable>
             </View>
           )}
         />

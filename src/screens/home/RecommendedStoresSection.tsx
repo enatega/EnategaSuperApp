@@ -15,12 +15,12 @@ import {
 import type { DeliveryNearbyStore } from '../../apps/deliveries/api/types';
 
 type Props = {
-  onPressStore?: () => void;
+  onPressStore?: (store: DeliveryNearbyStore) => void;
 };
 
 export default function RecommendedStoresSection({ onPressStore }: Props) {
   const { typography, colors } = useTheme();
-  const { t } = useTranslation('general');
+  const { t } = useTranslation('deliveries');
   const { latitude: selectedLatitude, longitude: selectedLongitude } = useAddress();
   const { currentCoordinates } = useCurrentLocation();
 
@@ -53,7 +53,10 @@ export default function RecommendedStoresSection({ onPressStore }: Props) {
 
   const renderItem = useCallback(
     ({ item }: { item: DeliveryNearbyStore }) => (
-      <StoreCard store={item} onPress={onPressStore} />
+      <StoreCard
+        store={item}
+        onPress={onPressStore ? () => onPressStore(item) : undefined}
+      />
     ),
     [onPressStore],
   );
