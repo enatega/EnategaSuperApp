@@ -416,7 +416,8 @@ const en = {
   search_filter_availability_emergency: 'Emergency',
   search_filter_stars: 'stars',
   filter_button_label: 'Filter options',
-  search_input_placeholder: 'Search anything'
+  search_input_placeholder: 'Search anything',
+  Recommended_restaurants: 'Recommended restaurants',
 };
 
 export default en;

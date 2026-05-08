@@ -4,6 +4,7 @@ import type {
   SupportChatBoxesGroupedResponse,
   SupportChatMessageRecord,
   SupportChatMessagesResponse,
+  SupportMyActiveMessagesResponse,
   SupportChatParticipant,
 } from '../api/supportChatTypes';
 
@@ -63,7 +64,9 @@ export function getSupportChatParticipantName(participant?: SupportChatParticipa
   return participant.fullName ?? participant.full_name ?? participant.name ?? participant.email ?? participant.phone ?? '';
 }
 
-export function getSupportChatMessages(response: SupportChatMessagesResponse | SupportChatBoxDetailResponse | undefined) {
+export function getSupportChatMessages(
+  response: SupportChatMessagesResponse | SupportChatBoxDetailResponse | SupportMyActiveMessagesResponse | undefined,
+) {
   if (!response) {
     return [] as SupportChatMessageRecord[];
   }

@@ -19,8 +19,8 @@ export default function AddCardRow({ label, onPress }: Props) {
       accessibilityRole="button"
       accessibilityLabel={label}
     >
-      <View style={[styles.iconWrap, { borderColor: colors.border, backgroundColor: colors.surface }]}>
-        <Ionicons name="card-outline" size={22} color={colors.mutedText} />
+      <View style={[styles.iconWrap, { backgroundColor: colors.backgroundTertiary }]}>
+        <Ionicons name="card-outline" size={28} color={colors.text} />
       </View>
       <Text weight="medium" color={colors.text} style={styles.label}>
         {label}
@@ -38,10 +38,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   iconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 8,
-    borderWidth: 1,
+    width: 56,
+    height: 56,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },

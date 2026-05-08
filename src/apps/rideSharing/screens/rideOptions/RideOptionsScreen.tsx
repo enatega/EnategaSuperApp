@@ -23,6 +23,7 @@ import {
   getSavedRideEstimatePaymentMethod,
   saveRideEstimatePaymentMethod,
 } from '../../storage/rideEstimatePaymentMethod';
+import AppSwitcherTopBar from '../../../../general/components/appSwitch/AppSwitcherTopBar';
 
 type RouteParams = {
   rideType?: RideIntent;
@@ -251,6 +252,7 @@ export default function RideOptionsScreen() {
   }, [navigation]);
 
   const rideTypesErrorMessage = rideTypesQuery.error?.message || null;
+  const switcherActiveKey = resolvedRideType === 'courier' ? 'courier' : 'ride';
   const userProfile = useMemo<UserProfile | undefined>(() => {
     if (!apiProfile) return undefined;
 
@@ -263,6 +265,21 @@ export default function RideOptionsScreen() {
 
   return (
     <View style={styles.container}>
+      <AppSwitcherTopBar
+        activeKey={switcherActiveKey}
+        rightAction={(
+          <HamburgerMenu
+            onPress={openSidebar}
+            size={20}
+            style={{
+              ...styles.hamburger,
+              backgroundColor: colors.surface,
+              borderColor: colors.border,
+              shadowColor: colors.shadowColor,
+            }}
+          />
+        )}
+      />
       <RideOptionsLayout
         rideOptions={visibleRideOptions}
         cachedAddresses={cachedAddresses}
@@ -276,16 +293,6 @@ export default function RideOptionsScreen() {
           void rideTypesQuery.refetch();
         }}
         isDirectCourierFlow={directCourierOnly}
-      />
-
-      <HamburgerMenu
-        onPress={openSidebar}
-        style={{
-          ...styles.hamburger,
-          backgroundColor: colors.surface,
-          borderColor: colors.border,
-          shadowColor: colors.shadowColor,
-        }}
       />
 
       <Sidebar
@@ -316,15 +323,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   hamburger: {
-    position: 'absolute',
-    right: 16,
-    top: 65,
-    zIndex: 10,
     borderWidth: 1,
-    borderRadius: 12,
-    shadowOpacity: 0.14,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
+    borderRadius: 8,
+    padding: 4,
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
   },
 });

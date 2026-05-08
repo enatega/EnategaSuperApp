@@ -36,6 +36,7 @@ import SupportFaqArticleScreen from "../screens/SupportFaqArticleScreen/SupportF
 import SupportTicketsScreen from "../screens/SupportTicketsScreen/SupportTicketsScreen";
 import SupportTicketDetailScreen from "../screens/SupportTicketDetailScreen";
 import RiderChatScreen from "../screens/RiderChatScreen/RiderChatScreen";
+import CouponsScreen from "../screens/CouponsScreen/CouponsScreen";
 import {
   mapDeliveryModeToRoute,
 } from "./deliveryModePreference";
@@ -152,6 +153,11 @@ export default function DeliveriesNavigator() {
       <Stack.Screen
         name="Wallet"
         component={WalletScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="Coupons"
+        component={CouponsScreen}
         options={sharedScreenOptions}
       />
       <Stack.Screen

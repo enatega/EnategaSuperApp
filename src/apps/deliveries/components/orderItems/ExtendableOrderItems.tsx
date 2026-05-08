@@ -30,7 +30,11 @@ export default function ExtendableOrderItems({
 }: Props) {
   const { t } = useTranslation("deliveries");
   const { colors, typography } = useTheme();
-  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  const hasMultipleProducts = orderItems.products.length > 1;
+  const shouldUseCollapsibleLayout = isCollapsible && hasMultipleProducts;
+  const [isExpanded, setIsExpanded] = useState(
+    defaultExpanded || hasMultipleProducts,
+  );
 
   const previewImages = useMemo(
     () => getOrderPreviewImages(orderItems),
@@ -104,7 +108,7 @@ export default function ExtendableOrderItems({
 
   const sectionContent = (
     <>
-      {isCollapsible ? (
+      {shouldUseCollapsibleLayout ? (
         <View style={styles.trackingWrapper}>
           <Pressable
             accessibilityRole="button"

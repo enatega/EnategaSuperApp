@@ -286,6 +286,39 @@ export default function RideEstimateScreen() {
     });
   };
 
+  const handleEditFromAddress = useCallback(() => {
+    navigation.navigate('RideAddressSearch', {
+      rideType,
+      rideCategory,
+      editTarget: 'from',
+      fromAddress,
+      toAddress,
+      stops,
+    });
+  }, [fromAddress, navigation, rideCategory, rideType, stops, toAddress]);
+
+  const handleEditToAddress = useCallback(() => {
+    navigation.navigate('RideAddressSearch', {
+      rideType,
+      rideCategory,
+      editTarget: 'to',
+      fromAddress,
+      toAddress,
+      stops,
+    });
+  }, [fromAddress, navigation, rideCategory, rideType, stops, toAddress]);
+
+  const handleAddStop = useCallback(() => {
+    navigation.navigate('RideAddressSearch', {
+      rideType,
+      rideCategory,
+      fromAddress,
+      toAddress,
+      stops,
+      stopAction: 'add',
+    });
+  }, [fromAddress, navigation, rideCategory, rideType, stops, toAddress]);
+
   const handleRemoveStop = (stopIndex: number) => {
     const nextStops = stops.filter((_, index) => index !== stopIndex);
 
@@ -513,16 +546,11 @@ export default function RideEstimateScreen() {
         fromAddress={fromAddress}
         stopAddresses={stops}
         toAddress={toAddress}
-        onAddStopPress={() => navigation.navigate('RideAddressSearch', {
-          rideType,
-          rideCategory,
-          fromAddress,
-          toAddress,
-          stops,
-          stopAction: 'add',
-        })}
+        onFromPress={handleEditFromAddress}
+        onAddStopPress={handleAddStop}
         onStopPress={handleEditStop}
         onRemoveStopPress={handleRemoveStop}
+        onToPress={handleEditToAddress}
         onViewStopsPress={() => setIsTripPointsVisible(true)}
         viewStopsLabel={t('ride_trip_points_view_all')}
         moreStopsLabel={(count) => t('ride_trip_points_more_stops', { count })}

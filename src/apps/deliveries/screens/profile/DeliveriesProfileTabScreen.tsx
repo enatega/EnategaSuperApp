@@ -23,6 +23,7 @@ export default function DeliveriesProfileTabScreen({
     <ProfileTabScreen
       favoritesEnabled={favoritesEnabled}
       isLoading={isLoading}
+      onOpenCoupons={() => navigation.navigate('Coupons')}
       onOpenFavourites={onOpenFavourites}
       onOpenNotifications={() => navigation.navigate('Notifications')}
       user={user}

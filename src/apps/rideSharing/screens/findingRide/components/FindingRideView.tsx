@@ -239,8 +239,11 @@ export default function FindingRideView({
         timeLeftSec={controller.timeLeftSec}
         onIncreaseFare={controller.handleIncreaseFare}
         onDecreaseFare={controller.handleDecreaseFare}
+        onCommitFare={controller.handleCommitFare}
         isIncreaseDisabled={controller.isIncreaseDisabled}
         isDecreaseDisabled={controller.isDecreaseDisabled}
+        isCommitFareVisible={controller.isFareDirty}
+        isCommitFareLoading={controller.isCommitFareLoading}
         onKeepSearching={controller.handleKeepSearching}
         isKeepSearchingLoading={controller.isKeepSearchingLoading}
         onCancelRide={openCancelSheet}

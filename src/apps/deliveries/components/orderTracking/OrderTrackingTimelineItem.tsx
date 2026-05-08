@@ -20,13 +20,17 @@ export default function OrderTrackingTimelineItem({
 }: Props) {
   const { colors, typography } = useTheme();
   const iconBackgroundColor =
-    tone === "completed" || tone === "active"
-      ? colors.blue100
-      : colors.backgroundTertiary;
+    tone === "completed"
+      ? "#DCFCE7"
+      : tone === "active"
+        ? colors.blue100
+        : colors.backgroundTertiary;
   const iconColor =
-    tone === "completed" || tone === "active"
-      ? colors.primary
-      : colors.iconMuted;
+    tone === "completed"
+      ? "#16A34A"
+      : tone === "active"
+        ? colors.primary
+        : colors.iconMuted;
   const icon = getTimelineIcon(stepKey, tone, iconColor);
 
   return (
@@ -109,7 +113,13 @@ function getTimelineIcon(stepKey: string, tone: Props["tone"], color: string) {
     case "packed":
       return <Ionicons color={color} name="checkmark" size={size} />;
     case "picked_up":
-      return <Ionicons color={color} name="refresh-outline" size={size} />;
+      return (
+        <Ionicons
+          color={color}
+          name={tone === "completed" ? "checkmark" : "refresh-outline"}
+          size={size}
+        />
+      );
     case "on_the_way":
       return (
         <MaterialCommunityIcons color={color} name="bike-fast" size={size} />

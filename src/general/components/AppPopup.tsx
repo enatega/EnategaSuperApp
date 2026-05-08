@@ -60,10 +60,11 @@ export default function AppPopup({
       visible={visible}
       transparent
       animationType="fade"
+      statusBarTranslucent
       onRequestClose={onRequestClose}
     >
       <Pressable style={styles.overlay} onPress={handleOverlayPress}>
-        <Pressable>
+        <Pressable style={styles.cardContainer}>
           <View
             style={[
               styles.card,
@@ -126,9 +127,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
+    paddingVertical: 24,
+  },
+  cardContainer: {
+    width: '100%',
+    alignItems: 'center',
   },
   card: {
-    width: '100%',
+    width: '94%',
     maxWidth: 360,
     borderRadius: 24,
     paddingHorizontal: 16,

@@ -13,7 +13,7 @@ import {
   useRemoveCartItemMutation,
   useUpdateCartItemQuantityMutation,
 } from '../../hooks/useCartMutations';
-import { useOrderAgain } from '../../hooks';
+import { useStoreRecommendedProducts } from '../../hooks';
 
 export default function CartScreen() {
   const { colors } = useTheme();
@@ -29,7 +29,11 @@ export default function CartScreen() {
     error: cartError,
     refetch: refetchCart,
   } = useCart();
-  const { data: recommendations = [] } = useOrderAgain();
+  console.log('cart_Data',JSON.stringify(cart,null,2));
+  console.log('cart_storeId____',cart?.storeId);
+  
+  
+  const { data: recommendations = [] } = useStoreRecommendedProducts(cart?.storeId);
   const { clearCart, isClearing } = useClearCartAction({
     onSuccess: () => {
       setIsClearCartVisible(false);

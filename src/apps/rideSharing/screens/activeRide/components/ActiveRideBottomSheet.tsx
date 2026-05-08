@@ -94,6 +94,7 @@ type Props = {
   vehicleName?: string;
   vehicleColor?: string;
   licensePlate?: string;
+  chatBoxId?: string;
   isCourierFlow?: boolean;
   canCancelRide?: boolean;
   waitingRemainingSec?: number;
@@ -129,6 +130,7 @@ function ActiveRideBottomSheet({
   vehicleName,
   vehicleColor,
   licensePlate,
+  chatBoxId,
   isCourierFlow = false,
   canCancelRide = false,
   waitingRemainingSec = 0,
@@ -157,6 +159,7 @@ function ActiveRideBottomSheet({
       fromAddress,
       isCourierFlow,
       licensePlate,
+      chatBoxId,
       onContactDriverExists: Boolean(onContactDriver),
       paymentMethodLabel,
       statusCode,
@@ -175,6 +178,7 @@ function ActiveRideBottomSheet({
     fromAddress,
     isCourierFlow,
     licensePlate,
+    chatBoxId,
     onContactDriver,
     paymentMethodLabel,
     statusCode,

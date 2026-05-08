@@ -50,6 +50,20 @@ export interface ProductInfoResponse {
   usage?: string | null;
   amountPer?: string | null;
   nutrition?: ProductInfoNutritionEntry[] | null;
+  deal?:
+    | string
+    | {
+        id?: string;
+        deal_name?: string;
+        discount_type?: string;
+        discount_value?: number;
+        discounted_price?: number;
+        start_date?: string;
+        end_date?: string;
+      }
+    | null;
+  dealType?: string | null;
+  dealAmount?: number | null;
 }
 
 export interface ProductInfoCustomizationsResponse {

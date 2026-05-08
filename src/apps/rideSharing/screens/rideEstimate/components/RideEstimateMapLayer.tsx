@@ -136,7 +136,7 @@ function RideEstimateMapLayer({
       toolbarEnabled={false}
       useGoogleProvider
     >
-      {searchRadiusKm ? (
+      {/* {searchRadiusKm ? (
         <Circle
           center={fromAddress.coordinates}
           radius={searchRadiusKm * 1000}
@@ -144,7 +144,7 @@ function RideEstimateMapLayer({
           strokeColor="rgba(15, 142, 199, 0.35)"
           fillColor="rgba(15, 142, 199, 0.10)"
         />
-      ) : null}
+      ) : null} */}
     </Map>
   );
 }

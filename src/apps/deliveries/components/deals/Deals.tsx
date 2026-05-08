@@ -10,6 +10,7 @@ import type {
   DeliveryNearbyStore,
   DeliveryShopTypeProduct,
 } from '../../api/types';
+import DeliveriesSectionEmptyState from '../home/DeliveriesSectionEmptyState';
 import {
   DiscoveryResultsSkeleton,
   DiscoverySectionState,
@@ -52,6 +53,7 @@ export default function Deals({
   const { typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const isEmpty = !isPending && !isError && items.length === 0;
+  const shouldShowAction = Boolean(actionLabel) && !isEmpty;
   const renderItem = useCallback(
     ({ item }: { item: DealsItem }) => (
       <StoreCard
@@ -64,9 +66,9 @@ export default function Deals({
 
   return (
     <View style={styles.section}>
-      {actionLabel ? (
+      {shouldShowAction ? (
         <SectionActionHeader
-          actionLabel={actionLabel}
+          actionLabel={actionLabel!}
           onActionPress={onActionPress}
           title={title}
         />
@@ -92,7 +94,7 @@ export default function Deals({
           message={t('multi_vendor_home_section_error_message')}
         />
       ) : isEmpty ? (
-        <DiscoverySectionState
+        <DeliveriesSectionEmptyState
           title={t('multi_vendor_home_section_empty_title')}
           message={t('multi_vendor_home_section_empty_message')}
         />

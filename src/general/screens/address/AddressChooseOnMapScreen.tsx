@@ -12,7 +12,6 @@ export default function AddressChooseOnMapScreen() {
   const { t } = useTranslation('general');
   const params =
     (route.params as AddressFlowParamList['AddressChooseOnMap']) ?? {};
-  console.log("🚀 ~ AddressChooseOnMapScreen ~ params:", params)
 
   const handleConfirm = useCallback(
     (result: MapAddressResult) => {

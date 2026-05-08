@@ -7,6 +7,7 @@ export type CheckoutPreviewInput = {
   bucketId: string;
   orderType: CheckoutOrderType;
   addressId?: string;
+  couponCode?: string;
   scheduledAt?: string;
   riderTip?: number;
 };
@@ -104,6 +105,7 @@ export type PlaceOrderInput = {
   orderType: CheckoutOrderType;
   paymentMethod: CheckoutPaymentMethod;
   addressId?: string;
+  couponCode?: string;
   customerNote?: string;
   riderTip?: number;
   scheduledAt?: string;

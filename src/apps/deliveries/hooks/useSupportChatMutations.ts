@@ -4,6 +4,7 @@ import { deliveryKeys } from '../api/queryKeys';
 import { supportChatService } from '../api/supportChatService';
 import type {
   SendSupportChatMessagePayload,
+  SendSupportChatMessageToAdminPayload,
   SendSupportChatMessageResponse,
 } from '../api/supportChatTypes';
 
@@ -22,6 +23,34 @@ export function useSendSupportChatMessage(
     SendSupportChatMessagePayload
   >({
     mutationFn: supportChatService.sendMessage,
+    ...options,
+    onSuccess: (data, variables, onMutateResult, context) => {
+      queryClient.invalidateQueries({
+        queryKey: deliveryKeys.supportChat(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: deliveryKeys.supportChatBoxes({}),
+      });
+      options?.onSuccess?.(data, variables, onMutateResult, context);
+    },
+  });
+}
+
+export function useSendSupportChatMessageToAdmin(
+  options?: UseMutationOptions<
+    SendSupportChatMessageResponse,
+    ApiError,
+    SendSupportChatMessageToAdminPayload
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    SendSupportChatMessageResponse,
+    ApiError,
+    SendSupportChatMessageToAdminPayload
+  >({
+    mutationFn: supportChatService.sendMessageToAdmin,
     ...options,
     onSuccess: (data, variables, onMutateResult, context) => {
       queryClient.invalidateQueries({

@@ -18,6 +18,7 @@ import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal"
 import AppPopup from "../../../components/AppPopup";
 import KeyboardDismissWrapper from "../../../components/KeyboardDismissWrapper";
 import { rememberedCredentials } from "../../../auth/rememberedCredentials";
+import { getExpoPushTokenForAuth } from "../../../services/notifications/expoPushTokenService";
 
 const EnterPassword = ({ route }) => {
   const {
@@ -73,8 +74,14 @@ const EnterPassword = ({ route }) => {
     },
   });
 
-  const handleContinue = () => {
-    mutateEmailLogin.mutate({ email: emailId, password: password });
+  const handleContinue = async () => {
+    const devicePushToken = await getExpoPushTokenForAuth();
+
+    mutateEmailLogin.mutate({
+      email: emailId,
+      password: password,
+      device_push_token: devicePushToken ?? undefined,
+    });
   };
 
   return (
@@ -146,7 +153,7 @@ const EnterPassword = ({ route }) => {
         <Button
           variant={isFormValid ? "primary" : "secondary"}
           label={t("continue")}
-          onPress={() => handleContinue()}
+          onPress={handleContinue}
           disabled={!isFormValid || mutateEmailLogin.isPending}
           isLoading={mutateEmailLogin.isPending}
         />

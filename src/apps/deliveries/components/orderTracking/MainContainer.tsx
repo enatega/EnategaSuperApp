@@ -25,12 +25,14 @@ import type { DeliveriesStackParamList } from "../../navigation/types";
 import ExtendableOrderItems from "../orderItems/ExtendableOrderItems";
 import ExtendableOrderSummary from "../orderSummary/ExtendableOrderSummary";
 import { formatTrackingEta } from "../../utils/orderTracking/orderTrackingUtils";
+import DeliveredStatusBanner from "./DeliveredStatusBanner";
 import EstimatedTimeBanner from "./EstimatedTimeBanner";
 import OrderTrackingErrorState from "./OrderTrackingErrorState";
 import OrderTrackingInfoRow from "./OrderTrackingInfoRow";
 import OrderTrackingLoadingSkeleton from "./OrderTrackingLoadingSkeleton";
 import OrderTrackingTimelineSection from "./OrderTrackingTimelineSection";
 import OrderDetailsSection from "../orderDetails/OrderDetailsSection";
+import OrderDetailsSummaryRow from "../orderDetails/OrderDetailsSummaryRow";
 
 type Props = {
   navigation: NativeStackNavigationProp<
@@ -79,21 +81,28 @@ export default function MainContainer({ navigation, orderId }: Props) {
     Number(orderDetailsQuery.data?.store.estimatedDeliveryTime) || 0;
 
   useEffect(() => {
-    console.log("OrderTracking MainContainer data", {
-      chatBoxId,
-      chatReceiverId: riderId,
-      deliveryDetails: orderDetailsQuery.data?.deliveryDetails,
-      orderData: orderDetailsQuery.data,
-      orderId,
-      rider: orderDetailsQuery.data?.rider,
-      riderId: orderDetailsQuery.data?.rider?.id,
-      riderUserId: orderDetailsQuery.data?.rider?.userId,
-      status: orderDetailsQuery.data?.status,
-    });
+    console.log(
+      "OrderTracking MainContainer data",
+      JSON.stringify(
+        {
+          chatBoxId,
+          chatReceiverId: riderId,
+          deliveryDetails: orderDetailsQuery.data?.deliveryDetails,
+          orderData: orderDetailsQuery.data,
+          orderId,
+          rider: orderDetailsQuery.data?.rider,
+          riderId: orderDetailsQuery.data?.rider?.id,
+          riderUserId: orderDetailsQuery.data?.rider?.userId,
+          status: orderDetailsQuery.data?.status,
+        },
+        null,
+        2,
+      ),
+    );
   }, [chatBoxId, orderDetailsQuery.data, orderId, riderId]);
   const order = orderDetailsQuery.data;
   const riderLocation = useOrderRiderLocationSync(
-    order?.orderType === "delivery" ? order?.rider?.userId ?? null : null,
+    order?.orderType === "delivery" ? (order?.rider?.userId ?? null) : null,
     getOrderRiderLocation(order?.rider),
     { enabled: order?.orderType === "delivery" },
   );
@@ -162,6 +171,10 @@ export default function MainContainer({ navigation, orderId }: Props) {
       ),
     [colors.primary, mapCoordinates, order?.orderType, routePathQuery.data],
   );
+  const isDelivered = order?.status === "delivered";
+  const restaurantNote = order?.restaurantNote?.trim() || null;
+  const courierNote = order?.courierNote?.trim() || null;
+  const shouldShowNotes = Boolean(restaurantNote || courierNote);
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -187,20 +200,32 @@ export default function MainContainer({ navigation, orderId }: Props) {
             contentInsetAdjustmentBehavior="automatic"
             showsVerticalScrollIndicator={false}
           >
-            <EstimatedTimeBanner
-              etaLabel={t("order_tracking_eta_label")}
-              etaValue={formatTrackingEta(
-                order.store.estimatedDeliveryTime,
-                order.scheduledAt,
-              )}
-            />
+            {isDelivered ? (
+              <DeliveredStatusBanner
+                messageLineOne={t("order_tracking_delivered_message_line_one")}
+                messageLineTwo={t("order_tracking_delivered_message_line_two")}
+                title={t("order_tracking_delivered_title")}
+              />
+            ) : (
+              <EstimatedTimeBanner
+                etaLabel={t("order_tracking_eta_label")}
+                etaValue={formatTrackingEta(
+                  order.store.estimatedDeliveryTime,
+                  order.scheduledAt,
+                )}
+              />
+            )}
 
-            <OrderTrackingTimelineSection
-              orderLogs={order.orderLogs}
-              timeline={order.timeline}
-            />
+            {!isDelivered ? (
+              <OrderTrackingTimelineSection
+                orderLogs={order.orderLogs}
+                timeline={order.timeline}
+              />
+            ) : null}
 
-            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+            <View
+              style={[styles.divider, { backgroundColor: colors.border }]}
+            />
 
             <OrderDetailsSection
               title={t(
@@ -271,7 +296,9 @@ export default function MainContainer({ navigation, orderId }: Props) {
               </View>
             </OrderDetailsSection>
 
-            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+            <View
+              style={[styles.divider, { backgroundColor: colors.border }]}
+            />
 
             <OrderTrackingInfoRow
               iconName="chatbox-ellipses-outline"
@@ -299,13 +326,37 @@ export default function MainContainer({ navigation, orderId }: Props) {
               title={t("order_tracking_contact_title")}
             />
 
-            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+            <View
+              style={[styles.divider, { backgroundColor: colors.border }]}
+            />
 
             <ExtendableOrderItems
               collapsedVariant="tracking"
               defaultExpanded
               orderItems={order.orderItems}
             />
+
+            {shouldShowNotes ? (
+              <>
+                <View
+                  style={[styles.divider, { backgroundColor: colors.border }]}
+                />
+                <OrderDetailsSection title={t("order_details_notes")}>
+                  {restaurantNote ? (
+                    <OrderDetailsSummaryRow
+                      label={t("order_details_restaurant_note")}
+                      value={restaurantNote}
+                    />
+                  ) : null}
+                  {courierNote ? (
+                    <OrderDetailsSummaryRow
+                      label={t("order_details_courier_note")}
+                      value={courierNote}
+                    />
+                  ) : null}
+                </OrderDetailsSection>
+              </>
+            ) : null}
           </ScrollView>
 
           <ExtendableOrderSummary
@@ -331,33 +382,35 @@ function getTrackingCoordinates(
   return {
     destination:
       typeof deliveryLatitude === "number" &&
-        typeof deliveryLongitude === "number"
+      typeof deliveryLongitude === "number"
         ? {
-          latitude: deliveryLatitude,
-          longitude: deliveryLongitude,
-        }
+            latitude: deliveryLatitude,
+            longitude: deliveryLongitude,
+          }
         : null,
     pickup:
       typeof storeLatitude === "number" && typeof storeLongitude === "number"
         ? {
-          latitude: storeLatitude,
-          longitude: storeLongitude,
-        }
+            latitude: storeLatitude,
+            longitude: storeLongitude,
+          }
         : null,
     rider:
       orderType === "delivery" && riderLocation
         ? {
-          latitude: riderLocation.latitude,
-          longitude: riderLocation.longitude,
-        }
+            latitude: riderLocation.latitude,
+            longitude: riderLocation.longitude,
+          }
         : null,
   };
 }
 
 function getTrackingMapRegion(coordinates: TrackingCoordinates): Region | null {
-  const points = [coordinates.destination, coordinates.pickup, coordinates.rider].filter(
-    Boolean,
-  ) as LatLng[];
+  const points = [
+    coordinates.destination,
+    coordinates.pickup,
+    coordinates.rider,
+  ].filter(Boolean) as LatLng[];
 
   if (points.length === 0) {
     return null;
@@ -409,7 +462,11 @@ function getTrackingMapMarkers(
             },
           ]}
         >
-          <Ionicons color={colors.primary} name="storefront-outline" size={14} />
+          <Ionicons
+            color={colors.primary}
+            name="storefront-outline"
+            size={14}
+          />
         </View>
       ),
       zIndex: 1,
@@ -473,7 +530,11 @@ function getTrackingMapPolylines(
   routePath: Array<{ latitude: number; longitude: number }> | undefined,
   strokeColor: string,
 ): MapPolyline[] {
-  if (orderType === "delivery" && coordinates.rider && coordinates.destination) {
+  if (
+    orderType === "delivery" &&
+    coordinates.rider &&
+    coordinates.destination
+  ) {
     return [
       {
         coordinates:
@@ -506,7 +567,8 @@ function getTrackingMapPolylines(
 
 function getOrderRiderLocation(rider: DeliveryOrderRider | null | undefined) {
   const latitude = rider?.currentLocation?.latitude ?? rider?.latitude ?? null;
-  const longitude = rider?.currentLocation?.longitude ?? rider?.longitude ?? null;
+  const longitude =
+    rider?.currentLocation?.longitude ?? rider?.longitude ?? null;
 
   if (typeof latitude !== "number" || typeof longitude !== "number") {
     return null;

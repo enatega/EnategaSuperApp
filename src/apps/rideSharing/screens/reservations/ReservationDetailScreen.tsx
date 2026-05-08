@@ -116,7 +116,7 @@ export default function ReservationDetailScreen() {
 
   const handleConfirmCancel = useCallback(() => {
     if (rideId) {
-      cancelRide(rideId, {
+      cancelRide({ rideId }, {
         onSuccess: () => {
           setIsCancelBottomSheetVisible(false);
           showToast.success(t('reservation_cancel_success'), t('reservation_cancel_success_message'));

@@ -1,51 +1,42 @@
 import React from 'react';
-import { Pressable, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import Text from '../../../general/components/Text';
 import Image from '../../../general/components/Image';
 import { useTheme } from '../../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
+import { usePublicShopTypes } from '../../deliveries/hooks';
 
 type DeliveryService = {
   id: string;
   title: string;
-  image: ImageSourcePropType;
+  imageUrl?: string | null;
+  cardWidth: number;
 };
 
 type Props = {
-  onSelectService?: (serviceId: string) => void;
+  onSelectService?: (shopTypeId: string) => void;
 };
-
-const foodImage = require('../../rideSharing/assets/images/pizza.png');
-const groceryImage = require('../../rideSharing/assets/images/basket.png');
-const giftImage = require('../../rideSharing/assets/images/gift.png');
-const medicineImage = require('../../rideSharing/assets/images/medicine.png');
 
 export default function DeliveryServicesSection({ onSelectService }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('rideSharing');
+  const { data: shopTypes = [] } = usePublicShopTypes();
 
-  const items: DeliveryService[] = [
-    {
-      id: 'food',
-      title: t('delivery_service_food_title'),
-      image: foodImage,
-    },
-    {
-      id: 'grocery',
-      title: t('delivery_service_grocery_title'),
-      image: groceryImage,
-    },
-    {
-      id: 'gift',
-      title: t('delivery_service_gift_title'),
-      image: giftImage,
-    },
-    {
-      id: 'medicine',
-      title: t('delivery_service_medicine_title'),
-      image: medicineImage,
-    },
-  ];
+  const items: DeliveryService[] = shopTypes.slice(0, 8).map((shopType) => ({
+    id: shopType.id,
+    title: shopType.name,
+    imageUrl: shopType.image ?? null,
+    cardWidth: 152,
+  }));
+
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
     <View style={styles.section}>
@@ -53,31 +44,55 @@ export default function DeliveryServicesSection({ onSelectService }: Props) {
         weight="extraBold"
         style={[
           styles.sectionTitle,
-          { fontSize: typography.size.lg, lineHeight: typography.lineHeight.md, color: colors.text },
+          {
+            fontSize: typography.size.h5,
+            lineHeight: typography.lineHeight.h5,
+            color: colors.text,
+          },
         ]}
       >
         {t('delivery_services_title')}
       </Text>
-      <View style={styles.grid}>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.rowContent}
+      >
         {items.map((item) => (
           <Pressable
             key={item.id}
             style={({ pressed }) => [
               styles.card,
-              { backgroundColor: colors.blue50, opacity: pressed ? 0.85 : 1 },
+              {
+                width: item.cardWidth,
+                backgroundColor: colors.blue50,
+                opacity: pressed ? 0.85 : 1,
+              },
             ]}
             onPress={() => onSelectService?.(item.id)}
           >
             <Text
               weight="semiBold"
-              style={{ fontSize: typography.size.xs2, lineHeight: typography.lineHeight.xs2, maxWidth: 80 }}
+              style={[
+                styles.cardTitle,
+                {
+                  fontSize: typography.size.xs2,
+                  lineHeight: typography.lineHeight.xs2,
+                  color: colors.text,
+                },
+              ]}
             >
               {item.title}
             </Text>
-            <Image source={item.image} style={styles.image} />
+            {item.imageUrl ? (
+              <Image source={{ uri: item.imageUrl }} style={styles.image} />
+            ) : (
+              <View style={[styles.imageFallback, { backgroundColor: colors.border }]} />
+            )}
           </Pressable>
         ))}
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -87,24 +102,30 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   sectionTitle: {
+    letterSpacing: -0.36,
   },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  rowContent: {
     gap: 12,
-   
+    paddingRight: 12,
   },
   card: {
-    width: '48%',
     height: 81,
     borderRadius: 16,
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    
+    gap: 6,
+  },
+  cardTitle: {
+    maxWidth: 74,
   },
   image: {
+    width: 48,
+    height: 48,
+  },
+  imageFallback: {
     width: 48,
     height: 48,
   },

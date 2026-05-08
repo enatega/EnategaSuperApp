@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   ScrollView,
   StyleSheet,
@@ -21,8 +22,12 @@ import ChatComposer from '../../components/chat/ChatComposer';
 import ChatMessageBubble from '../../components/chat/ChatMessageBubble';
 import ChatQuickReplyChip from '../../components/chat/ChatQuickReplyChip';
 import { useDeliveriesSocketSession } from '../../hooks';
-import { useSendSupportChatMessage } from '../../hooks/useSupportChatMutations';
-import { useSupportChatBox, useSupportGroupedChatBoxes } from '../../hooks/useSupportChatQueries';
+import { useSendSupportChatMessageToAdmin } from '../../hooks/useSupportChatMutations';
+import {
+  useSupportChatBox,
+  useSupportGroupedChatBoxes,
+  useSupportMyActiveMessages,
+} from '../../hooks/useSupportChatQueries';
 import { SupportNavigationParamList } from '../../navigation/supportNavigationTypes';
 import { subscribeDeliveriesEvent } from '../../socket/deliveriesSocket';
 import {
@@ -34,8 +39,8 @@ import {
   getSupportChatMessageId,
   getSupportChatOtherParticipant,
   getSupportChatParticipantId,
-  getSupportChatParticipantName,
 } from '../../utils/supportChatMappers';
+import { DELIVERIES_SUPPORT_PHONE_NUMBER } from '../../constants/support';
 
 type SupportChatRouteProp = RouteProp<SupportNavigationParamList, 'SupportChat'>;
 
@@ -56,6 +61,7 @@ export default function SupportChatScreen() {
   const route = useRoute<SupportChatRouteProp>();
   const sessionQuery = useAuthSessionQuery();
   useDeliveriesSocketSession();
+  const supportActiveMessagesQuery = useSupportMyActiveMessages();
   const supportChatBoxesQuery = useSupportGroupedChatBoxes();
   const fallbackChatBox = useMemo(
     () => getFirstSupportChatBox(supportChatBoxesQuery.data),
@@ -65,15 +71,20 @@ export default function SupportChatScreen() {
     () => getSupportChatOtherParticipant(fallbackChatBox, sessionQuery.data?.user?.id),
     [fallbackChatBox, sessionQuery.data?.user?.id],
   );
+  const activeChatBoxId =
+    supportActiveMessagesQuery.data?.chatBoxId ??
+    supportActiveMessagesQuery.data?.chat_box_id;
   const initialChatBoxId =
-    route.params?.chatBoxId ?? (getSupportChatBoxId(fallbackChatBox) || undefined);
+    route.params?.chatBoxId
+    ?? activeChatBoxId
+    ?? (getSupportChatBoxId(fallbackChatBox) || undefined);
   const [chatBoxId, setChatBoxId] = useState(initialChatBoxId);
   const [pendingMessages, setPendingMessages] = useState<PendingSupportMessage[]>([]);
   const [realtimeMessages, setRealtimeMessages] = useState<PendingSupportMessage[]>([]);
   const supportChatBoxQuery = useSupportChatBox(chatBoxId);
   const refetchSupportChatBox = supportChatBoxQuery.refetch;
   const refetchSupportChatBoxes = supportChatBoxesQuery.refetch;
-  const supportChatSendMutation = useSendSupportChatMessage({
+  const supportChatSendMutation = useSendSupportChatMessageToAdmin({
     onError: (error) => {
       setPendingMessages((current) => current.slice(0, -1));
       showToast.error(t('support_chat_send_error_title'), error.message || t('support_chat_send_error_message'));
@@ -118,14 +129,12 @@ export default function SupportChatScreen() {
       fallbackParticipant,
     [activeChatBox, fallbackParticipant, sessionQuery.data?.user?.id],
   );
-  const agentName =
-    route.params?.agentName ||
-    getSupportChatParticipantName(activeParticipant) ||
-    t('support_chat_agent_name');
   const messages = useMemo(() => {
     const currentUserId = sessionQuery.data?.user?.id;
+    const activeMessages = getSupportChatMessages(supportActiveMessagesQuery.data);
     const serverMessages = getSupportChatMessages(supportChatBoxQuery.data);
-    const mappedServerMessages = serverMessages.map((message) => ({
+    const sourceMessages = serverMessages.length > 0 ? serverMessages : activeMessages;
+    const mappedServerMessages = sourceMessages.map((message) => ({
       id: getSupportChatMessageId(message),
       isCurrentUser:
         (message.senderId ?? message.sender_id ?? getSupportChatParticipantId(message.sender)) ===
@@ -150,7 +159,14 @@ export default function SupportChatScreen() {
     }
 
     return [...mappedServerMessages, ...realtimeMessages, ...pendingMessages];
-  }, [pendingMessages, realtimeMessages, sessionQuery.data?.user?.id, supportChatBoxQuery.data, t]);
+  }, [
+    pendingMessages,
+    realtimeMessages,
+    sessionQuery.data?.user?.id,
+    supportActiveMessagesQuery.data,
+    supportChatBoxQuery.data,
+    t,
+  ]);
   const receiverId =
     route.params?.receiverId ||
     getSupportChatParticipantId(activeParticipant) ||
@@ -264,9 +280,9 @@ export default function SupportChatScreen() {
     ]);
 
     supportChatSendMutation.mutate({
-      receiverId,
       senderId,
       text: trimmed,
+      chatBoxId: chatBoxId ?? undefined,
     });
   };
 
@@ -301,12 +317,23 @@ export default function SupportChatScreen() {
     );
   };
 
+  const handleCallSupport = async () => {
+    try {
+      await Linking.openURL(`tel:${DELIVERIES_SUPPORT_PHONE_NUMBER}`);
+    } catch {
+      showToast.error(t('support_call_action'));
+    }
+  };
+
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <SupportHeader
         backAccessibilityLabel={t('support_back_action')}
+        onRightPress={() => {
+          void handleCallSupport();
+        }}
         rightAccessibilityLabel={t('support_call_action')}
-        title={agentName}
+        title={t('support_title')}
       />
 
       <KeyboardAvoidingView
@@ -321,14 +348,12 @@ export default function SupportChatScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {supportChatBoxesQuery.isPending || (chatBoxId && supportChatBoxQuery.isPending) ? (
+          {supportActiveMessagesQuery.isPending
+          || supportChatBoxesQuery.isPending
+          || (chatBoxId && supportChatBoxQuery.isPending) ? (
             <View style={styles.centerState}>
               <ActivityIndicator size="large" color={colors.primary} />
               <Text color={colors.mutedText}>{t('support_chat_loading')}</Text>
-            </View>
-          ) : !chatBoxId && pendingMessages.length === 0 ? (
-            <View style={styles.centerState}>
-              <Text color={colors.mutedText}>{t('support_chat_empty')}</Text>
             </View>
           ) : supportChatBoxQuery.isError ? (
             <View style={styles.centerState}>

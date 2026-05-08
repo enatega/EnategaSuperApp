@@ -1,12 +1,48 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { apiConfig } from '../config/apiConfig';
+import { resetToSharedHome } from '../navigation/rootNavigation';
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 const TOKEN_KEY = 'super_app_auth_token';
 const REFRESH_TOKEN_KEY = 'super_app_refresh_token';
+let isHandlingSessionExpiry = false;
+
+function redirectToMainHomeWithRetry() {
+  const navigated = resetToSharedHome();
+  if (navigated) {
+    return;
+  }
+
+  // Navigation container may not be ready at the exact interceptor tick.
+  // Retry briefly to ensure we still land on shared Home.
+  let attempts = 0;
+  const maxAttempts = 8;
+  const timer = setInterval(() => {
+    attempts += 1;
+    const done = resetToSharedHome();
+    if (done || attempts >= maxAttempts) {
+      clearInterval(timer);
+    }
+  }, 150);
+}
+
+function toLowerCaseMessage(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value
+      .filter((item): item is string => typeof item === 'string')
+      .join(' ')
+      .toLowerCase();
+  }
+
+  if (typeof value === 'string') {
+    return value.toLowerCase();
+  }
+
+  return '';
+}
 
 type ApiErrorResponseData = {
   message?: string | string[];
@@ -67,8 +103,7 @@ httpClient.interceptors.request.use(async (config) => {
   }
 
   const token = await tokenManager.getToken();
-  console.log('token______',token);
-  
+
   if (token) {
     config.headers = {
       ...config.headers,
@@ -77,6 +112,46 @@ httpClient.interceptors.request.use(async (config) => {
   }
   return config;
 });
+
+httpClient.interceptors.response.use(
+  (response) => response,
+  async (error: unknown) => {
+    if (!axios.isAxiosError(error)) {
+      return Promise.reject(error);
+    }
+
+    const status = error.response?.status ?? 0;
+    const responseData = error.response?.data as ApiErrorResponseData | undefined;
+    const messageText = toLowerCaseMessage(responseData?.message);
+    const errorText = toLowerCaseMessage(responseData?.error);
+    const combinedAuthText = `${messageText} ${errorText}`.trim();
+    const hasAuthHeader = Boolean(
+      (error.config?.headers as Record<string, unknown> | undefined)?.Authorization,
+    );
+    const storedToken = await tokenManager.getToken();
+    const hasExpiredSessionMessage =
+      combinedAuthText.includes('token session expired') ||
+      combinedAuthText.includes('session expired') ||
+      combinedAuthText.includes('invalid token') ||
+      combinedAuthText.includes('token expired');
+    const isAuthStatus = [401, 403, 419, 440].includes(status);
+    const shouldHandleSessionExpiry =
+      (isAuthStatus || hasExpiredSessionMessage) && (hasAuthHeader || Boolean(storedToken));
+
+    if (shouldHandleSessionExpiry && !isHandlingSessionExpiry) {
+      isHandlingSessionExpiry = true;
+
+      try {
+        await tokenManager.clearAll();
+        redirectToMainHomeWithRetry();
+      } finally {
+        isHandlingSessionExpiry = false;
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 function toApiError(error: unknown): ApiError {
   if (axios.isAxiosError(error)) {

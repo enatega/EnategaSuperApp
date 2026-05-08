@@ -34,9 +34,9 @@ export default function ItemSizes({
         color={colors.text}
         weight="extraBold"
         style={{
-          fontSize: typography.size.h5,
+          fontSize: typography.size.lg,
           letterSpacing: -0.36,
-          lineHeight: typography.lineHeight.h5,
+          lineHeight: typography.lineHeight.xl,
         }}
       >
         {t("choose_variation")}

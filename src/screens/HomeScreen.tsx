@@ -10,7 +10,6 @@ import HomeVisitsSection from './home/HomeVisitsSection';
 import RecommendedSection from './home/RecommendedSection';
 import { MiniAppId } from '../general/utils/constants';
 import { useIsFocused } from '@react-navigation/native';
-import type { NavigatorScreenParams } from '@react-navigation/native';
 import {
   getLocationPermissionState,
   openAppLocationSettings,
@@ -19,13 +18,12 @@ import {
 import RideOptionsSection from '../apps/rideSharing/components/RideOptionsSection';
 import DeliveryServicesSection from '../apps/rideSharing/components/DeliveryServicesSection';
 import type { RideIntent } from '../apps/rideSharing/utils/rideOptions';
-import type { RideSharingStackParamList } from '../apps/rideSharing/navigation/RideSharingNavigator';
+import HomeTravelBannerSection from './home/HomeTravelBannerSection';
+import RecommendedStoresSection from './home/RecommendedStoresSection';
+import type { SelectMiniAppFn } from '../apps/registry/homeSections/types';
 
 type Props = {
-  onSelectMiniApp?: (
-    id: MiniAppId,
-    params?: NavigatorScreenParams<RideSharingStackParamList>,
-  ) => void;
+  onSelectMiniApp?: SelectMiniAppFn;
 };
 
 export default function HomeScreen({ onSelectMiniApp }: Props) {
@@ -124,8 +122,16 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
     });
   }
 
-  function handleSelectDeliveryService() {
-    onSelectMiniApp?.('deliveries');
+  function handleSelectDeliveryService(shopTypeId: string) {
+    onSelectMiniApp?.('deliveries', {
+      screen: 'MultiVendor',
+      params: {
+        screen: 'MainSeeAllScreen',
+        params: {
+          initialShopTypeId: shopTypeId,
+        },
+      },
+    });
   }
 
   function handleSelectDeliverablesCard() {
@@ -136,6 +142,10 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
     onSelectMiniApp?.('homeVisits');
   }
 
+  function handleSelectTravelBanner() {
+    handleSelectRideOption('now');
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <HomeHeader backgroundVariant="solid" />
@@ -143,13 +153,15 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <RideOptionsSection onSelectRideOption={handleSelectRideOption} />
           <DeliveryServicesSection onSelectService={handleSelectDeliveryService} />
-          <HomeVisitsSection onPress={handleSelectHomeVisits} />
+          <RecommendedStoresSection onSelectMiniApp={onSelectMiniApp} />
+          <HomeTravelBannerSection onPress={handleSelectTravelBanner} />
+          {/* <HomeVisitsSection onPress={handleSelectHomeVisits} />
           <RecommendedSection
             title="Our Deliverables"
             featureTitle="What We Bring to You"
             layout="featureCard"
             onPressFeatureCard={handleSelectDeliverablesCard}
-          />
+          /> */}
         </ScrollView>
       </SafeAreaView>
 

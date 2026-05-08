@@ -7,6 +7,7 @@ import { ThemeProvider, useAppTheme } from "./src/general/theme/ThemeProvider";
 import { LocalizationProvider } from "./src/general/localization/LocalizationProvider";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import QueryProvider from "./src/general/providers/QueryProvider";
+import { StripeProvider } from "@stripe/stripe-react-native";
 import "./src/general/localization/i18n";
 import AppToast from "./src/general/components/AppToast";
 import { useSocketSession } from "./src/general/hooks/useSocketSession";
@@ -27,15 +28,28 @@ function ThemedApp() {
 }
 
 export default function App() {
+  const stripePublishableKey = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? '';
+  const hasStripePublishableKey = stripePublishableKey.trim().length > 0;
+
+  if (__DEV__) {
+    // Debug Stripe bootstrap state to quickly spot env/config issues.
+    console.log('[Stripe] EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY configured:', hasStripePublishableKey);
+    if (!hasStripePublishableKey) {
+      console.log('[Stripe] Missing publishable key. Add EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY in .env and rebuild app.');
+    }
+  }
+
   return (
     <ThemeProvider>
       <SafeAreaProvider>
-        <QueryProvider>
-        <LocalizationProvider>
-            <ThemedApp />
-            <AppToast />
-          </LocalizationProvider>
+        <StripeProvider publishableKey={stripePublishableKey}>
+          <QueryProvider>
+            <LocalizationProvider>
+              <ThemedApp />
+              <AppToast />
+            </LocalizationProvider>
           </QueryProvider>
+        </StripeProvider>
       </SafeAreaProvider>
     </ThemeProvider>
   );

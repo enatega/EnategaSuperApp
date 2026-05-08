@@ -45,6 +45,12 @@ export type RideSharingClientEventMap = {
     rideId: string;
     genericUserId: string;
   };
+  'cancel-ride': {
+    rideRequestId: string;
+    cancellerUserId: string;
+    cancelledBy: 'Customer' | 'Rider';
+    chatBoxId?: string;
+  };
 };
 
 export type RideSharingServerEventName = keyof RideSharingServerEventMap;

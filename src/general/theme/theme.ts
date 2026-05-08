@@ -1,5 +1,4 @@
-import { useColorScheme } from 'react-native';
-import { darkColors, lightColors, ThemeColors } from './colors';
+import { resolveThemeColors, type ThemeColors, type ThemedMiniAppId } from './colors';
 import { typography } from './typography';
 
 export type Theme = {
@@ -8,11 +7,14 @@ export type Theme = {
   typography: typeof typography;
 };
 
-export const buildTheme = (scheme: 'light' | 'dark' | null): Theme => {
+export const buildTheme = (
+  scheme: 'light' | 'dark' | null,
+  activeMiniApp: ThemedMiniAppId = 'general',
+): Theme => {
   const isDark = scheme === 'dark';
   return {
     isDark,
-    colors: isDark ? darkColors : lightColors,
+    colors: resolveThemeColors(isDark ? 'dark' : 'light', activeMiniApp),
     typography,
   };
 };

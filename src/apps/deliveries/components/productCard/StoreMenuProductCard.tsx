@@ -24,6 +24,67 @@ function formatPrice(price: number | null | undefined, currencyLabel: string) {
     : null;
 }
 
+type RawDealObject = {
+  deal_name?: string;
+  discount_type?: string;
+  discount_value?: number;
+  discounted_price?: number;
+};
+
+function getProductDealMeta(product: DeliveryStoreDetailsProduct | DeliveryDealItem) {
+  const rawDeal = (product as { deal?: unknown }).deal;
+  const rawDealType = (product as { dealType?: string | null }).dealType ?? null;
+  const rawDiscountValue = (product as { discountValue?: number | null }).discountValue ?? null;
+  const rawOriginalPrice = (product as { originalPrice?: number | null }).originalPrice ?? null;
+
+  let dealType = rawDealType;
+  let discountValue = rawDiscountValue;
+  let dealLabel: string | null = null;
+  let discountedPrice: number | null = null;
+
+  if (rawDeal && typeof rawDeal === "object" && !Array.isArray(rawDeal)) {
+    const dealObject = rawDeal as RawDealObject;
+    dealLabel = typeof dealObject.deal_name === "string" ? dealObject.deal_name : null;
+    dealType = dealType ?? dealObject.discount_type ?? null;
+    discountValue =
+      typeof discountValue === "number"
+        ? discountValue
+        : typeof dealObject.discount_value === "number"
+          ? dealObject.discount_value
+          : null;
+    discountedPrice =
+      typeof dealObject.discounted_price === "number" && Number.isFinite(dealObject.discounted_price)
+        ? dealObject.discounted_price
+        : null;
+  } else if (typeof rawDeal === "string") {
+    const trimmedDeal = rawDeal.trim();
+    if (trimmedDeal.length > 0 && trimmedDeal.toLowerCase() !== "no deal.") {
+      dealLabel = trimmedDeal;
+    }
+  }
+
+  const normalizedDealType = typeof dealType === "string" ? dealType.toLowerCase() : null;
+  const hasNumericDiscount = typeof discountValue === "number" && Number.isFinite(discountValue) && discountValue > 0;
+
+  const hasDeal = Boolean(dealLabel) || hasNumericDiscount;
+  const resolvedOffer = hasNumericDiscount
+    ? normalizedDealType === "percentage"
+      ? `${discountValue} % OFF`
+      : `${discountValue} OFF`
+    : dealLabel;
+  const originalPrice =
+    typeof rawOriginalPrice === "number" && Number.isFinite(rawOriginalPrice)
+      ? rawOriginalPrice
+      : null;
+
+  return {
+    discountedPrice,
+    hasDeal,
+    originalPrice,
+    resolvedOffer: resolvedOffer ?? null,
+  };
+}
+
 export default function StoreMenuProductCard({
   onPress,
   product,
@@ -32,17 +93,22 @@ export default function StoreMenuProductCard({
   const { t } = useTranslation("deliveries");
   const { colors } = useTheme();
   const currencyLabel = useDeliveriesCurrencyLabel();
-  const badgeText = product.deal ?? product.dealType ?? null;
-  const priceLabel = formatPrice(product.price, currencyLabel);
+  const { discountedPrice, hasDeal, originalPrice, resolvedOffer } = getProductDealMeta(product);
+  const basePrice = typeof product.price === "number" ? product.price : null;
+  const effectivePrice =
+    typeof discountedPrice === "number" && Number.isFinite(discountedPrice)
+      ? discountedPrice
+      : basePrice;
+  const priceLabel = formatPrice(effectivePrice, currencyLabel);
+  const strikePrice =
+    typeof discountedPrice === "number"
+      ? basePrice
+      : originalPrice;
   const productImageUri =
     product.imageUrl || "https://placehold.co/400x400.png";
-  const imageBackgroundColor = badgeText
+  const imageBackgroundColor = hasDeal
     ? colors.storeMenuAccentOrange
     : colors.storeMenuAccentLime;
-  const resolvedOffer =
-    product.dealType === "percentage"
-      ? product?.discountValue + " % " + t("off")
-      : product.discountValue + t("off");
 
   return (
     <Pressable onPress={onPress} style={styles.container}>
@@ -67,7 +133,7 @@ export default function StoreMenuProductCard({
 
           <View style={styles.header}>
             <View style={styles.badgeSlot}>
-              {badgeText ? (
+              {hasDeal && resolvedOffer ? (
                 <View
                   style={[styles.badge, { backgroundColor: colors.primary }]}
                 >
@@ -113,23 +179,25 @@ export default function StoreMenuProductCard({
         <View style={styles.content}>
           {priceLabel ? (
             <View style={{ flexDirection: "row", gap: 6 }}>
+              {typeof strikePrice === "number" ? (
+                <Text
+                  style={[
+                    styles.price,
+                    {
+                      color: colors.mutedText,
+                      textDecorationLine: "line-through",
+                    },
+                  ]}
+                  weight="medium"
+                >
+                  {formatPrice(strikePrice, currencyLabel)}
+                </Text>
+              ) : null}
               <Text
                 style={[styles.price, { color: colors.primary }]}
                 weight="medium"
               >
                 {priceLabel}
-              </Text>
-              <Text
-                style={[
-                  styles.price,
-                  {
-                    color: colors.mutedText,
-                    textDecorationLine: "line-through",
-                  },
-                ]}
-                weight="medium"
-              >
-                {product?.originalPrice}
               </Text>
             </View>
           ) : null}

@@ -50,6 +50,14 @@ module.exports = {
     },
     plugins: [
       'expo-secure-store',
+      'expo-notifications',
+      [
+        '@stripe/stripe-react-native',
+        {
+          enableGooglePay: false,
+        },
+      ],
+
       'expo-video',
       [
         'expo-location',
@@ -67,11 +75,11 @@ module.exports = {
       ],
       hasValidGoogleIosUrlScheme
         ? [
-            '@react-native-google-signin/google-signin',
-            {
-              iosUrlScheme,
-            },
-          ]
+          '@react-native-google-signin/google-signin',
+          {
+            iosUrlScheme,
+          },
+        ]
         : null,
     ].filter(Boolean),
   },

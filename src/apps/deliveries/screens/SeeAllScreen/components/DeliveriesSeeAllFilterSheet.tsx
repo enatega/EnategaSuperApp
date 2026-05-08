@@ -8,6 +8,7 @@ import type {
 
 type Props = GenericListFilterSheetRenderProps & {
   filters?: GenericListFilterData;
+  isCategoryVisible?: boolean;
 };
 
 export default function DeliveriesSeeAllFilterSheet(props: Props) {
@@ -28,6 +29,7 @@ export default function DeliveriesSeeAllFilterSheet(props: Props) {
         sort: tDeliveries('filter_sort_title'),
       }}
       isStockVisible={false}
+      isCategoryVisible={props.isCategoryVisible}
       filters={props.filters}
       draftFilters={props.draftFilters}
       isApplyDisabled={props.isApplyDisabled}

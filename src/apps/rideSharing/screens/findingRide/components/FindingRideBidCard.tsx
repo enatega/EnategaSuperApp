@@ -122,7 +122,7 @@ function FindingRideBidCard({
 
               {typeof ridesCount === 'number' ? (
                 <Text style={[styles.vehicleText, { color: colors.mutedText }]} numberOfLines={1}>
-                  ({ridesCount.toLocaleString()} rides)
+                  ({ridesCount.toLocaleString()})
                 </Text>
               ) : null}
             </View>

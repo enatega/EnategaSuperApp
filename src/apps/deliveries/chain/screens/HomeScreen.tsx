@@ -21,6 +21,7 @@ import ChainSpecialOffersBanner from '../components/homeScreen/ChainSpecialOffer
 import type { ChainMenuTemplate } from '../api/types';
 import useChainMenuTemplates from '../hooks/useChainMenuTemplates';
 import { useChainMenuStore } from '../stores/useChainMenuStore';
+import AppSwitcherTopBar from '../../../../general/components/appSwitch/AppSwitcherTopBar';
 
 type Props = Record<string, never>;
 
@@ -120,8 +121,10 @@ export default function HomeScreen({}: Props) {
   }, [setSelectedMenuTemplateId]);
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background, gap: 10 }]}>
+    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+      <AppSwitcherTopBar activeKey="deliveries" />
       <MultiVendorAddressHeader
+        includeTopInset={false}
         addressVariant="label"
         addresses={addresses}
         onAddAddressPress={handleOpenAddressSheet}

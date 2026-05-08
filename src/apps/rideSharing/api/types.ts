@@ -326,6 +326,20 @@ export interface RejectRideBidParams {
     rideBidId: string;
 }
 
+export interface CancelRideParams {
+    rideId: string;
+    chatBoxId?: string;
+}
+
+export interface UpdateRiderPhonePayload {
+    phone: string;
+}
+
+export interface VerifyRiderPhoneUpdateOtpPayload {
+    phone: string;
+    otp: string;
+}
+
 export interface UpdateRidePayload {
     rideId: string;
     status?: RideStatus;

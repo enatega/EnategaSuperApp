@@ -15,6 +15,7 @@ import useProfile from '../../hooks/useProfile';
 import MyProfileInfoCard from '../../components/profile/MyProfileInfoCard';
 import MyProfileSkeleton from '../../components/profile/MyProfileSkeleton';
 import ProfilePhotoEditor from '../../components/profile/ProfilePhotoEditor';
+import ProfileImageViewerModal from '../../components/profile/ProfileImageViewerModal';
 import AddressOptionsBottomSheet from '../../components/address/AddressOptionsBottomSheet';
 import SavedAddressesList from '../../components/profile/SavedAddressesList';
 import type {
@@ -43,6 +44,7 @@ export default function MyProfileScreen({ profilePrefix }: Props) {
     useRoute<RouteProp<ProfileStackParamList, 'MyProfile'>>();
   const { user, addresses, isLoading, refetch } = useProfile(profilePrefix);
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false);
+  const [isProfileImageViewerVisible, setIsProfileImageViewerVisible] = useState(false);
   const [imageCacheKey, setImageCacheKey] = useState(0);
   const [addressMenuTarget, setAddressMenuTarget] =
     useState<ProfileAddress | null>(null);
@@ -165,6 +167,7 @@ export default function MyProfileScreen({ profilePrefix }: Props) {
               phoneLabel={t('my_profile_mobile_number')}
               emailLabel={t('my_profile_email')}
               onEditAvatar={() => setIsPhotoModalVisible(true)}
+              onPressAvatar={avatarUri ? () => setIsProfileImageViewerVisible(true) : undefined}
               onEditName={handleEditName}
             />
 
@@ -173,6 +176,12 @@ export default function MyProfileScreen({ profilePrefix }: Props) {
               onClose={() => setIsPhotoModalVisible(false)}
               onUploadComplete={handleUploadComplete}
               profilePrefix={profilePrefix}
+            />
+
+            <ProfileImageViewerModal
+              imageUri={avatarUri}
+              isVisible={isProfileImageViewerVisible}
+              onClose={() => setIsProfileImageViewerVisible(false)}
             />
 
             {/* Addresses section */}
