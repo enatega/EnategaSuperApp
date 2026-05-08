@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Keyboard, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -33,20 +39,6 @@ export default function RateOrderScreen() {
   const [rating, setRating] = useState(0);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [comment, setComment] = useState('');
-  const [keyboardOffset, setKeyboardOffset] = useState(0);
-
-  useEffect(() => {
-    const show = Keyboard.addListener('keyboardDidShow', (e) => {
-      setKeyboardOffset(e.endCoordinates.height - insets.bottom + 16);
-    });
-    const hide = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardOffset(0);
-    });
-    return () => {
-      show.remove();
-      hide.remove();
-    };
-  }, [insets.bottom]);
 
   const tags = rating > 0 ? (RATING_TAGS_BY_SCORE[rating] ?? []) : [];
 
@@ -93,12 +85,17 @@ export default function RateOrderScreen() {
   };
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+    <KeyboardAvoidingView
+      style={[styles.screen, { backgroundColor: colors.background }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 16 : 0}
+    >
       <ScreenHeader title={t('rate_order_title')} />
 
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -142,7 +139,6 @@ export default function RateOrderScreen() {
             borderTopColor: colors.border,
             backgroundColor: colors.background,
             paddingBottom: insets.bottom + 12,
-            bottom: keyboardOffset,
           },
         ]}
       >
@@ -153,7 +149,7 @@ export default function RateOrderScreen() {
           isLoading={submitReview.isPending}
         />
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -161,12 +157,8 @@ const styles = StyleSheet.create({
   center: { textAlign: 'center' },
   footer: {
     borderTopWidth: 1,
-    bottom: 0,
-    left: 0,
     paddingHorizontal: 16,
     paddingTop: 12,
-    position: 'absolute',
-    right: 0,
   },
   hero: {
     alignItems: 'center',
@@ -174,9 +166,10 @@ const styles = StyleSheet.create({
   },
   screen: { flex: 1 },
   scrollContent: {
+    flexGrow: 1,
     gap: 20,
     padding: 16,
-    paddingBottom: 100,
+    paddingBottom: 24,
   },
   scrollView: { flex: 1 },
   topSpacer: { height: 60 },
