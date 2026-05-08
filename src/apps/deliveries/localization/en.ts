@@ -51,6 +51,7 @@ const en = {
   multi_vendor_all_brands_title: 'All brands',
   multi_vendor_nearby_store_title: 'Nearby Store',
   multi_vendor_deals_title: 'Deals',
+  multi_vendor_recommended_restaurants_title: 'Recommended restaurants',
   deals_see_all_tab_all: 'All',
   deals_see_all_tab_limited: 'Limited time deals',
   deals_see_all_tab_weekly: 'Weekly deals',

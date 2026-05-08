@@ -10,7 +10,6 @@ import HomeVisitsSection from './home/HomeVisitsSection';
 import RecommendedSection from './home/RecommendedSection';
 import { MiniAppId } from '../general/utils/constants';
 import { useIsFocused } from '@react-navigation/native';
-import type { NavigatorScreenParams } from '@react-navigation/native';
 import {
   getLocationPermissionState,
   openAppLocationSettings,
@@ -19,19 +18,12 @@ import {
 import RideOptionsSection from '../apps/rideSharing/components/RideOptionsSection';
 import DeliveryServicesSection from '../apps/rideSharing/components/DeliveryServicesSection';
 import type { RideIntent } from '../apps/rideSharing/utils/rideOptions';
-import type { RideSharingStackParamList } from '../apps/rideSharing/navigation/RideSharingNavigator';
-import type { DeliveriesStackParamList } from '../apps/deliveries/navigation/types';
 import HomeTravelBannerSection from './home/HomeTravelBannerSection';
 import RecommendedStoresSection from './home/RecommendedStoresSection';
-import type { DeliveryNearbyStore } from '../apps/deliveries/api/types';
+import type { SelectMiniAppFn } from '../apps/registry/homeSections/types';
 
 type Props = {
-  onSelectMiniApp?: (
-    id: MiniAppId,
-    params?:
-      | NavigatorScreenParams<RideSharingStackParamList>
-      | NavigatorScreenParams<DeliveriesStackParamList>,
-  ) => void;
+  onSelectMiniApp?: SelectMiniAppFn;
 };
 
 export default function HomeScreen({ onSelectMiniApp }: Props) {
@@ -138,16 +130,6 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
     onSelectMiniApp?.('deliveries');
   }
 
-  function handleSelectRecommendedStore(store: DeliveryNearbyStore) {
-    onSelectMiniApp?.('deliveries', {
-      screen: 'MultiVendor',
-      params: {
-        screen: 'StoreDetails',
-        params: { store },
-      },
-    });
-  }
-
   function handleSelectHomeVisits() {
     onSelectMiniApp?.('homeVisits');
   }
@@ -163,7 +145,7 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <RideOptionsSection onSelectRideOption={handleSelectRideOption} />
           <DeliveryServicesSection onSelectService={handleSelectDeliveryService} />
-          <RecommendedStoresSection onPressStore={handleSelectRecommendedStore} />
+          <RecommendedStoresSection onSelectMiniApp={onSelectMiniApp} />
           <HomeTravelBannerSection onPress={handleSelectTravelBanner} />
           <HomeVisitsSection onPress={handleSelectHomeVisits} />
           <RecommendedSection
