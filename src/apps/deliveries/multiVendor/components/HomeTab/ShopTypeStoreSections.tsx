@@ -35,6 +35,8 @@ export default function ShopTypeStoreSections() {
     [navigation],
   );
 
+
+
   return (
     <View style={styles.container}>
       {shopTypeStoreSections.map(
@@ -73,4 +75,3 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
 });
-
