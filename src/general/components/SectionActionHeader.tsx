@@ -48,6 +48,7 @@ export default function SectionActionHeader({
             color: colors.text,
             fontSize: typography.size.sm2,
             lineHeight: 22,
+            fontWeight: '700',
           }}
         >
           {actionLabel}
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     alignItems: 'center',
-    borderRadius: 999,
+    borderRadius: 5,
     justifyContent: 'center',
     minHeight: 30,
     minWidth: 76,

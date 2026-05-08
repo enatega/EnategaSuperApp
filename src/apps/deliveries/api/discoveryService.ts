@@ -503,12 +503,9 @@ export const discoveryService = {
         params: DeliveryBannersParams = {},
     ): Promise<DeliveryBanner[]> => {
         const { offset = 0, limit = 10 } = params;
-        try {
-            const response = await apiClient.get<DeliveryBannersApiResponse>(
-                '/api/v1/deliveries/banners/mobile',
-                { offset, limit },
-            );
+        const query = { offset, limit };
 
+        const parseBanners = (response: DeliveryBannersApiResponse): DeliveryBanner[] => {
             if (Array.isArray(response)) {
                 return response;
             }
@@ -522,9 +519,30 @@ export const discoveryService = {
             }
 
             return [];
-        } catch (error) {
-            console.error('mobile banners request failed', error);
-            throw error;
+        };
+
+        try {
+            const response = await apiClient.get<DeliveryBannersApiResponse>(
+                '/api/v1/apps/deliveries/banners/mobile',
+                query,
+            );
+
+            return parseBanners(response);
+        } catch (primaryError) {
+            try {
+                const fallbackResponse = await apiClient.get<DeliveryBannersApiResponse>(
+                    '/api/v1/deliveries/banners/mobile',
+                    query,
+                );
+
+                return parseBanners(fallbackResponse);
+            } catch (fallbackError) {
+                console.error('mobile banners request failed', {
+                    fallbackError,
+                    primaryError,
+                });
+                throw fallbackError;
+            }
         }
     },
 
