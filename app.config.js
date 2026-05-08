@@ -53,8 +53,6 @@ module.exports = {
       [
         '@stripe/stripe-react-native',
         {
-          merchantIdentifier:
-            process.env.EXPO_IOS_MERCHANT_IDENTIFIER ?? 'merchant.com.enategasuper.app',
           enableGooglePay: false,
         },
       ],
