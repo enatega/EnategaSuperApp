@@ -91,6 +91,14 @@ export const deliveryKeys = {
             offset,
             limit,
         ] as const,
+    shopTypeCategories: (shopTypeId: string, offset = 0, limit = 10) =>
+        [
+            ...deliveryKeys.discovery(),
+            'shop-type-categories',
+            shopTypeId,
+            offset,
+            limit,
+        ] as const,
     vendorStores: (vendorId: string, offset = 0, limit = 10) =>
         [
             ...deliveryKeys.discovery(),
@@ -102,7 +110,17 @@ export const deliveryKeys = {
     topBrands: (filters?: { limit?: number; search?: string }) =>
         [...deliveryKeys.discovery(), 'top-brands', filters] as const,
     mobileBanners: () => [...deliveryKeys.discovery(), 'mobile-banners'] as const,
-    nearbyStores: () => [...deliveryKeys.discovery(), 'nearby-stores'] as const,
+    nearbyStores: (filters?: {
+        limit?: number;
+        search?: string;
+        category_id?: string;
+        category_ids?: string[];
+        shop_type_id?: string;
+        subcategory_id?: string;
+        stock?: string;
+        price_tiers?: string | string[];
+        sort_by?: string;
+    }) => [...deliveryKeys.discovery(), 'nearby-stores', filters] as const,
     recommendedStores: () =>
         [...deliveryKeys.discovery(), 'recommended-stores'] as const,
     storeView: (storeId: string) =>
@@ -126,7 +144,14 @@ export const deliveryKeys = {
             storeId,
             filters,
         ] as const,
-    deals: () => [...deliveryKeys.discovery(), 'deals'] as const,
+    deals: (filters?: {
+        limit?: number;
+        search?: string;
+        category_id?: string;
+        category_ids?: string[];
+        shop_type_id?: string;
+        subcategory_id?: string;
+    }) => [...deliveryKeys.discovery(), 'deals', filters] as const,
     dealsListing: (filters?: {
         limit?: number;
         search?: string;
@@ -167,7 +192,14 @@ export const deliveryKeys = {
         [...deliveryKeys.search(), 'products', keyword, latitude, longitude] as const,
     storeSearch: (keyword: string, latitude?: number, longitude?: number) =>
         [...deliveryKeys.search(), 'stores', keyword, latitude, longitude] as const,
-    orderAgain: () => [...deliveryKeys.discovery(), 'order-again'] as const,
+    orderAgain: (filters?: {
+        limit?: number;
+        search?: string;
+        category_id?: string;
+        category_ids?: string[];
+        shop_type_id?: string;
+        subcategory_id?: string;
+    }) => [...deliveryKeys.discovery(), 'order-again', filters] as const,
     storeRecommendedProducts: (
         storeId: string,
         filters?: { offset?: number; limit?: number },

@@ -176,7 +176,9 @@ function toNearbyStoresQueryParams(
         latitude = NEARBY_STORES_DEFAULTS.latitude,
         longitude = NEARBY_STORES_DEFAULTS.longitude,
         stock,
+        category_id,
         category_ids,
+        shop_type_id,
         subcategory_id,
         price_tiers,
         sort_by,
@@ -189,10 +191,60 @@ function toNearbyStoresQueryParams(
         latitude,
         longitude,
         stock,
+        category_id,
         category_ids,
+        shop_type_id,
         subcategory_id,
         price_tiers,
         sort_by,
+    };
+}
+
+function toDealsQueryParams(
+    params: DeliveryDealsParams = {},
+): Record<string, unknown> {
+    const {
+        offset = DEALS_DEFAULTS.offset,
+        limit = DEALS_DEFAULTS.limit,
+        search,
+        category_id,
+        category_ids,
+        subcategory_id,
+        shop_type_id,
+    } = params;
+
+    return {
+        offset,
+        limit,
+        search,
+        category_id,
+        category_ids,
+        subcategory_id,
+        shop_type_id,
+    };
+}
+
+function toOrderAgainQueryParams(
+    params: DeliveryOrderAgainParams = {},
+): Record<string, unknown> {
+    const {
+        offset = ORDER_AGAIN_DEFAULTS.offset,
+        limit = ORDER_AGAIN_DEFAULTS.limit,
+        search,
+        category_id,
+        category_ids,
+        subcategory_id,
+        shop_type_id,
+    } = params;
+
+    return {
+        offset,
+        limit,
+        search,
+        category_id,
+        category_ids,
+        subcategory_id,
+        shop_type_id,
     };
 }
 
@@ -725,12 +777,20 @@ export const discoveryService = {
     getDealsPage: async (
         params: DeliveryDealsParams = {},
     ): Promise<PaginatedDeliveryResponse<DeliveryNearbyStore>> => {
-        const { offset = DEALS_DEFAULTS.offset, limit = DEALS_DEFAULTS.limit } = params;
+        const queryParams = toDealsQueryParams(params);
+        const offset =
+            typeof queryParams.offset === 'number'
+                ? queryParams.offset
+                : DEALS_DEFAULTS.offset;
+        const limit =
+            typeof queryParams.limit === 'number'
+                ? queryParams.limit
+                : DEALS_DEFAULTS.limit;
 
         try {
             const response = await apiClient.get<DeliveryDealsApiResponse>(
                 '/api/v1/apps/deliveries/deals/home',
-                { offset, limit },
+                queryParams,
             );
 
             return toPaginatedResponse(response, { offset, limit });
@@ -744,15 +804,12 @@ export const discoveryService = {
     getOrderAgain: async (
         params: DeliveryOrderAgainParams = {},
     ): Promise<DeliveryOrderAgainItem[]> => {
-        const {
-            offset = ORDER_AGAIN_DEFAULTS.offset,
-            limit = ORDER_AGAIN_DEFAULTS.limit,
-        } = params;
+        const queryParams = toOrderAgainQueryParams(params);
 
         try {
             const response = await apiClient.get<DeliveryOrderAgainApiResponse>(
                 '/api/v1/apps/deliveries/discovery/order-again',
-                { offset, limit },
+                queryParams,
             );
 
             if (Array.isArray(response)) {

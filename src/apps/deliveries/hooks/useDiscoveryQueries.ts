@@ -8,15 +8,19 @@ import {
   type UseQueryResult,
 } from '@tanstack/react-query';
 import { ApiError } from '../../../general/api/apiClient';
+import { categoriesServices } from '../api/categoriesServices';
+import type { DeliveryShopTypeCategory } from '../api/categoriesServicesTypes';
 import { discoveryService } from '../api/discoveryService';
 import { deliveryKeys } from '../api/queryKeys';
 import type { GenericListFilters } from '../components/filters/types';
 import useAddress from '../../../general/hooks/useAddress';
 import type {
   DeliveryBanner,
+  DeliveryDealsParams,
   DeliveryNearbyStore,
   DeliveryOrderAgainItem,
   DeliveryRecommendedStoresParams,
+  DeliveryOrderAgainParams,
   DeliveryShopTypeStoresParams,
   DeliveryStoreProductsApiResponse,
   DeliveryStoreProductsParams,
@@ -104,10 +108,14 @@ type UseDealsOptions = Omit<
   'queryKey' | 'queryFn'
 >;
 
+type UseDealsParams = DeliveryDealsParams;
+
 type UseOrderAgainOptions = Omit<
   UseQueryOptions<DeliveryOrderAgainItem[], ApiError>,
   'queryKey' | 'queryFn'
 >;
+
+type UseOrderAgainParams = DeliveryOrderAgainParams;
 
 type UseStoreRecommendedProductsOptions = Omit<
   UseQueryOptions<DeliveryOrderAgainItem[], ApiError>,
@@ -147,6 +155,13 @@ type UseShopTypeStoresOptions = {
     DeliveryShopTypeStoresParams,
     'shopTypeId' | 'offset' | 'limit' | 'search'
   >;
+};
+
+type UseShopTypeCategoriesMode = 'preview' | 'paginated';
+
+type UseShopTypeCategoriesOptions = {
+  mode?: UseShopTypeCategoriesMode;
+  enabled?: boolean;
 };
 
 type UseVendorStoresMode = 'preview' | 'paginated';
@@ -267,9 +282,7 @@ export function useShopTypeProducts(
     latitude: options?.requestParams?.latitude ?? latitude,
     longitude: options?.requestParams?.longitude ?? longitude,
     category_ids: normalizeCategoryIds(options?.filters?.category_ids),
-    price_tiers: options?.filters?.price_tiers
-      ? [options.filters.price_tiers]
-      : undefined,
+    price_tiers: options?.filters?.price_tiers ?? undefined,
     stock: normalizeStockValue(options?.filters?.stock),
     sort_by: options?.filters?.sort_by ?? undefined,
   };
@@ -328,9 +341,7 @@ export function useShopTypeStores(
     latitude: options?.requestParams?.latitude ?? latitude,
     longitude: options?.requestParams?.longitude ?? longitude,
     category_ids: normalizeCategoryIds(options?.filters?.category_ids),
-    price_tiers: options?.filters?.price_tiers
-      ? [options.filters.price_tiers]
-      : undefined,
+    price_tiers: options?.filters?.price_tiers ?? undefined,
     stock: normalizeStockValue(options?.filters?.stock),
     sort_by: options?.filters?.sort_by ?? undefined,
   };
@@ -374,6 +385,41 @@ export function useShopTypeStores(
   };
 }
 
+export function useShopTypeCategories(
+  shopTypeId: string,
+  options?: UseShopTypeCategoriesOptions,
+) {
+  const mode = options?.mode ?? 'preview';
+  const limit = 10;
+  const query = useInfiniteQuery<
+    PaginatedDeliveryResponse<DeliveryShopTypeCategory>,
+    ApiError
+  >({
+    queryKey: deliveryKeys.shopTypeCategories(shopTypeId, 0, limit),
+    queryFn: ({ pageParam = 0 }) =>
+      categoriesServices.getShopTypeCategoriesPage({
+        shopTypeId,
+        offset: pageParam as number,
+        limit,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
+    staleTime: 5 * 60 * 1000,
+    enabled: (options?.enabled ?? true) && Boolean(shopTypeId),
+  });
+
+  const items = query.data?.pages.flatMap((page) => page.items) ?? [];
+
+  return {
+    ...query,
+    data: mode === 'preview' ? items.slice(0, limit) : items,
+    totalCount: query.data?.pages.length
+      ? query.data.pages[query.data.pages.length - 1]?.total
+      : undefined,
+  };
+}
+
 export function useVendorStores(
   vendorId: string,
   options?: UseVendorStoresOptions,
@@ -389,9 +435,7 @@ export function useVendorStores(
     latitude: options?.requestParams?.latitude ?? latitude,
     longitude: options?.requestParams?.longitude ?? longitude,
     category_ids: normalizeCategoryIds(options?.filters?.category_ids),
-    price_tiers: options?.filters?.price_tiers
-      ? [options.filters.price_tiers]
-      : undefined,
+    price_tiers: options?.filters?.price_tiers ?? undefined,
     stock: normalizeStockValue(options?.filters?.stock),
     sort_by: options?.filters?.sort_by ?? undefined,
   };
@@ -552,7 +596,17 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
     ApiError
   >({
     queryKey: [
-      ...deliveryKeys.nearbyStores(),
+      ...deliveryKeys.nearbyStores({
+        limit,
+        search: options?.search?.trim() ?? '',
+        category_id: nearbyStoreParams.category_id,
+        category_ids: nearbyStoreParams.category_ids,
+        shop_type_id: nearbyStoreParams.shop_type_id,
+        subcategory_id: nearbyStoreParams.subcategory_id,
+        stock: nearbyStoreParams.stock,
+        price_tiers: nearbyStoreParams.price_tiers,
+        sort_by: nearbyStoreParams.sort_by,
+      }),
       {
         filters: options?.filters,
         mode,
@@ -691,19 +745,39 @@ export function useStoreProducts(
   });
 }
 
-export function useDeals(options?: UseDealsOptions) {
+export function useDeals(
+  params: UseDealsParams = {},
+  options?: UseDealsOptions,
+) {
   return useQuery<DeliveryNearbyStore[], ApiError>({
-    queryKey: deliveryKeys.deals(),
-    queryFn: () => discoveryService.getDeals(),
+    queryKey: deliveryKeys.deals({
+      limit: params.limit,
+      search: params.search,
+      category_id: params.category_id,
+      category_ids: params.category_ids,
+      shop_type_id: params.shop_type_id,
+      subcategory_id: params.subcategory_id,
+    }),
+    queryFn: () => discoveryService.getDeals(params),
     // staleTime: 5 * 60 * 1000,
     ...options,
   });
 }
 
-export function useOrderAgain(options?: UseOrderAgainOptions) {
+export function useOrderAgain(
+  params: UseOrderAgainParams = {},
+  options?: UseOrderAgainOptions,
+) {
   return useQuery<DeliveryOrderAgainItem[], ApiError>({
-    queryKey: deliveryKeys.orderAgain(),
-    queryFn: () => discoveryService.getOrderAgain(),
+    queryKey: deliveryKeys.orderAgain({
+      limit: params.limit,
+      search: params.search,
+      category_id: params.category_id,
+      category_ids: params.category_ids,
+      shop_type_id: params.shop_type_id,
+      subcategory_id: params.subcategory_id,
+    }),
+    queryFn: () => discoveryService.getOrderAgain(params),
     ...options,
   });
 }

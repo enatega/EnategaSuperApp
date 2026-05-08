@@ -7,6 +7,7 @@ export {
   usePaginatedShopTypes,
   useRecommendedStores,
   useShopTypeProducts,
+  useShopTypeCategories,
   useShopTypeStores,
   useShopTypeStoresSections,
   useShopTypes,

@@ -39,5 +39,10 @@ export type MultiVendorStackParamList = {
     productId: string;
   };
   ShopTypesSeeAll: undefined;
+  CategoriesSeeAll: {
+    shopTypeId: string;
+    title: string;
+  };
   TopBrandsSeeAll: undefined;
+  MainSeeAllScreen: undefined;
 };

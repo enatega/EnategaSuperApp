@@ -10,12 +10,46 @@ import { useOrderAgain } from '../../../hooks';
 import ProductCard from '../../../components/productCard/ProductCard';
 import StoreMiniCardSkeleton from './HomeTabSkeletons/StoreMiniCardSkeleton';
 import type { MultiVendorBottomTabParamList } from '../../navigation/types';
+import type { GenericListFilters } from '../../../components/filters/types';
 
 type NavigationProp = BottomTabNavigationProp<MultiVendorBottomTabParamList>;
 
-export default function OrderAgain() {
+type Props = {
+  search?: string;
+  selectedCategoryId?: string | null;
+  selectedShopTypeId?: string | null;
+  filters?: GenericListFilters;
+};
+
+export default function OrderAgain(props: Props) {
+  const { search, selectedCategoryId, selectedShopTypeId, filters } = props;
   const { t } = useTranslation('deliveries');
-  const { data: orderAgainData = [], isPending: isOrderAgainPending } = useOrderAgain();
+  const resolvedCategoryIds =
+    selectedCategoryId ? [selectedCategoryId] : (filters?.category_ids ?? []);
+  const resolvedCategoryId = resolvedCategoryIds[0] ?? undefined;
+  const hasSelectedShopTypeProp = Object.prototype.hasOwnProperty.call(
+    props,
+    'selectedShopTypeId',
+  );
+  const activeShopTypeId =
+    selectedShopTypeId && selectedShopTypeId.trim().length > 0
+      ? selectedShopTypeId
+      : undefined;
+  const shouldSkipBecauseEmptyShopType =
+    hasSelectedShopTypeProp && !activeShopTypeId;
+
+  const { data: orderAgainData = [], isPending: isOrderAgainPending } = useOrderAgain(
+    {
+      search,
+      category_id: resolvedCategoryId,
+      category_ids: resolvedCategoryIds.length > 0 ? resolvedCategoryIds : undefined,
+      subcategory_id: undefined,
+      shop_type_id: activeShopTypeId,
+    },
+    {
+      enabled: !shouldSkipBecauseEmptyShopType,
+    },
+  );
   const navigation = useNavigation<NavigationProp>();
 
   const handleSeeAllPress = () => {

@@ -5,24 +5,61 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
-import Text from "../../../../../general/components/Text";
-import { useTheme } from "../../../../../general/theme/theme";
 import { useNearbyStores } from '../../../hooks';
 import type { DeliveryNearbyStore } from '../../../api/types';
-import { DiscoveryResultsSkeleton } from '../../../components/discovery';
+import {
+  DiscoveryResultsSkeleton,
+  DiscoverySectionState,
+} from '../../../components/discovery';
 import StoreCard from '../../../components/storeCard/StoreCard';
 import type { MultiVendorStackParamList } from '../../navigation/types';
+import type { GenericListFilters } from '../../../components/filters/types';
 
 type NavProp = NativeStackNavigationProp<
   MultiVendorStackParamList,
   "SeeAllScreen"
 >;
 
-export default function NearbyStoreList() {
+type Props = {
+  search?: string;
+  selectedCategoryId?: string | null;
+  selectedShopTypeId?: string | null;
+  filters?: GenericListFilters;
+};
+
+export default function NearbyStoreList(props: Props) {
+  const { search, selectedCategoryId, selectedShopTypeId, filters } = props;
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavProp>();
-  const { colors, typography } = useTheme();
-  const { data: nearbyStoresData = [], isPending: isNearbyStoresPending } = useNearbyStores();
+  const resolvedCategoryIds =
+    selectedCategoryId ? [selectedCategoryId] : (filters?.category_ids ?? []);
+  const resolvedCategoryId = resolvedCategoryIds[0] ?? undefined;
+  const hasSelectedShopTypeProp = Object.prototype.hasOwnProperty.call(
+    props,
+    'selectedShopTypeId',
+  );
+  const activeShopTypeId =
+    selectedShopTypeId && selectedShopTypeId.trim().length > 0
+      ? selectedShopTypeId
+      : undefined;
+  const shouldSkipBecauseEmptyShopType =
+    hasSelectedShopTypeProp && !activeShopTypeId;
+
+  const { data: nearbyStoresData = [], isPending: isNearbyStoresPending } = useNearbyStores({
+    enabled: !shouldSkipBecauseEmptyShopType,
+    search,
+    filters: {
+      category_ids: resolvedCategoryIds,
+      price_tiers: filters?.price_tiers ?? null,
+      address_id: filters?.address_id ?? null,
+      stock: filters?.stock ?? null,
+      sort_by: filters?.sort_by ?? null,
+    },
+    requestParams: {
+      category_id: resolvedCategoryId,
+      shop_type_id: activeShopTypeId,
+    },
+  });
   const isEmpty = !isNearbyStoresPending && nearbyStoresData.length === 0;
 
   const handleSeeAllNearbyRestaurants = useCallback(() => {
@@ -48,26 +85,10 @@ export default function NearbyStoreList() {
       {isNearbyStoresPending ? (
         <DiscoveryResultsSkeleton />
       ) : isEmpty ? (
-        <View
-          style={[
-            styles.messageContainer,
-            { backgroundColor: colors.blue50 },
-          ]}
-        >
-          <Text
-            weight="medium"
-            style={[
-              styles.messageText,
-              {
-                color: colors.mutedText,
-                fontSize: typography.size.sm2,
-                lineHeight: typography.lineHeight.sm2,
-              },
-            ]}
-          >
-            {t('multi_vendor_location_stores_empty')}
-          </Text>
-        </View>
+        <DiscoverySectionState
+          title={t('multi_vendor_home_section_empty_title')}
+          message={t('multi_vendor_location_stores_empty')}
+        />
       ) : (
         <HorizontalList
           data={nearbyStoresData}
@@ -82,14 +103,6 @@ export default function NearbyStoreList() {
 }
 
 const styles = StyleSheet.create({
-  messageContainer: {
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-  },
-  messageText: {
-    textAlign: "center",
-  },
   section: {
     gap: 12,
     paddingHorizontal: 16,
