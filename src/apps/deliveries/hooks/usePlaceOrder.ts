@@ -12,12 +12,22 @@ type Options = {
   onSuccess?: (data: PlaceOrderResponse) => void;
 };
 
+const ENABLE_PLACE_ORDER_DEBUG_LOGS = true;
+
 export function usePlaceOrder(options?: Options) {
   const queryClient = useQueryClient();
 
   return useMutation<PlaceOrderResponse, ApiError, PlaceOrderInput>({
     mutationFn: orderService.placeOrder,
+    onMutate: (variables) => {
+      if (ENABLE_PLACE_ORDER_DEBUG_LOGS) {
+        console.log('[Deliveries][usePlaceOrder][Payload]', variables);
+      }
+    },
     onSuccess: (data) => {
+      if (ENABLE_PLACE_ORDER_DEBUG_LOGS) {
+        console.log('[Deliveries][usePlaceOrder][Success]', data);
+      }
       options?.onSuccess?.(data);
 
       if (data.mode === 'stripe') {
@@ -30,6 +40,11 @@ export function usePlaceOrder(options?: Options) {
         queryClient.invalidateQueries({ queryKey: deliveryKeys.orders() }),
       ]);
     },
-    onError: options?.onError,
+    onError: (error) => {
+      if (ENABLE_PLACE_ORDER_DEBUG_LOGS) {
+        console.log('[Deliveries][usePlaceOrder][Error]', error);
+      }
+      options?.onError?.(error);
+    },
   });
 }

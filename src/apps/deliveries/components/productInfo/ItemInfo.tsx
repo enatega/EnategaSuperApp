@@ -9,9 +9,17 @@ type Props = {
   name: string;
   description?: string | null;
   priceLabel: string;
+  originalPriceLabel?: string | null;
+  offerLabel?: string | null;
 };
 
-export default function ItemInfo({ name, description, priceLabel }: Props) {
+export default function ItemInfo({
+  name,
+  description,
+  priceLabel,
+  originalPriceLabel,
+  offerLabel,
+}: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
 
@@ -51,6 +59,20 @@ export default function ItemInfo({ name, description, priceLabel }: Props) {
 
       <View style={styles.metaRow}>
         <View style={styles.priceRow}>
+          {originalPriceLabel ? (
+            <Text
+              color={colors.fontSecondColor}
+              style={[
+                styles.originalPrice,
+                {
+                  fontSize: typography.size.sm,
+                  lineHeight: typography.lineHeight.md,
+                },
+              ]}
+            >
+              {originalPriceLabel}
+            </Text>
+          ) : null}
           <Text
             color={colors.blue800}
             weight="medium"
@@ -61,6 +83,20 @@ export default function ItemInfo({ name, description, priceLabel }: Props) {
           >
             {priceLabel}
           </Text>
+          {offerLabel ? (
+            <View style={[styles.offerBadge, { backgroundColor: colors.primary }]}>
+              <Text
+                color={colors.white}
+                weight="medium"
+                style={{
+                  fontSize: typography.size.xxs,
+                  lineHeight: typography.lineHeight.xxs,
+                }}
+              >
+                {offerLabel}
+              </Text>
+            </View>
+          ) : null}
         </View>
 
         <Pressable
@@ -115,6 +151,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     gap: 12,
+  },
+  originalPrice: {
+    textDecorationLine: "line-through",
+  },
+  offerBadge: {
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
   },
   shareButton: {
     alignItems: "center",

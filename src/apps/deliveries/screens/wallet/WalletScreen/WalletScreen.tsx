@@ -17,6 +17,7 @@ import WalletBalanceHeader from '../../../components/wallet/WalletBalanceHeader'
 import SavedCardRow from '../../../components/wallet/SavedCardRow';
 import AddCardRow from '../../../components/wallet/AddCardRow';
 import WalletTransactionItem from '../../../components/wallet/WalletTransactionItem';
+import WalletTransactionsEmptyState from '../../../components/wallet/WalletTransactionsEmptyState';
 import type { DeliveriesStackParamList } from '../../../navigation/types';
 
 export default function WalletScreen() {
@@ -83,6 +84,9 @@ export default function WalletScreen() {
         renderItem={renderTransaction}
         keyExtractor={keyExtractor}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          !walletTransactionsQuery.isPending ? <WalletTransactionsEmptyState compact /> : null
+        }
         ListHeaderComponent={
           <>
             <WalletBalanceHeader

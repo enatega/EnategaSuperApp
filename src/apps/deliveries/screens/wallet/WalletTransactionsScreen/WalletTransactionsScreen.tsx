@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import ScreenHeader from '../../../../../general/components/ScreenHeader';
 import { useTheme } from '../../../../../general/theme/theme';
 import WalletTransactionItem from '../../../components/wallet/WalletTransactionItem';
+import WalletTransactionsEmptyState from '../../../components/wallet/WalletTransactionsEmptyState';
 import { useWalletTransactionsQuery } from '../../../../../general/api/walletSavedCardsService';
 
 export default function WalletTransactionsScreen() {
@@ -31,6 +32,7 @@ export default function WalletTransactionsScreen() {
         renderItem={renderTransaction}
         keyExtractor={keyExtractor}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={!transactionsQuery.isPending ? <WalletTransactionsEmptyState /> : null}
       />
     </View>
   );

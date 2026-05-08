@@ -294,9 +294,22 @@ export interface DeliveryOrderAgainItem {
     storeLogo?: string | null;
     storeImage?: string | null;
     price?: number | null;
-    deal?: string | null;
+    deal?:
+        | string
+        | {
+              id?: string;
+              deal_name?: string;
+              discount_type?: string;
+              discount_value?: number;
+              discounted_price?: number;
+              start_date?: string;
+              end_date?: string;
+          }
+        | null;
     dealType?: string | null;
     dealAmount?: number | null;
+    discountedPrice?: number | null;
+    originalPrice?: number | null;
 }
 
 export interface DeliveryOrderAgainParams {

@@ -906,6 +906,9 @@ const fr = {
   wallet_cards_title: 'Cartes',
   wallet_add_card: 'Ajouter une carte de débit/crédit',
   wallet_recent_transactions: 'Transactions récentes',
+  wallet_transactions_empty_title: 'Aucune transaction pour le moment',
+  wallet_transactions_empty_description:
+    'L’activité de votre portefeuille apparaîtra ici après un paiement ou un remboursement.',
   wallet_see_all: 'Voir tout',
   wallet_add_card_title: 'Ajouter une carte',
   wallet_name_on_card: 'Nom sur la carte',

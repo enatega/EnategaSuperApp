@@ -907,6 +907,8 @@ const en = {
   wallet_cards_title: 'Cards',
   wallet_add_card: 'Add debit/credit card',
   wallet_recent_transactions: 'Recent Transactions',
+  wallet_transactions_empty_title: 'No transactions yet',
+  wallet_transactions_empty_description: 'Your wallet activity will appear here once you make a payment or refund.',
   wallet_see_all: 'See all',
   wallet_add_card_title: 'Add card',
   wallet_name_on_card: 'Name on card',
