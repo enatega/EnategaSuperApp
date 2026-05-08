@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     gap: 0,
-    width: 62,
+    width: 68,
   },
   image: {
     borderRadius: 4,
