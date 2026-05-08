@@ -50,6 +50,7 @@ export default function OrderAgain(props: Props) {
       enabled: !shouldSkipBecauseEmptyShopType,
     },
   );
+  const isEmpty = !isOrderAgainPending && orderAgainData.length === 0;
   const navigation = useNavigation<NavigationProp>();
 
   const handleSeeAllPress = () => {
@@ -58,14 +59,14 @@ export default function OrderAgain(props: Props) {
   return (
     <View style={styles.section}>
       <SectionActionHeader
-        actionLabel={t('multi_vendor_see_all')}
+        actionLabel={isEmpty ? undefined : t('multi_vendor_see_all')}
         title={t('multi_vendor_order_again_title')}
         onActionPress={handleSeeAllPress}
       />
 
       {isOrderAgainPending ? (
         <StoreMiniCardSkeleton />
-      ) : orderAgainData.length === 0 ? (
+      ) : isEmpty ? (
         <DeliveriesSectionEmptyState
           title={t('multi_vendor_home_section_empty_title')}
           message={t('multi_vendor_home_section_empty_order_again')}

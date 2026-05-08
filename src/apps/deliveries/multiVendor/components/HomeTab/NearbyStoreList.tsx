@@ -9,8 +9,8 @@ import { useNearbyStores } from '../../../hooks';
 import type { DeliveryNearbyStore } from '../../../api/types';
 import {
   DiscoveryResultsSkeleton,
-  DiscoverySectionState,
 } from '../../../components/discovery';
+import DeliveriesSectionEmptyState from '../../../components/home/DeliveriesSectionEmptyState';
 import StoreCard from '../../../components/storeCard/StoreCard';
 import type { MultiVendorStackParamList } from '../../navigation/types';
 import type { GenericListFilters } from '../../../components/filters/types';
@@ -77,7 +77,7 @@ export default function NearbyStoreList(props: Props) {
   return (
     <View style={styles.section}>
       <SectionActionHeader
-        actionLabel={t('multi_vendor_see_all')}
+        actionLabel={isEmpty ? undefined : t('multi_vendor_see_all')}
         title={t('multi_vendor_nearby_store_title')}
         onActionPress={handleSeeAllNearbyRestaurants}
       />
@@ -85,7 +85,7 @@ export default function NearbyStoreList(props: Props) {
       {isNearbyStoresPending ? (
         <DiscoveryResultsSkeleton />
       ) : isEmpty ? (
-        <DiscoverySectionState
+        <DeliveriesSectionEmptyState
           title={t('multi_vendor_home_section_empty_title')}
           message={t('multi_vendor_location_stores_empty')}
         />

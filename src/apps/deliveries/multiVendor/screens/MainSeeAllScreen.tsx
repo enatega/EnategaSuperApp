@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../../../general/theme/theme";
@@ -25,7 +25,12 @@ import NearbyStoreList from "../components/HomeTab/NearbyStoreList";
 
 type NavigationProp = NativeStackNavigationProp<
   MultiVendorStackParamList,
-  "SeeAllScreen"
+  "MainSeeAllScreen"
+>;
+
+type MainSeeAllRouteProp = RouteProp<
+  MultiVendorStackParamList,
+  "MainSeeAllScreen"
 >;
 
 export default function MainSeeAllScreen() {
@@ -33,8 +38,10 @@ export default function MainSeeAllScreen() {
   const { t } = useTranslation("deliveries");
   const { t: tGeneral } = useTranslation("general");
   const navigation = useNavigation<NavigationProp>();
+  const route = useRoute<MainSeeAllRouteProp>();
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearch = useDebouncedValue(searchValue.trim(), 450);
+  const initialShopTypeId = route.params?.initialShopTypeId;
 
   const { data: shopTypes = [] } = useShopTypes();
   const { data: filterValues } = useFilterValues();
@@ -47,10 +54,15 @@ export default function MainSeeAllScreen() {
   );
 
   useEffect(() => {
+    if (!selectedShopTypeId && initialShopTypeId && shopTypes.some((item) => item.id === initialShopTypeId)) {
+      setSelectedShopTypeId(initialShopTypeId);
+      return;
+    }
+
     if (!selectedShopTypeId && shopTypes.length > 0) {
       setSelectedShopTypeId(shopTypes[0].id);
     }
-  }, [selectedShopTypeId, shopTypes]);
+  }, [initialShopTypeId, selectedShopTypeId, shopTypes]);
 
   const {
     data: categories = [],
@@ -185,6 +197,7 @@ export default function MainSeeAllScreen() {
 const styles = StyleSheet.create({
   contentContainer: {
     gap: 12,
+    paddingBottom: 28,
     paddingVertical: 16,
   },
   screen: {

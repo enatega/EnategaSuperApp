@@ -234,6 +234,15 @@ export function useShopTypes(options?: UseShopTypesOptions) {
   });
 }
 
+export function usePublicShopTypes(options?: UseShopTypesOptions) {
+  return useQuery<DeliveryShopType[], ApiError>({
+    queryKey: deliveryKeys.publicShopTypes({ limit: 10 }),
+    queryFn: () => discoveryService.getPublicShopTypes({ limit: 10 }),
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+}
+
 export function usePaginatedShopTypes(
   options?: UsePaginatedShopTypesOptions,
 ) {

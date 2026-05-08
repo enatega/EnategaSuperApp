@@ -23,16 +23,12 @@ export default function ShopTypeList() {
   const { data: shopTypes = [], isPending } = useShopTypes();
 
   const handleSeeAll = useCallback(() => {
-    navigation.navigate("ShopTypesSeeAll");
+    navigation.navigate("MainSeeAllScreen");
   }, [navigation]);
 
-  const handleShopTypeSeeAll = useCallback(
-    (shopTypeId: string, title: string) => {
-      navigation.navigate('SeeAllScreen', {
-        queryType: 'shop-type-stores',
-        title,
-        cardType: 'store',
-        shopTypeId,
+  const handleShopTypeSeeAll = useCallback((shopTypeId: string) => {
+      navigation.navigate("MainSeeAllScreen", {
+        initialShopTypeId: shopTypeId,
       });
     },
     [navigation],
@@ -49,7 +45,7 @@ export default function ShopTypeList() {
         }))}
         isPending={isPending}
         onActionPress={handleSeeAll}
-        onItemPress={(item) => handleShopTypeSeeAll(item.id, item.name)}
+        onItemPress={(item) => handleShopTypeSeeAll(item.id)}
         title={t("multi_vendor_shop_types_title")}
       />
     </View>

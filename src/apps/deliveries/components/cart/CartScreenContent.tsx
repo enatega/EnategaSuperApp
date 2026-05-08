@@ -57,7 +57,15 @@ export default function CartScreenContent({
   }, [navigation]);
 
   const handleStartShopping = React.useCallback(() => {
-    if (!cart.storeId) return;
+    if (!cart.storeId) {
+      navigation.navigate('MultiVendor', {
+        screen: 'MultiVendorTabs',
+        params: {
+          screen: 'MultiVendorTabHome',
+        },
+      });
+      return;
+    }
 
     navigation.navigate('MultiVendor', {
       screen: 'StoreDetails',

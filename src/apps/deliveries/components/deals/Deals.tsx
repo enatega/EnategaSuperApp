@@ -53,6 +53,7 @@ export default function Deals({
   const { typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const isEmpty = !isPending && !isError && items.length === 0;
+  const shouldShowAction = Boolean(actionLabel) && !isEmpty;
   const renderItem = useCallback(
     ({ item }: { item: DealsItem }) => (
       <StoreCard
@@ -65,9 +66,9 @@ export default function Deals({
 
   return (
     <View style={styles.section}>
-      {actionLabel ? (
+      {shouldShowAction ? (
         <SectionActionHeader
-          actionLabel={actionLabel}
+          actionLabel={actionLabel!}
           onActionPress={onActionPress}
           title={title}
         />

@@ -123,6 +123,8 @@ export const deliveryKeys = {
     }) => [...deliveryKeys.discovery(), 'nearby-stores', filters] as const,
     recommendedStores: () =>
         [...deliveryKeys.discovery(), 'recommended-stores'] as const,
+    publicShopTypes: (filters?: { limit?: number }) =>
+        [...deliveryKeys.discovery(), 'public-shop-types', filters] as const,
     storeView: (storeId: string) =>
         [
             ...deliveryKeys.discovery(),

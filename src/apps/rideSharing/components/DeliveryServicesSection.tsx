@@ -4,59 +4,39 @@ import {
   ScrollView,
   StyleSheet,
   View,
-  type ImageSourcePropType,
 } from 'react-native';
 import Text from '../../../general/components/Text';
 import Image from '../../../general/components/Image';
 import { useTheme } from '../../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
+import { usePublicShopTypes } from '../../deliveries/hooks';
 
 type DeliveryService = {
   id: string;
   title: string;
-  image: ImageSourcePropType;
+  imageUrl?: string | null;
   cardWidth: number;
 };
 
 type Props = {
-  onSelectService?: (serviceId: string) => void;
+  onSelectService?: (shopTypeId: string) => void;
 };
-
-const foodImage = require('../../rideSharing/assets/images/pizza.png');
-const groceryImage = require('../../rideSharing/assets/images/basket.png');
-const giftImage = require('../../rideSharing/assets/images/gift.png');
-const medicineImage = require('../../rideSharing/assets/images/medicine.png');
 
 export default function DeliveryServicesSection({ onSelectService }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('rideSharing');
+  const { data: shopTypes = [] } = usePublicShopTypes();
 
-  const items: DeliveryService[] = [
-    {
-      id: 'food',
-      title: t('delivery_service_food_title'),
-      image: foodImage,
-      cardWidth: 152,
-    },
-    {
-      id: 'grocery',
-      title: t('delivery_service_grocery_title'),
-      image: groceryImage,
-      cardWidth: 152,
-    },
-    {
-      id: 'gift',
-      title: t('delivery_service_gift_title'),
-      image: giftImage,
-      cardWidth: 152,
-    },
-    {
-      id: 'medicine',
-      title: t('delivery_service_medicine_title'),
-      image: medicineImage,
-      cardWidth: 160,
-    },
-  ];
+  const items: DeliveryService[] = shopTypes.slice(0, 8).map((shopType) => ({
+    id: shopType.id,
+    title: shopType.name,
+    imageUrl: shopType.image ?? null,
+    cardWidth: 152,
+  }));
+
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
     <View style={styles.section}>
@@ -105,7 +85,11 @@ export default function DeliveryServicesSection({ onSelectService }: Props) {
             >
               {item.title}
             </Text>
-            <Image source={item.image} style={styles.image} />
+            {item.imageUrl ? (
+              <Image source={{ uri: item.imageUrl }} style={styles.image} />
+            ) : (
+              <View style={[styles.imageFallback, { backgroundColor: colors.border }]} />
+            )}
           </Pressable>
         ))}
       </ScrollView>
@@ -138,6 +122,10 @@ const styles = StyleSheet.create({
     maxWidth: 74,
   },
   image: {
+    width: 48,
+    height: 48,
+  },
+  imageFallback: {
     width: 48,
     height: 48,
   },

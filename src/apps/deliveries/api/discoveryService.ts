@@ -430,6 +430,36 @@ export const discoveryService = {
         }
     },
 
+    /** Fetch available deliveries shop types for guest/public mode. */
+    getPublicShopTypes: async (
+        params: DeliveryShopTypesParams = {},
+    ): Promise<DeliveryShopType[]> => {
+        const { offset = 0, limit = 10 } = params;
+        try {
+            const response = await apiClient.get<DeliveryShopTypesApiResponse>(
+                '/api/v1/apps/deliveries/discovery/public/shop-types',
+                { offset, limit },
+            );
+
+            if (Array.isArray(response)) {
+                return response;
+            }
+
+            if (isPaginatedShopTypesResponse(response)) {
+                return response.items;
+            }
+
+            if (isWrappedShopTypesResponse(response)) {
+                return response.data;
+            }
+
+            return [];
+        } catch (error) {
+            console.error('public shop types request failed', error);
+            throw error;
+        }
+    },
+
     /** Fetch paginated deliveries shop types for app discovery. */
     getShopTypesPage: async (
         params: DeliveryShopTypesParams = {},

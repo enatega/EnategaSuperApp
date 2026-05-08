@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../../components/Icon';
 import { useTheme } from '../../../theme/theme';
 import type { GenericListHeaderRenderProps } from '../../../components/filterablePaginatedList';
+import { resetToSharedRoute } from '../../../navigation/rootNavigation';
 
 export default function SeeAllHeader({
   searchPlaceholder,
@@ -32,6 +33,23 @@ export default function SeeAllHeader({
     editable: isSearchEditable,
   });
 
+  const handleBackPress = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+
+    resetToSharedRoute('Deliveries', {
+      screen: 'MultiVendor',
+      params: {
+        screen: 'MultiVendorTabs',
+        params: {
+          screen: 'MultiVendorTabHome',
+        },
+      },
+    });
+  };
+
   return (
     <View
       style={[
@@ -45,7 +63,7 @@ export default function SeeAllHeader({
       <Pressable
         accessibilityLabel={t('see_all_back_label')}
         accessibilityRole="button"
-        onPress={() => navigation.goBack()}
+        onPress={handleBackPress}
         style={({ pressed }) => [
           styles.iconButton,
           {

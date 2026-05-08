@@ -70,8 +70,20 @@ export default function MainSeeAllCategoriesSection({
                   imageUrl={item.imageUrl}
                   title={item.name}
                   onPress={() => onSelectCategory(item.id)}
+                  containerStyle={styles.categoryCardContainer}
                   imageWrapStyle={
-                    isSelected ? { ...styles.selectedImageWrap, borderColor: colors.primary } : undefined
+                    isSelected
+                      ? [
+                          styles.imageWrapBase,
+                          styles.selectedImageWrap,
+                          { backgroundColor: colors.primary },
+                        ]
+                      : styles.imageWrapBase
+                  }
+                  imageStyle={
+                    isSelected
+                      ? [styles.categoryImage, styles.selectedCategoryImage]
+                      : styles.categoryImage
                   }
                   titleStyle={isSelected ? { ...styles.selectedTitle, color: colors.primary } : undefined}
                 />
@@ -85,17 +97,40 @@ export default function MainSeeAllCategoriesSection({
 
 const styles = StyleSheet.create({
   listContent: {
+    paddingLeft: 2,
     paddingRight: 16,
+  },
+  categoryCardContainer: {
+    width: 64,
+  },
+  categoryImage: {
+    borderRadius: 28,
+    height: 56,
+    width: 56,
+  },
+  imageWrapBase: {
+    borderRadius: 8,
+    height: 56,
+    padding: 0,
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    width: 56,
   },
   section: {
     gap: 12,
     paddingHorizontal: 16,
   },
   selectedImageWrap: {
-    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  selectedCategoryImage: {
+    borderRadius: 20,
+    height: 40,
+    width: 40,
   },
   selectedTitle: {},
   separator: {
-    width: 8,
+    width: 12,
   },
 });

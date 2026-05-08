@@ -42,8 +42,8 @@ export default function DeliveriesRecommendedStoresSection({
     mode: 'paginated',
     enabled: typeof latitude === 'number' && typeof longitude === 'number',
     requestParams: {
-      latitude,
-      longitude,
+      // latitude,
+      // longitude,
       sort_by: 'recommended',
     },
   });

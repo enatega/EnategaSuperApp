@@ -122,8 +122,16 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
     });
   }
 
-  function handleSelectDeliveryService() {
-    onSelectMiniApp?.('deliveries');
+  function handleSelectDeliveryService(shopTypeId: string) {
+    onSelectMiniApp?.('deliveries', {
+      screen: 'MultiVendor',
+      params: {
+        screen: 'MainSeeAllScreen',
+        params: {
+          initialShopTypeId: shopTypeId,
+        },
+      },
+    });
   }
 
   function handleSelectDeliverablesCard() {
@@ -147,13 +155,13 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
           <DeliveryServicesSection onSelectService={handleSelectDeliveryService} />
           <RecommendedStoresSection onSelectMiniApp={onSelectMiniApp} />
           <HomeTravelBannerSection onPress={handleSelectTravelBanner} />
-          <HomeVisitsSection onPress={handleSelectHomeVisits} />
+          {/* <HomeVisitsSection onPress={handleSelectHomeVisits} />
           <RecommendedSection
             title="Our Deliverables"
             featureTitle="What We Bring to You"
             layout="featureCard"
             onPressFeatureCard={handleSelectDeliverablesCard}
-          />
+          /> */}
         </ScrollView>
       </SafeAreaView>
 

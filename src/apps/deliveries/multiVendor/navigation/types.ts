@@ -44,5 +44,9 @@ export type MultiVendorStackParamList = {
     title: string;
   };
   TopBrandsSeeAll: undefined;
-  MainSeeAllScreen: undefined;
+  MainSeeAllScreen:
+    | {
+        initialShopTypeId?: string;
+      }
+    | undefined;
 };
