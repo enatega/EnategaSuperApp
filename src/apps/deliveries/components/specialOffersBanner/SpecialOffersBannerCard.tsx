@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   },
   bannerCard: {
     borderRadius: 18,
-    height: 206,
+    height: 160,
     justifyContent: 'flex-end',
     overflow: 'hidden',
     paddingHorizontal: 18,

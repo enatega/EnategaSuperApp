@@ -187,18 +187,18 @@ const styles = StyleSheet.create({
   },
   bannerDots: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 4,
     justifyContent: 'center',
     marginTop: 10,
   },
   bannerDot: {
     borderRadius: 999,
-    height: 12,
+    height: 6,
   },
   bannerDotActive: {
-    width: 42,
+    width: 19,
   },
   bannerDotInactive: {
-    width: 12,
+    width: 6,
   },
 });
