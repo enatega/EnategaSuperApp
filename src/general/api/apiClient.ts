@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosHeaders, AxiosInstance, AxiosRequestConfig } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { apiConfig } from '../config/apiConfig';
 import { resetToSharedHome } from '../navigation/rootNavigation';
@@ -49,6 +49,34 @@ type ApiErrorResponseData = {
   code?: string;
   error?: string;
 };
+
+function isLikelyAuthExpiry(status: number, responseData?: ApiErrorResponseData): boolean {
+  const messageText = toLowerCaseMessage(responseData?.message);
+  const errorText = toLowerCaseMessage(responseData?.error);
+  const codeText = toLowerCaseMessage(responseData?.code);
+  const combinedAuthText = `${messageText} ${errorText} ${codeText}`.trim();
+
+  const hasAuthFailureSignal =
+    combinedAuthText.includes('token session expired') ||
+    combinedAuthText.includes('session expired') ||
+    combinedAuthText.includes('invalid token') ||
+    combinedAuthText.includes('token expired') ||
+    combinedAuthText.includes('jwt expired') ||
+    combinedAuthText.includes('unauthorized');
+
+  // 401/419/440 are strong authentication/session-expiry signals.
+  if ([401, 419, 440].includes(status)) {
+    return true;
+  }
+
+  // 403 is often business authorization; only treat it as auth-expiry when
+  // backend text also explicitly indicates an expired/invalid session/token.
+  if (status === 403) {
+    return hasAuthFailureSignal;
+  }
+
+  return hasAuthFailureSignal;
+}
 
 // ---------------------------------------------------------------------------
 // Custom error class with typed metadata
@@ -105,10 +133,9 @@ httpClient.interceptors.request.use(async (config) => {
   const token = await tokenManager.getToken();
 
   if (token) {
-    config.headers = {
-      ...config.headers,
-      Authorization: `Bearer ${token}`,
-    } as AxiosRequestConfig['headers'];
+    const headers = AxiosHeaders.from(config.headers ?? {});
+    headers.set('Authorization', `Bearer ${token}`);
+    config.headers = headers;
   }
   return config;
 });
@@ -122,21 +149,12 @@ httpClient.interceptors.response.use(
 
     const status = error.response?.status ?? 0;
     const responseData = error.response?.data as ApiErrorResponseData | undefined;
-    const messageText = toLowerCaseMessage(responseData?.message);
-    const errorText = toLowerCaseMessage(responseData?.error);
-    const combinedAuthText = `${messageText} ${errorText}`.trim();
     const hasAuthHeader = Boolean(
       (error.config?.headers as Record<string, unknown> | undefined)?.Authorization,
     );
     const storedToken = await tokenManager.getToken();
-    const hasExpiredSessionMessage =
-      combinedAuthText.includes('token session expired') ||
-      combinedAuthText.includes('session expired') ||
-      combinedAuthText.includes('invalid token') ||
-      combinedAuthText.includes('token expired');
-    const isAuthStatus = [401, 403, 419, 440].includes(status);
     const shouldHandleSessionExpiry =
-      (isAuthStatus || hasExpiredSessionMessage) && (hasAuthHeader || Boolean(storedToken));
+      isLikelyAuthExpiry(status, responseData) && (hasAuthHeader || Boolean(storedToken));
 
     if (shouldHandleSessionExpiry && !isHandlingSessionExpiry) {
       isHandlingSessionExpiry = true;

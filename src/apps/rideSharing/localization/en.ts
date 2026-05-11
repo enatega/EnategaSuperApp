@@ -50,6 +50,8 @@ const en = {
   ride_offer_fare_miles_included: '{{miles}} miles included',
   ride_offer_fare_promo_coming_soon: 'Promo codes coming soon',
   ride_finding_driver_offer_label: 'Driver offer',
+  ride_finding_for_you_title: 'Recommended restaurant',
+  ride_finding_for_you_cuisine_fallback: 'Fast food',
   ride_pickup_point_label: 'Pickup point',
   ride_pickup_point_value: 'New Jersey',
   delivery_services_title: 'Get anything delivered',

@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useRef } from 'react';
-import { ActivityIndicator, Animated, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Animated, Image, Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Text from '../../../../../general/components/Text';
 import Icon from '../../../../../general/components/Icon';
@@ -50,6 +50,7 @@ function FindingRideBidCard({
   const riderName = bid.driverName
     ?? bid.rider?.userProfile?.user?.name
     ?? t('ride_finding_driver_offer_label');
+  const riderProfileImage = bid.driverProfileImage ?? bid.rider?.userProfile?.user?.profile ?? undefined;
   const initials = buildInitials(riderName);
   const ratingValue = bid.rating?.average ?? bid.stats?.averageRating;
   const ridesCount = bid.stats?.totalRides;
@@ -100,9 +101,13 @@ function FindingRideBidCard({
       <View style={styles.content}>
         <View style={styles.rowTop}>
           <View style={[styles.avatar, { backgroundColor: colors.cardBlue }]}>
-            <Text weight="semiBold" style={{ color: colors.text, fontSize: 12, lineHeight: 18 }}>
-              {initials}
-            </Text>
+            {riderProfileImage ? (
+              <Image source={{ uri: riderProfileImage }} style={styles.avatarImage} />
+            ) : (
+              <Text weight="semiBold" style={{ color: colors.text, fontSize: 12, lineHeight: 18 }}>
+                {initials}
+              </Text>
+            )}
           </View>
 
           <View style={styles.leftBlock}>
@@ -223,6 +228,11 @@ const styles = StyleSheet.create({
     borderRadius: 21,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
   },
   leftBlock: {
     flex: 1,

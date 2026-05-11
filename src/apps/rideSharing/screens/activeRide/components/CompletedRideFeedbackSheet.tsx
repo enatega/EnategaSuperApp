@@ -40,7 +40,7 @@ function CompletedRideFeedbackSheet({
   const { t } = useTranslation('rideSharing');
   const insets = useSafeAreaInsets();
   const [rating, setRating] = useState(0);
-  const [feedback, setFeedback] = useState('');
+  const [customFeedback, setCustomFeedback] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const isCourierFlow = isCourierRideRequest(feedbackRide.rawRideData?.ride_type?.name)
     || isCourierRideRequest(feedbackRide.rawRideData?.ride_type?.id)
@@ -61,6 +61,14 @@ function CompletedRideFeedbackSheet({
     () => rating <= 0 || isSubmitting,
     [isSubmitting, rating],
   );
+  const selectedTagLabels = useMemo(
+    () => selectedTags.map((tag) => t(tag)).join(', '),
+    [selectedTags, t],
+  );
+  const prefixedFeedback = useMemo(
+    () => [selectedTagLabels, customFeedback.trim()].filter(Boolean).join('. '),
+    [customFeedback, selectedTagLabels],
+  );
 
   const toggleTag = (tag: string) => {
     setSelectedTags((previous) => (
@@ -75,12 +83,9 @@ function CompletedRideFeedbackSheet({
       return;
     }
 
-    const selectedTagLabels = selectedTags.map((tag) => t(tag)).join(', ');
-    const composedFeedback = [selectedTagLabels, feedback.trim()].filter(Boolean).join('. ');
-
     onSubmit({
       rating,
-      feedback: composedFeedback,
+      feedback: prefixedFeedback,
     });
   };
 
@@ -152,8 +157,26 @@ function CompletedRideFeedbackSheet({
             multiline
             placeholder={t('ride_feedback_placeholder')}
             placeholderTextColor={colors.iconDisabled}
-            value={feedback}
-            onChangeText={setFeedback}
+            value={prefixedFeedback}
+            onChangeText={(nextValue) => {
+              if (!selectedTagLabels) {
+                setCustomFeedback(nextValue);
+                return;
+              }
+
+              const tagPrefixWithDivider = `${selectedTagLabels}. `;
+              if (nextValue.startsWith(tagPrefixWithDivider)) {
+                setCustomFeedback(nextValue.slice(tagPrefixWithDivider.length));
+                return;
+              }
+
+              if (nextValue === selectedTagLabels) {
+                setCustomFeedback('');
+                return;
+              }
+
+              setCustomFeedback(nextValue);
+            }}
             textAlignVertical="top"
             style={[
               styles.input,
