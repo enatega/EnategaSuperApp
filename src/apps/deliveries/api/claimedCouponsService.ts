@@ -13,12 +13,13 @@ export type ClaimedCouponApiItem = {
   min_order_value: number;
   name: string;
   offered_by:
-    | Array<{
-        store_id: string;
-        store_image: string;
-        store_name: string;
-      }>
-    | null;
+  | Array<{
+    store_user_image: string;
+    store_id: string;
+    store_image: string;
+    store_name: string;
+  }>
+  | null;
   start_date: string;
   status: string;
 };

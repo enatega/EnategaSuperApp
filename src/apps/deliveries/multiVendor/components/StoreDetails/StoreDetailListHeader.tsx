@@ -90,7 +90,7 @@ export default function StoreDetailListHeader({
             style={[
               styles.heroContent,
               {
-                
+
                 paddingTop: insets.top + 12,
               },
             ]}
@@ -286,6 +286,8 @@ const styles = StyleSheet.create({
   },
   storeName: {
     letterSpacing: -0.4,
+    lineHeight: typography.lineHeight.h5 + 2,
+    paddingBottom: 2,
     textAlign: 'center',
   },
   filters: {

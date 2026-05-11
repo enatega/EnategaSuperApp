@@ -113,6 +113,44 @@ function getPreviewInput(
   };
 }
 
+function applyPercentageCouponFallback(params: {
+  subtotal: number;
+  backendDiscount: number;
+  discountType?: string;
+  discountValue?: number;
+  maxDiscountCap?: number;
+  minOrderValue?: number;
+}) {
+  const {
+    subtotal,
+    backendDiscount,
+    discountType,
+    discountValue,
+    maxDiscountCap,
+    minOrderValue,
+  } = params;
+
+  // Keep current behavior for FIXED/FLAT and for already-applied backend discount.
+  if (discountType !== 'PERCENTAGE' || backendDiscount > 0) {
+    return backendDiscount;
+  }
+
+  if (typeof discountValue !== 'number' || discountValue <= 0) {
+    return backendDiscount;
+  }
+
+  if (typeof minOrderValue === 'number' && subtotal < minOrderValue) {
+    return backendDiscount;
+  }
+
+  const percentageAmount = (subtotal * discountValue) / 100;
+  const cappedAmount = typeof maxDiscountCap === 'number' && maxDiscountCap > 0
+    ? Math.min(percentageAmount, maxDiscountCap)
+    : percentageAmount;
+
+  return Number.isFinite(cappedAmount) && cappedAmount > 0 ? cappedAmount : backendDiscount;
+}
+
 export default function CheckoutScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
@@ -621,7 +659,51 @@ export default function CheckoutScreen() {
     );
   }
 
-  const previewTotal = preview?.pricing.totalAmount ?? cart.finalPrice;
+  const adjustedPricing = React.useMemo(() => {
+    if (!preview?.pricing) {
+      return null;
+    }
+
+    const nextDiscount = applyPercentageCouponFallback({
+      subtotal: preview.pricing.subtotal,
+      backendDiscount: preview.pricing.discount,
+      discountType: selectedCoupon?.discountType,
+      discountValue: selectedCoupon?.discountValue,
+      maxDiscountCap: selectedCoupon?.maxDiscountCap,
+      minOrderValue: selectedCoupon?.minOrderValue,
+    });
+
+    if (nextDiscount === preview.pricing.discount) {
+      return preview.pricing;
+    }
+
+    const nextTotalAmount = Math.max(
+      0,
+      preview.pricing.subtotal
+      - nextDiscount
+      + preview.pricing.tax
+      + preview.pricing.packingCharges
+      + preview.pricing.deliveryFee
+      + preview.pricing.riderTip,
+    );
+
+    return {
+      ...preview.pricing,
+      discount: nextDiscount,
+      totalAmount: nextTotalAmount,
+    };
+  }, [
+    preview?.pricing,
+    selectedCoupon?.discountType,
+    selectedCoupon?.discountValue,
+    selectedCoupon?.maxDiscountCap,
+    selectedCoupon?.minOrderValue,
+  ]);
+  const adjustedPreview = React.useMemo(
+    () => (preview && adjustedPricing ? { ...preview, pricing: adjustedPricing } : preview),
+    [adjustedPricing, preview],
+  );
+  const previewTotal = adjustedPreview?.pricing.totalAmount ?? cart.finalPrice;
   const selectedAddressLabel = formatDeliveryAddressLabel(selectedAddress);
   const paymentIconName = paymentMethod === 'stripe' ? 'card-outline' : 'cash-outline';
   const paymentTitle = getCheckoutPaymentMethodTitle(paymentMethod, t);
@@ -739,7 +821,7 @@ export default function CheckoutScreen() {
         courierMessage={messages.courier}
         deliveryTimeMode={deliveryTimeMode}
         hasAddressRequirement={orderType === 'delivery' && !selectedAddress?.id}
-        isPickupEnabled={preview?.store.pickupAllowed ?? true}
+        isPickupEnabled={adjustedPreview?.store.pickupAllowed ?? true}
         isPromoApplied={isPromoApplied}
         isPlacingOrder={placeOrderMutation.isPending}
         isPaymentBlocked={!isPaymentAvailable}
@@ -778,7 +860,7 @@ export default function CheckoutScreen() {
         promoCode={promoCode}
         promoTitle={promoTitle}
         promoSubtitle={promoSubtitle}
-        preview={preview ?? null}
+        preview={adjustedPreview ?? null}
         restaurantMessage={messages.restaurant}
         scheduledAt={scheduledAt}
         selectedAddressLabel={selectedAddressLabel}
