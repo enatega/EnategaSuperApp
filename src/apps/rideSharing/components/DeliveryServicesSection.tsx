@@ -10,11 +10,13 @@ import Image from '../../../general/components/Image';
 import { useTheme } from '../../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
 import { usePublicShopTypes } from '../../deliveries/hooks';
+import type { ImageSourcePropType } from 'react-native';
 
 type DeliveryService = {
   id: string;
   title: string;
   imageUrl?: string | null;
+  imageSource?: ImageSourcePropType;
   cardWidth: number;
 };
 
@@ -27,16 +29,23 @@ export default function DeliveryServicesSection({ onSelectService }: Props) {
   const { t } = useTranslation('rideSharing');
   const { data: shopTypes = [] } = usePublicShopTypes();
 
-  const items: DeliveryService[] = shopTypes.slice(0, 8).map((shopType) => ({
+  const foodDeliveryCard: DeliveryService = {
+    id: 'food-delivery',
+    title: t('delivery_service_food_title'),
+    imageSource: require('../assets/images/pizza.png'),
+    cardWidth: 152,
+  };
+
+  const dynamicItems: DeliveryService[] = shopTypes.slice(0, 8).map((shopType) => ({
     id: shopType.id,
     title: shopType.name,
     imageUrl: shopType.image ?? null,
     cardWidth: 152,
   }));
-
-  if (items.length === 0) {
-    return null;
-  }
+  const items: DeliveryService[] = [
+    foodDeliveryCard,
+    ...dynamicItems.filter((item) => item.title.toLowerCase() !== foodDeliveryCard.title.toLowerCase()),
+  ];
 
   return (
     <View style={styles.section}>
@@ -85,7 +94,9 @@ export default function DeliveryServicesSection({ onSelectService }: Props) {
             >
               {item.title}
             </Text>
-            {item.imageUrl ? (
+            {item.imageSource ? (
+              <Image source={item.imageSource} style={styles.image} />
+            ) : item.imageUrl ? (
               <Image source={{ uri: item.imageUrl }} style={styles.image} />
             ) : (
               <View style={[styles.imageFallback, { backgroundColor: colors.border }]} />
