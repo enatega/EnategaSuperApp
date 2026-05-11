@@ -33,6 +33,7 @@ module.exports = {
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
       package: 'com.enategasuper.app',
+      googleServicesFile: './google-services.json',
     },
     web: {
       favicon: './assets/favicon.png',

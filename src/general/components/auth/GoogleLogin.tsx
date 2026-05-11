@@ -13,8 +13,8 @@ import { getExpoPushTokenForAuth } from "../../services/notifications/expoPushTo
 
 const iosClientId = process.env.EXPO_PUBLIC_IOS_CLIENT_ID;
 const webClientId =
-  process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID
-  ?? process.env.EXPO_PUBLIC_ANDROID_OAUTH_CLIENT_ID;
+  process.env.EXPO_PUBLIC_WEB_CLIENT_ID ??
+  process.env.EXPO_PUBLIC_ANDROID_OAUTH_CLIENT_ID;
 
 GoogleSignin.configure({
   iosClientId,
