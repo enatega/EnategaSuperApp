@@ -28,9 +28,6 @@ function RideOptionsHeader({
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
 
-  const fixedColumnItems = useMemo(() => rideOptions.slice(0, 2), [rideOptions]);
-  const scrollItems = useMemo(() => rideOptions.slice(2), [rideOptions]);
-
   const optionLayout = useMemo(() => {
     if (rideOptions.length === 0) {
       return null;
@@ -38,25 +35,12 @@ function RideOptionsHeader({
 
     return (
       <View style={styles.optionsLayout}>
-        <View style={styles.fixedRow}>
-          {fixedColumnItems.map((item) => (
-            <View key={item.id} style={styles.fixedRowItem}>
-              <RideOptionCard
-                item={item}
-                isActive={item.id === selectedCategory}
-                onPress={onSelectCategory}
-                containerStyle={styles.optionCardContainer}
-              />
-            </View>
-          ))}
-        </View>
-
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollRowContainer}
         >
-          {scrollItems.map((item) => (
+          {rideOptions.map((item) => (
             <View key={item.id} style={styles.scrollRowItem}>
               <RideOptionCard
                 item={item}
@@ -69,14 +53,14 @@ function RideOptionsHeader({
         </ScrollView>
       </View>
     );
-  }, [fixedColumnItems, onSelectCategory, rideOptions.length, scrollItems, selectedCategory]);
+  }, [onSelectCategory, rideOptions, selectedCategory]);
 
   return (
     <>
       {hideOptionsRow ? null : (
         <View style={styles.optionsGrid}>{optionLayout}</View>
       )}
-      <Pressable
+      {/* <Pressable
         onPress={() => onSearchPress()}
         disabled={searchDisabled}
         style={[
@@ -93,7 +77,7 @@ function RideOptionsHeader({
         <Text style={{ color: colors.mutedText }}>
           {t('ride_search_placeholder')}
         </Text>
-      </Pressable>
+      </Pressable> */}
     </>
   );
 }
@@ -106,25 +90,16 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   optionsLayout: {
-    flexDirection: 'column',
-    gap: 8,
-  },
-  fixedRow: {
     flexDirection: 'row',
-    gap: 8,
-  },
-  fixedRowItem: {
-    flex: 1,
-    minWidth: 0,
   },
   scrollRowContainer: {
     flexDirection: 'row',
     gap: 8,
-    paddingRight: 12,
+    paddingRight: 16,
     paddingBottom: 2,
   },
   scrollRowItem: {
-    width: 110,
+    width: 132,
     flexShrink: 0,
   },
   optionCardContainer: {

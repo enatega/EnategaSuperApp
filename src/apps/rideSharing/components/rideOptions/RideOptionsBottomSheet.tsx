@@ -1,18 +1,21 @@
 import React, { memo } from 'react';
-import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
+import { Dimensions, ScrollView, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../../../general/theme/theme';
 import BottomSheetHandle from '../../../../general/components/BottomSheetHandle';
 import SwipeableBottomSheet from '../../../../general/components/SwipeableBottomSheet';
 import MapCurrentLocationButton from '../../../../general/components/MapCurrentLocationButton';
 import Icon from '../../../../general/components/Icon';
+import Text from '../../../../general/components/Text';
+import { Pressable } from 'react-native';
 import { RideCategory } from '../../utils/rideOptions';
 import { CachedAddress, RideOptionItem } from './types';
 import RideOptionsHeader from './RideOptionsHeader';
-import CachedAddressList from './CachedAddressList';
 import RideOptionsBottomSheetSkeleton from './RideOptionsBottomSheetSkeleton';
 import RideOptionsBottomSheetError from './RideOptionsBottomSheetError';
-import NoAddressEmptyState from './NoAddressEmptyState';
+import { useRideForYouRestaurants } from '../../screens/findingRide/hooks/useRideForYouRestaurants';
+import FindingRideForYouCard from '../../screens/findingRide/components/FindingRideForYouCard';
 
 type Props = {
   rideOptions: RideOptionItem[];
@@ -46,6 +49,7 @@ function RideOptionsBottomSheet({
   isDirectCourierFlow = false,
 }: Props) {
   const { colors } = useTheme();
+  const { t } = useTranslation('rideSharing');
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const expandedHeight = isDirectCourierFlow
@@ -54,9 +58,10 @@ function RideOptionsBottomSheet({
   const defaultHeight = isDirectCourierFlow
     ? expandedHeight
     : undefined;
-  const collapsedHeight = 120;
+  const collapsedHeight = 150;
   const showErrorState = Boolean(rideTypesErrorMessage) && !isLoadingRideTypes;
   const searchDisabled = !selectedCategory || isLoadingRideTypes || showErrorState;
+  const forYouQuery = useRideForYouRestaurants();
 
   return (
     <SwipeableBottomSheet
@@ -105,12 +110,8 @@ function RideOptionsBottomSheet({
           onRetry={onRetryRideTypes}
         />
       ) : (
-        <CachedAddressList
-          data={cachedAddresses}
-          onSelect={onSearchPress}
-          contentContainerStyle={styles.sheetContent}
-          ListEmptyComponent={<NoAddressEmptyState />}
-          ListHeaderComponent={(
+        <ScrollView style={styles.sheetContent} contentContainerStyle={styles.sheetContentContainer}>
+          <View>
             <RideOptionsHeader
               rideOptions={rideOptions}
               selectedCategory={selectedCategory}
@@ -119,8 +120,24 @@ function RideOptionsBottomSheet({
               searchDisabled={searchDisabled}
               hideOptionsRow={isDirectCourierFlow}
             />
-          )}
-        />
+          </View>
+
+          <View style={styles.forYouSection}>
+            <Text weight="extraBold" style={[styles.forYouTitle, { color: colors.text }]}>
+              {t('ride_finding_for_you_title')}
+            </Text>
+
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.forYouRow}
+            >
+              {(forYouQuery.data ?? []).map((restaurant) => (
+                <FindingRideForYouCard key={restaurant.storeId} item={restaurant} />
+              ))}
+            </ScrollView>
+          </View>
+        </ScrollView>
       )}
     </SwipeableBottomSheet>
   );
@@ -148,7 +165,24 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   sheetContent: {
+    flex: 1,
+  },
+  sheetContentContainer: {
     paddingBottom: 12,
+  },
+  forYouSection: {
+    marginTop: 6,
+    gap: 10,
+  },
+  forYouTitle: {
+    fontSize: 22,
+    lineHeight: 38,
+    letterSpacing: -0.48,
+    paddingHorizontal: 16,
+  },
+  forYouRow: {
+    paddingHorizontal: 16,
+    gap: 10,
   },
   locateFloatingButton: {
     left: 16,

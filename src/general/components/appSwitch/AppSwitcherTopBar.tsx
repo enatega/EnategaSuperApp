@@ -9,6 +9,7 @@ type SwitcherKey = 'ride' | 'deliveries' | 'courier';
 type AppSwitcherTopBarProps = {
   activeKey: SwitcherKey;
   rightAction?: React.ReactNode;
+  expandedContent?: React.ReactNode;
 };
 
 type SwitchOption = {
@@ -23,7 +24,7 @@ const OPTIONS: SwitchOption[] = [
   { key: 'courier', label: 'Courier', icon: require('../../assets/images/courier-tab.png') },
 ];
 
-function AppSwitcherTopBarComponent({ activeKey, rightAction }: AppSwitcherTopBarProps) {
+function AppSwitcherTopBarComponent({ activeKey, rightAction, expandedContent }: AppSwitcherTopBarProps) {
   const { colors, typography } = useTheme();
   const insets = useSafeAreaInsets();
   const androidStatusBarHeight = StatusBar.currentHeight ?? 0;
@@ -102,6 +103,19 @@ function AppSwitcherTopBarComponent({ activeKey, rightAction }: AppSwitcherTopBa
         </View>
         {rightAction ? <View style={styles.rightActionInline}>{rightAction}</View> : null}
       </View>
+      {expandedContent ? (
+        <View
+          style={[
+            styles.expandedContent,
+            {
+              borderColor: colors.border,
+              backgroundColor: colors.surface,
+            },
+          ]}
+        >
+          {expandedContent}
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -110,6 +124,9 @@ const styles = StyleSheet.create({
   wrapper: {
     paddingHorizontal: 16,
     position: 'relative',
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    overflow: "hidden",
   },
   container: {
     alignItems: 'center',
@@ -146,6 +163,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingLeft: 8,
     width: 48,
+  },
+  expandedContent: {
+    // borderWidth: 1,
+    borderTopWidth: 0,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    overflow: 'hidden',
+    paddingTop: 8,
+    paddingBottom: 8,
   },
 });
 
