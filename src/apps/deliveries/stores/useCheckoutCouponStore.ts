@@ -4,6 +4,10 @@ type CheckoutCoupon = {
   code: string;
   id: string;
   title: string;
+  discountType?: 'PERCENTAGE' | 'FIXED' | 'FLAT' | string;
+  discountValue?: number;
+  maxDiscountCap?: number;
+  minOrderValue?: number;
 };
 
 type CheckoutCouponState = {

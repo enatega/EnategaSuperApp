@@ -3,10 +3,15 @@ export type Coupon = {
     storeId: string;
     storeImageUrl: string | null;
     storeName: string;
+
   }>;
   amountLabel: string;
   badgeLabel: string;
   code: string;
+  discountType: 'PERCENTAGE' | 'FIXED' | 'FLAT' | string;
+  discountValue: number;
+  maxDiscountCap: number;
+  minOrderValue: number;
   isExpired: boolean;
   isActive: boolean;
   id: string;

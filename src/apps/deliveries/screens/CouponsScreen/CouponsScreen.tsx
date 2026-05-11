@@ -59,7 +59,7 @@ export default function CouponsScreen() {
     () => (claimedCouponsQuery.data?.data ?? []).map((item) => ({
       offeredBy: (item.offered_by ?? []).map((store) => ({
         storeId: store.store_id,
-        storeImageUrl: store.store_image ?? null,
+        storeImageUrl: store.store_image ?? store?.store_user_image,
         storeName: store.store_name,
       })),
       amountLabel:
@@ -70,6 +70,10 @@ export default function CouponsScreen() {
         ? t('coupon_status_expired')
         : t('coupon_valid_until', { date: toDayMonthYear(item.end_date) }),
       code: item.code,
+      discountType: item.discount_type,
+      discountValue: item.discount_value,
+      maxDiscountCap: item.max_discount_cap,
+      minOrderValue: item.min_order_value,
       isActive: item.is_active,
       isExpired: item.status.toLowerCase() === 'expired',
       id: item.id,
@@ -114,6 +118,10 @@ export default function CouponsScreen() {
           id: coupon.id,
           code: coupon.code,
           title: coupon.title,
+          discountType: coupon.discountType,
+          discountValue: coupon.discountValue,
+          maxDiscountCap: coupon.maxDiscountCap,
+          minOrderValue: coupon.minOrderValue,
         });
         showToast.success(
           t('coupon_use_success_title'),

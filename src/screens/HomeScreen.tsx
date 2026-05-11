@@ -123,6 +123,11 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
   }
 
   function handleSelectDeliveryService(shopTypeId: string) {
+    if (shopTypeId === 'food-delivery') {
+      onSelectMiniApp?.('deliveries');
+      return;
+    }
+
     onSelectMiniApp?.('deliveries', {
       screen: 'MultiVendor',
       params: {
