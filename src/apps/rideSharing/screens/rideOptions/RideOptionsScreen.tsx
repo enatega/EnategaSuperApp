@@ -2,9 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StyleSheet, View } from 'react-native';
-import { Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../../../../general/theme/theme';
 import { mapIntentToCategory, RideCategory, RideIntent } from '../../utils/rideOptions';
 import RideOptionsLayout from '../../components/rideOptions/RideOptionsLayout';
 import { CachedAddress, RideOptionItem } from '../../components/rideOptions/types';
@@ -24,8 +22,7 @@ import {
   saveRideEstimatePaymentMethod,
 } from '../../storage/rideEstimatePaymentMethod';
 import AppSwitcherTopBar from '../../../../general/components/appSwitch/AppSwitcherTopBar';
-import Icon from '../../../../general/components/Icon';
-import Text from '../../../../general/components/Text';
+import RideTopSearchPanel from '../../components/rideOptions/RideTopSearchPanel';
 
 type RouteParams = {
   rideType?: RideIntent;
@@ -125,7 +122,6 @@ function resolveRideIntentFromSelection(params: {
 
 export default function RideOptionsScreen() {
   const { t } = useTranslation('rideSharing');
-  const { colors } = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
   const { userProfile: apiProfile } = useProfile();
   const route = useRoute();
@@ -255,7 +251,6 @@ export default function RideOptionsScreen() {
 
   const rideTypesErrorMessage = rideTypesQuery.error?.message || null;
   const switcherActiveKey = resolvedRideType === 'courier' ? 'courier' : 'ride';
-  const topRecentAddresses = useMemo(() => cachedAddresses.slice(0, 2), [cachedAddresses]);
   const userProfile = useMemo<UserProfile | undefined>(() => {
     if (!apiProfile) return undefined;
 
@@ -271,60 +266,7 @@ export default function RideOptionsScreen() {
       <AppSwitcherTopBar
         activeKey={switcherActiveKey}
         expandedContent={switcherActiveKey === 'ride' ? (
-          <View style={[styles.rideTopView, { backgroundColor: colors.background }]}>
-            <View style={styles.searchRow}>
-              <Pressable
-                onPress={openSidebar}
-                style={[
-                  styles.menuButton,
-                  {
-                    borderColor: colors.border,
-                    backgroundColor: colors.surface,
-                    shadowColor: colors.shadowColor,
-                  },
-                ]}
-              >
-                <Icon type="Feather" name="menu" size={18} color={colors.text} />
-              </Pressable>
-
-              <Pressable
-                onPress={() => handleSearchPress()}
-                style={[
-                  styles.searchInput,
-                  {
-                    borderColor: colors.border,
-                    backgroundColor: colors.surface,
-                    shadowColor: colors.shadowColor,
-                  },
-                ]}
-              >
-                <Icon type="Feather" name="search" size={20} color={colors.iconMuted} />
-                <Text style={[styles.searchText, { color: colors.mutedText }]}>{t('ride_search_placeholder')}</Text>
-              </Pressable>
-            </View>
-
-            {topRecentAddresses.length > 0 ? (
-              <View style={[styles.addressCard, { borderColor: colors.border, backgroundColor: colors.surface }]}>
-                {topRecentAddresses.map((address, index) => (
-                  <Pressable
-                    key={address.placeId}
-                    onPress={() => handleSearchPress(address)}
-                    style={[styles.addressRow, index > 0 ? [styles.addressRowDivider, { borderTopColor: colors.border }] : null]}
-                  >
-                    <Icon type="Feather" name="map-pin" size={18} color={colors.text} />
-                    <View style={styles.addressTextWrap}>
-                      <Text weight="semiBold" style={[styles.addressTitle, { color: colors.text }]} numberOfLines={1}>
-                        {address.structuredFormatting.mainText}
-                      </Text>
-                      <Text style={[styles.addressSubtitle, { color: colors.mutedText }]} numberOfLines={1}>
-                        {address.structuredFormatting.secondaryText ?? address.description}
-                      </Text>
-                    </View>
-                  </Pressable>
-                ))}
-              </View>
-            ) : null}
-          </View>
+          <RideTopSearchPanel onOpenSidebar={openSidebar} onSelectAddress={handleSearchPress} />
         ) : null}
       />
       <RideOptionsLayout
@@ -368,81 +310,5 @@ export default function RideOptionsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  rideTopView: {
-    paddingHorizontal: 0,
-    paddingTop: 0,
-    paddingBottom: 0,
-    gap: 10,
-  },
-  searchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  menuButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  searchInput: {
-    flex: 1,
-    minHeight: 46,
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  searchText: {
-    fontSize: 14,
-    lineHeight: 22,
-  },
-  addressCard: {
-    borderWidth: 1,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  addressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  addressRowDivider: {
-    borderTopWidth: 1,
-  },
-  addressTextWrap: {
-    flex: 1,
-  },
-  addressTitle: {
-    fontSize: 14,
-    lineHeight: 22,
-  },
-  addressSubtitle: {
-    fontSize: 12,
-    lineHeight: 18,
-  },
-  hamburger: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 4,
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 2,
   },
 });

@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Text from '../../../../../general/components/Text';
 import Icon from '../../../../../general/components/Icon';
@@ -8,9 +8,10 @@ import type { RideForYouRestaurant } from '../types/forYou';
 
 type Props = {
   item: RideForYouRestaurant;
+  onPress?: () => void;
 };
 
-function FindingRideForYouCard({ item }: Props) {
+function FindingRideForYouCard({ item, onPress }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
   const imageUrl = item.coverImage ?? item.logo ?? 'https://placehold.co/420x220.png';
@@ -21,7 +22,11 @@ function FindingRideForYouCard({ item }: Props) {
   const distanceLabel = typeof item.distanceKm === 'number' ? `${item.distanceKm.toFixed(1)} km` : '1.0 km';
 
   return (
-    <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+    <Pressable
+      style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
+      onPress={onPress}
+      disabled={!onPress}
+    >
       <Image source={{ uri: imageUrl }} style={styles.coverImage} />
 
       <View style={styles.content}>
@@ -55,7 +60,7 @@ function FindingRideForYouCard({ item }: Props) {
           </View>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -105,4 +110,3 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
 });
-

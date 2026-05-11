@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { Dimensions, ScrollView, StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../../../general/theme/theme';
@@ -16,6 +17,9 @@ import RideOptionsBottomSheetSkeleton from './RideOptionsBottomSheetSkeleton';
 import RideOptionsBottomSheetError from './RideOptionsBottomSheetError';
 import { useRideForYouRestaurants } from '../../screens/findingRide/hooks/useRideForYouRestaurants';
 import FindingRideForYouCard from '../../screens/findingRide/components/FindingRideForYouCard';
+import type { SharedStackParamList } from '../../../../general/navigation/navigationTypes';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { DeliveryNearbyStore } from '../../../deliveries/api/types';
 
 type Props = {
   rideOptions: RideOptionItem[];
@@ -50,6 +54,7 @@ function RideOptionsBottomSheet({
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
+  const navigation = useNavigation<NativeStackNavigationProp<SharedStackParamList>>();
   const insets = useSafeAreaInsets();
   const screenHeight = Dimensions.get('window').height;
   const expandedHeight = isDirectCourierFlow
@@ -62,6 +67,16 @@ function RideOptionsBottomSheet({
   const showErrorState = Boolean(rideTypesErrorMessage) && !isLoadingRideTypes;
   const searchDisabled = !selectedCategory || isLoadingRideTypes || showErrorState;
   const forYouQuery = useRideForYouRestaurants();
+
+  const handlePressRecommendedStore = (store: DeliveryNearbyStore) => {
+    navigation.navigate('Deliveries', {
+      screen: 'MultiVendor',
+      params: {
+        screen: 'StoreDetails',
+        params: { store },
+      },
+    });
+  };
 
   return (
     <SwipeableBottomSheet
@@ -133,7 +148,11 @@ function RideOptionsBottomSheet({
               contentContainerStyle={styles.forYouRow}
             >
               {(forYouQuery.data ?? []).map((restaurant) => (
-                <FindingRideForYouCard key={restaurant.storeId} item={restaurant} />
+                <FindingRideForYouCard
+                  key={restaurant.storeId}
+                  item={restaurant}
+                  onPress={() => handlePressRecommendedStore(restaurant as DeliveryNearbyStore)}
+                />
               ))}
             </ScrollView>
           </View>
