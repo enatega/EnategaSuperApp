@@ -29,19 +29,19 @@ export default function HomeTravelBannerSection({ onPress }: Props) {
     () => [
       {
         id: 'trip-banner-1',
-        source: require('../../apps/rideSharing/assets/images/TripBanner.png'),
+        source: require('../../general/assets/images/TripBanner.png'),
       },
       {
         id: 'travel-banner-2',
-        source: require('../../apps/rideSharing/assets/images/TravelBanner.png'),
+        source: require('../../general/assets/images/TravelBanner.png'),
       },
       {
         id: 'trip-banner-3',
-        source: require('../../apps/rideSharing/assets/images/TripBanner.png'),
+        source: require('../../general/assets/images/TripBanner.png'),
       },
       {
         id: 'trip-banner-4',
-        source: require('../../apps/rideSharing/assets/images/TravelBanner.png'),
+        source: require('../../general/assets/images/TravelBanner.png'),
       },
     ],
     [],

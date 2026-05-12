@@ -8,7 +8,6 @@ import { useTheme } from '../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { homePatterns } from '../../general/assets/images';
-import { useActiveRideStore } from '../../apps/rideSharing/stores/useActiveRideStore';
 
 type BannerItem = {
   id: string;

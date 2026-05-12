@@ -31,6 +31,7 @@ These rules define the recommended approaches for clean, reusable, and maintaina
 - All navigators must live under each app’s `navigation/` folder.
 - Top-level routing changes go through `src/general/navigation/SharedNavigator.tsx` and `src/navigation/RootNavigator.tsx`.
 - Avoid passing navigation logic deep into components; use screen-level handlers.
+- For modular apps, keep route registration registry-driven (generated files) instead of hardcoding direct app imports in shared layers.
 
 ## 6. Type Safety
 - Use explicit `Props` types in every component and screen.
@@ -52,6 +53,17 @@ These rules define the recommended approaches for clean, reusable, and maintaina
 - Store shared assets under `src/general/assets/`.
 - Expo app-level assets (icons/splash) stay in `assets/`.
 - Avoid placing app-specific assets in shared or global folders.
+
+## Modular Registry Workflow
+- `src/apps/registry/app-manifest.json` is the source of truth for enabled apps.
+- Registry generation script: `scripts/generate-app-registry.cjs`.
+- Generated files:
+  - `src/apps/registry/generated/appI18nRegistry.ts` (app ids + i18n resources)
+  - `src/apps/registry/generated/appRegistry.ts` (navigation + home widgets + app route types)
+- Do not manually edit generated registry files.
+- Do not import app internals directly in shared/core files (`src/general/**`, `src/screens/**`).
+- Shared i18n files must import from `appI18nRegistry.ts` (lightweight), not `appRegistry.ts` (heavy).
+- If adding a new routable app, update `APP_ROUTE_META` in the generator.
 
 ## 9. Data, Helpers, and Utils
 - Use `src/general/utils/` for shared helpers.

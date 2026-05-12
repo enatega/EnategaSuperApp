@@ -1,11 +1,7 @@
-import type { NavigatorScreenParams } from '@react-navigation/native';
-import type { RideSharingStackParamList } from '../../rideSharing/navigation/RideSharingNavigator';
-import type { DeliveriesStackParamList } from '../../deliveries/navigation/types';
-import { MiniAppId } from '../../../general/utils/constants';
+import type { MiniAppId } from '../generated/appI18nRegistry';
+import type { MiniAppRouteParamsById } from '../generated/appRegistry';
 
 export type SelectMiniAppFn = (
   id: MiniAppId,
-  params?:
-    | NavigatorScreenParams<RideSharingStackParamList>
-    | NavigatorScreenParams<DeliveriesStackParamList>,
+  params?: MiniAppRouteParamsById[MiniAppId],
 ) => void;

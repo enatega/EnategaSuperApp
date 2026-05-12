@@ -1,11 +1,8 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import Skeleton from "../Skeleton";
-import type { SearchSuggestionsSkeletonProps } from "../../../apps/deliveries/components/search/types";
 
-export default function SearchSuggestionsSkeleton(
-  {}: SearchSuggestionsSkeletonProps,
-) {
+export default function SearchSuggestionsSkeleton() {
   return (
     <View style={styles.container}>
       {Array.from({ length: 8 }).map((_, index) => (

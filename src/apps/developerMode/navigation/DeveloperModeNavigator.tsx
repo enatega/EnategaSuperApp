@@ -1,14 +1,19 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { View } from 'react-native';
 import DeveloperModeHomeScreen from '../screens/home/HomeScreen';
-import DriverProfileScreen from '../../rideSharing/screens/driverProfile/DriverProfileScreen';
-import RateOrderScreen from '../../deliveries/screens/RateOrderScreen/RateOrderScreen';
-import RiderChatScreen from '../../deliveries/screens/RiderChatScreen/RiderChatScreen';
 import QueryProvider from '../../../general/providers/QueryProvider';
-import ProductInfo from '../../deliveries/screens/ProductInfo/ProductInfo';
-import CourierDetails from '../../rideSharing/screens/courierDetails/CourierDetails';
+import Text from '../../../general/components/Text';
 
 const Stack = createNativeStackNavigator();
+
+function FeatureUnavailableScreen() {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
+      <Text weight="semiBold">This debug screen is unavailable in the current app set.</Text>
+    </View>
+  );
+}
 
 export default function DeveloperModeNavigator() {
   return (
@@ -21,27 +26,27 @@ export default function DeveloperModeNavigator() {
         />
         <Stack.Screen
           name="DriverProfile"
-          component={DriverProfileScreen}
+          component={FeatureUnavailableScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
           name="RateOrder"
-          component={RateOrderScreen}
+          component={FeatureUnavailableScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
           name="RiderChat"
-          component={RiderChatScreen}
+          component={FeatureUnavailableScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
           name="CourierDetails"
-          component={CourierDetails}
+          component={FeatureUnavailableScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
           name="ProductInfo"
-          component={ProductInfo}
+          component={FeatureUnavailableScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

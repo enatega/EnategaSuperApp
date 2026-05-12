@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
+    "generate:app-registry": "node scripts/generate-app-registry.cjs",
+    "prestart": "npm run generate:app-registry",
+    "preandroid": "npm run generate:app-registry",
+    "preios": "npm run generate:app-registry",
+    "preweb": "npm run generate:app-registry",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
