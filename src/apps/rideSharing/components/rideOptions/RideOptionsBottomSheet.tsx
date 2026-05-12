@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { Dimensions, ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -67,6 +67,12 @@ function RideOptionsBottomSheet({
   const showErrorState = Boolean(rideTypesErrorMessage) && !isLoadingRideTypes;
   const searchDisabled = !selectedCategory || isLoadingRideTypes || showErrorState;
   const forYouQuery = useRideForYouRestaurants();
+  const activeOption = rideOptions.find((option) => option.id === selectedCategory);
+  const isActiveOptionCourier = activeOption?.title.toLowerCase().includes('courier') ?? false;
+
+  useEffect(() => {
+    console.log('RideOptionsBottomSheet active bar:', activeOption?.title ?? selectedCategory ?? 'none');
+  }, [activeOption, selectedCategory]);
 
   const handlePressRecommendedStore = (store: DeliveryNearbyStore) => {
     navigation.navigate('Deliveries', {
@@ -134,6 +140,7 @@ function RideOptionsBottomSheet({
               onSearchPress={onSearchPress}
               searchDisabled={searchDisabled}
               hideOptionsRow={isDirectCourierFlow}
+              showSearchInput={isActiveOptionCourier}
             />
           </View>
 

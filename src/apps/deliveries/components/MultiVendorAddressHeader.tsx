@@ -43,10 +43,25 @@ export default function MultiVendorAddressHeader({
     () => createSelectedDeliveryAddress(addresses),
     [addresses],
   );
-  const resolvedSelectedAddress = apiSelectedAddress ?? selectedAddress;
-  const resolvedSelectedAddressLabel =
-    formatDeliveryAddressLabel(resolvedSelectedAddress) ??
-    selectedAddressLabel;
+  const resolvedSelectedAddress =
+    selectedAddress?.id === 'current-location'
+      ? selectedAddress
+      : apiSelectedAddress ?? selectedAddress;
+  const resolvedSelectedAddressLabel = (() => {
+    if (resolvedSelectedAddress?.id === 'current-location') {
+      return (
+        formatDeliveryAddressLabel(resolvedSelectedAddress) ||
+        resolvedSelectedAddress.address?.trim() ||
+        resolvedSelectedAddress.locationName?.trim() ||
+        selectedAddressLabel
+      );
+    }
+
+    return (
+      formatDeliveryAddressLabel(resolvedSelectedAddress) ??
+      selectedAddressLabel
+    );
+  })();
 
   return (
     <View
@@ -195,8 +210,8 @@ export default function MultiVendorAddressHeader({
                   color={colors.white}
                   weight="semiBold"
                   style={{
-                    fontSize: typography.size.xxs,
-                    lineHeight: typography.lineHeight.xxs,
+                    fontSize: 11,
+                    lineHeight: 12,
                   }}
                 >
                   {cartCount > 99 ? '99+' : cartCount}
@@ -250,13 +265,14 @@ const styles = StyleSheet.create({
   },
   cartBadge: {
     alignItems: 'center',
-    borderRadius: 9,
+    borderRadius: 10,
+    height: 18,
+    justifyContent: 'center',
     minWidth: 18,
     paddingHorizontal: 4,
-    paddingVertical: 1,
     position: 'absolute',
-    right: -3,
-    top: -3,
+    right: 0,
+    top: 0,
   },
   cartButton: {
     alignItems: 'center',

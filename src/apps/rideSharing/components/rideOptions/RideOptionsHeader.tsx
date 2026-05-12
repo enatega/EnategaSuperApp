@@ -15,6 +15,7 @@ type Props = {
   onSearchPress: () => void;
   searchDisabled?: boolean;
   hideOptionsRow?: boolean;
+  showSearchInput?: boolean;
 };
 
 function RideOptionsHeader({
@@ -24,6 +25,7 @@ function RideOptionsHeader({
   onSearchPress,
   searchDisabled = false,
   hideOptionsRow = false,
+  showSearchInput = true,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
@@ -60,24 +62,26 @@ function RideOptionsHeader({
       {hideOptionsRow ? null : (
         <View style={styles.optionsGrid}>{optionLayout}</View>
       )}
-      {/* <Pressable
-        onPress={() => onSearchPress()}
-        disabled={searchDisabled}
-        style={[
-          styles.searchInput,
-          {
-            borderColor: colors.border,
-            shadowColor: colors.shadowColor,
-            backgroundColor: colors.surface,
-            opacity: searchDisabled ? 0.6 : 1,
-          },
-        ]}
-      >
-        <Icon type="Feather" name="search" size={16} color={colors.iconMuted} />
-        <Text style={{ color: colors.mutedText }}>
-          {t('ride_search_placeholder')}
-        </Text>
-      </Pressable> */}
+      {showSearchInput ? (
+        <Pressable
+          onPress={() => onSearchPress()}
+          disabled={searchDisabled}
+          style={[
+            styles.searchInput,
+            {
+              borderColor: colors.border,
+              shadowColor: colors.shadowColor,
+              backgroundColor: colors.surface,
+              opacity: searchDisabled ? 0.6 : 1,
+            },
+          ]}
+        >
+          <Icon type="Feather" name="search" size={16} color={colors.iconMuted} />
+          <Text style={{ color: colors.mutedText }}>
+            {t('ride_search_placeholder')}
+          </Text>
+        </Pressable>
+      ) : null}
     </>
   );
 }

@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import BannerSwiper from '../../general/components/BannerSwiper';
 import Image from '../../general/components/Image';
+import Text from '../../general/components/Text';
 import { useTheme } from '../../general/theme/theme';
 
 type BannerItem = {
@@ -18,7 +20,8 @@ type Props = {
 };
 
 export default function HomeTravelBannerSection({ onPress }: Props) {
-  const { colors } = useTheme();
+  const { colors, typography } = useTheme();
+  const { t } = useTranslation('general');
   const { width } = useWindowDimensions();
   const [bannerIndex, setBannerIndex] = useState(0);
 
@@ -45,12 +48,24 @@ export default function HomeTravelBannerSection({ onPress }: Props) {
   );
 
   const sectionWidth = width - 32;
-  const bannerWidth = Math.max(240, sectionWidth - 57);
+  const bannerWidth = sectionWidth;
   const bannerHeight = bannerWidth / BANNER_IMAGE_RATIO;
   const activeBannerIndex = Math.min(bannerIndex, banners.length - 1);
 
   return (
     <View style={styles.container}>
+      <View style={styles.titleWrap}>
+        <Text
+          weight="extraBold"
+          style={{
+            color: colors.text,
+            fontSize: typography.size.h5,
+            lineHeight: typography.lineHeight.h5,
+          }}
+        >
+          {t('home_drive_banners_title')}
+        </Text>
+      </View>
       <View style={[styles.swiperWrap, { width: sectionWidth }]}>
         <BannerSwiper
           data={banners}
@@ -94,15 +109,16 @@ export default function HomeTravelBannerSection({ onPress }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
     gap: 8,
+  },
+  titleWrap: {
+    paddingHorizontal: 4,
   },
   swiperWrap: {
     alignSelf: 'center',
   },
   slide: {
     borderRadius: 12,
-    marginRight: 8,
     overflow: 'hidden',
   },
   bannerImage: {

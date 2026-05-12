@@ -294,7 +294,7 @@ const en = {
   ride_finding_description: 'We are matching your request with the nearest available drivers.',
   ride_finding_timeout_title: 'No driver accepted yet',
   ride_finding_timeout_description: 'Try increasing your fare to improve the chance of a quick match.',
-  ride_finding_raise_fare: 'Raise fare',
+  ride_finding_raise_fare: 'Update fare',
   ride_finding_keep_searching: 'Keep searching',
   ride_finding_cancel: 'Cancel ride',
   ride_finding_cancel_courier: 'Cancel courier',

@@ -401,6 +401,7 @@ export default function RideEstimateScreen() {
     }
 
     if (!selectedPaymentMethodId) {
+      showToast.info(t('ride_active_payment'), t('ride_payment_choose_title'));
       setIsPaymentMethodVisible(true);
       return;
     }

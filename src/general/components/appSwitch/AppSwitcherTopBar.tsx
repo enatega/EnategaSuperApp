@@ -58,6 +58,7 @@ function AppSwitcherTopBarComponent({ activeKey, rightAction, expandedContent }:
         screen: 'RideSharingHome',
         params: {
           rideType: 'courier',
+          directCourierOnly: true,
         },
       });
     },

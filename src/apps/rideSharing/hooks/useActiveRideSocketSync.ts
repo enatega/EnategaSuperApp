@@ -198,6 +198,15 @@ export default function useActiveRideSocketSync(options?: Options) {
 
   useSocketEvent<[unknown]>('ride-completed', () => {
     const completedRideFeedback = mapActiveRideToCompletedRideFeedbackData(activeRideRef.current);
+    console.log('[RatingFlow][Socket] ride-completed received', {
+      activeRideId: activeRideRef.current?.ride_id,
+      mappedRideId: completedRideFeedback?.rideId,
+      mappedDriverUserId: completedRideFeedback?.driverUserId,
+      mappedDriverName: completedRideFeedback?.driverName,
+      mappedDriverAvatarUri: completedRideFeedback?.driverAvatarUri,
+      hasRawRideData: Boolean(completedRideFeedback?.rawRideData),
+      existingFeedbackRideId: feedbackRideRef.current?.rideId,
+    });
     const shouldQueueFeedback = Boolean(
       completedRideFeedback
       && feedbackRideRef.current?.rideId !== completedRideFeedback.rideId,
@@ -210,6 +219,11 @@ export default function useActiveRideSocketSync(options?: Options) {
 
     if (shouldQueueFeedback && completedRideFeedback) {
       completedFeedbackTimeoutRef.current = setTimeout(() => {
+        console.log('[RatingFlow][Socket] Queueing feedbackRide into store', {
+          rideId: completedRideFeedback.rideId,
+          driverUserId: completedRideFeedback.driverUserId,
+          driverAvatarUri: completedRideFeedback.driverAvatarUri,
+        });
         setFeedbackRide(completedRideFeedback);
         completedFeedbackTimeoutRef.current = null;
       }, 2500);
