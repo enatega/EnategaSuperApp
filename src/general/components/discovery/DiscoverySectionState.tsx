@@ -24,7 +24,7 @@ export default function DiscoverySectionState({
   title,
 }: Props) {
   const { colors, typography } = useTheme();
-  const { t } = useTranslation('homeVisits');
+  const { t } = useTranslation('general');
 
   const DEFAULT_COPY = {
     empty: {

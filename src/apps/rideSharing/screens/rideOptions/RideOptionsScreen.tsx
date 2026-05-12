@@ -265,9 +265,9 @@ export default function RideOptionsScreen() {
     <View style={styles.container}>
       <AppSwitcherTopBar
         activeKey={switcherActiveKey}
-        expandedContent={switcherActiveKey === 'ride' ? (
+        expandedContent={(
           <RideTopSearchPanel onOpenSidebar={openSidebar} onSelectAddress={handleSearchPress} />
-        ) : null}
+        )}
       />
       <RideOptionsLayout
         rideOptions={visibleRideOptions}
