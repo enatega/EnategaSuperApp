@@ -28,6 +28,7 @@ This guide aligns with `guide/DEVELOPMENT_RULES.md`. When in doubt, follow those
 - Navigators live under each app’s `navigation/` folder.
 - Top-level routing changes go through `src/general/navigation/SharedNavigator.tsx` and `src/navigation/RootNavigator.tsx`.
 - Avoid passing navigation logic deep into components; use screen-level handlers.
+- Keep shared/top-level app wiring registry-driven; avoid direct app imports in shared layers.
 
 ## Type Safety
 - Use explicit `Props` types in every component and screen.
@@ -76,3 +77,13 @@ This guide aligns with `guide/DEVELOPMENT_RULES.md`. When in doubt, follow those
 - Each app should own its typed socket wrapper, such as `src/apps/rideSharing/socket/rideSharingSocket.ts` or `src/apps/deliveries/socket/deliveriesSocket.ts`.
 - Do not inline socket event names in screens or hooks. Add the event and payload type to the app socket layer first, then emit or subscribe through wrapper helpers.
 - Use screen-scoped socket session hooks for chat and short-lived flows. Reserve retained keep-alive socket behavior for live tracking and other long-lived real-time features.
+
+## Modular App Registry
+- Enabled apps are controlled via `src/apps/registry/app-manifest.json`.
+- Generate registries with `npm run generate:app-registry` (also runs via `prestart`/`preios`/`preandroid`/`preweb`).
+- Generated files:
+  - `src/apps/registry/generated/appI18nRegistry.ts` (app ids + localization resources)
+  - `src/apps/registry/generated/appRegistry.ts` (routes, screens, home widgets, route param types)
+- Never hand-edit generated files.
+- Keep i18n initialization/imports dependent on `appI18nRegistry.ts` only to avoid heavy boot-time import cycles.
+- When adding a new routable mini-app, update `APP_ROUTE_META` in `scripts/generate-app-registry.cjs`.

@@ -1,3 +1,2 @@
-export const MINI_APPS = ['deliveries', 'rideSharing', 'homeVisits', 'appointments', 'developerMode'] as const;
-
-export type MiniAppId = (typeof MINI_APPS)[number];
+export { MINI_APPS } from '../../apps/registry/generated/appI18nRegistry';
+export type { MiniAppId } from '../../apps/registry/generated/appI18nRegistry';
