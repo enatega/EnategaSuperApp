@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next';
 import * as Localization from 'expo-localization';
 import * as SecureStore from 'expo-secure-store';
 import { translations } from './translations';
+import { APP_I18N_NAMESPACES } from '../../apps/registry/generated/appI18nRegistry';
 
 const SUPPORTED_LANGUAGES = ['en', 'fr'] as const;
 const LANGUAGE_STORAGE_KEY = 'super_app_language';
@@ -25,7 +26,7 @@ void i18n
       en: translations.en,
       fr: translations.fr,
     },
-    ns: ['general', 'deliveries', 'rideSharing', 'homeVisits', 'appointments'],
+    ns: ['general', ...APP_I18N_NAMESPACES],
     defaultNS: 'general',
     compatibilityJSON: 'v3',
     interpolation: {
