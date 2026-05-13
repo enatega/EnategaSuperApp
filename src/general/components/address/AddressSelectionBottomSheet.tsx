@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -20,10 +20,18 @@ import {
   getSelectedSavedAddressId,
 } from '../../utils/address';
 import {
+  getLocationPermissionState,
+  openAppLocationSettings,
+  requestLocationPermission,
+} from '../../utils/locationPermission';
+import {
   getSavedAddressIcon,
   getSavedAddressTypeLabel,
 } from '../../utils/savedAddressPresentation';
 import SavedAddressSelectionRow from './SavedAddressSelectionRow';
+import HomeLocationPermissionPopup, {
+  LocationPopupMode,
+} from '../../../screens/home/HomeLocationPermissionPopup';
 
 type Props = {
   addresses: ProfileAddress[];
@@ -57,6 +65,10 @@ export default function AddressSelectionBottomSheet({
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const isSelectionPending = Boolean(selectingAddressId);
+  const [isRequestingLocation, setIsRequestingLocation] = useState(false);
+  const [isLocationPopupVisible, setIsLocationPopupVisible] = useState(false);
+  const [locationPopupMode, setLocationPopupMode] =
+    useState<LocationPopupMode>('request');
   const resolvedSelectedAddressId =
     getSelectedSavedAddressId(addresses) ?? selectedAddressId;
 
@@ -69,6 +81,83 @@ export default function AddressSelectionBottomSheet({
 
     return Math.min(height * 0.75, Math.max(280, estimatedContentHeight));
   }, [addresses.length, height, insets.bottom]);
+
+  const handleUseCurrentLocationPress = useCallback(async () => {
+    if (isSelectionPending || isRequestingLocation) {
+      return;
+    }
+
+    setIsRequestingLocation(true);
+
+    try {
+      const currentPermission = await getLocationPermissionState();
+
+      if (currentPermission.granted) {
+        onUseCurrentLocation();
+        return;
+      }
+
+      if (currentPermission.blocked) {
+        setLocationPopupMode('blocked');
+        setIsLocationPopupVisible(true);
+        return;
+      }
+
+      const requestedPermission =
+        currentPermission.canAskAgain
+          ? await requestLocationPermission()
+          : currentPermission;
+
+      if (requestedPermission.granted) {
+        onUseCurrentLocation();
+        return;
+      }
+
+      setLocationPopupMode(requestedPermission.blocked ? 'blocked' : 'denied');
+      setIsLocationPopupVisible(true);
+    } catch {
+      setLocationPopupMode('denied');
+      setIsLocationPopupVisible(true);
+    } finally {
+      setIsRequestingLocation(false);
+    }
+  }, [isRequestingLocation, isSelectionPending, onUseCurrentLocation]);
+
+  const handlePopupRequestLocation = useCallback(async () => {
+    if (isRequestingLocation) {
+      return;
+    }
+
+    setIsRequestingLocation(true);
+
+    try {
+      const permission = await requestLocationPermission();
+
+      if (permission.granted) {
+        setIsLocationPopupVisible(false);
+        onUseCurrentLocation();
+        return;
+      }
+
+      setLocationPopupMode(permission.blocked ? 'blocked' : 'denied');
+      setIsLocationPopupVisible(true);
+    } catch {
+      setLocationPopupMode('denied');
+      setIsLocationPopupVisible(true);
+    } finally {
+      setIsRequestingLocation(false);
+    }
+  }, [isRequestingLocation, onUseCurrentLocation]);
+
+  const handlePopupOpenSettings = useCallback(async () => {
+    try {
+      await openAppLocationSettings();
+    } catch {
+      setLocationPopupMode('blocked');
+      setIsLocationPopupVisible(true);
+    }
+  }, []);
+
   if (!isVisible) {
     return null;
   }
@@ -140,20 +229,28 @@ export default function AddressSelectionBottomSheet({
           <Pressable
             accessibilityLabel={t('address_selector_use_current_location')}
             accessibilityRole="button"
-            onPress={onUseCurrentLocation}
+            disabled={isSelectionPending || isRequestingLocation}
+            onPress={() => {
+              void handleUseCurrentLocationPress();
+            }}
             style={({ pressed }) => [
               styles.currentLocationRow,
               {
                 backgroundColor: pressed ? colors.gray100 : 'transparent',
+                opacity: isSelectionPending || isRequestingLocation ? 0.55 : 1,
               },
             ]}
           >
-            <Icon
-              color={colors.text}
-              name="map-outline"
-              size={20}
-              type="Ionicons"
-            />
+            {isRequestingLocation ? (
+              <ActivityIndicator color={colors.primary} size="small" />
+            ) : (
+              <Icon
+                color={colors.text}
+                name="map-outline"
+                size={20}
+                type="Ionicons"
+              />
+            )}
             <Text
               weight="medium"
               style={{
@@ -223,6 +320,21 @@ export default function AddressSelectionBottomSheet({
           </View>
         </ScrollView>
       </SwipeableBottomSheet>
+
+      <HomeLocationPermissionPopup
+        visible={isLocationPopupVisible}
+        mode={locationPopupMode}
+        isLoading={isRequestingLocation}
+        onRequestLocation={() => {
+          void handlePopupRequestLocation();
+        }}
+        onOpenSettings={() => {
+          void handlePopupOpenSettings();
+        }}
+        onDismiss={() => {
+          setIsLocationPopupVisible(false);
+        }}
+      />
     </View>
   );
 }
