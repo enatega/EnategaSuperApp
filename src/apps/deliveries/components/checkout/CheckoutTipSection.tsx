@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import Text from '../../../../general/components/Text';
@@ -49,7 +49,12 @@ export default function CheckoutTipSection({
         </Text>
       </View>
 
-      <View style={styles.optionsRow}>
+      <ScrollView
+        horizontal
+        bounces={false}
+        contentContainerStyle={styles.optionsRow}
+        showsHorizontalScrollIndicator={false}
+      >
         {TIP_OPTIONS.map((amount) => {
           const isSelected = selectedTip === amount;
 
@@ -103,7 +108,7 @@ export default function CheckoutTipSection({
             {t('checkout_tip_custom')}
           </Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -117,6 +122,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 1,
     flexDirection: 'row',
+    flexShrink: 0,
     gap: 8,
     height: 32,
     justifyContent: 'center',
@@ -124,7 +130,6 @@ const styles = StyleSheet.create({
   },
   optionsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: 8,
   },
   section: {

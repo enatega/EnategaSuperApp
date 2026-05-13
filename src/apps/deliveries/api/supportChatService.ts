@@ -1,11 +1,13 @@
 import apiClient from '../../../general/api/apiClient';
 import type {
   SendSupportChatMessagePayload,
+  SendSupportChatMessageToAdminPayload,
   SendSupportChatMessageResponse,
   SupportAdminsResponse,
   SupportChatBoxDetailResponse,
   SupportChatBoxesGroupedResponse,
   SupportChatMessagesResponse,
+  SupportMyActiveMessagesResponse,
 } from './supportChatTypes';
 
 const SUPPORT_CHAT_BASE = '/api/v1/deliveries/support-chat-app';
@@ -45,6 +47,12 @@ export const supportChatService = {
   getChatBox: (chatBoxId: string) =>
     apiClient.get<SupportChatBoxDetailResponse>(`${SUPPORT_CHAT_BASE}/chat-box/${chatBoxId}`),
 
+  getMyActiveMessages: () =>
+    apiClient.get<SupportMyActiveMessagesResponse>(`${SUPPORT_CHAT_BASE}/my-active-messages`),
+
   sendMessage: (payload: SendSupportChatMessagePayload) =>
     apiClient.post<SendSupportChatMessageResponse>(`${SUPPORT_CHAT_BASE}/send`, payload),
+
+  sendMessageToAdmin: (payload: SendSupportChatMessageToAdminPayload) =>
+    apiClient.post<SendSupportChatMessageResponse>(`${SUPPORT_CHAT_BASE}/send-to-admin`, payload),
 };

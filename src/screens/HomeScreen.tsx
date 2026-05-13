@@ -10,12 +10,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { homeVisitOnboardingImages } from '../general/assets/images';
 import { NavigatorScreenParams } from '@react-navigation/native';
 import { RideSharingStackParamList } from '../apps/rideSharing/navigation/RideSharingNavigator';
+import { SelectMiniAppFn } from '../apps/registry/homeSections/types';
 
 type Props = {
-  onSelectMiniApp?: (
-    id: MiniAppId,
-    params?: NavigatorScreenParams<RideSharingStackParamList>,
-  ) => void;
+  onSelectMiniApp?: SelectMiniAppFn;
 };
 
 type Slide = {

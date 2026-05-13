@@ -7,6 +7,7 @@ import type {
   SupportChatBoxDetailResponse,
   SupportChatBoxesGroupedResponse,
   SupportChatMessagesResponse,
+  SupportMyActiveMessagesResponse,
 } from '../api/supportChatTypes';
 
 export function useSupportGroupedChatBoxes(params?: {
@@ -74,6 +75,14 @@ export function useSupportChatMessages(chatBoxId?: string) {
     queryKey: deliveryKeys.supportChatMessages(chatBoxId ?? 'unknown'),
     queryFn: () => supportChatService.getChatMessages(chatBoxId ?? ''),
     enabled: Boolean(chatBoxId),
+    staleTime: 10 * 1000,
+  });
+}
+
+export function useSupportMyActiveMessages() {
+  return useQuery<SupportMyActiveMessagesResponse, ApiError>({
+    queryKey: deliveryKeys.supportChatMyActiveMessages(),
+    queryFn: () => supportChatService.getMyActiveMessages(),
     staleTime: 10 * 1000,
   });
 }

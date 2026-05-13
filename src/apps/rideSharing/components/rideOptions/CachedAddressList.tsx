@@ -9,6 +9,7 @@ type Props = {
   ListHeaderComponent?: React.ReactElement | null;
   ListEmptyComponent?: React.ReactElement | null;
   contentContainerStyle?: StyleProp<ViewStyle>;
+  itemContainerStyle?: StyleProp<ViewStyle>;
   keyboardShouldPersistTaps?: 'always' | 'handled' | 'never';
   showsVerticalScrollIndicator?: boolean;
 };
@@ -19,14 +20,15 @@ function CachedAddressList({
   ListHeaderComponent,
   ListEmptyComponent,
   contentContainerStyle,
+  itemContainerStyle,
   keyboardShouldPersistTaps = 'handled',
   showsVerticalScrollIndicator = false,
 }: Props) {
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<CachedAddress>) => (
-      <CachedAddressRow item={item} onPress={onSelect} />
+      <CachedAddressRow item={item} onPress={onSelect} containerStyle={itemContainerStyle} />
     ),
-    [onSelect],
+    [itemContainerStyle, onSelect],
   );
 
   return (

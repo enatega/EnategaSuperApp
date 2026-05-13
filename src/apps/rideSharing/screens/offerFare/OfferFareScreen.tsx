@@ -368,7 +368,6 @@ const styles = StyleSheet.create({
     minHeight: 44,
     borderRadius: 6,
     borderWidth: 1,
-    backgroundColor: '#1691BF',
     borderColor: '#1691BF',
   },
 });

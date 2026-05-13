@@ -8,11 +8,16 @@ import { useTheme } from '../../../../general/theme/theme';
 
 type Props = {
   onPress?: () => void;
+  selectedFileNames?: string[];
 };
 
-export default function SupportAttachmentDropzone({ onPress }: Props) {
+export default function SupportAttachmentDropzone({
+  onPress,
+  selectedFileNames = [],
+}: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
+  const hasSelectedFiles = selectedFileNames.length > 0;
 
   return (
     <View style={[styles.outer, { borderColor: colors.border }]}>
@@ -41,6 +46,21 @@ export default function SupportAttachmentDropzone({ onPress }: Props) {
           variant="secondary"
           style={styles.button}
         />
+
+        {hasSelectedFiles ? (
+          <View style={styles.fileList}>
+            {selectedFileNames.map((fileName) => (
+              <Text
+                key={fileName}
+                color={colors.mutedText}
+                numberOfLines={1}
+                style={styles.fileName}
+              >
+                {fileName}
+              </Text>
+            ))}
+          </View>
+        ) : null}
       </View>
     </View>
   );
@@ -55,12 +75,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 2,
   },
+  fileList: {
+    alignItems: 'center',
+    gap: 2,
+    maxWidth: '86%',
+  },
+  fileName: {
+    textAlign: 'center',
+  },
   inner: {
     alignItems: 'center',
     borderRadius: 8,
-    gap: 23,
-    height: 220,
+    gap: 16,
+    minHeight: 220,
     justifyContent: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 16,
     width: '100%',
   },
   outer: {

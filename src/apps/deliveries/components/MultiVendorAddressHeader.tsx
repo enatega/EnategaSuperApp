@@ -15,6 +15,7 @@ import {
 type Props = {
   addresses?: ProfileAddress[];
   addressVariant?: 'button' | 'label';
+  includeTopInset?: boolean;
   cartCount?: number;
   onAddAddressPress?: () => void;
   onAddressPress?: () => void;
@@ -26,6 +27,7 @@ type Props = {
 export default function MultiVendorAddressHeader({
   addresses = [],
   addressVariant = 'button',
+  includeTopInset = true,
   cartCount = 0,
   onAddAddressPress,
   onAddressPress,
@@ -47,7 +49,12 @@ export default function MultiVendorAddressHeader({
     selectedAddressLabel;
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 8 }]}>
+    <View
+      style={[
+        styles.container,
+        { paddingTop: includeTopInset ? insets.top + 4 : 0 },
+      ]}
+    >
       {resolvedSelectedAddress && addressVariant === 'label' ? (
         <Pressable
           accessibilityLabel={
@@ -88,19 +95,18 @@ export default function MultiVendorAddressHeader({
           style={({ pressed }) => [
             styles.addressButton,
             {
-              backgroundColor: colors.surface,
-              borderColor: 'rgba(17, 24, 39, 0.06)',
+              backgroundColor: 'transparent',
+              borderColor: 'transparent',
               opacity: pressed ? 0.92 : 1,
-              shadowColor: colors.shadowColor,
             },
           ]}
         >
-          <Icon
+          {/* <Icon
             color={colors.iconMuted}
             name="location-outline"
-            size={18}
+            size={19}
             type="Ionicons"
-          />
+          /> */}
           <Text
             numberOfLines={1}
             weight="medium"
@@ -118,7 +124,7 @@ export default function MultiVendorAddressHeader({
           <Icon
             color={colors.mutedText}
             name="chevron-down"
-            size={14}
+            size={18}
             type="Ionicons"
           />
         </Pressable>
@@ -130,10 +136,9 @@ export default function MultiVendorAddressHeader({
           style={({ pressed }) => [
             styles.addAddressButton,
             {
-              backgroundColor: colors.surface,
-              borderColor: 'rgba(17, 24, 39, 0.06)',
+              backgroundColor: 'transparent',
+              borderColor: 'transparent',
               opacity: pressed ? 0.92 : 1,
-              shadowColor: colors.shadowColor,
             },
           ]}
         >
@@ -169,8 +174,8 @@ export default function MultiVendorAddressHeader({
             style={({ pressed }) => [
               styles.cartButton,
               {
-                backgroundColor: colors.surface,
-                borderColor: 'rgba(17, 24, 39, 0.06)',
+                backgroundColor: colors.findingRideSweepEdge,
+                borderColor: colors.border,
                 opacity: pressed ? 0.92 : 1,
                 shadowColor: colors.shadowColor,
               },
@@ -207,18 +212,13 @@ export default function MultiVendorAddressHeader({
 const styles = StyleSheet.create({
   addAddressButton: {
     alignItems: 'center',
-    borderRadius: 22,
+    borderRadius: 8,
     borderWidth: 1,
+    flex: 1,
     flexDirection: 'row',
     gap: 8,
-    justifyContent: 'center',
-    minHeight: 44,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 2,
+    height: 40,
+    paddingHorizontal: 0,
   },
   addAddressText: {
     flexShrink: 1,
@@ -236,18 +236,13 @@ const styles = StyleSheet.create({
   },
   addressButton: {
     alignItems: 'center',
-    borderRadius: 22,
+    borderRadius: 8,
     borderWidth: 1,
     flex: 1,
     flexDirection: 'row',
     gap: 8,
-    minHeight: 44,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 2,
+    height: 40,
+    paddingHorizontal: 0,
   },
   addressText: {
     flex: 1,
@@ -265,22 +260,24 @@ const styles = StyleSheet.create({
   },
   cartButton: {
     alignItems: 'center',
-    borderRadius: 22,
-    borderWidth: 1,
-    height: 44,
+    borderRadius: 20,
+    // borderWidth: 1,
+    height: 40,
     justifyContent: 'center',
     position: 'relative',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 2,
-    width: 44,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 1,
+    width: 40,
   },
   container: {
     alignItems: 'center',
     flexDirection: 'row',
     gap: 12,
     justifyContent: 'space-between',
+    minHeight: 64,
     paddingHorizontal: 16,
+    paddingVertical: 12,
   },
 });

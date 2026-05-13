@@ -59,9 +59,15 @@ export default function MainContainer({ navigation, orderId }: Props) {
   }
 
   const order = orderDetailsQuery.data;
+  const isPastOrder =
+    order.status === "delivered"
+    || order.status === "cancelled"
+    || order.status === "rejected"
+    || order.status === "failed";
   const shouldShowRateOrder =
     order.status === "delivered" || order.status === "cancelled"; // in just delivered and cancelled cases for the time being
-  const shouldShowTrackProgress = true; // in all cases for the time being
+  const shouldShowTrackProgress = !isPastOrder;
+  const shouldShowIncreaseTip = !isPastOrder;
   const shouldShowOrderAgain = true; // in all cases for the time being
   const statusTone =
     order.status === "delivered"
@@ -126,7 +132,7 @@ export default function MainContainer({ navigation, orderId }: Props) {
 
         <OrderDetailsActionsSection
           isOrderAgainLoading={orderAgainAction.isSubmitting}
-          onIncreaseTip={() => setIsIncreaseTipVisible(true)}
+          onIncreaseTip={shouldShowIncreaseTip ? () => setIsIncreaseTipVisible(true) : undefined}
           onOrderAgain={() => {
             void orderAgainAction.handleOrderAgain();
           }}

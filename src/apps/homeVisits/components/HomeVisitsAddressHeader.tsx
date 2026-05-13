@@ -41,6 +41,7 @@ export default function HomeVisitsAddressHeader({
   const resolvedSelectedAddressLabel =
     formatDeliveryAddressLabel(resolvedSelectedAddress) ??
     selectedAddressLabel;
+  const addAddressHandler = onAddAddressPress ?? onAddressPress;
 
   return (
     <View
@@ -140,13 +141,14 @@ export default function HomeVisitsAddressHeader({
           <Pressable
             accessibilityLabel={t('add_service_address')}
             accessibilityRole="button"
-            onPress={onAddAddressPress}
+            disabled={!addAddressHandler}
+            onPress={addAddressHandler}
             style={({ pressed }) => [
               styles.addAddressButton,
               {
                 backgroundColor: colors.surface,
                 borderColor: 'rgba(17, 24, 39, 0.06)',
-                opacity: pressed ? 0.92 : 1,
+                opacity: !addAddressHandler ? 0.6 : pressed ? 0.92 : 1,
                 shadowColor: colors.shadowColor,
               },
             ]}

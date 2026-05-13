@@ -5,6 +5,7 @@ import {
   Animated,
   Pressable,
   RefreshControl,
+  StatusBar,
   StyleSheet,
   View,
   useWindowDimensions,
@@ -30,6 +31,21 @@ import ItemSizes from "./ItemSizes";
 import ProductInfoCustomizationsLoadingSkeleton from "./ProductInfoCustomizationsLoadingSkeleton";
 import useProductSelectionState from "./useProductSelectionState";
 import useProductInfoCartFlow from "./useProductInfoCartFlow";
+
+const ENABLE_PRODUCT_INFO_DEAL_DEBUG = true;
+
+function toValidNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
+}
 
 type Props = {
   data: ProductInfoResponse;
@@ -95,10 +111,173 @@ export default function MainContainer({
   const hasCustomizationSection = hasSizes || hasFlavours;
   const hasDetailSections =
     hasNutritionSection || hasCustomizationSection || isCustomizationsLoading;
-  const effectiveBasePrice = variationOptions.length > 0
-    ? selectedVariationPrice
-    : productInfoData.price;
+  const detailDealPricing = useMemo(() => {
+    const rawDeal = productInfoData.deal;
+    const fallbackDealAmount = toValidNumber(productInfoData.dealAmount);
+    const fallbackDealType = productInfoData.dealType?.toLowerCase() ?? null;
+
+    let discountedPrice: number | null = null;
+    let dealAmount = fallbackDealAmount;
+    let dealType = fallbackDealType;
+    let dealLabel: string | null = null;
+
+    if (rawDeal && typeof rawDeal === "object") {
+      const objectDeal = rawDeal as {
+        deal_name?: string;
+        discounted_price?: number;
+        discountedPrice?: number;
+        discount_value?: number;
+        discountValue?: number;
+        discount_type?: string;
+        discountType?: string;
+      };
+      if (typeof objectDeal.deal_name === "string") {
+        dealLabel = objectDeal.deal_name.trim() || null;
+      }
+
+      const objectDiscountedPrice =
+        toValidNumber(objectDeal.discounted_price) ??
+        toValidNumber(objectDeal.discountedPrice);
+      if (objectDiscountedPrice !== null) {
+        discountedPrice = objectDiscountedPrice;
+      }
+
+      if (dealAmount === null) {
+        dealAmount =
+          toValidNumber(objectDeal.discount_value) ??
+          toValidNumber(objectDeal.discountValue);
+      }
+
+      if (!dealType) {
+        const resolvedDealType =
+          typeof objectDeal.discount_type === "string"
+            ? objectDeal.discount_type
+            : typeof objectDeal.discountType === "string"
+              ? objectDeal.discountType
+              : null;
+        if (resolvedDealType) {
+          dealType = resolvedDealType.toLowerCase();
+        }
+      }
+    }
+
+    const normalizedDealType = typeof dealType === "string" ? dealType.toLowerCase() : null;
+    const hasNumericDiscount =
+      typeof dealAmount === "number" && Number.isFinite(dealAmount) && dealAmount > 0;
+    const derivedFixedDiscountFromBase =
+      typeof discountedPrice === "number" &&
+      Number.isFinite(discountedPrice) &&
+      discountedPrice < productInfoData.price
+        ? Number((productInfoData.price - discountedPrice).toFixed(2))
+        : null;
+    const resolvedOfferLabel = hasNumericDiscount
+      ? normalizedDealType === "percentage"
+        ? `${dealAmount} % OFF`
+        : `${dealAmount} OFF`
+      : dealLabel;
+
+    if (
+      discountedPrice === null &&
+      hasNumericDiscount
+    ) {
+      if (normalizedDealType === "percentage") {
+        discountedPrice = Math.max(
+          0,
+          Number((productInfoData.price - (productInfoData.price * dealAmount) / 100).toFixed(2)),
+        );
+      } else {
+        discountedPrice = Math.max(0, Number((productInfoData.price - dealAmount).toFixed(2)));
+      }
+    }
+
+    if (
+      typeof discountedPrice !== "number" ||
+      !Number.isFinite(discountedPrice) ||
+      discountedPrice >= productInfoData.price
+    ) {
+      return {
+        basePrice: productInfoData.price,
+        offerLabel: resolvedOfferLabel ?? null,
+        showOriginal: false,
+      };
+    }
+
+    return {
+      basePrice: discountedPrice,
+      dealAmount,
+      dealType: normalizedDealType,
+      derivedFixedDiscountFromBase,
+      offerLabel: resolvedOfferLabel ?? null,
+      showOriginal: true,
+    };
+  }, [productInfoData.deal, productInfoData.dealAmount, productInfoData.dealType, productInfoData.price]);
+
+  React.useEffect(() => {
+    if (!ENABLE_PRODUCT_INFO_DEAL_DEBUG) {
+      return;
+    }
+
+    console.log("[Deliveries][ProductInfo][DealDebug]", {
+      productId: productInfoData.productId,
+      rawDeal: productInfoData.deal,
+      dealType: productInfoData.dealType,
+      dealAmount: productInfoData.dealAmount,
+      price: productInfoData.price,
+      resolvedBasePrice: detailDealPricing.basePrice,
+      resolvedDealType: detailDealPricing.dealType,
+      resolvedDealAmount: detailDealPricing.dealAmount,
+      derivedFixedDiscountFromBase: detailDealPricing.derivedFixedDiscountFromBase,
+      resolvedOfferLabel: detailDealPricing.offerLabel,
+      showOriginal: detailDealPricing.showOriginal,
+    });
+  }, [
+    detailDealPricing.basePrice,
+    detailDealPricing.dealAmount,
+    detailDealPricing.dealType,
+    detailDealPricing.derivedFixedDiscountFromBase,
+    detailDealPricing.offerLabel,
+    detailDealPricing.showOriginal,
+    productInfoData.deal,
+    productInfoData.dealAmount,
+    productInfoData.dealType,
+    productInfoData.price,
+    productInfoData.productId,
+  ]);
+  const effectiveBasePrice = useMemo(() => {
+    if (variationOptions.length === 0) {
+      return detailDealPricing.basePrice;
+    }
+
+    const selectedBase = selectedVariationPrice;
+    if (!detailDealPricing.showOriginal) {
+      return selectedBase;
+    }
+
+    if (detailDealPricing.dealType === "percentage" && typeof detailDealPricing.dealAmount === "number") {
+      return Math.max(
+        0,
+        Number((selectedBase - (selectedBase * detailDealPricing.dealAmount) / 100).toFixed(2)),
+      );
+    }
+
+    const fixedDiscount =
+      typeof detailDealPricing.dealAmount === "number"
+        ? detailDealPricing.dealAmount
+        : detailDealPricing.derivedFixedDiscountFromBase ?? 0;
+
+    return Math.max(0, Number((selectedBase - fixedDiscount).toFixed(2)));
+  }, [
+    detailDealPricing.basePrice,
+    detailDealPricing.dealAmount,
+    detailDealPricing.dealType,
+    detailDealPricing.derivedFixedDiscountFromBase,
+    detailDealPricing.showOriginal,
+    selectedVariationPrice,
+    variationOptions.length,
+  ]);
   const configuredUnitPrice = effectiveBasePrice + selectedAddonsTotal;
+  const originalUnitPrice = (variationOptions.length > 0 ? selectedVariationPrice : productInfoData.price) + selectedAddonsTotal;
+  const shouldShowOriginalPrice = originalUnitPrice > configuredUnitPrice;
 
   const totalPrice = useMemo(
     () => configuredUnitPrice * quantity,
@@ -124,6 +303,11 @@ export default function MainContainer({
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle="light-content"
+      />
       <Animated.ScrollView
         bounces={false}
         contentContainerStyle={styles.contentContainer}
@@ -156,7 +340,13 @@ export default function MainContainer({
         <ItemInfo
           description={productInfoData.description}
           name={productInfoData.name}
+          offerLabel={detailDealPricing.offerLabel}
           priceLabel={formatPrice(configuredUnitPrice)}
+          originalPriceLabel={
+            shouldShowOriginalPrice
+              ? formatPrice(originalUnitPrice)
+              : null
+          }
         />
 
         {hasDetailSections ? (

@@ -1,19 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   createNativeStackNavigator,
   type NativeStackNavigationProp,
 } from "@react-navigation/native-stack";
 import HomeScreen from "../../screens/HomeScreen";
-import DeliveriesNavigator from "../../apps/deliveries/navigation/DeliveriesNavigator";
-import RideSharingNavigator from "../../apps/rideSharing/navigation/RideSharingNavigator";
-import HomeVisitsNavigator from "../../apps/homeVisits/navigation/HomeVisitsNavigator";
-import AppointmentsNavigator from "../../apps/appointments/navigation/AppointmentsNavigator";
-import DeveloperModeNavigator from "../../apps/developerMode/navigation/DeveloperModeNavigator";
 import AuthNavigator from "./AuthNavigator";
 import { authSession } from "../auth/authSession";
 import type { MiniAppId } from "../utils/constants";
 import type {
-  SharedAppRouteName,
   SharedStackParamList,
 } from "./navigationTypes";
 import {
@@ -21,15 +16,32 @@ import {
   setPendingAppRoute,
 } from "./pendingAppRedirect";
 import { resetToSharedRoute } from "./rootNavigation";
+import { useAppTheme } from "../theme/ThemeProvider";
+import type { ThemedMiniAppId } from "../theme/colors";
+import {
+  APP_ROUTE_BY_ID,
+  APP_SCREENS,
+  type SharedAppRouteName,
+} from "../../apps/registry/generated/appRegistry";
 
 const Stack = createNativeStackNavigator<SharedStackParamList>();
-const APP_ROUTES: Partial<Record<MiniAppId, SharedAppRouteName>> = {
-  deliveries: "Deliveries",
-  rideSharing: "RideSharing",
-  homeVisits: "HomeVisits",
-  appointments: "Appointments",
-  developerMode: "DeveloperMode",
+type AppThemeScopeProps = {
+  appId: ThemedMiniAppId;
+  children: React.ReactNode;
 };
+
+function AppThemeScope({ appId, children }: AppThemeScopeProps) {
+  const { setActiveMiniApp } = useAppTheme();
+
+  useFocusEffect(
+    useCallback(() => {
+      setActiveMiniApp(appId);
+      return undefined;
+    }, [appId, setActiveMiniApp]),
+  );
+
+  return <>{children}</>;
+}
 
 export default function SharedNavigator() {
   const [initialRouteName, setInitialRouteName] = useState<
@@ -47,7 +59,7 @@ export default function SharedNavigator() {
       navigation: NativeStackNavigationProp<SharedStackParamList, "Home">,
       params?: SharedStackParamList[SharedAppRouteName],
     ) => {
-      const routeName = APP_ROUTES[id];
+      const routeName = APP_ROUTE_BY_ID[id];
       if (routeName === "DeveloperMode") {
         navigation.navigate(routeName);
         return;
@@ -79,44 +91,43 @@ export default function SharedNavigator() {
     <Stack.Navigator initialRouteName={initialRouteName}>
       <Stack.Screen name="Home" options={{ headerShown: false }}>
         {(props) => (
-          <HomeScreen
-            {...props}
-            onSelectMiniApp={(id, params) => {
-              void handleSelectMiniApp(id, props.navigation, params);
-            }}
-          />
+          <AppThemeScope appId="general">
+            <HomeScreen
+              {...props}
+              onSelectMiniApp={(id, params) => {
+                void handleSelectMiniApp(id, props.navigation, params);
+              }}
+            />
+          </AppThemeScope>
         )}
       </Stack.Screen>
-      <Stack.Screen
-        name="Deliveries"
-        component={DeliveriesNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="RideSharing"
-        component={RideSharingNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="HomeVisits"
-        component={HomeVisitsNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Appointments"
-        component={AppointmentsNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="DeveloperMode"
-        component={DeveloperModeNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Auth"
-        component={AuthNavigator}
-        options={{ headerShown: false }}
-      />
+      {Object.entries(APP_ROUTE_BY_ID).map(([appId, routeName]) => {
+        if (!routeName) {
+          return null;
+        }
+
+        const ScreenComponent = APP_SCREENS[routeName];
+        if (!ScreenComponent) {
+          return null;
+        }
+
+        return (
+          <Stack.Screen key={routeName} name={routeName} options={{ headerShown: false }}>
+            {() => (
+              <AppThemeScope appId={appId as ThemedMiniAppId}>
+                <ScreenComponent />
+              </AppThemeScope>
+            )}
+          </Stack.Screen>
+        );
+      })}
+      <Stack.Screen name="Auth" options={{ headerShown: false }}>
+        {() => (
+          <AppThemeScope appId="general">
+            <AuthNavigator />
+          </AppThemeScope>
+        )}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 }

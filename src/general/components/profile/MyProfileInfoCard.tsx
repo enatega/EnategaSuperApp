@@ -18,6 +18,7 @@ type Props = {
   phoneLabel: string;
   emailLabel: string;
   onEditAvatar?: () => void;
+  onPressAvatar?: () => void;
   onEditName?: () => void;
 };
 
@@ -34,6 +35,7 @@ export default function MyProfileInfoCard({
   phoneLabel,
   emailLabel,
   onEditAvatar,
+  onPressAvatar,
   onEditName,
 }: Props) {
   const { colors } = useTheme();
@@ -43,7 +45,12 @@ export default function MyProfileInfoCard({
       {/* Avatar + name */}
       <View style={styles.avatarSection}>
         <View style={styles.avatarContainer}>
-          <View style={[styles.avatarWrapper, { backgroundColor: colors.backgroundTertiary }]}>
+          <Pressable
+            onPress={onPressAvatar}
+            style={[styles.avatarWrapper, { backgroundColor: colors.backgroundTertiary }]}
+            accessibilityRole={onPressAvatar ? 'button' : undefined}
+            disabled={!onPressAvatar}
+          >
             {imageUri ? (
               <Image
                 source={{ uri: imageUri }}
@@ -53,7 +60,7 @@ export default function MyProfileInfoCard({
             ) : (
               <View style={[styles.avatar, { backgroundColor: colors.backgroundTertiary }]} />
             )}
-          </View>
+          </Pressable>
           <Pressable
             onPress={onEditAvatar}
             accessibilityRole="button"

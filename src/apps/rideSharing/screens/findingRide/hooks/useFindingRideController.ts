@@ -6,9 +6,9 @@ import { useAuthSessionQuery } from '../../../../../general/hooks/useAuthQueries
 import { socketClient, socketLogger } from '../../../../../general/services/socket';
 import { showToast } from '../../../../../general/components/AppToast';
 import { getApiErrorMessage } from '../../../../../general/utils/apiError';
-import type { AcceptRideBidPayload, ActiveRideRequestPayload, RideAddressSelection } from '../../../api/types';
+import type { AcceptRideBidPayload, ActiveRideRequestPayload, CreateRidePayload, RideAddressSelection } from '../../../api/types';
 import { rideService } from '../../../api/rideService';
-import { useAcceptRideBid, useCancelRideRequest, useRaiseRideFare, useRejectRideBid } from '../../../hooks/useRideMutations';
+import { useAcceptRideBid, useCancelRideRequest, useCreateRide, useRaiseRideFare, useRejectRideBid } from '../../../hooks/useRideMutations';
 import { useActiveRideRequestStore } from '../../../stores/useActiveRideRequestStore';
 import { useActiveRideStore } from '../../../stores/useActiveRideStore';
 import { useRideBidsStore } from '../../../stores/useRideBidsStore';
@@ -20,7 +20,6 @@ import type { FindingRideViewProps } from '../types/view';
 import type { RideOptionItem } from '../../../components/rideOptions/types';
 
 const SEARCH_DURATION_SECONDS = 60;
-const RAISE_FARE_DEBOUNCE_MS = 500;
 const DEFAULT_SEARCH_RADIUS_KM = 1;
 const KEEP_SEARCHING_RADIUS_INCREMENT_KM = 1;
 const BID_ACCEPT_START_TYPE = 'started';
@@ -43,6 +42,16 @@ type EmitRaiseFareEventInput = {
 
 function toCurrencyNumber(value: number) {
   return Number(value.toFixed(2));
+}
+
+function readString(...values: Array<unknown>) {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+
+  return undefined;
 }
 
 function buildAcceptBidPayload(input: {
@@ -76,6 +85,19 @@ function getRemainingSearchSeconds(expiresAt?: string | null, fallback = SEARCH_
   }
 
   return Math.max(0, Math.floor((expiresAtMs - Date.now()) / 1000));
+}
+
+function isSearchExpired(expiresAt?: string | null) {
+  if (!expiresAt) {
+    return false;
+  }
+
+  const expiresAtMs = Date.parse(expiresAt);
+  if (!Number.isFinite(expiresAtMs)) {
+    return false;
+  }
+
+  return expiresAtMs <= Date.now();
 }
 
 async function waitForSocketConnection(timeoutMs: number = SOCKET_CONNECT_TIMEOUT_MS) {
@@ -149,6 +171,7 @@ async function emitRideRaiseFareEvent({
 export function useFindingRideController({
   activeRideRequest: currentActiveRideRequest,
   fromAddress,
+  toAddress,
   selectedRide,
   bids: incomingBids,
   onCancelSuccess,
@@ -172,8 +195,11 @@ export function useFindingRideController({
   const removeBid = useRideBidsStore((state) => state.removeBid);
 
   const cancelRideRequestMutation = useCancelRideRequest();
+  const createRideMutation = useCreateRide();
   const acceptRideBidMutation = useAcceptRideBid();
   const rejectRideBidMutation = useRejectRideBid();
+  const isCreateRidePending = createRideMutation.isPending;
+  const createRide = createRideMutation.mutateAsync;
 
   const minimumFare = selectedRide.recommendedFare ?? selectedRide.fare ?? 0;
   const resolvedRideRequestId = currentActiveRideRequest.id ?? activeRideRequestId;
@@ -184,11 +210,10 @@ export function useFindingRideController({
     getRemainingSearchSeconds(resolvedExpiresAt, SEARCH_DURATION_SECONDS),
   );
   const [isKeepSearchingPending, setIsKeepSearchingPending] = useState(false);
+  const [searchRadiusKm, setSearchRadiusKm] = useState(DEFAULT_SEARCH_RADIUS_KM);
   const [acceptingBidId, setAcceptingBidId] = useState<string | null>(null);
   const [decliningBidId, setDecliningBidId] = useState<string | null>(null);
 
-  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const hasHydratedFareRef = useRef(false);
   const committedFareRef = useRef<number>(selectedRide.fare ?? minimumFare);
   const activeRideRequestRef = useRef(activeRideRequest);
   const isCancellingRef = useRef(false);
@@ -273,12 +298,16 @@ export function useFindingRideController({
   useEffect(() => {
     committedFareRef.current = selectedRide.fare ?? minimumFare;
     setCurrentFare(selectedRide.fare ?? minimumFare);
-    hasHydratedFareRef.current = true;
   }, [minimumFare, selectedRide.fare]);
 
   useEffect(() => {
     setTimeLeftSec(getRemainingSearchSeconds(resolvedExpiresAt, SEARCH_DURATION_SECONDS));
   }, [resolvedExpiresAt]);
+
+  useEffect(() => {
+    searchRadiusKmRef.current = DEFAULT_SEARCH_RADIUS_KM;
+    setSearchRadiusKm(DEFAULT_SEARCH_RADIUS_KM);
+  }, [resolvedRideRequestId]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -304,56 +333,6 @@ export function useFindingRideController({
     }
   }, [incomingBids]);
 
-  useEffect(() => {
-    if (!hasHydratedFareRef.current) {
-      return undefined;
-    }
-
-    const normalizedCurrentFare = toCurrencyNumber(currentFare);
-    const normalizedCommittedFare = toCurrencyNumber(committedFareRef.current);
-    const hasFareChanged = normalizedCurrentFare !== normalizedCommittedFare;
-
-    if (
-      !hasFareChanged
-      || !resolvedRideRequestId
-      || isRaiseRideFarePending
-      || cancelRideRequestMutation.isPending
-      || isCancellingRef.current
-    ) {
-      return undefined;
-    }
-
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    debounceTimeoutRef.current = setTimeout(() => {
-      mutateRaiseRideFare({
-        rideRequestId: resolvedRideRequestId,
-        newFare: normalizedCurrentFare,
-      });
-    }, RAISE_FARE_DEBOUNCE_MS);
-
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-        debounceTimeoutRef.current = null;
-      }
-    };
-  }, [
-    cancelRideRequestMutation.isPending,
-    currentFare,
-    isRaiseRideFarePending,
-    mutateRaiseRideFare,
-    resolvedRideRequestId,
-  ]);
-
-  useEffect(() => () => {
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-  }, []);
-
   const handleIncreaseFare = useCallback(() => {
     if (isRaiseRideFarePending) {
       return;
@@ -369,20 +348,95 @@ export function useFindingRideController({
 
     setCurrentFare((previous) => toCurrencyNumber(Math.max(minimumFare, previous - 0.5)));
   }, [isRaiseRideFarePending, minimumFare]);
+  const handleCommitFare = useCallback(() => {
+    if (
+      !resolvedRideRequestId
+      || isRaiseRideFarePending
+      || cancelRideRequestMutation.isPending
+      || isCancellingRef.current
+    ) {
+      return;
+    }
+
+    const normalizedCurrentFare = toCurrencyNumber(currentFare);
+    const normalizedCommittedFare = toCurrencyNumber(committedFareRef.current);
+    const hasFareChanged = normalizedCurrentFare !== normalizedCommittedFare;
+
+    if (!hasFareChanged) {
+      return;
+    }
+
+    mutateRaiseRideFare({
+      rideRequestId: resolvedRideRequestId,
+      newFare: normalizedCurrentFare,
+    });
+  }, [
+    cancelRideRequestMutation.isPending,
+    currentFare,
+    isRaiseRideFarePending,
+    mutateRaiseRideFare,
+    resolvedRideRequestId,
+  ]);
 
   const handleCancelRide = useCallback(async () => {
+    console.log('[useFindingRideController] handleCancelRide:start', {
+      resolvedRideRequestId,
+      isCancelPending: cancelRideRequestMutation.isPending,
+    });
     if (!resolvedRideRequestId || cancelRideRequestMutation.isPending) {
+      console.log('[useFindingRideController] handleCancelRide:early-return', {
+        reason: !resolvedRideRequestId ? 'missing_ride_request_id' : 'cancel_mutation_pending',
+      });
       return;
     }
 
     isCancellingRef.current = true;
 
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-      debounceTimeoutRef.current = null;
-    }
-
     try {
+      const rideRequestForCancelEvent = activeRideRequestRef.current ?? currentActiveRideRequest;
+      const passengerIdForCancelEvent = String(
+        rideRequestForCancelEvent?.passenger_id
+        ?? authSessionQuery.data?.user?.id
+        ?? '',
+      ).trim();
+      const chatBoxIdForCancelEvent = readString(
+        (rideRequestForCancelEvent as unknown as Record<string, unknown> | null | undefined)?.chatBoxId,
+        (rideRequestForCancelEvent as unknown as Record<string, unknown> | null | undefined)?.chatbox_id,
+        (rideRequestForCancelEvent as unknown as Record<string, unknown> | null | undefined)?.chat_box_id,
+      );
+      console.log('[useFindingRideController] cancel-ride:inputs', {
+        rideRequestId: resolvedRideRequestId,
+        passengerIdForCancelEvent,
+        chatBoxIdForCancelEvent,
+      });
+
+      if (passengerIdForCancelEvent) {
+        const cancelRideSocketPayload = {
+          rideRequestId: resolvedRideRequestId,
+          cancellerUserId: passengerIdForCancelEvent,
+          cancelledBy: 'Customer' as const,
+          ...(chatBoxIdForCancelEvent ? { chatBoxId: chatBoxIdForCancelEvent } : {}),
+        };
+        console.log('[useFindingRideController] cancel-ride:emit-attempt', cancelRideSocketPayload);
+
+        try {
+          await emitRequiredRideSharingEvent('cancel-ride', cancelRideSocketPayload);
+          console.log('[useFindingRideController] cancel-ride:emit-success');
+        } catch (socketError) {
+          console.log('[useFindingRideController] cancel-ride:emit-failed', {
+            error: socketError instanceof Error ? socketError.message : String(socketError),
+          });
+          socketLogger.warn('Cancel ride socket emit failed, proceeding with API cancel', {
+            rideRequestId: resolvedRideRequestId,
+            passengerIdForCancelEvent,
+            chatBoxIdForCancelEvent,
+            error: socketError instanceof Error ? socketError.message : String(socketError),
+          });
+        }
+      } else {
+        console.log('[useFindingRideController] cancel-ride:skip-emit-missing-passenger-id');
+      }
+
       await cancelRideRequestMutation.mutateAsync(resolvedRideRequestId);
       clearBids();
       clearActiveRideRequest();
@@ -395,8 +449,10 @@ export function useFindingRideController({
     cancelRideRequestMutation,
     clearActiveRideRequest,
     clearBids,
+    currentActiveRideRequest,
     onCancelSuccess,
     resolvedRideRequestId,
+    authSessionQuery.data?.user?.id,
     t,
   ]);
 
@@ -457,8 +513,8 @@ export function useFindingRideController({
       console.log('Bid accepted successfully:', acceptedBidResponse, { isScheduledRide });
       if (isScheduledRide) {
         const scheduledRideId =
-         (acceptedBidResponse as { ride_id?: string; rideId?: string; id?: string } | null)?.rideId
-        ??  (acceptedBidResponse as { ride_id?: string; rideId?: string; id?: string } | null)?.ride_id
+          (acceptedBidResponse as { ride_id?: string; rideId?: string; id?: string } | null)?.rideId
+          ?? (acceptedBidResponse as { ride_id?: string; rideId?: string; id?: string } | null)?.ride_id
           ?? (acceptedBidResponse as { ride_id?: string; rideId?: string; id?: string } | null)?.id;
 
         clearBids();
@@ -543,7 +599,7 @@ export function useFindingRideController({
 
   const handleKeepSearching = useCallback(async () => {
     if (
-      !resolvedRideRequestId
+      isCreateRidePending
       || isRaiseRideFarePending
       || cancelRideRequestMutation.isPending
       || isKeepSearchingPending
@@ -553,20 +609,81 @@ export function useFindingRideController({
 
     setIsKeepSearchingPending(true);
 
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-      debounceTimeoutRef.current = null;
-    }
-
     const nextRadiusKm = searchRadiusKmRef.current + KEEP_SEARCHING_RADIUS_INCREMENT_KM;
     const normalizedCurrentFare = toCurrencyNumber(currentFare);
     const normalizedCommittedFare = toCurrencyNumber(committedFareRef.current);
     const hasFareChanged = normalizedCurrentFare !== normalizedCommittedFare;
+    const expiredRequest = isSearchExpired(activeRideRequestRef.current?.expiresAt ?? resolvedExpiresAt);
 
     try {
       let rideRequestForSocket = activeRideRequestRef.current;
+      let createdRequestPayload: CreateRidePayload | null = null;
 
-      if (hasFareChanged) {
+      if (expiredRequest) {
+        const currentRequest = activeRideRequestRef.current;
+        if (!currentRequest) {
+          showToast.error(t('error'), t('ride_create_invalid_response_description'));
+          return;
+        }
+
+        const createRidePayload: CreateRidePayload = {
+          pickup: {
+            lat: fromAddress.coordinates.latitude,
+            lng: fromAddress.coordinates.longitude,
+          },
+          dropoff: {
+            lat: toAddress.coordinates.latitude,
+            lng: toAddress.coordinates.longitude,
+          },
+          ride_type_id: String(currentRequest.ride_type_id),
+          fare: normalizedCurrentFare,
+          payment_via: currentRequest.payment_via,
+          is_hourly: Boolean(currentRequest.is_hourly),
+          stops: (currentRequest.stops ?? []).map((stop, index) => ({
+            lat: Number(stop.lat),
+            lng: Number(stop.lng),
+            address: stop.address ?? '',
+            order: Number(stop.order ?? index + 1),
+          })).filter((stop) => Number.isFinite(stop.lat) && Number.isFinite(stop.lng)),
+          pickup_address: fromAddress.description,
+          pickup_location: fromAddress.description,
+          dropoff_location: toAddress.description,
+          destination_address: toAddress.description,
+          is_scheduled: Boolean(currentRequest.is_scheduled),
+          is_family: Boolean(currentRequest.is_family),
+          estimated_time: typeof currentRequest.estimated_time === 'string'
+            ? Number(currentRequest.estimated_time)
+            : currentRequest.estimated_time ?? undefined,
+          estimated_distance: typeof currentRequest.estimated_distance === 'string'
+            ? Number(currentRequest.estimated_distance)
+            : currentRequest.estimated_distance ?? undefined,
+          base_fair: typeof currentRequest.baseFair === 'string'
+            ? Number(currentRequest.baseFair)
+            : currentRequest.baseFair ?? normalizedCurrentFare,
+          offered_fair: normalizedCurrentFare,
+          ...(currentRequest.scheduled_at ? { scheduled_at: currentRequest.scheduled_at } : {}),
+        };
+
+        const createdRide = await createRide(createRidePayload) as {
+          rideReq?: ActiveRideRequestPayload | null;
+        } | null;
+
+        const createdRideRequest = createdRide?.rideReq ?? null;
+        if (!createdRideRequest?.id) {
+          showToast.error(t('error'), t('ride_create_invalid_response_description'));
+          return;
+        }
+
+        setActiveRideRequest(createdRideRequest);
+        rideRequestForSocket = createdRideRequest;
+        createdRequestPayload = createRidePayload;
+        committedFareRef.current = normalizedCurrentFare;
+      } else if (hasFareChanged) {
+        if (!resolvedRideRequestId) {
+          showToast.error(t('error'), t('ride_create_invalid_response_description'));
+          return;
+        }
+
         skipNextRaiseFareSocketEmitRef.current = true;
         const response = await mutateRaiseRideFareAsync({
           rideRequestId: resolvedRideRequestId,
@@ -581,19 +698,37 @@ export function useFindingRideController({
       }
 
       searchRadiusKmRef.current = nextRadiusKm;
+      setSearchRadiusKm(nextRadiusKm);
 
       try {
-        await emitRideRaiseFareEvent({
-          rideRequestData: rideRequestForSocket,
-          fromAddress,
-          radiusKm: nextRadiusKm,
-          ...(hasFareChanged
-            ? {
+        if (expiredRequest) {
+          if (!createdRequestPayload) {
+            return;
+          }
+
+          await emitRequiredRideSharingEvent('ride-request-created-by-customer', {
+            rideRequestData: {
+              ...createdRequestPayload,
+              passenger_user_id: String(rideRequestForSocket.passenger_id ?? ''),
+              ride_request_id: rideRequestForSocket.id,
+            },
+            latitude: fromAddress.coordinates.latitude,
+            longitude: fromAddress.coordinates.longitude,
+            radiusKm: nextRadiusKm,
+          });
+        } else {
+          await emitRideRaiseFareEvent({
+            rideRequestData: rideRequestForSocket,
+            fromAddress,
+            radiusKm: nextRadiusKm,
+            ...(hasFareChanged
+              ? {
                 previousFare: normalizedCommittedFare,
                 newFare: normalizedCurrentFare,
               }
-            : {}),
-        });
+              : {}),
+          });
+        }
       } catch (socketError) {
         socketLogger.warn('Ride keep searching socket emit failed', {
           rideRequestId: rideRequestForSocket.id,
@@ -610,6 +745,8 @@ export function useFindingRideController({
       setIsKeepSearchingPending(false);
     }
   }, [
+    createRide,
+    isCreateRidePending,
     cancelRideRequestMutation.isPending,
     currentFare,
     fromAddress,
@@ -617,22 +754,29 @@ export function useFindingRideController({
     isRaiseRideFarePending,
     mutateRaiseRideFareAsync,
     resolvedRideRequestId,
+    resolvedExpiresAt,
+    setActiveRideRequest,
     t,
+    toAddress,
   ]);
 
   return {
     minimumFare,
     currentFare,
     timeLeftSec,
+    searchRadiusKm,
     acceptingBidId,
     decliningBidId,
     isBidInteractionLocked: Boolean(acceptingBidId || decliningBidId),
+    isFareDirty: toCurrencyNumber(currentFare) !== toCurrencyNumber(committedFareRef.current),
     isIncreaseDisabled: isRaiseRideFarePending,
     isDecreaseDisabled: isRaiseRideFarePending || currentFare <= minimumFare,
-    isKeepSearchingLoading: isRaiseRideFarePending || isKeepSearchingPending,
+    isCommitFareLoading: isRaiseRideFarePending,
+    isKeepSearchingLoading: isCreateRidePending || isRaiseRideFarePending || isKeepSearchingPending,
     isCancelLoading: cancelRideRequestMutation.isPending,
     handleIncreaseFare,
     handleDecreaseFare,
+    handleCommitFare,
     handleKeepSearching,
     handleCancelRide,
     handleAcceptBid,

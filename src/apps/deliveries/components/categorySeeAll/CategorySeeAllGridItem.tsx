@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
     width: 112,
   },
   item: {
-    width: '31%',
+    paddingHorizontal: 6,
+    width: '33.3333%',
   },
 });

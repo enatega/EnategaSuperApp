@@ -4,7 +4,6 @@ import MapView, { type LatLng } from 'react-native-maps';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import Map, { type MapMarker, type MapPolyline } from '../../../../../general/components/Map';
 import Icon from '../../../../../general/components/Icon';
-import Image from '../../../../../general/components/Image';
 import { useTheme } from '../../../../../general/theme/theme';
 import type { RideAddressSelection } from '../../../api/types';
 import { rideKeys } from '../../../api/queryKeys';
@@ -44,6 +43,32 @@ function getNearestCoordinateOnPath(point: LatLng, path: LatLng[]) {
   }
 
   return nearestPoint;
+}
+
+function getNearestRoutePointMeta(point: LatLng, path: LatLng[]) {
+  if (path.length === 0) {
+    return null;
+  }
+
+  let nearestIndex = 0;
+  let nearestDistanceSquared = Number.POSITIVE_INFINITY;
+
+  for (let index = 0; index < path.length; index += 1) {
+    const candidate = path[index];
+    const latitudeDiff = candidate.latitude - point.latitude;
+    const longitudeDiff = candidate.longitude - point.longitude;
+    const distanceSquared = (latitudeDiff * latitudeDiff) + (longitudeDiff * longitudeDiff);
+
+    if (distanceSquared < nearestDistanceSquared) {
+      nearestDistanceSquared = distanceSquared;
+      nearestIndex = index;
+    }
+  }
+
+  return {
+    index: nearestIndex,
+    distanceSquared: nearestDistanceSquared,
+  };
 }
 
 function toSnappedRouteKeyValue(value: number | undefined) {
@@ -206,30 +231,36 @@ function ActiveRideMapLayer({
         rotation: normalizedDriverHeading,
         flat: true,
         tracksViewChanges: false,
-        render: (
-          <View style={[styles.driverMarker, { shadowColor: colors.shadowColor }]}>
-            <Image
-              source={require('../../../assets/images/car.png')}
-              style={styles.driverMarkerImage}
-              resizeMode="contain"
-            />
-          </View>
-        ),
+        image: require('../../../assets/images/car-marker-small.png'),
       });
     }
 
     return nextMarkers;
-  }, [colors.shadowColor, colors.surface, fromAddress.coordinates, normalizedDriverHeading, snappedDriverCoordinate, stopAddresses, toAddress.coordinates]);
+  }, [colors.surface, fromAddress.coordinates, normalizedDriverHeading, snappedDriverCoordinate, stopAddresses, toAddress.coordinates]);
 
   const driverApproachPolyline = useMemo<MapPolyline | null>(() => {
     if (!snappedDriverCoordinate) {
       return null;
     }
 
-    const routedCoordinates = routedDriverPath.length >= 2
-      // Force live start point so the green line keeps contracting with location updates.
-      ? [snappedDriverCoordinate, ...routedDriverPath.slice(1)]
+    const nearestRoutePointMeta = getNearestRoutePointMeta(
+      snappedDriverCoordinate,
+      routedDriverPath,
+    );
+
+    const routedCoordinates = routedDriverPath.length >= 2 && nearestRoutePointMeta
+      // Start from the nearest point on the current route segment, not always index 1.
+      ? [
+        snappedDriverCoordinate,
+        ...routedDriverPath.slice(
+          Math.min(nearestRoutePointMeta.index + 1, routedDriverPath.length),
+        ),
+      ]
       : [snappedDriverCoordinate, targetAddress.coordinates];
+
+    if (routedCoordinates.length < 2) {
+      return null;
+    }
 
     return {
       id: 'driver-progress',
@@ -344,20 +375,5 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  driverMarker: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowOpacity: 0.18,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 4,
-  },
-  driverMarkerImage: {
-    width: 24,
-    height: 24,
   },
 });

@@ -1,4 +1,5 @@
 import type {
+  DeliveryOrderStatus,
   DeliveryOrderLogItem,
   DeliveryOrderTimelineItem,
 } from "../../api/ordersServiceTypes";
@@ -93,21 +94,78 @@ export function getOrderTrackingTimelineEntries(
   timeline: DeliveryOrderTimelineItem[] | null | undefined,
   orderLogs: DeliveryOrderLogItem[] | null | undefined,
 ) {
-  if (Array.isArray(orderLogs) && orderLogs.length > 0) {
-    return orderLogs.map((log, index) => ({
-      completedAt: formatTimelineLogTime(log.timestamp),
-      key: `${log.status}-${index}`,
-      stepKey: log.status,
-      title: log.message?.trim() || log.actor?.trim() || log.status,
-      tone: "completed" as const,
+  const statusTimes = buildStatusTimestampMap(orderLogs ?? []);
+  const completedStatuses = CUSTOMER_STATUS_FLOW.filter((status) => Boolean(statusTimes[status]));
+
+  if (completedStatuses.length === 0) {
+    return (timeline ?? []).map((item, index) => ({
+      completedAt: formatCompletedTime(item.completedAt),
+      key: `${item.key}-${index}`,
+      stepKey: item.key,
+      title: item.title,
+      tone: getTimelineTone(item),
     }));
   }
 
-  return (timeline ?? []).map((item, index) => ({
-    completedAt: formatCompletedTime(item.completedAt),
-    key: `${item.key}-${index}`,
-    stepKey: item.key,
-    title: item.title,
-    tone: getTimelineTone(item),
+  return completedStatuses.map((status, index) => ({
+    completedAt: statusTimes[status] ? formatTimelineLogTime(statusTimes[status]) : null,
+    key: `${status}-${index}`,
+    stepKey: status,
+    title: CUSTOMER_STATUS_LABELS[status] ?? status,
+    tone: "completed" as const,
   }));
+}
+
+const CUSTOMER_STATUS_LABELS: Partial<Record<DeliveryOrderStatus, string>> = {
+  scheduled: "Order scheduled",
+  pending: "Order pending",
+  accepted: "Order accepted",
+  preparing: "Order preparing",
+  picked_up: "Order picked up",
+  delivered: "Order delivered",
+  cancelled: "Order cancelled",
+  rejected: "Order rejected",
+  failed: "Order failed",
+};
+
+const CUSTOMER_STATUS_FLOW: DeliveryOrderStatus[] = [
+  "scheduled",
+  "pending",
+  "accepted",
+  "preparing",
+  "picked_up",
+  "delivered",
+  "cancelled",
+  "rejected",
+  "failed",
+];
+
+function normalizeCustomerStatus(
+  status: DeliveryOrderStatus | null | undefined,
+): DeliveryOrderStatus | null {
+  if (!status) return null;
+
+  if (status === "ready" || status === "rider_assigned") {
+    return "preparing";
+  }
+
+  if (status === "out_for_delivery" || status === "arrived") {
+    return "picked_up";
+  }
+
+  return status;
+}
+
+function buildStatusTimestampMap(logs: DeliveryOrderLogItem[]) {
+  const map: Partial<Record<DeliveryOrderStatus, string>> = {};
+
+  for (const log of logs) {
+    const status = normalizeCustomerStatus(log.status);
+    if (!status || !log.timestamp) continue;
+    if (!map[status]) {
+      map[status] = log.timestamp;
+    }
+  }
+
+  return map;
 }

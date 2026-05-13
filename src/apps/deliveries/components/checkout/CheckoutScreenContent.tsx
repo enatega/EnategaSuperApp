@@ -21,6 +21,7 @@ type Props = {
   deliveryTimeMode: CheckoutDeliveryTimeMode;
   hasAddressRequirement: boolean;
   isPickupEnabled: boolean;
+  isPromoApplied?: boolean;
   isPlacingOrder?: boolean;
   isPaymentBlocked?: boolean;
   isPreviewEnabled: boolean;
@@ -36,6 +37,7 @@ type Props = {
   onPlaceOrderPress: () => void;
   onPaymentPress: () => void;
   onPromoPress: () => void;
+  onPromoRemove?: () => void;
   onRestaurantMessagePress: () => void;
   onSchedulePress: () => void;
   onRetryPreview: () => void;
@@ -46,6 +48,9 @@ type Props = {
   paymentIconName: React.ComponentProps<typeof CheckoutInfoRow>['iconName'];
   paymentSubtitle?: string | null;
   paymentTitle: string;
+  promoCode?: string | null;
+  promoTitle?: string | null;
+  promoSubtitle?: string | null;
   preview: CheckoutPreviewResponse | null;
   courierMessage: string;
   restaurantMessage: string;
@@ -59,6 +64,7 @@ export default function CheckoutScreenContent({
   deliveryTimeMode,
   hasAddressRequirement,
   isPickupEnabled,
+  isPromoApplied = false,
   isPlacingOrder = false,
   isPaymentBlocked = false,
   isPreviewEnabled,
@@ -74,6 +80,7 @@ export default function CheckoutScreenContent({
   onPlaceOrderPress,
   onPaymentPress,
   onPromoPress,
+  onPromoRemove,
   onRestaurantMessagePress,
   onSchedulePress,
   onRetryPreview,
@@ -84,6 +91,9 @@ export default function CheckoutScreenContent({
   paymentIconName,
   paymentSubtitle,
   paymentTitle,
+  promoCode,
+  promoTitle,
+  promoSubtitle,
   preview,
   courierMessage,
   restaurantMessage,
@@ -180,11 +190,16 @@ export default function CheckoutScreenContent({
 
         <CheckoutPaymentSection
           errorMessage={paymentErrorMessage}
+          isPromoApplied={isPromoApplied}
           onPaymentPress={onPaymentPress}
           onPromoPress={onPromoPress}
+          onPromoRemove={onPromoRemove}
           paymentIconName={paymentIconName}
           paymentSubtitle={paymentSubtitle}
           paymentTitle={paymentTitle}
+          promoCode={promoCode}
+          promoTitle={promoTitle}
+          promoSubtitle={promoSubtitle}
         />
 
         {isDeliveryOrder ? (

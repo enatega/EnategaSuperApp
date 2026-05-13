@@ -1,28 +1,15 @@
 import generalEn from './general/en';
 import generalFr from './general/fr';
-import deliveriesEn from '../../apps/deliveries/localization/en';
-import deliveriesFr from '../../apps/deliveries/localization/fr';
-import rideSharingEn from '../../apps/rideSharing/localization/en';
-import rideSharingFr from '../../apps/rideSharing/localization/fr';
-import homeVisitsEn from '../../apps/homeVisits/localization/en';
-import homeVisitsFr from '../../apps/homeVisits/localization/fr';
-import appointmentsEn from '../../apps/appointments/localization/en';
-import appointmentsFr from '../../apps/appointments/localization/fr';
+import { APP_I18N_RESOURCES } from '../../apps/registry/generated/appI18nRegistry';
 
 export const translations = {
   en: {
     general: generalEn,
-    deliveries: deliveriesEn,
-    rideSharing: rideSharingEn,
-    homeVisits: homeVisitsEn,
-    appointments: appointmentsEn,
+    ...APP_I18N_RESOURCES.en,
   },
   fr: {
     general: generalFr,
-    deliveries: deliveriesFr,
-    rideSharing: rideSharingFr,
-    homeVisits: homeVisitsFr,
-    appointments: appointmentsFr,
+    ...APP_I18N_RESOURCES.fr,
   },
 } as const;
 

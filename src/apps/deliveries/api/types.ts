@@ -195,9 +195,19 @@ export interface DeliveryNearbyStoresParams {
     latitude?: number;
     longitude?: number;
     stock?: string;
+    category_id?: string;
     category_ids?: string[];
+    shop_type_id?: string;
     subcategory_id?: string;
-    price_tiers?: string;
+    price_tiers?: string | string[];
+    sort_by?: string;
+}
+
+export interface DeliveryRecommendedStoresParams {
+    offset?: number;
+    limit?: number;
+    latitude?: number;
+    longitude?: number;
     sort_by?: string;
 }
 
@@ -283,6 +293,11 @@ export interface DeliveryStoreDetailsProduct {
 export interface DeliveryDealsParams {
     offset?: number;
     limit?: number;
+    search?: string;
+    category_id?: string;
+    category_ids?: string[];
+    subcategory_id?: string;
+    shop_type_id?: string;
 }
 
 export interface DeliveryOrderAgainItem {
@@ -294,12 +309,36 @@ export interface DeliveryOrderAgainItem {
     storeLogo?: string | null;
     storeImage?: string | null;
     price?: number | null;
-    deal?: string | null;
+    deal?:
+        | string
+        | {
+              id?: string;
+              deal_name?: string;
+              discount_type?: string;
+              discount_value?: number;
+              discounted_price?: number;
+              start_date?: string;
+              end_date?: string;
+          }
+        | null;
     dealType?: string | null;
     dealAmount?: number | null;
+    discountedPrice?: number | null;
+    originalPrice?: number | null;
 }
 
 export interface DeliveryOrderAgainParams {
+    offset?: number;
+    limit?: number;
+    search?: string;
+    category_id?: string;
+    category_ids?: string[];
+    subcategory_id?: string;
+    shop_type_id?: string;
+}
+
+export interface DeliveryStoreRecommendedProductsParams {
+    storeId: string;
     offset?: number;
     limit?: number;
 }
@@ -311,14 +350,34 @@ export interface DeliveryBannerStore {
     coverImage?: string | null;
 }
 
+export type DeliveryBannerActionType = 'store' | 'product' | 'shop_type';
+
+export interface DeliveryBannerProduct {
+    id: string;
+    name?: string | null;
+    imageUrl?: string | null;
+    storeId?: string | null;
+}
+
+export interface DeliveryBannerShopType {
+    id: string;
+    name?: string | null;
+    image?: string | null;
+}
+
 export interface DeliveryBanner {
     id: string;
     title: string;
     description?: string | null;
     bannerVideoLink?: string | null;
     bannerImageLink?: string | null;
+    actionType?: DeliveryBannerActionType | null;
     relatedStore?: string | null;
+    relatedProduct?: string | null;
+    relatedShopType?: string | null;
     store?: DeliveryBannerStore | null;
+    product?: DeliveryBannerProduct | null;
+    shopType?: DeliveryBannerShopType | null;
 }
 
 export interface DeliveryBannersParams {
@@ -352,6 +411,11 @@ export type DeliveryNearbyStoresApiResponse =
     | DeliveryNearbyStore[];
 
 export type DeliveryVendorStoresApiResponse =
+    | ApiResponse<DeliveryNearbyStore[]>
+    | PaginatedDeliveryResponse<DeliveryNearbyStore>
+    | DeliveryNearbyStore[];
+
+export type DeliveryRecommendedStoresApiResponse =
     | ApiResponse<DeliveryNearbyStore[]>
     | PaginatedDeliveryResponse<DeliveryNearbyStore>
     | DeliveryNearbyStore[];

@@ -7,6 +7,7 @@ import { useTheme } from '../../../../general/theme/theme';
 type Props = {
   title: string;
   subtitle?: string | null;
+  subtitleRightAccessory?: React.ReactNode;
   iconName: React.ComponentProps<typeof Ionicons>['name'];
   onPress?: () => void;
   rightAccessory?: React.ReactNode;
@@ -15,6 +16,7 @@ type Props = {
 export default function CheckoutInfoRow({
   title,
   subtitle,
+  subtitleRightAccessory,
   iconName,
   onPress,
   rightAccessory,
@@ -46,15 +48,18 @@ export default function CheckoutInfoRow({
         </Text>
 
         {subtitle ? (
-          <Text
-            style={{
-              color: colors.mutedText,
-              fontSize: typography.size.xs2,
-              lineHeight: typography.lineHeight.sm,
-            }}
-          >
-            {subtitle}
-          </Text>
+          <View style={styles.subtitleRow}>
+            <Text
+              style={{
+                color: colors.mutedText,
+                fontSize: typography.size.xs2,
+                lineHeight: typography.lineHeight.sm,
+              }}
+            >
+              {subtitle}
+            </Text>
+            {subtitleRightAccessory ?? null}
+          </View>
         ) : null}
       </View>
 
@@ -79,5 +84,10 @@ const styles = StyleSheet.create({
   textWrap: {
     flex: 1,
     gap: 2,
+  },
+  subtitleRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 6,
   },
 });

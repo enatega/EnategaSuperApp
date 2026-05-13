@@ -100,10 +100,12 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
+
+
   },
   optionIconWrap: {
     width: 80,
-    height: 32,
+    height: 52,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 6,

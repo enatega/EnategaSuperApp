@@ -28,6 +28,7 @@ type Props = {
   draftFilters: MainListFilters;
   sectionTitles?: MainFilterSectionTitles;
   isApplyDisabled?: boolean;
+  isCategoryVisible?: boolean;
   isStockVisible?: boolean;
   onClose: () => void;
   onApply: () => void;
@@ -54,6 +55,7 @@ export default function MainFilterSheet({
   draftFilters,
   sectionTitles,
   isApplyDisabled = false,
+  isCategoryVisible = true,
   isStockVisible = true,
   onClose,
   onApply,
@@ -136,7 +138,7 @@ export default function MainFilterSheet({
               { paddingBottom: insets.bottom + 16 },
             ]}
           >
-            {filters?.categories?.length ? (
+            {isCategoryVisible && filters?.categories?.length ? (
               <View style={styles.section}>
                 <Text variant="subtitle" weight="bold">
                   {sectionTitles?.category}

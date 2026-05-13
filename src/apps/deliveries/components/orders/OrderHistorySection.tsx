@@ -10,6 +10,7 @@ const OrderHistorySection = () => {
     isFetchingNextPage,
     isLoading: isPastLoading,
     isError: isPastError,
+    isRefetching: isPastRefetching,
     refetch: refetchPast,
   } = usePastOrders();
 
@@ -31,6 +32,10 @@ const OrderHistorySection = () => {
         if (hasNextPage && !isFetchingNextPage) {
           void fetchNextPage();
         }
+      }}
+      refreshing={isPastRefetching}
+      onRefresh={() => {
+        void refetchPast();
       }}
       showEndLabel
       emptySvgName="emptyCart"

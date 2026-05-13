@@ -17,7 +17,15 @@ export type DeliveriesServerEventMap = {
   'order-status-updated': {
     orderId?: string;
     riderId?: string | null;
+    riderStatus?: string | null;
     status?: DeliveryOrderStatus;
+    updatedAt?: string;
+  };
+  'rider-status-updated': {
+    orderId?: string;
+    riderStatus?: string | null;
+    riderId?: string | null;
+    riderName?: string | null;
     updatedAt?: string;
   };
   'receive-message': SocketReceivedMessage;

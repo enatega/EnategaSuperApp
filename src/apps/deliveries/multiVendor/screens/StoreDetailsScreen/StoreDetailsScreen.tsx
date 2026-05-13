@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Share, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Share, StatusBar, StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDeliveriesCurrencyLabel } from '../../../../../general/stores/useAppConfigStore';
 import AppPopup from '../../../../../general/components/AppPopup';
 import Text from '../../../../../general/components/Text';
@@ -16,7 +18,9 @@ import type {
 import StoreDetailListHeader from '../../components/StoreDetails/StoreDetailListHeader';
 import StoreDetailProductsList from '../../components/StoreDetails/StoreDetailProductsList';
 import StoreDetailsScreenSkeleton from '../../components/StoreDetails/StoreDetailsScreenSkeleton';
+import DeliveriesFloatingCartButton from '../../../components/navigation/DeliveriesFloatingCartButton';
 import { useToggleFavouriteMutation } from '../../hooks/useToggleFavouriteMutation';
+import type { MultiVendorStackParamList } from '../../navigation/types';
 // import { data } from './storedetaiolsData';
 
 type StoreDetailsParamList = {
@@ -61,8 +65,9 @@ function getTodayStoreHours(
 export default function StoreDetailsScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
+  const insets = useSafeAreaInsets();
   const currencyLabel = useDeliveriesCurrencyLabel();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<MultiVendorStackParamList>>();
   const route = useRoute<RouteProp<StoreDetailsParamList, 'StoreDetails'>>();
   const [searchValue, setSearchValue] = useState('');
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
@@ -211,7 +216,12 @@ export default function StoreDetailsScreen() {
   }, []);
 
   const handleBackPress = useCallback(() => {
-    navigation.goBack();
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+
+    navigation.navigate('MultiVendorTabs');
   }, [navigation]);
 
   const handleOpenInfoModal = useCallback(() => {
@@ -348,6 +358,11 @@ export default function StoreDetailsScreen() {
 
   return (
     <>
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle="light-content"
+      />
       <FlatList
         ListFooterComponent={
           isFetchingNextPage ? (
@@ -384,6 +399,14 @@ export default function StoreDetailsScreen() {
         showsVerticalScrollIndicator={false}
         style={{ backgroundColor: colors.background }}
       />
+      <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
+        <DeliveriesFloatingCartButton
+          style={[
+            styles.floatingCartButton,
+            { bottom: insets.bottom + 86 },
+          ]}
+        />
+      </View>
 
       <AppPopup
         description={store?.description?.trim() || t('store_details_about_fallback')}
@@ -417,5 +440,9 @@ const styles = StyleSheet.create({
   footerLoader: {
     alignItems: 'center',
     paddingVertical: 16,
+  },
+  floatingCartButton: {
+    position: 'absolute',
+    right: 16,
   },
 });

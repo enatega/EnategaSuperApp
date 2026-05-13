@@ -9,6 +9,7 @@ import AddressSelectionBottomSheet from '../../../../../general/components/addre
 import MultiVendorAddressHeader from '../../../components/MultiVendorAddressHeader';
 import type { DeliveriesStackParamList } from '../../../navigation/types';
 import ShopTypeList from '../../components/HomeTab/ShopTypeList';
+import ShopTypeStoreSections from '../../components/HomeTab/ShopTypeStoreSections';
 import MultiVendorSpecialOffers from '../../components/HomeTab/SpecialOffersBanner';
 import TopBrandsList from '../../components/HomeTab/TopBrandsList';
 import NearbyStoreList from '../../components/HomeTab/NearbyStoreList';
@@ -21,6 +22,7 @@ import useSavedAddresses from '../../../../../general/hooks/useSavedAddresses';
 import { styles } from './HomeTabStyle';
 import useAddress from '../../../../../general/hooks/useAddress';
 import useSelectSavedAddress from '../../../../../general/hooks/useSelectSavedAddress';
+import AppSwitcherTopBar from '../../../../../general/components/appSwitch/AppSwitcherTopBar';
 
 type NavProp = NativeStackNavigationProp<DeliveriesStackParamList>;
 
@@ -65,17 +67,17 @@ export default function HomeTab() {
 
   const handleAddAddressPress = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate('AddressSearch', { 
+    navigation.navigate('AddressSearch', {
       appPrefix: "deliveries",
-      origin: 'multi-vendor-home' 
+      origin: 'multi-vendor-home'
     });
   }, [handleCloseAddressSheet, navigation]);
 
   const handleUseCurrentLocation = useCallback(() => {
     handleCloseAddressSheet();
-    navigation.navigate('AddressChooseOnMap', { 
+    navigation.navigate('AddressChooseOnMap', {
       appPrefix: "deliveries",
-      origin: 'multi-vendor-home' 
+      origin: 'multi-vendor-home'
     });
   }, [handleCloseAddressSheet, navigation]);
 
@@ -84,8 +86,10 @@ export default function HomeTab() {
   }, [navigation]);
 
   return (
-    <View style={{flex: 1, backgroundColor: colors.background, gap: 10}}>
+    <View style={{flex: 1, backgroundColor: colors.background}}>
+      <AppSwitcherTopBar activeKey="deliveries" />
       <MultiVendorAddressHeader
+        includeTopInset={false}
         addresses={addresses}
         onAddAddressPress={handleOpenAddressSheet}
         onAddressPress={handleOpenAddressSheet}
@@ -98,11 +102,12 @@ export default function HomeTab() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <MultiVendorSpecialOffers />
         <ShopTypeList />
+        <MultiVendorSpecialOffers />
         <TopBrandsList />
         <NearbyStoreList />
         <MultiVendorDealsSection />
+        <ShopTypeStoreSections />
         <OrderAgain />
       </ScrollView>
 

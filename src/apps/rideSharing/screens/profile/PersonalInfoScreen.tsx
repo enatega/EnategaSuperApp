@@ -189,7 +189,6 @@ export default function PersonalInfoScreen() {
               ) : null}
             </View>
           </View>
-          <Icon type="Feather" name="chevron-right" size={22} color={colors.iconMuted} />
         </View>
 
         <ProfilePhoto

@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { userKeys } from '../api/queryKeys';
+import { rideKeys, userKeys } from '../api/queryKeys';
+import { rideService } from '../api/rideService';
 import { userService } from '../api/userService';
 import type {
     UpdateUserPayload,
@@ -9,6 +10,10 @@ import type {
     WalletTopUpResponse,
 } from '../api/userService';
 import type { UserApiData } from '../api/types';
+import type {
+    UpdateRiderPhonePayload,
+    VerifyRiderPhoneUpdateOtpPayload,
+} from '../api/types';
 import { ApiError } from '../../../general/api/apiClient';
 
 // ---------------------------------------------------------------------------
@@ -71,6 +76,39 @@ export function useWalletTopUp() {
         },
         onError: (error) => {
             console.error('[useWalletTopUp] Failed:', error.message);
+        },
+    });
+}
+
+export function useUpdateRiderPhone() {
+    return useMutation<{ message?: string }, ApiError, UpdateRiderPhonePayload>({
+        mutationFn: (payload) => rideService.updateRiderPhone(payload),
+        onError: (error) => {
+            console.error('[useUpdateRiderPhone] Failed:', error.message);
+        },
+    });
+}
+
+export function useVerifyRiderPhoneUpdateOtp() {
+    const queryClient = useQueryClient();
+
+    return useMutation<{ message?: string }, ApiError, VerifyRiderPhoneUpdateOtpPayload>({
+        mutationFn: (payload) => rideService.verifyRiderPhoneUpdateOtp(payload),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: userKeys.profile() });
+            queryClient.invalidateQueries({ queryKey: rideKeys.activeRide() });
+        },
+        onError: (error) => {
+            console.error('[useVerifyRiderPhoneUpdateOtp] Failed:', error.message);
+        },
+    });
+}
+
+export function useResendRiderPhoneUpdateOtp() {
+    return useMutation<{ message?: string }, ApiError, UpdateRiderPhonePayload>({
+        mutationFn: (payload) => rideService.resendRiderPhoneUpdateOtp(payload),
+        onError: (error) => {
+            console.error('[useResendRiderPhoneUpdateOtp] Failed:', error.message);
         },
     });
 }

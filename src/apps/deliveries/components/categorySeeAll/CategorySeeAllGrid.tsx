@@ -75,12 +75,12 @@ export default function CategorySeeAllGrid({
 const styles = StyleSheet.create({
   listContent: {
     flexGrow: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
     paddingTop: 4,
     paddingBottom: 24,
   },
   row: {
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     marginBottom: 28,
   },
 });

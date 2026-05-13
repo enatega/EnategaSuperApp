@@ -4,6 +4,7 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
 import { showToast } from '../../../../general/components/AppToast';
 import Button from '../../../../general/components/Button';
 import SupportHeader from '../../../../general/components/support/SupportHeader';
@@ -107,6 +108,7 @@ export default function SupportContactFormScreen() {
   const sessionQuery = useAuthSessionQuery();
   const supportTicketFormConfigQuery = useSupportTicketFormConfigQuery();
   const [email, setEmail] = useState(sessionQuery.data?.user?.email ?? '');
+  const [hasEditedEmail, setHasEditedEmail] = useState(false);
   const [issueValue, setIssueValue] = useState(route.params.issueValue);
   const [reasonValue, setReasonValue] = useState<string>();
   const [description, setDescription] = useState('');
@@ -116,6 +118,8 @@ export default function SupportContactFormScreen() {
   const [businessName, setBusinessName] = useState('');
   const [businessType, setBusinessType] = useState<string>();
   const [teamSize, setTeamSize] = useState<string>();
+  const [attachmentUris, setAttachmentUris] = useState<string[]>([]);
+  const [attachmentFileNames, setAttachmentFileNames] = useState<string[]>([]);
   const createSupportTicketMutation = useCreateSupportTicketMutation({
     onSuccess: async (response) => {
       console.log('[SupportContactForm] ticket submit success:', response);
@@ -167,10 +171,14 @@ export default function SupportContactFormScreen() {
   });
 
   useEffect(() => {
-    if (!email && sessionQuery.data?.user?.email) {
+    if (hasEditedEmail) {
+      return;
+    }
+
+    if (sessionQuery.data?.user?.email && email !== sessionQuery.data.user.email) {
       setEmail(sessionQuery.data.user.email);
     }
-  }, [email, sessionQuery.data?.user?.email]);
+  }, [email, hasEditedEmail, sessionQuery.data?.user?.email]);
 
   useEffect(() => {
     if (!fullName && sessionQuery.data?.user?.name) {
@@ -367,7 +375,7 @@ export default function SupportContactFormScreen() {
         businessType: normalizedBusinessType,
         teamSize: normalizedTeamSize,
         description: trimmedDescription,
-        attachmentUrls: [],
+        attachmentUrls: attachmentUris,
         priority: 'low' as const,
       };
 
@@ -393,12 +401,58 @@ export default function SupportContactFormScreen() {
       fullName: sessionQuery.data?.user?.name?.trim() || undefined,
       mobileNumber: sessionQuery.data?.user?.phone?.trim() || undefined,
       description: trimmedDescription,
-      attachmentUrls: [],
+      attachmentUrls: attachmentUris,
       priority: 'low' as const,
     };
 
     console.log('[SupportContactForm] standard payload:', payload);
     createSupportTicketMutation.mutate(payload);
+  };
+
+  const handlePickAttachment = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== 'granted') {
+      showToast.error(
+        t('support_chat_attachment_permission_title'),
+        t('support_chat_attachment_permission_message'),
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: false,
+      allowsMultipleSelection: true,
+      mediaTypes: ['images'],
+      quality: 0.9,
+      selectionLimit: 5,
+    });
+
+    if (result.canceled || result.assets.length === 0) {
+      return;
+    }
+
+    const nextUris = result.assets
+      .map((asset) => asset.uri)
+      .filter(Boolean);
+    const nextFileNames = result.assets.map((asset, index) => {
+      if (asset.fileName?.trim()) {
+        return asset.fileName;
+      }
+
+      const uriSegments = asset.uri.split('/');
+      return uriSegments[uriSegments.length - 1] || `attachment-${index + 1}`;
+    });
+
+    setAttachmentUris(nextUris);
+    setAttachmentFileNames(nextFileNames);
+
+    showToast.success(
+      t('support_chat_attachment_selected_title'),
+      t('support_chat_attachment_selected_message', {
+        fileName: nextFileNames[0],
+      }),
+    );
   };
 
   return (
@@ -435,7 +489,10 @@ export default function SupportContactFormScreen() {
             <TextInput
               autoCapitalize="none"
               keyboardType="email-address"
-              onChangeText={setEmail}
+              onChangeText={(nextEmail) => {
+                setHasEditedEmail(true);
+                setEmail(nextEmail);
+              }}
               placeholder=" "
               placeholderTextColor={colors.mutedText}
               style={[styles.input, { color: colors.text, fontSize: typography.size.md2 }]}
@@ -568,7 +625,14 @@ export default function SupportContactFormScreen() {
           </Pressable>
         </SupportLabeledField>
 
-        {!isBusinessJoiningFlow ? <SupportAttachmentDropzone /> : null}
+        {!isBusinessJoiningFlow ? (
+          <SupportAttachmentDropzone
+            onPress={() => {
+              void handlePickAttachment();
+            }}
+            selectedFileNames={attachmentFileNames}
+          />
+        ) : null}
       </ScrollView>
 
       <View

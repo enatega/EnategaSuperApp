@@ -1,5 +1,7 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+
+
+import { Pressable, StyleSheet, View } from 'react-native';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import type { DeliveryBanner } from '../../api/types';
@@ -10,20 +12,28 @@ type Props = {
   banner: DeliveryBanner;
   width: number;
   sidePadding: number;
+  onPress?: () => void;
 };
 
 export default function SpecialOffersBannerCard({
   banner,
   width,
   sidePadding,
+  onPress,
 }: Props) {
   const { colors, typography } = useTheme();
   const videoUri = banner.bannerVideoLink?.trim() ?? '';
   const storeAddress = banner.store?.address?.trim() ?? '';
   const description = banner.description?.trim() ?? '';
+  const isPressable = typeof onPress === 'function';
 
   return (
-    <View style={[styles.container, { marginHorizontal: sidePadding, width }]}>
+    <Pressable
+      accessibilityRole={isPressable ? 'button' : undefined}
+      disabled={!isPressable}
+      onPress={onPress}
+      style={[styles.container, { marginHorizontal: sidePadding, width }]}
+    >
       {videoUri ? (
         <SpecialOffersBannerVideo videoUri={videoUri} />
       ) : (
@@ -74,7 +84,7 @@ export default function SpecialOffersBannerCard({
           ) : null}
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -86,7 +96,7 @@ const styles = StyleSheet.create({
   },
   bannerCard: {
     borderRadius: 18,
-    height: 206,
+    height: 160,
     justifyContent: 'flex-end',
     overflow: 'hidden',
     paddingHorizontal: 18,

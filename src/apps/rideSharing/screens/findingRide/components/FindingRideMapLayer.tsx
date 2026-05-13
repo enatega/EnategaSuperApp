@@ -10,6 +10,7 @@ type Props = {
   stopAddresses?: RideAddressSelection[];
   toAddress: RideAddressSelection;
   routeCoordinates: Array<{ latitude: number; longitude: number }>;
+  searchRadiusKm: number;
 };
 
 function FindingRideMapLayer({
@@ -17,6 +18,7 @@ function FindingRideMapLayer({
   stopAddresses = [],
   toAddress,
   routeCoordinates,
+  searchRadiusKm,
 }: Props) {
   const { colors } = useTheme();
 
@@ -27,6 +29,8 @@ function FindingRideMapLayer({
         stopAddresses={stopAddresses}
         toAddress={toAddress}
         routeCoordinates={routeCoordinates}
+        searchRadiusKm={searchRadiusKm}
+        isInteractionEnabled={false}
       />
       <View
         pointerEvents="none"

@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { ActivityIndicator, ColorValue, Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, ColorValue, Pressable, StyleProp, StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
 import Text from './Text';
 import { useTheme } from '../theme/theme';
 
@@ -11,6 +11,7 @@ type Props = {
   icon?: ReactNode
   disabled?: boolean
   isLoading?: boolean;
+  labelStyle?: StyleProp<TextStyle>;
 };
 
 function parseColorToRgb(color?: ColorValue | null) {
@@ -84,6 +85,7 @@ export default function Button({
   icon,
   isLoading = false,
   disabled = false,
+  labelStyle,
 }: Props) {
   const { colors } = useTheme();
   const isGhost = variant === 'ghost';
@@ -135,6 +137,7 @@ export default function Button({
           variant="body"
           weight="semiBold"
           color={contentColor}
+          style={labelStyle}
         >
           {label}
         </Text>

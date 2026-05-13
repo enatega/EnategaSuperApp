@@ -1,6 +1,7 @@
 import React from 'react';
-import SpecialOffersBanner from '../../../../deliveries/components/specialOffersBanner/SpecialOffersBanner';
+import { View } from 'react-native';
 import useSingleVendorBanners from '../../hooks/useSingleVendorBanners';
+import Text from '../../../../../general/components/Text';
 
 export default function SingleVendorSpecialOffersBanner() {
   const {
@@ -27,10 +28,8 @@ export default function SingleVendorSpecialOffersBanner() {
   );
 
   return (
-    <SpecialOffersBanner
-      banners={banners}
-      isPending={isPending}
-      onIndexChange={handleIndexChange}
-    />
+    <View style={{ paddingVertical: 8, paddingHorizontal: 2 }}>
+      <Text weight="semiBold">Special offers available</Text>
+    </View>
   );
 }

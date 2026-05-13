@@ -136,6 +136,7 @@ const styles = StyleSheet.create({
     shadowOpacity: Platform.select({ ios: 0.12, android: 0.18 }),
     shadowRadius: 3,
     width: 100,
+    marginBottom: 5,
   },
   imageContainer: {
     alignItems: 'center',

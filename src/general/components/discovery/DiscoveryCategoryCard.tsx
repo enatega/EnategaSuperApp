@@ -42,7 +42,6 @@ export default function DiscoveryCategoryCard({
       <View
         style={[
           styles.imageWrap,
-          { backgroundColor: colors.blue100 },
           imageWrapStyle,
         ]}
       >
@@ -69,8 +68,8 @@ export default function DiscoveryCategoryCard({
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    gap: 8,
-    width: 72,
+    gap: 0,
+    width: 68,
   },
   image: {
     borderRadius: 4,
@@ -86,7 +85,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
-    width: 72,
+
   },
   title: {
     textAlign: 'center',

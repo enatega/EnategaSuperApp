@@ -4,14 +4,18 @@ import {
 } from '@react-navigation/bottom-tabs';
 import React, { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DeliveriesFloatingCartButton from './DeliveriesFloatingCartButton';
 
-export const DELIVERIES_TAB_BAR_HEIGHT = 82;
+export const DELIVERIES_TAB_BAR_HEIGHT = 72;
+export const DELIVERIES_TAB_BAR_SAFE_PADDING = 8;
 
 const FLOATING_BUTTON_RIGHT_OFFSET = 16;
-const FLOATING_BUTTON_BOTTOM_OFFSET = 90;
 
 function DeliveriesTabBar(props: BottomTabBarProps) {
+  const insets = useSafeAreaInsets();
+  const safeBottom = Math.max(insets.bottom, DELIVERIES_TAB_BAR_SAFE_PADDING);
+
   return (
     <View style={styles.container}>
       <BottomTabBar {...props} />
@@ -20,7 +24,7 @@ function DeliveriesTabBar(props: BottomTabBarProps) {
           style={[
             styles.floatingButton,
             {
-              bottom: FLOATING_BUTTON_BOTTOM_OFFSET,
+              bottom: DELIVERIES_TAB_BAR_HEIGHT + safeBottom + 8,
               right: FLOATING_BUTTON_RIGHT_OFFSET,
             },
           ]}

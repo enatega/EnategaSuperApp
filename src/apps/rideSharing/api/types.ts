@@ -183,6 +183,7 @@ export interface RideBidPayload {
     offeredFare?: number | null;
     status: string;
     driverName?: string;
+    driverProfileImage?: string | null;
     rider?: {
         id?: string;
         vehicle_name?: string;
@@ -192,6 +193,7 @@ export interface RideBidPayload {
             user?: {
                 id?: string;
                 name?: string;
+                profile?: string | null;
             } | null;
         } | null;
     } | null;
@@ -324,6 +326,20 @@ export interface AcceptRideBidParams {
 
 export interface RejectRideBidParams {
     rideBidId: string;
+}
+
+export interface CancelRideParams {
+    rideId: string;
+    chatBoxId?: string;
+}
+
+export interface UpdateRiderPhonePayload {
+    phone: string;
+}
+
+export interface VerifyRiderPhoneUpdateOtpPayload {
+    phone: string;
+    otp: string;
 }
 
 export interface UpdateRidePayload {

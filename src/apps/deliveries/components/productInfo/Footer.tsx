@@ -59,7 +59,7 @@ export default function Footer({
             <Icon
               color={colors.iconColor}
               name="remove"
-              size={16}
+              size={14}
               type="Ionicons"
             />
           </Pressable>
@@ -68,9 +68,9 @@ export default function Footer({
             color={colors.text}
             weight="semiBold"
             style={{
-              fontSize: typography.size.h5,
+              fontSize: typography.size.lg,
               fontVariant: ["tabular-nums"],
-              lineHeight: typography.lineHeight.h5,
+              lineHeight: typography.lineHeight.lg,
             }}
           >
             {quantity}
@@ -92,7 +92,7 @@ export default function Footer({
             <Icon
               color={colors.iconColor}
               name="add"
-              size={16}
+              size={14}
               type="Ionicons"
             />
           </Pressable>
@@ -102,6 +102,10 @@ export default function Footer({
           disabled={isDisabled}
           isLoading={isSubmitting}
           label={`${t("add_to_cart")} - ${totalPriceLabel}`}
+          labelStyle={{
+            fontSize: typography.size.sm2,
+            lineHeight: typography.lineHeight.sm2,
+          }}
           onPress={onAddToCart}
           style={styles.cta}
           variant="primary"
@@ -120,18 +124,18 @@ const styles = StyleSheet.create({
   cta: {
     borderRadius: 6,
     flex: 1,
-    minHeight: 48,
+    minHeight: 44,
   },
   iconButton: {
     alignItems: "center",
-    borderRadius: 16,
+    borderRadius: 14,
     borderWidth: 1,
-    height: 32,
+    height: 28,
     justifyContent: "center",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
-    width: 32,
+    width: 28,
   },
   row: {
     alignItems: "center",
@@ -141,6 +145,6 @@ const styles = StyleSheet.create({
   stepper: {
     alignItems: "center",
     flexDirection: "row",
-    gap: 12,
+    gap: 10,
   },
 });

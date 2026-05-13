@@ -6,6 +6,7 @@ import DriverProfileScreen from '../screens/driverProfile/DriverProfileScreen';
 import PersonalInfoScreen from '../screens/profile/PersonalInfoScreen';
 import EditNameScreen from '../screens/profile/EditNameScreen';
 import EditPhoneScreen from '../screens/profile/EditPhoneScreen';
+import EditPhoneOtpScreen from '../screens/profile/EditPhoneOtpScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 import UpdatePasswordScreen from '../screens/settings/UpdatePasswordScreen';
 import LanguageScreen from '../screens/settings/LanguageScreen';
@@ -46,6 +47,7 @@ export type RideSharingStackParamList = {
     rideCategory?: RideCategory;
     prefilledFromAddress?: CachedAddress;
     prefilledStopAddress?: RideAddressSelection;
+    editTarget?: 'from' | 'to';
     fromAddress?: RideAddressSelection;
     toAddress?: RideAddressSelection;
     stops?: RideAddressSelection[];
@@ -94,6 +96,9 @@ export type RideSharingStackParamList = {
   PersonalInfo: undefined;
   EditName: undefined;
   EditPhone: undefined;
+  EditPhoneOtp: {
+    phone: string;
+  };
   Settings: undefined;
   UpdatePassword: undefined;
   Language: undefined;
@@ -107,6 +112,7 @@ export type RideSharingStackParamList = {
     rideId: string;
   };
   RiderChat: {
+    chatBoxId?: string;
     driverAvatarUri?: string;
     driverName: string;
     driverPhone?: string;
@@ -171,6 +177,11 @@ export default function RideSharingNavigator() {
       <Stack.Screen
         name="EditPhone"
         component={EditPhoneScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EditPhoneOtp"
+        component={EditPhoneOtpScreen}
         options={{ headerShown: false }}
       />
       {/* Settings Screens */}

@@ -21,18 +21,24 @@ type Params = {
   rideId?: string;
   driverUserId?: string;
   statusCode?: string;
+  chatBoxId?: string;
+  onCancelled?: () => void;
 };
 
 export function useActiveRideCancellation({
   rideId,
   driverUserId,
   statusCode,
+  chatBoxId,
+  onCancelled,
 }: Params) {
   const { t } = useTranslation('rideSharing');
   const clearActiveRide = useActiveRideStore((state) => state.clearActiveRide);
+  const suppressRideById = useActiveRideStore((state) => state.suppressRideById);
   const clearActiveRideRequest = useActiveRideRequestStore((state) => state.clearActiveRideRequest);
   const cancelRideMutation = useCancelRide();
   const [isCancelSheetVisible, setCancelSheetVisible] = useState(false);
+  const [isConfirmingCancel, setIsConfirmingCancel] = useState(false);
 
   const canCancelRide = useMemo(
     () => Boolean(rideId) && isRideCancellable(statusCode),
@@ -40,25 +46,33 @@ export function useActiveRideCancellation({
   );
 
   const openCancelSheet = useCallback(() => {
-    if (!canCancelRide || cancelRideMutation.isPending) {
+    if (
+      !canCancelRide
+      || cancelRideMutation.isPending
+      || isConfirmingCancel
+      || isCancelSheetVisible
+    ) {
       return;
     }
 
     setCancelSheetVisible(true);
-  }, [canCancelRide, cancelRideMutation.isPending]);
+  }, [canCancelRide, cancelRideMutation.isPending, isCancelSheetVisible, isConfirmingCancel]);
 
   const closeCancelSheet = useCallback(() => {
-    if (cancelRideMutation.isPending) {
+    if (cancelRideMutation.isPending || isConfirmingCancel) {
       return;
     }
 
     setCancelSheetVisible(false);
-  }, [cancelRideMutation.isPending]);
+  }, [cancelRideMutation.isPending, isConfirmingCancel]);
 
   const confirmCancelRide = useCallback(async () => {
-    if (!rideId || !canCancelRide || cancelRideMutation.isPending) {
+    if (!rideId || !canCancelRide || cancelRideMutation.isPending || isConfirmingCancel) {
       return;
     }
+
+    setIsConfirmingCancel(true);
+    setCancelSheetVisible(false);
 
     try {
       if (driverUserId) {
@@ -68,10 +82,15 @@ export function useActiveRideCancellation({
         });
       }
 
-      await cancelRideMutation.mutateAsync(rideId);
+      console.log('[useActiveRideCancellation] cancelRide payload:', {
+        rideId,
+        chatBoxId,
+      });
+      await cancelRideMutation.mutateAsync({ rideId, chatBoxId });
+      suppressRideById(rideId);
       clearActiveRideRequest();
       clearActiveRide();
-      setCancelSheetVisible(false);
+      onCancelled?.();
       showToast.success(
         t('reservation_cancel_success'),
         t('reservation_cancel_success_message'),
@@ -81,13 +100,19 @@ export function useActiveRideCancellation({
         t('reservation_cancel_error'),
         getApiErrorMessage(error, t('reservation_cancel_error_message')),
       );
+    } finally {
+      setIsConfirmingCancel(false);
     }
   }, [
     canCancelRide,
     cancelRideMutation,
     clearActiveRide,
+    suppressRideById,
     clearActiveRideRequest,
     driverUserId,
+    chatBoxId,
+    isConfirmingCancel,
+    onCancelled,
     rideId,
     t,
   ]);
@@ -95,7 +120,7 @@ export function useActiveRideCancellation({
   return {
     canCancelRide,
     isCancelSheetVisible,
-    isCancelling: cancelRideMutation.isPending,
+    isCancelling: cancelRideMutation.isPending || isConfirmingCancel,
     openCancelSheet,
     closeCancelSheet,
     confirmCancelRide,
