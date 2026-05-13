@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
@@ -29,6 +29,7 @@ function RideOptionsHeader({
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('rideSharing');
+  const scrollRef = useRef<ScrollView>(null);
 
   const optionLayout = useMemo(() => {
     if (rideOptions.length === 0) {
@@ -38,6 +39,7 @@ function RideOptionsHeader({
     return (
       <View style={styles.optionsLayout}>
         <ScrollView
+          ref={scrollRef}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollRowContainer}
@@ -56,6 +58,21 @@ function RideOptionsHeader({
       </View>
     );
   }, [onSelectCategory, rideOptions, selectedCategory]);
+
+  useEffect(() => {
+    if (!scrollRef.current || !selectedCategory || rideOptions.length === 0) {
+      return;
+    }
+
+    const selectedIndex = rideOptions.findIndex((option) => option.id === selectedCategory);
+    if (selectedIndex < 0) {
+      return;
+    }
+
+    const itemWidthWithGap = 140;
+    const targetX = Math.max(0, selectedIndex * itemWidthWithGap - 16);
+    scrollRef.current.scrollTo({ x: targetX, animated: true });
+  }, [rideOptions, selectedCategory]);
 
   return (
     <>

@@ -153,15 +153,7 @@ export default function RideOptionsScreen() {
     () => (rideTypesQuery.data ?? []).map(toRideOption),
     [rideTypesQuery.data],
   );
-  const visibleRideOptions = useMemo(() => {
-    if (!directCourierOnly) {
-      return prioritizeRideOptionsForHeader(rideOptions);
-    }
-
-    const courierOnlyOptions = rideOptions.filter((option) => option.title.toLowerCase().includes('courier'));
-    const options = courierOnlyOptions.length ? courierOnlyOptions : rideOptions;
-    return prioritizeRideOptionsForHeader(options);
-  }, [directCourierOnly, rideOptions]);
+  const visibleRideOptions = useMemo(() => prioritizeRideOptionsForHeader(rideOptions), [rideOptions]);
   const resolvedRideType = useMemo(
     () => resolveRideIntentFromSelection({
       rideOptions: visibleRideOptions,
@@ -265,6 +257,7 @@ export default function RideOptionsScreen() {
     <View style={styles.container}>
       <AppSwitcherTopBar
         activeKey={switcherActiveKey}
+        overlayOnMap
         expandedContent={(
           <RideTopSearchPanel onOpenSidebar={openSidebar} onSelectAddress={handleSearchPress} />
         )}

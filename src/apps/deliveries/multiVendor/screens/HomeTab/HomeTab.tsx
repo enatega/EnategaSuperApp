@@ -174,7 +174,7 @@ export default function HomeTab() {
   ]);
 
   return (
-    <View style={{flex: 1, backgroundColor: colors.background}}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <AppSwitcherTopBar activeKey="deliveries" />
       <MultiVendorAddressHeader
         includeTopInset={false}

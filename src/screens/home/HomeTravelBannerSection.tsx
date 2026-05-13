@@ -59,8 +59,8 @@ export default function HomeTravelBannerSection({ onPress }: Props) {
           weight="extraBold"
           style={{
             color: colors.text,
-            fontSize: typography.size.h5,
-            lineHeight: typography.lineHeight.h5,
+            fontSize: typography.size.lg,
+            lineHeight: typography.lineHeight.md,
           }}
         >
           {t('home_drive_banners_title')}
