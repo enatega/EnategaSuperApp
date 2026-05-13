@@ -32,8 +32,8 @@ const baseLightColors = {
   homeHeaderBackground: "#E8E7FF",
   cardSoft: "#F2F5FF",
   surfaceSoft: "#FAFAFA",
-  splashGradientStart: "#1440CE",
-  splashGradientEnd: "#1E40AF",
+  splashGradientStart: "#FEAA34",
+  splashGradientEnd: "#FC9401",
   bannerGradientStart: "#1A46D6",
   bannerGradientEnd: "#1E40AF",
   homeHeaderGradientStart: "rgba(30, 64, 175, 0.4)",
@@ -106,8 +106,8 @@ const baseDarkColors: ThemeColors = {
   homeHeaderBackground: "#1E2130",
   cardSoft: "#1A2337",
   surfaceSoft: "#161A23",
-  splashGradientStart: "#1440CE",
-  splashGradientEnd: "#1E40AF",
+  splashGradientStart: "#FEAA34",
+  splashGradientEnd: "#FC9401",
   bannerGradientStart: "#1A46D6",
   bannerGradientEnd: "#1E40AF",
   homeHeaderGradientStart: "rgba(30, 64, 175, 0.25)",
@@ -216,6 +216,11 @@ const appColorOverrides: Record<ThemedMiniAppId, ThemeColorOverrideSet> = {
       bannerGradientEnd: "#FC9401",
 
       blue100: "#FFEFD9",
+      background: "#FFFFFF",
+      backgroundTertiary: "#F4F4F5",
+      surface: "#FFFFFF",
+
+      secondary: "#6B5BFF",
     },
     dark: {
       primary: "#FC9401",
@@ -228,6 +233,11 @@ const appColorOverrides: Record<ThemedMiniAppId, ThemeColorOverrideSet> = {
       bannerGradientEnd: "#FC9401",
 
       blue100: "#FFEFD9",
+      background: "#0F1117",
+      backgroundTertiary: "#161A23",
+      surface: "#161A23",
+
+      secondary: "#8B7BFF",
     },
   },
   appointments: {
