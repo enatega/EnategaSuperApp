@@ -546,6 +546,8 @@ const fr = {
   checkout_payment_failed: 'Le paiement a echoue. Veuillez reessayer avec un autre mode.',
   checkout_payment_card_redirecting: 'Terminez votre paiement dans le navigateur pour finaliser cette commande.',
   checkout_payment_card_redirect_error: 'Impossible d’ouvrir le paiement sécurisé pour le moment.',
+  checkout_leave_at_door_card_required: 'L’option \"Laisser à la porte\" nécessite un paiement par carte. Veuillez choisir la carte pour continuer.',
+  checkout_leave_at_door_switched_to_card: 'Le mode de paiement a été basculé sur carte pour la livraison sans contact.',
   checkout_promo_title: 'Code promo',
   checkout_promo_subtitle: 'Touchez ici pour continuer',
   checkout_promo_tap_to_change: 'Touchez ici pour modifier',

@@ -60,6 +60,7 @@ export default function MainContainer({ navigation, orderId }: Props) {
   useOrderStatusSocketSync(orderId);
 
   const orderDetailsQuery = useOrderDetails(orderId);
+  console.log("Order Details:", orderDetailsQuery.data);
   const riderId =
     typeof orderDetailsQuery.data?.rider?.userId === "string"
       ? orderDetailsQuery.data.rider.userId
@@ -362,6 +363,8 @@ export default function MainContainer({ navigation, orderId }: Props) {
           <ExtendableOrderSummary
             deliveryDetails={order.deliveryDetails}
             layout="footer"
+            orderCode={order.orderCode}
+            orderId={order.orderId}
             summary={order.summary}
             title={t("order_tracking_summary")}
           />
@@ -382,25 +385,25 @@ function getTrackingCoordinates(
   return {
     destination:
       typeof deliveryLatitude === "number" &&
-      typeof deliveryLongitude === "number"
+        typeof deliveryLongitude === "number"
         ? {
-            latitude: deliveryLatitude,
-            longitude: deliveryLongitude,
-          }
+          latitude: deliveryLatitude,
+          longitude: deliveryLongitude,
+        }
         : null,
     pickup:
       typeof storeLatitude === "number" && typeof storeLongitude === "number"
         ? {
-            latitude: storeLatitude,
-            longitude: storeLongitude,
-          }
+          latitude: storeLatitude,
+          longitude: storeLongitude,
+        }
         : null,
     rider:
       orderType === "delivery" && riderLocation
         ? {
-            latitude: riderLocation.latitude,
-            longitude: riderLocation.longitude,
-          }
+          latitude: riderLocation.latitude,
+          longitude: riderLocation.longitude,
+        }
         : null,
   };
 }

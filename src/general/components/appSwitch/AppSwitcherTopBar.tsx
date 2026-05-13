@@ -10,6 +10,7 @@ type AppSwitcherTopBarProps = {
   activeKey: SwitcherKey;
   rightAction?: React.ReactNode;
   expandedContent?: React.ReactNode;
+  overlayOnMap?: boolean;
 };
 
 type SwitchOption = {
@@ -19,12 +20,17 @@ type SwitchOption = {
 };
 
 const OPTIONS: SwitchOption[] = [
-  { key: 'ride', label: 'Ride', icon: require('../../assets/images/car-tab.png') },
-  { key: 'deliveries', label: 'Deliveries', icon: require('../../assets/images/delivery-tab.png') },
-  { key: 'courier', label: 'Courier', icon: require('../../assets/images/courier-tab.png') },
+  { key: 'ride', label: 'Ride', icon: require('../../../apps/rideSharing/assets/images/3d-car.png') },
+  { key: 'deliveries', label: 'Deliveries', icon: require('../../../apps/rideSharing/assets/images/3d-deliveries.png') },
+  { key: 'courier', label: 'Courier', icon: require('../../../apps/rideSharing/assets/images/courierHomeIcon.png') },
 ];
 
-function AppSwitcherTopBarComponent({ activeKey, rightAction, expandedContent }: AppSwitcherTopBarProps) {
+function AppSwitcherTopBarComponent({
+  activeKey,
+  rightAction,
+  expandedContent,
+  overlayOnMap = false,
+}: AppSwitcherTopBarProps) {
   const { colors, typography } = useTheme();
   const insets = useSafeAreaInsets();
   const androidStatusBarHeight = StatusBar.currentHeight ?? 0;
@@ -65,8 +71,8 @@ function AppSwitcherTopBarComponent({ activeKey, rightAction, expandedContent }:
   );
 
   return (
-    <View style={[styles.wrapper, { backgroundColor: colors.surface, paddingTop: topInset }]}>
-      <View style={[styles.container, { borderColor: colors.border }]}>
+    <View style={[styles.wrapper, overlayOnMap ? styles.wrapperOverlay : null, { paddingTop: topInset }]}>
+      <View style={[styles.container, { backgroundColor: colors.surface }]}>
         <View style={styles.tabsRow}>
           {OPTIONS.map((option) => {
             const isActive = option.key === activeKey;
@@ -79,7 +85,7 @@ function AppSwitcherTopBarComponent({ activeKey, rightAction, expandedContent }:
                   styles.optionButton,
                   {
                     backgroundColor: isActive ? colors.blue50 : 'transparent',
-                    borderBottomColor: isActive ? colors.blue800 : 'transparent',
+                    borderColor: isActive ? colors.blue800 : 'transparent',
                   },
                 ]}
               >
@@ -108,8 +114,7 @@ function AppSwitcherTopBarComponent({ activeKey, rightAction, expandedContent }:
           style={[
             styles.expandedContent,
             {
-              borderColor: colors.border,
-              backgroundColor: colors.surface,
+              backgroundColor: overlayOnMap ? 'transparent' : colors.surface,
             },
           ]}
         >
@@ -124,38 +129,43 @@ const styles = StyleSheet.create({
   wrapper: {
     paddingHorizontal: 16,
     position: 'relative',
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-    overflow: "hidden",
+    paddingBottom: 8,
+  },
+  wrapperOverlay: {
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    zIndex: 50,
+    elevation: 20,
   },
   container: {
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    flexDirection: 'row',
-    height: 46,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#E4E4E7',
+    padding: 4,
   },
   tabsRow: {
-    flex: 1,
     flexDirection: 'row',
-    height: '100%',
   },
   optionButton: {
     alignItems: 'center',
-    borderBottomWidth: 3,
+    borderWidth: 2,
+    borderRadius: 999,
     flex: 1,
     flexDirection: 'row',
     gap: 6,
     justifyContent: 'center',
-    minHeight: 46,
+    minHeight: 40,
     paddingHorizontal: 12,
   },
   optionText: {
-    fontSize: 14,
-    lineHeight: 22,
+    fontSize: 16,
+    lineHeight: 24,
   },
   icon: {
-    height: 16,
-    width: 16,
+    height: 20,
+    width: 20,
   },
   rightActionInline: {
     alignItems: 'center',
@@ -165,13 +175,8 @@ const styles = StyleSheet.create({
     width: 48,
   },
   expandedContent: {
-    // borderWidth: 1,
-    borderTopWidth: 0,
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-    overflow: 'hidden',
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingTop: 10,
+    paddingBottom: 6,
   },
 });
 

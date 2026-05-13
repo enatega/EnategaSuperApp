@@ -111,14 +111,6 @@ export default function SupportChatScreen() {
     }
   }, [chatBoxId, initialChatBoxId]);
 
-  useEffect(() => {
-    const serverMessages = getSupportChatMessages(supportChatBoxQuery.data);
-
-    if (serverMessages.length > 0 && pendingMessages.length > 0) {
-      setPendingMessages([]);
-    }
-  }, [pendingMessages.length, supportChatBoxQuery.data]);
-
   const activeChatBox = useMemo(
     () => getSupportChatBox(supportChatBoxQuery.data) ?? fallbackChatBox,
     [fallbackChatBox, supportChatBoxQuery.data],
@@ -142,11 +134,19 @@ export default function SupportChatScreen() {
       text: message.text ?? message.message ?? '',
       timeLabel: formatSupportChatTimeLabel(message.createdAt ?? message.created_at),
     }));
+    const acknowledgedCurrentUserMessages = new Set(
+      mappedServerMessages
+        .filter((message) => message.isCurrentUser)
+        .map((message) => message.text.trim()),
+    );
+    const unresolvedPendingMessages = pendingMessages.filter(
+      (message) => !acknowledgedCurrentUserMessages.has(message.text.trim()),
+    );
 
     if (
       !mappedServerMessages.length
       && !realtimeMessages.length
-      && !pendingMessages.length
+      && !unresolvedPendingMessages.length
     ) {
       return [
         {
@@ -158,7 +158,7 @@ export default function SupportChatScreen() {
       ];
     }
 
-    return [...mappedServerMessages, ...realtimeMessages, ...pendingMessages];
+    return [...mappedServerMessages, ...realtimeMessages, ...unresolvedPendingMessages];
   }, [
     pendingMessages,
     realtimeMessages,
@@ -324,6 +324,11 @@ export default function SupportChatScreen() {
       showToast.error(t('support_call_action'));
     }
   };
+  const showInitialLoadingState =
+    (supportActiveMessagesQuery.isPending
+      || supportChatBoxesQuery.isPending
+      || Boolean(chatBoxId && supportChatBoxQuery.isPending))
+    && messages.length === 0;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -348,9 +353,7 @@ export default function SupportChatScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {supportActiveMessagesQuery.isPending
-          || supportChatBoxesQuery.isPending
-          || (chatBoxId && supportChatBoxQuery.isPending) ? (
+          {showInitialLoadingState ? (
             <View style={styles.centerState}>
               <ActivityIndicator size="large" color={colors.primary} />
               <Text color={colors.mutedText}>{t('support_chat_loading')}</Text>

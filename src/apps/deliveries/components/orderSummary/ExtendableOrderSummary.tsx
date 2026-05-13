@@ -19,6 +19,8 @@ type Props = {
   deliveryDetails: DeliveryOrderDeliveryDetails;
   isCollapsible?: boolean;
   layout?: "section" | "footer";
+  orderCode?: string | null;
+  orderId?: string;
   summary: DeliveryOrderSummary;
   title?: string;
 };
@@ -28,6 +30,8 @@ export default function ExtendableOrderSummary({
   deliveryDetails,
   isCollapsible = true,
   layout = "section",
+  orderCode,
+  orderId,
   summary,
   title: titleProp,
 }: Props) {
@@ -61,6 +65,8 @@ export default function ExtendableOrderSummary({
           >
             <OrderSummaryContent
               deliveryDetails={deliveryDetails}
+              orderCode={orderCode}
+              orderId={orderId}
               summary={summary}
             />
           </View>
@@ -167,6 +173,8 @@ export default function ExtendableOrderSummary({
             >
               <OrderSummaryContent
                 deliveryDetails={deliveryDetails}
+                orderCode={orderCode}
+                orderId={orderId}
                 summary={summary}
               />
             </View>
@@ -181,6 +189,8 @@ export default function ExtendableOrderSummary({
           ) : null}
           <OrderSummaryContent
             deliveryDetails={deliveryDetails}
+            orderCode={orderCode}
+            orderId={orderId}
             summary={summary}
           />
         </View>

@@ -145,6 +145,20 @@ export default function RideSharingHomeScreen() {
     return () => subscription.remove();
   }, [hasOverlay]);
 
+  useEffect(() => {
+    if (!pendingFeedbackRide) {
+      return;
+    }
+
+    console.log('[RatingFlow][HomeScreen] pendingFeedbackRide for sheet', {
+      rideId: pendingFeedbackRide.rideId,
+      driverUserId: pendingFeedbackRide.driverUserId,
+      driverName: pendingFeedbackRide.driverName,
+      driverAvatarUri: pendingFeedbackRide.driverAvatarUri,
+      rawDriverUserProfile: pendingFeedbackRide.rawRideData?.driver?.user?.profile,
+    });
+  }, [pendingFeedbackRide]);
+
   return (
     <View style={styles.container}>
       <RideOptionsScreen />

@@ -184,9 +184,6 @@ type ShopTypeStoresSectionResult = UseQueryResult<
   shopType: DeliveryShopType;
 };
 
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 function normalizeCategoryIds(categorySelections?: string[]) {
   if (!categorySelections?.length) {
     return undefined;
@@ -195,7 +192,7 @@ function normalizeCategoryIds(categorySelections?: string[]) {
   const validCategoryIds = categorySelections
     .map((categorySelection) => categorySelection.trim())
     .filter(Boolean)
-    .filter((categoryId) => UUID_PATTERN.test(categoryId));
+    .filter((categoryId) => categoryId.length > 0);
 
   return validCategoryIds.length > 0 ? Array.from(new Set(validCategoryIds)) : undefined;
 }
@@ -593,9 +590,7 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
     latitude: options?.requestParams?.latitude ?? latitude,
     longitude: options?.requestParams?.longitude ?? longitude,
     category_ids: normalizeCategoryIds(options?.filters?.category_ids),
-    price_tiers: options?.filters?.price_tiers
-      ? [options.filters.price_tiers]
-      : undefined,
+    price_tiers: options?.filters?.price_tiers ?? undefined,
     stock: normalizeStockValue(options?.filters?.stock),
     sort_by: options?.filters?.sort_by ?? undefined,
   };
@@ -624,13 +619,16 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
         search: options?.search?.trim() ?? '',
       },
     ],
-    queryFn: ({ pageParam = 0 }) =>
-      discoveryService.getNearbyStoresPage({
+    queryFn: ({ pageParam = 0 }) => {
+      const requestPayload = {
         offset: pageParam as number,
         limit,
         search: options?.search?.trim() || undefined,
         ...nearbyStoreParams,
-      } satisfies DeliveryNearbyStoresParams),
+      } satisfies DeliveryNearbyStoresParams;
+      console.log('[deliveries-filters] nearby-request', requestPayload);
+      return discoveryService.getNearbyStoresPage(requestPayload);
+    },
     initialPageParam: 0,
     getNextPageParam: (lastPage) =>
       lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
