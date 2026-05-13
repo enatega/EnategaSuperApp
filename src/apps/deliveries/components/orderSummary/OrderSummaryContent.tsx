@@ -11,11 +11,15 @@ import { formatCurrency } from "../../utils/orderDetails/orderDetailsUtils";
 
 type Props = {
   deliveryDetails: DeliveryOrderDeliveryDetails;
+  orderCode?: string | null;
+  orderId?: string;
   summary: DeliveryOrderSummary;
 };
 
 export default function OrderSummaryContent({
   deliveryDetails,
+  orderCode,
+  orderId,
   summary,
 }: Props) {
   const { t } = useTranslation("deliveries");
@@ -25,7 +29,7 @@ export default function OrderSummaryContent({
     <View style={styles.container}>
       <OrderDetailsSummaryRow
         label={t("order_details_order_number")}
-        value={summary.orderNumber}
+        value={orderCode || summary.orderNumber || orderId || "-"}
       />
       <OrderDetailsSummaryRow
         label={t("order_details_delivery_address")}

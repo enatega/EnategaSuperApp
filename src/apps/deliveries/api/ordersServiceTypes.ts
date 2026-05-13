@@ -139,6 +139,7 @@ export interface DeliveryOrderLogItem {
 
 export interface OrderDetailsResponse {
   orderId: string;
+  orderCode?: string | null;
   status: DeliveryOrderStatus;
   statusTitle: string;
   statusMessage: string;
