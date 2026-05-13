@@ -18,6 +18,7 @@ import { getCheckoutMessagePreview } from './checkoutMessageUtils';
 import { formatCheckoutScheduledAt, type CheckoutDeliveryTimeMode } from './checkoutScheduleUtils';
 
 type Props = {
+  canShowLeaveAtDoor?: boolean;
   deliveryTimeMode: CheckoutDeliveryTimeMode;
   hasAddressRequirement: boolean;
   isPickupEnabled: boolean;
@@ -61,6 +62,7 @@ type Props = {
 };
 
 export default function CheckoutScreenContent({
+  canShowLeaveAtDoor = true,
   deliveryTimeMode,
   hasAddressRequirement,
   isPickupEnabled,
@@ -148,7 +150,7 @@ export default function CheckoutScreenContent({
           onPress={orderType === 'delivery' ? onAddressPress : undefined}
         />
 
-        {isDeliveryOrder ? (
+        {isDeliveryOrder && canShowLeaveAtDoor ? (
           <CheckoutInfoRow
             title={t('checkout_leave_at_door_title')}
             iconName="home-outline"

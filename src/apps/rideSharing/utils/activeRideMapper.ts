@@ -70,14 +70,36 @@ export function mapActiveRideToCompletedRideFeedbackData(
   const driver = activeRide?.driver;
 
   if (!rideId || !activeRide) {
+    console.log('[RatingFlow][Mapper] Missing rideId or activeRide, cannot build feedback data', {
+      hasActiveRide: Boolean(activeRide),
+      rideId,
+    });
     return null;
   }
+
+  const primaryAvatarUri = readString(driver?.user?.profile);
+  const fallbackAvatarUri = readString(
+    (driver as unknown as Record<string, unknown> | undefined)?.profile,
+    (driver as unknown as Record<string, unknown> | undefined)?.image,
+    activeRide?.riderInfo?.profile,
+  );
+  const resolvedAvatarUri = primaryAvatarUri ?? fallbackAvatarUri;
+
+  console.log('[RatingFlow][Mapper] Driver payload for feedback', {
+    rideId,
+    driverUserId: getActiveRideDriverUserId(activeRide),
+    driverNameFromUser: driver?.user?.name,
+    driverUserProfile: driver?.user?.profile,
+    driverProfileFallback: fallbackAvatarUri,
+    resolvedAvatarUri,
+    riderInfoProfile: activeRide?.riderInfo?.profile,
+  });
 
   return {
     rideId,
     driverUserId: getActiveRideDriverUserId(activeRide),
     driverName: readDisplayString(driver?.user?.name),
-    driverAvatarUri: readString(driver?.user?.profile),
+    driverAvatarUri: resolvedAvatarUri,
     rawRideData: activeRide,
   };
 }

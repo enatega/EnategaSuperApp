@@ -118,6 +118,8 @@ export default function MainContainer({ navigation, orderId }: Props) {
 
         <ExtendableOrderSummary
           deliveryDetails={order.deliveryDetails}
+          orderCode={order.orderCode}
+          orderId={order.orderId}
           summary={order.summary}
         />
 

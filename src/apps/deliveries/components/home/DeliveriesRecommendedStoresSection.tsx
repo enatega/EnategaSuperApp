@@ -81,9 +81,8 @@ export default function DeliveriesRecommendedStoresSection({
       <Text
         weight="extraBold"
         style={{
-          fontSize: typography.size.h5,
-          lineHeight: typography.lineHeight.h5,
-          letterSpacing: -0.36,
+          fontSize: typography.size.lg,
+          lineHeight: typography.lineHeight.md,
           color: colors.text,
         }}
       >

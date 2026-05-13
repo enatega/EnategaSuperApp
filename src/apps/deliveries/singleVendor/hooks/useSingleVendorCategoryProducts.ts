@@ -19,9 +19,6 @@ type UseSingleVendorCategoryProductsOptions = {
 };
 
 const SINGLE_VENDOR_CATEGORY_PRODUCTS_LIMIT = 10;
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 function normalizeSubcategoryId(categorySelections?: string[]) {
   if (!categorySelections?.length) {
     return undefined;
@@ -30,7 +27,7 @@ function normalizeSubcategoryId(categorySelections?: string[]) {
   return categorySelections
     .map((categorySelection) => categorySelection.trim())
     .filter(Boolean)
-    .find((categoryId) => UUID_PATTERN.test(categoryId));
+    .find((categoryId) => categoryId.length > 0);
 }
 
 function normalizeStockValue(stockId?: string | null) {

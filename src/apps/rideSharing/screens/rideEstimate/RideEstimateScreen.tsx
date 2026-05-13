@@ -401,6 +401,7 @@ export default function RideEstimateScreen() {
     }
 
     if (!selectedPaymentMethodId) {
+      showToast.info(t('ride_active_payment'), t('ride_payment_choose_title'));
       setIsPaymentMethodVisible(true);
       return;
     }
@@ -666,7 +667,10 @@ export default function RideEstimateScreen() {
         <RideScheduleBottomSheet
           visible={isSchedulePickerVisible}
           value={scheduledAt}
-          onClose={() => setIsSchedulePickerVisible(false)}
+          onClose={() => {
+            setIsSchedulePickerVisible(false);
+            setWantsScheduledRide(false);
+          }}
           onConfirm={(nextDate) => {
             setWantsScheduledRide(true);
             setScheduledAt(nextDate);
