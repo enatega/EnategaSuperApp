@@ -14,6 +14,8 @@ const en = {
   ride_home_service_deliveries_subtitle: 'Food, groceries & more',
   ride_home_service_courier_title: 'Courier',
   ride_home_service_courier_subtitle: 'Send parcels securely',
+  ride_home_service_home_visits_title: 'Home-Visits',
+  ride_home_service_home_visits_subtitle: 'Book services at home',
   ride_options_title: 'Go anywhere',
   ride_option_now_title: 'Ride',
   ride_option_now_desc: 'Request a nearby driver',
