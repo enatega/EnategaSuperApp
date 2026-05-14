@@ -6,7 +6,7 @@ module.exports = {
   expo: {
     name: 'Shaaneiol',
   
-    version: '1.0.0',
+    version: "1.0.5",
      slug: "shaaneiol",
     owner: "shaaneiol",
     orientation: 'portrait',
