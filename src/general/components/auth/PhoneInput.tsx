@@ -1,7 +1,8 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import PhoneInput from "react-native-phone-number-input";
+import * as Location from "expo-location";
 import { useTheme } from "../../theme/theme";
 
 type Props = {
@@ -9,6 +10,7 @@ type Props = {
   onChangeText: (text: string) => void;
   onChangeFormattedText?: (text: string) => void;
   onChangeCountry?: (country: any) => void;
+  resetOnCountryChange?: boolean;
   isActive?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
@@ -19,6 +21,7 @@ export default function PhoneNumberInput({
   onChangeText,
   onChangeFormattedText,
   onChangeCountry,
+  resetOnCountryChange = false,
   isActive = false,
   onFocus,
   onBlur,
@@ -26,17 +29,66 @@ export default function PhoneNumberInput({
   const { colors } = useTheme();
   const phoneInput = useRef<PhoneInput>(null);
   const insets = useSafeAreaInsets();
+  const [defaultCountryCode, setDefaultCountryCode] = useState("US");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    void (async () => {
+      try {
+        const permission = await Location.getForegroundPermissionsAsync();
+        if (!permission.granted) {
+          return;
+        }
+
+        const lastKnownPosition = await Location.getLastKnownPositionAsync();
+        const currentPosition = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        }).catch(() => null);
+        const resolvedPosition = currentPosition ?? lastKnownPosition;
+
+        if (!resolvedPosition) {
+          return;
+        }
+
+        const [locationResult] = await Location.reverseGeocodeAsync({
+          latitude: resolvedPosition.coords.latitude,
+          longitude: resolvedPosition.coords.longitude,
+        });
+        const countryIso = locationResult?.isoCountryCode?.toUpperCase();
+
+        if (!isMounted || !countryIso) {
+          return;
+        }
+
+        setDefaultCountryCode(countryIso);
+      } catch (error) {
+        console.warn("Unable to resolve phone default country", error);
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <View style={styles.container}>
       <PhoneInput
+        key={`phone-input-${defaultCountryCode}`}
         ref={phoneInput}
-        defaultValue={value}
-        defaultCode="US"
+        value={value}
+        defaultCode={defaultCountryCode}
         layout="first"
         onChangeText={onChangeText}
         onChangeFormattedText={onChangeFormattedText}
-        onChangeCountry={onChangeCountry}
+        onChangeCountry={(country) => {
+          onChangeCountry?.(country);
+          if (resetOnCountryChange) {
+            onChangeText("");
+            onChangeFormattedText?.("");
+          }
+        }}
         containerStyle={[
           styles.phoneContainer,
           {

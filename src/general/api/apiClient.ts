@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosHeaders, AxiosInstance, AxiosRequestConfig } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { apiConfig } from '../config/apiConfig';
-import { resetToSharedHome } from '../navigation/rootNavigation';
+import { resetToAuth } from '../navigation/rootNavigation';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -10,8 +10,8 @@ const TOKEN_KEY = 'super_app_auth_token';
 const REFRESH_TOKEN_KEY = 'super_app_refresh_token';
 let isHandlingSessionExpiry = false;
 
-function redirectToMainHomeWithRetry() {
-  const navigated = resetToSharedHome();
+function redirectToAuthWithRetry() {
+  const navigated = resetToAuth();
   if (navigated) {
     return;
   }
@@ -22,7 +22,7 @@ function redirectToMainHomeWithRetry() {
   const maxAttempts = 8;
   const timer = setInterval(() => {
     attempts += 1;
-    const done = resetToSharedHome();
+    const done = resetToAuth();
     if (done || attempts >= maxAttempts) {
       clearInterval(timer);
     }
@@ -50,6 +50,18 @@ type ApiErrorResponseData = {
   error?: string;
 };
 
+function hasMissingAuthHeaderSignal(responseData?: ApiErrorResponseData): boolean {
+  const messageText = toLowerCaseMessage(responseData?.message);
+  const errorText = toLowerCaseMessage(responseData?.error);
+  const codeText = toLowerCaseMessage(responseData?.code);
+  const combinedAuthText = `${messageText} ${errorText} ${codeText}`.trim();
+
+  return (
+    combinedAuthText.includes('auth header is missing') ||
+    combinedAuthText.includes('authorization header is missing')
+  );
+}
+
 function isLikelyAuthExpiry(status: number, responseData?: ApiErrorResponseData): boolean {
   const messageText = toLowerCaseMessage(responseData?.message);
   const errorText = toLowerCaseMessage(responseData?.error);
@@ -62,6 +74,8 @@ function isLikelyAuthExpiry(status: number, responseData?: ApiErrorResponseData)
     combinedAuthText.includes('invalid token') ||
     combinedAuthText.includes('token expired') ||
     combinedAuthText.includes('jwt expired') ||
+    combinedAuthText.includes('auth header is missing') ||
+    combinedAuthText.includes('authorization header is missing') ||
     combinedAuthText.includes('unauthorized');
 
   // 401/419/440 are strong authentication/session-expiry signals.
@@ -153,15 +167,17 @@ httpClient.interceptors.response.use(
       (error.config?.headers as Record<string, unknown> | undefined)?.Authorization,
     );
     const storedToken = await tokenManager.getToken();
+    const hasMissingAuthHeaderError = hasMissingAuthHeaderSignal(responseData);
     const shouldHandleSessionExpiry =
-      isLikelyAuthExpiry(status, responseData) && (hasAuthHeader || Boolean(storedToken));
+      isLikelyAuthExpiry(status, responseData) &&
+      (hasAuthHeader || Boolean(storedToken) || hasMissingAuthHeaderError);
 
     if (shouldHandleSessionExpiry && !isHandlingSessionExpiry) {
       isHandlingSessionExpiry = true;
 
       try {
         await tokenManager.clearAll();
-        redirectToMainHomeWithRetry();
+        redirectToAuthWithRetry();
       } finally {
         isHandlingSessionExpiry = false;
       }

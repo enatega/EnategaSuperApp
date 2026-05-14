@@ -19,7 +19,7 @@ import type { FindingRideBid } from '../types/bids';
 import type { FindingRideViewProps } from '../types/view';
 import type { RideOptionItem } from '../../../components/rideOptions/types';
 
-const SEARCH_DURATION_SECONDS = 60;
+const SEARCH_DURATION_SECONDS = 120;
 const DEFAULT_SEARCH_RADIUS_KM = 1;
 const KEEP_SEARCHING_RADIUS_INCREMENT_KM = 1;
 const BID_ACCEPT_START_TYPE = 'started';

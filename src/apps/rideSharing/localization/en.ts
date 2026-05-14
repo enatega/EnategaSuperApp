@@ -211,6 +211,7 @@ const en = {
   ride_address_confirm_dropoff: 'Confirm drop off',
   ride_address_map_locating: 'Locating address...',
   ride_address_map_selected_location: 'Selected location',
+  ride_address_stop_duplicate_error: 'Stop must be different from pickup, drop-off, and existing stops.',
   ride_address_no_results_title: 'No addresses found',
   ride_address_no_results_description: 'Try a different street, building, or landmark name.',
   ride_address_recent_empty_title: 'No recent addresses yet',

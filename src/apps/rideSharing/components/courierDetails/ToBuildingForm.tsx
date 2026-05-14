@@ -67,6 +67,7 @@ export default function ToBuildingForm({
         <PhoneNumberInput
           value={senderPhone}
           onChangeText={handleSenderPhone}
+          resetOnCountryChange
           isActive={senderPhone.length > 0}
         />
       </View>
@@ -79,6 +80,7 @@ export default function ToBuildingForm({
         <PhoneNumberInput
           value={recipientPhone}
           onChangeText={handleRecipientPhone}
+          resetOnCountryChange
           isActive={recipientPhone.length > 0}
         />
       </View>
