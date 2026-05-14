@@ -1,36 +1,55 @@
 import React from 'react';
 import {
+  FlatList,
+  Image,
+  ImageSourcePropType,
   Pressable,
   StyleSheet,
   View,
 } from 'react-native';
-import type { SvgProps } from 'react-native-svg';
 import Text from '../../../general/components/Text';
 import { useTheme } from '../../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RideIntent } from '../utils/rideOptions';
-import CarIcon from '../assets/svgs/car.svg';
-import CalendarIcon from '../assets/svgs/Calender.svg';
-import ClockIcon from '../assets/svgs/Clock.svg';
-import TruckIcon from '../assets/svgs/Truck.svg';
+import type { SharedStackParamList } from '../../../general/navigation/navigationTypes';
+import { MINI_APPS, type MiniAppId } from '../../registry/generated/appI18nRegistry';
+import { APP_ROUTE_BY_ID } from '../../registry/generated/appRegistry';
+import CarIcon from '../assets/images/carIcon.png';
+import CalendarIcon from '../assets/images/calendarIcon.png';
+import ClockIcon from '../assets/images/hourlyIcon.png';
+import TruckIcon from '../assets/images/courierIcon.png';
+import ServiceRideImage from '../assets/images/rideIcon.png';
+import ServiceDeliveriesImage from '../assets/images/deliveriesIcon.png';
+import ServiceCourierImage from '../assets/images/courierHomeIcon.png';
+import ServiceHomeVisitsImage from '../../../general/assets/images/3d-house.png';
 
 type RideOption = {
   id: RideIntent;
   title: string;
-  icon: React.FC<SvgProps>;
+  icon: ImageSourcePropType;
 };
 
 type Props = {
   onSelectRideOption?: (rideIntent: RideIntent) => void;
 };
 
+type ServiceCardId = 'ride' | 'deliveries' | 'courier' | 'homeVisits';
+type ServiceCard = {
+  id: ServiceCardId;
+  title: string;
+  subtitle: string;
+  icon: ImageSourcePropType;
+};
+
 const ICON_SIZE = 48;
+const SERVICE_CARD_ICON_SIZE = 80;
 
 export default function RideOptionsSection({ onSelectRideOption }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('rideSharing');
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<SharedStackParamList>>();
 
   const items: RideOption[] = [
     {
@@ -61,11 +80,105 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
       return;
     }
 
-    (navigation as any).navigate('RideSharingHome');
+    navigation.navigate('RideSharing', {
+      screen: 'RideSharingHome',
+      params: {
+        rideType: rideIntent,
+        directCourierOnly: rideIntent === 'courier',
+      },
+    });
   }
+
+  function handleSelectServiceCard(cardId: ServiceCardId) {
+    if (cardId === 'ride') {
+      handleSelectOption('now');
+      return;
+    }
+
+    if (cardId === 'courier') {
+      handleSelectOption('courier');
+      return;
+    }
+
+    if (cardId === 'homeVisits') {
+      const routeName = APP_ROUTE_BY_ID.homeVisits;
+      if (routeName) {
+        navigation.navigate(routeName);
+      }
+      return;
+    }
+
+    navigation.navigate('Deliveries');
+  }
+
+  const enabledApps = new Set<MiniAppId>(MINI_APPS);
+  const allServiceCards: ServiceCard[] = [
+    {
+      id: 'ride',
+      title: t('ride_home_service_ride_title'),
+      subtitle: t('ride_home_service_ride_subtitle'),
+      icon: ServiceRideImage,
+    },
+    {
+      id: 'deliveries',
+      title: t('ride_home_service_deliveries_title'),
+      subtitle: t('ride_home_service_deliveries_subtitle'),
+      icon: ServiceDeliveriesImage,
+    },
+    {
+      id: 'courier',
+      title: t('ride_home_service_courier_title'),
+      subtitle: t('ride_home_service_courier_subtitle'),
+      icon: ServiceCourierImage,
+    },
+    {
+      id: 'homeVisits',
+      title: t('ride_home_service_home_visits_title'),
+      subtitle: t('ride_home_service_home_visits_subtitle'),
+      icon: ServiceHomeVisitsImage,
+    },
+  ];
+
+  const serviceCards = allServiceCards.filter((card) => {
+    if (card.id === 'ride' || card.id === 'courier') {
+      return enabledApps.has('rideSharing');
+    }
+
+    if (card.id === 'deliveries') {
+      return enabledApps.has('deliveries');
+    }
+
+    if (card.id === 'homeVisits') {
+      return enabledApps.has('homeVisits');
+    }
+
+    return true;
+  });
 
   return (
     <View style={styles.section}>
+      <FlatList
+        data={serviceCards}
+        horizontal
+        keyExtractor={(item) => item.id}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.serviceCardsRow}
+        renderItem={({ item }) => (
+          <Pressable
+            style={[styles.serviceCard, { backgroundColor: colors.blue50 }]}
+            onPress={() => handleSelectServiceCard(item.id)}
+          >
+            <Image source={item.icon} style={styles.serviceCardIcon} resizeMode="contain" />
+            <Text weight="extraBold" style={[styles.serviceCardTitle, { color: colors.text }]}>
+              {item.title}
+            </Text>
+            <Text style={[styles.serviceCardSubtitle, { color: colors.mutedText }]}>
+              {item.subtitle}
+            </Text>
+          </Pressable>
+        )}
+      />
+
       <Text
         weight="extraBold"
         style={[
@@ -79,7 +192,7 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
         {items.map((item) => (
           <Pressable key={item.id} style={styles.item} onPress={() => handleSelectOption(item.id)}>
             <View style={[styles.iconWrap, { backgroundColor: colors.blue50 }]}>
-              <item.icon width={ICON_SIZE} height={ICON_SIZE} />
+              <Image source={item.icon} style={styles.icon} resizeMode="contain" />
             </View>
             <Text
               weight="semiBold"
@@ -102,6 +215,34 @@ const styles = StyleSheet.create({
   section: {
     gap: 16,
   },
+  serviceCardsRow: {
+    gap: 12,
+    paddingRight: 4,
+  },
+  serviceCard: {
+    alignItems: 'center',
+    borderRadius: 16,
+    width: 132,
+    minHeight: 168,
+    paddingHorizontal: 8,
+    paddingVertical: 12,
+  },
+  serviceCardIcon: {
+    height: SERVICE_CARD_ICON_SIZE,
+    marginBottom: 8,
+    width: SERVICE_CARD_ICON_SIZE,
+  },
+  serviceCardTitle: {
+    fontSize: 16,
+    lineHeight: 16,
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  serviceCardSubtitle: {
+    fontSize: 10,
+    lineHeight: 14,
+    textAlign: 'center',
+  },
   sectionTitle: {
   },
   grid: {
@@ -119,5 +260,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  icon: {
+    width: ICON_SIZE,
+    height: ICON_SIZE,
   },
 });

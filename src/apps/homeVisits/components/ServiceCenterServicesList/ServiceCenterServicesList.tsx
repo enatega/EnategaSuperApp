@@ -1,8 +1,15 @@
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import type { ListRenderItemInfo } from '@shopify/flash-list';
-import type { StyleProp, ViewStyle, ViewToken } from 'react-native';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import PagerView from 'react-native-pager-view';
+import type { StyleProp, ViewStyle } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import Icon from '../../../../general/components/Icon';
 import Text from '../../../../general/components/Text';
 import VerticalList from '../../../../general/components/VerticalList';
@@ -12,21 +19,12 @@ import type { HomeVisitsSingleVendorServiceCenterListItem } from '../../singleVe
 import { formatPrice } from '../ServiceDetailsPage/serviceDetailsSelection';
 import { normalizeEstimatedDurationLabel } from './serviceDuration';
 
-type ServiceRowItem = {
-  type: 'service';
-  key: string;
-  categoryId: string;
-  service: HomeVisitsSingleVendorServiceCenterListItem;
-};
-
-type SectionHeaderItem = {
-  type: 'section';
+type ServiceSection = {
   key: string;
   categoryId: string;
   title: string;
+  data: HomeVisitsSingleVendorServiceCenterListItem[];
 };
-
-type ListItem = SectionHeaderItem | ServiceRowItem;
 
 type CategoryTab = {
   id: string;
@@ -71,7 +69,12 @@ function ServiceCenterServicesList({
   serviceCenterId,
 }: Props) {
   const { colors, typography } = useTheme();
-  const listRef = useRef<{ scrollToIndex: (params: { animated?: boolean; index: number; viewPosition?: number }) => void } | null>(null);
+  const pagerRef = useRef<PagerView | null>(null);
+  const hasAppliedInitialPageRef = useRef(false);
+  const tabsScrollRef = useRef<ScrollView | null>(null);
+  const tabsContentWidthRef = useRef(0);
+  const tabsViewportWidthRef = useRef(0);
+  const tabLayoutMapRef = useRef<Map<string, { x: number; width: number }>>(new Map());
   const query = useServiceCenterServices(serviceCenterId);
   const lockedSelectedIds = useMemo(
     () => Array.from(new Set(lockedSelectedServiceIds ?? [])),
@@ -89,7 +92,7 @@ function ServiceCenterServicesList({
     [internalSelectedIds, isControlled, lockedSelectedIds, selectedServiceIds],
   );
 
-  const sections = useMemo(() => {
+  const sections = useMemo<ServiceSection[]>(() => {
     const byCategory = new Map<
       string,
       { id: string; name: string; services: HomeVisitsSingleVendorServiceCenterListItem[] }
@@ -109,37 +112,18 @@ function ServiceCenterServicesList({
       });
     }
 
-    return Array.from(byCategory.values());
+    return Array.from(byCategory.values()).map((section) => ({
+      key: `section-${section.id}`,
+      categoryId: section.id,
+      title: section.name,
+      data: section.services,
+    }));
   }, [query.data]);
 
   const categories = useMemo<CategoryTab[]>(
-    () => sections.map((section) => ({ id: section.id, name: section.name })),
+    () => sections.map((section) => ({ id: section.categoryId, name: section.title })),
     [sections],
   );
-
-  const listItems = useMemo<ListItem[]>(() => {
-    const items: ListItem[] = [];
-
-    for (const section of sections) {
-      items.push({
-        type: 'section',
-        key: `section-${section.id}`,
-        categoryId: section.id,
-        title: section.name,
-      });
-
-      for (const service of section.services) {
-        items.push({
-          type: 'service',
-          key: `service-${service.id}`,
-          categoryId: section.id,
-          service,
-        });
-      }
-    }
-
-    return items;
-  }, [sections]);
 
   const selectedIdsSet = useMemo(() => new Set(activeSelectedIds ?? []), [activeSelectedIds]);
 
@@ -160,22 +144,47 @@ function ServiceCenterServicesList({
   );
   const lastNotifiedSelectionRef = useRef<string>('');
 
-  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
+  const [activePageIndex, setActivePageIndex] = useState(0);
 
-  const categoryIndexMap = useMemo(() => {
+  const categorySectionIndexMap = useMemo(() => {
     const indexMap = new Map<string, number>();
-
-    listItems.forEach((item, index) => {
-      if (item.type === 'section' && !indexMap.has(item.categoryId)) {
-        indexMap.set(item.categoryId, index);
-      }
+    sections.forEach((section, index) => {
+      indexMap.set(section.categoryId, index);
     });
-
     return indexMap;
-  }, [listItems]);
+  }, [sections]);
 
-  const resolvedActiveCategory =
-    activeCategoryId ?? categories[0]?.id ?? null;
+  const resolvedActiveCategory = categories[activePageIndex]?.id ?? categories[0]?.id ?? null;
+
+  const scrollActiveTabIntoView = useCallback((categoryId: string | null) => {
+    if (!categoryId) {
+      return;
+    }
+
+    const layout = tabLayoutMapRef.current.get(categoryId);
+    if (!layout) {
+      return;
+    }
+
+    const viewportWidth = tabsViewportWidthRef.current;
+    const contentWidth = tabsContentWidthRef.current;
+    if (viewportWidth <= 0 || contentWidth <= 0) {
+      return;
+    }
+
+    const centeredOffset = layout.x - (viewportWidth - layout.width) / 2;
+    const maxOffset = Math.max(0, contentWidth - viewportWidth);
+    const nextOffset = Math.max(0, Math.min(centeredOffset, maxOffset));
+
+    tabsScrollRef.current?.scrollTo({
+      x: nextOffset,
+      animated: true,
+    });
+  }, []);
+
+  React.useEffect(() => {
+    hasAppliedInitialPageRef.current = false;
+  }, [serviceCenterId]);
 
   React.useEffect(() => {
     if (isControlled) {
@@ -194,17 +203,40 @@ function ServiceCenterServicesList({
   }, [isControlled, lockedSelectedIds]);
 
   React.useEffect(() => {
-    if (categories.length === 0 || listItems.length === 0) {
+    if (sections.length === 0) {
+      if (activePageIndex !== 0) {
+        setActivePageIndex(0);
+      }
       return;
     }
 
-    setActiveCategoryId((previous) => previous ?? categories[0].id);
-    listRef.current?.scrollToIndex({
-      animated: false,
-      index: 0,
-      viewPosition: 0,
-    });
-  }, [categories, listItems.length]);
+    if (activePageIndex > sections.length - 1) {
+      const nextIndex = sections.length - 1;
+      setActivePageIndex(nextIndex);
+      pagerRef.current?.setPageWithoutAnimation(nextIndex);
+    }
+  }, [activePageIndex, sections.length]);
+
+  React.useEffect(() => {
+    if (hasAppliedInitialPageRef.current) {
+      return;
+    }
+
+    if (sections.length === 0) {
+      return;
+    }
+
+    const preferredSectionIndex = sections.findIndex((section) =>
+      section.data.some((service) => selectedIdsSet.has(service.id)),
+    );
+    const nextIndex = preferredSectionIndex >= 0 ? preferredSectionIndex : 0;
+
+    hasAppliedInitialPageRef.current = true;
+    if (activePageIndex !== nextIndex) {
+      setActivePageIndex(nextIndex);
+      pagerRef.current?.setPageWithoutAnimation(nextIndex);
+    }
+  }, [activePageIndex, sections, selectedIdsSet]);
 
   const applySelection = useCallback(
     (nextIds: string[]) => {
@@ -236,60 +268,39 @@ function ServiceCenterServicesList({
 
   const handleSelectCategory = useCallback(
     (categoryId: string) => {
-      setActiveCategoryId(categoryId);
-      const sectionIndex = categoryIndexMap.get(categoryId);
+      const sectionIndex = categorySectionIndexMap.get(categoryId);
 
       if (sectionIndex == null) {
         return;
       }
 
-      listRef.current?.scrollToIndex({
-        animated: true,
-        index: sectionIndex,
-        viewPosition: 0,
-      });
+      setActivePageIndex(sectionIndex);
+      pagerRef.current?.setPage(sectionIndex);
     },
-    [categoryIndexMap],
+    [categorySectionIndexMap],
   );
 
-  const onViewableItemsChanged = useRef(
-    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
-      const firstVisible = viewableItems.find(
-        (token) => token.item && (token.item as ListItem).type === 'section',
-      );
-
-      if (!firstVisible?.item) {
-        return;
-      }
-
-      const categoryId = (firstVisible.item as ListItem).categoryId;
-      setActiveCategoryId((previous) => (previous === categoryId ? previous : categoryId));
-    },
-  );
+  React.useEffect(() => {
+    scrollActiveTabIntoView(resolvedActiveCategory);
+  }, [resolvedActiveCategory, scrollActiveTabIntoView]);
 
   const renderItem = useCallback(
-    ({ item }: ListRenderItemInfo<ListItem>) => {
-      if (item.type === 'section') {
-        return <SectionHeader title={item.title} />;
-      }
-
-      const isSelected = selectedIdsSet.has(item.service.id);
+    ({ item }: ListRenderItemInfo<HomeVisitsSingleVendorServiceCenterListItem>) => {
+      const isSelected = selectedIdsSet.has(item.id);
 
       return (
         <ServiceRow
           isSelected={isSelected}
-          isSelectionLocked={lockedSelectedIdsSet.has(item.service.id)}
-          onPress={() => handleToggleService(item.service.id)}
-          service={item.service}
+          isSelectionLocked={lockedSelectedIdsSet.has(item.id)}
+          onPress={() => handleToggleService(item.id)}
+          service={item}
         />
       );
     },
     [handleToggleService, lockedSelectedIdsSet, selectedIdsSet],
   );
 
-  const keyExtractor = useCallback((item: ListItem) => item.key, []);
-
-  const getItemType = useCallback((item: ListItem) => item.type, []);
+  const keyExtractor = useCallback((item: HomeVisitsSingleVendorServiceCenterListItem) => item.id, []);
 
   const handleEndReached = useCallback(() => {
     if (query.hasNextPage && !query.isFetchingNextPage) {
@@ -348,9 +359,18 @@ function ServiceCenterServicesList({
       <View style={styles.tabsContainer}>
         <ScrollView
           horizontal
+          ref={tabsScrollRef}
           contentContainerStyle={styles.tabsRow}
           showsHorizontalScrollIndicator={false}
           style={styles.tabsScroll}
+          onContentSizeChange={(width) => {
+            tabsContentWidthRef.current = width;
+            scrollActiveTabIntoView(resolvedActiveCategory);
+          }}
+          onLayout={(event) => {
+            tabsViewportWidthRef.current = event.nativeEvent.layout.width;
+            scrollActiveTabIntoView(resolvedActiveCategory);
+          }}
         >
           {categories.map((category) => {
             const isActive = resolvedActiveCategory === category.id;
@@ -358,6 +378,15 @@ function ServiceCenterServicesList({
             return (
               <Pressable
                 key={category.id}
+                onLayout={(event) => {
+                  tabLayoutMapRef.current.set(category.id, {
+                    x: event.nativeEvent.layout.x,
+                    width: event.nativeEvent.layout.width,
+                  });
+                  if (resolvedActiveCategory === category.id) {
+                    scrollActiveTabIntoView(category.id);
+                  }
+                }}
                 onPress={() => handleSelectCategory(category.id)}
                 style={[
                   styles.tabChip,
@@ -382,20 +411,30 @@ function ServiceCenterServicesList({
         </ScrollView>
       </View>
 
-      <VerticalList<ListItem>
-        contentContainerStyle={contentContainerStyle as any}
-        data={listItems}
-        getItemType={getItemType}
-        keyExtractor={keyExtractor}
-        ListFooterComponent={footer}
-        maintainVisibleContentPosition={{ disabled: true }}
-        onEndReached={handleEndReached}
-        onEndReachedThreshold={0.4}
-        onViewableItemsChanged={onViewableItemsChanged.current}
-        ref={listRef}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-      />
+      <PagerView
+        ref={pagerRef}
+        style={styles.pager}
+        initialPage={0}
+        onPageSelected={(event) => {
+          setActivePageIndex(event.nativeEvent.position);
+        }}
+      >
+        {sections.map((section) => (
+          <View key={section.key} style={styles.page}>
+            <VerticalList<HomeVisitsSingleVendorServiceCenterListItem>
+              contentContainerStyle={contentContainerStyle as any}
+              data={section.data}
+              keyExtractor={keyExtractor}
+              
+              ListFooterComponent={footer}
+              onEndReached={handleEndReached}
+              onEndReachedThreshold={0.4}
+              renderItem={renderItem}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
+        ))}
+      </PagerView>
     </View>
   );
 }
@@ -577,6 +616,12 @@ const styles = StyleSheet.create({
   paginationLoader: {
     paddingBottom: 12,
     paddingTop: 8,
+  },
+  pager: {
+    flex: 1,
+  },
+  page: {
+    flex: 1,
   },
   row: {
     alignItems: 'center',

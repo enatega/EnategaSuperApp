@@ -32,19 +32,28 @@ export default function useCurrentLocation() {
         return null;
       }
 
-      const position =
-        (await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        }).catch(() => null)) ??
-        (await Location.getLastKnownPositionAsync());
+      const lastKnownPosition = await Location.getLastKnownPositionAsync();
 
-      if (!position) {
+      if (lastKnownPosition) {
+        setCurrentCoordinates({
+          latitude: lastKnownPosition.coords.latitude,
+          longitude: lastKnownPosition.coords.longitude,
+        });
+      }
+
+      const currentPosition = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      }).catch(() => null);
+
+      const resolvedPosition = currentPosition ?? lastKnownPosition;
+
+      if (!resolvedPosition) {
         return null;
       }
 
       const nextCoordinates = {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
+        latitude: resolvedPosition.coords.latitude,
+        longitude: resolvedPosition.coords.longitude,
       };
 
       setCurrentCoordinates(nextCoordinates);

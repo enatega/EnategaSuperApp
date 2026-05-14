@@ -750,6 +750,8 @@ const en = {
   checkout_payment_failed: 'Payment failed. Please try again with another method.',
   checkout_payment_card_redirecting: 'Complete your payment in the browser to finish this order.',
   checkout_payment_card_redirect_error: 'Unable to open secure checkout right now.',
+  checkout_leave_at_door_card_required: 'Leave at the door requires card payment. Please switch to card to continue.',
+  checkout_leave_at_door_switched_to_card: 'Payment method switched to card for leave-at-door delivery.',
   checkout_promo_title: 'Promo code',
   checkout_promo_subtitle: 'Tap here to continue',
   checkout_promo_tap_to_change: 'Tap here to change',

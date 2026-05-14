@@ -418,6 +418,7 @@ const en = {
   filter_button_label: 'Filter options',
   search_input_placeholder: 'Search anything',
   Recommended_restaurants: 'Recommended restaurants',
+  home_drive_banners_title: 'Drive Offers',
 };
 
 export default en;

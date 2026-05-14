@@ -63,7 +63,9 @@ function RideOptionsBottomSheet({
   const defaultHeight = isDirectCourierFlow
     ? expandedHeight
     : undefined;
-  const collapsedHeight = 150;
+  const collapsedHeight = isDirectCourierFlow
+    ? expandedHeight
+    : Math.min(screenHeight * 0.42, 360);
   const showErrorState = Boolean(rideTypesErrorMessage) && !isLoadingRideTypes;
   const searchDisabled = !selectedCategory || isLoadingRideTypes || showErrorState;
   const forYouQuery = useRideForYouRestaurants();
@@ -134,6 +136,7 @@ function RideOptionsBottomSheet({
               onSearchPress={onSearchPress}
               searchDisabled={searchDisabled}
               hideOptionsRow={isDirectCourierFlow}
+              showSearchInput
             />
           </View>
 

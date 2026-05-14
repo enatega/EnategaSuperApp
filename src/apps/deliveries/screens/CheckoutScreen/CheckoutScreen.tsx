@@ -318,6 +318,32 @@ export default function CheckoutScreen() {
   }, [paymentMethod, preview?.store]);
 
   React.useEffect(() => {
+    if (preview?.store?.stripeAllowed === false && leaveAtDoor) {
+      setLeaveAtDoor(false);
+    }
+  }, [leaveAtDoor, preview?.store?.stripeAllowed]);
+
+  React.useEffect(() => {
+    if (orderType !== 'delivery' || !leaveAtDoor || !preview?.store) {
+      return;
+    }
+
+    if (paymentMethod === 'stripe') {
+      return;
+    }
+
+    if (!preview.store.stripeAllowed) {
+      return;
+    }
+
+    setPaymentMethod('stripe');
+    showToast.info(
+      t('checkout_payment_card_title'),
+      t('checkout_leave_at_door_switched_to_card'),
+    );
+  }, [leaveAtDoor, orderType, paymentMethod, preview?.store, t]);
+
+  React.useEffect(() => {
     if (orderType !== 'pickup') {
       return;
     }
@@ -415,6 +441,17 @@ export default function CheckoutScreen() {
       return;
     }
 
+    if (orderType === 'delivery' && leaveAtDoor && paymentMethod !== 'stripe') {
+      if (preview?.store?.stripeAllowed) {
+        showToast.error(t('checkout_leave_at_door_card_required'));
+        setIsPaymentMethodScreenVisible(true);
+        return;
+      }
+
+      showToast.error(t('checkout_payment_card_unavailable_error'));
+      return;
+    }
+
     const payload = {
       storeId: cart.storeId,
       bucketId: cart.bucketId,
@@ -454,6 +491,8 @@ export default function CheckoutScreen() {
     selectedCoupon?.code,
     messages,
     deliveryTimeMode,
+    leaveAtDoor,
+    preview?.store?.stripeAllowed,
     scheduledAt,
     selectedTip,
     savedCardsQuery.data?.cards,
@@ -575,6 +614,20 @@ export default function CheckoutScreen() {
 
     setDeliveryTimeMode('standard');
   }, []);
+
+  const handleLeaveAtDoorChange = React.useCallback((nextValue: boolean) => {
+    if (!nextValue) {
+      setLeaveAtDoor(false);
+      return;
+    }
+
+    if (!preview?.store?.stripeAllowed) {
+      showToast.error(t('checkout_payment_card_unavailable_error'));
+      return;
+    }
+
+    setLeaveAtDoor(true);
+  }, [preview?.store?.stripeAllowed, t]);
 
   const handleScheduleConfirm = React.useCallback((nextScheduledAt: string) => {
     if (!isCheckoutScheduledAtInFuture(nextScheduledAt)) {
@@ -743,11 +796,18 @@ export default function CheckoutScreen() {
     paymentMethod,
     preview?.store,
   );
+  const isLeaveAtDoorCardRequired =
+    orderType === 'delivery' && leaveAtDoor && paymentMethod !== 'stripe';
+  const leaveAtDoorPaymentErrorMessage = isLeaveAtDoorCardRequired
+    ? (preview?.store?.stripeAllowed
+      ? t('checkout_leave_at_door_card_required')
+      : t('checkout_payment_card_unavailable_error'))
+    : null;
   const paymentErrorMessage = !isPaymentAvailable
     ? paymentMethod === 'stripe'
       ? t('checkout_payment_card_unavailable_error')
       : t('checkout_payment_cod_unavailable_error')
-    : null;
+    : leaveAtDoorPaymentErrorMessage;
 
   if (stripeCheckout) {
     return (
@@ -824,10 +884,11 @@ export default function CheckoutScreen() {
         isPickupEnabled={adjustedPreview?.store.pickupAllowed ?? true}
         isPromoApplied={isPromoApplied}
         isPlacingOrder={placeOrderMutation.isPending}
-        isPaymentBlocked={!isPaymentAvailable}
+        isPaymentBlocked={!isPaymentAvailable || isLeaveAtDoorCardRequired}
         isPreviewEnabled={Boolean(previewInput)}
         isPreviewError={isPreviewError}
         isPreviewPending={isPreviewPending}
+        canShowLeaveAtDoor={preview?.store?.stripeAllowed ?? false}
         leaveAtDoor={leaveAtDoor}
         onAddressPress={handleAddressPress}
         onBackPress={handleBackPress}
@@ -835,7 +896,7 @@ export default function CheckoutScreen() {
           handleMessagePress('courier');
         }}
         onDeliveryTimeModeChange={handleDeliveryTimeModeChange}
-        onLeaveAtDoorChange={setLeaveAtDoor}
+        onLeaveAtDoorChange={handleLeaveAtDoorChange}
         onOrderTypeChange={setOrderType}
         onPlaceOrderPress={handlePlaceOrderPress}
         onPaymentPress={handlePaymentMethodPress}

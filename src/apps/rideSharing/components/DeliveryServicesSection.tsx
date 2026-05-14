@@ -29,23 +29,13 @@ export default function DeliveryServicesSection({ onSelectService }: Props) {
   const { t } = useTranslation('rideSharing');
   const { data: shopTypes = [] } = usePublicShopTypes();
 
-  const foodDeliveryCard: DeliveryService = {
-    id: 'food-delivery',
-    title: t('delivery_service_food_title'),
-    imageSource: require('../assets/images/pizza.png'),
-    cardWidth: 152,
-  };
-
   const dynamicItems: DeliveryService[] = shopTypes.slice(0, 8).map((shopType) => ({
     id: shopType.id,
     title: shopType.name,
     imageUrl: shopType.image ?? null,
     cardWidth: 152,
   }));
-  const items: DeliveryService[] = [
-    foodDeliveryCard,
-    ...dynamicItems.filter((item) => item.title.toLowerCase() !== foodDeliveryCard.title.toLowerCase()),
-  ];
+  const items: DeliveryService[] = dynamicItems;
 
   return (
     <View style={styles.section}>
@@ -54,8 +44,8 @@ export default function DeliveryServicesSection({ onSelectService }: Props) {
         style={[
           styles.sectionTitle,
           {
-            fontSize: typography.size.h5,
-            lineHeight: typography.lineHeight.h5,
+            fontSize: typography.size.lg,
+            lineHeight: typography.lineHeight.md,
             color: colors.text,
           },
         ]}
@@ -113,7 +103,6 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   sectionTitle: {
-    letterSpacing: -0.36,
   },
   rowContent: {
     gap: 12,

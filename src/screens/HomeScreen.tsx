@@ -106,13 +106,10 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
   }
 
   function handleSelectRideOption(rideIntent: RideIntent) {
-    const isCourier = rideIntent === 'courier';
-
     onSelectMiniApp?.('rideSharing', {
       screen: 'RideSharingHome',
       params: {
         rideType: rideIntent,
-        directCourierOnly: isCourier,
       },
     });
   }
@@ -157,7 +154,7 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
             <RecommendedStoresSection onSelectMiniApp={onSelectMiniApp} />
           ) : null}
           <HomeTravelBannerSection onPress={handleSelectTravelBanner} />
-          <OurServicesSection onSelectMiniApp={onSelectMiniApp} />
+          {/* <OurServicesSection onSelectMiniApp={onSelectMiniApp} /> */}
         </ScrollView>
       </SafeAreaView>
 
