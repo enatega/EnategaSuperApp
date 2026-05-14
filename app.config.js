@@ -1,12 +1,14 @@
 const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY ?? 'DUMMY_GOOGLE_MAPS_API_KEY';
-const iosUrlScheme = process.env.EXPO_PUBLIC_IOS_URL_SCHEME ?? 'com.enategasuper.app';
+const iosUrlScheme = process.env.EXPO_PUBLIC_IOS_URL_SCHEME ?? 'com.shaaneiol.app';
 const hasValidGoogleIosUrlScheme = iosUrlScheme.startsWith('com.googleusercontent.apps');
 
 module.exports = {
   expo: {
-    name: 'ShaaneioL',
-    slug: 'EnategaSuperApp',
+    name: 'Shaaneiol',
+  
     version: '1.0.0',
+     slug: "shaaneiol",
+    owner: "shaaneiol",
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
@@ -18,7 +20,7 @@ module.exports = {
     },
     ios: {
       supportsTablet: true,
-      bundleIdentifier: 'com.enategasuper.app',
+      bundleIdentifier: "com.shaaneiol.app",
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
         NSLocationWhenInUseUsageDescription:
@@ -32,21 +34,21 @@ module.exports = {
       },
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
-      package: 'com.enategasuper.app',
+      package: 'com.shaaneiol.app',
       googleServicesFile: './google-services.json',
     },
     web: {
       favicon: './assets/favicon.png',
     },
     updates: {
-      url: 'https://u.expo.dev/4c12b75d-6b64-4ea6-a4a7-83e366964b04',
+      url: "https://u.expo.dev/28588087-0036-483d-9bef-b4fa08944212",
     },
     runtimeVersion: {
       policy: 'appVersion',
     },
     extra: {
       eas: {
-        projectId: '4c12b75d-6b64-4ea6-a4a7-83e366964b04',
+       projectId: "28588087-0036-483d-9bef-b4fa08944212"
       },
     },
     plugins: [
