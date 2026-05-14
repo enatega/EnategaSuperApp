@@ -149,13 +149,8 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
       title: t('ride_home_service_courier_title'),
       subtitle: t('ride_home_service_courier_subtitle'),
       icon: ServiceCourierImage,
-    },
-    {
-      id: 'homeVisits',
-      title: t('ride_home_service_home_visits_title'),
-      subtitle: t('ride_home_service_home_visits_subtitle'),
-      icon: ServiceHomeVisitsImage,
-    },
+    }
+   
   ];
 
   const serviceCards = allServiceCards.filter((card) => {
