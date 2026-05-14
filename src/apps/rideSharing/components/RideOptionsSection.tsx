@@ -14,8 +14,11 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RideIntent } from '../utils/rideOptions';
 import type { SharedStackParamList } from '../../../general/navigation/navigationTypes';
+import { authSession } from '../../../general/auth/authSession';
+import { setActiveAppRoute, setPendingAppRoute } from '../../../general/navigation/pendingAppRedirect';
+import { resetToSharedRoute } from '../../../general/navigation/rootNavigation';
 import { MINI_APPS, type MiniAppId } from '../../registry/generated/appI18nRegistry';
-import { APP_ROUTE_BY_ID } from '../../registry/generated/appRegistry';
+import { APP_ROUTE_BY_ID, type SharedAppRouteName } from '../../registry/generated/appRegistry';
 import CarIcon from '../assets/images/carIcon.png';
 import CalendarIcon from '../assets/images/calendarIcon.png';
 import ClockIcon from '../assets/images/hourlyIcon.png';
@@ -74,13 +77,29 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
     },
   ];
 
+  async function handleSelectMiniApp(
+    routeName: SharedAppRouteName,
+    params?: SharedStackParamList[SharedAppRouteName],
+  ) {
+    const token = await authSession.getAccessToken();
+
+    if (token) {
+      await setActiveAppRoute(routeName);
+      resetToSharedRoute(routeName, params);
+      return;
+    }
+
+    await setPendingAppRoute(routeName);
+    navigation.navigate('Auth');
+  }
+
   function handleSelectOption(rideIntent: RideIntent) {
     if (onSelectRideOption) {
       onSelectRideOption(rideIntent);
       return;
     }
 
-    navigation.navigate('RideSharing', {
+    void handleSelectMiniApp('RideSharing', {
       screen: 'RideSharingHome',
       params: {
         rideType: rideIntent,
@@ -103,12 +122,12 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
     if (cardId === 'homeVisits') {
       const routeName = APP_ROUTE_BY_ID.homeVisits;
       if (routeName) {
-        navigation.navigate(routeName);
+        void handleSelectMiniApp(routeName);
       }
       return;
     }
 
-    navigation.navigate('Deliveries');
+    void handleSelectMiniApp('Deliveries');
   }
 
   const enabledApps = new Set<MiniAppId>(MINI_APPS);
