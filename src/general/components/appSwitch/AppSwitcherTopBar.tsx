@@ -157,10 +157,10 @@ const styles = StyleSheet.create({
     gap: 6,
     justifyContent: 'center',
     minHeight: 40,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
   },
   optionText: {
-    fontSize: 16,
+    fontSize: 14,
     lineHeight: 24,
   },
   icon: {

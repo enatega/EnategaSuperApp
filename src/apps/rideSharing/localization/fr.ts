@@ -202,6 +202,7 @@ const fr = {
   ride_address_confirm_dropoff: 'Confirmer la destination',
   ride_address_map_locating: 'Recherche de l’adresse...',
   ride_address_map_selected_location: 'Emplacement sélectionné',
+  ride_address_stop_duplicate_error: 'L’arrêt doit être différent du point de départ, de la destination et des autres arrêts.',
   ride_address_no_results_title: 'Aucune adresse trouvée',
   ride_address_no_results_description: 'Essayez un autre nom de rue, d’immeuble ou de lieu.',
   ride_address_recent_empty_title: 'Aucune adresse récente',

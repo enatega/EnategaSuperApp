@@ -8,7 +8,6 @@ import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Icon from '../../../../general/components/Icon';
 import Button from '../../../../general/components/Button';
 import Text from '../../../../general/components/Text';
-import { showToast } from '../../../../general/components/AppToast';
 import { useTheme } from '../../../../general/theme/theme';
 import { useRideSharingCurrencyLabel } from '../../../../general/stores/useAppConfigStore';
 import OfferFareHourlyStepper from '../../components/offerFare/OfferFareHourlyStepper';
@@ -224,7 +223,7 @@ export default function OfferFareScreen() {
           </View>
 
           <View style={styles.bottomSection}>
-            <Pressable
+            {/* <Pressable
               style={styles.row}
               onPress={() => showToast.info(t('ride_offer_fare_promo_coming_soon'))}
             >
@@ -235,7 +234,7 @@ export default function OfferFareScreen() {
                 </Text>
               </View>
               <Icon type="Feather" name="chevron-right" size={18} color={colors.text} />
-            </Pressable>
+            </Pressable> */}
 
             <Pressable style={styles.row} onPress={() => setIsPaymentVisible(true)}>
               <View style={styles.rowLeft}>

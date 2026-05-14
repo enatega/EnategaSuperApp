@@ -166,8 +166,8 @@ export default function StoreDetailsScreen() {
 
     return activeCategorySubcategoryIds
       ? subcategories.filter((subcategory) =>
-          activeCategorySubcategoryIds.includes(subcategory.id),
-        )
+        activeCategorySubcategoryIds.includes(subcategory.id),
+      )
       : subcategories;
   }, [activeCategory, subcategories]);
   const activeSubcategoryId = selectedSubcategoryId;
@@ -204,8 +204,8 @@ export default function StoreDetailsScreen() {
       : null;
     const nextVisibleSubcategories = nextCategorySubcategoryIds
       ? subcategories.filter((subcategory) =>
-          nextCategorySubcategoryIds.includes(subcategory.id),
-        )
+        nextCategorySubcategoryIds.includes(subcategory.id),
+      )
       : subcategories;
 
     setSelectedSubcategoryId(nextVisibleSubcategories[0]?.id ?? null);
@@ -419,7 +419,7 @@ export default function StoreDetailsScreen() {
         showPrimaryAction={false}
         title={t('store_details_about_title')}
         visible={isInfoModalVisible}
-        
+
       />
     </>
   );
