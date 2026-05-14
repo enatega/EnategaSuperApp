@@ -1,3 +1,3 @@
 {
-  "enabledApps": ["appointments", "deliveries", "developerMode", "rideSharing", "homeVisits"]
+  "enabledApps": [ "deliveries",  "rideSharing"]
 }
