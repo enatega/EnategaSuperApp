@@ -36,14 +36,14 @@ export type RiderChatScreenParams = {
     chatBoxId?: string;
     estimatedMinutes: number;
     orderCode: string;
-    receiverId: string;
+    receiverId?: string;
     riderAvatarUri?: string;
     riderName: string;
   };
 };
 
 function getResponseItems<T>(
-  response?: T[] | { messages?: T[]; data?: T[] | { items?: T[] } },
+  response?: T[] | { messages?: T[]; data?: T[] | { items?: T[]; messages?: T[] } },
 ): T[] {
   if (!response) {
     return [];
@@ -63,6 +63,10 @@ function getResponseItems<T>(
     return data;
   }
 
+  if (Array.isArray(data?.messages)) {
+    return data.messages;
+  }
+
   return data?.items ?? [];
 }
 
@@ -72,6 +76,37 @@ function resolveChatBoxId(chatBox: DeliveryChatBoxRecord): string | null {
 
 function resolveParticipantId(participant?: { id?: string }, fallbackId?: string): string | null {
   return participant?.id ?? fallbackId ?? null;
+}
+
+function resolveMessageText(message: DeliveryChatMessageRecord): string {
+  const candidate = message as DeliveryChatMessageRecord & {
+    message?: string;
+    content?: string;
+    body?: string;
+  };
+
+  return (
+    message.text ??
+    candidate.message ??
+    candidate.content ??
+    candidate.body ??
+    ''
+  );
+}
+
+function resolveMessageTimestamp(message: DeliveryChatMessageRecord): string | undefined {
+  const candidate = message as DeliveryChatMessageRecord & {
+    created_at?: string;
+    sentAt?: string;
+    timestamp?: string;
+  };
+
+  return (
+    message.createdAt ??
+    candidate.created_at ??
+    candidate.sentAt ??
+    candidate.timestamp
+  );
 }
 
 function formatMessageTime(value?: string): string | undefined {
@@ -165,10 +200,10 @@ export default function RiderChatScreen() {
         );
 
         return {
-          id: message.id ?? `${message.createdAt ?? 'message'}-${index}`,
+          id: message.id ?? `${resolveMessageTimestamp(message) ?? 'message'}-${index}`,
           sender: messageSenderId === senderId ? 'user' : 'rider',
-          text: message.text ?? '',
-          timeLabel: formatMessageTime(message.createdAt),
+          text: resolveMessageText(message),
+          timeLabel: formatMessageTime(resolveMessageTimestamp(message)),
         };
       }),
     );
@@ -380,7 +415,11 @@ export default function RiderChatScreen() {
         onCallPress={() => {}}
       />
 
-      <View style={styles.chatLayout}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
+        style={styles.chatLayout}
+      >
         <RiderChatMessageList
           isRefreshing={isRefreshing}
           messages={displayMessages}
@@ -396,22 +435,17 @@ export default function RiderChatScreen() {
           />
         ) : null}
 
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'position' : undefined}
-          keyboardVerticalOffset={0}
-        >
-          <RiderChatFooter
-            bottomInset={insets.bottom}
-            isKeyboardVisible={isKeyboardVisible}
-            onAttachmentPress={handleAttachmentPress}
-            isSending={sendMessageMutation.isPending}
-            value={draftMessage}
-            onChangeText={setDraftMessage}
-            onSend={handleSend}
-            placeholder={t('rider_chat_input_placeholder')}
-          />
-        </KeyboardAvoidingView>
-      </View>
+        <RiderChatFooter
+          bottomInset={insets.bottom}
+          isKeyboardVisible={isKeyboardVisible}
+          onAttachmentPress={handleAttachmentPress}
+          isSending={sendMessageMutation.isPending}
+          value={draftMessage}
+          onChangeText={setDraftMessage}
+          onSend={handleSend}
+          placeholder={t('rider_chat_input_placeholder')}
+        />
+      </KeyboardAvoidingView>
     </View>
   );
 }

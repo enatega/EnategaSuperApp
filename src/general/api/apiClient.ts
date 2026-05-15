@@ -50,6 +50,10 @@ type ApiErrorResponseData = {
   error?: string;
 };
 
+type ExtendedAxiosRequestConfig = AxiosRequestConfig & {
+  skipSessionExpiryHandling?: boolean;
+};
+
 function hasMissingAuthHeaderSignal(responseData?: ApiErrorResponseData): boolean {
   const messageText = toLowerCaseMessage(responseData?.message);
   const errorText = toLowerCaseMessage(responseData?.error);
@@ -163,12 +167,17 @@ httpClient.interceptors.response.use(
 
     const status = error.response?.status ?? 0;
     const responseData = error.response?.data as ApiErrorResponseData | undefined;
+    const skipSessionExpiryHandling = Boolean(
+      (error.config as AxiosRequestConfig & { skipSessionExpiryHandling?: boolean } | undefined)
+        ?.skipSessionExpiryHandling,
+    );
     const hasAuthHeader = Boolean(
       (error.config?.headers as Record<string, unknown> | undefined)?.Authorization,
     );
     const storedToken = await tokenManager.getToken();
     const hasMissingAuthHeaderError = hasMissingAuthHeaderSignal(responseData);
     const shouldHandleSessionExpiry =
+      !skipSessionExpiryHandling &&
       isLikelyAuthExpiry(status, responseData) &&
       (hasAuthHeader || Boolean(storedToken) || hasMissingAuthHeaderError);
 
@@ -211,6 +220,7 @@ function toApiError(error: unknown): ApiError {
 // Core request wrapper
 // ---------------------------------------------------------------------------
 export type ApiRequestOptions = {
+  skipSessionExpiryHandling?: boolean;
   skipAuth?: boolean;
   headers?: Record<string, string>;
 };
@@ -220,12 +230,14 @@ async function request<T>(
   options: ApiRequestOptions = {},
 ): Promise<T> {
   try {
-    const response = await httpClient.request<T>({
+    const requestConfig: ExtendedAxiosRequestConfig = {
       ...config,
+      skipSessionExpiryHandling: options.skipSessionExpiryHandling,
       headers: options.skipAuth
         ? { ...config.headers, ...options.headers, 'x-skip-auth': '1' }
         : { ...config.headers, ...options.headers },
-    });
+    };
+    const response = await httpClient.request<T>(requestConfig);
     return response.data;
   } catch (error) {
     throw toApiError(error);
