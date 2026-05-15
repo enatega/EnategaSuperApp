@@ -14,7 +14,7 @@ import useAddress from '../../../../../general/hooks/useAddress';
 import useAddressSelectionSheet from '../../../../../general/hooks/useAddressSelectionSheet';
 import useSavedAddresses from '../../../../../general/hooks/useSavedAddresses';
 import useSelectSavedAddress from '../../../../../general/hooks/useSelectSavedAddress';
-import AppSwitcherTopBar from '../../../../../general/components/appSwitch/AppSwitcherTopBar';
+// import AppSwitcherTopBar from '../../../../../general/components/appSwitch/AppSwitcherTopBar';
 import type { DeliveriesStackParamList } from '../../../navigation/types';
 import SingleVendorCategorySection from '../../components/HomeScreen/SingleVendorCategorySection';
 import SingleVendorDealsSection from '../../components/HomeScreen/SingleVendorDealsSection';
@@ -83,9 +83,9 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
-      <AppSwitcherTopBar activeKey="deliveries" />
+      {/* <AppSwitcherTopBar activeKey="deliveries" /> */}
       <MultiVendorAddressHeader
-        includeTopInset={false}
+        includeTopInset
         addresses={addresses}
         cartCount={cartCount?.totalItems}
         onAddAddressPress={handleOpenAddressSheet}

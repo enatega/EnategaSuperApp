@@ -49,8 +49,34 @@ export default function SharedNavigator() {
   >(null);
 
   useEffect(() => {
-    // Always land users on the shared Home screen on app start.
-    setInitialRouteName("Home");
+    let isMounted = true;
+
+    const resolveInitialRoute = async () => {
+      const token = await authSession.getAccessToken();
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (token) {
+        setInitialRouteName("Deliveries");
+        return;
+      }
+
+      await setPendingAppRoute("Deliveries");
+
+      if (!isMounted) {
+        return;
+      }
+
+      setInitialRouteName("Auth");
+    };
+
+    void resolveInitialRoute();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleSelectMiniApp = useCallback(
