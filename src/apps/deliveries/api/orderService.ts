@@ -61,6 +61,10 @@ export const orderService = {
         input,
         method: 'POST',
       });
+      console.log('[Deliveries][OrderService][PlaceOrder][ScheduleDiagnostics][Request]', {
+        orderType: input.orderType,
+        scheduledAt: input.scheduledAt ?? null,
+      });
     }
 
     const response = await apiClient.post<PlaceOrderResponse>(ORDERS_BASE, input);
@@ -69,6 +73,12 @@ export const orderService = {
       console.log('[Deliveries][OrderService][PlaceOrder][Response]', {
         api: CHECKOUT_PLACE_ORDER_PATH,
         response,
+      });
+      console.log('[Deliveries][OrderService][PlaceOrder][ScheduleDiagnostics][Response]', {
+        mode: response.mode,
+        orderType: 'orderType' in response ? response.orderType : null,
+        scheduledAt: 'scheduledAt' in response ? response.scheduledAt : null,
+        status: 'status' in response ? response.status : null,
       });
     }
 

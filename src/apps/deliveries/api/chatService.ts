@@ -25,6 +25,7 @@ export const chatService = {
     return apiClient.post<SendDeliveryChatMessageResponse>(
       `${DELIVERIES_CHAT_BASE}/send`,
       payload,
+      { skipSessionExpiryHandling: true },
     );
   },
 };

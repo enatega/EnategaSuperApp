@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -21,6 +21,7 @@ import useSelectSavedAddress from '../../../../general/hooks/useSelectSavedAddre
 import { useCart } from '../../hooks/useCart';
 import { useCheckoutPreview } from '../../hooks/useCheckoutPreview';
 import { useUseCouponMutation } from '../../hooks/useUseCouponMutation';
+import { useClaimedCouponsQuery } from '../../hooks/useClaimedCouponsQuery';
 import { claimedCouponsKeys } from '../../hooks/useClaimedCouponsQuery';
 import { formatCartPrice } from '../../components/cart/cartUtils';
 import { formatDeliveryAddressLabel } from '../../../../general/utils/address';
@@ -62,6 +63,7 @@ import {
 
 const DELIVERY_ROOT_ROUTES = ['SingleVendor', 'MultiVendor', 'Chain'] as const;
 const ENABLE_CHECKOUT_PAYMENT_DEBUG = true;
+const ENABLE_CHECKOUT_SCHEDULE_DEBUG = true;
 
 function getCheckoutRootRoute(
   navigation: NavigationProp<Record<string, object | undefined>>,
@@ -183,7 +185,9 @@ export default function CheckoutScreen() {
   const [selectedTip, setSelectedTip] = React.useState(0);
   const [customTipValue, setCustomTipValue] = React.useState('');
   const selectedCoupon = useCheckoutCouponStore((state) => state.selectedCoupon);
+  const setCheckoutCoupon = useCheckoutCouponStore((state) => state.setCoupon);
   const clearCheckoutCoupon = useCheckoutCouponStore((state) => state.clearCoupon);
+  const claimedCouponsQuery = useClaimedCouponsQuery(0, 50);
   const useCouponMutation = useUseCouponMutation();
   const savedCardsQuery = useWalletSavedCardsQuery('deliveries');
   const setDefaultCardMutation = useWalletSetDefaultCardMutation('deliveries');
@@ -252,6 +256,70 @@ export default function CheckoutScreen() {
       savedCardsCount: savedCardsQuery.data?.cards.length ?? 0,
     });
   }, [paymentMethod, savedCardsQuery.data?.cards, selectedStripeCardId]);
+
+  React.useEffect(() => {
+    if (!ENABLE_CHECKOUT_SCHEDULE_DEBUG) {
+      return;
+    }
+
+    console.log('[Checkout][Schedule][State]', {
+      deliveryTimeMode,
+      scheduledAt,
+      previewSchedule: preview?.schedule ?? null,
+      previewOrderType: preview?.fulfillment?.orderType ?? null,
+    });
+  }, [
+    deliveryTimeMode,
+    preview?.fulfillment?.orderType,
+    preview?.schedule,
+    scheduledAt,
+  ]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      void claimedCouponsQuery.refetch();
+      return undefined;
+    }, [claimedCouponsQuery]),
+  );
+
+  React.useEffect(() => {
+    if (!claimedCouponsQuery.data) {
+      return;
+    }
+
+    const activeCoupon = claimedCouponsQuery.data?.data.find(
+      (coupon) => coupon.is_active,
+    );
+
+    if (!activeCoupon) {
+      if (selectedCoupon) {
+        clearCheckoutCoupon();
+      }
+      return;
+    }
+
+    if (
+      selectedCoupon?.id === activeCoupon.id
+      && selectedCoupon.code === activeCoupon.code
+    ) {
+      return;
+    }
+
+    setCheckoutCoupon({
+      id: activeCoupon.id,
+      code: activeCoupon.code,
+      title: activeCoupon.name,
+      discountType: activeCoupon.discount_type,
+      discountValue: activeCoupon.discount_value,
+      maxDiscountCap: activeCoupon.max_discount_cap,
+      minOrderValue: activeCoupon.min_order_value,
+    });
+  }, [
+    claimedCouponsQuery.data?.data,
+    clearCheckoutCoupon,
+    selectedCoupon,
+    setCheckoutCoupon,
+  ]);
 
   const navigateToOrderTracking = React.useCallback((orderId: string) => {
     const rootRouteName = getCheckoutRootRoute(navigation);
@@ -469,6 +537,15 @@ export default function CheckoutScreen() {
       cancelUrl: paymentMethod === 'stripe' ? CHECKOUT_STRIPE_CANCEL_URL : undefined,
     };
 
+    if (ENABLE_CHECKOUT_SCHEDULE_DEBUG) {
+      console.log('[Checkout][Schedule][PlaceOrderPayloadCheck]', {
+        deliveryTimeMode,
+        scheduledAtState: scheduledAt,
+        payloadScheduledAt: payload.scheduledAt ?? null,
+        orderType: payload.orderType,
+      });
+    }
+
     if (ENABLE_CHECKOUT_PAYMENT_DEBUG) {
       console.log('[Checkout][Payment][PlaceOrderPayload]', {
         payload,
@@ -630,14 +707,33 @@ export default function CheckoutScreen() {
   }, [preview?.store?.stripeAllowed, t]);
 
   const handleScheduleConfirm = React.useCallback((nextScheduledAt: string) => {
+    if (ENABLE_CHECKOUT_SCHEDULE_DEBUG) {
+      console.log('[Checkout][Schedule][ConfirmAttempt]', {
+        nextScheduledAt,
+        nowIso: new Date().toISOString(),
+      });
+    }
+
     if (!isCheckoutScheduledAtInFuture(nextScheduledAt)) {
       showToast.info(t('checkout_schedule_slot_expired'));
+      if (ENABLE_CHECKOUT_SCHEDULE_DEBUG) {
+        console.log('[Checkout][Schedule][RejectedExpired]', {
+          nextScheduledAt,
+          nowIso: new Date().toISOString(),
+        });
+      }
       return;
     }
 
     setScheduledAt(nextScheduledAt);
     setDeliveryTimeMode('schedule');
     setIsScheduleScreenVisible(false);
+
+    if (ENABLE_CHECKOUT_SCHEDULE_DEBUG) {
+      console.log('[Checkout][Schedule][Confirmed]', {
+        nextScheduledAt,
+      });
+    }
   }, [t]);
 
   const handleMessagePress = React.useCallback((target: CheckoutMessageTarget) => {

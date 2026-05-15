@@ -73,11 +73,50 @@ function formatScheduleSlotLabel(slot: CheckoutScheduleApiSlot) {
   return `${slot.start} - ${slot.end}`;
 }
 
+function parseScheduleTime(timeString: string) {
+  const normalizedValue = timeString.trim().toLowerCase();
+  const match = normalizedValue.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(am|pm)?$/i);
+
+  if (!match) {
+    return null;
+  }
+
+  const rawHours = Number(match[1]);
+  const minutes = Number(match[2]);
+  const meridiem = match[3];
+
+  if (Number.isNaN(rawHours) || Number.isNaN(minutes) || minutes < 0 || minutes > 59) {
+    return null;
+  }
+
+  let hours = rawHours;
+
+  if (meridiem) {
+    if (hours < 1 || hours > 12) {
+      return null;
+    }
+
+    if (meridiem === 'pm' && hours < 12) {
+      hours += 12;
+    }
+
+    if (meridiem === 'am' && hours === 12) {
+      hours = 0;
+    }
+  } else if (hours < 0 || hours > 23) {
+    return null;
+  }
+
+  return { hours, minutes };
+}
+
 function buildScheduledAt(dateString: string, timeString: string) {
   const [year, month, day] = dateString.split('-').map(Number);
-  const [hours, minutes] = timeString.split(':').map(Number);
+  const parsedTime = parseScheduleTime(timeString);
+  const hours = parsedTime?.hours;
+  const minutes = parsedTime?.minutes;
 
-  if (!year || !month || !day || Number.isNaN(hours) || Number.isNaN(minutes)) {
+  if (!year || !month || !day || typeof hours !== 'number' || typeof minutes !== 'number') {
     return dateString;
   }
 
@@ -105,12 +144,20 @@ export function buildCheckoutScheduleDayOptions(
     return [] satisfies CheckoutScheduleDayOption[];
   }
 
-  return response.days.map((day) => ({
-    key: day.date,
-    label: formatScheduleDayLabel(day, labels),
-    hasSlots: day.hasSlots,
-    isActive: day.isActive,
-  })) satisfies CheckoutScheduleDayOption[];
+  return response.days.map((day) => {
+    const hasFutureSlots = day.slots
+      .filter((slot) => slot.isAvailable !== false)
+      .some((slot) => isCheckoutScheduledAtInFuture(buildScheduledAt(day.date, slot.start)));
+
+    return {
+      key: day.date,
+      label: formatScheduleDayLabel(day, labels),
+      // Some backends may not hydrate `day.slots` for every day consistently.
+      // Keep API `hasSlots` as a fallback so tabs remain selectable.
+      hasSlots: day.hasSlots || hasFutureSlots,
+      isActive: day.isActive,
+    };
+  }) satisfies CheckoutScheduleDayOption[];
 }
 
 export function buildCheckoutScheduleSlots(
