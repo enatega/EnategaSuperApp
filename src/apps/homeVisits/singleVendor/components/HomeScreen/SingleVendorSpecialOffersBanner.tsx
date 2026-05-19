@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
-import BannerSwiper from '../../../../../general/components/BannerSwiper';
-import Image from '../../../../../general/components/Image';
-import Skeleton from '../../../../../general/components/Skeleton';
-import useSingleVendorBanners from '../../hooks/useSingleVendorBanners';
-import Text from '../../../../../general/components/Text';
-import { useTheme } from '../../../../../general/theme/theme';
-import { homePatterns } from '../../../../../general/assets/images';
+import React, { useState } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
+import BannerSwiper from "../../../../../general/components/BannerSwiper";
+import Image from "../../../../../general/components/Image";
+import Skeleton from "../../../../../general/components/Skeleton";
+import useSingleVendorBanners from "../../hooks/useSingleVendorBanners";
+import Text from "../../../../../general/components/Text";
+import { useTheme } from "../../../../../general/theme/theme";
+import { homePatterns } from "../../../../../general/assets/images";
 
 export default function SingleVendorSpecialOffersBanner() {
   const { colors, typography } = useTheme();
@@ -21,7 +21,7 @@ export default function SingleVendorSpecialOffersBanner() {
 
   if (isPending) {
     return (
-      <View style={styles.wrapper}>
+      <View style={styles.skeletonWrapper}>
         <Skeleton borderRadius={18} height={206} width="100%">
           <View style={styles.skeletonContent}>
             <Skeleton borderRadius={6} height={14} width={140} />
@@ -39,7 +39,9 @@ export default function SingleVendorSpecialOffersBanner() {
   }
 
   return (
-    <View style={[styles.wrapper, { width: bannerWidth + bannerSidePadding * 2 }]}>
+    <View
+      style={[styles.wrapper, { width: bannerWidth + bannerSidePadding * 2 }]}
+    >
       <BannerSwiper
         data={banners}
         onIndexChange={setBannerIndex}
@@ -48,9 +50,9 @@ export default function SingleVendorSpecialOffersBanner() {
             item.bannerImageLink?.trim() ??
             item.store?.coverImage?.trim() ??
             item.store?.storeImage?.trim() ??
-            '';
-          const storeAddress = item.store?.address?.trim() ?? '';
-          const description = item.description?.trim() ?? '';
+            "";
+          const storeAddress = item.store?.address?.trim() ?? "";
+          const description = item.description?.trim() ?? "";
 
           return (
             <View
@@ -75,7 +77,7 @@ export default function SingleVendorSpecialOffersBanner() {
 
               <View style={styles.bannerCard}>
                 <LinearGradient
-                  colors={['rgba(0, 0, 0, 0.08)', 'rgba(0, 0, 0, 0.72)']}
+                  colors={["rgba(0, 0, 0, 0.08)", "rgba(0, 0, 0, 0.72)"]}
                   end={{ x: 0.9, y: 1 }}
                   start={{ x: 0.2, y: 0 }}
                   style={styles.overlay}
@@ -152,23 +154,28 @@ export default function SingleVendorSpecialOffersBanner() {
 
 const styles = StyleSheet.create({
   wrapper: {
-    alignSelf: 'center',
+    alignSelf: "center",
   },
+  skeletonWrapper: {
+    // alignSelf: 'center',
+    paddingHorizontal: 18,
+  },
+
   skeletonContent: {
     gap: 12,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
     paddingHorizontal: 18,
     paddingVertical: 20,
   },
   card: {
-    alignSelf: 'stretch',
+    alignSelf: "stretch",
     borderRadius: 18,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   media: {
     ...StyleSheet.absoluteFillObject,
-    height: '100%',
-    width: '100%',
+    height: "100%",
+    width: "100%",
   },
   fallbackMedia: {
     opacity: 0.55,
@@ -176,8 +183,8 @@ const styles = StyleSheet.create({
   bannerCard: {
     borderRadius: 18,
     height: 160,
-    justifyContent: 'flex-end',
-    overflow: 'hidden',
+    justifyContent: "flex-end",
+    overflow: "hidden",
     paddingHorizontal: 18,
     paddingVertical: 20,
   },
@@ -189,9 +196,9 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   bannerDots: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 4,
-    justifyContent: 'center',
+    justifyContent: "center",
     marginTop: 10,
   },
   bannerDot: {
