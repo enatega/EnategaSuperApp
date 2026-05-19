@@ -8,6 +8,7 @@ import CancelAppointmentScreen from '../screens/CancelAppointmentScreen';
 import ServiceDetails from '../../screens/ServiceDetails/ServiceDetails';
 import ServiceDetailsBooking from '../../screens/ServiceDetails/ServiceDetailsBooking';
 import TeamAndSchedule from '../../screens/TeamAndSchedule/TeamAndSchedule';
+import ChooseDateAndTime from '../../screens/TeamAndSchedule/ChooseDateAndTime';
 import ReviewAndConfirm from '../../screens/ReviewAndConfirm/ReviewAndConfirm';
 import SingleVendorBottomTabNavigator from './SingleVendorBottomTabNavigator';
 import type { HomeVisitsSingleVendorNavigationParamList } from './types';
@@ -89,6 +90,11 @@ export default function SingleVendorNavigator() {
       <Stack.Screen
         name="TeamAndSchedule"
         component={TeamAndSchedule}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="ChooseDateAndTime"
+        component={ChooseDateAndTime}
         options={sharedScreenOptions}
       />
       <Stack.Screen
