@@ -755,12 +755,17 @@ export const discoveryService = {
         storeId: string,
     ): Promise<DeliveryStoreViewApiResponse> => {
         try {
+            console.log('[deliveries][getStoreView] request', { storeId });
             const response = await apiClient.get<DeliveryStoreViewApiResponse>(
                 `/api/v1/apps/deliveries/stores/${storeId}/view`,
             );
+            console.log('[deliveries][getStoreView] response', {
+                storeId,
+                response,
+            });
             return response;
         } catch (error) {
-            console.error('store view request failed', error);
+            console.error('store view request failed', { storeId, error });
             throw error;
         }
     },
@@ -779,7 +784,15 @@ export const discoveryService = {
         } = params;
 
         try {
-            return await apiClient.get<DeliveryStoreProductsApiResponse>(
+            console.log('[deliveries][getStoreProducts] request', {
+                storeId,
+                offset,
+                limit,
+                search,
+                selectedCategoryId,
+                selectedSubcategoryId,
+            });
+            const response = await apiClient.get<DeliveryStoreProductsApiResponse>(
                 `/api/v1/apps/deliveries/stores/${storeId}/view/products`,
                 {
                     offset,
@@ -789,8 +802,23 @@ export const discoveryService = {
                     subcategoryId: selectedSubcategoryId,
                 },
             );
+            console.log('[deliveries][getStoreProducts] response', {
+                storeId,
+                offset,
+                limit,
+                response,
+            });
+            return response;
         } catch (error) {
-            console.error('store products request failed', error);
+            console.error('store products request failed', {
+                storeId,
+                offset,
+                limit,
+                search,
+                selectedCategoryId,
+                selectedSubcategoryId,
+                error,
+            });
             throw error;
         }
     },

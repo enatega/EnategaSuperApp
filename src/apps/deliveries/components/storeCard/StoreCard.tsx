@@ -26,6 +26,8 @@ export interface StoreCardProps {
   actionSlot?: React.ReactNode;
   layout?: "compact" | "fullWidth";
   onPress?: () => void;
+  showClosedOverlay?: boolean;
+  onClosedPress?: () => void;
 }
 
 type NavigationProp = NativeStackNavigationProp<DeliveriesStoreDetailsParamList>;
@@ -62,6 +64,8 @@ export default function StoreCard({
   actionSlot,
   layout = "compact",
   onPress,
+  showClosedOverlay = false,
+  onClosedPress,
 }: StoreCardProps) {
   const { colors } = useTheme();
   const { t } = useTranslations("deliveries")
@@ -92,8 +96,15 @@ export default function StoreCard({
     ? store.deliveryTime ?? ""
     : store.deliveryTime ?? 0;
   const resolvedDistance = store.distanceKm ?? 0;
+  const isClosedStore =
+    !isProductItem && showClosedOverlay && store.isAvailable === false;
 
   const handlePress = useCallback(() => {
+    if (isClosedStore) {
+      onClosedPress?.();
+      return;
+    }
+
     if (onPress) {
       onPress();
       return;
@@ -104,7 +115,7 @@ export default function StoreCard({
     }
 
     navigation.navigate("StoreDetails", { store });
-  }, [navigation, onPress, store]);
+  }, [isClosedStore, navigation, onClosedPress, onPress, store]);
 
   return (
     <TouchableOpacity
@@ -121,7 +132,13 @@ export default function StoreCard({
       activeOpacity={isPressable ? 0.7 : 1}
       onPress={handlePress}
     >
-      <StoreImage imageUrl={resolvedImageUrl} offer={resolvedOffer} actionSlot={actionSlot} />
+      <StoreImage
+        actionSlot={actionSlot}
+        closedLabel={t("store_status_closed")}
+        imageUrl={resolvedImageUrl}
+        isClosed={isClosedStore}
+        offer={resolvedOffer}
+      />
 
       <View style={styles.content}>
         <StoreInfo name={resolvedName} />

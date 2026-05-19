@@ -15,6 +15,7 @@ import type {
 } from '../../../api/types';
 import ListStateView from '../../../../../general/components/filterablePaginatedList/ListStateView';
 import ProductCard from '../../../components/productCard/ProductCard';
+import type { ProductCardActionOverrides } from '../../../components/productCard/types';
 import {
   buildStoreDetailCategoryIds,
   getStoreDetailCategoryIdAtPageIndex,
@@ -49,6 +50,7 @@ type Props = {
   onCategorySelect: (categoryId: string | null) => void;
   onRetry?: () => void;
   products: DeliveryStoreDetailsProduct[];
+  productAction?: ProductCardActionOverrides;
   shouldShowProductSkeletons: boolean;
   storeId?: string | null;
 };
@@ -72,6 +74,7 @@ export default function StoreDetailProductsList({
   onCategorySelect,
   onRetry,
   products,
+  productAction,
   shouldShowProductSkeletons,
   storeId,
 }: Props) {
@@ -221,6 +224,7 @@ export default function StoreDetailProductsList({
                       <ProductCard
                         product={item}
                         key={item.id}
+                        productAction={productAction}
                         storeId={storeId}
                         variant="storeMenu"
                       />

@@ -19,6 +19,11 @@ type ShopTypeListItem = {
   name?: string;
 };
 
+type RenderStoreCardOptions = {
+  showClosedOverlay?: boolean;
+  onClosedPress?: (store: DeliveryNearbyStore) => void;
+};
+
 function isShopTypeProductItem(item: unknown): item is DeliveryShopTypeProduct {
   return (
     typeof item === 'object' &&
@@ -34,13 +39,25 @@ export function renderSeeAllItemCard(
   onPress?: () => void,
   cardVariant?: ProductCardVariant,
   isRailProductCardFullWidth?: boolean,
+  storeCardOptions?: RenderStoreCardOptions,
 ) {
   if (cardType === 'store') {
     if (isShopTypeProductItem(item)) {
       return <ProductCard product={item} variant="rail" onPress={onPress} />;
     }
 
-    return <StoreCard layout="fullWidth" store={item as DeliveryNearbyStore} />;
+    const storeItem = item as DeliveryNearbyStore;
+    const isClosedStore = storeCardOptions?.showClosedOverlay && storeItem.isAvailable === false;
+    return (
+      <StoreCard
+        layout="fullWidth"
+        store={storeItem}
+        showClosedOverlay={isClosedStore}
+        onClosedPress={isClosedStore
+          ? () => storeCardOptions?.onClosedPress?.(storeItem)
+          : undefined}
+      />
+    );
   }
 
   if (cardType === 'top-brand') {
