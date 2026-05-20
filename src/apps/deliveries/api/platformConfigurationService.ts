@@ -15,7 +15,18 @@ export const platformConfigurationService = {
     ),
 
   getCurrencies: async (): Promise<AppCurrency[]> => {
-    const response = await apiClient.get<AppCurrency[]>(DELIVERIES_CURRENCY_PATH);
-    return Array.isArray(response) ? response : [];
+    const response = await apiClient.get<AppCurrency[] | AppCurrency>(
+      DELIVERIES_CURRENCY_PATH,
+    );
+
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    if (response && typeof response === 'object') {
+      return [response];
+    }
+
+    return [];
   },
 };

@@ -10,6 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Button from '../../../../general/components/Button';
 import { showToast } from '../../../../general/components/AppToast';
@@ -44,6 +45,7 @@ function toDayMonthYear(dateIso: string) {
 export default function CouponsScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
+  const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const [code, setCode] = useState('');
   const [hasClaimSuccessState, setHasClaimSuccessState] = useState(false);
@@ -362,7 +364,15 @@ export default function CouponsScreen() {
               </View>
             )}
           />
-          <View style={[styles.bottomBar, { backgroundColor: colors.background }]}>
+          <View
+            style={[
+              styles.bottomBar,
+              {
+                backgroundColor: colors.background,
+                paddingBottom: Math.max(insets.bottom, 12),
+              },
+            ]}
+          >
             <Button
               label={t('coupon_claim')}
               style={styles.submitButton}
@@ -383,7 +393,7 @@ const styles = StyleSheet.create({
   bottomBar: {
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 24,
+    paddingBottom: 12,
   },
   container: {
     flex: 1,

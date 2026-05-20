@@ -10,14 +10,34 @@ interface StoreImageProps {
   imageUrl: string;
   offer?: string | number | undefined;
   actionSlot?: React.ReactNode;
+  isClosed?: boolean;
+  closedLabel?: string;
 }
 
-export default function StoreImage({ imageUrl, offer, actionSlot }: StoreImageProps) {
+export default function StoreImage({
+  imageUrl,
+  offer,
+  actionSlot,
+  isClosed = false,
+  closedLabel,
+}: StoreImageProps) {
   const { colors } = useTheme();
 
   return (
     <View style={styles.imageContainer}>
       <Image source={{ uri: imageUrl }} style={styles.image} />
+
+      {isClosed ? (
+        <View style={styles.closedOverlay}>
+          <Text
+            variant="caption"
+            weight="bold"
+            style={[styles.closedLabel, { color: colors.white }]}
+          >
+            {closedLabel}
+          </Text>
+        </View>
+      ) : null}
 
       {offer && (
         <View style={[styles.offerBadge, { backgroundColor: colors.primary }]}>
