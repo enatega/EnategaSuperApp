@@ -63,6 +63,7 @@ export default function NearbyStoreList(props: Props) {
   });
   const [selectedClosedStore, setSelectedClosedStore] = useState<DeliveryNearbyStore | null>(null);
   const isEmpty = !isNearbyStoresPending && nearbyStoresData.length === 0;
+  const shouldShowSeeAll = !isNearbyStoresPending && nearbyStoresData.length > 0;
   const closedStoreTypeName = useMemo(
     () => selectedClosedStore?.shopTypeName?.trim() || t('store_details_closed_store_fallback_name'),
     [selectedClosedStore?.shopTypeName, t],
@@ -87,7 +88,7 @@ export default function NearbyStoreList(props: Props) {
   return (
     <View style={styles.section}>
       <SectionActionHeader
-        actionLabel={isEmpty ? undefined : t('multi_vendor_see_all')}
+        actionLabel={shouldShowSeeAll ? t('multi_vendor_see_all') : undefined}
         title={t('multi_vendor_nearby_store_title')}
         onActionPress={handleSeeAllNearbyRestaurants}
       />

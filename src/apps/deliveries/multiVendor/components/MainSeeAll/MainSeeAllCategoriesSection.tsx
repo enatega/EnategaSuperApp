@@ -36,12 +36,13 @@ export default function MainSeeAllCategoriesSection({
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const isEmpty = !isPending && !isError && categories.length === 0;
+  const shouldShowSeeAll = !isPending && !isError && categories.length > 0;
 
   return (
     <View style={styles.section}>
       <SectionActionHeader
         title={sectionTitle}
-        actionLabel={isEmpty ? undefined : actionLabel}
+        actionLabel={shouldShowSeeAll ? actionLabel : undefined}
         onActionPress={onSeeAllPress}
       />
 
