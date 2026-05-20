@@ -11,14 +11,11 @@ import Text from '../../../general/components/Text';
 import { useTheme } from '../../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RideIntent } from '../utils/rideOptions';
-import type { SharedStackParamList } from '../../../general/navigation/navigationTypes';
 import { authSession } from '../../../general/auth/authSession';
 import { setActiveAppRoute, setPendingAppRoute } from '../../../general/navigation/pendingAppRedirect';
 import { resetToSharedRoute } from '../../../general/navigation/rootNavigation';
 import { MINI_APPS, type MiniAppId } from '../../registry/generated/appI18nRegistry';
-import { APP_ROUTE_BY_ID, type SharedAppRouteName } from '../../registry/generated/appRegistry';
 import CarIcon from '../assets/images/carIcon.png';
 import CalendarIcon from '../assets/images/calendarIcon.png';
 import ClockIcon from '../assets/images/hourlyIcon.png';
@@ -38,6 +35,8 @@ type Props = {
   onSelectRideOption?: (rideIntent: RideIntent) => void;
 };
 
+type SharedMiniAppRouteName = 'RideSharing' | 'Deliveries' | 'HomeVisits';
+
 type ServiceCardId = 'ride' | 'deliveries' | 'courier' | 'homeVisits';
 type ServiceCard = {
   id: ServiceCardId;
@@ -52,7 +51,7 @@ const SERVICE_CARD_ICON_SIZE = 80;
 export default function RideOptionsSection({ onSelectRideOption }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('rideSharing');
-  const navigation = useNavigation<NativeStackNavigationProp<SharedStackParamList>>();
+  const navigation = useNavigation();
 
   const items: RideOption[] = [
     {
@@ -78,8 +77,8 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
   ];
 
   async function handleSelectMiniApp(
-    routeName: SharedAppRouteName,
-    params?: SharedStackParamList[SharedAppRouteName],
+    routeName: SharedMiniAppRouteName,
+    params?: Record<string, unknown>,
   ) {
     const token = await authSession.getAccessToken();
 
@@ -120,10 +119,7 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
     }
 
     if (cardId === 'homeVisits') {
-      const routeName = APP_ROUTE_BY_ID.homeVisits;
-      if (routeName) {
-        void handleSelectMiniApp(routeName);
-      }
+      void handleSelectMiniApp('HomeVisits');
       return;
     }
 
