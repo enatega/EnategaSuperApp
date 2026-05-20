@@ -60,7 +60,7 @@ export default function Deals({
   const navigation = useNavigation<NavigationProp>();
   const [selectedClosedStore, setSelectedClosedStore] = useState<DeliveryNearbyStore | null>(null);
   const isEmpty = !isPending && !isError && items.length === 0;
-  const shouldShowAction = Boolean(actionLabel) && !isEmpty;
+  const shouldShowAction = Boolean(actionLabel) && !isPending && !isError && items.length > 0;
   const closedStoreTypeName = useMemo(
     () => selectedClosedStore?.shopTypeName?.trim() || t('store_details_closed_store_fallback_name'),
     [selectedClosedStore?.shopTypeName, t],
