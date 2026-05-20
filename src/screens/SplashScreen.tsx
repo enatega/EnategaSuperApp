@@ -1,55 +1,61 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import Text from '../general/components/Text';
-import { useTheme } from '../general/theme/theme';
-import { useTranslation } from 'react-i18next';
+import React, { useEffect, useRef } from 'react';
+import { Animated, Easing, Image, StyleSheet, View } from 'react-native';
 
 type Props = {
   onFinish?: () => void;
 };
 
 export default function SplashScreen({ onFinish }: Props) {
-  const { colors, typography } = useTheme();
-  const { t } = useTranslation('general');
-  const [progress, setProgress] = useState(1);
-  const durationMs = 1200;
-  const intervalMs = useMemo(() => Math.max(10, Math.floor(durationMs / 100)), [durationMs]);
+  const redOverlayOpacity = useRef(new Animated.Value(1)).current;
+  const totalDurationMs = 1400;
+  const redToWhiteDelayMs = 450;
+  const redToWhiteDurationMs = 650;
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((value) => (value >= 100 ? 100 : value + 1));
-    }, intervalMs);
+    const animation = Animated.sequence([
+      Animated.delay(redToWhiteDelayMs),
+      Animated.timing(redOverlayOpacity, {
+        toValue: 0,
+        duration: redToWhiteDurationMs,
+        easing: Easing.inOut(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]);
 
     const timer = setTimeout(() => {
       onFinish?.();
-    }, durationMs);
+    }, totalDurationMs);
+
+    animation.start();
 
     return () => {
-      clearInterval(interval);
+      animation.stop();
       clearTimeout(timer);
     };
-  }, [durationMs, intervalMs, onFinish]);
+  }, [
+    onFinish,
+    redOverlayOpacity,
+    redToWhiteDelayMs,
+    redToWhiteDurationMs,
+    totalDurationMs,
+  ]);
 
   return (
-    <LinearGradient
-      colors={[colors.splashGradientStart, colors.splashGradientEnd]}
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
-      style={styles.container}
-    >
-      
-      <View style={styles.loader}>
-        <View style={[styles.progressCircle, { borderColor: colors.white }]}>
-          <Text variant="caption" color={colors.white}>
-            {t('splash_progress', { value: progress })}
-          </Text>
-        </View>
-        <Text variant="caption" color={colors.white} style={styles.loadingText}>
-          {t('loading')}
-        </Text>
+    <View style={styles.container}>
+      <View style={styles.whiteLayer} />
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.redLayer, { opacity: redOverlayOpacity }]}
+      />
+
+      <View style={styles.centerContent}>
+        <Image
+          source={require('../../assets/splash-icon.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -59,29 +65,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  centerBlock: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  whiteLayer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#FFFFFF',
   },
-  title: {
-    letterSpacing: 0,
-    fontFamily: 'Figma Hand',
+  redLayer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#D7262E',
   },
-  loader: {
-    alignItems: 'center',
-    gap: 8,
-    paddingBottom: 48,
-  },
-  progressCircle: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    borderWidth: 2,
+  centerContent: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  loadingText: {
-    opacity: 0.9,
+  logo: {
+    width: 180,
+    height: 180,
   },
 });
