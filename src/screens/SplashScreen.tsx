@@ -50,7 +50,7 @@ export default function SplashScreen({ onFinish }: Props) {
 
       <View style={styles.centerContent}>
         <Image
-          source={require('../../assets/splash-icon.png')}
+          source={require('../../assets/splash.png')}
           style={styles.logo}
           resizeMode="contain"
         />
