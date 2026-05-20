@@ -9,7 +9,8 @@ const resolvedEnv = envOverride ?? DEFAULT_ENV;
 const resolvedBaseUrl = baseUrlOverride;
 
 function normalizeBaseUrl(url: string): string {
-  return url.endsWith('/') ? url.slice(0, -1) : url;
+  const trimmed = url.endsWith('/') ? url.slice(0, -1) : url;
+  return trimmed.endsWith('/api/v1') ? trimmed.slice(0, -7) : trimmed;
 }
 
 if (!resolvedBaseUrl) {
