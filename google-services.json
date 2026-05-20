@@ -1,223 +1,26 @@
 {
   "project_info": {
-    "project_number": "175533620333",
-    "project_id": "shaaneiol-79fec",
-    "storage_bucket": "shaaneiol-79fec.firebasestorage.app"
+    "project_number": "106664078788",
+    "project_id": "shaaneiol-af31b",
+    "storage_bucket": "shaaneiol-af31b.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:175533620333:android:f5b1caf3091b6408319364",
+        "mobilesdk_app_id": "1:106664078788:android:dac9e420ea09b54d248891",
         "android_client_info": {
           "package_name": "com.shaaneiol.app"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "175533620333-qtn0d1ur1egsfa4mo9kfa22p2qrsm2gn.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyD3Dl8u4gYBAMHosHnCdN5W2vT27xM-VG0"
+          "current_key": "AIzaSyCuUgGFFxMde_q5cwFIvico32Qx6c1880E"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "175533620333-qtn0d1ur1egsfa4mo9kfa22p2qrsm2gn.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "175533620333-pau91p6opvlt9q54r3ecml42ev13coh7.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.shaaneiol.app"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:175533620333:android:6794f26068b7d48a319364",
-        "android_client_info": {
-          "package_name": "com.shaaneiol.rider"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "175533620333-qtn0d1ur1egsfa4mo9kfa22p2qrsm2gn.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyD3Dl8u4gYBAMHosHnCdN5W2vT27xM-VG0"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "175533620333-qtn0d1ur1egsfa4mo9kfa22p2qrsm2gn.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "175533620333-pau91p6opvlt9q54r3ecml42ev13coh7.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.shaaneiol.app"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:175533620333:android:952517c41be06e06319364",
-        "android_client_info": {
-          "package_name": "com.shaaneiol.store"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "175533620333-qtn0d1ur1egsfa4mo9kfa22p2qrsm2gn.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyD3Dl8u4gYBAMHosHnCdN5W2vT27xM-VG0"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "175533620333-qtn0d1ur1egsfa4mo9kfa22p2qrsm2gn.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "175533620333-pau91p6opvlt9q54r3ecml42ev13coh7.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.shaaneiol.app"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:175533620333:android:854e42a8af507aea319364",
-        "android_client_info": {
-          "package_name": "com.shaaneiolandroid.app"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "175533620333-qtn0d1ur1egsfa4mo9kfa22p2qrsm2gn.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyD3Dl8u4gYBAMHosHnCdN5W2vT27xM-VG0"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "175533620333-qtn0d1ur1egsfa4mo9kfa22p2qrsm2gn.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "175533620333-pau91p6opvlt9q54r3ecml42ev13coh7.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.shaaneiol.app"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:175533620333:android:d2caf1985aca051e319364",
-        "android_client_info": {
-          "package_name": "com.shaaneiolandroid.rider"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "175533620333-qtn0d1ur1egsfa4mo9kfa22p2qrsm2gn.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyD3Dl8u4gYBAMHosHnCdN5W2vT27xM-VG0"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "175533620333-qtn0d1ur1egsfa4mo9kfa22p2qrsm2gn.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "175533620333-pau91p6opvlt9q54r3ecml42ev13coh7.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.shaaneiol.app"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:175533620333:android:5d84dd47bb5b4e21319364",
-        "android_client_info": {
-          "package_name": "com.shaaneiolandroid.store"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "175533620333-qtn0d1ur1egsfa4mo9kfa22p2qrsm2gn.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyD3Dl8u4gYBAMHosHnCdN5W2vT27xM-VG0"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "175533620333-qtn0d1ur1egsfa4mo9kfa22p2qrsm2gn.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "175533620333-pau91p6opvlt9q54r3ecml42ev13coh7.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.shaaneiol.app"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }
