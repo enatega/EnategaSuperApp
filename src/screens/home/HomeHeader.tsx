@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dimensions, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Dimensions, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Text from '../../general/components/Text';
 import BannerSwiper from '../../general/components/BannerSwiper';
@@ -8,6 +8,9 @@ import { useTheme } from '../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { homePatterns } from '../../general/assets/images';
+import RideIcon from '../../apps/rideSharing/assets/images/rideIcon.png';
+import DeliveriesIcon from '../../apps/rideSharing/assets/images/deliveriesIcon.png';
+import CourierIcon from '../../apps/rideSharing/assets/images/courierHomeIcon.png';
 
 type BannerItem = {
   id: string;
@@ -20,17 +23,23 @@ type BannerItem = {
 
 type Props = {
   backgroundVariant?: 'gradient' | 'solid';
+  onSelectTopTab?: (tabId: 'ride' | 'deliveries' | 'courier') => void;
 };
 
-export default function HomeHeader({ backgroundVariant = 'gradient' }: Props) {
+export default function HomeHeader({ backgroundVariant = 'gradient', onSelectTopTab }: Props) {
   const { colors, typography } = useTheme();
-  const { t } = useTranslation('general');
+  const { t } = useTranslation(['general', 'rideSharing']);
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
  
   const bannerSidePadding = 16;
   const bannerWidth = width - bannerSidePadding * 2;
   const [bannerIndex, setBannerIndex] = useState(0);
+  const topTabs = [
+    { id: 'ride' as const, label: t('ride_option_now_title', { ns: 'rideSharing' }), icon: RideIcon },
+    { id: 'deliveries' as const, label: t('ride_home_service_deliveries_title', { ns: 'rideSharing' }), icon: DeliveriesIcon },
+    { id: 'courier' as const, label: t('ride_option_courier_title', { ns: 'rideSharing' }), icon: CourierIcon },
+  ];
   const items: BannerItem[] = [
     {
       id: 'banner-1',
@@ -49,9 +58,15 @@ export default function HomeHeader({ backgroundVariant = 'gradient' }: Props) {
       percent: t('special_percent'),
     },
   ];
+  const currentHour = new Date().getHours();
+  const greetingKey = currentHour < 12
+    ? 'greeting_morning'
+    : currentHour < 18
+      ? 'greeting_afternoon'
+      : 'greeting_evening';
 
   return (
-    <View style={[styles.root, { paddingTop:  insets.top + 12 }]}>
+    <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
       <View style={styles.heroBackground}>
         <Image
           source={homePatterns.header}
@@ -65,7 +80,7 @@ export default function HomeHeader({ backgroundVariant = 'gradient' }: Props) {
           weight="semiBold"
           style={{ fontSize: typography.size.sm2, lineHeight: typography.lineHeight.sm2 }}
         >
-          {t('greeting')}
+          {t(greetingKey)}
         </Text>
         <Text
           weight="semiBold"
@@ -73,6 +88,30 @@ export default function HomeHeader({ backgroundVariant = 'gradient' }: Props) {
         >
           {t('home_question')}
         </Text>
+
+        <View style={[styles.topTabRow, { backgroundColor: colors.white }]}>
+          {topTabs.map((tab) => {
+            return (
+              <Pressable
+                key={tab.id}
+                style={styles.topTabButton}
+                onPress={() => onSelectTopTab?.(tab.id)}
+              >
+                <Image source={tab.icon} style={styles.topTabIcon} resizeMode="contain" />
+                <Text
+                  weight="medium"
+                  style={{
+                    fontSize: typography.size.sm2,
+                    lineHeight: typography.lineHeight.sm2,
+                    color: colors.text,
+                  }}
+                >
+                  {tab.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
 
       <View style={[styles.bannerWrapper, { width: bannerWidth + bannerSidePadding * 2 }]}>
@@ -93,7 +132,7 @@ export default function HomeHeader({ backgroundVariant = 'gradient' }: Props) {
                   resizeMode="stretch"
                   pointerEvents="none"
                 />
-               
+
                 <View style={styles.bannerContent}>
                   <Text
                     weight="semiBold"
@@ -180,6 +219,29 @@ const styles = StyleSheet.create({
   heroContent: {
     gap: 4,
   },
+  topTabRow: {
+    marginTop: 12,
+    borderRadius: 20,
+    padding: 0,
+    flexDirection: 'row',
+    gap: 6,
+  },
+  topTabButton: {
+    flex: 1,
+    minHeight: 46,
+    borderRadius: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingHorizontal: 8,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  topTabIcon: {
+    width: 28,
+    height: 28,
+  },
   bannerWrapper: {
     alignSelf: 'center',
   },
@@ -210,7 +272,7 @@ const styles = StyleSheet.create({
   },
   bannerDescription: {
     gap: 0,
-    marginTop:10
+    marginTop: 10
 
   },
   bannerDots: {

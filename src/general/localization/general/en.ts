@@ -1,6 +1,9 @@
 const en = {
   app_name: 'Super Customer App',
   greeting: 'Good Morning 👋',
+  greeting_morning: 'Good Morning 👋',
+  greeting_afternoon: 'Good Afternoon 👋',
+  greeting_evening: 'Good Evening 👋',
   home_question: 'What are you looking for Today?',
   home_title: 'Home',
   home_subtitle: 'How can I help you today?',

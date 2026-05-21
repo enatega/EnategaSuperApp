@@ -167,7 +167,7 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
 
   return (
     <View style={styles.section}>
-      <FlatList
+      {/* <FlatList
         data={serviceCards}
         horizontal
         keyExtractor={(item) => item.id}
@@ -187,7 +187,7 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
             </Text>
           </Pressable>
         )}
-      />
+      /> */}
 
       <Text
         weight="extraBold"

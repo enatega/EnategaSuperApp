@@ -135,13 +135,27 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
     handleSelectRideOption('now');
   }
 
+  function handleSelectHeaderTab(tabId: 'ride' | 'deliveries' | 'courier') {
+    if (tabId === 'deliveries') {
+      onSelectMiniApp?.('deliveries');
+      return;
+    }
+
+    onSelectMiniApp?.('rideSharing', {
+      screen: 'RideSharingHome',
+      params: {
+        rideType: tabId === 'courier' ? 'courier' : 'now',
+      },
+    });
+  }
+
   const RideOptionsSection = HOME_WIDGETS.rideOptions;
   const DeliveryServicesSection = HOME_WIDGETS.deliveryServices;
   const RecommendedStoresSection = HOME_WIDGETS.recommendedStores;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <HomeHeader backgroundVariant="solid" />
+      <HomeHeader backgroundVariant="solid" onSelectTopTab={handleSelectHeaderTab} />
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {RideOptionsSection ? (

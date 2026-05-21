@@ -1,6 +1,9 @@
 const fr = {
   app_name: 'Application Super Client',
   greeting: 'Bonjour 👋',
+  greeting_morning: 'Bonjour 👋',
+  greeting_afternoon: 'Bon après-midi 👋',
+  greeting_evening: 'Bonsoir 👋',
   home_question: 'Que recherchez-vous aujourd’hui ?',
   home_title: 'Accueil',
   home_subtitle: 'Comment puis-je vous aider aujourd\'hui ?',
