@@ -1,87 +1,65 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import Text from '../general/components/Text';
+import { VideoView, useVideoPlayer } from 'expo-video';
 import { useTheme } from '../general/theme/theme';
-import { useTranslation } from 'react-i18next';
 
 type Props = {
   onFinish?: () => void;
 };
 
-export default function SplashScreen({ onFinish }: Props) {
-  const { colors, typography } = useTheme();
-  const { t } = useTranslation('general');
-  const [progress, setProgress] = useState(1);
-  const durationMs = 1200;
-  const intervalMs = useMemo(() => Math.max(10, Math.floor(durationMs / 100)), [durationMs]);
+const splashVideoSource = require('../../assets/mobileSplash.mp4');
+const splashFallbackDurationMs = 3500;
+
+export function SplashScreen({ onFinish }: Props) {
+  const { colors } = useTheme();
+  const hasFinishedRef = useRef(false);
+  const player = useVideoPlayer(splashVideoSource, (videoPlayer) => {
+    videoPlayer.loop = false;
+    videoPlayer.muted = true;
+    videoPlayer.play();
+  });
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((value) => (value >= 100 ? 100 : value + 1));
-    }, intervalMs);
-
-    const timer = setTimeout(() => {
+    const finish = () => {
+      if (hasFinishedRef.current) {
+        return;
+      }
+      hasFinishedRef.current = true;
       onFinish?.();
-    }, durationMs);
+    };
+
+    const endSubscription = player.addListener('playToEnd', finish);
+    const finishTimer = setTimeout(() => {
+      finish();
+    }, splashFallbackDurationMs);
 
     return () => {
-      clearInterval(interval);
-      clearTimeout(timer);
+      endSubscription.remove();
+      clearTimeout(finishTimer);
     };
-  }, [durationMs, intervalMs, onFinish]);
+  }, [onFinish, player]);
 
   return (
-    <LinearGradient
-      colors={[colors.splashGradientStart, colors.splashGradientEnd]}
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
-      style={styles.container}
-    >
-      
-      <View style={styles.loader}>
-        <View style={[styles.progressCircle, { borderColor: colors.white }]}>
-          <Text variant="caption" color={colors.white}>
-            {t('splash_progress', { value: progress })}
-          </Text>
-        </View>
-        <Text variant="caption" color={colors.white} style={styles.loadingText}>
-          {t('loading')}
-        </Text>
-      </View>
-    </LinearGradient>
+    <View style={[styles.container, { backgroundColor: colors.shadowColor }]}>
+      <VideoView
+        allowsFullscreen={false}
+        allowsPictureInPicture={false}
+        contentFit="cover"
+        nativeControls={false}
+        player={player}
+        style={styles.video}
+      />
+    </View>
   );
 }
+
+export default SplashScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  centerBlock: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    letterSpacing: 0,
-    fontFamily: 'Figma Hand',
-  },
-  loader: {
-    alignItems: 'center',
-    gap: 8,
-    paddingBottom: 48,
-  },
-  progressCircle: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    opacity: 0.9,
+  video: {
+    ...StyleSheet.absoluteFillObject,
   },
 });
