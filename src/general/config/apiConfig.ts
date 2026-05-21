@@ -1,22 +1,20 @@
 export type ApiEnvironment = 'development' | 'staging' | 'production' | 'local';
 
-const DEFAULT_ENV: ApiEnvironment = 'production';//'production';//'local' 
-
-const API_BASE_URLS: Record<ApiEnvironment, string> = {
-  development: 'https://enatega-super-app-production.up.railway.app',
-  staging: 'https://enatega-super-app-production.up.railway.app',
-  production: 'https://enatega-super-app-production.up.railway.app',
-  local: 'https://hmfrzzvh-3000.inc1.devtunnels.ms',
-};
+const DEFAULT_ENV: ApiEnvironment = 'production';
 
 const envOverride = process.env.EXPO_PUBLIC_API_ENV as ApiEnvironment | undefined;
 const baseUrlOverride = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 const resolvedEnv = envOverride ?? DEFAULT_ENV;
-const resolvedBaseUrl = baseUrlOverride ?? API_BASE_URLS[resolvedEnv];
+const resolvedBaseUrl = baseUrlOverride;
 
 function normalizeBaseUrl(url: string): string {
-  return url.endsWith('/') ? url.slice(0, -1) : url;
+  const trimmed = url.endsWith('/') ? url.slice(0, -1) : url;
+  return trimmed.endsWith('/api/v1') ? trimmed.slice(0, -7) : trimmed;
+}
+
+if (!resolvedBaseUrl) {
+  throw new Error('Missing EXPO_PUBLIC_API_BASE_URL environment variable');
 }
 
 export const apiConfig = {

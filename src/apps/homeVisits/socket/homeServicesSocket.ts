@@ -29,10 +29,12 @@ function normalizeUrl(url: string) {
 }
 
 function buildHomeServicesSocketUrl() {
-  return normalizeUrl(
-    process.env.EXPO_PUBLIC_HOME_SERVICES_SOCKET_URL
-      ?? 'https://enatega-super-app-production.up.railway.app/home-services',
-  );
+  const homeServicesSocketUrl = process.env.EXPO_PUBLIC_HOME_SERVICES_SOCKET_URL;
+  if (!homeServicesSocketUrl) {
+    throw new Error('Missing EXPO_PUBLIC_HOME_SERVICES_SOCKET_URL environment variable');
+  }
+
+  return normalizeUrl(homeServicesSocketUrl);
 }
 
 class HomeServicesSocketClient {

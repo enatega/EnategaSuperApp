@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +12,8 @@ import DeliveriesSeeAllFilterSheet from './components/DeliveriesSeeAllFilterShee
 import { renderSeeAllItemCard } from './components/renderers';
 import useDeliveriesSeeAllScreenConfig from './useDeliveriesSeeAllScreenConfig';
 import useDeliveriesSeeAllScreenState from './useDeliveriesSeeAllScreenState';
+import type { DeliveryNearbyStore } from '../../api/types';
+import AppPopup from '../../../../general/components/AppPopup';
 
 type NavigationProp = NativeStackNavigationProp<DeliveriesSeeAllParamList>;
 type SeeAllRouteProp = RouteProp<DeliveriesSeeAllParamList, 'SeeAllScreen'>;
@@ -46,6 +48,7 @@ export default function DeliveriesSeeAllScreen() {
     hasAppliedFilters,
     hasDraftFilters,
   } = useDeliveriesSeeAllScreenState();
+  const [selectedClosedStore, setSelectedClosedStore] = useState<DeliveryNearbyStore | null>(null);
 
   const {
     listQuery,
@@ -63,6 +66,10 @@ export default function DeliveriesSeeAllScreen() {
   });
 
   const items = listQuery.data ?? [];
+  const closedStoreTypeName = useMemo(
+    () => selectedClosedStore?.shopTypeName?.trim() || t('store_details_closed_store_fallback_name', { ns: 'deliveries' }),
+    [selectedClosedStore?.shopTypeName, t],
+  );
   const isMapVisible =
     cardType === 'product'
       ? false
@@ -87,70 +94,105 @@ export default function DeliveriesSeeAllScreen() {
         undefined,
         cardVariant,
         true,
+        {
+          showClosedOverlay: true,
+          onClosedPress: (store) => {
+            setSelectedClosedStore(store);
+          },
+        },
       ),
     [cardType, cardVariant],
   );
 
   return (
-    <SeeAllScreen<SeeAllItem, GenericFilterChip>
-      title={title}
-      data={items}
-      totalCount={listQuery.totalCount}
-      isPending={listQuery.isPending}
-      isError={listQuery.isError}
-      error={listQuery.error}
-      refetch={listQuery.refetch}
-      hasNextPage={listQuery.hasNextPage}
-      isFetchingNextPage={listQuery.isFetchingNextPage}
-      fetchNextPage={listQuery.fetchNextPage}
-      isRefetching={listQuery.isRefetching}
-      itemKeyExtractor={itemKeyExtractor}
-      chips={chips}
-      clearAllLabel={t('clear_all')}
-      onRemoveChip={removeChip}
-      onClearAll={clearAllFilters}
-      renderSelectedFilters={({ chips, clearAllLabel, onRemoveChip, onClearAll }) => (
-        <SelectedFilterChips
-          chips={chips}
-          clearAllLabel={clearAllLabel}
-          onRemoveChip={onRemoveChip}
-          onClearAll={onClearAll}
-        />
-      )}
-      renderItemCard={renderItemCard}
-      header={
-        <DeliveriesSeeAllHeader
-          searchPlaceholder={t('generic_list_search_placeholder')}
-          searchValue={searchText}
-          onSearchChangeText={setSearchText}
-          isSearchEditable
-          onOpenFilters={openFilters}
-          onMapPress={handleMapPress}
-          isSearchVisible
-          isFilterVisible
-          isMapVisible={isMapVisible}
-        />
-      }
-      filterSheet={
-        <DeliveriesSeeAllFilterSheet
-          visible={isFilterSheetVisible}
-          draftFilters={draftFilters}
-          isApplyDisabled={!hasDraftFilters && !hasAppliedFilters}
-          onClose={closeFilters}
-          onApply={applyFilters}
-          onClear={clearDraftFilters}
-          onToggleCategory={toggleCategory}
-          onSelectPrice={selectPrice}
-          onSelectAddress={selectAddress}
-          onSelectStock={selectStock}
-          onSelectSort={selectSort}
-          filters={filterValues?.filters}
-        />
-      }
-      emptyTitle={t('generic_list_empty_title')}
-      emptyDescription={t('generic_list_empty_description')}
-      loadingComponent={loadingComponent}
-      paginationLoadingComponent={paginationLoadingComponent}
-    />
+    <>
+      <SeeAllScreen<SeeAllItem, GenericFilterChip>
+        title={title}
+        data={items}
+        totalCount={listQuery.totalCount}
+        isPending={listQuery.isPending}
+        isError={listQuery.isError}
+        error={listQuery.error}
+        refetch={listQuery.refetch}
+        hasNextPage={listQuery.hasNextPage}
+        isFetchingNextPage={listQuery.isFetchingNextPage}
+        fetchNextPage={listQuery.fetchNextPage}
+        isRefetching={listQuery.isRefetching}
+        itemKeyExtractor={itemKeyExtractor}
+        chips={chips}
+        clearAllLabel={t('clear_all')}
+        onRemoveChip={removeChip}
+        onClearAll={clearAllFilters}
+        renderSelectedFilters={({ chips, clearAllLabel, onRemoveChip, onClearAll }) => (
+          <SelectedFilterChips
+            chips={chips}
+            clearAllLabel={clearAllLabel}
+            onRemoveChip={onRemoveChip}
+            onClearAll={onClearAll}
+          />
+        )}
+        renderItemCard={renderItemCard}
+        header={
+          <DeliveriesSeeAllHeader
+            searchPlaceholder={t('generic_list_search_placeholder')}
+            searchValue={searchText}
+            onSearchChangeText={setSearchText}
+            isSearchEditable
+            onOpenFilters={openFilters}
+            onMapPress={handleMapPress}
+            isSearchVisible
+            isFilterVisible
+            isMapVisible={isMapVisible}
+          />
+        }
+        filterSheet={
+          <DeliveriesSeeAllFilterSheet
+            visible={isFilterSheetVisible}
+            draftFilters={draftFilters}
+            isApplyDisabled={!hasDraftFilters && !hasAppliedFilters}
+            onClose={closeFilters}
+            onApply={applyFilters}
+            onClear={clearDraftFilters}
+            onToggleCategory={toggleCategory}
+            onSelectPrice={selectPrice}
+            onSelectAddress={selectAddress}
+            onSelectStock={selectStock}
+            onSelectSort={selectSort}
+            filters={filterValues?.filters}
+          />
+        }
+        emptyTitle={t('generic_list_empty_title')}
+        emptyDescription={t('generic_list_empty_description')}
+        loadingComponent={loadingComponent}
+        paginationLoadingComponent={paginationLoadingComponent}
+      />
+
+      <AppPopup
+        description={t(
+          'store_details_closed_store_description',
+          { shopTypeName: closedStoreTypeName, ns: 'deliveries' },
+        )}
+        dismissOnOverlayPress
+        onRequestClose={() => setSelectedClosedStore(null)}
+        primaryAction={{
+          label: t('store_details_close', { ns: 'deliveries' }),
+          onPress: () => setSelectedClosedStore(null),
+        }}
+        secondaryAction={{
+          label: t('store_closed_see_menu', { ns: 'deliveries' }),
+          onPress: () => {
+            if (!selectedClosedStore) {
+              return;
+            }
+
+            navigation.navigate('StoreDetails', { store: selectedClosedStore });
+            setSelectedClosedStore(null);
+          },
+          variant: 'secondary',
+        }}
+        title={t('store_closed_modal_title', { ns: 'deliveries' })}
+        visible={Boolean(selectedClosedStore)}
+      />
+    </>
   );
 }

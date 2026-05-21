@@ -226,8 +226,9 @@ export default function CheckoutScreen() {
     console.log('[CheckoutPreview][Request]', {
       ...previewInput,
       selectedCouponCode: selectedCoupon?.code ?? null,
+      selectedTip,
     });
-  }, [previewInput, selectedCoupon?.code]);
+  }, [previewInput, selectedCoupon?.code, selectedTip]);
 
   React.useEffect(() => {
     if (!preview) {
@@ -741,6 +742,9 @@ export default function CheckoutScreen() {
   }, []);
 
   const handleCustomTipPress = React.useCallback(() => {
+    console.log('[Checkout][Tip][OpenCustomTip]', {
+      selectedTip,
+    });
     setCustomTipValue(selectedTip > 0 ? selectedTip.toFixed(2) : '');
     setIsCustomTipScreenVisible(true);
   }, [selectedTip]);
@@ -761,14 +765,29 @@ export default function CheckoutScreen() {
 
   const handleCustomTipSave = React.useCallback(() => {
     const parsedTip = Number.parseFloat(customTipValue);
+    console.log('[Checkout][Tip][SaveCustomTip][Attempt]', {
+      customTipValue,
+      parsedTip,
+    });
 
     if (!Number.isFinite(parsedTip) || parsedTip <= 0) {
+      console.log('[Checkout][Tip][SaveCustomTip][Rejected]', {
+        customTipValue,
+        parsedTip,
+      });
       return;
     }
 
     setSelectedTip(parsedTip);
     setIsCustomTipScreenVisible(false);
   }, [customTipValue]);
+
+  React.useEffect(() => {
+    console.log('[Checkout][Tip][SelectedTipChanged]', {
+      selectedTip,
+      orderType,
+    });
+  }, [orderType, selectedTip]);
 
   const handleCloseCustomTipScreen = React.useCallback(() => {
     setIsCustomTipScreenVisible(false);
@@ -1008,7 +1027,13 @@ export default function CheckoutScreen() {
           void refetchPreview();
         }}
         onCustomTipPress={handleCustomTipPress}
-        onTipChange={setSelectedTip}
+        onTipChange={(amount) => {
+          console.log('[Checkout][Tip][QuickSelect]', {
+            amount,
+            previousTip: selectedTip,
+          });
+          setSelectedTip(amount);
+        }}
         orderType={orderType}
         paymentErrorMessage={paymentErrorMessage}
         paymentIconName={paymentIconName}

@@ -6,7 +6,7 @@ import type {
   SendDeliveryChatMessageResponse,
 } from './chatServiceTypes';
 
-const DELIVERIES_CHAT_BASE = 'https://enatega-super-app-production.up.railway.app/api/v1/apps/deliveries/chat';
+const DELIVERIES_CHAT_BASE = '/api/v1/apps/deliveries/chat';
 
 export const chatService = {
   getChatBoxes: (userId: string) =>

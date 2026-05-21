@@ -1,15 +1,19 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
 import HorizontalList from '../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../general/components/SectionActionHeader';
 import Text from '../../../../general/components/Text';
+import AppPopup from '../../../../general/components/AppPopup';
 import type { SearchStoreItem } from '../../api/searchServiceTypes';
 import type {
   DeliveryNearbyStore,
   DeliveryShopTypeProduct,
 } from '../../api/types';
+import type { DeliveriesStoreDetailsParamList } from '../../navigation/sharedTypes';
 import DeliveriesSectionEmptyState from '../home/DeliveriesSectionEmptyState';
 import {
   DiscoveryResultsSkeleton,
@@ -18,6 +22,7 @@ import {
 import StoreCard from '../storeCard/StoreCard';
 
 type DealsItem = DeliveryNearbyStore | SearchStoreItem | DeliveryShopTypeProduct;
+type NavigationProp = NativeStackNavigationProp<DeliveriesStoreDetailsParamList>;
 
 type Props = {
   title: string;
@@ -52,15 +57,40 @@ export default function Deals({
 }: Props) {
   const { typography } = useTheme();
   const { t } = useTranslation('deliveries');
+  const navigation = useNavigation<NavigationProp>();
+  const [selectedClosedStore, setSelectedClosedStore] = useState<DeliveryNearbyStore | null>(null);
   const isEmpty = !isPending && !isError && items.length === 0;
-  const shouldShowAction = Boolean(actionLabel) && !isEmpty;
+  const shouldShowAction = Boolean(actionLabel) && !isPending && !isError && items.length > 0;
+  const closedStoreTypeName = useMemo(
+    () => selectedClosedStore?.shopTypeName?.trim() || t('store_details_closed_store_fallback_name'),
+    [selectedClosedStore?.shopTypeName, t],
+  );
+
+  const handleCloseClosedStorePopup = useCallback(() => {
+    setSelectedClosedStore(null);
+  }, []);
+
+  const handleSeeMenu = useCallback(() => {
+    if (!selectedClosedStore) {
+      return;
+    }
+
+    navigation.navigate('StoreDetails', { store: selectedClosedStore });
+    setSelectedClosedStore(null);
+  }, [navigation, selectedClosedStore]);
   const renderItem = useCallback(
-    ({ item }: { item: DealsItem }) => (
-      <StoreCard
-        store={item}
-        onPress={onItemPress ? () => onItemPress(item) : undefined}
-      />
-    ),
+    ({ item }: { item: DealsItem }) => {
+      const isClosedStore = !isProductItem(item) && item.isAvailable === false;
+
+      return (
+        <StoreCard
+          store={item}
+          showClosedOverlay={isClosedStore}
+          onClosedPress={isClosedStore ? () => setSelectedClosedStore(item) : undefined}
+          onPress={onItemPress ? () => onItemPress(item) : undefined}
+        />
+      );
+    },
     [onItemPress],
   );
 
@@ -107,6 +137,23 @@ export default function Deals({
           renderItem={renderItem}
         />
       )}
+
+      <AppPopup
+        description={t('store_details_closed_store_description', { shopTypeName: closedStoreTypeName })}
+        dismissOnOverlayPress
+        onRequestClose={handleCloseClosedStorePopup}
+        primaryAction={{
+          label: t('store_details_close'),
+          onPress: handleCloseClosedStorePopup,
+        }}
+        secondaryAction={{
+          label: t('store_closed_see_menu'),
+          onPress: handleSeeMenu,
+          variant: 'secondary',
+        }}
+        title={t('store_closed_modal_title')}
+        visible={Boolean(selectedClosedStore)}
+      />
     </View>
   );
 }

@@ -34,12 +34,13 @@ export default function MainSeeAllRestaurantsSection({
   errorMessage,
 }: Props) {
   const isEmpty = !isPending && !isError && items.length === 0;
+  const shouldShowSeeAll = !isPending && !isError && items.length > 0;
 
   return (
     <View style={styles.section}>
       <SectionActionHeader
         title={title}
-        actionLabel={actionLabel}
+        actionLabel={shouldShowSeeAll ? actionLabel : undefined}
         onActionPress={onSeeAllPress}
       />
 

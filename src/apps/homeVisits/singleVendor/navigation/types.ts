@@ -2,6 +2,7 @@ import type { NavigatorScreenParams } from '@react-navigation/native';
 import type { AddressFlowParamList } from "../../../../general/navigation/addressFlowTypes";
 import type { HomeVisitsServiceDetailsSelectionState } from '../../types/serviceDetails';
 import type {
+  HomeVisitsChooseDateAndTimeRouteParams,
   HomeVisitsReviewAndConfirmRouteParams,
   HomeVisitsTeamAndScheduleRouteParams,
 } from '../../types/teamSchedule';
@@ -55,6 +56,7 @@ export type SingleVendorStackParamList = {
     initialSelection: HomeVisitsServiceDetailsSelectionState;
   };
   TeamAndSchedule: HomeVisitsTeamAndScheduleRouteParams;
+  ChooseDateAndTime: HomeVisitsChooseDateAndTimeRouteParams;
   ReviewAndConfirm: HomeVisitsReviewAndConfirmRouteParams;
 };
 

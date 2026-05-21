@@ -2,10 +2,9 @@ import React, { memo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
-import type { HomeVisitsTeamScheduleMode } from '../../types/teamSchedule';
 
 type ServiceModeOption = {
-  id: HomeVisitsTeamScheduleMode;
+  id: string;
   title: string;
   description: string;
 };
@@ -13,8 +12,8 @@ type ServiceModeOption = {
 type Props = {
   title: string;
   options: ServiceModeOption[];
-  selectedMode: HomeVisitsTeamScheduleMode;
-  onSelect: (mode: HomeVisitsTeamScheduleMode) => void;
+  selectedMode: string;
+  onSelect: (mode: string) => void;
 };
 
 function ServiceModeSection({

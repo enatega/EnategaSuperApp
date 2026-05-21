@@ -51,6 +51,7 @@ export default function OrderAgain(props: Props) {
     },
   );
   const isEmpty = !isOrderAgainPending && orderAgainData.length === 0;
+  const shouldShowSeeAll = !isOrderAgainPending && orderAgainData.length > 0;
   const navigation = useNavigation<NavigationProp>();
 
   const handleSeeAllPress = () => {
@@ -59,7 +60,7 @@ export default function OrderAgain(props: Props) {
   return (
     <View style={styles.section}>
       <SectionActionHeader
-        actionLabel={isEmpty ? undefined : t('multi_vendor_see_all')}
+        actionLabel={shouldShowSeeAll ? t('multi_vendor_see_all') : undefined}
         title={t('multi_vendor_order_again_title')}
         onActionPress={handleSeeAllPress}
       />
