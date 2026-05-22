@@ -117,6 +117,13 @@ const fr = {
   store_details_action_back: 'Retour',
   store_details_about_title: 'A propos de nous',
   store_details_about_fallback: 'La description du magasin n est pas disponible pour le moment.',
+  store_details_closed_store_title: 'Le magasin est actuellement fermé',
+  store_details_closed_store_description:
+    '{{shopTypeName}} est actuellement fermé. Veuillez réessayer plus tard.',
+  store_details_closed_store_fallback_name: 'Ce magasin',
+  store_closed_modal_title: 'Le magasin est actuellement fermé',
+  store_closed_see_menu: 'Voir le menu',
+  store_status_closed: 'Fermé',
   store_details_close: 'Fermer',
   store_details_add_product: 'Ajouter {{item}}',
   store_details_badge_deal: 'Offre',

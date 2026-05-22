@@ -92,6 +92,7 @@ export default function ToDoorForm({
         <PhoneNumberInput
           value={senderPhone}
           onChangeText={handleSenderPhone}
+          resetOnCountryChange
           isActive={senderPhone.length > 0}
         />
       </View>
@@ -119,6 +120,7 @@ export default function ToDoorForm({
         <PhoneNumberInput
           value={recipientPhone}
           onChangeText={handleRecipientPhone}
+          resetOnCountryChange
           isActive={recipientPhone.length > 0}
         />
       </View>

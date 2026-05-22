@@ -14,7 +14,13 @@ const BOOKING_PROGRESS_PIPELINE = [
   'pending',
   'confirmed',
   'worker_assigned',
+  'on_my_way',
+  'reached',
+  'job_started',
+  'service_started',
   'in_progress',
+  'marked_complete',
+  'payment_requested',
   'completed',
 ] as const;
 
@@ -48,13 +54,13 @@ export default function ActiveServiceCard({ booking, onPress }: Props) {
   const { t } = useTranslation('homeVisits');
 
   const title = booking.title || t('single_vendor_active_service_default_title');
-  const subtitle = booking.durationLabel || booking.statusLabel || t('single_vendor_active_service_default_subtitle');
-  const progressPercent = resolveProgressPercent(booking.jobStatus ?? booking.status);
   const statusLabel = resolveBookingStatusLabel(
     booking.jobStatus ?? booking.status,
     booking.statusLabel,
     t,
   ).toUpperCase();
+  const subtitle = booking.durationLabel || statusLabel || t('single_vendor_active_service_default_subtitle');
+  const progressPercent = resolveProgressPercent(booking.jobStatus ?? booking.status);
 
   return (
     <Pressable

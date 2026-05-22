@@ -5,6 +5,12 @@ export type HomeServicesJobStatus =
   | 'pending'
   | 'confirmed'
   | 'worker_assigned'
+  | 'on_my_way'
+  | 'reached'
+  | 'job_started'
+  | 'service_started'
+  | 'marked_complete'
+  | 'payment_requested'
   | 'in_progress'
   | 'completed'
   | 'cancelled'
@@ -34,12 +40,20 @@ export function normalizeJobStatus(value?: string | null): HomeServicesJobStatus
     case 'pending':
     case 'confirmed':
     case 'worker_assigned':
+    case 'on_my_way':
+    case 'reached':
+    case 'job_started':
+    case 'service_started':
+    case 'marked_complete':
+    case 'payment_requested':
     case 'in_progress':
     case 'completed':
     case 'cancelled':
     case 'rejected':
     case 'failed':
       return normalized;
+    case 'worker_reached':
+      return 'reached';
     default:
       return null;
   }
@@ -70,12 +84,21 @@ export function resolveTrackWorkerStage(
     case 'confirmed':
       return 'preparing';
     case 'worker_assigned':
+    case 'on_my_way':
       if (statusMessage.includes('anytime')) {
         return 'anytime_now';
       }
       return 'on_way';
+    case 'reached':
+      return 'anytime_now';
+    case 'job_started':
+    case 'service_started':
     case 'in_progress':
       return 'service_started';
+    case 'marked_complete':
+      return 'payment';
+    case 'payment_requested':
+      return 'payment';
     case 'completed':
       return 'payment';
     case 'cancelled':

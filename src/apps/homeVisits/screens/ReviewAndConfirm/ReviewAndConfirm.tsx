@@ -12,6 +12,7 @@ import useAddress from '../../../../general/hooks/useAddress';
 import useSavedAddresses from '../../../../general/hooks/useSavedAddresses';
 import useSelectSavedAddress from '../../../../general/hooks/useSelectSavedAddress';
 import { getApiErrorMessage } from '../../../../general/utils/apiError';
+import { resolveSavedAddressId } from '../../../../general/utils/address';
 import { useTheme } from '../../../../general/theme/theme';
 import { formatPrice } from '../../components/ServiceDetailsPage/serviceDetailsSelection';
 import HomeVisitsDateTimePickerSheet from '../../components/common/HomeVisitsDateTimePickerSheet';
@@ -32,13 +33,7 @@ import ReviewScheduleSection from '../../components/ReviewAndConfirm/ReviewSched
 import ReviewSummarySection from '../../components/ReviewAndConfirm/ReviewSummarySection';
 import { useBookingSummaryPreview } from '../../hooks/useBookingSummaryPreview';
 import { usePlaceBookingOrder } from '../../hooks/usePlaceBookingOrder';
-import { homeVisitsSingleVendorDiscoveryService } from '../../singleVendor/api/discoveryService';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../../singleVendor/navigation/types';
-import {
-  getBookingAvailabilityFailureMessage,
-  isBookingTimeAvailable,
-  isBookingTimeRangeAvailable,
-} from '../../utils/bookingAvailability';
 import { buildBookingSummaryPreviewPayload } from '../../utils/buildBookingSummaryPayload';
 
 type ReviewAndConfirmRouteProp = RouteProp<
@@ -85,21 +80,21 @@ export default function ReviewAndConfirm() {
   const [isDateTimeSheetOpen, setIsDateTimeSheetOpen] = useState(false);
   const [selectedScheduledAt, setSelectedScheduledAt] = useState(() => new Date(route.params.scheduledAtIso));
   const [selectedScheduledSlot, setSelectedScheduledSlot] = useState(route.params.scheduledSlot);
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState(() => route.params.jobDescription ?? '');
   const {
     addresses,
     isLoading: isAddressesLoading,
     refetch: refetchAddresses,
   } = useSavedAddresses('home-services');
   const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress('home-services');
+  const resolvedAddressId = useMemo(
+    () => resolveSavedAddressId(selectedAddress?.id, addresses),
+    [addresses, selectedAddress?.id],
+  );
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const {
-    contractDays,
-    serviceCenterId,
-    serviceMode,
     summary,
-    teamSize,
     workingHours,
   } = route.params;
   const [isConfirmPopupVisible, setIsConfirmPopupVisible] = useState(false);
@@ -107,7 +102,6 @@ export default function ReviewAndConfirm() {
   const [isDiscountCodeSheetVisible, setIsDiscountCodeSheetVisible] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<ReviewPaymentMethod>('cash');
   const [discountCode, setDiscountCode] = useState('');
-  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
   const [availabilityPopup, setAvailabilityPopup] = useState<{
     visible: boolean;
     title: string;
@@ -137,7 +131,7 @@ export default function ReviewAndConfirm() {
     () =>
       buildBookingSummaryPreviewPayload({
         routeParams: route.params,
-        addressId: selectedAddress?.id,
+        addressId: resolvedAddressId,
         notes,
         customerNote: notes,
         discountCode,
@@ -149,7 +143,7 @@ export default function ReviewAndConfirm() {
       discountCode,
       notes,
       route.params,
-      selectedAddress?.id,
+      resolvedAddressId,
       selectedPaymentMethod,
       selectedScheduledAt,
       selectedScheduledSlot,
@@ -240,6 +234,15 @@ export default function ReviewAndConfirm() {
 
   const handleConfirmBooking = () => {
     void (async () => {
+      if (selectedScheduledAt.getTime() <= Date.now()) {
+        setAvailabilityPopup({
+          visible: true,
+          title: t('review_confirm_place_order_error_title'),
+          description: 'Start time must be in the future.',
+        });
+        return;
+      }
+
       try {
         const response = await placeBookingOrderMutation.mutateAsync({
           ...bookingSummaryPayload,
@@ -374,103 +377,12 @@ export default function ReviewAndConfirm() {
       />
 
       <HomeVisitsDateTimePickerSheet
-        isConfirmLoading={isCheckingAvailability}
+        isConfirmLoading={false}
         onClose={() => setIsDateTimeSheetOpen(false)}
         onConfirm={async (nextDate) => {
-          if (isCheckingAvailability) {
-            return;
-          }
-
-          try {
-            setIsCheckingAvailability(true);
-            const bookingDateTime = nextDate.toISOString();
-
-            if (serviceMode === 'contract') {
-              const response =
-                await homeVisitsSingleVendorDiscoveryService.getBookingAvailabilityRange({
-                  serviceCenterId,
-                  startDate: bookingDateTime,
-                  days: contractDays,
-                  teamSize,
-                });
-
-              if (
-                response.success === false ||
-                response.scheduleAllowed === false ||
-                response.serviceCenterAvailable === false
-              ) {
-                setAvailabilityPopup({
-                  visible: true,
-                  title: t('team_schedule_availability_unavailable_title'),
-                  description:
-                    getBookingAvailabilityFailureMessage(response) ??
-                    t('team_schedule_availability_unavailable_description'),
-                });
-                return;
-              }
-
-              if (!isBookingTimeRangeAvailable(response, nextDate, teamSize, contractDays)) {
-                setAvailabilityPopup({
-                  visible: true,
-                  title: t('team_schedule_slot_not_available_title'),
-                  description: t('team_schedule_slot_not_available_description'),
-                });
-                return;
-              }
-
-              setSelectedScheduledAt(nextDate);
-              setSelectedScheduledSlot(buildSlotFromDate(nextDate, workingHours));
-              setIsDateTimeSheetOpen(false);
-              return;
-            }
-
-            const response =
-              await homeVisitsSingleVendorDiscoveryService.getBookingAvailability({
-                serviceCenterId,
-                date: bookingDateTime,
-                teamSize,
-                requiredHours: workingHours,
-              });
-
-            if (
-              response.success === false ||
-              response.scheduleAllowed === false ||
-              response.serviceCenterAvailable === false
-            ) {
-              setAvailabilityPopup({
-                visible: true,
-                title: t('team_schedule_availability_unavailable_title'),
-                description:
-                  getBookingAvailabilityFailureMessage(response) ??
-                  t('team_schedule_availability_unavailable_description'),
-              });
-              return;
-            }
-
-            if (!isBookingTimeAvailable(response, nextDate, teamSize)) {
-              setAvailabilityPopup({
-                visible: true,
-                title: t('team_schedule_slot_not_available_title'),
-                description: t('team_schedule_slot_not_available_description'),
-              });
-              return;
-            }
-
-            setSelectedScheduledAt(nextDate);
-            setSelectedScheduledSlot(buildSlotFromDate(nextDate, workingHours));
-            setIsDateTimeSheetOpen(false);
-          } catch (error) {
-            setAvailabilityPopup({
-              visible: true,
-              title: t('team_schedule_availability_error_title'),
-              description: getApiErrorMessage(
-                error,
-                t('team_schedule_availability_error_description'),
-              ),
-            });
-          } finally {
-            setIsCheckingAvailability(false);
-          }
+          setSelectedScheduledAt(nextDate);
+          setSelectedScheduledSlot(buildSlotFromDate(nextDate, workingHours));
+          setIsDateTimeSheetOpen(false);
         }}
         value={selectedScheduledAt}
         visible={isDateTimeSheetOpen}

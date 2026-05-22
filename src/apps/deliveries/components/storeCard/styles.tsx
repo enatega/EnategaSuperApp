@@ -27,6 +27,16 @@ export const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  closedOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  closedLabel: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
   placeholderImage: {
     justifyContent: 'center',
     alignItems: 'center',

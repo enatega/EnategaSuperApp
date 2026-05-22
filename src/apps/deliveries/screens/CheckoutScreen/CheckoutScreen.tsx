@@ -17,13 +17,17 @@ import CheckoutScreenContent from '../../components/checkout/CheckoutScreenConte
 import CartScreenErrorState from '../../components/cart/CartScreenErrorState';
 import CartScreenSkeleton from '../../components/cart/CartScreenSkeleton';
 import useAddress from '../../../../general/hooks/useAddress';
+import useCurrentLocation from '../../../../general/hooks/useCurrentLocation';
 import useSelectSavedAddress from '../../../../general/hooks/useSelectSavedAddress';
 import { useCart } from '../../hooks/useCart';
 import { useCheckoutPreview } from '../../hooks/useCheckoutPreview';
 import { useUseCouponMutation } from '../../hooks/useUseCouponMutation';
 import { claimedCouponsKeys } from '../../hooks/useClaimedCouponsQuery';
 import { formatCartPrice } from '../../components/cart/cartUtils';
-import { formatDeliveryAddressLabel } from '../../../../general/utils/address';
+import {
+  formatDeliveryAddressLabel,
+  resolveSavedAddressId,
+} from '../../../../general/utils/address';
 import { usePlaceOrder } from '../../hooks/usePlaceOrder';
 import CheckoutMessageEditorScreen from '../../components/checkout/CheckoutMessageEditorScreen';
 import CheckoutCustomTipScreen from '../../components/checkout/CheckoutCustomTipScreen';
@@ -165,11 +169,16 @@ export default function CheckoutScreen() {
     checkoutUrl: string;
   } | null>(null);
   const { selectedAddress } = useAddress();
+  const { refreshCurrentLocation } = useCurrentLocation();
   const {
     addresses,
     isLoading: isAddressesLoading,
     refetch: refetchAddresses,
   } = useSavedAddresses("deliveries");
+  const resolvedAddressId = React.useMemo(
+    () => resolveSavedAddressId(selectedAddress?.id, addresses),
+    [addresses, selectedAddress?.id],
+  );
   const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("deliveries");
   const [orderType, setOrderType] = React.useState<CheckoutOrderType>('delivery');
   const [leaveAtDoor, setLeaveAtDoor] = React.useState(false);
@@ -199,12 +208,19 @@ export default function CheckoutScreen() {
     () => getPreviewInput(
       cart,
       orderType,
-      selectedAddress?.id,
+      resolvedAddressId,
       selectedCoupon?.code,
       previewScheduledAt,
       selectedTip,
     ),
-    [cart, orderType, selectedAddress?.id, selectedCoupon?.code, previewScheduledAt, selectedTip],
+    [
+      cart,
+      orderType,
+      resolvedAddressId,
+      selectedCoupon?.code,
+      previewScheduledAt,
+      selectedTip,
+    ],
   );
   const {
     data: preview,
@@ -222,8 +238,9 @@ export default function CheckoutScreen() {
     console.log('[CheckoutPreview][Request]', {
       ...previewInput,
       selectedCouponCode: selectedCoupon?.code ?? null,
+      selectedTip,
     });
-  }, [previewInput, selectedCoupon?.code]);
+  }, [previewInput, selectedCoupon?.code, selectedTip]);
 
   React.useEffect(() => {
     if (!preview) {
@@ -423,20 +440,23 @@ export default function CheckoutScreen() {
     });
   }, [navigation]);
 
-  const handleUseCurrentLocation = React.useCallback(() => {
+  const handleUseCurrentLocation = React.useCallback(async () => {
     setIsAddressSheetVisible(false);
+    const currentLocation = await refreshCurrentLocation();
     navigation.navigate('AddressChooseOnMap', {
       appPrefix: 'deliveries',
+      initialLatitude: currentLocation?.latitude,
+      initialLongitude: currentLocation?.longitude,
       origin: 'checkout',
     });
-  }, [navigation]);
+  }, [navigation, refreshCurrentLocation]);
 
   const handlePlaceOrderPress = React.useCallback(() => {
     if (!cart?.bucketId || !cart.storeId) {
       return;
     }
 
-    if (orderType === 'delivery' && !selectedAddress?.id) {
+    if (orderType === 'delivery' && !resolvedAddressId) {
       showToast.error(t('checkout_address_required'));
       return;
     }
@@ -457,7 +477,7 @@ export default function CheckoutScreen() {
       bucketId: cart.bucketId,
       orderType,
       paymentMethod,
-      addressId: orderType === 'delivery' ? selectedAddress?.id : undefined,
+      addressId: orderType === 'delivery' ? resolvedAddressId : undefined,
       customerNote: buildCustomerNote({
         restaurant: messages.restaurant,
         courier: orderType === 'delivery' ? messages.courier : '',
@@ -487,7 +507,7 @@ export default function CheckoutScreen() {
     orderType,
     paymentMethod,
     placeOrderMutation,
-    selectedAddress?.id,
+    resolvedAddressId,
     selectedCoupon?.code,
     messages,
     deliveryTimeMode,
@@ -645,6 +665,9 @@ export default function CheckoutScreen() {
   }, []);
 
   const handleCustomTipPress = React.useCallback(() => {
+    console.log('[Checkout][Tip][OpenCustomTip]', {
+      selectedTip,
+    });
     setCustomTipValue(selectedTip > 0 ? selectedTip.toFixed(2) : '');
     setIsCustomTipScreenVisible(true);
   }, [selectedTip]);
@@ -665,14 +688,29 @@ export default function CheckoutScreen() {
 
   const handleCustomTipSave = React.useCallback(() => {
     const parsedTip = Number.parseFloat(customTipValue);
+    console.log('[Checkout][Tip][SaveCustomTip][Attempt]', {
+      customTipValue,
+      parsedTip,
+    });
 
     if (!Number.isFinite(parsedTip) || parsedTip <= 0) {
+      console.log('[Checkout][Tip][SaveCustomTip][Rejected]', {
+        customTipValue,
+        parsedTip,
+      });
       return;
     }
 
     setSelectedTip(parsedTip);
     setIsCustomTipScreenVisible(false);
   }, [customTipValue]);
+
+  React.useEffect(() => {
+    console.log('[Checkout][Tip][SelectedTipChanged]', {
+      selectedTip,
+      orderType,
+    });
+  }, [orderType, selectedTip]);
 
   const handleCloseCustomTipScreen = React.useCallback(() => {
     setIsCustomTipScreenVisible(false);
@@ -912,7 +950,13 @@ export default function CheckoutScreen() {
           void refetchPreview();
         }}
         onCustomTipPress={handleCustomTipPress}
-        onTipChange={setSelectedTip}
+        onTipChange={(amount) => {
+          console.log('[Checkout][Tip][QuickSelect]', {
+            amount,
+            previousTip: selectedTip,
+          });
+          setSelectedTip(amount);
+        }}
         orderType={orderType}
         paymentErrorMessage={paymentErrorMessage}
         paymentIconName={paymentIconName}

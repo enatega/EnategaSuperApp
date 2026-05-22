@@ -1,30 +1,19 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AppPopup from '../../../../general/components/AppPopup';
-import { getApiErrorMessage } from '../../../../general/utils/apiError';
 import { useTheme } from '../../../../general/theme/theme';
-import HomeVisitsDateTimePickerSheet from '../../components/common/HomeVisitsDateTimePickerSheet';
+import Icon from '../../../../general/components/Icon';
+import Text from '../../../../general/components/Text';
 import { formatMinutesToDurationLabel } from '../../components/ServiceCenterServicesList/serviceDuration';
-import CustomTeamSizeSheet from '../../components/TeamAndSchedule/CustomTeamSizeSheet';
-import ContractTimeRangeSheet from '../../components/TeamAndSchedule/ContractTimeRangeSheet';
 import ServiceModeSection from '../../components/TeamAndSchedule/ServiceModeSection';
 import TeamAndScheduleFooter from '../../components/TeamAndSchedule/TeamAndScheduleFooter';
 import TeamAndScheduleHeader from '../../components/TeamAndSchedule/TeamAndScheduleHeader';
-import TeamSizeSection from '../../components/TeamAndSchedule/TeamSizeSection';
-import WorkingHoursSection from '../../components/TeamAndSchedule/WorkingHoursSection';
-import { homeVisitsSingleVendorDiscoveryService } from '../../singleVendor/api/discoveryService';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../../singleVendor/navigation/types';
-import {
-  getBookingAvailabilityFailureMessage,
-  isBookingTimeAvailable,
-  isBookingTimeRangeAvailable,
-} from '../../utils/bookingAvailability';
-import type { HomeVisitsScheduledSlot } from '../../types/teamSchedule';
+import type { HomeVisitsWorkerType } from '../../types/teamSchedule';
 
 type TeamAndScheduleRouteProp = RouteProp<
   HomeVisitsSingleVendorNavigationParamList,
@@ -47,24 +36,13 @@ export default function TeamAndSchedule() {
     summary,
   } = route.params;
 
-  const [teamSize, setTeamSize] = useState(1);
-  const [workingHours, setWorkingHours] = useState(1);
+  const [workerType, setWorkerType] = useState<HomeVisitsWorkerType>('individual');
+  const workingHours = 5;
   const [serviceMode, setServiceMode] = useState<'one-time' | 'contract'>('one-time');
+  const [jobDescription, setJobDescription] = useState('');
+  const trimmedJobDescription = jobDescription.trim();
   const [contractDays, setContractDays] = useState(30);
-  const [isCustomSheetOpen, setIsCustomSheetOpen] = useState(false);
-  const [isContractRangeSheetOpen, setIsContractRangeSheetOpen] = useState(false);
-  const [isDateTimeSheetOpen, setIsDateTimeSheetOpen] = useState(false);
-  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
-  const [availabilityPopup, setAvailabilityPopup] = useState<{
-    visible: boolean;
-    title: string;
-    description: string;
-  }>({
-    visible: false,
-    title: '',
-    description: '',
-  });
-
+  const teamSize = workerType === 'team' ? 2 : 1;
   const totalPrice = summary.totalPrice + Math.max(teamSize - 1, 0) * 12 * workingHours;
   const totalDurationMinutes = summary.durationMinutes + (workingHours * 60);
   const totalDurationLabel = formatMinutesToDurationLabel(totalDurationMinutes) ?? summary.durationLabel;
@@ -74,34 +52,18 @@ export default function TeamAndSchedule() {
       : t('service_details_service_plural')
   }`;
   const workersLabel = `${teamSize} ${teamSize === 1 ? t('team_worker_singular') : t('team_worker_plural')}`;
-  const buildScheduledSlot = (scheduledAtIso: string): HomeVisitsScheduledSlot => {
-    const startDate = new Date(scheduledAtIso);
-    const endDate = new Date(startDate.getTime() + (workingHours * 60 * 60 * 1000));
-    const startTime = `${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`;
-    const endTime = `${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`;
-
-    return {
-      startTime,
-      endTime,
-    };
-  };
-  const formatContractDaysLabel = (days: number) =>
-    `${days} ${days === 1 ? t('team_schedule_day_singular') : t('team_schedule_day_plural')}`;
-
   const handleSelectServiceMode = (nextMode: 'one-time' | 'contract') => {
     setServiceMode(nextMode);
-    if (nextMode === 'contract') {
-      setIsContractRangeSheetOpen(true);
-    }
   };
 
-  const navigateToReview = (scheduledAtIso: string) => {
-    setIsDateTimeSheetOpen(false);
-    navigation.push('ReviewAndConfirm', {
+  const navigateToChooseDateAndTime = () => {
+    if (!trimmedJobDescription) {
+      return;
+    }
+
+    navigation.push('ChooseDateAndTime', {
       contractDays,
       initialSelection,
-      scheduledAtIso,
-      scheduledSlot: buildScheduledSlot(scheduledAtIso),
       selectedServiceIds,
       selectedServices,
       serviceCenterId,
@@ -113,13 +75,11 @@ export default function TeamAndSchedule() {
         durationMinutes: totalDurationMinutes,
         totalPrice,
       },
+      jobDescription: trimmedJobDescription,
+      workerType,
       teamSize,
       workingHours,
     });
-  };
-
-  const hidePopup = () => {
-    setAvailabilityPopup((previous) => ({ ...previous, visible: false }));
   };
 
   return (
@@ -135,23 +95,26 @@ export default function TeamAndSchedule() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
         showsVerticalScrollIndicator={false}
       >
-        <TeamSizeSection
-          helperText={t('team_schedule_team_size_helper')}
-          onOpenCustom={() => setIsCustomSheetOpen(true)}
-          onSelectTeamSize={setTeamSize}
-          selectedTeamSize={teamSize}
-          title={t('team_schedule_team_size_title')}
-        />
-
-        <WorkingHoursSection
-          helperText={t('team_schedule_working_hours_helper')}
-          hours={workingHours}
-          onChangeHours={setWorkingHours}
-          title={t('team_schedule_working_hours_title')}
+        <ServiceModeSection
+          onSelect={(nextType) => setWorkerType(nextType as HomeVisitsWorkerType)}
+          options={[
+            {
+              id: 'individual',
+              title: t('team_schedule_worker_type_individual_title'),
+              description: t('team_schedule_worker_type_individual_description'),
+            },
+            {
+              id: 'team',
+              title: t('team_schedule_worker_type_team_title'),
+              description: t('team_schedule_worker_type_team_description'),
+            },
+          ]}
+          selectedMode={workerType}
+          title={t('team_schedule_worker_type_title')}
         />
 
         <ServiceModeSection
-          onSelect={handleSelectServiceMode}
+          onSelect={(nextMode) => handleSelectServiceMode(nextMode as 'one-time' | 'contract')}
           options={[
             {
               id: 'one-time',
@@ -167,156 +130,76 @@ export default function TeamAndSchedule() {
           selectedMode={serviceMode}
           title={t('team_schedule_service_mode_title')}
         />
+
+        <View style={styles.jobDescriptionWrap}>
+          <View style={[styles.jobDescriptionCard, { borderColor: colors.border }]}>
+            <View style={styles.jobDescriptionHeader}>
+              <Icon type="Feather" name="file-text" size={16} color={colors.warning} />
+              <Text
+                weight="semiBold"
+                style={{ color: colors.text }}
+              >
+                {t('team_schedule_job_description_title')}
+              </Text>
+            </View>
+            <TextInput
+              multiline
+              onChangeText={setJobDescription}
+              placeholder={t('team_schedule_job_description_placeholder')}
+              placeholderTextColor={colors.iconMuted}
+              style={[
+                styles.jobDescriptionInput,
+                {
+                  backgroundColor: colors.background,
+                  borderColor: colors.border,
+                  color: colors.text,
+                },
+              ]}
+              textAlignVertical="top"
+              value={jobDescription}
+            />
+          </View>
+        </View>
       </ScrollView>
 
       <TeamAndScheduleFooter
         bottomInset={insets.bottom}
         continueLabel={t('team_schedule_continue')}
+        disabled={!trimmedJobDescription}
         durationLabel={totalDurationLabel}
-        onContinue={() => setIsDateTimeSheetOpen(true)}
+        onContinue={navigateToChooseDateAndTime}
         serviceCountLabel={serviceCountLabel}
         totalPrice={totalPrice}
         workersLabel={workersLabel}
       />
 
-      <CustomTeamSizeSheet
-        addLabel={t('team_schedule_custom_add')}
-        fieldLabel={t('team_schedule_custom_field_placeholder')}
-        helperText={t('team_schedule_custom_helper')}
-        onAdd={setTeamSize}
-        onClose={() => setIsCustomSheetOpen(false)}
-        title={t('team_schedule_custom_title')}
-        visible={isCustomSheetOpen}
-      />
-
-      <HomeVisitsDateTimePickerSheet
-        isConfirmLoading={isCheckingAvailability}
-        onClose={() => setIsDateTimeSheetOpen(false)}
-        onConfirm={async (nextDate) => {
-          if (isCheckingAvailability) {
-            return;
-          }
-
-          try {
-            setIsCheckingAvailability(true);
-            const bookingDateTime = nextDate.toISOString();
-
-            if (serviceMode === 'contract') {
-              const response =
-                await homeVisitsSingleVendorDiscoveryService.getBookingAvailabilityRange({
-                  serviceCenterId,
-                  startDate: bookingDateTime,
-                  days: contractDays,
-                  teamSize,
-                });
-
-              if (
-                response.success === false ||
-                response.scheduleAllowed === false ||
-                response.serviceCenterAvailable === false
-              ) {
-                setAvailabilityPopup({
-                  visible: true,
-                  title: t('team_schedule_availability_unavailable_title'),
-                  description:
-                    getBookingAvailabilityFailureMessage(response) ??
-                    t('team_schedule_availability_unavailable_description'),
-                });
-                return;
-              }
-
-              if (!isBookingTimeRangeAvailable(response, nextDate, teamSize, contractDays)) {
-                setAvailabilityPopup({
-                  visible: true,
-                  title: t('team_schedule_slot_not_available_title'),
-                  description: t('team_schedule_slot_not_available_description'),
-                });
-                return;
-              }
-
-              navigateToReview(nextDate.toISOString());
-              return;
-            }
-
-            const response =
-              await homeVisitsSingleVendorDiscoveryService.getBookingAvailability({
-                serviceCenterId,
-                date: bookingDateTime,
-                teamSize,
-                requiredHours: workingHours,
-              });
-
-            if (
-              response.success === false ||
-              response.scheduleAllowed === false ||
-              response.serviceCenterAvailable === false
-            ) {
-              setAvailabilityPopup({
-                visible: true,
-                title: t('team_schedule_availability_unavailable_title'),
-                description:
-                  getBookingAvailabilityFailureMessage(response) ??
-                  t('team_schedule_availability_unavailable_description'),
-              });
-              return;
-            }
-
-            if (!isBookingTimeAvailable(response, nextDate, teamSize)) {
-              setAvailabilityPopup({
-                visible: true,
-                title: t('team_schedule_slot_not_available_title'),
-                description: t('team_schedule_slot_not_available_description'),
-              });
-              return;
-            }
-
-            navigateToReview(nextDate.toISOString());
-          } catch (error) {
-            setAvailabilityPopup({
-              visible: true,
-              title: t('team_schedule_availability_error_title'),
-              description: getApiErrorMessage(
-                error,
-                t('team_schedule_availability_error_description'),
-              ),
-            });
-          } finally {
-            setIsCheckingAvailability(false);
-          }
-        }}
-        value={null}
-        visible={isDateTimeSheetOpen}
-      />
-
-      <ContractTimeRangeSheet
-        addLabel={t('team_schedule_contract_range_add')}
-        customLabel={t('team_schedule_contract_range_custom')}
-        customPlaceholder={t('team_schedule_contract_range_custom_placeholder')}
-        formatDaysLabel={formatContractDaysLabel}
-        helperText={t('team_schedule_contract_range_helper')}
-        initialDays={contractDays}
-        onAdd={setContractDays}
-        onClose={() => setIsContractRangeSheetOpen(false)}
-        title={t('team_schedule_contract_range_title')}
-        visible={isContractRangeSheetOpen}
-      />
-
-      <AppPopup
-        description={availabilityPopup.description}
-        dismissOnOverlayPress
-        onRequestClose={hidePopup}
-        primaryAction={{
-          label: t('ok'),
-          onPress: hidePopup,
-        }}
-        title={availabilityPopup.title}
-        visible={availabilityPopup.visible}
-      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  jobDescriptionCard: {
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 10,
+    padding: 16,
+  },
+  jobDescriptionHeader: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 8,
+  },
+  jobDescriptionInput: {
+    borderRadius: 6,
+    borderWidth: 1,
+    fontSize: 14,
+    minHeight: 80,
+    padding: 10,
+  },
+  jobDescriptionWrap: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
   screen: {
     flex: 1,
   },

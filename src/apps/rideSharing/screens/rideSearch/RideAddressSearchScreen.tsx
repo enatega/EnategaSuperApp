@@ -15,6 +15,7 @@ import useRideAddressPredictions from '../../hooks/useRideAddressPredictions';
 import { rideService } from '../../api/rideService';
 import { rideKeys } from '../../api/queryKeys';
 import type { RideAddressSelection } from '../../api/types';
+import { showToast } from '../../../../general/components/AppToast';
 import {
   saveRecentFromAddress,
   saveRecentToAddress,
@@ -35,6 +36,7 @@ import type { RideCategory, RideIntent } from '../../utils/rideOptions';
 type RouteParams = {
   rideType?: RideIntent;
   rideCategory?: RideCategory;
+  source?: 'rideEstimate';
   prefilledFromAddress?: CachedAddress;
   prefilledStopAddress?: RideAddressSelection;
   editTarget?: 'from' | 'to';
@@ -45,6 +47,17 @@ type RouteParams = {
   stopIndex?: number;
 };
 
+function isSameRideAddress(first: RideAddressSelection, second: RideAddressSelection) {
+  if (first.placeId === second.placeId) {
+    return true;
+  }
+
+  const latDiff = Math.abs(first.coordinates.latitude - second.coordinates.latitude);
+  const lngDiff = Math.abs(first.coordinates.longitude - second.coordinates.longitude);
+
+  return latDiff < 0.000001 && lngDiff < 0.000001;
+}
+
 export default function RideAddressSearchScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RideSharingStackParamList>>();
   const route = useRoute();
@@ -54,6 +67,7 @@ export default function RideAddressSearchScreen() {
   const {
     rideType,
     rideCategory,
+    source,
     prefilledFromAddress,
     prefilledStopAddress,
     editTarget,
@@ -220,6 +234,21 @@ export default function RideAddressSearchScreen() {
         return;
       }
 
+      const isSameAsPickup = isSameRideAddress(selectedAddress, nextFromAddress);
+      const isSameAsDropoff = isSameRideAddress(selectedAddress, nextToAddress);
+      const hasDuplicateStop = stops.some((stop, index) => {
+        if (isEditingStop && typeof stopIndex === 'number' && index === stopIndex) {
+          return false;
+        }
+
+        return isSameRideAddress(selectedAddress, stop);
+      });
+
+      if (isSameAsPickup || isSameAsDropoff || hasDuplicateStop) {
+        showToast.error(t('error'), t('ride_address_stop_duplicate_error'));
+        return;
+      }
+
       selectedStopAddressRef.current = selectedAddress;
       setSelectedStopAddress(selectedAddress);
       setStopValue(selectedAddress.description);
@@ -263,7 +292,7 @@ export default function RideAddressSearchScreen() {
     }
 
     if (nextFromAddress && nextToAddress) {
-      if (rideType === 'courier') {
+      if (rideType === 'courier' && source !== 'rideEstimate') {
         navigation.navigate(
           'CourierDetails',
           {

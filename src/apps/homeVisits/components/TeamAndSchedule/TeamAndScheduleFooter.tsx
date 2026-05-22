@@ -13,12 +13,14 @@ type Props = {
   workersLabel: string;
   continueLabel: string;
   bottomInset: number;
+  disabled?: boolean;
   onContinue: () => void;
 };
 
 function TeamAndScheduleFooter({
   bottomInset,
   continueLabel,
+  disabled = false,
   durationLabel,
   onContinue,
   serviceCountLabel,
@@ -95,6 +97,7 @@ function TeamAndScheduleFooter({
 
         <View style={styles.footerAction}>
           <Button
+            disabled={disabled}
             label={continueLabel}
             onPress={onContinue}
             style={{

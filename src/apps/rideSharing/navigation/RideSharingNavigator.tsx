@@ -45,6 +45,7 @@ export type RideSharingStackParamList = {
   RideAddressSearch: {
     rideType?: RideIntent;
     rideCategory?: RideCategory;
+    source?: 'rideEstimate';
     prefilledFromAddress?: CachedAddress;
     prefilledStopAddress?: RideAddressSelection;
     editTarget?: 'from' | 'to';

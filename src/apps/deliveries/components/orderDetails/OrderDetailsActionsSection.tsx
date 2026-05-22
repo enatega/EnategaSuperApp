@@ -44,14 +44,14 @@ export default function OrderDetailsActionsSection({
 
   return (
     <View style={styles.container}>
-      {onIncreaseTip ? (
+      {/* {onIncreaseTip ? (
         <Button
           label={t("order_details_increase_tip")}
           onPress={onIncreaseTip}
           style={secondaryButtonStyle}
         />
-      ) : null}
-    
+      ) : null} */}
+
       {shouldShowRateOrder ? (
         <Button
           label={t("order_details_rate_order")}

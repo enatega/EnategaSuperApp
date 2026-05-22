@@ -226,10 +226,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   heroContainer: {
-    marginBottom: 52,
+    marginBottom: 12,
   },
   heroImage: {
-    height: 316,
+    height: 270,
     overflow: 'hidden',
   },
   heroContent: {

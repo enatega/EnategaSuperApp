@@ -8,6 +8,7 @@ import CancelAppointmentScreen from '../screens/CancelAppointmentScreen';
 import ServiceDetails from '../../screens/ServiceDetails/ServiceDetails';
 import ServiceDetailsBooking from '../../screens/ServiceDetails/ServiceDetailsBooking';
 import TeamAndSchedule from '../../screens/TeamAndSchedule/TeamAndSchedule';
+import ChooseDateAndTime from '../../screens/TeamAndSchedule/ChooseDateAndTime';
 import ReviewAndConfirm from '../../screens/ReviewAndConfirm/ReviewAndConfirm';
 import SingleVendorBottomTabNavigator from './SingleVendorBottomTabNavigator';
 import type { HomeVisitsSingleVendorNavigationParamList } from './types';
@@ -16,6 +17,7 @@ import SingleVendorCategoriesSeeAll from '../../screens/SingleVendorCategoriesSe
 import FavoriteServicesScreen from '../screens/FavoriteServicesScreen';
 import TrackWorkerScreen from '../screens/TrackWorkerScreen';
 import NotificationsScreen from '../../../../general/screens/notifications/NotificationsScreen';
+import useHomeVisitsSocketSync from "../hooks/useHomeVisitsSocketSync";
 
 const Stack = createNativeStackNavigator<HomeVisitsSingleVendorNavigationParamList>();
 
@@ -23,6 +25,7 @@ const sharedScreenOptions = { headerShown: false } as const;
 
 export default function SingleVendorNavigator() {
   const { t } = useTranslation('homeVisits');
+  useHomeVisitsSocketSync();
 
   return (
     <Stack.Navigator>
@@ -89,6 +92,11 @@ export default function SingleVendorNavigator() {
       <Stack.Screen
         name="TeamAndSchedule"
         component={TeamAndSchedule}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="ChooseDateAndTime"
+        component={ChooseDateAndTime}
         options={sharedScreenOptions}
       />
       <Stack.Screen

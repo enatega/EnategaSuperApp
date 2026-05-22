@@ -21,6 +21,7 @@ import StoreDetailsScreenSkeleton from '../../components/StoreDetails/StoreDetai
 import DeliveriesFloatingCartButton from '../../../components/navigation/DeliveriesFloatingCartButton';
 import { useToggleFavouriteMutation } from '../../hooks/useToggleFavouriteMutation';
 import type { MultiVendorStackParamList } from '../../navigation/types';
+import type { DeliveryProductActionTarget } from '../../../cart/productActionTypes';
 // import { data } from './storedetaiolsData';
 
 type StoreDetailsParamList = {
@@ -71,6 +72,7 @@ export default function StoreDetailsScreen() {
   const route = useRoute<RouteProp<StoreDetailsParamList, 'StoreDetails'>>();
   const [searchValue, setSearchValue] = useState('');
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
+  const [isStoreClosedModalVisible, setIsStoreClosedModalVisible] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string | null>(null);
   const selectedStore = route.params?.store;
@@ -166,8 +168,8 @@ export default function StoreDetailsScreen() {
 
     return activeCategorySubcategoryIds
       ? subcategories.filter((subcategory) =>
-          activeCategorySubcategoryIds.includes(subcategory.id),
-        )
+        activeCategorySubcategoryIds.includes(subcategory.id),
+      )
       : subcategories;
   }, [activeCategory, subcategories]);
   const activeSubcategoryId = selectedSubcategoryId;
@@ -204,8 +206,8 @@ export default function StoreDetailsScreen() {
       : null;
     const nextVisibleSubcategories = nextCategorySubcategoryIds
       ? subcategories.filter((subcategory) =>
-          nextCategorySubcategoryIds.includes(subcategory.id),
-        )
+        nextCategorySubcategoryIds.includes(subcategory.id),
+      )
       : subcategories;
 
     setSelectedSubcategoryId(nextVisibleSubcategories[0]?.id ?? null);
@@ -242,6 +244,19 @@ export default function StoreDetailsScreen() {
   const handleCloseInfoModal = useCallback(() => {
     setIsInfoModalVisible(false);
   }, []);
+
+  const handleCloseStoreClosedModal = useCallback(() => {
+    setIsStoreClosedModalVisible(false);
+  }, []);
+
+  const handleStoreProductOpen = useCallback((target: DeliveryProductActionTarget) => {
+    if (store?.isAvailable === false) {
+      setIsStoreClosedModalVisible(true);
+      return;
+    }
+
+    navigation.navigate('ProductInfo', { productId: target.productId });
+  }, [navigation, store?.isAvailable]);
 
   const handleLoadMoreProducts = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -392,6 +407,7 @@ export default function StoreDetailsScreen() {
               void refetchProducts();
             }}
             products={products}
+            productAction={{ onOpenProduct: handleStoreProductOpen }}
             shouldShowProductSkeletons={shouldShowProductSkeletons}
             storeId={storeId}
           />
@@ -419,7 +435,21 @@ export default function StoreDetailsScreen() {
         showPrimaryAction={false}
         title={t('store_details_about_title')}
         visible={isInfoModalVisible}
-        
+
+      />
+
+      <AppPopup
+        description={t('store_details_closed_store_description', {
+          shopTypeName: store?.shopTypeName?.trim() || t('store_details_closed_store_fallback_name'),
+        })}
+        dismissOnOverlayPress
+        onRequestClose={handleCloseStoreClosedModal}
+        primaryAction={{
+          label: t('store_details_close'),
+          onPress: handleCloseStoreClosedModal,
+        }}
+        title={t('store_details_closed_store_title')}
+        visible={isStoreClosedModalVisible}
       />
     </>
   );

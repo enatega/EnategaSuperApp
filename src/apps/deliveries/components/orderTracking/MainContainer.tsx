@@ -9,6 +9,7 @@ import Map, {
   type MapMarker,
   type MapPolyline,
 } from "../../../../general/components/Map";
+import { showToast } from "../../../../general/components/AppToast";
 import ScreenHeader from "../../../../general/components/ScreenHeader";
 import { useTheme } from "../../../../general/theme/theme";
 import type {
@@ -53,6 +54,34 @@ type RiderLocation = {
   longitude: number;
 };
 
+function resolveRiderId(rider: DeliveryOrderRider | null | undefined): string | null {
+  if (!rider) {
+    return null;
+  }
+
+  const directCandidates = [rider.userId, rider.id] as const;
+  for (const candidate of directCandidates) {
+    if (typeof candidate === "string" && candidate.trim().length > 0) {
+      return candidate;
+    }
+  }
+
+  const objectCandidate = rider as { _id?: unknown; user?: { id?: unknown; _id?: unknown } };
+  const nestedCandidates = [
+    objectCandidate._id,
+    objectCandidate.user?.id,
+    objectCandidate.user?._id,
+  ];
+
+  for (const candidate of nestedCandidates) {
+    if (typeof candidate === "string" && candidate.trim().length > 0) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
 export default function MainContainer({ navigation, orderId }: Props) {
   const { t } = useTranslation("deliveries");
   const { colors } = useTheme();
@@ -61,10 +90,7 @@ export default function MainContainer({ navigation, orderId }: Props) {
 
   const orderDetailsQuery = useOrderDetails(orderId);
   console.log("Order Details:", orderDetailsQuery.data);
-  const riderId =
-    typeof orderDetailsQuery.data?.rider?.userId === "string"
-      ? orderDetailsQuery.data.rider.userId
-      : orderDetailsQuery.data?.rider?.id;
+  const riderId = resolveRiderId(orderDetailsQuery.data?.rider);
   const riderName =
     orderDetailsQuery.data?.rider?.name ||
     t("ride_active_driver_fallback", {
@@ -173,6 +199,9 @@ export default function MainContainer({ navigation, orderId }: Props) {
     [colors.primary, mapCoordinates, order?.orderType, routePathQuery.data],
   );
   const isDelivered = order?.status === "delivered";
+  const canContactCourier =
+    order?.status === "picked_up" &&
+    Boolean(riderId || chatBoxId);
   const restaurantNote = order?.restaurantNote?.trim() || null;
   const courierNote = order?.courierNote?.trim() || null;
   const shouldShowNotes = Boolean(restaurantNote || courierNote);
@@ -301,35 +330,41 @@ export default function MainContainer({ navigation, orderId }: Props) {
               style={[styles.divider, { backgroundColor: colors.border }]}
             />
 
-            <OrderTrackingInfoRow
-              iconName="chatbox-ellipses-outline"
-              isCompact
-              isIconContained={false}
-              onPress={() => {
-                if (!riderId) {
-                  console.log("OrderTracking missing riderId for chat", {
-                    orderId,
-                    rider: orderDetailsQuery.data?.rider,
-                  });
-                  return;
-                }
+            {canContactCourier ? (
+              <>
+                <OrderTrackingInfoRow
+                  iconName="chatbox-ellipses-outline"
+                  isCompact
+                  isIconContained={false}
+                  onPress={() => {
+                    if (!riderId && !chatBoxId) {
+                      console.log("OrderTracking missing riderId for chat", {
+                        chatBoxId,
+                        orderId,
+                        rider: orderDetailsQuery.data?.rider,
+                      });
+                      showToast.error(t("rider_chat_missing_receiver_error"));
+                      return;
+                    }
 
-                navigation.navigate("RiderChat", {
-                  chatBoxId,
-                  estimatedMinutes,
-                  orderCode: order.summary.orderNumber || orderId,
-                  receiverId: riderId,
-                  riderAvatarUri,
-                  riderName,
-                });
-              }}
-              subtitle={t("order_tracking_contact_subtitle")}
-              title={t("order_tracking_contact_title")}
-            />
+                    navigation.navigate("RiderChat", {
+                      chatBoxId,
+                      estimatedMinutes,
+                      orderCode: order.summary.orderNumber || orderId,
+                      receiverId: riderId ?? undefined,
+                      riderAvatarUri,
+                      riderName,
+                    });
+                  }}
+                  subtitle={t("order_tracking_contact_subtitle")}
+                  title={t("order_tracking_contact_title")}
+                />
 
-            <View
-              style={[styles.divider, { backgroundColor: colors.border }]}
-            />
+                <View
+                  style={[styles.divider, { backgroundColor: colors.border }]}
+                />
+              </>
+            ) : null}
 
             <ExtendableOrderItems
               collapsedVariant="tracking"

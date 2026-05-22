@@ -71,3 +71,23 @@ export function resetToSharedHome() {
 
   return true;
 }
+
+export function resetToAuth() {
+  if (!navigationRef.isReady()) {
+    return false;
+  }
+
+  navigationRef.resetRoot({
+    index: 0,
+    routes: [
+      {
+        name: 'Main',
+        params: {
+          screen: 'Auth',
+        },
+      },
+    ],
+  });
+
+  return true;
+}

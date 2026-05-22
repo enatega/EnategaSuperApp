@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
     justifyContent: 'center',
     minWidth: 78,
-    paddingHorizontal: 24,
+    paddingHorizontal: 10,
     paddingVertical: 14,
   },
   label: {

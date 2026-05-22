@@ -1,5 +1,4 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import {
   FlatList,
@@ -50,7 +49,6 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
   const { t } = useTranslation('homeVisits');
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const queryClient = useQueryClient();
   const { height: viewportHeight } = useWindowDimensions();
   const { orderId } = route.params;
   const { latitude: currentLatitude, longitude: currentLongitude } = useAddress();
@@ -73,11 +71,13 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
   const { liveBookingData, workerLocation } = useTrackWorkerRealtime({
     currentUserId,
     initialBookingData: data,
-    onJobStatusUpdated: resetLocalFlow,
     orderId,
-    queryClient,
     token,
   });
+
+  React.useEffect(() => {
+    resetLocalFlow();
+  }, [data?.jobStatus, data?.status, resetLocalFlow]);
 
   const bookingData = liveBookingData ?? data ?? null;
   const stage = resolveTrackWorkerStage(bookingData);

@@ -1,5 +1,7 @@
 import type { DeliveryAddress, SavedAddress } from '../api/addressService';
 
+const CURRENT_LOCATION_ADDRESS_ID = 'current-location';
+
 type DeliveryAddressInput = {
   id?: string;
   address: string;
@@ -73,6 +75,29 @@ export function getSelectedSavedAddressId(
     | undefined,
 ) {
   return addresses?.find((address) => address.is_selected)?.id;
+}
+
+export function resolveSavedAddressId(
+  selectedAddressId: string | null | undefined,
+  addresses:
+    | Array<Pick<SavedAddress, 'id' | 'is_selected'>>
+    | null
+    | undefined,
+) {
+  if (selectedAddressId && selectedAddressId !== CURRENT_LOCATION_ADDRESS_ID) {
+    return selectedAddressId;
+  }
+
+  const savedSelectedAddressId = getSelectedSavedAddressId(addresses);
+
+  if (
+    savedSelectedAddressId &&
+    savedSelectedAddressId !== CURRENT_LOCATION_ADDRESS_ID
+  ) {
+    return savedSelectedAddressId;
+  }
+
+  return undefined;
 }
 
 export function getSelectedSavedAddress(

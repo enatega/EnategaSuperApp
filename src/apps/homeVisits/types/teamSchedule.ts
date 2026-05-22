@@ -8,6 +8,8 @@ export type HomeVisitsBookingSummary = {
 };
 
 export type HomeVisitsTeamScheduleMode = 'one-time' | 'contract';
+export type HomeVisitsWorkerType = 'individual' | 'team';
+export type HomeVisitsContractType = 'weekly';
 
 export type HomeVisitsSelectedServiceSnapshot = {
   id: string;
@@ -35,8 +37,28 @@ export type HomeVisitsReviewAndConfirmRouteParams =
   HomeVisitsTeamAndScheduleRouteParams & {
     teamSize: number;
     workingHours: number;
+    workerType: HomeVisitsWorkerType;
+    jobDescription?: string;
     contractDays: number;
+    contractType?: HomeVisitsContractType;
+    repeatEnabled?: boolean;
+    contractEndDateUnix?: number;
+    repeatEndDateUnix?: number;
+    selectedDateUnix?: number;
+    selectedDateUnixList?: number[];
+    startTimeUnix?: number;
+    endTimeUnix?: number;
     serviceMode: HomeVisitsTeamScheduleMode;
     scheduledAtIso: string;
     scheduledSlot: HomeVisitsScheduledSlot;
+  };
+
+export type HomeVisitsChooseDateAndTimeRouteParams =
+  HomeVisitsTeamAndScheduleRouteParams & {
+    teamSize: number;
+    workingHours: number;
+    workerType: HomeVisitsWorkerType;
+    jobDescription?: string;
+    contractDays: number;
+    serviceMode: HomeVisitsTeamScheduleMode;
   };
