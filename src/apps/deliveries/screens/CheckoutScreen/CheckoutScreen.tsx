@@ -17,6 +17,7 @@ import CheckoutScreenContent from '../../components/checkout/CheckoutScreenConte
 import CartScreenErrorState from '../../components/cart/CartScreenErrorState';
 import CartScreenSkeleton from '../../components/cart/CartScreenSkeleton';
 import useAddress from '../../../../general/hooks/useAddress';
+import useCurrentLocation from '../../../../general/hooks/useCurrentLocation';
 import useSelectSavedAddress from '../../../../general/hooks/useSelectSavedAddress';
 import { useCart } from '../../hooks/useCart';
 import { useCheckoutPreview } from '../../hooks/useCheckoutPreview';
@@ -171,6 +172,7 @@ export default function CheckoutScreen() {
     checkoutUrl: string;
   } | null>(null);
   const { selectedAddress } = useAddress();
+  const { refreshCurrentLocation } = useCurrentLocation();
   const {
     addresses,
     isLoading: isAddressesLoading,
@@ -514,13 +516,16 @@ export default function CheckoutScreen() {
     });
   }, [navigation]);
 
-  const handleUseCurrentLocation = React.useCallback(() => {
+  const handleUseCurrentLocation = React.useCallback(async () => {
     setIsAddressSheetVisible(false);
+    const currentLocation = await refreshCurrentLocation();
     navigation.navigate('AddressChooseOnMap', {
       appPrefix: 'deliveries',
+      initialLatitude: currentLocation?.latitude,
+      initialLongitude: currentLocation?.longitude,
       origin: 'checkout',
     });
-  }, [navigation]);
+  }, [navigation, refreshCurrentLocation]);
 
   const handlePlaceOrderPress = React.useCallback(() => {
     if (!cart?.bucketId || !cart.storeId) {

@@ -24,9 +24,9 @@ export default function AddressChooseOnMapScreen() {
       typeof selectedAddress?.longitude === 'number'
     )
       ? {
-          latitude: selectedAddress.latitude,
-          longitude: selectedAddress.longitude,
-        }
+        latitude: selectedAddress.latitude,
+        longitude: selectedAddress.longitude,
+      }
       : null;
 
   const handleConfirm = useCallback(
@@ -37,12 +37,12 @@ export default function AddressChooseOnMapScreen() {
         longitude: result.longitude,
         ...(params.editAddressId
           ? {
-              appPrefix: params.appPrefix,
-              editAddressId: params.editAddressId,
-              editType: params.editType,
-              editLocationName: params.editLocationName,
-              origin: params.origin,
-            }
+            appPrefix: params.appPrefix,
+            editAddressId: params.editAddressId,
+            editType: params.editType,
+            editLocationName: params.editLocationName,
+            origin: params.origin,
+          }
           : { appPrefix: params.appPrefix, origin: params.origin }),
       });
     },
@@ -51,7 +51,15 @@ export default function AddressChooseOnMapScreen() {
 
   return (
     <AddressChooseOnMap
-      initialCoordinate={initialCoordinate}
+      initialCoordinate={
+        typeof params.initialLatitude === 'number' &&
+          typeof params.initialLongitude === 'number'
+          ? {
+            latitude: params.initialLatitude,
+            longitude: params.initialLongitude,
+          }
+          : null
+      }
       onBackPress={() => nav.goBack()}
       onConfirm={handleConfirm}
       confirmLabel={t('address_confirm_location')}
