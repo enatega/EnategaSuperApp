@@ -18,6 +18,7 @@ import {
   saveRecentAddressSearch,
 } from '../../utils/recentAddressSearches';
 import type { RecentAddressSearch } from '../../api/addressService';
+import useCurrentLocation from '../../hooks/useCurrentLocation';
 
 export default function AddressSearchScreen() {
   const nav = useNavigation<NativeStackNavigationProp<AddressFlowParamList>>();
@@ -25,7 +26,7 @@ export default function AddressSearchScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('general');
   const params = (route.params as AddressFlowParamList['AddressSearch']) ?? {};
-  console.log("🚀 ~ AddressSearchScreen ~ params:", params)
+  const { currentCoordinates, refreshCurrentLocation } = useCurrentLocation();
 
   const [query, setQuery] = useState('');
   const [recentSearches, setRecentSearches] = useState<RecentAddressSearch[]>([]);
@@ -102,9 +103,16 @@ export default function AddressSearchScreen() {
     [editParams, nav],
   );
 
-  const handleChooseOnMap = useCallback(() => {
-    nav.navigate('AddressChooseOnMap', editParams);
-  }, [editParams, nav]);
+  const handleChooseOnMap = useCallback(async () => {
+    const freshCoordinates = await refreshCurrentLocation();
+    const resolvedCoordinates = freshCoordinates ?? currentCoordinates;
+
+    nav.navigate('AddressChooseOnMap', {
+      ...editParams,
+      initialLatitude: resolvedCoordinates?.latitude,
+      initialLongitude: resolvedCoordinates?.longitude,
+    });
+  }, [currentCoordinates, editParams, nav, refreshCurrentLocation]);
 
   const suggestions = predictionsQuery.data ?? [];
   const showRecent = !isSearching && recentSearches.length > 0;
