@@ -10,6 +10,13 @@ export type CurrentCoordinates = {
   longitude: number;
 };
 
+function toCoordinates(position: Location.LocationObject | Location.LocationLastKnownObject): CurrentCoordinates {
+  return {
+    latitude: position.coords.latitude,
+    longitude: position.coords.longitude,
+  };
+}
+
 export default function useCurrentLocation() {
   const [currentCoordinates, setCurrentCoordinates] = useState<CurrentCoordinates | null>(null);
   const [isLoadingCurrentLocation, setIsLoadingCurrentLocation] = useState(false);
@@ -35,27 +42,35 @@ export default function useCurrentLocation() {
       const lastKnownPosition = await Location.getLastKnownPositionAsync();
 
       if (lastKnownPosition) {
-        setCurrentCoordinates({
-          latitude: lastKnownPosition.coords.latitude,
-          longitude: lastKnownPosition.coords.longitude,
-        });
+        const lastKnownCoordinates = toCoordinates(lastKnownPosition);
+        setCurrentCoordinates(lastKnownCoordinates);
+
+        // Keep GPS refinement non-blocking so navigation can happen instantly.
+        void Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        })
+          .then((currentPosition) => {
+            setCurrentCoordinates(toCoordinates(currentPosition));
+          })
+          .catch(() => {
+            // Last known location is already applied.
+          })
+          .finally(() => {
+            setIsLoadingCurrentLocation(false);
+          });
+
+        return lastKnownCoordinates;
       }
 
       const currentPosition = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
       }).catch(() => null);
 
-      const resolvedPosition = currentPosition ?? lastKnownPosition;
-
-      if (!resolvedPosition) {
+      if (!currentPosition) {
         return null;
       }
 
-      const nextCoordinates = {
-        latitude: resolvedPosition.coords.latitude,
-        longitude: resolvedPosition.coords.longitude,
-      };
-
+      const nextCoordinates = toCoordinates(currentPosition);
       setCurrentCoordinates(nextCoordinates);
       return nextCoordinates;
     } catch (error) {
