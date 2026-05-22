@@ -12,6 +12,7 @@ import useAddress from '../../../../general/hooks/useAddress';
 import useSavedAddresses from '../../../../general/hooks/useSavedAddresses';
 import useSelectSavedAddress from '../../../../general/hooks/useSelectSavedAddress';
 import { getApiErrorMessage } from '../../../../general/utils/apiError';
+import { resolveSavedAddressId } from '../../../../general/utils/address';
 import { useTheme } from '../../../../general/theme/theme';
 import { formatPrice } from '../../components/ServiceDetailsPage/serviceDetailsSelection';
 import HomeVisitsDateTimePickerSheet from '../../components/common/HomeVisitsDateTimePickerSheet';
@@ -92,6 +93,10 @@ export default function ReviewAndConfirm() {
     refetch: refetchAddresses,
   } = useSavedAddresses('home-services');
   const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress('home-services');
+  const resolvedAddressId = useMemo(
+    () => resolveSavedAddressId(selectedAddress?.id, addresses),
+    [addresses, selectedAddress?.id],
+  );
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const {
@@ -137,7 +142,7 @@ export default function ReviewAndConfirm() {
     () =>
       buildBookingSummaryPreviewPayload({
         routeParams: route.params,
-        addressId: selectedAddress?.id,
+        addressId: resolvedAddressId,
         notes,
         customerNote: notes,
         discountCode,
@@ -149,7 +154,7 @@ export default function ReviewAndConfirm() {
       discountCode,
       notes,
       route.params,
-      selectedAddress?.id,
+      resolvedAddressId,
       selectedPaymentMethod,
       selectedScheduledAt,
       selectedScheduledSlot,
