@@ -20,6 +20,7 @@ import {
 } from "../useSearchQueries";
 import useAddress from "../../../../general/hooks/useAddress";
 import useAddressSelectionSheet from "../../../../general/hooks/useAddressSelectionSheet";
+import useCurrentLocation from "../../../../general/hooks/useCurrentLocation";
 import useRecentSearchActions from "./useRecentSearchActions";
 import useSavedAddresses from "../../../../general/hooks/useSavedAddresses";
 import useSearchKeyboardState from "../../../../general/hooks/searchFlow/useSearchKeyboardState";
@@ -61,6 +62,7 @@ export default function useDeliverySearchFlow(
   const origin = getAddressFlowOrigin(route.name);
   const { latitude, longitude, selectedAddress, selectedAddressLabel } =
     useAddress();
+  const { refreshCurrentLocation } = useCurrentLocation();
   const {
     addresses,
     isLoading: isAddressesLoading,
@@ -231,13 +233,16 @@ export default function useDeliverySearchFlow(
     });
   }, [handleCloseAddressSheet, navigation, origin]);
 
-  const handleUseCurrentLocation = useCallback(() => {
+  const handleUseCurrentLocation = useCallback(async () => {
     handleCloseAddressSheet();
+    const currentLocation = await refreshCurrentLocation();
     navigation.navigate("AddressChooseOnMap", { 
       appPrefix: "deliveries",
+      initialLatitude: currentLocation?.latitude,
+      initialLongitude: currentLocation?.longitude,
       origin 
     });
-  }, [handleCloseAddressSheet, navigation, origin]);
+  }, [handleCloseAddressSheet, navigation, origin, refreshCurrentLocation]);
 
   return {
     colors,

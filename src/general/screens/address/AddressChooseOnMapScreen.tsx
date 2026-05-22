@@ -35,6 +35,15 @@ export default function AddressChooseOnMapScreen() {
 
   return (
     <AddressChooseOnMap
+      initialCoordinate={
+        typeof params.initialLatitude === 'number' &&
+        typeof params.initialLongitude === 'number'
+          ? {
+              latitude: params.initialLatitude,
+              longitude: params.initialLongitude,
+            }
+          : null
+      }
       onBackPress={() => nav.goBack()}
       onConfirm={handleConfirm}
       confirmLabel={t('address_confirm_location')}

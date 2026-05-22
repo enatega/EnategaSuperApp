@@ -39,7 +39,7 @@ export default function HomeTab() {
     refetch,
   } = useSavedAddresses("deliveries");
   const { selectedAddress, setSelectedAddress } = useAddress();
-  const { currentCoordinates } = useCurrentLocation();
+  const { currentCoordinates, refreshCurrentLocation } = useCurrentLocation();
   const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("deliveries");
   const {
     isVisible: isAddressSheetVisible,
@@ -76,13 +76,16 @@ export default function HomeTab() {
     });
   }, [handleCloseAddressSheet, navigation]);
 
-  const handleUseCurrentLocation = useCallback(() => {
+  const handleUseCurrentLocation = useCallback(async () => {
     handleCloseAddressSheet();
+    const currentLocation = await refreshCurrentLocation();
     navigation.navigate('AddressChooseOnMap', {
       appPrefix: "deliveries",
+      initialLatitude: currentLocation?.latitude,
+      initialLongitude: currentLocation?.longitude,
       origin: 'multi-vendor-home'
     });
-  }, [handleCloseAddressSheet, navigation]);
+  }, [handleCloseAddressSheet, navigation, refreshCurrentLocation]);
 
   const handleCartPress = useCallback(() => {
     navigation.navigate('Cart');

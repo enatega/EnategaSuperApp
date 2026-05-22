@@ -17,13 +17,17 @@ import CheckoutScreenContent from '../../components/checkout/CheckoutScreenConte
 import CartScreenErrorState from '../../components/cart/CartScreenErrorState';
 import CartScreenSkeleton from '../../components/cart/CartScreenSkeleton';
 import useAddress from '../../../../general/hooks/useAddress';
+import useCurrentLocation from '../../../../general/hooks/useCurrentLocation';
 import useSelectSavedAddress from '../../../../general/hooks/useSelectSavedAddress';
 import { useCart } from '../../hooks/useCart';
 import { useCheckoutPreview } from '../../hooks/useCheckoutPreview';
 import { useUseCouponMutation } from '../../hooks/useUseCouponMutation';
 import { claimedCouponsKeys } from '../../hooks/useClaimedCouponsQuery';
 import { formatCartPrice } from '../../components/cart/cartUtils';
-import { formatDeliveryAddressLabel } from '../../../../general/utils/address';
+import {
+  formatDeliveryAddressLabel,
+  resolveSavedAddressId,
+} from '../../../../general/utils/address';
 import { usePlaceOrder } from '../../hooks/usePlaceOrder';
 import CheckoutMessageEditorScreen from '../../components/checkout/CheckoutMessageEditorScreen';
 import CheckoutCustomTipScreen from '../../components/checkout/CheckoutCustomTipScreen';
@@ -165,11 +169,16 @@ export default function CheckoutScreen() {
     checkoutUrl: string;
   } | null>(null);
   const { selectedAddress } = useAddress();
+  const { refreshCurrentLocation } = useCurrentLocation();
   const {
     addresses,
     isLoading: isAddressesLoading,
     refetch: refetchAddresses,
   } = useSavedAddresses("deliveries");
+  const resolvedAddressId = React.useMemo(
+    () => resolveSavedAddressId(selectedAddress?.id, addresses),
+    [addresses, selectedAddress?.id],
+  );
   const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("deliveries");
   const [orderType, setOrderType] = React.useState<CheckoutOrderType>('delivery');
   const [leaveAtDoor, setLeaveAtDoor] = React.useState(false);
@@ -199,12 +208,19 @@ export default function CheckoutScreen() {
     () => getPreviewInput(
       cart,
       orderType,
-      selectedAddress?.id,
+      resolvedAddressId,
       selectedCoupon?.code,
       previewScheduledAt,
       selectedTip,
     ),
-    [cart, orderType, selectedAddress?.id, selectedCoupon?.code, previewScheduledAt, selectedTip],
+    [
+      cart,
+      orderType,
+      resolvedAddressId,
+      selectedCoupon?.code,
+      previewScheduledAt,
+      selectedTip,
+    ],
   );
   const {
     data: preview,
@@ -424,20 +440,23 @@ export default function CheckoutScreen() {
     });
   }, [navigation]);
 
-  const handleUseCurrentLocation = React.useCallback(() => {
+  const handleUseCurrentLocation = React.useCallback(async () => {
     setIsAddressSheetVisible(false);
+    const currentLocation = await refreshCurrentLocation();
     navigation.navigate('AddressChooseOnMap', {
       appPrefix: 'deliveries',
+      initialLatitude: currentLocation?.latitude,
+      initialLongitude: currentLocation?.longitude,
       origin: 'checkout',
     });
-  }, [navigation]);
+  }, [navigation, refreshCurrentLocation]);
 
   const handlePlaceOrderPress = React.useCallback(() => {
     if (!cart?.bucketId || !cart.storeId) {
       return;
     }
 
-    if (orderType === 'delivery' && !selectedAddress?.id) {
+    if (orderType === 'delivery' && !resolvedAddressId) {
       showToast.error(t('checkout_address_required'));
       return;
     }
@@ -458,7 +477,7 @@ export default function CheckoutScreen() {
       bucketId: cart.bucketId,
       orderType,
       paymentMethod,
-      addressId: orderType === 'delivery' ? selectedAddress?.id : undefined,
+      addressId: orderType === 'delivery' ? resolvedAddressId : undefined,
       customerNote: buildCustomerNote({
         restaurant: messages.restaurant,
         courier: orderType === 'delivery' ? messages.courier : '',
@@ -488,7 +507,7 @@ export default function CheckoutScreen() {
     orderType,
     paymentMethod,
     placeOrderMutation,
-    selectedAddress?.id,
+    resolvedAddressId,
     selectedCoupon?.code,
     messages,
     deliveryTimeMode,
