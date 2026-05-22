@@ -12,6 +12,8 @@ export type AddressFlowParams = {
   editAddressId?: string;
   editType?: string;
   editLocationName?: string;
+  latitude?: number;
+  longitude?: number;
   origin?: AddressFlowOrigin;
 };
 

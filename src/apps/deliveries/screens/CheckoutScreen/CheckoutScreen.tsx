@@ -24,7 +24,10 @@ import { useUseCouponMutation } from '../../hooks/useUseCouponMutation';
 import { useClaimedCouponsQuery } from '../../hooks/useClaimedCouponsQuery';
 import { claimedCouponsKeys } from '../../hooks/useClaimedCouponsQuery';
 import { formatCartPrice } from '../../components/cart/cartUtils';
-import { formatDeliveryAddressLabel } from '../../../../general/utils/address';
+import {
+  formatDeliveryAddressLabel,
+  getSelectedSavedAddressId,
+} from '../../../../general/utils/address';
 import { usePlaceOrder } from '../../hooks/usePlaceOrder';
 import CheckoutMessageEditorScreen from '../../components/checkout/CheckoutMessageEditorScreen';
 import CheckoutCustomTipScreen from '../../components/checkout/CheckoutCustomTipScreen';
@@ -198,17 +201,24 @@ export default function CheckoutScreen() {
     error: cartError,
     refetch: refetchCart,
   } = useCart();
+  const selectedAddressId = React.useMemo(() => {
+    if (selectedAddress?.id && selectedAddress.id !== 'current-location') {
+      return selectedAddress.id;
+    }
+
+    return getSelectedSavedAddressId(addresses) ?? undefined;
+  }, [addresses, selectedAddress?.id]);
   const previewScheduledAt = deliveryTimeMode === 'schedule' ? scheduledAt ?? undefined : undefined;
   const previewInput = React.useMemo(
     () => getPreviewInput(
       cart,
       orderType,
-      selectedAddress?.id,
+      selectedAddressId,
       selectedCoupon?.code,
       previewScheduledAt,
       selectedTip,
     ),
-    [cart, orderType, selectedAddress?.id, selectedCoupon?.code, previewScheduledAt, selectedTip],
+    [cart, orderType, selectedAddressId, selectedCoupon?.code, previewScheduledAt, selectedTip],
   );
   const {
     data: preview,
@@ -505,7 +515,7 @@ export default function CheckoutScreen() {
       return;
     }
 
-    if (orderType === 'delivery' && !selectedAddress?.id) {
+    if (orderType === 'delivery' && !selectedAddressId) {
       showToast.error(t('checkout_address_required'));
       return;
     }
@@ -526,7 +536,7 @@ export default function CheckoutScreen() {
       bucketId: cart.bucketId,
       orderType,
       paymentMethod,
-      addressId: orderType === 'delivery' ? selectedAddress?.id : undefined,
+      addressId: orderType === 'delivery' ? selectedAddressId : undefined,
       customerNote: buildCustomerNote({
         restaurant: messages.restaurant,
         courier: orderType === 'delivery' ? messages.courier : '',
@@ -565,7 +575,7 @@ export default function CheckoutScreen() {
     orderType,
     paymentMethod,
     placeOrderMutation,
-    selectedAddress?.id,
+    selectedAddressId,
     selectedCoupon?.code,
     messages,
     deliveryTimeMode,
@@ -995,7 +1005,7 @@ export default function CheckoutScreen() {
       <CheckoutScreenContent
         courierMessage={messages.courier}
         deliveryTimeMode={deliveryTimeMode}
-        hasAddressRequirement={orderType === 'delivery' && !selectedAddress?.id}
+        hasAddressRequirement={orderType === 'delivery' && !selectedAddressId}
         isPickupEnabled={adjustedPreview?.store.pickupAllowed ?? true}
         isPromoApplied={isPromoApplied}
         isPlacingOrder={placeOrderMutation.isPending}

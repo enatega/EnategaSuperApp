@@ -99,7 +99,7 @@ export default function HomeTab() {
 
     const hasSelectedSavedAddress = addresses.some((address) => address.is_selected);
 
-    if (hasSelectedSavedAddress && selectedAddress?.id !== 'current-location') {
+    if (hasSelectedSavedAddress) {
       return;
     }
 

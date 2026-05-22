@@ -4,14 +4,30 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import AddressChooseOnMap from '../../components/address/AddressChooseOnMap';
 import type { MapAddressResult } from '../../components/address/AddressChooseOnMap';
+import useAddress from '../../hooks/useAddress';
 import type { AddressFlowParamList } from '../../navigation/addressFlowTypes';
 
 export default function AddressChooseOnMapScreen() {
   const nav = useNavigation<NativeStackNavigationProp<AddressFlowParamList>>();
   const route = useRoute();
   const { t } = useTranslation('general');
+  const { selectedAddress } = useAddress();
   const params =
     (route.params as AddressFlowParamList['AddressChooseOnMap']) ?? {};
+  const initialCoordinate = (
+    typeof params.latitude === 'number' &&
+    typeof params.longitude === 'number'
+  )
+    ? { latitude: params.latitude, longitude: params.longitude }
+    : (
+      typeof selectedAddress?.latitude === 'number' &&
+      typeof selectedAddress?.longitude === 'number'
+    )
+      ? {
+          latitude: selectedAddress.latitude,
+          longitude: selectedAddress.longitude,
+        }
+      : null;
 
   const handleConfirm = useCallback(
     (result: MapAddressResult) => {
@@ -35,6 +51,7 @@ export default function AddressChooseOnMapScreen() {
 
   return (
     <AddressChooseOnMap
+      initialCoordinate={initialCoordinate}
       onBackPress={() => nav.goBack()}
       onConfirm={handleConfirm}
       confirmLabel={t('address_confirm_location')}

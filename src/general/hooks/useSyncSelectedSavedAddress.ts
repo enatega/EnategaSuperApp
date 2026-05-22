@@ -26,10 +26,6 @@ export default function useSyncSelectedSavedAddress(
       setSelectedAddress,
     } = useAddressStore.getState();
 
-    if (selectedAddress?.id === 'current-location') {
-      return;
-    }
-
     if (!apiSelectedAddress) {
       const hasStoredSavedAddress = Boolean(
         selectedAddress?.id &&
