@@ -149,6 +149,12 @@ httpClient.interceptors.request.use(async (config) => {
   }
 
   const token = await tokenManager.getToken();
+  const requestUrl = config.url ?? '';
+  const isHomeVisitsRequest = requestUrl.includes('/apps/home-services/');
+
+  if (isHomeVisitsRequest) {
+    console.log('[homeVisits] API token:', token ?? 'missing');
+  }
 
   if (token) {
     const headers = AxiosHeaders.from(config.headers ?? {});

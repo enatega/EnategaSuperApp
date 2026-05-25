@@ -59,7 +59,6 @@ export default function ActiveServiceCard({ booking, onPress }: Props) {
     booking.statusLabel,
     t,
   ).toUpperCase();
-  const subtitle = booking.durationLabel || statusLabel || t('single_vendor_active_service_default_subtitle');
   const progressPercent = resolveProgressPercent(booking.jobStatus ?? booking.status);
 
   return (
@@ -68,8 +67,8 @@ export default function ActiveServiceCard({ booking, onPress }: Props) {
       style={({ pressed }) => [
         styles.container,
         {
-          backgroundColor: colors.cardSoft,
-          borderColor: colors.border,
+          backgroundColor: colors.primary,
+          borderColor: colors.primaryDark,
           shadowColor: colors.shadowColor,
           opacity: pressed ? 0.95 : 1,
         },
@@ -79,18 +78,18 @@ export default function ActiveServiceCard({ booking, onPress }: Props) {
         <View
           style={[
             styles.leadingIconWrap,
-            { backgroundColor: colors.cardPeach },
+            { backgroundColor: 'rgba(255,255,255,0.2)' },
           ]}
         >
-          <Icon type="MaterialCommunityIcons" name="pipe-wrench" size={26} color={colors.primary} />
+          <Icon type="MaterialCommunityIcons" name="pipe-wrench" size={26} color={colors.white} />
         </View>
 
         <View style={styles.textBlock}>
           <View style={styles.statusRow}>
-            <View style={[styles.statusDot, { backgroundColor: colors.primary }]} />
+            <View style={[styles.statusDot, { backgroundColor: colors.white }]} />
             <Text
               style={{
-                color: colors.primary,
+                color: colors.white,
                 fontSize: typography.size.sm2,
                 lineHeight: typography.lineHeight.md,
               }}
@@ -100,44 +99,30 @@ export default function ActiveServiceCard({ booking, onPress }: Props) {
             </Text>
           </View>
           <Text
-            style={{
-              color: colors.text,
-              fontSize: typography.size.md,
-              lineHeight: typography.lineHeight.lg,
-            }}
+              style={{
+                color: colors.white,
+                fontSize: typography.size.md,
+                lineHeight: typography.lineHeight.lg,
+              }}
             numberOfLines={1}
             weight="bold"
           >
             {title}
           </Text>
-          <View style={styles.subtitleRow}>
-            <Icon type="Feather" name="clock" size={15} color={colors.mutedText} />
-            <Text
-              style={{
-                color: colors.mutedText,
-                fontSize: typography.size.md,
-                lineHeight: typography.lineHeight.md,
-              }}
-              numberOfLines={1}
-              weight="medium"
-            >
-              {subtitle}
-            </Text>
-          </View>
         </View>
 
-        <View style={[styles.iconWrap, { backgroundColor: colors.primary }]}>
-          <MaterialCommunityIcons color={colors.white} name="dots-horizontal" size={24} />
+        <View style={[styles.iconWrap, { backgroundColor: 'rgba(255,255,255,0.22)' }]}>
+          <MaterialCommunityIcons color={colors.white} name="dots-horizontal" size={22} />
         </View>
       </View>
 
       <View style={styles.progressRow}>
-        <View style={[styles.progressTrack, { backgroundColor: colors.cardPeach }]}>
+        <View style={[styles.progressTrack, { backgroundColor: 'rgba(255,255,255,0.28)' }]}>
           <View
             style={[
               styles.progressFill,
               {
-                backgroundColor: colors.primary,
+                backgroundColor: colors.white,
                 width: `${progressPercent}%`,
               },
             ]}
@@ -145,7 +130,7 @@ export default function ActiveServiceCard({ booking, onPress }: Props) {
         </View>
         <Text
           style={{
-            color: colors.text,
+            color: colors.white,
             fontSize: typography.size.md,
             lineHeight: typography.lineHeight.md,
           }}
@@ -191,11 +176,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     height: 8,
     width: 8,
-  },
-  subtitleRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 6,
   },
   textBlock: {
     flex: 1,

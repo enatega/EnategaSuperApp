@@ -7,11 +7,11 @@ import Icon from "../../../../../../general/components/Icon";
 import type { HomeVisitsSingleVendorCategory } from "../../api/types";
 
 const QUICK_CATEGORY_CARD_COLORS: Array<keyof ThemeColors> = [
-  "cardBlue",
-  "cardLavender",
   "cardPeach",
+  "warningSoft",
+  "cardPeach",
+  "warningSoft",
   "cardMint",
-  "cardSoft",
 ];
 
 type Props = {
@@ -96,6 +96,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     elevation: 2,
     flexDirection: "row",
+    flexWrap: "nowrap",
+    justifyContent: "flex-start",
     marginHorizontal: 16,
     paddingHorizontal: 10,
     paddingVertical: 14,
@@ -105,8 +107,11 @@ const styles = StyleSheet.create({
   },
   quickCategoryItem: {
     alignItems: "center",
-    flex: 1,
+    flexGrow: 0,
+    flexShrink: 0,
     gap: 8,
+    marginRight: 14,
+    width: 64,
   },
   quickCategoryIcon: {
     alignItems: "center",
