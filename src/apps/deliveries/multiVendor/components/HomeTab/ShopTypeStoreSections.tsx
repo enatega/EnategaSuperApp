@@ -25,6 +25,20 @@ type NavProp = CompositeNavigationProp<
   NativeStackNavigationProp<DeliveriesStackParamList>
 >;
 
+function decodeDisplayText(value: string) {
+  let decodedValue = value;
+
+  if (decodedValue.includes('%')) {
+    try {
+      decodedValue = decodeURIComponent(decodedValue);
+    } catch {
+      decodedValue = value;
+    }
+  }
+
+  return decodedValue.replace(/%amp;|&amp;|&#38;/gi, '&');
+}
+
 export default function ShopTypeStoreSections() {
   const { t } = useTranslation('deliveries');
   const { typography } = useTheme();
@@ -50,6 +64,7 @@ export default function ShopTypeStoreSections() {
     <View style={styles.container}>
       {shopTypeStoreSections.map(
         ({ shopType, data = [], error, isPending: isStoresPending }) => {
+          const resolvedShopTypeName = decodeDisplayText(shopType.name);
           const isEmpty = !isStoresPending && !error && data.length === 0;
           const shouldShowSeeAll = !isStoresPending && !error && data.length > 0;
 
@@ -64,13 +79,13 @@ export default function ShopTypeStoreSections() {
                     lineHeight: typography.lineHeight.h5,
                   }}
                 >
-                  {shopType.name}
+                  {resolvedShopTypeName}
                 </Text>
               ) : (
                 <SectionActionHeader
-                  title={shopType.name}
+                  title={resolvedShopTypeName}
                   actionLabel={t('multi_vendor_see_all')}
-                  onActionPress={() => handleShopTypeSeeAll(shopType.id, shopType.name)}
+                  onActionPress={() => handleShopTypeSeeAll(shopType.id, resolvedShopTypeName)}
                 />
               )}
 

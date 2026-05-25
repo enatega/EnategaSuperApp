@@ -3,6 +3,7 @@ import { View, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "../../../../general/theme/theme";
+import { useDeliveriesCurrencyLabel } from "../../../../general/stores/useAppConfigStore";
 import type {
   DeliveryNearbyStore,
   DeliveryShopTypeProduct,
@@ -42,17 +43,19 @@ function resolveOfferLabel(
   dealAmount: number | null | undefined,
   dealType: string | null | undefined,
   deal: string | null | undefined,
+  currencyLabel: string,
   offLabel: string,
 ) {
   const hasValidAmount =
     typeof dealAmount === "number" && Number.isFinite(dealAmount) && dealAmount > 0;
+  const normalizedDealType = dealType?.trim().toLowerCase();
 
   if (hasValidAmount) {
-    if (dealType === "percentage") {
-      return `${dealAmount} % ${offLabel}`;
+    if (normalizedDealType === "percentage") {
+      return `${dealAmount}% ${offLabel}`;
     }
 
-    return `${dealAmount} ${offLabel}`;
+    return `${currencyLabel} ${dealAmount} ${offLabel}`;
   }
 
   const trimmedDeal = typeof deal === "string" ? deal.trim() : "";
@@ -69,6 +72,7 @@ export default function StoreCard({
 }: StoreCardProps) {
   const { colors } = useTheme();
   const { t } = useTranslations("deliveries")
+  const currencyLabel = useDeliveriesCurrencyLabel();
   const navigation = useNavigation<NavigationProp>();
   const isProductItem = isProductStoreCardData(store);
   const isPressable = Boolean(onPress) || !isProductItem;
@@ -82,6 +86,7 @@ export default function StoreCard({
     store.dealAmount,
     store.dealType,
     store.deal,
+    currencyLabel,
     t("off"),
   );
   const resolvedName = isProductItem ? store.productName : store.name;
