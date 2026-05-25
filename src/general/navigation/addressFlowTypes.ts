@@ -8,6 +8,8 @@ export type AddressFlowOrigin =
   | 'checkout';
 
 export type AddressFlowParams = {
+  latitude: any;
+  longitude: any;
   appPrefix: ProfileAppPrefix;
   editAddressId?: string;
   editType?: string;
