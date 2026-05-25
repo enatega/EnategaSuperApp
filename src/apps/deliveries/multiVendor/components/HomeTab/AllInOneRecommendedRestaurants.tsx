@@ -34,6 +34,20 @@ function formatFee(value?: number | null) {
   return `$${Math.round(value)}`;
 }
 
+function decodeDisplayText(value: string) {
+  let decodedValue = value;
+
+  if (decodedValue.includes('%')) {
+    try {
+      decodedValue = decodeURIComponent(decodedValue);
+    } catch {
+      decodedValue = value;
+    }
+  }
+
+  return decodedValue.replaceAll('&amp;', '&');
+}
+
 export default function AllInOneRecommendedRestaurants() {
   const { t } = useTranslation('deliveries');
   const { colors } = useTheme();
@@ -57,6 +71,9 @@ export default function AllInOneRecommendedRestaurants() {
       >
         {displayStores.map((store) => {
           const imageUri = store.coverImage || store.logo || null;
+          const resolvedShopTypeName = store.shopTypeName
+            ? decodeDisplayText(store.shopTypeName)
+            : t('multi_vendor_nearby_store_category_fast_food');
 
           return (
             <View
@@ -87,7 +104,7 @@ export default function AllInOneRecommendedRestaurants() {
                     {store.reviewCount ? `(${store.reviewCount}+)` : t('multi_vendor_nearby_store_review_count')}
                   </Text>
                   <Text style={[styles.metaMuted, { color: colors.iconMuted }]} numberOfLines={1}>
-                    {store.shopTypeName ?? t('multi_vendor_nearby_store_category_fast_food')}
+                    {resolvedShopTypeName}
                   </Text>
                 </View>
 

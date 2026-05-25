@@ -51,6 +51,8 @@ export default function StoreImage({
             variant="caption"
             weight="semiBold"
             style={[styles.offerText, { color: colors.white }]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
           >
             {offer}
           </Text>

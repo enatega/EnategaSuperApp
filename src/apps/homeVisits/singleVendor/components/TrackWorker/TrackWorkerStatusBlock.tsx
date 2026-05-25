@@ -37,6 +37,28 @@ export default function TrackWorkerStatusBlock({ stage, progressStep, statusMess
     return null;
   }
 
+  if (stage === 'payment') {
+    return (
+      <View style={styles.paymentWrap}>
+        <View style={styles.paymentIconOuter}>
+          <View style={styles.paymentIconInner}>
+            <MaterialCommunityIcons color="#fff" name="check" size={40} />
+          </View>
+        </View>
+
+        <Text style={[styles.paymentHeading, { color: colors.text }]} weight="bold">
+          Job Finished! Complete your transaction
+        </Text>
+
+        <Text style={[styles.paymentDescription, { color: colors.text }]} weight="medium">
+          {statusMessage || 'Your order is on the way.'}
+        </Text>
+
+        <View style={[styles.paymentDivider, { backgroundColor: colors.border }]} />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.statusBlock}>
       <View style={[styles.iconCircle, { backgroundColor: '#F59E0B' }]}> 
@@ -172,6 +194,46 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 28,
     textAlign: 'center',
+  },
+  paymentDescription: {
+    fontSize: 24 / 2,
+    lineHeight: 36 / 2,
+    textAlign: 'center',
+    width: '92%',
+  },
+  paymentDivider: {
+    height: 1,
+    marginTop: 12,
+    width: '100%',
+  },
+  paymentHeading: {
+    fontSize: 54 / 2,
+    lineHeight: 38,
+    marginBottom: 8,
+    marginTop: 12,
+    textAlign: 'center',
+    width: '92%',
+  },
+  paymentIconInner: {
+    alignItems: 'center',
+    backgroundColor: '#F59E0B',
+    borderRadius: 52,
+    height: 104,
+    justifyContent: 'center',
+    width: 104,
+  },
+  paymentIconOuter: {
+    alignItems: 'center',
+    backgroundColor: '#F9E9D0',
+    borderRadius: 56,
+    height: 112,
+    justifyContent: 'center',
+    width: 112,
+  },
+  paymentWrap: {
+    alignItems: 'center',
+    paddingBottom: 8,
+    paddingTop: 10,
   },
   progressRow: {
     flexDirection: 'row',

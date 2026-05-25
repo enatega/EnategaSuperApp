@@ -31,6 +31,8 @@ export type HomeVisitsStackParamList = ProfileNavigationParamList &
       }
     | undefined;
   Wallet: undefined;
+  WalletAddCard: undefined;
+  WalletTransactions: undefined;
   ColorMode: undefined;
   Language: undefined;
 };
