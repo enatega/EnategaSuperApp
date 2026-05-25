@@ -2,8 +2,6 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import {
-  AppState,
-  type AppStateStatus,
   Linking,
   Platform,
   ScrollView,
@@ -13,14 +11,8 @@ import {
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { homeVisitsKeys } from "../../api/queryKeys";
-import { useAuthSessionQuery } from "../../../../general/hooks/useAuthQueries";
 import { showToast } from "../../../../general/components/AppToast";
 import { useTheme } from "../../../../general/theme/theme";
-import {
-  homeServicesSocketClient,
-  subscribeHomeServicesEvent,
-} from "../../socket/homeServicesSocket";
-import type { JobStatusUpdatedEvent } from "../../socket/homeServicesSocket.types";
 import BookingReviewsModal from "../components/Reviews/BookingReviewsModal";
 import {
   DEFAULT_BOOKING_REVIEW_SUMMARY,
@@ -41,6 +33,9 @@ import BookingDetailsServicesSection from "../components/BookingDetails/BookingD
 import BookingDetailsSummarySection from "../components/BookingDetails/BookingDetailsSummarySection";
 import BookingDetailsTextSection from "../components/BookingDetails/BookingDetailsTextSection";
 import type { BookingDetailsLiveEvent } from "../components/BookingDetails/types";
+import {
+  isTerminalBookingStatus,
+} from "../realtime/jobStatusSync";
 
 type Props = NativeStackScreenProps<
   HomeVisitsSingleVendorNavigationParamList,
@@ -53,20 +48,6 @@ const ACTIVE_BOOKING_QUERY_KEY = homeVisitsKeys.singleVendorBookings({
   limit: 1,
   tab: "ongoing",
 });
-const TERMINAL_BOOKING_STATUSES = new Set([
-  "completed",
-  "cancelled",
-  "canceled",
-  "failed",
-  "rejected",
-  "finished",
-  "done",
-]);
-
-function isTerminalBookingStatus(value: string | null | undefined) {
-  const normalized = `${value ?? ""}`.trim().toLowerCase();
-  return TERMINAL_BOOKING_STATUSES.has(normalized);
-}
 
 export default function BookingDetailsScreen({ navigation, route }: Props) {
   const { t } = useTranslation("homeVisits");
@@ -74,13 +55,8 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const { orderId } = route.params;
-  const sessionQuery = useAuthSessionQuery();
-  const token = sessionQuery.data?.token ?? null;
-  const userId = sessionQuery.data?.user?.id ?? null;
   const [isReviewsVisible, setIsReviewsVisible] = React.useState(false);
   const { data, isLoading } = useSingleVendorBookingDetails({ orderId });
-  const appStateRef = React.useRef<AppStateStatus>(AppState.currentState);
-  const currentOrderIdRef = React.useRef(orderId);
   const lastApiEventKeyRef = React.useRef<string | null>(null);
   const reviewSummary = DEFAULT_BOOKING_REVIEW_SUMMARY;
   const defaultReviews = React.useMemo(() => getDefaultBookingReviews(t), [t]);
@@ -124,157 +100,6 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
       resolveDurationLabel(label, fallback, t),
     [t],
   );
-
-  React.useEffect(() => {
-    currentOrderIdRef.current = orderId;
-  }, [orderId]);
-
-  React.useEffect(() => {
-    void homeServicesSocketClient.updateSession({ token, userId });
-  }, [token, userId]);
-
-  React.useEffect(() => {
-    if (!token) {
-      return undefined;
-    }
-
-    homeServicesSocketClient.retain();
-    void homeServicesSocketClient.connect();
-
-    return () => {
-      homeServicesSocketClient.release();
-    };
-  }, [token]);
-
-  React.useEffect(() => {
-    if (!token) {
-      return undefined;
-    }
-
-    const subscription = AppState.addEventListener("change", (nextState) => {
-      const previousState = appStateRef.current;
-      appStateRef.current = nextState;
-
-      if (previousState === "active" && nextState !== "active") {
-        homeServicesSocketClient.disconnectIfIdle();
-        return;
-      }
-
-      if (
-        nextState === "active" &&
-        homeServicesSocketClient.hasActiveConsumers()
-      ) {
-        void homeServicesSocketClient.connect();
-      }
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, [token]);
-
-  React.useEffect(() => {
-    if (!token) {
-      return undefined;
-    }
-
-    return subscribeHomeServicesEvent("job-status-updated", (payload) => {
-      console.log(
-        "[home-services][booking-details] event received: job-status-updated",
-        payload,
-      );
-
-      if (!isJobStatusUpdatedEvent(payload)) {
-        console.warn(
-          "[home-services][booking-details] ignored invalid job-status-updated payload",
-          payload,
-        );
-        return;
-      }
-
-      const activeOrderId = currentOrderIdRef.current;
-
-      if (!activeOrderId || payload.jobId !== activeOrderId) {
-        console.log(
-          "[home-services][booking-details] ignored job-status-updated for different job",
-          {
-            activeOrderId,
-            eventJobId: payload.jobId,
-          },
-        );
-        return;
-      }
-
-      console.log(
-        "[home-services][booking-details] applying job status update to UI/cache",
-        {
-          orderId: payload.jobId,
-          previousJobStatus: payload.previousJobStatus,
-          jobStatus: payload.jobStatus,
-          workerId: payload.workerId,
-          message: payload.message,
-        },
-      );
-
-      queryClient.setQueryData<HomeVisitsSingleVendorBookingDetails>(
-        homeVisitsKeys.singleVendorBookingDetail(activeOrderId),
-        (cached) => {
-          if (!cached) {
-            console.log(
-              "[home-services][booking-details] cache miss for booking detail",
-              {
-                orderId: activeOrderId,
-              },
-            );
-            return cached;
-          }
-
-          return {
-            ...cached,
-            jobStatus: payload.jobStatus,
-            status: payload.jobStatus,
-            assignedWorker: {
-              ...(cached.assignedWorker ?? {}),
-              id: payload.workerId ?? cached.assignedWorker?.id,
-            },
-          };
-        },
-      );
-
-      queryClient.setQueryData<HomeVisitsSingleVendorBookingItem | null>(
-        ACTIVE_BOOKING_QUERY_KEY,
-        (cached) => {
-          if (!cached || cached.orderId !== activeOrderId) {
-            return cached;
-          }
-
-          return {
-            ...cached,
-            jobStatus: payload.jobStatus,
-            status: payload.jobStatus,
-            statusLabel: resolveBookingStatusLabel(
-              payload.jobStatus,
-              cached.statusLabel,
-              t,
-            ),
-          };
-        },
-      );
-
-      if (isTerminalBookingStatus(payload.jobStatus)) {
-        queryClient.setQueryData<{ orderId: string } | null>(
-          ACTIVE_BOOKING_QUERY_KEY,
-          (cached) => {
-            if (!cached || cached.orderId !== activeOrderId) {
-              return cached;
-            }
-
-            return null;
-          },
-        );
-      }
-    });
-  }, [queryClient, token]);
 
   React.useEffect(() => {
     if (!data) {
@@ -435,23 +260,6 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
         visible={isReviewsVisible}
       />
     </View>
-  );
-}
-
-function isJobStatusUpdatedEvent(
-  value: unknown,
-): value is JobStatusUpdatedEvent {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return false;
-  }
-
-  const payload = value as JobStatusUpdatedEvent;
-
-  return (
-    typeof payload.jobId === "string" &&
-    payload.jobId.trim().length > 0 &&
-    typeof payload.jobStatus === "string" &&
-    payload.jobStatus.trim().length > 0
   );
 }
 

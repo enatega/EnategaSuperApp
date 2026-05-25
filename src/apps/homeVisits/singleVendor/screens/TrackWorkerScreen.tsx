@@ -1,6 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   FlatList,
   Linking,
@@ -25,6 +25,8 @@ import TrackWorkerFeedbackSection from '../components/TrackWorker/TrackWorkerFee
 import TrackWorkerHeader from '../components/TrackWorker/TrackWorkerHeader';
 import TrackWorkerMapPreview from '../components/TrackWorker/TrackWorkerMapPreview';
 import TrackWorkerStatusBlock from '../components/TrackWorker/TrackWorkerStatusBlock';
+import { homeVisitsKeys } from '../../api/queryKeys';
+import { homeVisitsSingleVendorDiscoveryService } from '../api/discoveryService';
 import useTrackWorkerRealtime from '../hooks/useTrackWorkerRealtime';
 import useSingleVendorBookingDetails from '../hooks/useSingleVendorBookingDetails';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
@@ -50,9 +52,9 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
   const { t } = useTranslation('homeVisits');
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const queryClient = useQueryClient();
   const { height: viewportHeight } = useWindowDimensions();
   const { orderId } = route.params;
+  const queryClient = useQueryClient();
   const { latitude: currentLatitude, longitude: currentLongitude } = useAddress();
 
   const sessionQuery = useAuthSessionQuery();
@@ -73,11 +75,13 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
   const { liveBookingData, workerLocation } = useTrackWorkerRealtime({
     currentUserId,
     initialBookingData: data,
-    onJobStatusUpdated: resetLocalFlow,
     orderId,
-    queryClient,
     token,
   });
+
+  React.useEffect(() => {
+    resetLocalFlow();
+  }, [data?.jobStatus, data?.status, resetLocalFlow]);
 
   const bookingData = liveBookingData ?? data ?? null;
   const stage = resolveTrackWorkerStage(bookingData);
@@ -158,13 +162,56 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
     }
   }, [bookingData?.assignedWorker?.phone, t]);
 
-  const onPayNow = React.useCallback(() => {
-    setLocalFlow('payment_confirmed');
+  const payWithSavedCardMutation = useMutation({
+    mutationFn: (targetOrderId: string) =>
+      homeVisitsSingleVendorDiscoveryService.payPaymentRequestedJobWithSavedCard(
+        targetOrderId,
+      ),
+    onSuccess: async (response) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: homeVisitsKeys.singleVendorBookingDetail(orderId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: homeVisitsKeys.singleVendorBookings(),
+        }),
+      ]);
 
-    setTimeout(() => {
-      setLocalFlow('feedback');
-    }, 1000);
-  }, []);
+      const status = `${response.stripeStatus ?? ''}`.toLowerCase();
+      const paymentStatus = `${response.paymentStatus ?? ''}`.toLowerCase();
+      const jobStatus = `${response.jobStatus ?? ''}`.toLowerCase();
+
+      if (
+        status === 'succeeded' ||
+        paymentStatus === 'paid' ||
+        jobStatus === 'completed'
+      ) {
+        setLocalFlow('payment_confirmed');
+        setTimeout(() => {
+          setLocalFlow('feedback');
+        }, 1000);
+        return;
+      }
+
+      showToast.success(t('single_vendor_track_worker_payment_processing'));
+    },
+    onError: (error) => {
+      const message =
+        error instanceof Error
+          ? error.message
+          : t('single_vendor_track_worker_payment_failed');
+      showToast.error(t('single_vendor_track_worker_payment_failed'), message);
+    },
+  });
+
+  const onPayNow = React.useCallback(() => {
+    if (!bookingData?.orderId) {
+      showToast.error(t('single_vendor_track_worker_payment_failed'));
+      return;
+    }
+
+    payWithSavedCardMutation.mutate(bookingData.orderId);
+  }, [bookingData?.orderId, payWithSavedCardMutation, t]);
 
   const onSubmitFeedback = React.useCallback(() => {
     showToast.success(t('single_vendor_track_worker_feedback_success'));
@@ -261,7 +308,14 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
 
                   {stageToRender === 'payment' ? (
                     <View style={styles.payActionWrap}>
-                      <Button label={t('single_vendor_track_worker_pay_now')} onPress={onPayNow} />
+                      <Button
+                        label={t('single_vendor_track_worker_pay_now')}
+                        onPress={onPayNow}
+                        isLoading={payWithSavedCardMutation.isPending}
+                        disabled={payWithSavedCardMutation.isPending}
+                        style={styles.payNowButton}
+                        labelStyle={{ color: '#030712' }}
+                      />
                     </View>
                   ) : null}
                 </>
@@ -315,7 +369,13 @@ const styles = StyleSheet.create({
   },
   payActionWrap: {
     marginHorizontal: 16,
-    marginTop: 10,
+    marginTop: 14,
+  },
+  payNowButton: {
+    backgroundColor: '#FC9401',
+    borderColor: '#FC9401',
+    borderRadius: 6,
+    minHeight: 48,
   },
   screen: {
     flex: 1,

@@ -17,6 +17,7 @@ import SingleVendorCategoriesSeeAll from '../../screens/SingleVendorCategoriesSe
 import FavoriteServicesScreen from '../screens/FavoriteServicesScreen';
 import TrackWorkerScreen from '../screens/TrackWorkerScreen';
 import NotificationsScreen from '../../../../general/screens/notifications/NotificationsScreen';
+import useHomeVisitsSocketSync from "../hooks/useHomeVisitsSocketSync";
 
 const Stack = createNativeStackNavigator<HomeVisitsSingleVendorNavigationParamList>();
 
@@ -24,6 +25,7 @@ const sharedScreenOptions = { headerShown: false } as const;
 
 export default function SingleVendorNavigator() {
   const { t } = useTranslation('homeVisits');
+  useHomeVisitsSocketSync();
 
   return (
     <Stack.Navigator>
