@@ -17,6 +17,20 @@ type NavProp = CompositeNavigationProp<
   NativeStackNavigationProp<DeliveriesStackParamList>
 >;
 
+function decodeDisplayText(value: string) {
+  let decodedValue = value;
+
+  if (decodedValue.includes("%")) {
+    try {
+      decodedValue = decodeURIComponent(decodedValue);
+    } catch {
+      decodedValue = value;
+    }
+  }
+
+  return decodedValue.replace(/%amp;|&amp;|&#38;/gi, "&");
+}
+
 export default function ShopTypeList() {
   const { t } = useTranslation("deliveries");
   const navigation = useNavigation<NavProp>();
@@ -40,7 +54,7 @@ export default function ShopTypeList() {
         actionLabel={t("multi_vendor_see_all")}
         items={shopTypes.map((shopType) => ({
           id: shopType.id,
-          name: shopType.name,
+          name: decodeDisplayText(shopType.name),
           imageUrl: shopType.image ?? null,
         }))}
         isPending={isPending}

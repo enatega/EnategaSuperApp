@@ -10,6 +10,20 @@ type Props = {
   onSelectShopType: (shopTypeId: string) => void;
 };
 
+function decodeDisplayText(value: string) {
+  let decodedValue = value;
+
+  if (decodedValue.includes('%')) {
+    try {
+      decodedValue = decodeURIComponent(decodedValue);
+    } catch {
+      decodedValue = value;
+    }
+  }
+
+  return decodedValue.replace(/%amp;|&amp;|&#38;/gi, '&');
+}
+
 export default function MainSeeAllShopTypeTabs({
   items,
   selectedShopTypeId,
@@ -26,6 +40,7 @@ export default function MainSeeAllShopTypeTabs({
       >
         {items.map((shopType) => {
           const isSelected = selectedShopTypeId === shopType.id;
+          const resolvedShopTypeName = decodeDisplayText(shopType.name);
 
           return (
             <Pressable
@@ -46,7 +61,7 @@ export default function MainSeeAllShopTypeTabs({
                   lineHeight: typography.lineHeight.sm,
                 }}
               >
-                {shopType.name}
+                {resolvedShopTypeName}
               </Text>
             </Pressable>
           );

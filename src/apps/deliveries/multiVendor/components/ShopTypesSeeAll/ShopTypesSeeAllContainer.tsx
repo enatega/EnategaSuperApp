@@ -12,6 +12,20 @@ type NavigationProp = NativeStackNavigationProp<
   "SeeAllScreen"
 >;
 
+function decodeDisplayText(value: string) {
+  let decodedValue = value;
+
+  if (decodedValue.includes("%")) {
+    try {
+      decodedValue = decodeURIComponent(decodedValue);
+    } catch {
+      decodedValue = value;
+    }
+  }
+
+  return decodedValue.replace(/%amp;|&amp;|&#38;/gi, "&");
+}
+
 const ShopTypesSeeAllContainer = () => {
   const navigation = useNavigation<NavigationProp>();
   const { t } = useTranslation("deliveries");
@@ -32,7 +46,7 @@ const ShopTypesSeeAllContainer = () => {
     (shopType: DeliveryDiscoveryCategoryItem) => {
       navigation.navigate("SeeAllScreen", {
         queryType: "shop-type-stores",
-        title: shopType.name,
+        title: decodeDisplayText(shopType.name),
         cardType: "store",
         shopTypeId: shopType.id,
       });
@@ -44,7 +58,7 @@ const ShopTypesSeeAllContainer = () => {
     <CategorySeeAllGrid
       data={shopTypes.map((shopType) => ({
         id: shopType.id,
-        name: shopType.name,
+        name: decodeDisplayText(shopType.name),
         imageUrl: shopType.image ?? null,
       }))}
       fetchNextPage={fetchNextPage}
