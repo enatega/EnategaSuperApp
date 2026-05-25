@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, View, StyleSheet } from 'react-native';
 import { useTheme } from '../../../../general/theme/theme';
+import { useDeliveriesCurrencyLabel } from '../../../../general/stores/useAppConfigStore';
 import type { DeliveryShopTypeProduct } from '../../api/types';
 import CartCountBadge from '../cart/CartCountBadge';
 import StoreDeliveryInfo from '../storeCard/subComponents/StoreDeliveryInfo';
@@ -22,17 +23,19 @@ function resolveOfferLabel(
   dealAmount: number | null | undefined,
   dealType: string | null | undefined,
   deal: string | null | undefined,
+  currencyLabel: string,
   offLabel: string,
 ) {
   const hasValidAmount =
     typeof dealAmount === 'number' && Number.isFinite(dealAmount) && dealAmount > 0;
+  const normalizedDealType = dealType?.trim().toLowerCase();
 
   if (hasValidAmount) {
-    if (dealType === 'percentage') {
-      return `${dealAmount} % ${offLabel}`;
+    if (normalizedDealType === 'percentage') {
+      return `${dealAmount}% ${offLabel}`;
     }
 
-    return `${dealAmount} ${offLabel}`;
+    return `${currencyLabel} ${dealAmount} ${offLabel}`;
   }
 
   const trimmedDeal = typeof deal === 'string' ? deal.trim() : '';
@@ -47,6 +50,7 @@ export default function RailProductCard({
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslations('deliveries')
+  const currencyLabel = useDeliveriesCurrencyLabel();
   const imageUrl =
     product.productImage ??
     product.storeImage ??
@@ -57,6 +61,7 @@ export default function RailProductCard({
     product.dealAmount,
     product.dealType,
     product.deal,
+    currencyLabel,
     t('off'),
   );
 
