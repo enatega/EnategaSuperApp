@@ -23,8 +23,8 @@ export default function OrderDetailsSection({
           styles.title,
           {
             color: colors.text,
-            fontSize: typography.size.xl,
-            lineHeight: typography.lineHeight.h5,
+            fontSize: typography.size.lg2,
+            lineHeight: typography.lineHeight.xl2,
           },
         ]}
         weight="bold"

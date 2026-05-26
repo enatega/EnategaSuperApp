@@ -154,6 +154,10 @@ export const deliveryKeys = {
         shop_type_id?: string;
         subcategory_id?: string;
     }) => [...deliveryKeys.discovery(), 'deals', filters] as const,
+    offersForYou: (filters?: {
+        latitude?: number;
+        longitude?: number;
+    }) => [...deliveryKeys.discovery(), 'offers-for-you', filters] as const,
     dealsListing: (filters?: {
         limit?: number;
         search?: string;

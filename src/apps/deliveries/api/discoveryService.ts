@@ -4,6 +4,9 @@ import type {
     DeliveryBanner,
     DeliveryDealsApiResponse,
     DeliveryDealsParams,
+    DeliveryOfferForYouItem,
+    DeliveryOffersForYouApiResponse,
+    DeliveryOffersForYouParams,
     DeliveryBannersApiResponse,
     DeliveryBannersParams,
     DeliveryNearbyStore,
@@ -336,6 +339,22 @@ function isWrappedDealsResponse(
     return 'data' in response && Array.isArray(response.data);
 }
 
+function isPaginatedOffersForYouResponse(
+    response:
+        | ApiResponse<DeliveryOfferForYouItem[]>
+        | PaginatedDeliveryResponse<DeliveryOfferForYouItem>,
+): response is PaginatedDeliveryResponse<DeliveryOfferForYouItem> {
+    return 'items' in response && Array.isArray(response.items);
+}
+
+function isWrappedOffersForYouResponse(
+    response:
+        | ApiResponse<DeliveryOfferForYouItem[]>
+        | PaginatedDeliveryResponse<DeliveryOfferForYouItem>,
+): response is ApiResponse<DeliveryOfferForYouItem[]> {
+    return 'data' in response && Array.isArray(response.data);
+}
+
 function isPaginatedOrderAgainResponse(
     response:
         | ApiResponse<DeliveryOrderAgainItem[]>
@@ -593,6 +612,7 @@ export const discoveryService = {
     ): Promise<DeliveryBanner[]> => {
         const { offset = 0, limit = 10 } = params;
         const query = { offset, limit };
+        console.log('[deliveries][getMobileBanners] request', { query });
 
         const parseBanners = (response: DeliveryBannersApiResponse): DeliveryBanner[] => {
             if (Array.isArray(response)) {
@@ -615,16 +635,27 @@ export const discoveryService = {
                 '/api/v1/apps/deliveries/banners/mobile',
                 query,
             );
-
-            return parseBanners(response);
+            const banners = parseBanners(response);
+            console.log('[deliveries][getMobileBanners] response', {
+                count: banners.length,
+                source: '/api/v1/apps/deliveries/banners/mobile',
+            });
+            return banners;
         } catch (primaryError) {
+            console.log('[deliveries][getMobileBanners] primary-failed-fallbacking', {
+                source: '/api/v1/apps/deliveries/banners/mobile',
+            });
             try {
                 const fallbackResponse = await apiClient.get<DeliveryBannersApiResponse>(
                     '/api/v1/deliveries/banners/mobile',
                     query,
                 );
-
-                return parseBanners(fallbackResponse);
+                const banners = parseBanners(fallbackResponse);
+                console.log('[deliveries][getMobileBanners] response', {
+                    count: banners.length,
+                    source: '/api/v1/deliveries/banners/mobile',
+                });
+                return banners;
             } catch (fallbackError) {
                 console.error('mobile banners request failed', {
                     fallbackError,
@@ -854,6 +885,50 @@ export const discoveryService = {
             return toPaginatedResponse(response, { offset, limit });
         } catch (error) {
             console.error('deals request failed', error);
+            throw error;
+        }
+    },
+
+    /** Fetch offers-for-you cards for deliveries home discovery. */
+    getOffersForYou: async (
+        params: DeliveryOffersForYouParams = {},
+    ): Promise<DeliveryOfferForYouItem[]> => {
+        const {
+            latitude,
+            longitude,
+        } = params;
+        const query = {
+            latitude,
+            longitude,
+        };
+
+        console.log('[deliveries][getOffersForYou] request', query);
+
+        try {
+            const response = await apiClient.get<DeliveryOffersForYouApiResponse>(
+                '/api/v1/apps/deliveries/discovery/offers-for-you',
+                query,
+            );
+
+            let items: DeliveryOfferForYouItem[] = [];
+            if (Array.isArray(response)) {
+                items = response;
+            } else if (isPaginatedOffersForYouResponse(response)) {
+                items = response.items;
+            } else if (isWrappedOffersForYouResponse(response)) {
+                items = response.data;
+            }
+
+            console.log('[deliveries][getOffersForYou] response', {
+                count: items.length,
+                firstItem: items[0] ?? null,
+            });
+            return items;
+        } catch (error) {
+            console.error('offers-for-you request failed', {
+                query,
+                error,
+            });
             throw error;
         }
     },

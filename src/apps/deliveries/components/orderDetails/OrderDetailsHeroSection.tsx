@@ -39,8 +39,8 @@ export default function OrderDetailsHeroSection({
           styles.storeName,
           {
             color: colors.text,
-            fontSize: typography.size.xl,
-            lineHeight: 34,
+            fontSize: typography.size.lg,
+            lineHeight: typography.lineHeight.xl2,
           },
         ]}
         weight="bold"

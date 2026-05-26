@@ -7,16 +7,25 @@ import type { SupportedCardType } from '../../../../general/components/filterabl
 import SelectedFilterChips from '../../components/filters/SelectedFilterChips';
 import type { GenericFilterChip } from '../../components/filters/types';
 import type { DeliveriesSeeAllParamList, SeeAllItem } from '../../navigation/sharedTypes';
+import type { DeliveriesStackParamList } from '../../navigation/types';
 import DeliveriesSeeAllHeader from './components/DeliveriesSeeAllHeader';
 import DeliveriesSeeAllFilterSheet from './components/DeliveriesSeeAllFilterSheet';
 import { renderSeeAllItemCard } from './components/renderers';
 import useDeliveriesSeeAllScreenConfig from './useDeliveriesSeeAllScreenConfig';
 import useDeliveriesSeeAllScreenState from './useDeliveriesSeeAllScreenState';
-import type { DeliveryNearbyStore } from '../../api/types';
+import type { DeliveryNearbyStore, DeliveryShopTypeProduct } from '../../api/types';
 import AppPopup from '../../../../general/components/AppPopup';
 
-type NavigationProp = NativeStackNavigationProp<DeliveriesSeeAllParamList>;
+type NavigationProp = NativeStackNavigationProp<DeliveriesStackParamList>;
 type SeeAllRouteProp = RouteProp<DeliveriesSeeAllParamList, 'SeeAllScreen'>;
+
+function isStoreItem(item: SeeAllItem): item is DeliveryNearbyStore {
+  return 'storeId' in item && !('productId' in item);
+}
+
+function isProductItem(item: SeeAllItem): item is DeliveryShopTypeProduct {
+  return 'productId' in item;
+}
 
 export default function DeliveriesSeeAllScreen() {
   const { t } = useTranslation('general');
@@ -80,9 +89,12 @@ export default function DeliveriesSeeAllScreen() {
       return;
     }
 
-    navigation.navigate('SeeAllMapView', {
-      items,
-      title,
+    navigation.navigate('MultiVendor', {
+      screen: 'SeeAllMapView',
+      params: {
+        items,
+        title,
+      },
     });
   }, [items, navigation, title]);
 
@@ -91,7 +103,19 @@ export default function DeliveriesSeeAllScreen() {
       renderSeeAllItemCard(
         cardType as SupportedCardType,
         item,
-        undefined,
+        () => {
+          if (isStoreItem(item)) {
+            navigation.navigate('MultiVendor', {
+              screen: 'StoreDetails',
+              params: { store: item },
+            });
+            return;
+          }
+
+          if (isProductItem(item)) {
+            navigation.navigate('ProductInfo', { productId: item.productId });
+          }
+        },
         cardVariant,
         true,
         {
@@ -101,7 +125,7 @@ export default function DeliveriesSeeAllScreen() {
           },
         },
       ),
-    [cardType, cardVariant],
+    [cardType, cardVariant, navigation],
   );
 
   return (
@@ -185,7 +209,10 @@ export default function DeliveriesSeeAllScreen() {
               return;
             }
 
-            navigation.navigate('StoreDetails', { store: selectedClosedStore });
+            navigation.navigate('MultiVendor', {
+              screen: 'StoreDetails',
+              params: { store: selectedClosedStore },
+            });
             setSelectedClosedStore(null);
           },
           variant: 'secondary',

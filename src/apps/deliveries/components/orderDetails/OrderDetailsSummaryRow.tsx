@@ -16,10 +16,10 @@ export default function OrderDetailsSummaryRow({
 }: Props) {
   const { colors, typography } = useTheme();
   const textColor = isEmphasized ? colors.text : colors.mutedText;
-  const fontSize = isEmphasized ? typography.size.md2 : typography.size.sm2;
+  const fontSize = isEmphasized ? typography.size.md : typography.size.sm;
   const lineHeight = isEmphasized
-    ? typography.lineHeight.md2
-    : typography.lineHeight.md;
+    ? typography.lineHeight.md
+    : typography.lineHeight.sm2;
 
   return (
     <View style={styles.row}>

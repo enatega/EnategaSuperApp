@@ -93,7 +93,14 @@ function isLikelyAuthExpiry(status: number, responseData?: ApiErrorResponseData)
     return hasAuthFailureSignal;
   }
 
-  return hasAuthFailureSignal;
+  // Some business-validation responses can include words like "unauthorized"
+  // without meaning the auth session is expired.
+  // Only treat 400 as session expiry when auth headers are explicitly missing.
+  if (status === 400) {
+    return hasMissingAuthHeaderSignal(responseData);
+  }
+
+  return false;
 }
 
 // ---------------------------------------------------------------------------

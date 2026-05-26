@@ -61,8 +61,8 @@ export default function OrderDetailsProductCard({
             styles.name,
             {
               color: colors.text,
-              fontSize: typography.size.sm2,
-              lineHeight: typography.lineHeight.md,
+              fontSize: typography.size.sm,
+              lineHeight: typography.lineHeight.sm2,
             },
           ]}
           weight="semiBold"
@@ -79,8 +79,8 @@ export default function OrderDetailsProductCard({
                 {
                   color: colors.mutedText,
                   flex: 1,
-                  fontSize: typography.size.xs2,
-                  lineHeight: typography.lineHeight.sm,
+                  fontSize: typography.size.xxs,
+                  lineHeight: typography.lineHeight.xs2,
                 },
               ]}
               weight="medium"
@@ -115,8 +115,8 @@ export default function OrderDetailsProductCard({
                     styles.addonLabel,
                     {
                       color: colors.mutedText,
-                      fontSize: typography.size.xs2,
-                      lineHeight: typography.lineHeight.sm,
+                      fontSize: typography.size.xxs,
+                      lineHeight: typography.lineHeight.xs2,
                     },
                   ]}
                   weight="medium"
@@ -130,8 +130,8 @@ export default function OrderDetailsProductCard({
                       styles.addonPrice,
                       {
                         color: colors.mutedText,
-                        fontSize: typography.size.xs2,
-                        lineHeight: typography.lineHeight.sm,
+                        fontSize: typography.size.xxs,
+                        lineHeight: typography.lineHeight.xs2,
                       },
                     ]}
                     weight="medium"
@@ -148,8 +148,8 @@ export default function OrderDetailsProductCard({
           <Text
             style={{
               color: colors.mutedText,
-              fontSize: typography.size.xs2,
-              lineHeight: typography.lineHeight.sm,
+              fontSize: typography.size.xxs,
+              lineHeight: typography.lineHeight.xs2,
             }}
             weight="medium"
           >
@@ -160,8 +160,8 @@ export default function OrderDetailsProductCard({
             <Text
               style={{
                 color: colors.mutedText,
-                fontSize: typography.size.xs2,
-                lineHeight: typography.lineHeight.sm,
+                fontSize: typography.size.xxs,
+                lineHeight: typography.lineHeight.xs2,
               }}
               weight="medium"
             >

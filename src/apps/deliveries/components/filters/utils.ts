@@ -69,10 +69,35 @@ export function buildFilterChips(
   filterData?: GenericListFilterData,
 ): GenericFilterChip[] {
   const chips: GenericFilterChip[] = [];
+  const groupedCategoryIds = new Set<string>();
+
+  filterData?.categories.forEach((category) => {
+    const normalizedIds = category.ids.filter(Boolean);
+    if (!normalizedIds.length) {
+      return;
+    }
+
+    const isSelected = normalizedIds.every((id) => filters.category_ids.includes(id));
+    if (!isSelected) {
+      return;
+    }
+
+    normalizedIds.forEach((id) => {
+      groupedCategoryIds.add(id);
+    });
+
+    chips.push({
+      id: `category-group:${normalizedIds.join(',')}`,
+      label: decodeFilterLabel(category.label),
+    });
+  });
 
   filters.category_ids.forEach((categoryId) => {
-    const label = findCategoryLabel(filterData, categoryId);
+    if (groupedCategoryIds.has(categoryId)) {
+      return;
+    }
 
+    const label = findCategoryLabel(filterData, categoryId);
     if (label) {
       chips.push({
         id: `category:${categoryId}`,
@@ -121,6 +146,18 @@ export function removeChipFromFilters(
   chipId: string,
 ): GenericListFilters {
   const [group, value] = chipId.split(':');
+
+  if (group === 'category-group') {
+    const categoryIds = (value ?? '')
+      .split(',')
+      .map((id) => id.trim())
+      .filter(Boolean);
+
+    return {
+      ...filters,
+      category_ids: filters.category_ids.filter((categoryId) => !categoryIds.includes(categoryId)),
+    };
+  }
 
   if (group === 'category') {
     return {

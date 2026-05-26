@@ -16,6 +16,8 @@ type Props = {
   banners: DeliveryBanner[];
   isPending: boolean;
   onIndexChange?: (index: number) => void;
+  layout?: 'swiper' | 'stack';
+  maxItems?: number;
 };
 
 type BannerActionHandler = (banner: DeliveryBanner) => void;
@@ -56,6 +58,8 @@ export default function SpecialOffersBanner({
   banners,
   isPending,
   onIndexChange,
+  layout = 'swiper',
+  maxItems,
 }: Props) {
   const navigation = useNavigation<NavigationProp<DeliveriesStackParamList>>();
   const { colors } = useTheme();
@@ -63,8 +67,10 @@ export default function SpecialOffersBanner({
   const [bannerIndex, setBannerIndex] = useState(0);
   const bannerSidePadding = 20;
   const bannerWidth = width - bannerSidePadding * 2;
+  const visibleBanners =
+    typeof maxItems === 'number' && maxItems > 0 ? banners.slice(0, maxItems) : banners;
   const activeBannerIndex =
-    banners.length > 0 ? Math.min(bannerIndex, banners.length - 1) : 0;
+    visibleBanners.length > 0 ? Math.min(bannerIndex, visibleBanners.length - 1) : 0;
   const navigateToStore = useCallback(
     (banner: DeliveryBanner) => {
       const store = toStoreNavigationTarget(banner);
@@ -140,10 +146,30 @@ export default function SpecialOffersBanner({
     return null;
   }
 
+  if (visibleBanners.length === 0) {
+    return null;
+  }
+
+  if (layout === 'stack') {
+    return (
+      <View style={[styles.wrapper, { width: bannerWidth + bannerSidePadding * 2, gap: 12 }]}>
+        {visibleBanners.map((banner) => (
+          <SpecialOffersBannerCard
+            key={banner.id}
+            banner={banner}
+            onPress={() => handleBannerPress(banner)}
+            sidePadding={bannerSidePadding}
+            width={bannerWidth}
+          />
+        ))}
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.wrapper, { width: bannerWidth + bannerSidePadding * 2 }]}>
       <BannerSwiper
-        data={banners}
+        data={visibleBanners}
         onIndexChange={(index) => {
           setBannerIndex(index);
           onIndexChange?.(index);
@@ -159,7 +185,7 @@ export default function SpecialOffersBanner({
       />
 
       <View style={styles.bannerDots}>
-        {banners.map((item, index) => (
+        {visibleBanners.map((item, index) => (
           <View
             key={item.id}
             style={[

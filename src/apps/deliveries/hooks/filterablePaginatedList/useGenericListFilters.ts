@@ -50,15 +50,28 @@ export default function useGenericListFilters({ filterData, initialFilters }: Pr
     setDraftFilters(EMPTY_FILTERS);
   }, []);
 
-  const toggleCategory = useCallback((categoryId: string) => {
+  const toggleCategory = useCallback((categoryIdOrIds: string | string[]) => {
+    const categoryIds = Array.isArray(categoryIdOrIds)
+      ? categoryIdOrIds.filter(Boolean)
+      : [categoryIdOrIds].filter(Boolean);
+
+    if (!categoryIds.length) {
+      return;
+    }
+
     setDraftFilters((current) => {
-      const isSelected = current.category_ids.includes(categoryId);
+      const isSelected = categoryIds.every((id) => current.category_ids.includes(id));
+
+      if (isSelected) {
+        return {
+          ...current,
+          category_ids: current.category_ids.filter((id) => !categoryIds.includes(id)),
+        };
+      }
 
       return {
         ...current,
-        category_ids: isSelected
-          ? current.category_ids.filter((id) => id !== categoryId)
-          : [...current.category_ids, categoryId],
+        category_ids: Array.from(new Set([...current.category_ids, ...categoryIds])),
       };
     });
   }, []);

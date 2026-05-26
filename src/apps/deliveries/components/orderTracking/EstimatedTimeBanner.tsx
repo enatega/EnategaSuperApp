@@ -35,8 +35,8 @@ export default function EstimatedTimeBanner({ etaLabel, etaValue }: Props) {
                 styles.valueAmount,
                 {
                   fontFamily: typography.fontFamily.bold,
-                  fontSize: typography.size.xxl,
-                  lineHeight: typography.lineHeight.xl,
+                  fontSize: typography.size.xl,
+                  lineHeight: typography.lineHeight.lg,
                 },
               ]}
               weight="bold"
@@ -48,8 +48,8 @@ export default function EstimatedTimeBanner({ etaLabel, etaValue }: Props) {
               style={[
                 styles.valueUnit,
                 {
-                  fontSize: typography.size.md,
-                  lineHeight: typography.lineHeight.md,
+                  fontSize: typography.size.sm2,
+                  lineHeight: typography.lineHeight.sm2,
                 },
               ]}
               weight="semiBold"
@@ -64,8 +64,8 @@ export default function EstimatedTimeBanner({ etaLabel, etaValue }: Props) {
               styles.valueFallback,
               {
                 fontFamily: typography.fontFamily.bold,
-                fontSize: typography.size.xxl,
-                lineHeight: typography.lineHeight.xl,
+                fontSize: typography.size.xl,
+                lineHeight: typography.lineHeight.lg,
               },
             ]}
             weight="bold"

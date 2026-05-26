@@ -31,8 +31,8 @@ export default function DeliveredStatusBanner({
           styles.title,
           {
             fontFamily: typography.fontFamily.bold,
-            fontSize: typography.size.xl,
-            lineHeight: typography.lineHeight.lg,
+            fontSize: typography.size.lg2,
+            lineHeight: typography.lineHeight.xl2,
           },
         ]}
         weight="bold"

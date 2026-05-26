@@ -2,6 +2,7 @@ export {
   useDeals,
   useMobileBanners,
   useNearbyStores,
+  useOffersForYou,
   useOrderAgain,
   usePaginatedTopBrands,
   usePaginatedShopTypes,

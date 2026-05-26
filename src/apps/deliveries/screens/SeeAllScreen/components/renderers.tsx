@@ -52,6 +52,7 @@ export function renderSeeAllItemCard(
       <StoreCard
         layout="fullWidth"
         store={storeItem}
+        onPress={onPress}
         showClosedOverlay={isClosedStore}
         onClosedPress={isClosedStore
           ? () => storeCardOptions?.onClosedPress?.(storeItem)

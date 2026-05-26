@@ -36,6 +36,10 @@ export function useInitializeDeliveriesConfig() {
 
       const activeCurrency =
         currencies.find((currency) => currency.isActive) ?? currencies[0] ?? null;
+      console.log('[deliveries][currency] selected-for-app', {
+        activeCurrency,
+        availableCurrencyCodes: currencies.map((currency) => currency.code),
+      });
 
       return {
         platformConfiguration,

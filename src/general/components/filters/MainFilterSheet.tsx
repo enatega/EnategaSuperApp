@@ -33,7 +33,7 @@ type Props = {
   onClose: () => void;
   onApply: () => void;
   onClear: () => void;
-  onToggleCategory: (categoryId: string) => void;
+  onToggleCategory: (categoryIdOrIds: string | string[]) => void;
   onSelectPrice: (priceId: string) => void;
   onSelectAddress: (addressId: string) => void;
   onSelectStock: (stockId: string) => void;
@@ -145,18 +145,21 @@ export default function MainFilterSheet({
                 </Text>
                 <View style={styles.chipWrap}>
                   {filters.categories.map((category) => {
-                    const categoryId = category.ids[0];
-
-                    if (!categoryId) {
+                    if (!category.ids.length) {
                       return null;
                     }
 
+                    const categoryGroupIds = category.ids.filter(Boolean);
+                    const isSelected = categoryGroupIds.every((id) =>
+                      draftFilters.category_ids.includes(id),
+                    );
+
                     return (
                       <MainFilterOptionChip
-                        key={categoryId}
+                        key={category.key || categoryGroupIds.join('-')}
                         label={decodeFilterLabel(category.label)}
-                        isSelected={draftFilters.category_ids.includes(categoryId)}
-                        onPress={() => onToggleCategory(categoryId)}
+                        isSelected={isSelected}
+                        onPress={() => onToggleCategory(categoryGroupIds)}
                       />
                     );
                   })}

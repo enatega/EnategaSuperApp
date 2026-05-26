@@ -31,8 +31,15 @@ export default function StoreRating({
   cuisine,
 }: StoreRatingProps) {
   const { colors } = useTheme();
-  const hasRating = rating != null;
-  const hasReviewCount = reviewCount != null;
+  const normalizedRating =
+    typeof rating === 'number' && Number.isFinite(rating) ? rating : null;
+  const normalizedReviewCount =
+    typeof reviewCount === 'number' && Number.isFinite(reviewCount)
+      ? reviewCount
+      : null;
+  const hasReviews = (normalizedReviewCount ?? 0) > 0;
+  const hasRating = hasReviews && (normalizedRating ?? 0) > 0;
+  const hasReviewCount = hasReviews;
   const hasCuisine = Boolean(cuisine);
   const resolvedCuisine = cuisine ? decodeDisplayText(cuisine) : undefined;
 
@@ -51,7 +58,7 @@ export default function StoreRating({
               weight="semiBold"
               style={[styles.rating, { color: colors.text }]}
             >
-              {rating.toFixed(1)}
+              {normalizedRating?.toFixed(1)}
             </Text>
           </View>
         )}
@@ -68,7 +75,7 @@ export default function StoreRating({
               },
             ]}
           >
-            ({reviewCount.toLocaleString()}+)
+            ({normalizedReviewCount?.toLocaleString()}+)
           </Text>
         )}
       </View>

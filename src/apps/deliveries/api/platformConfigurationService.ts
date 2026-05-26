@@ -15,18 +15,34 @@ export const platformConfigurationService = {
     ),
 
   getCurrencies: async (): Promise<AppCurrency[]> => {
+    console.log('[deliveries][currency] request', {
+      path: DELIVERIES_CURRENCY_PATH,
+    });
     const response = await apiClient.get<AppCurrency[] | AppCurrency>(
       DELIVERIES_CURRENCY_PATH,
     );
+    console.log('[deliveries][currency] response-raw', response);
 
     if (Array.isArray(response)) {
+      console.log('[deliveries][currency] response-normalized', {
+        count: response.length,
+        codes: response.map((currency) => currency.code),
+      });
       return response;
     }
 
     if (response && typeof response === 'object') {
+      console.log('[deliveries][currency] response-normalized', {
+        count: 1,
+        codes: [response.code],
+      });
       return [response];
     }
 
+    console.log('[deliveries][currency] response-normalized', {
+      count: 0,
+      codes: [],
+    });
     return [];
   },
 };

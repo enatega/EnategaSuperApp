@@ -22,7 +22,6 @@ export default function SpecialOffersBannerCard({
 }: Props) {
   const { colors, typography } = useTheme();
   const videoUri = banner.bannerVideoLink?.trim() ?? '';
-  const storeAddress = banner.store?.address?.trim() ?? '';
   const description = banner.description?.trim() ?? '';
   const isPressable = typeof onPress === 'function';
 
@@ -48,19 +47,6 @@ export default function SpecialOffersBannerCard({
         />
 
         <View style={styles.content}>
-          {storeAddress ? (
-            <Text
-              color={colors.white}
-              weight="semiBold"
-              style={{
-                fontSize: typography.size.xs2,
-                lineHeight: typography.lineHeight.sm,
-              }}
-            >
-              {storeAddress}
-            </Text>
-          ) : null}
-
           <Text
             color={colors.white}
             numberOfLines={2}

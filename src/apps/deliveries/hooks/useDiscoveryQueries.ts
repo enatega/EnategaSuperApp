@@ -20,6 +20,8 @@ import type {
   DeliveryNearbyStore,
   DeliveryOrderAgainItem,
   DeliveryRecommendedStoresParams,
+  DeliveryOfferForYouItem,
+  DeliveryOffersForYouParams,
   DeliveryOrderAgainParams,
   DeliveryShopTypeStoresParams,
   DeliveryStoreProductsApiResponse,
@@ -116,6 +118,13 @@ type UseOrderAgainOptions = Omit<
 >;
 
 type UseOrderAgainParams = DeliveryOrderAgainParams;
+
+type UseOffersForYouOptions = Omit<
+  UseQueryOptions<DeliveryOfferForYouItem[], ApiError>,
+  'queryKey' | 'queryFn'
+>;
+
+type UseOffersForYouParams = DeliveryOffersForYouParams;
 
 type UseStoreRecommendedProductsOptions = Omit<
   UseQueryOptions<DeliveryOrderAgainItem[], ApiError>,
@@ -785,6 +794,26 @@ export function useOrderAgain(
       subcategory_id: params.subcategory_id,
     }),
     queryFn: () => discoveryService.getOrderAgain(params),
+    ...options,
+  });
+}
+
+export function useOffersForYou(
+  params: UseOffersForYouParams = {},
+  options?: UseOffersForYouOptions,
+) {
+  const { latitude, longitude } = useDiscoveryCoordinates();
+  const resolvedParams: DeliveryOffersForYouParams = {
+    latitude: params.latitude ?? latitude,
+    longitude: params.longitude ?? longitude,
+  };
+
+  return useQuery<DeliveryOfferForYouItem[], ApiError>({
+    queryKey: deliveryKeys.offersForYou({
+      latitude: resolvedParams.latitude,
+      longitude: resolvedParams.longitude,
+    }),
+    queryFn: () => discoveryService.getOffersForYou(resolvedParams),
     ...options,
   });
 }

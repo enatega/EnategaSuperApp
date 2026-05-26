@@ -42,6 +42,7 @@ export const orderService = {
           error,
         });
       }
+      throw error;
     });
 
     if (ENABLE_DELIVERIES_ORDER_DEBUG) {

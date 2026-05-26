@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect } from 'react';
-import { ScrollView, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { Image as RNImage, ScrollView, View } from 'react-native';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -11,12 +11,14 @@ import MultiVendorAddressHeader from '../../../components/MultiVendorAddressHead
 import type { DeliveriesStackParamList } from '../../../navigation/types';
 import ShopTypeList from '../../components/HomeTab/ShopTypeList';
 import ShopTypeStoreSections from '../../components/HomeTab/ShopTypeStoreSections';
-import MultiVendorSpecialOffers from '../../components/HomeTab/SpecialOffersBanner';
 import TopBrandsList from '../../components/HomeTab/TopBrandsList';
 import NearbyStoreList from '../../components/HomeTab/NearbyStoreList';
+import OffersForYouSection from '../../components/HomeTab/OffersForYouSection';
 import MultiVendorDealsSection from '../../components/HomeTab/MultiVendorDealsSection';
 import OrderAgain from '../../components/HomeTab/OrderAgain';
+import SharedSpecialOffersBanner from '../../../components/specialOffersBanner/SpecialOffersBanner';
 import { useCartCount } from '../../../hooks/useCart';
+import { useMobileBanners } from '../../../hooks';
 import useAddressSelectionSheet from '../../../../../general/hooks/useAddressSelectionSheet';
 import type { ProfileAddress } from '../../../../../general/api/profileService';
 import useSavedAddresses from '../../../../../general/hooks/useSavedAddresses';
@@ -24,6 +26,7 @@ import { styles } from './HomeTabStyle';
 import useAddress from '../../../../../general/hooks/useAddress';
 import useCurrentLocation from '../../../../../general/hooks/useCurrentLocation';
 import useSelectSavedAddress from '../../../../../general/hooks/useSelectSavedAddress';
+import type { DeliveryBanner } from '../../../api/types';
 // import AppSwitcherTopBar from '../../../../../general/components/appSwitch/AppSwitcherTopBar';
 
 type NavProp = NativeStackNavigationProp<DeliveriesStackParamList>;
@@ -33,6 +36,7 @@ export default function HomeTab() {
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavProp>();
   const { data: cartCount } = useCartCount();
+  const { data: banners = [], isPending: isBannersPending } = useMobileBanners();
   const {
     addresses,
     isLoading: isAddressesLoading,
@@ -49,6 +53,47 @@ export default function HomeTab() {
     addressesCount: addresses.length,
     isLoading: isAddressesLoading,
   });
+  const {
+    topBanners,
+    stickyBanners,
+    middleBanners,
+    bottomBanners,
+  } = useMemo(() => {
+    const sortedBanners = [...banners].sort(
+      (firstBanner, secondBanner) =>
+        (firstBanner.displayOrder ?? Number.MAX_SAFE_INTEGER) -
+        (secondBanner.displayOrder ?? Number.MAX_SAFE_INTEGER),
+    );
+
+    const byPlacement = (placement: 'top' | 'sticky' | 'middle' | 'bottom') =>
+      sortedBanners.filter(
+        (banner: DeliveryBanner) =>
+          (banner.placement === placement ||
+            (placement === 'top' && !banner.placement)) &&
+          banner.isActive !== false,
+      );
+
+    return {
+      topBanners: byPlacement('top'),
+      stickyBanners: byPlacement('sticky'),
+      middleBanners: byPlacement('middle'),
+      bottomBanners: byPlacement('bottom'),
+    };
+  }, [banners]);
+
+  useEffect(() => {
+    if (banners.length === 0) {
+      return;
+    }
+
+    const imageUrls = banners
+      .map((banner) => banner.bannerImageLink?.trim())
+      .filter((url): url is string => Boolean(url));
+
+    imageUrls.forEach((url) => {
+      void RNImage.prefetch(url);
+    });
+  }, [banners]);
 
   const handleSelectAddress = useCallback(
     async (address: ProfileAddress) => {
@@ -194,12 +239,21 @@ export default function HomeTab() {
         showsVerticalScrollIndicator={false}
       >
         <ShopTypeList />
-        <MultiVendorSpecialOffers />
+        <SharedSpecialOffersBanner banners={topBanners} isPending={isBannersPending} />
         <TopBrandsList />
         <NearbyStoreList />
+        <OffersForYouSection />
         <MultiVendorDealsSection />
+        <SharedSpecialOffersBanner
+          banners={stickyBanners}
+          isPending={isBannersPending}
+          layout="stack"
+          maxItems={2}
+        />
         <ShopTypeStoreSections />
+        <SharedSpecialOffersBanner banners={middleBanners} isPending={isBannersPending} />
         <OrderAgain />
+        <SharedSpecialOffersBanner banners={bottomBanners} isPending={isBannersPending} />
       </ScrollView>
 
       <AddressSelectionBottomSheet

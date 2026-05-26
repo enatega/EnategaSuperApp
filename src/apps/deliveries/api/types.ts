@@ -300,6 +300,41 @@ export interface DeliveryDealsParams {
     shop_type_id?: string;
 }
 
+export interface DeliveryOffersForYouParams {
+    offset?: number;
+    limit?: number;
+    latitude?: number;
+    longitude?: number;
+}
+
+export interface DeliveryOfferForYouItem {
+    id: string;
+    offerType?: string | null;
+    title?: string | null;
+    subtitle?: string | null;
+    description?: string | null;
+    code?: string | null;
+    discountType?: string | null;
+    discountValue?: number | null;
+    minOrderValue?: number | null;
+    maxDiscountCap?: number | null;
+    imageUrl?: string | null;
+    image?: string | null;
+    actionType?: string | null;
+    actionTargetId?: string | null;
+    storeId?: string | null;
+    storeName?: string | null;
+    productId?: string | null;
+    couponId?: string | null;
+    isClaimed?: boolean;
+    startsAt?: string | null;
+    endsAt?: string | null;
+    actionLabel?: string | null;
+    offerLabel?: string | null;
+    offerSubLabel?: string | null;
+    [key: string]: unknown;
+}
+
 export interface DeliveryOrderAgainItem {
     productId: string;
     storeId: string;
@@ -351,6 +386,7 @@ export interface DeliveryBannerStore {
 }
 
 export type DeliveryBannerActionType = 'store' | 'product' | 'shop_type';
+export type DeliveryBannerPlacement = 'top' | 'sticky' | 'middle' | 'bottom';
 
 export interface DeliveryBannerProduct {
     id: string;
@@ -372,6 +408,12 @@ export interface DeliveryBanner {
     bannerVideoLink?: string | null;
     bannerImageLink?: string | null;
     actionType?: DeliveryBannerActionType | null;
+    placement?: DeliveryBannerPlacement | null;
+    displayOrder?: number | null;
+    isActive?: boolean;
+    startsAt?: string | null;
+    endsAt?: string | null;
+    actionUrl?: string | null;
     relatedStore?: string | null;
     relatedProduct?: string | null;
     relatedShopType?: string | null;
@@ -427,6 +469,11 @@ export type DeliveryDealsApiResponse =
     | ApiResponse<DeliveryNearbyStore[]>
     | PaginatedDeliveryResponse<DeliveryNearbyStore>
     | DeliveryNearbyStore[];
+
+export type DeliveryOffersForYouApiResponse =
+    | ApiResponse<DeliveryOfferForYouItem[]>
+    | PaginatedDeliveryResponse<DeliveryOfferForYouItem>
+    | DeliveryOfferForYouItem[];
 
 export type DeliveryOrderAgainApiResponse =
     | ApiResponse<DeliveryOrderAgainItem[]>

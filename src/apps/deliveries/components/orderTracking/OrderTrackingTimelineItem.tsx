@@ -52,8 +52,8 @@ export default function OrderTrackingTimelineItem({
         <Text
           color={colors.text}
           style={{
-            fontSize: typography.size.md2,
-            lineHeight: typography.lineHeight.md,
+            fontSize: typography.size.sm2,
+            lineHeight: typography.lineHeight.sm2,
           }}
           weight="medium"
         >
