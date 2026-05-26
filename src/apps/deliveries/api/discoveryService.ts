@@ -210,6 +210,8 @@ function toDealsQueryParams(
         offset = DEALS_DEFAULTS.offset,
         limit = DEALS_DEFAULTS.limit,
         search,
+        latitude,
+        longitude,
         category_id,
         category_ids,
         subcategory_id,
@@ -220,6 +222,8 @@ function toDealsQueryParams(
         offset,
         limit,
         search,
+        latitude,
+        longitude,
         category_id,
         category_ids,
         subcategory_id,
@@ -258,12 +262,16 @@ function toTopBrandsQueryParams(
         offset = TOP_BRANDS_DEFAULTS.offset,
         limit = TOP_BRANDS_DEFAULTS.limit,
         search,
+        latitude,
+        longitude,
     } = params;
 
     return {
         offset,
         limit,
         search,
+        latitude,
+        longitude,
     };
 }
 

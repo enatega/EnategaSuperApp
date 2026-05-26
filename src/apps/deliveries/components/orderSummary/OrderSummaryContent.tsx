@@ -7,7 +7,7 @@ import type {
   DeliveryOrderSummary,
 } from "../../api/ordersServiceTypes";
 import OrderDetailsSummaryRow from "../orderDetails/OrderDetailsSummaryRow";
-import { formatCurrency } from "../../utils/orderDetails/orderDetailsUtils";
+import { formatCurrency, formatOrderCode } from "../../utils/orderDetails/orderDetailsUtils";
 
 type Props = {
   deliveryDetails: DeliveryOrderDeliveryDetails;
@@ -29,7 +29,7 @@ export default function OrderSummaryContent({
     <View style={styles.container}>
       <OrderDetailsSummaryRow
         label={t("order_details_order_number")}
-        value={orderCode || summary.orderNumber || orderId || "-"}
+        value={formatOrderCode(orderCode || summary.orderNumber, orderId)}
       />
       <OrderDetailsSummaryRow
         label={t("order_details_delivery_address")}

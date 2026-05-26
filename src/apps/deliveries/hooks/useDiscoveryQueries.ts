@@ -533,9 +533,11 @@ export function useMobileBanners(options?: UseMobileBannersOptions) {
 }
 
 export function useTopBrands(options?: UseTopBrandsOptions) {
+  const { latitude, longitude } = useDiscoveryCoordinates();
+
   return useQuery<DeliveryTopBrand[], ApiError>({
-    queryKey: deliveryKeys.topBrands(),
-    queryFn: () => discoveryService.getTopBrands(),
+    queryKey: deliveryKeys.topBrands({ latitude, longitude }),
+    queryFn: () => discoveryService.getTopBrands({ latitude, longitude }),
     staleTime: 5 * 60 * 1000,
     ...options,
   });
@@ -547,6 +549,12 @@ export function usePaginatedTopBrands(
   const mode = options?.mode ?? 'preview';
   const limit = 10;
   const normalizedSearch = options?.search?.trim() ?? '';
+  const { latitude, longitude } = useDiscoveryCoordinates();
+  const topBrandsParams: Omit<DeliveryTopBrandsParams, 'offset' | 'limit' | 'search'> = {
+    ...options?.requestParams,
+    latitude: options?.requestParams?.latitude ?? latitude,
+    longitude: options?.requestParams?.longitude ?? longitude,
+  };
 
   const query = useInfiniteQuery<
     PaginatedDeliveryResponse<DeliveryTopBrand>,
@@ -556,10 +564,12 @@ export function usePaginatedTopBrands(
       ...deliveryKeys.topBrands({
         limit,
         search: normalizedSearch,
+        latitude: topBrandsParams.latitude,
+        longitude: topBrandsParams.longitude,
       }),
       {
         mode,
-        requestParams: options?.requestParams,
+        requestParams: topBrandsParams,
       },
     ],
     queryFn: ({ pageParam = 0 }) =>
@@ -567,7 +577,7 @@ export function usePaginatedTopBrands(
         offset: pageParam as number,
         limit,
         search: normalizedSearch || undefined,
-        ...options?.requestParams,
+        ...topBrandsParams,
       }),
     initialPageParam: 0,
     getNextPageParam: (lastPage) =>
@@ -765,16 +775,25 @@ export function useDeals(
   params: UseDealsParams = {},
   options?: UseDealsOptions,
 ) {
+  const { latitude, longitude } = useDiscoveryCoordinates();
+  const resolvedParams: UseDealsParams = {
+    ...params,
+    latitude: params.latitude ?? latitude,
+    longitude: params.longitude ?? longitude,
+  };
+
   return useQuery<DeliveryNearbyStore[], ApiError>({
     queryKey: deliveryKeys.deals({
-      limit: params.limit,
-      search: params.search,
-      category_id: params.category_id,
-      category_ids: params.category_ids,
-      shop_type_id: params.shop_type_id,
-      subcategory_id: params.subcategory_id,
+      limit: resolvedParams.limit,
+      search: resolvedParams.search,
+      latitude: resolvedParams.latitude,
+      longitude: resolvedParams.longitude,
+      category_id: resolvedParams.category_id,
+      category_ids: resolvedParams.category_ids,
+      shop_type_id: resolvedParams.shop_type_id,
+      subcategory_id: resolvedParams.subcategory_id,
     }),
-    queryFn: () => discoveryService.getDeals(params),
+    queryFn: () => discoveryService.getDeals(resolvedParams),
     // staleTime: 5 * 60 * 1000,
     ...options,
   });

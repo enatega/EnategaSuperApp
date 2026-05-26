@@ -9,6 +9,7 @@ import { useNearbyStores, useTopBrands } from '../../../hooks';
 import type { DeliveryTopBrand } from '../../../api/types';
 import TopBrandsListSkeleton from './HomeTabSkeletons/TopBrandsListSkeleton';
 import TopBrandCard from '../../../components/storeCard/TopBrandCard';
+import DeliveriesSectionEmptyState from '../../../components/home/DeliveriesSectionEmptyState';
 import type { MultiVendorStackParamList } from '../../navigation/types';
 
 type NavigationProp = NativeStackNavigationProp<
@@ -21,6 +22,8 @@ export default function TopBrandsList() {
   const navigation = useNavigation<NavigationProp>();
   const { data: topBrands = [], isPending: isTopBrandsPending } = useTopBrands();
   const { data: nearbyStores = [] } = useNearbyStores();
+  const shouldShowSeeAll = !isTopBrandsPending && topBrands.length > 0;
+  const isEmpty = !isTopBrandsPending && topBrands.length === 0;
   const handleSeeAllPress = useCallback(() => {
     navigation.navigate('TopBrandsSeeAll');
   }, [navigation]);
@@ -64,13 +67,18 @@ export default function TopBrandsList() {
   return (
     <View style={styles.section}>
       <SectionActionHeader
-        actionLabel={t('multi_vendor_see_all')}
+        actionLabel={shouldShowSeeAll ? t('multi_vendor_see_all') : undefined}
         title={t('multi_vendor_top_brands_title')}
         onActionPress={handleSeeAllPress}
       />
 
       {isTopBrandsPending ? (
         <TopBrandsListSkeleton />
+      ) : isEmpty ? (
+        <DeliveriesSectionEmptyState
+          title={t('multi_vendor_home_section_empty_title')}
+          message={t('multi_vendor_home_section_empty_message')}
+        />
       ) : (
         <HorizontalList
           data={topBrands}

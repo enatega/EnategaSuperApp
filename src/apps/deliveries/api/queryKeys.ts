@@ -107,7 +107,7 @@ export const deliveryKeys = {
             offset,
             limit,
         ] as const,
-    topBrands: (filters?: { limit?: number; search?: string }) =>
+    topBrands: (filters?: { limit?: number; search?: string; latitude?: number; longitude?: number }) =>
         [...deliveryKeys.discovery(), 'top-brands', filters] as const,
     mobileBanners: () => [...deliveryKeys.discovery(), 'mobile-banners'] as const,
     nearbyStores: (filters?: {
@@ -149,6 +149,8 @@ export const deliveryKeys = {
     deals: (filters?: {
         limit?: number;
         search?: string;
+        latitude?: number;
+        longitude?: number;
         category_id?: string;
         category_ids?: string[];
         shop_type_id?: string;

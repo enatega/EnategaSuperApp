@@ -46,3 +46,16 @@ export function formatScheduledDateTime(dateString: string) {
     minute: "2-digit",
   }).format(date);
 }
+
+export function formatOrderCode(
+  orderCode?: string | null,
+  fallbackOrderId?: string | null,
+) {
+  const rawValue = (orderCode ?? fallbackOrderId ?? '').trim();
+
+  if (!rawValue) {
+    return '-';
+  }
+
+  return rawValue.startsWith('#') ? rawValue : `#${rawValue}`;
+}
