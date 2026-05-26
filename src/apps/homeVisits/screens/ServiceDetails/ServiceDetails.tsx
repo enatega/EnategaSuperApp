@@ -45,13 +45,39 @@ export default function ServiceDetails() {
 
   const handleBookService = useCallback(
     (selection: HomeVisitsServiceDetailsBookingSelectionPayload) => {
-      navigation.push('ServiceDetailsBooking', {
-        serviceId,
-        serviceCenterId: query.data!.serviceCenterId,
+      const serviceData = query.data;
+      if (!serviceData) {
+        return;
+      }
+
+      const durationMinutes =
+        selection.summary.estimatedDurationMinutes > 0
+          ? selection.summary.estimatedDurationMinutes
+          : (serviceData.pricingSummary.estimatedDurationMinutes ?? 0);
+
+      navigation.push('TeamAndSchedule', {
         initialSelection: selection.selectionState,
+        selectedServiceIds: [serviceId],
+        selectedServices: [
+          {
+            id: serviceId,
+            name: serviceData.serviceName,
+            price: selection.summary.totalPrice,
+            durationLabel: selection.summary.estimatedDurationLabel,
+            isLocked: true,
+          },
+        ],
+        serviceCenterId: serviceData.serviceCenterId,
+        serviceId,
+        summary: {
+          durationLabel: selection.summary.estimatedDurationLabel,
+          durationMinutes,
+          serviceCount: selection.summary.serviceCount,
+          totalPrice: selection.summary.totalPrice,
+        },
       });
     },
-    [navigation, query.data?.serviceCenterId, serviceId],
+    [navigation, query.data, serviceId],
   );
 
   const handleFavoritePress = useCallback(async () => {
@@ -116,9 +142,6 @@ export default function ServiceDetails() {
   }
 
   return (
-
-
-
     <View style={styles.screen}>
       <ServiceDetailsContent
         data={query.data}
