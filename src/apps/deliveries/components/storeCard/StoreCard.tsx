@@ -62,6 +62,29 @@ function resolveOfferLabel(
   return trimmedDeal.length > 0 ? trimmedDeal : undefined;
 }
 
+function resolveCardImageUrl(store: StoreCardData) {
+  const fallbackImage = "https://placehold.co/400x400.png";
+
+  if (isProductStoreCardData(store)) {
+    const candidate = (
+      store.productImage ||
+      store.storeImage ||
+      store.storeLogo ||
+      (store as { imageUrl?: string | null }).imageUrl ||
+      fallbackImage
+    );
+    return candidate;
+  }
+
+  const candidate = (
+    store.coverImage ||
+    store.logo ||
+    (store as { imageUrl?: string | null }).imageUrl ||
+    fallbackImage
+  );
+  return candidate;
+}
+
 export default function StoreCard({
   store,
   actionSlot,
@@ -76,12 +99,7 @@ export default function StoreCard({
   const navigation = useNavigation<NavigationProp>();
   const isProductItem = isProductStoreCardData(store);
   const isPressable = Boolean(onPress) || !isProductItem;
-  const resolvedImageUrl = isProductItem
-    ? store.productImage ||
-      store.storeImage ||
-      store.storeLogo ||
-      "https://placehold.co/400x400.png"
-    : store.coverImage || store.logo || "https://placehold.co/400x400.png";
+  const resolvedImageUrl = resolveCardImageUrl(store);
   const resolvedOffer = resolveOfferLabel(
     store.dealAmount,
     store.dealType,
