@@ -84,7 +84,7 @@ const buildVariationOptions = (
           label: section.name,
           optionId: firstOption.optionId,
           price: firstOption.price,
-          pricingMode: "replace_base" as const,
+          pricingMode: "additive" as const,
           required: isCustomizationSectionRequired(section),
         };
       });

@@ -50,6 +50,7 @@ function toValidNumber(value: unknown): number | null {
 type Props = {
   data: ProductInfoResponse;
   customizations?: ProductInfoCustomizationsResponse;
+  initialBasePrice?: number;
   isCustomizationsLoading?: boolean;
   isRefreshing?: boolean;
   onRefresh?: () => void | Promise<void>;
@@ -58,6 +59,7 @@ type Props = {
 export default function MainContainer({
   data: productInfoData,
   customizations,
+  initialBasePrice,
   isCustomizationsLoading = false,
   isRefreshing = false,
   onRefresh,
@@ -92,6 +94,11 @@ export default function MainContainer({
     variationHelperText,
     variationOptions,
   } = useProductSelectionState({ addons, variations });
+  const resolvedProductBasePrice =
+    typeof initialBasePrice === "number" && Number.isFinite(initialBasePrice)
+      ? initialBasePrice
+      : productInfoData.price;
+  const isSelectedVariationReplacingBase = selectedVariation?.pricingMode === "replace_base";
   const { conflictResolution, handleAddToCart, isAddDisabled, isSubmitting } =
     useProductInfoCartFlow({
       customizations,
@@ -112,6 +119,7 @@ export default function MainContainer({
   const hasDetailSections =
     hasNutritionSection || hasCustomizationSection || isCustomizationsLoading;
   const detailDealPricing = useMemo(() => {
+    const productBasePrice = resolvedProductBasePrice;
     const rawDeal = productInfoData.deal;
     const fallbackDealAmount = toValidNumber(productInfoData.dealAmount);
     const fallbackDealType = productInfoData.dealType?.toLowerCase() ?? null;
@@ -167,8 +175,8 @@ export default function MainContainer({
     const derivedFixedDiscountFromBase =
       typeof discountedPrice === "number" &&
       Number.isFinite(discountedPrice) &&
-      discountedPrice < productInfoData.price
-        ? Number((productInfoData.price - discountedPrice).toFixed(2))
+      discountedPrice < productBasePrice
+        ? Number((productBasePrice - discountedPrice).toFixed(2))
         : null;
     const resolvedOfferLabel = hasNumericDiscount
       ? normalizedDealType === "percentage"
@@ -183,20 +191,20 @@ export default function MainContainer({
       if (normalizedDealType === "percentage") {
         discountedPrice = Math.max(
           0,
-          Number((productInfoData.price - (productInfoData.price * dealAmount) / 100).toFixed(2)),
+          Number((productBasePrice - (productBasePrice * dealAmount) / 100).toFixed(2)),
         );
       } else {
-        discountedPrice = Math.max(0, Number((productInfoData.price - dealAmount).toFixed(2)));
+        discountedPrice = Math.max(0, Number((productBasePrice - dealAmount).toFixed(2)));
       }
     }
 
     if (
       typeof discountedPrice !== "number" ||
       !Number.isFinite(discountedPrice) ||
-      discountedPrice >= productInfoData.price
+      discountedPrice >= productBasePrice
     ) {
       return {
-        basePrice: productInfoData.price,
+        basePrice: productBasePrice,
         offerLabel: resolvedOfferLabel ?? null,
         showOriginal: false,
       };
@@ -210,7 +218,12 @@ export default function MainContainer({
       offerLabel: resolvedOfferLabel ?? null,
       showOriginal: true,
     };
-  }, [productInfoData.deal, productInfoData.dealAmount, productInfoData.dealType, productInfoData.price]);
+  }, [
+    productInfoData.deal,
+    productInfoData.dealAmount,
+    productInfoData.dealType,
+    resolvedProductBasePrice,
+  ]);
 
   React.useEffect(() => {
     if (!ENABLE_PRODUCT_INFO_DEAL_DEBUG) {
@@ -223,6 +236,7 @@ export default function MainContainer({
       dealType: productInfoData.dealType,
       dealAmount: productInfoData.dealAmount,
       price: productInfoData.price,
+      initialBasePrice,
       resolvedBasePrice: detailDealPricing.basePrice,
       resolvedDealType: detailDealPricing.dealType,
       resolvedDealAmount: detailDealPricing.dealAmount,
@@ -242,9 +256,14 @@ export default function MainContainer({
     productInfoData.dealType,
     productInfoData.price,
     productInfoData.productId,
+    initialBasePrice,
   ]);
   const effectiveBasePrice = useMemo(() => {
     if (variationOptions.length === 0) {
+      return detailDealPricing.basePrice;
+    }
+
+    if (!isSelectedVariationReplacingBase) {
       return detailDealPricing.basePrice;
     }
 
@@ -272,11 +291,18 @@ export default function MainContainer({
     detailDealPricing.dealType,
     detailDealPricing.derivedFixedDiscountFromBase,
     detailDealPricing.showOriginal,
+    isSelectedVariationReplacingBase,
     selectedVariationPrice,
     variationOptions.length,
   ]);
-  const configuredUnitPrice = effectiveBasePrice + selectedAddonsTotal;
-  const originalUnitPrice = (variationOptions.length > 0 ? selectedVariationPrice : productInfoData.price) + selectedAddonsTotal;
+  const selectedVariationAddonPrice =
+    variationOptions.length > 0 && !isSelectedVariationReplacingBase
+      ? selectedVariationPrice
+      : 0;
+  const configuredUnitPrice =
+    effectiveBasePrice + selectedVariationAddonPrice + selectedAddonsTotal;
+  const originalUnitPrice =
+    resolvedProductBasePrice + selectedVariationAddonPrice + selectedAddonsTotal;
   const shouldShowOriginalPrice = originalUnitPrice > configuredUnitPrice;
 
   const totalPrice = useMemo(

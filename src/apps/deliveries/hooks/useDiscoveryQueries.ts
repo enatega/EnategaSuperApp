@@ -222,12 +222,35 @@ function normalizeStockValue(stockId?: string | null) {
   return stockId;
 }
 
+function normalizeCoordinate(value: unknown): number | undefined {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : undefined;
+  }
+
+  if (typeof value === 'string') {
+    const trimmedValue = value.trim();
+
+    if (!trimmedValue) {
+      return undefined;
+    }
+
+    const parsedValue = Number(trimmedValue);
+    return Number.isFinite(parsedValue) ? parsedValue : undefined;
+  }
+
+  return undefined;
+}
+
+function resolveDiscoveryCoordinate(overrideValue: unknown, fallbackValue: unknown) {
+  return normalizeCoordinate(overrideValue) ?? normalizeCoordinate(fallbackValue);
+}
+
 function useDiscoveryCoordinates() {
   const { latitude, longitude } = useAddress();
 
   return {
-    latitude,
-    longitude,
+    latitude: normalizeCoordinate(latitude),
+    longitude: normalizeCoordinate(longitude),
   };
 }
 
@@ -294,8 +317,8 @@ export function useShopTypeProducts(
     'shopTypeId' | 'offset' | 'limit' | 'search'
   > = {
     ...options?.requestParams,
-    latitude: options?.requestParams?.latitude ?? latitude,
-    longitude: options?.requestParams?.longitude ?? longitude,
+    latitude: resolveDiscoveryCoordinate(options?.requestParams?.latitude, latitude),
+    longitude: resolveDiscoveryCoordinate(options?.requestParams?.longitude, longitude),
     category_ids: normalizeCategoryIds(options?.filters?.category_ids),
     price_tiers: options?.filters?.price_tiers ?? undefined,
     stock: normalizeStockValue(options?.filters?.stock),
@@ -353,8 +376,8 @@ export function useShopTypeStores(
     'shopTypeId' | 'offset' | 'limit' | 'search'
   > = {
     ...options?.requestParams,
-    latitude: options?.requestParams?.latitude ?? latitude,
-    longitude: options?.requestParams?.longitude ?? longitude,
+    latitude: resolveDiscoveryCoordinate(options?.requestParams?.latitude, latitude),
+    longitude: resolveDiscoveryCoordinate(options?.requestParams?.longitude, longitude),
     category_ids: normalizeCategoryIds(options?.filters?.category_ids),
     price_tiers: options?.filters?.price_tiers ?? undefined,
     stock: normalizeStockValue(options?.filters?.stock),
@@ -447,8 +470,8 @@ export function useVendorStores(
     'vendorId' | 'offset' | 'limit' | 'search'
   > = {
     ...options?.requestParams,
-    latitude: options?.requestParams?.latitude ?? latitude,
-    longitude: options?.requestParams?.longitude ?? longitude,
+    latitude: resolveDiscoveryCoordinate(options?.requestParams?.latitude, latitude),
+    longitude: resolveDiscoveryCoordinate(options?.requestParams?.longitude, longitude),
     category_ids: normalizeCategoryIds(options?.filters?.category_ids),
     price_tiers: options?.filters?.price_tiers ?? undefined,
     stock: normalizeStockValue(options?.filters?.stock),
@@ -552,8 +575,8 @@ export function usePaginatedTopBrands(
   const { latitude, longitude } = useDiscoveryCoordinates();
   const topBrandsParams: Omit<DeliveryTopBrandsParams, 'offset' | 'limit' | 'search'> = {
     ...options?.requestParams,
-    latitude: options?.requestParams?.latitude ?? latitude,
-    longitude: options?.requestParams?.longitude ?? longitude,
+    latitude: resolveDiscoveryCoordinate(options?.requestParams?.latitude, latitude),
+    longitude: resolveDiscoveryCoordinate(options?.requestParams?.longitude, longitude),
   };
 
   const query = useInfiniteQuery<
@@ -606,8 +629,8 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
     'offset' | 'limit' | 'search'
   > = {
     ...options?.requestParams,
-    latitude: options?.requestParams?.latitude ?? latitude,
-    longitude: options?.requestParams?.longitude ?? longitude,
+    latitude: resolveDiscoveryCoordinate(options?.requestParams?.latitude, latitude),
+    longitude: resolveDiscoveryCoordinate(options?.requestParams?.longitude, longitude),
     category_ids: normalizeCategoryIds(options?.filters?.category_ids),
     price_tiers: options?.filters?.price_tiers ?? undefined,
     stock: normalizeStockValue(options?.filters?.stock),
@@ -676,8 +699,8 @@ export function useRecommendedStores(options?: UseRecommendedStoresOptions) {
     'offset' | 'limit'
   > = {
     ...options?.requestParams,
-    latitude: options?.requestParams?.latitude ?? latitude,
-    longitude: options?.requestParams?.longitude ?? longitude,
+    latitude: resolveDiscoveryCoordinate(options?.requestParams?.latitude, latitude),
+    longitude: resolveDiscoveryCoordinate(options?.requestParams?.longitude, longitude),
     sort_by: options?.requestParams?.sort_by ?? 'recommended',
   };
 
@@ -778,8 +801,8 @@ export function useDeals(
   const { latitude, longitude } = useDiscoveryCoordinates();
   const resolvedParams: UseDealsParams = {
     ...params,
-    latitude: params.latitude ?? latitude,
-    longitude: params.longitude ?? longitude,
+    latitude: resolveDiscoveryCoordinate(params.latitude, latitude),
+    longitude: resolveDiscoveryCoordinate(params.longitude, longitude),
   };
 
   return useQuery<DeliveryNearbyStore[], ApiError>({
@@ -823,8 +846,8 @@ export function useOffersForYou(
 ) {
   const { latitude, longitude } = useDiscoveryCoordinates();
   const resolvedParams: DeliveryOffersForYouParams = {
-    latitude: params.latitude ?? latitude,
-    longitude: params.longitude ?? longitude,
+    latitude: resolveDiscoveryCoordinate(params.latitude, latitude),
+    longitude: resolveDiscoveryCoordinate(params.longitude, longitude),
   };
 
   return useQuery<DeliveryOfferForYouItem[], ApiError>({

@@ -11,12 +11,14 @@ type ProductInfoProps = {
   route?: {
     params?: {
       productId?: string;
+      initialBasePrice?: number;
     };
   };
 };
 
 const ProductInfo = ({ route }: ProductInfoProps) => {
   const productId = route?.params?.productId ?? "";
+  const initialBasePrice = route?.params?.initialBasePrice;
   const {
     data: productInfo,
     error: productInfoError,
@@ -62,6 +64,7 @@ const ProductInfo = ({ route }: ProductInfoProps) => {
     <MainContainer
       customizations={customizations}
       data={productInfo}
+      initialBasePrice={initialBasePrice}
       isCustomizationsLoading={isCustomizationsLoading}
       isRefreshing={isRefreshing}
       onRefresh={handleRefresh}

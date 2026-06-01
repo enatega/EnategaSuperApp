@@ -4,9 +4,13 @@ import { useTranslation } from 'react-i18next';
 import ListStateView from '../../../../general/components/filterablePaginatedList/ListStateView';
 import { useTheme } from '../../../../general/theme/theme';
 import type {
+  CartResponse,
+} from '../../api/cartServiceTypes';
+import type {
   CheckoutOrderType,
   CheckoutPreviewResponse,
 } from '../../api/orderServiceTypes';
+import CheckoutItemsSection from './CheckoutItemsSection';
 import CheckoutDeliveryTimeSection from './CheckoutDeliveryTimeSection';
 import CheckoutHeader from './CheckoutHeader';
 import CheckoutInfoRow from './CheckoutInfoRow';
@@ -19,6 +23,7 @@ import { formatCheckoutScheduledAt, type CheckoutDeliveryTimeMode } from './chec
 
 type Props = {
   canShowLeaveAtDoor?: boolean;
+  cart: CartResponse | null;
   deliveryTimeMode: CheckoutDeliveryTimeMode;
   hasAddressRequirement: boolean;
   isPickupEnabled: boolean;
@@ -63,6 +68,7 @@ type Props = {
 
 export default function CheckoutScreenContent({
   canShowLeaveAtDoor = true,
+  cart,
   deliveryTimeMode,
   hasAddressRequirement,
   isPickupEnabled,
@@ -164,6 +170,8 @@ export default function CheckoutScreenContent({
             )}
           />
         ) : null}
+
+        <CheckoutItemsSection items={cart?.items ?? []} />
 
         <CheckoutInfoRow
           title={t('checkout_message_restaurant_title')}

@@ -59,6 +59,7 @@ export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
   RiderChat: RiderChatScreenParams['RiderChat'];
   ProductInfo: {
     productId: string;
+    initialBasePrice?: number;
   };
   Cart: undefined;
   Checkout: undefined;

@@ -1020,6 +1020,7 @@ export default function CheckoutScreen() {
   return (
     <View style={{ backgroundColor: colors.background, flex: 1 }}>
       <CheckoutScreenContent
+        cart={cart ?? null}
         courierMessage={messages.courier}
         deliveryTimeMode={deliveryTimeMode}
         hasAddressRequirement={orderType === 'delivery' && !selectedAddressId}

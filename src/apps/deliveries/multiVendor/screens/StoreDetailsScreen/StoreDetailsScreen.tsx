@@ -255,7 +255,10 @@ export default function StoreDetailsScreen() {
       return;
     }
 
-    navigation.navigate('ProductInfo', { productId: target.productId });
+    navigation.navigate('ProductInfo', {
+      productId: target.productId,
+      initialBasePrice: target.basePrice ?? undefined,
+    });
   }, [navigation, store?.isAvailable]);
 
   const handleLoadMoreProducts = useCallback(() => {

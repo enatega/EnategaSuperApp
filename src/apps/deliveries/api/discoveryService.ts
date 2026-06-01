@@ -77,6 +77,25 @@ const TOP_BRANDS_DEFAULTS = {
     limit: 10,
 } as const;
 
+function toFiniteCoordinate(value: unknown): number | undefined {
+    if (typeof value === 'number') {
+        return Number.isFinite(value) ? value : undefined;
+    }
+
+    if (typeof value === 'string') {
+        const trimmedValue = value.trim();
+
+        if (!trimmedValue) {
+            return undefined;
+        }
+
+        const parsedValue = Number(trimmedValue);
+        return Number.isFinite(parsedValue) ? parsedValue : undefined;
+    }
+
+    return undefined;
+}
+
 function toShopTypeProductsQueryParams(
     params: DeliveryShopTypeProductsParams,
 ): Record<string, unknown> {
@@ -185,12 +204,19 @@ function toNearbyStoresQueryParams(
         sort_by,
     } = params;
 
+    const normalizedLatitude = toFiniteCoordinate(latitude);
+    const normalizedLongitude = toFiniteCoordinate(longitude);
+
     return {
         offset,
         limit,
         search,
-        latitude,
-        longitude,
+        ...(normalizedLatitude !== undefined
+            ? { latitude: normalizedLatitude }
+            : {}),
+        ...(normalizedLongitude !== undefined
+            ? { longitude: normalizedLongitude }
+            : {}),
         stock,
         category_id,
         category_ids,

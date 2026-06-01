@@ -40,5 +40,6 @@ export type DeliveriesStoreDetailsParamList = {
 export type DeliveriesProductInfoParamList = {
   ProductInfo: {
     productId: string;
+    initialBasePrice?: number;
   };
 };

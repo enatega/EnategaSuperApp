@@ -37,6 +37,7 @@ export type MultiVendorStackParamList = {
   };
   ProductInfo: {
     productId: string;
+    initialBasePrice?: number;
   };
   ShopTypesSeeAll: undefined;
   CategoriesSeeAll: {

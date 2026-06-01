@@ -90,7 +90,10 @@ export default function ProductCard({
       onOpenProduct:
         productAction?.onOpenProduct ??
         ((nextTarget: DeliveryProductActionTarget) => {
-          navigation.navigate('ProductInfo', { productId: nextTarget.productId });
+          navigation.navigate('ProductInfo', {
+            productId: nextTarget.productId,
+            initialBasePrice: nextTarget.basePrice ?? undefined,
+          });
         }),
       onRequestCartAction: productAction?.onRequestCartAction,
     }),
