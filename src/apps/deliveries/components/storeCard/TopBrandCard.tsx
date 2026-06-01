@@ -66,13 +66,13 @@ export default function TopBrandCard({
           <View
             style={[
               styles.badge,
-              { backgroundColor: colors.blue800, shadowColor: colors.shadowColor },
+              { backgroundColor: colors.blue50, shadowColor: colors.shadowColor },
               badgeStyle,
             ]}
           >
-            <Icon type="Feather" name="tag" size={12} color={colors.white} />
+            <Icon type="Feather" name="tag" size={12} color={colors.blue800} />
             <Text
-              color={colors.white}
+              color={colors.blue800}
               weight="medium"
               style={{
                 fontSize: typography.size.xs2,

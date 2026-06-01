@@ -169,10 +169,10 @@ export default function OrderAgainProductCard({ onPress, product, state }: Props
         <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
 
         {hasDeal && offerText ? (
-          <View style={[styles.badge, { backgroundColor: colors.blue800 }]}>
-            <Icon type="Feather" name="tag" size={12} color={colors.white} />
+          <View style={[styles.badge, { backgroundColor: colors.blue50 }]}>
+            <Icon type="Feather" name="tag" size={12} color={colors.blue800} />
             <Text
-              color={colors.white}
+              color={colors.blue800}
               weight="medium"
               style={{
                 fontSize: typography.size.xs2,
