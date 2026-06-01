@@ -40,8 +40,6 @@ import type {
 const NEARBY_STORES_DEFAULTS = {
     offset: 0,
     limit: 10,
-    latitude: 33.7039543,
-    longitude: 72.9680349,
 } as const;
 
 const RECOMMENDED_STORES_DEFAULTS = {
@@ -86,8 +84,8 @@ function toShopTypeProductsQueryParams(
         offset = SHOP_TYPE_PRODUCTS_DEFAULTS.offset,
         limit = SHOP_TYPE_PRODUCTS_DEFAULTS.limit,
         search = '',
-        latitude = NEARBY_STORES_DEFAULTS.latitude,
-        longitude = NEARBY_STORES_DEFAULTS.longitude,
+        latitude,
+        longitude,
         stock,
         category_ids,
         subcategory_id,
@@ -176,8 +174,8 @@ function toNearbyStoresQueryParams(
         offset = NEARBY_STORES_DEFAULTS.offset,
         limit = NEARBY_STORES_DEFAULTS.limit,
         search = '',
-        latitude = NEARBY_STORES_DEFAULTS.latitude,
-        longitude = NEARBY_STORES_DEFAULTS.longitude,
+        latitude,
+        longitude,
         stock,
         category_id,
         category_ids,

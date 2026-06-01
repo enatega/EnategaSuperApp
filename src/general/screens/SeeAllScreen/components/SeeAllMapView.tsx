@@ -40,6 +40,7 @@ type Props<TItem> = {
   items: TItem[];
   title: string;
   onBack: () => void;
+  onViewStore?: (storeId: string) => void;
   mapStoreFromItem: (item: TItem, index: number) => SeeAllMapStoreSource;
   currencyLabel?: string;
 };
@@ -48,6 +49,7 @@ function SeeAllMapViewComponent<TItem>({
   items,
   title,
   onBack,
+  onViewStore,
   mapStoreFromItem,
   currencyLabel,
 }: Props<TItem>) {
@@ -196,7 +198,13 @@ function SeeAllMapViewComponent<TItem>({
       <MapStoreBottomSheet
         store={selectedStore}
         onClose={() => setSelectedStoreId(null)}
-        onViewStore={onBack}
+        onViewStore={() => {
+          if (!selectedStore) {
+            return;
+          }
+
+          onViewStore?.(selectedStore.id);
+        }}
         title={t('see_all_map_sheet_title')}
         ctaLabel={t('see_all_map_cta')}
         closeLabel={t('filter_close_label')}

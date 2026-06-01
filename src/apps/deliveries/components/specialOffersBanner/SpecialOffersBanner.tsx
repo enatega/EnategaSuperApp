@@ -2,7 +2,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import BannerSwiper from '../../../../general/components/BannerSwiper';
-import { useTheme } from '../../../../general/theme/theme';
 import type {
   DeliveryBanner,
   DeliveryBannerActionType,
@@ -62,15 +61,12 @@ export default function SpecialOffersBanner({
   maxItems,
 }: Props) {
   const navigation = useNavigation<NavigationProp<DeliveriesStackParamList>>();
-  const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const [bannerIndex, setBannerIndex] = useState(0);
   const bannerSidePadding = 20;
   const bannerWidth = width - bannerSidePadding * 2;
   const visibleBanners =
     typeof maxItems === 'number' && maxItems > 0 ? banners.slice(0, maxItems) : banners;
-  const activeBannerIndex =
-    visibleBanners.length > 0 ? Math.min(bannerIndex, visibleBanners.length - 1) : 0;
   const navigateToStore = useCallback(
     (banner: DeliveryBanner) => {
       const store = toStoreNavigationTarget(banner);
@@ -184,25 +180,6 @@ export default function SpecialOffersBanner({
         )}
       />
 
-      <View style={styles.bannerDots}>
-        {visibleBanners.map((item, index) => (
-          <View
-            key={item.id}
-            style={[
-              styles.bannerDot,
-              index === activeBannerIndex
-                ? styles.bannerDotActive
-                : styles.bannerDotInactive,
-              {
-                backgroundColor:
-                  index === activeBannerIndex
-                    ? colors.primary
-                    : colors.iconDisabled,
-              },
-            ]}
-          />
-        ))}
-      </View>
     </View>
   );
 }
@@ -210,21 +187,5 @@ export default function SpecialOffersBanner({
 const styles = StyleSheet.create({
   wrapper: {
     alignSelf: 'center',
-  },
-  bannerDots: {
-    flexDirection: 'row',
-    gap: 4,
-    justifyContent: 'center',
-    marginTop: 10,
-  },
-  bannerDot: {
-    borderRadius: 999,
-    height: 6,
-  },
-  bannerDotActive: {
-    width: 19,
-  },
-  bannerDotInactive: {
-    width: 6,
   },
 });

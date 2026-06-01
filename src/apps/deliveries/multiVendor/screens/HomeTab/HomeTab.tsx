@@ -17,6 +17,7 @@ import OffersForYouSection from '../../components/HomeTab/OffersForYouSection';
 import MultiVendorDealsSection from '../../components/HomeTab/MultiVendorDealsSection';
 import OrderAgain from '../../components/HomeTab/OrderAgain';
 import SharedSpecialOffersBanner from '../../../components/specialOffersBanner/SpecialOffersBanner';
+import { DiscoveryCategorySkeleton, DiscoveryResultsSkeleton } from '../../../components/discovery';
 import { useCartCount } from '../../../hooks/useCart';
 import { useMobileBanners } from '../../../hooks';
 import useAddressSelectionSheet from '../../../../../general/hooks/useAddressSelectionSheet';
@@ -43,7 +44,7 @@ export default function HomeTab() {
     refetch,
   } = useSavedAddresses("deliveries");
   const { selectedAddress, setSelectedAddress } = useAddress();
-  const { currentCoordinates, refreshCurrentLocation } = useCurrentLocation();
+  const { currentCoordinates, isLoadingCurrentLocation, refreshCurrentLocation } = useCurrentLocation();
   const { selectSavedAddress, selectingAddressId } = useSelectSavedAddress("deliveries");
   const {
     isVisible: isAddressSheetVisible,
@@ -80,6 +81,17 @@ export default function HomeTab() {
       bottomBanners: byPlacement('bottom'),
     };
   }, [banners]);
+  const hasSelectedCoordinates =
+    typeof selectedAddress?.latitude === 'number' &&
+    typeof selectedAddress?.longitude === 'number';
+  const hasServerSelectedAddress = useMemo(
+    () => addresses.some((address) => address.is_selected),
+    [addresses],
+  );
+  const shouldWaitForInitialDiscovery =
+    !hasSelectedCoordinates &&
+    !hasServerSelectedAddress &&
+    (isAddressesLoading || isLoadingCurrentLocation);
 
   useEffect(() => {
     if (banners.length === 0) {
@@ -238,22 +250,32 @@ export default function HomeTab() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <ShopTypeList />
-        <SharedSpecialOffersBanner banners={topBanners} isPending={isBannersPending} />
-        <TopBrandsList />
-        <NearbyStoreList />
-        <OffersForYouSection />
-        <MultiVendorDealsSection />
-        <SharedSpecialOffersBanner
-          banners={stickyBanners}
-          isPending={isBannersPending}
-          layout="stack"
-          maxItems={2}
-        />
-        <ShopTypeStoreSections />
-        <SharedSpecialOffersBanner banners={middleBanners} isPending={isBannersPending} />
-        <OrderAgain />
-        <SharedSpecialOffersBanner banners={bottomBanners} isPending={isBannersPending} />
+        {shouldWaitForInitialDiscovery ? (
+          <>
+            <DiscoveryCategorySkeleton />
+            <DiscoveryResultsSkeleton />
+            <DiscoveryResultsSkeleton />
+          </>
+        ) : (
+          <>
+            <ShopTypeList />
+            <SharedSpecialOffersBanner banners={topBanners} isPending={isBannersPending} />
+            <TopBrandsList />
+            <NearbyStoreList />
+            <OffersForYouSection />
+            <MultiVendorDealsSection />
+            <SharedSpecialOffersBanner
+              banners={stickyBanners}
+              isPending={isBannersPending}
+              layout="stack"
+              maxItems={2}
+            />
+            <ShopTypeStoreSections />
+            <SharedSpecialOffersBanner banners={middleBanners} isPending={isBannersPending} />
+            <OrderAgain />
+            <SharedSpecialOffersBanner banners={bottomBanners} isPending={isBannersPending} />
+          </>
+        )}
       </ScrollView>
 
       <AddressSelectionBottomSheet
