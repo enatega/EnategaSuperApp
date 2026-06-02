@@ -1,24 +1,68 @@
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { deliveryKeys } from '../api/queryKeys';
-import { platformConfigurationService } from '../api/platformConfigurationService';
+import {
+  platformConfigurationService,
+  type DeliveriesPlatformConfigurationResponse,
+} from '../api/platformConfigurationService';
 import { ApiError } from '../../../general/api/apiClient';
 import {
   mapPlatformTypeToDeliveryMode,
   useAppConfigStore,
   type AppCurrency,
+  type DeliveriesAppSettings,
   type DeliveriesPlatformConfiguration,
 } from '../../../general/stores/useAppConfigStore';
 
 type DeliveriesBootstrapConfig = {
   platformConfiguration: DeliveriesPlatformConfiguration;
+  appSettings: DeliveriesAppSettings | null;
   currency: AppCurrency | null;
 };
+
+function toPlatformConfiguration(
+  response: DeliveriesPlatformConfigurationResponse,
+): DeliveriesPlatformConfiguration {
+  return {
+    id: response.id,
+    platform_type: response.platform_type,
+    created_at: response.created_at,
+    updated_at: response.updated_at,
+  };
+}
+
+function toDeliveriesAppSettings(
+  response: DeliveriesPlatformConfigurationResponse,
+): DeliveriesAppSettings | null {
+  if (response.app_settings) {
+    return response.app_settings;
+  }
+
+  const hasTopLevelSettings =
+    typeof response.is_maintenance_mode === 'boolean' ||
+    typeof response.maintenance_message === 'string' ||
+    response.primary_color != null ||
+    response.secondary_color != null ||
+    response.tertiary_color != null;
+
+  if (!hasTopLevelSettings) {
+    return null;
+  }
+
+  return {
+    is_maintenance_mode: response.is_maintenance_mode ?? false,
+    maintenance_message: response.maintenance_message ?? null,
+    primary_color: response.primary_color ?? null,
+    secondary_color: response.secondary_color ?? null,
+    tertiary_color: response.tertiary_color ?? null,
+  };
+}
 
 export function useInitializeDeliveriesConfig() {
   const {
     deliveries,
     setDeliveriesPlatformConfiguration,
+    setDeliveriesAppSettings,
     setDeliveriesDeliveryMode,
     setDeliveriesCurrency,
     setDeliveriesConfigLoading,
@@ -29,7 +73,7 @@ export function useInitializeDeliveriesConfig() {
   const platformConfigurationQuery = useQuery<DeliveriesBootstrapConfig, ApiError>({
     queryKey: deliveryKeys.appConfig(),
     queryFn: async () => {
-      const [platformConfiguration, currencies] = await Promise.all([
+      const [platformConfigurationResponse, currencies] = await Promise.all([
         platformConfigurationService.getPlatformConfiguration(),
         platformConfigurationService.getCurrencies(),
       ]);
@@ -38,7 +82,8 @@ export function useInitializeDeliveriesConfig() {
         currencies.find((currency) => currency.isActive) ?? currencies[0] ?? null;
 
       return {
-        platformConfiguration,
+        platformConfiguration: toPlatformConfiguration(platformConfigurationResponse),
+        appSettings: toDeliveriesAppSettings(platformConfigurationResponse),
         currency: activeCurrency,
       };
     },
@@ -66,6 +111,7 @@ export function useInitializeDeliveriesConfig() {
     }
 
     setDeliveriesPlatformConfiguration(platformConfigurationQuery.data.platformConfiguration);
+    setDeliveriesAppSettings(platformConfigurationQuery.data.appSettings);
     setDeliveriesDeliveryMode(
       mapPlatformTypeToDeliveryMode(
         platformConfigurationQuery.data.platformConfiguration.platform_type,
@@ -78,6 +124,7 @@ export function useInitializeDeliveriesConfig() {
     markDeliveriesConfigLoaded,
     platformConfigurationQuery.data,
     setDeliveriesConfigError,
+    setDeliveriesAppSettings,
     setDeliveriesCurrency,
     setDeliveriesDeliveryMode,
     setDeliveriesPlatformConfiguration,
@@ -95,12 +142,14 @@ export function useInitializeDeliveriesConfig() {
         : 'Failed to load deliveries configuration';
 
     setDeliveriesConfigError(errorMessage);
+    setDeliveriesAppSettings(null);
     setDeliveriesDeliveryMode(fallbackDeliveryMode);
     markDeliveriesConfigLoaded();
   }, [
     markDeliveriesConfigLoaded,
     platformConfigurationQuery.error,
     setDeliveriesConfigError,
+    setDeliveriesAppSettings,
     setDeliveriesDeliveryMode,
   ]);
 

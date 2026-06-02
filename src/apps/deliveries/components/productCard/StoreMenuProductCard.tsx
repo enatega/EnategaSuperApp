@@ -135,7 +135,7 @@ export default function StoreMenuProductCard({
             <View style={styles.badgeSlot}>
               {hasDeal && resolvedOffer ? (
                 <View
-                  style={[styles.badge, { backgroundColor: colors.blue50 }]}
+                  style={[styles.badge, { backgroundColor: colors.secondary }]}
                 >
                   <Icon
                     color={colors.blue800}

@@ -44,11 +44,20 @@ export type DeliveriesPlatformConfiguration = {
   updated_at: string;
 };
 
+export type DeliveriesAppSettings = {
+  is_maintenance_mode: boolean;
+  maintenance_message: string | null;
+  primary_color: string | null;
+  secondary_color: string | null;
+  tertiary_color: string | null;
+};
+
 export type DeliveryMode = 'singleVendor' | 'multiVendor' | 'chain';
 export type OrderTrackingVariant = 'legacy' | 'modern';
 
 type DeliveriesAppConfigState = AppConfigStatus & {
   platformConfiguration: DeliveriesPlatformConfiguration | null;
+  appSettings: DeliveriesAppSettings | null;
   deliveryMode: DeliveryMode | null;
   currency: AppCurrency | null;
   orderTrackingVariant: OrderTrackingVariant;
@@ -67,6 +76,9 @@ type AppConfigState = {
   resetRideSharingConfig: () => void;
   setDeliveriesPlatformConfiguration: (
     platformConfiguration: DeliveriesPlatformConfiguration | null,
+  ) => void;
+  setDeliveriesAppSettings: (
+    appSettings: DeliveriesAppSettings | null,
   ) => void;
   setDeliveriesDeliveryMode: (deliveryMode: DeliveryMode | null) => void;
   setDeliveriesCurrency: (currency: AppCurrency | null) => void;
@@ -89,6 +101,7 @@ const initialRideSharingConfigState: RideSharingAppConfigState = {
 
 const initialDeliveriesConfigState: DeliveriesAppConfigState = {
   platformConfiguration: null,
+  appSettings: null,
   deliveryMode: null,
   currency: null,
   orderTrackingVariant: 'modern',
@@ -153,6 +166,15 @@ export const useAppConfigStore = create<AppConfigState>((set) => ({
       deliveries: {
         ...state.deliveries,
         platformConfiguration,
+        error: null,
+      },
+    })),
+
+  setDeliveriesAppSettings: (appSettings) =>
+    set((state) => ({
+      deliveries: {
+        ...state.deliveries,
+        appSettings,
         error: null,
       },
     })),
@@ -271,6 +293,10 @@ export function mapPlatformTypeToDeliveryMode(
 
 export function useDeliveriesPlatformConfiguration() {
   return useAppConfigStore((state) => state.deliveries.platformConfiguration);
+}
+
+export function useDeliveriesAppSettings() {
+  return useAppConfigStore((state) => state.deliveries.appSettings);
 }
 
 export function useDeliveriesDeliveryMode() {

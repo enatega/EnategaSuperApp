@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+import { useAppConfigStore } from '../stores/useAppConfigStore';
 import { buildTheme, Theme } from './theme';
 import type { ThemedMiniAppId } from './colors';
 
@@ -21,6 +22,7 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const THEME_STORAGE_KEY = 'super_app_theme_mode';
   const systemScheme = useColorScheme();
+  const deliveriesAppSettings = useAppConfigStore((state) => state.deliveries.appSettings);
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
   const [activeMiniApp, setActiveMiniAppState] = useState<ThemedMiniAppId>('general');
   const [isLoaded, setIsLoaded] = useState(false);
@@ -54,7 +56,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const activeScheme =
     themeMode === 'system' ? (systemScheme === 'dark' ? 'dark' : 'light') : themeMode;
 
-  const theme = useMemo(() => buildTheme(activeScheme, activeMiniApp), [activeMiniApp, activeScheme]);
+  const theme = useMemo(
+    () => buildTheme(activeScheme, activeMiniApp, deliveriesAppSettings),
+    [activeMiniApp, activeScheme, deliveriesAppSettings],
+  );
 
   const value = useMemo(
     () => ({ theme, themeMode, activeMiniApp, setThemeMode, setActiveMiniApp }),

@@ -40,7 +40,7 @@ export default function StoreImage({
       ) : null}
 
       {offer && (
-        <View style={[styles.offerBadge, { backgroundColor: colors.blue50 }]}>
+        <View style={[styles.offerBadge, { backgroundColor: colors.secondary }]}>
           <Ionicons
             name="pricetag"
             size={12}

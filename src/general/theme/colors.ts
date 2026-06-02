@@ -1,3 +1,5 @@
+import type { DeliveriesAppSettings } from '../stores/useAppConfigStore';
+
 export type ThemedMiniAppId =
   | "general"
   | "deliveries"
@@ -79,6 +81,143 @@ export type ThemeColors = typeof baseLightColors;
 type ThemeScheme = "light" | "dark";
 type ThemeColorOverrides = Partial<ThemeColors>;
 type ThemeColorOverrideSet = Record<ThemeScheme, ThemeColorOverrides>;
+
+function normalizeHexColor(value: string | null | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const trimmedValue = value.trim();
+  const normalizedValue = trimmedValue.startsWith("#") ? trimmedValue : `#${trimmedValue}`;
+
+  if (/^#[0-9A-Fa-f]{6}$/.test(normalizedValue)) {
+    return normalizedValue.toUpperCase();
+  }
+
+  return null;
+}
+
+function hexToRgb(hex: string) {
+  const sanitizedHex = hex.replace("#", "");
+  return {
+    r: Number.parseInt(sanitizedHex.slice(0, 2), 16),
+    g: Number.parseInt(sanitizedHex.slice(2, 4), 16),
+    b: Number.parseInt(sanitizedHex.slice(4, 6), 16),
+  };
+}
+
+function rgbToHex(r: number, g: number, b: number) {
+  const toHex = (value: number) =>
+    Math.max(0, Math.min(255, Math.round(value))).toString(16).padStart(2, "0").toUpperCase();
+
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+function mixColors(baseHex: string, mixHex: string, weight: number) {
+  const baseRgb = hexToRgb(baseHex);
+  const mixRgb = hexToRgb(mixHex);
+
+  return rgbToHex(
+    baseRgb.r * (1 - weight) + mixRgb.r * weight,
+    baseRgb.g * (1 - weight) + mixRgb.g * weight,
+    baseRgb.b * (1 - weight) + mixRgb.b * weight,
+  );
+}
+
+function withAlpha(hex: string, alpha: number) {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function lighten(hex: string, amount: number) {
+  return mixColors(hex, "#FFFFFF", amount);
+}
+
+function darken(hex: string, amount: number) {
+  return mixColors(hex, "#000000", amount);
+}
+
+function buildDeliveriesDynamicOverrides(
+  scheme: ThemeScheme,
+  appSettings?: DeliveriesAppSettings | null,
+): ThemeColorOverrides {
+  const primaryColor = normalizeHexColor(appSettings?.primary_color);
+  const secondaryColor = normalizeHexColor(appSettings?.secondary_color);
+  const tertiaryColor = normalizeHexColor(appSettings?.tertiary_color);
+
+  if (!primaryColor && !secondaryColor && !tertiaryColor) {
+    return {};
+  }
+
+  const resolvedPrimary = primaryColor ?? baseLightColors.primary;
+  const resolvedSecondary = secondaryColor ?? resolvedPrimary;
+  const resolvedTertiary = tertiaryColor ?? resolvedSecondary;
+  const warmSurfaceSoft = lighten(resolvedTertiary, 0.34);
+  const warmSurfaceStrong = mixColors(resolvedTertiary, resolvedSecondary, 0.08);
+  const darkAccent = darken(resolvedPrimary, 0.04);
+  const darkBannerEnd = mixColors(resolvedPrimary, resolvedSecondary, 0.24);
+
+  if (scheme === "dark") {
+    const darkSurface = mixColors("#111827", resolvedPrimary, 0.6);
+    const darkSurfaceSoft = mixColors(darkSurface, resolvedSecondary, 0.08);
+    const darkWarmAccent = mixColors(resolvedSecondary, resolvedPrimary, 0.7);
+    const lightPrimary = lighten(resolvedTertiary, 0.04);
+
+    return {
+      primary: lightPrimary,
+      primaryDark: resolvedSecondary,
+      secondary: resolvedSecondary,
+      blue50: darkSurfaceSoft,
+      blue100: darkWarmAccent,
+      blue500: resolvedSecondary,
+      blue800: lightPrimary,
+      cardSoft: darkSurfaceSoft,
+      homeHeaderBackground: darkSurface,
+      splashGradientStart: darkSurface,
+      splashGradientEnd: mixColors(darkSurface, resolvedSecondary, 0.14),
+      bannerGradientStart: darkSurface,
+      bannerGradientEnd: mixColors(darkSurface, resolvedSecondary, 0.22),
+      homeHeaderGradientStart: withAlpha(resolvedSecondary, 0.14),
+      homeHeaderGradientEnd: withAlpha(resolvedTertiary, 0.12),
+      yellow500: resolvedSecondary,
+      storeMenuAccentLime: mixColors(resolvedTertiary, resolvedPrimary, 0.5),
+      storeMenuAccentOrange: mixColors(resolvedSecondary, resolvedPrimary, 0.34),
+      findingRidePrimary: resolvedSecondary,
+      findingRidePrimarySoft: darkWarmAccent,
+      findingRidePulseA: mixColors(resolvedSecondary, darkSurface, 0.48),
+      findingRidePulseB: mixColors(resolvedSecondary, darkSurface, 0.3),
+      findingRidePulseC: resolvedSecondary,
+      findingRideCenterHalo: withAlpha(resolvedSecondary, 0.22),
+    };
+  }
+
+  return {
+    primary: darkAccent,
+    primaryDark: darken(resolvedPrimary, 0.08),
+    secondary: resolvedSecondary,
+    blue50: warmSurfaceSoft,
+    blue100: warmSurfaceStrong,
+    blue500: resolvedSecondary,
+    blue800: darkAccent,
+    cardSoft: warmSurfaceSoft,
+    homeHeaderBackground: warmSurfaceSoft,
+    splashGradientStart: darkAccent,
+    splashGradientEnd: darkBannerEnd,
+    bannerGradientStart: darkAccent,
+    bannerGradientEnd: darkBannerEnd,
+    homeHeaderGradientStart: withAlpha(resolvedPrimary, 0.16),
+    homeHeaderGradientEnd: withAlpha(resolvedSecondary, 0.22),
+    yellow500: resolvedSecondary,
+    storeMenuAccentLime: warmSurfaceStrong,
+    storeMenuAccentOrange: mixColors(resolvedSecondary, resolvedTertiary, 0.2),
+    findingRidePrimary: resolvedSecondary,
+    findingRidePrimarySoft: warmSurfaceSoft,
+    findingRidePulseA: lighten(resolvedSecondary, 0.52),
+    findingRidePulseB: lighten(resolvedSecondary, 0.34),
+    findingRidePulseC: resolvedSecondary,
+    findingRideCenterHalo: withAlpha(resolvedSecondary, 0.34),
+  };
+}
 
 const baseDarkColors: ThemeColors = {
   background: "#0F1117",
@@ -277,8 +416,17 @@ const resolvedThemeColorsCache = new Map<string, ThemeColors>();
 export function resolveThemeColors(
   scheme: ThemeScheme,
   appId: ThemedMiniAppId = "general",
+  deliveriesAppSettings?: DeliveriesAppSettings | null,
 ): ThemeColors {
-  const cacheKey = `${scheme}:${appId}`;
+  const dynamicDeliveriesSignature =
+    appId === "deliveries"
+      ? JSON.stringify({
+          primary: normalizeHexColor(deliveriesAppSettings?.primary_color),
+          secondary: normalizeHexColor(deliveriesAppSettings?.secondary_color),
+          tertiary: normalizeHexColor(deliveriesAppSettings?.tertiary_color),
+        })
+      : "static";
+  const cacheKey = `${scheme}:${appId}:${dynamicDeliveriesSignature}`;
   const cachedColors = resolvedThemeColorsCache.get(cacheKey);
 
   if (cachedColors) {
@@ -289,6 +437,9 @@ export function resolveThemeColors(
   const mergedColors = Object.freeze({
     ...baseColors,
     ...appColorOverrides[appId][scheme],
+    ...(appId === "deliveries"
+      ? buildDeliveriesDynamicOverrides(scheme, deliveriesAppSettings)
+      : {}),
   });
 
   resolvedThemeColorsCache.set(cacheKey, mergedColors);
