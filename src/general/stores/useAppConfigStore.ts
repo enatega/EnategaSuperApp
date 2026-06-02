@@ -45,11 +45,13 @@ export type DeliveriesPlatformConfiguration = {
 };
 
 export type DeliveryMode = 'singleVendor' | 'multiVendor' | 'chain';
+export type OrderTrackingVariant = 'legacy' | 'modern';
 
 type DeliveriesAppConfigState = AppConfigStatus & {
   platformConfiguration: DeliveriesPlatformConfiguration | null;
   deliveryMode: DeliveryMode | null;
   currency: AppCurrency | null;
+  orderTrackingVariant: OrderTrackingVariant;
 };
 
 type AppConfigState = {
@@ -68,6 +70,9 @@ type AppConfigState = {
   ) => void;
   setDeliveriesDeliveryMode: (deliveryMode: DeliveryMode | null) => void;
   setDeliveriesCurrency: (currency: AppCurrency | null) => void;
+  setDeliveriesOrderTrackingVariant: (
+    orderTrackingVariant: OrderTrackingVariant,
+  ) => void;
   setDeliveriesConfigLoading: (isLoading: boolean) => void;
   setDeliveriesConfigError: (error: string | null) => void;
   markDeliveriesConfigLoaded: () => void;
@@ -86,6 +91,7 @@ const initialDeliveriesConfigState: DeliveriesAppConfigState = {
   platformConfiguration: null,
   deliveryMode: null,
   currency: null,
+  orderTrackingVariant: 'modern',
   isLoading: false,
   isLoaded: false,
   error: null,
@@ -168,6 +174,14 @@ export const useAppConfigStore = create<AppConfigState>((set) => ({
       },
     })),
 
+  setDeliveriesOrderTrackingVariant: (orderTrackingVariant) =>
+    set((state) => ({
+      deliveries: {
+        ...state.deliveries,
+        orderTrackingVariant,
+      },
+    })),
+
   setDeliveriesConfigLoading: (isLoading) =>
     set((state) => ({
       deliveries: {
@@ -222,6 +236,15 @@ export function useRideSharingCurrencyLabel() {
 export function useRideSharingCurrencyCode() {
   const currency = useRideSharingCurrency();
   return resolveCurrencyCodeValue(currency);
+}
+
+export function useDeliveriesOrderTrackingVariant() {
+  return useAppConfigStore((state) => state.deliveries.orderTrackingVariant);
+}
+
+export function getDeliveriesOrderTrackingVariant(): OrderTrackingVariant {
+  const variant = useAppConfigStore.getState().deliveries.orderTrackingVariant;
+  return variant === 'legacy' || variant === 'modern' ? variant : 'legacy';
 }
 
 export function getRideSharingCurrencyLabel() {
