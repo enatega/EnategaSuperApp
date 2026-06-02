@@ -503,6 +503,9 @@ export interface HomeVisitsSingleVendorBookingSummary {
   riderTip?: number | null;
   totalAmount?: number | null;
   couponCode?: string | null;
+  baseServiceCharge?: number | null;
+  hourlyRate?: number | null;
+  itemsUsedAmount?: number | null;
 }
 
 export interface HomeVisitsSingleVendorAssignedWorker {
@@ -546,4 +549,18 @@ export interface HomeVisitsSingleVendorBookingDetails {
   cancellationPolicy?: string | null;
   assignedWorker?: HomeVisitsSingleVendorAssignedWorker | null;
   [key: string]: unknown;
+}
+
+export interface HomeVisitsPayPaymentRequestedSavedCardPayload {
+  paymentMethodId?: string;
+}
+
+export interface HomeVisitsPayPaymentRequestedSavedCardResponse {
+  message: string;
+  orderId: string;
+  paymentIntentId?: string;
+  paymentMethodId?: string;
+  stripeStatus?: string;
+  paymentStatus?: string;
+  jobStatus?: string;
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { Pressable, StyleSheet, View, type ViewStyle } from "react-native";
+import { Pressable, StyleSheet, View, type TextStyle, type ViewStyle } from "react-native";
 import Text from "../../../../general/components/Text";
 import { useTheme } from "../../../../general/theme/theme";
 import Icon from "../../../../general/components/Icon";
@@ -14,6 +14,9 @@ type Props = {
   trailingIconName?: React.ComponentProps<typeof Ionicons>["name"];
   title: string;
   subtitle?: string | null;
+  subtitleNumberOfLines?: number;
+  titleStyle?: TextStyle;
+  subtitleStyle?: TextStyle;
   onPress?: () => void;
 };
 
@@ -25,6 +28,9 @@ export default function OrderTrackingInfoRow({
   isIconContained = true,
   title,
   subtitle,
+  subtitleNumberOfLines,
+  titleStyle,
+  subtitleStyle,
   onPress,
   trailingIconName = "chevron-forward",
 }: Props) {
@@ -43,8 +49,8 @@ export default function OrderTrackingInfoRow({
           isCompact && styles.iconWrapperCompact,
           isIconContained
             ? {
-                backgroundColor: colors.backgroundTertiary,
-              }
+              backgroundColor: colors.backgroundTertiary,
+            }
             : styles.iconWrapperBare,
           iconWrapperStyle,
         ]}
@@ -55,10 +61,13 @@ export default function OrderTrackingInfoRow({
       <View style={styles.content}>
         <Text
           color={colors.text}
-          style={{
-            fontSize: typography.size.sm2,
-            lineHeight: typography.lineHeight.sm2,
-          }}
+          style={[
+            {
+              fontSize: typography.size.md2,
+              lineHeight: typography.lineHeight.md,
+            },
+            titleStyle,
+          ]}
           weight={isCompact ? "medium" : "semiBold"}
         >
           {title}
@@ -66,7 +75,8 @@ export default function OrderTrackingInfoRow({
         {subtitle ? (
           <Text
             color={colors.mutedText}
-            style={styles.subtitle}
+            numberOfLines={subtitleNumberOfLines}
+            style={[styles.subtitle, subtitleStyle]}
             weight="medium"
           >
             {subtitle}

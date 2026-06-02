@@ -8,6 +8,8 @@ import type {
   HomeVisitsSingleVendorBookingAvailabilityRangeResponse,
   HomeVisitsSingleVendorBookingAvailabilityResponse,
   HomeVisitsSingleVendorBookingDetails,
+  HomeVisitsPayPaymentRequestedSavedCardPayload,
+  HomeVisitsPayPaymentRequestedSavedCardResponse,
   HomeVisitsSingleVendorBookingsApiResponse,
   HomeVisitsSingleVendorBookingsParams,
   HomeVisitsSingleVendorCategoriesApiResponse,
@@ -207,6 +209,21 @@ export const homeVisitsSingleVendorDiscoveryService = {
         'home visits single vendor booking details request failed',
         error,
       );
+      throw error;
+    }
+  },
+
+  payPaymentRequestedJobWithSavedCard: async (
+    orderId: string,
+    payload: HomeVisitsPayPaymentRequestedSavedCardPayload = {},
+  ): Promise<HomeVisitsPayPaymentRequestedSavedCardResponse> => {
+    try {
+      return await apiClient.post<HomeVisitsPayPaymentRequestedSavedCardResponse>(
+        `/api/v1/apps/home-services/orders/${orderId}/payment/pay-with-saved-card`,
+        payload,
+      );
+    } catch (error) {
+      console.error('home visits pay payment-requested job with saved card failed', error);
       throw error;
     }
   },

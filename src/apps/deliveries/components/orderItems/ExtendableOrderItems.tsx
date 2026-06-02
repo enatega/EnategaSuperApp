@@ -18,6 +18,7 @@ import { styles } from "./ExtendableOrderItems.styles";
 type Props = {
   collapsedVariant?: "default" | "tracking";
   defaultExpanded?: boolean;
+  hideHeading?: boolean;
   isCollapsible?: boolean;
   orderItems: DeliveryOrderItems;
 };
@@ -25,6 +26,7 @@ type Props = {
 export default function ExtendableOrderItems({
   collapsedVariant = "default",
   defaultExpanded = false,
+  hideHeading = false,
   isCollapsible = true,
   orderItems,
 }: Props) {
@@ -220,6 +222,14 @@ export default function ExtendableOrderItems({
   );
 
   if (collapsedVariant === "tracking") {
+    if (hideHeading) {
+      return (
+        <View style={styles.compactSection}>
+          {sectionContent}
+        </View>
+      );
+    }
+
     return (
       <View style={styles.compactSection}>
         <Text

@@ -5,7 +5,9 @@ import MultiVendorNavigator from '../multiVendor/navigation/MultiVendorNavigator
 import ChainNavigator from '../chain/navigation/ChainNavigator';
 import HomeVisitsMyProfileScreen from '../screens/profile/HomeVisitsMyProfileScreen';
 import HomeVisitsEditProfileScreen from '../screens/profile/HomeVisitsEditProfileScreen';
-import HomeVisitsFeaturePlaceholderScreen from '../screens/profile/HomeVisitsFeaturePlaceholderScreen';
+import HomeVisitsWalletScreen from '../screens/wallet/HomeVisitsWalletScreen';
+import HomeVisitsAddCardScreen from '../screens/wallet/HomeVisitsAddCardScreen';
+import HomeVisitsWalletTransactionsScreen from '../screens/wallet/HomeVisitsWalletTransactionsScreen';
 import HomeVisitsSupportScreen from '../screens/support/HomeVisitsSupportScreen';
 import HomeVisitsSupportFaqScreen from '../screens/support/HomeVisitsSupportFaqScreen';
 import HomeVisitsSupportChatScreen from '../screens/support/HomeVisitsSupportChatScreen';
@@ -162,15 +164,19 @@ export default function HomeVisitsNavigator() {
       />
       <Stack.Screen
         name="Wallet"
+        component={HomeVisitsWalletScreen}
         options={hiddenHeaderOptions}
-      >
-        {() => (
-          <HomeVisitsFeaturePlaceholderScreen
-            bodyKey="home_visits_wallet_body"
-            titleKey="profile_wallet_balance"
-          />
-        )}
-      </Stack.Screen>
+      />
+      <Stack.Screen
+        name="WalletAddCard"
+        component={HomeVisitsAddCardScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="WalletTransactions"
+        component={HomeVisitsWalletTransactionsScreen}
+        options={hiddenHeaderOptions}
+      />
       <Stack.Screen
         name="ColorMode"
         component={ColorModeScreen}

@@ -15,7 +15,6 @@ import { getApiErrorMessage } from '../../../../general/utils/apiError';
 import { resolveSavedAddressId } from '../../../../general/utils/address';
 import { useTheme } from '../../../../general/theme/theme';
 import { formatPrice } from '../../components/ServiceDetailsPage/serviceDetailsSelection';
-import HomeVisitsDateTimePickerSheet from '../../components/common/HomeVisitsDateTimePickerSheet';
 import ReviewAddressRowSection from '../../components/ReviewAndConfirm/ReviewAddressRowSection';
 import ReviewAndConfirmFooter from '../../components/ReviewAndConfirm/ReviewAndConfirmFooter';
 import ReviewAndConfirmHeader from '../../components/ReviewAndConfirm/ReviewAndConfirmHeader';
@@ -59,17 +58,6 @@ function formatScheduleLabel(isoDate: string) {
   return `${DATE_FORMATTER.format(date)}, ${TIME_FORMATTER.format(date)}`;
 }
 
-function buildSlotFromDate(date: Date, workingHours: number) {
-  const endDate = new Date(date.getTime() + (workingHours * 60 * 60 * 1000));
-  const startTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-  const endTime = `${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`;
-
-  return {
-    startTime,
-    endTime,
-  };
-}
-
 export default function ReviewAndConfirm() {
   const { colors } = useTheme();
   const { t } = useTranslation('homeVisits');
@@ -77,9 +65,10 @@ export default function ReviewAndConfirm() {
   const route = useRoute<ReviewAndConfirmRouteProp>();
   const { latitude, longitude, selectedAddress, selectedAddressLabel } = useAddress();
   const [isAddressSheetVisible, setIsAddressSheetVisible] = useState(false);
-  const [isDateTimeSheetOpen, setIsDateTimeSheetOpen] = useState(false);
-  const [selectedScheduledAt, setSelectedScheduledAt] = useState(() => new Date(route.params.scheduledAtIso));
-  const [selectedScheduledSlot, setSelectedScheduledSlot] = useState(route.params.scheduledSlot);
+  const selectedScheduledAt = useMemo(
+    () => new Date(route.params.scheduledAtIso),
+    [route.params.scheduledAtIso],
+  );
   const [notes, setNotes] = useState(() => route.params.jobDescription ?? '');
   const {
     addresses,
@@ -93,10 +82,7 @@ export default function ReviewAndConfirm() {
   );
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
-  const {
-    summary,
-    workingHours,
-  } = route.params;
+  const { summary } = route.params;
   const [isConfirmPopupVisible, setIsConfirmPopupVisible] = useState(false);
   const [isPaymentMethodSheetVisible, setIsPaymentMethodSheetVisible] = useState(false);
   const [isDiscountCodeSheetVisible, setIsDiscountCodeSheetVisible] = useState(false);
@@ -137,7 +123,7 @@ export default function ReviewAndConfirm() {
         discountCode,
         paymentMethod: selectedPaymentMethod,
         scheduledAtIso: selectedScheduledAt.toISOString(),
-        scheduledSlot: selectedScheduledSlot,
+        scheduledSlot: route.params.scheduledSlot,
       }),
     [
       discountCode,
@@ -146,7 +132,6 @@ export default function ReviewAndConfirm() {
       resolvedAddressId,
       selectedPaymentMethod,
       selectedScheduledAt,
-      selectedScheduledSlot,
     ],
   );
   const { data: bookingPreviewData } = useBookingSummaryPreview(bookingSummaryPayload);
@@ -338,7 +323,7 @@ export default function ReviewAndConfirm() {
         />
 
         <ReviewScheduleSection
-          onAppointmentPress={() => setIsDateTimeSheetOpen(true)}
+          onAppointmentPress={() => navigation.goBack()}
           appointmentSubtitle={scheduleForLabel}
           appointmentTitle={t('review_confirm_appointment_time')}
           title={t('review_confirm_schedule_for')}
@@ -374,18 +359,6 @@ export default function ReviewAndConfirm() {
         onConfirm={() => setIsConfirmPopupVisible(true)}
         serviceCountLabel={serviceCountLabel}
         totalPrice={totalForFooter}
-      />
-
-      <HomeVisitsDateTimePickerSheet
-        isConfirmLoading={false}
-        onClose={() => setIsDateTimeSheetOpen(false)}
-        onConfirm={async (nextDate) => {
-          setSelectedScheduledAt(nextDate);
-          setSelectedScheduledSlot(buildSlotFromDate(nextDate, workingHours));
-          setIsDateTimeSheetOpen(false);
-        }}
-        value={selectedScheduledAt}
-        visible={isDateTimeSheetOpen}
       />
 
       <AddressSelectionBottomSheet
