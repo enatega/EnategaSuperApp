@@ -3,12 +3,11 @@ import {
   Modal,
   Pressable,
   StyleSheet,
-  useWindowDimensions,
   View,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslations } from '../../localization/LocalizationProvider';
 import { useTheme } from '../../theme/theme';
+import Text from '../Text';
 import PromotionalBannerMedia from './PromotionalBannerMedia';
 
 type Props = {
@@ -24,8 +23,6 @@ export default function StartupPromotionalBannerModal({
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslations('general');
-  const { height: windowHeight } = useWindowDimensions();
-  const modalHeight = Math.min(windowHeight * 0.8, 760);
 
   return (
     <Modal
@@ -36,24 +33,17 @@ export default function StartupPromotionalBannerModal({
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <View
-          style={[
-            styles.card,
-            {
-              backgroundColor: colors.surface,
-              shadowColor: colors.shadowColor,
-              maxHeight: modalHeight,
-            },
-          ]}
-        >
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <Pressable
-            accessibilityLabel={t('promotional_banner_close')}
+            accessibilityLabel={t('promotional_banner_skip')}
             accessibilityRole="button"
             hitSlop={12}
             onPress={onClose}
             style={styles.closeButton}
           >
-            <Ionicons color={colors.white} name="close" size={34} />
+            <Text color={colors.white} weight="semiBold">
+              {t('promotional_banner_skip')}
+            </Text>
           </Pressable>
 
           <View style={styles.mediaContainer}>
@@ -68,44 +58,27 @@ export default function StartupPromotionalBannerModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 18,
-    paddingVertical: 24,
+    backgroundColor: '#000000',
   },
   card: {
+    flex: 1,
     width: '100%',
-    maxWidth: 400,
-    borderRadius: 28,
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 18,
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.18,
-    shadowRadius: 24,
-    elevation: 10,
   },
   closeButton: {
     position: 'absolute',
-    top: 26,
-    right: 24,
+    top: 54,
+    right: 20,
     zIndex: 2,
-    width: 58,
-    height: 58,
-    borderRadius: 29,
+    minWidth: 72,
+    height: 42,
+    paddingHorizontal: 16,
+    borderRadius: 21,
     backgroundColor: 'rgba(17, 24, 39, 0.82)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   mediaContainer: {
+    flex: 1,
     width: '100%',
-    aspectRatio: 0.62,
-    borderRadius: 22,
-    overflow: 'hidden',
-    backgroundColor: '#E5E7EB',
   },
 });

@@ -74,6 +74,7 @@ const en = {
   continue: 'Continue',
   promotional_banner_primary_action: 'Avail Offer',
   promotional_banner_close: 'Close promotional banner',
+  promotional_banner_skip: 'Skip',
   enter_your_phone: 'Log in easily by entering your phone!',
   login_desc: 'We’ll check if you have an account',
   verify_your_phone_number: 'Verify Your Phone Number',
