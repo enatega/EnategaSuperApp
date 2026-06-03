@@ -27,7 +27,10 @@ import type {
   VerifyForgotPasswordOtpResponce,
 } from "../api/authTypes";
 import { authSession } from "../auth/authSession";
-import { redirectToPendingAppIfNeeded } from "../navigation/rootNavigation";
+import {
+  redirectToPendingAppIfNeeded,
+  resetToSharedHome,
+} from "../navigation/rootNavigation";
 import { clearActiveAppRoute } from "../navigation/pendingAppRedirect";
 import { socketClient } from "../services/socket";
 
@@ -46,6 +49,14 @@ async function finalizeAuthSession(
     profiles: data.profiles,
   });
   await queryClient.invalidateQueries({ queryKey: authKeys.session() });
+}
+
+async function handlePostAuthRedirect() {
+  const redirected = await redirectToPendingAppIfNeeded();
+
+  if (!redirected) {
+    resetToSharedHome();
+  }
 }
 
 export async function clearStoredAuthSession() {
@@ -84,7 +95,7 @@ export function useSignupVerifyOtp(
       onSuccess: async (data, variables, onMutateResult, context) => {
         await finalizeAuthSession(queryClient, data);
         options?.onSuccess?.(data, variables, onMutateResult, context);
-        await redirectToPendingAppIfNeeded();
+        await handlePostAuthRedirect();
       },
     },
   );
@@ -118,7 +129,7 @@ export function useLoginVerifyOtp(
     onSuccess: async (data, variables, onMutateResult, context) => {
       await finalizeAuthSession(queryClient, data);
       options?.onSuccess?.(data, variables, onMutateResult, context);
-      await redirectToPendingAppIfNeeded();
+      await handlePostAuthRedirect();
     },
   });
 }
@@ -152,7 +163,7 @@ export function useEmailLogin(
     onSuccess: async (data, variables, onMutateResult, context) => {
       await finalizeAuthSession(queryClient, data);
       options?.onSuccess?.(data, variables, onMutateResult, context);
-      await redirectToPendingAppIfNeeded();
+      await handlePostAuthRedirect();
     },
   });
 }
@@ -172,7 +183,7 @@ export function useGoogleLogin(
     onSuccess: async (data, variables, onMutateResult, context) => {
       await finalizeAuthSession(queryClient, data);
       options?.onSuccess?.(data, variables, onMutateResult, context);
-      await redirectToPendingAppIfNeeded();
+      await handlePostAuthRedirect();
     },
   });
 }

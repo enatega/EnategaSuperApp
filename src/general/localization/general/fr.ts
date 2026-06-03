@@ -1,5 +1,5 @@
 const fr = {
-  app_name: 'Application Super Client',
+  app_name: 'EatMile',
   greeting: 'Bonjour 👋',
   home_question: 'Que recherchez-vous aujourd’hui ?',
   home_title: 'Accueil',
@@ -216,8 +216,8 @@ const fr = {
     "Nous accordons la priorité à la sécurité de vos informations de paiement. Toutes les transactions effectuées via l'application sont traitées à l'aide d'une technologie de chiffrement standard.",
   privacy_section_contact_title: 'Nous contacter',
   privacy_section_contact_body: 'Si vous avez des questions sur ces conditions, n\'hésitez pas à nous contacter :',
-  privacy_contact_email: 'E-mail : contact@fooddelivery.com',
-  privacy_contact_address: 'Adresse : Doha, Qatar',
+  privacy_contact_email: 'E-mail : Eatmileadmin@gmail.com',
+  privacy_contact_address: 'Adresse : Eatmileadmin@gmail.com',
   // Terms of Service screen
   tos_title: "Conditions d'utilisation",
   tos_last_updated: 'dernière mise à jour il y a 2 mois',
@@ -240,8 +240,8 @@ const fr = {
     "L'application fournit un système d'assistance robuste pour répondre à toutes les questions ou problèmes.",
   tos_section_contact_title: 'Nous contacter',
   tos_section_contact_body: 'Si vous avez des questions sur ces conditions, n\'hésitez pas à nous contacter :',
-  tos_contact_email: 'E-mail : contact@fooddelivery.com',
-  tos_contact_address: 'Adresse : Doha, Qatar',
+  tos_contact_email: 'E-mail : Eatmileadmin@gmail.com',
+  tos_contact_address: 'Adresse : Eatmileadmin@gmail.com',
   // Terms of Use screen
   tou_title: "Conditions d'usage",
   tou_last_updated: 'mise à jour il y a 2 mois',
@@ -267,8 +267,8 @@ const fr = {
     "L'application peut proposer des promotions et des réductions soumises à des conditions spécifiques.",
   tou_section_contact_title: 'Nous contacter',
   tou_section_contact_body: 'Si vous avez des questions, n\'hésitez pas à nous contacter :',
-  tou_contact_email: 'E-mail : contact@fooddelivery.com',
-  tou_contact_address: 'Adresse : Doha, Qatar',
+  tou_contact_email: 'E-mail : Eatmileadmin@gmail.com',
+  tou_contact_address: 'Adresse : Eatmileadmin@gmail.com',
   // Change password flow
   change_password_title: 'Changer le mot de passe',
   change_password_new_title: 'Nouveau mot de passe',

@@ -165,9 +165,9 @@ Use this exact format. Developer fills it once, then AI agent uses it to apply c
 # Client Rebranding Intake - EnategaSuperApp
 
 ## Client Identity
-CLIENT_NAME=EatMile
-CLIENT_BRANCH=client/EatMile
-APP_DISPLAY_NAME=EatMile
+CLIENT_NAME=
+CLIENT_BRANCH=
+APP_DISPLAY_NAME=
 EXPO_SLUG=
 IOS_BUNDLE_IDENTIFIER=
 ANDROID_PACKAGE_NAME=
@@ -181,7 +181,7 @@ EXPO_PUBLIC_EAS_PROJECT_ID=
 EXPO_PUBLIC_API_BASE_URL=
 EXPO_PUBLIC_SOCKET_URL=
 EXPO_PUBLIC_HOME_SERVICES_SOCKET_URL=
-EXPO_PUBLIC_API_ENV=production
+EXPO_PUBLIC_API_ENV=
 EXPO_PUBLIC_SOCKET_PATH=
 EXPO_PUBLIC_SOCKET_DEBUG=
 
@@ -200,10 +200,10 @@ SUPPORT_EMAIL=
 BUSINESS_ADDRESS=
 
 ## Branding and Design
-PRIMARY_COLOR=#020201
-SECONDARY_COLOR=#FEDB03
-SPLASH_GRADIENT_START=#8C7B0C
-SPLASH_GRADIENT_END=#FEDE0A
+PRIMARY_COLOR=
+SECONDARY_COLOR=
+SPLASH_GRADIENT_START=
+SPLASH_GRADIENT_END=
 
 ## Files Provided
 ANDROID_GOOGLE_SERVICES_JSON_PATH=
@@ -223,14 +223,14 @@ Mark each step with `✅` when done.
 
 - ✅ 1. Client branch created from `main`
 - ✅ 2. Intake form completed and validated
-- ⬜ 3. `.env` values replaced from intake form
-- ⬜ 4. `app.config.js` identity updated (`name`, `slug`, bundle/package)
-- ⬜ 5. `updates.url` and `extra.eas.projectId` updated for client Expo project
-- ⬜ 6. `google-services.json` replaced and package verified
-- ⬜ 7. iOS `GoogleService-Info.plist` added/configured (if needed)
+- ✅ 3. `.env` values replaced from intake form
+- ✅ 4. `app.config.js` identity updated (`name`, `slug`, bundle/package)
+- ✅ 5. `updates.url` and `extra.eas.projectId` updated for client Expo project
+- ✅ 6. `google-services.json` replaced and package verified
+- ✅ 7. iOS `GoogleService-Info.plist` added/configured (if needed)
 - ⬜ 8. Branding assets replaced (`icon`, `adaptive-icon`, `splash`, `favicon`)
 - ✅ 9. Theme colors updated in `colors.ts`
-- ⬜ 10. Legal/contact text updated (general + deliveries + ridesharing)
+- ✅ 10. Legal/contact text updated (general + deliveries + ridesharing)
 - ⬜ 11. Smoke test passed (`npm start`)
 - ⬜ 12. Android native run passed (`npx expo run:android`)
 - ⬜ 13. iOS native run passed (`npx expo run:ios`)

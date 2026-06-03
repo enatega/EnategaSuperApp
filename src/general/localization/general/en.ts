@@ -1,5 +1,5 @@
 const en = {
-  app_name: 'Super Customer App',
+  app_name: 'EatMile',
   greeting: 'Good Morning 👋',
   home_question: 'What are you looking for Today?',
   home_title: 'Home',
@@ -264,8 +264,8 @@ const en = {
   privacy_section_contact_title: 'Contact us',
   privacy_section_contact_body:
     'If you have any questions about these terms, please feel free to contact us:',
-  privacy_contact_email: 'Email: contact@fooddelivery.com',
-  privacy_contact_address: 'Address: Doha, Qatar',
+  privacy_contact_email: 'Email: Eatmileadmin@gmail.com',
+  privacy_contact_address: 'Address: Eatmileadmin@gmail.com',
   // Terms of Service screen
   tos_title: 'Terms of Service',
   tos_last_updated: 'Last updated 2 months ago',
@@ -289,8 +289,8 @@ const en = {
   tos_section_contact_title: 'Contact us',
   tos_section_contact_body:
     'If you have any questions about these terms, please feel free to contact us:',
-  tos_contact_email: 'Email: contact@fooddelivery.com',
-  tos_contact_address: 'Address: Doha, Qatar',
+  tos_contact_email: 'Email: Eatmileadmin@gmail.com',
+  tos_contact_address: 'Address: Eatmileadmin@gmail.com',
   // Terms of Use screen
   tou_title: 'Terms of Use',
   tou_last_updated: 'Updated 2 months ago',
@@ -317,8 +317,8 @@ const en = {
   tou_section_contact_title: 'Contact us',
   tou_section_contact_body:
     'If you have any questions, please feel free to contact us:',
-  tou_contact_email: 'Email: contact@fooddelivery.com',
-  tou_contact_address: 'Address: Doha, Qatar',
+  tou_contact_email: 'Email: Eatmileadmin@gmail.com',
+  tou_contact_address: 'Address: Eatmileadmin@gmail.com',
   // Change password flow
   change_password_title: 'Change Password',
   change_password_new_title: 'New Password',

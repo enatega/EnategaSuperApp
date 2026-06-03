@@ -6,7 +6,6 @@ import {
   useLoginSendOtp,
   useLoginVerifyOtp,
 } from "../../../hooks/useAuthMutations";
-import { getPendingAppRoute } from "../../../navigation/pendingAppRedirect";
 import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal";
 import AppPopup from "../../../components/AppPopup";
 import { showToast } from "../../../components/AppToast";
@@ -47,13 +46,7 @@ const EnterPhoneOtpLogin = () => {
   const verifyOtpMutation = useLoginVerifyOtp({
     onSuccess: async () => {
       showToast.success("Success!", "Login successful.");
-      const pendingRoute = await getPendingAppRoute();
-
-      if (!pendingRoute) {
-        navigation.navigate("login" as never);
-      }
-
-      setOtpType("sms")
+      setOtpType("sms");
     },
     onError: (error) => {
       sethasError(true);
@@ -67,8 +60,12 @@ const EnterPhoneOtpLogin = () => {
   });
 
   const handleVerifyOtp = async (otp: string) => {
-    const devicePushToken = await getExpoPushTokenForAuth();
-
+    console.log("Verifying OTP for phone:", phone);
+    const devicePushToken = await getExpoPushTokenForAuth().catch((error) => {
+      console.error("Failed to get device push token for auth:", error);
+      
+    });
+    console.log("Device push token for auth:", devicePushToken);
     verifyOtpMutation.mutate({
       phone,
       otp,

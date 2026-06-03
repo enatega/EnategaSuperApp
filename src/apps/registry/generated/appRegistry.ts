@@ -6,48 +6,25 @@ import type { ComponentType } from 'react';
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import type { MiniAppId } from './appI18nRegistry';
 import type { DeliveriesStackParamList } from '../../deliveries/navigation/types';
-import type { RideSharingStackParamList } from '../../rideSharing/navigation/RideSharingNavigator';
-import AppointmentsNavigator from '../../appointments/navigation/AppointmentsNavigator';
 import DeliveriesNavigator from '../../deliveries/navigation/DeliveriesNavigator';
-import DeveloperModeNavigator from '../../developerMode/navigation/DeveloperModeNavigator';
-import HomeVisitsNavigator from '../../homeVisits/navigation/HomeVisitsNavigator';
-import RideSharingNavigator from '../../rideSharing/navigation/RideSharingNavigator';
-import RideOptionsSection from '../../rideSharing/components/RideOptionsSection';
-import DeliveryServicesSection from '../../rideSharing/components/DeliveryServicesSection';
 import DeliveriesRecommendedStoresSection from '../../deliveries/components/home/DeliveriesRecommendedStoresSection';
 
-export type SharedAppRouteName = 'Appointments' | 'Deliveries' | 'DeveloperMode' | 'HomeVisits' | 'RideSharing';
+export type SharedAppRouteName = 'Deliveries';
 
 export type MiniAppRouteParamsById = {
-  appointments: undefined;
   deliveries: NavigatorScreenParams<DeliveriesStackParamList> | undefined;
-  developerMode: undefined;
-  homeVisits: undefined;
-  rideSharing: NavigatorScreenParams<RideSharingStackParamList> | undefined;
 };
 
 export type SharedStackAppRoutes = {
-  Appointments: MiniAppRouteParamsById['appointments'];
   Deliveries: MiniAppRouteParamsById['deliveries'];
-  DeveloperMode: MiniAppRouteParamsById['developerMode'];
-  HomeVisits: MiniAppRouteParamsById['homeVisits'];
-  RideSharing: MiniAppRouteParamsById['rideSharing'];
 };
 
 export const APP_ROUTE_BY_ID: Partial<Record<MiniAppId, SharedAppRouteName>> = {
-  appointments: 'Appointments',
   deliveries: 'Deliveries',
-  developerMode: 'DeveloperMode',
-  homeVisits: 'HomeVisits',
-  rideSharing: 'RideSharing',
 };
 
 export const APP_SCREENS: Partial<Record<SharedAppRouteName, ComponentType>> = {
-  Appointments: AppointmentsNavigator,
   Deliveries: DeliveriesNavigator,
-  DeveloperMode: DeveloperModeNavigator,
-  HomeVisits: HomeVisitsNavigator,
-  RideSharing: RideSharingNavigator,
 };
 
 export type RideIntent = 'now' | 'schedule' | 'rental' | 'courier';
@@ -61,7 +38,5 @@ export type HomeWidgets = {
 };
 
 export const HOME_WIDGETS: HomeWidgets = {
-  rideOptions: RideOptionsSection,
-  deliveryServices: DeliveryServicesSection,
   recommendedStores: DeliveriesRecommendedStoresSection,
 };

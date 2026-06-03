@@ -97,7 +97,7 @@ const en = {
   store_details_hero_title: 'Make It A\nMeal.',
   store_details_store_name: 'Subway @ Old Town, New Mexico',
   store_details_store_phone: '555-0123',
-  store_details_store_email: 'support@subway.com',
+  store_details_store_email: 'Eatmileadmin@gmail.com',
   store_details_store_hours: '9 AM to 6 PM',
   store_details_call_label: 'Call us at',
   store_details_email_label: 'or email at',
@@ -326,8 +326,8 @@ const en = {
   privacy_section_contact_title: 'Contact us',
   privacy_section_contact_body:
     'If you have any questions about these terms, please feel free to contact us:',
-  privacy_contact_email: 'Email: contact@fooddelivery.com',
-  privacy_contact_address: 'Address: Doha, Qatar',
+  privacy_contact_email: 'Email: Eatmileadmin@gmail.com',
+  privacy_contact_address: 'Address: Eatmileadmin@gmail.com',
   // Terms of Service screen
   tos_title: 'Terms of Service',
   tos_last_updated: 'Last updated 2 months ago',
@@ -351,8 +351,8 @@ const en = {
   tos_section_contact_title: 'Contact us',
   tos_section_contact_body:
     'If you have any questions about these terms, please feel free to contact us:',
-  tos_contact_email: 'Email: contact@fooddelivery.com',
-  tos_contact_address: 'Address: Doha, Qatar',
+  tos_contact_email: 'Email: Eatmileadmin@gmail.com',
+  tos_contact_address: 'Address: Eatmileadmin@gmail.com',
   // Terms of Use screen
   tou_title: 'Terms of Use',
   tou_last_updated: 'Updated 2 months ago',
@@ -379,8 +379,8 @@ const en = {
   tou_section_contact_title: 'Contact us',
   tou_section_contact_body:
     'If you have any questions, please feel free to contact us:',
-  tou_contact_email: 'Email: contact@fooddelivery.com',
-  tou_contact_address: 'Address: Doha, Qatar',
+  tou_contact_email: 'Email: Eatmileadmin@gmail.com',
+  tou_contact_address: 'Address: Eatmileadmin@gmail.com',
   rider_chat_title: 'Chat with Rider',
   rider_chat_subtitle: 'Live delivery updates',
   rider_chat_status_online: 'Online now',

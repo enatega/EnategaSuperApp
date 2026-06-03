@@ -8,7 +8,6 @@ import {
   useSignupVerifyOtp,
   useSignupSendOtp,
 } from "../../../hooks/useAuthMutations";
-import { getPendingAppRoute } from "../../../navigation/pendingAppRedirect";
 import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal";
 import AppPopup from "../../../components/AppPopup";
 import { showToast } from "../../../components/AppToast";
@@ -48,12 +47,6 @@ const EnterEmailOtpSignup = () => {
   const verifyOtpMutation = useSignupVerifyOtp({
     onSuccess: async () => {
       showToast.success("Success!", "Account created successfully.");
-      const pendingRoute = await getPendingAppRoute();
-
-      if (!pendingRoute) {
-        navigation.navigate("login" as never);
-      }
-
       setOtpType("sms");
     },
     onError: (error) => {

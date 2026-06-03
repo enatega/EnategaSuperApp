@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AddressSelectionBottomSheet from '../../../../../general/components/address/AddressSelectionBottomSheet';
 import MultiVendorAddressHeader from '../../../components/MultiVendorAddressHeader';
-import Header from '../../../../../general/components/Header';
 import { showToast } from '../../../../../general/components/AppToast';
 import { useTheme } from '../../../../../general/theme/theme';
 import { useCartCount } from '../../../hooks/useCart';
