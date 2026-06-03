@@ -23,7 +23,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const THEME_STORAGE_KEY = 'super_app_theme_mode';
   const systemScheme = useColorScheme();
   const deliveriesAppSettings = useAppConfigStore((state) => state.deliveries.appSettings);
-  const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
+  const [themeMode, setThemeModeState] = useState<ThemeMode>('light');
   const [activeMiniApp, setActiveMiniAppState] = useState<ThemedMiniAppId>('general');
   const [isLoaded, setIsLoaded] = useState(false);
 
