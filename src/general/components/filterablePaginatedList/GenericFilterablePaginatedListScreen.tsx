@@ -65,6 +65,10 @@ export default function GenericFilterablePaginatedListScreen<
   );
 
   const items = useMemo(() => data ?? [], [data]);
+  const listKey = useMemo(
+    () => (chips.length > 0 ? chips.map((chip) => chip.id).join('|') : 'default-list'),
+    [chips],
+  );
   const isInitialLoading = isPending && items.length === 0;
   const hasInitialError = isError && items.length === 0;
   const isEmpty = !isInitialLoading && !isError && items.length === 0;
@@ -115,7 +119,9 @@ export default function GenericFilterablePaginatedListScreen<
           />
         ) : (
           <VerticalList
+            key={listKey}
             data={items}
+            extraData={items}
             renderItem={renderItem}
             keyExtractor={keyExtractor}
             contentContainerStyle={[styles.listContent, listContentContainerStyle]}

@@ -133,13 +133,26 @@ export default function OrderTrackingModernView({ viewModel }: Props) {
 
       {orderDetailsQuery.isLoading ? (
         <OrderTrackingLoadingSkeleton />
-      ) : orderDetailsQuery.isError || !order ? (
-        <OrderTrackingErrorState
-          isRetrying={orderDetailsQuery.isFetching}
-          onRetry={() => {
-            void orderDetailsQuery.refetch();
-          }}
-        />
+      ) : !order ? (
+        <>
+          {console.log("[OrderTracking][Modern][RenderErrorState]", {
+            errorMessage:
+              orderDetailsQuery.error instanceof Error
+                ? orderDetailsQuery.error.message
+                : orderDetailsQuery.error,
+            isError: orderDetailsQuery.isError,
+            isFetching: orderDetailsQuery.isFetching,
+            isLoading: orderDetailsQuery.isLoading,
+            order,
+            queryStatus: orderDetailsQuery.status,
+          })}
+          <OrderTrackingErrorState
+            isRetrying={orderDetailsQuery.isFetching}
+            onRetry={() => {
+              void orderDetailsQuery.refetch();
+            }}
+          />
+        </>
       ) : (
         <View style={styles.screen}>
           <View style={styles.body}>

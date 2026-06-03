@@ -73,8 +73,8 @@ export default function MainContainer({ navigation, orderId }: Props) {
     order.status === "delivered"
       ? "success"
       : order.status === "cancelled" ||
-          order.status === "rejected" ||
-          order.status === "failed"
+        order.status === "rejected" ||
+        order.status === "failed"
         ? "danger"
         : "warning";
 
@@ -142,7 +142,7 @@ export default function MainContainer({ navigation, orderId }: Props) {
           shouldShowTrackProgress={shouldShowTrackProgress}
           shouldShowOrderAgain={shouldShowOrderAgain}
           navigation={navigation}
-          orderId={order.orderId}
+          orderId={orderId}
           storeName={order.store.name}
         />
       </ScrollView>

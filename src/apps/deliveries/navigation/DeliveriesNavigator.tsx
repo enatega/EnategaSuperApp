@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import SingleVendorNavigator from "../singleVendor/navigation/SingleVendorNavigator";
 import MultiVendorNavigator from "../multiVendor/navigation/MultiVendorNavigator";
@@ -49,238 +49,302 @@ import ChainCategoriesSeeAll from "../screens/ChainCategoriesSeeAll/ChainCategor
 import ChainCategoryProductsSeeAll from "../screens/ChainCategoryProductsSeeAll/ChainCategoryProductsSeeAll";
 import DeliveriesStartupSkeleton from "../components/DeliveriesStartupSkeleton";
 import { useInitializeDeliveriesConfig } from "../hooks/useInitializeDeliveriesConfig";
-import { useDeliveriesDeliveryMode } from "../../../general/stores/useAppConfigStore";
+import {
+  useDeliveriesAppSettings,
+  useDeliveriesDeliveryMode,
+} from "../../../general/stores/useAppConfigStore";
+import StartupPromotionalBannerModal from "../../../general/components/promotionalBanner/StartupPromotionalBannerModal";
+import { normalizePromotionalBannerUri } from "../../../general/utils/promotionalBanner";
 
 const Stack = createNativeStackNavigator<DeliveriesStackParamList>();
 
 const sharedScreenOptions = { headerShown: false } as const;
+const PROMOTIONAL_BANNER_AUTO_SHOW_WINDOW_MS = 1500;
 
 export default function DeliveriesNavigator() {
   const deliveryMode = useDeliveriesDeliveryMode();
+  const deliveriesAppSettings = useDeliveriesAppSettings();
   const configQuery = useInitializeDeliveriesConfig();
+  const [isPromotionalBannerVisible, setIsPromotionalBannerVisible] = useState(false);
+  const [hasPromotionalBannerWindowExpired, setHasPromotionalBannerWindowExpired] =
+    useState(false);
+  const dismissedBannerUrisRef = useRef<Set<string>>(new Set());
+  const promotionalBannerUri = useMemo(
+    () => normalizePromotionalBannerUri(deliveriesAppSettings?.promotional_banner),
+    [deliveriesAppSettings?.promotional_banner],
+  );
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setHasPromotionalBannerWindowExpired(true);
+    }, PROMOTIONAL_BANNER_AUTO_SHOW_WINDOW_MS);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!promotionalBannerUri || configQuery.isLoading || configQuery.isFetching) {
+      return;
+    }
+
+    if (hasPromotionalBannerWindowExpired) {
+      return;
+    }
+
+    if (dismissedBannerUrisRef.current.has(promotionalBannerUri)) {
+      return;
+    }
+
+    setIsPromotionalBannerVisible(true);
+  }, [
+    configQuery.isFetching,
+    configQuery.isLoading,
+    hasPromotionalBannerWindowExpired,
+    promotionalBannerUri,
+  ]);
+
+  const handleDismissPromotionalBanner = () => {
+    if (promotionalBannerUri) {
+      dismissedBannerUrisRef.current.add(promotionalBannerUri);
+    }
+
+    setIsPromotionalBannerVisible(false);
+  };
 
   if (!deliveryMode || configQuery.isLoading || configQuery.isFetching) {
     return <DeliveriesStartupSkeleton />;
   }
 
   return (
-    <Stack.Navigator initialRouteName={mapDeliveryModeToRoute(deliveryMode)}>
-      <Stack.Screen
-        name="SingleVendor"
-        component={SingleVendorNavigator}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="MultiVendor"
-        component={MultiVendorNavigator}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="Chain"
-        component={ChainNavigator}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="MyProfile"
-        component={DeliveriesMyProfileScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="EditProfile"
-        component={DeliveriesEditProfileScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="AddressSearch"
-        component={AddressSearchScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="AddressChooseOnMap"
-        component={AddressChooseOnMapScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="AddressDetail"
-        component={AddressDetailScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="NotificationSettings"
-        component={NotificationSettingsScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="PrivacyPolicy"
-        component={PrivacyPolicyScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="TermsOfService"
-        component={TermsOfServiceScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="TermsOfUse"
-        component={TermsOfUseScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="ChangePassword"
-        component={ChangePasswordScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="DeleteAccount"
-        component={DeleteAccountScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="ColorMode"
-        component={ColorModeScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="Language"
-        component={LanguageScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="Wallet"
-        component={WalletScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="Coupons"
-        component={CouponsScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="Notifications"
-        options={sharedScreenOptions}
-      >
-        {() => <NotificationsScreen appPrefix="deliveries" />}
-      </Stack.Screen>
-      <Stack.Screen
-        name="AddCard"
-        component={AddCardScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="WalletTransactions"
-        component={WalletTransactionsScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="Support"
-        component={SupportScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="SupportChat"
-        component={SupportChatScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="SupportFaq"
-        component={SupportFaqScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="SupportConversations"
-        component={SupportConversationsScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="SupportContactForm"
-        component={SupportContactFormScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="SupportFaqArticle"
-        component={SupportFaqArticleScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="SupportTickets"
-        component={SupportTicketsScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="SupportTicketDetail"
-        component={SupportTicketDetailScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="ProductInfo"
-        component={ProductInfo}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="Cart"
-        component={CartScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="RateOrder"
-        component={RateOrderScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="OrderDetailsScreen"
-        component={OrderDetailsScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="OrderTrackingScreen"
-        component={OrderTrackingScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="RiderChat"
-        component={RiderChatScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="Checkout"
-        component={CheckoutScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="SeeAllScreen"
-        component={DeliveriesSeeAllScreen}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="DealsSeeAll"
-        component={DealsSeeAll}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="SingleVendorCategoriesSeeAll"
-        component={SingleVendorCategoriesSeeAll}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="SingleVendorCategoryProductsSeeAll"
-        component={SingleVendorCategoryProductsSeeAll}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="ChainCategoriesSeeAll"
-        component={ChainCategoriesSeeAll}
-        options={sharedScreenOptions}
-      />
-      <Stack.Screen
-        name="ChainCategoryProductsSeeAll"
-        component={ChainCategoryProductsSeeAll}
-        options={sharedScreenOptions}
-      />
-    </Stack.Navigator>
+    <>
+      <Stack.Navigator initialRouteName={mapDeliveryModeToRoute(deliveryMode)}>
+        <Stack.Screen
+          name="SingleVendor"
+          component={SingleVendorNavigator}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="MultiVendor"
+          component={MultiVendorNavigator}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="Chain"
+          component={ChainNavigator}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="MyProfile"
+          component={DeliveriesMyProfileScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="EditProfile"
+          component={DeliveriesEditProfileScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="AddressSearch"
+          component={AddressSearchScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="AddressChooseOnMap"
+          component={AddressChooseOnMapScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="AddressDetail"
+          component={AddressDetailScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="NotificationSettings"
+          component={NotificationSettingsScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="PrivacyPolicy"
+          component={PrivacyPolicyScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="TermsOfService"
+          component={TermsOfServiceScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="TermsOfUse"
+          component={TermsOfUseScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="ChangePassword"
+          component={ChangePasswordScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="DeleteAccount"
+          component={DeleteAccountScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="ColorMode"
+          component={ColorModeScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="Language"
+          component={LanguageScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="Wallet"
+          component={WalletScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="Coupons"
+          component={CouponsScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="Notifications"
+          options={sharedScreenOptions}
+        >
+          {() => <NotificationsScreen appPrefix="deliveries" />}
+        </Stack.Screen>
+        <Stack.Screen
+          name="AddCard"
+          component={AddCardScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="WalletTransactions"
+          component={WalletTransactionsScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="Support"
+          component={SupportScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="SupportChat"
+          component={SupportChatScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="SupportFaq"
+          component={SupportFaqScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="SupportConversations"
+          component={SupportConversationsScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="SupportContactForm"
+          component={SupportContactFormScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="SupportFaqArticle"
+          component={SupportFaqArticleScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="SupportTickets"
+          component={SupportTicketsScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="SupportTicketDetail"
+          component={SupportTicketDetailScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="ProductInfo"
+          component={ProductInfo}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="Cart"
+          component={CartScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="RateOrder"
+          component={RateOrderScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="OrderDetailsScreen"
+          component={OrderDetailsScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="OrderTrackingScreen"
+          component={OrderTrackingScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="RiderChat"
+          component={RiderChatScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="Checkout"
+          component={CheckoutScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="SeeAllScreen"
+          component={DeliveriesSeeAllScreen}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="DealsSeeAll"
+          component={DealsSeeAll}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="SingleVendorCategoriesSeeAll"
+          component={SingleVendorCategoriesSeeAll}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="SingleVendorCategoryProductsSeeAll"
+          component={SingleVendorCategoryProductsSeeAll}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="ChainCategoriesSeeAll"
+          component={ChainCategoriesSeeAll}
+          options={sharedScreenOptions}
+        />
+        <Stack.Screen
+          name="ChainCategoryProductsSeeAll"
+          component={ChainCategoryProductsSeeAll}
+          options={sharedScreenOptions}
+        />
+      </Stack.Navigator>
+
+      {promotionalBannerUri ? (
+        <StartupPromotionalBannerModal
+          visible={isPromotionalBannerVisible}
+          mediaUri={promotionalBannerUri}
+          onClose={handleDismissPromotionalBanner}
+        />
+      ) : null}
+    </>
   );
 }

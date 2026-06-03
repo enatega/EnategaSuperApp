@@ -41,6 +41,7 @@ function toDeliveriesAppSettings(
   const hasTopLevelSettings =
     typeof response.is_maintenance_mode === 'boolean' ||
     typeof response.maintenance_message === 'string' ||
+    typeof response.promotional_banner === 'string' ||
     response.primary_color != null ||
     response.secondary_color != null ||
     response.tertiary_color != null;
@@ -52,6 +53,7 @@ function toDeliveriesAppSettings(
   return {
     is_maintenance_mode: response.is_maintenance_mode ?? false,
     maintenance_message: response.maintenance_message ?? null,
+    promotional_banner: response.promotional_banner ?? null,
     primary_color: response.primary_color ?? null,
     secondary_color: response.secondary_color ?? null,
     tertiary_color: response.tertiary_color ?? null,

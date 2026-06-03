@@ -45,22 +45,30 @@ export default function OrderSummaryContent({
           value={formatCurrency(summary.discountAmount)}
         />
       ) : null}
-      <OrderDetailsSummaryRow
-        label={t("order_details_tax")}
-        value={formatCurrency(summary.taxAmount)}
-      />
-      <OrderDetailsSummaryRow
-        label={t("order_details_packing_charges")}
-        value={formatCurrency(summary.packingCharges)}
-      />
-      <OrderDetailsSummaryRow
-        label={t("order_details_delivery_fee")}
-        value={formatCurrency(summary.deliveryFee)}
-      />
-      <OrderDetailsSummaryRow
-        label={t("order_details_courier_tip")}
-        value={formatCurrency(summary.courierTip)}
-      />
+      {summary.taxAmount > 0 ? (
+        <OrderDetailsSummaryRow
+          label={t("order_details_tax")}
+          value={formatCurrency(summary.taxAmount)}
+        />
+      ) : null}
+      {summary.packingCharges > 0 ? (
+        <OrderDetailsSummaryRow
+          label={t("order_details_packing_charges")}
+          value={formatCurrency(summary.packingCharges)}
+        />
+      ) : null}
+      {summary.deliveryFee > 0 ? (
+        <OrderDetailsSummaryRow
+          label={t("order_details_delivery_fee")}
+          value={formatCurrency(summary.deliveryFee)}
+        />
+      ) : null}
+      {summary.courierTip > 0 ? (
+        <OrderDetailsSummaryRow
+          label={t("order_details_courier_tip")}
+          value={formatCurrency(summary.courierTip)}
+        />
+      ) : null}
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <OrderDetailsSummaryRow
         isEmphasized

@@ -915,7 +915,7 @@ const en = {
   order_tracking_help: 'Order tracking help',
   order_tracking_eta_label: 'Estimated delivery time',
   order_tracking_delivered_title: 'Delivered',
-  order_tracking_delivered_message_line_one: 'Your grocery has been delivered.',
+  order_tracking_delivered_message_line_one: 'Your order has been delivered.',
   order_tracking_delivered_message_line_two: 'Enjoy your meal!',
   order_tracking_error_title: 'Unable to load tracking right now.',
   order_tracking_delivery_details: 'Delivery details',

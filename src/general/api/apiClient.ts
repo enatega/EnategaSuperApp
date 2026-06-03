@@ -147,6 +147,9 @@ const httpClient: AxiosInstance = axios.create({
     Accept: 'application/json',
     'Content-Type': 'application/json',
   },
+  paramsSerializer: {
+    indexes: false,
+  },
 });
 
 httpClient.interceptors.request.use(async (config) => {

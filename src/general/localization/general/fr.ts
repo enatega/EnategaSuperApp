@@ -76,6 +76,8 @@ const fr = {
   location_popup_try_again: 'Réessayer',
   location_popup_open_settings: 'Ouvrir les réglages',
   location_popup_later: 'Plus tard',
+  promotional_banner_primary_action: "Voir l'offre",
+  promotional_banner_close: 'Fermer la bannière promotionnelle',
   address_list_title: 'Mes adresses',
   address_add_title: 'Ajouter une adresse',
   address_edit_title: "Modifier l'adresse",

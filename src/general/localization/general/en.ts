@@ -72,6 +72,8 @@ const en = {
   dont_have_an_account: 'Don’t have an account?',
   signup: 'Sign Up',
   continue: 'Continue',
+  promotional_banner_primary_action: 'Avail Offer',
+  promotional_banner_close: 'Close promotional banner',
   enter_your_phone: 'Log in easily by entering your phone!',
   login_desc: 'We’ll check if you have an account',
   verify_your_phone_number: 'Verify Your Phone Number',

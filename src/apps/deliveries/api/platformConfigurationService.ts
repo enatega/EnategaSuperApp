@@ -14,6 +14,7 @@ export type DeliveriesPlatformConfigurationResponse =
     app_settings?: DeliveriesAppSettings | null;
     is_maintenance_mode?: boolean;
     maintenance_message?: string | null;
+    promotional_banner?: string | null;
     primary_color?: string | null;
     secondary_color?: string | null;
     tertiary_color?: string | null;

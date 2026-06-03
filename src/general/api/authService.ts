@@ -49,18 +49,32 @@ export const authService = {
     ),
 
   verifyLoginOtp: (payload: LoginVerifyOtpPayload) =>
-    apiClient.post<LoginVerifyOtpResponse>(
-      `${LOGIN_BASE}/phone/verify-otp`,
-      payload,
-      {
-        skipAuth: true,
-      },
+    (
+      console.log('[Auth][LoginVerifyOtp] device_push_token', {
+        phone: payload.phone,
+        hasDevicePushToken: Boolean(payload.device_push_token),
+        device_push_token: payload.device_push_token ?? null,
+      }),
+      apiClient.post<LoginVerifyOtpResponse>(
+        `${LOGIN_BASE}/phone/verify-otp`,
+        payload,
+        {
+          skipAuth: true,
+        },
+      )
     ),
 
   emailLogin: (payload: EmailLoginPayload) =>
-    apiClient.post<EmailLoginRespoce>(`${LOGIN_BASE}/email`, payload, {
-      skipAuth: true,
-    }),
+    (
+      console.log('[Auth][EmailLogin] device_push_token', {
+        email: payload.email,
+        hasDevicePushToken: Boolean(payload.device_push_token),
+        device_push_token: payload.device_push_token ?? null,
+      }),
+      apiClient.post<EmailLoginRespoce>(`${LOGIN_BASE}/email`, payload, {
+        skipAuth: true,
+      })
+    ),
 
   googleLogin: (payload: GoogleLoginPayload) =>
     apiClient.post<GoogleLoginResponse>(`/api/v1/auth/login/google`, payload, {

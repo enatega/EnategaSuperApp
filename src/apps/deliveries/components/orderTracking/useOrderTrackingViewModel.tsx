@@ -111,6 +111,29 @@ export function useOrderTrackingViewModel({
     );
   }, [chatBoxId, order, orderId, riderId]);
 
+  useEffect(() => {
+    console.log("[OrderTracking][QueryState]", {
+      errorMessage:
+        orderDetailsQuery.error instanceof Error
+          ? orderDetailsQuery.error.message
+          : orderDetailsQuery.error,
+      hasOrder: Boolean(order),
+      isError: orderDetailsQuery.isError,
+      isFetching: orderDetailsQuery.isFetching,
+      isLoading: orderDetailsQuery.isLoading,
+      orderId,
+      status: orderDetailsQuery.status,
+    });
+  }, [
+    order,
+    orderDetailsQuery.error,
+    orderDetailsQuery.isError,
+    orderDetailsQuery.isFetching,
+    orderDetailsQuery.isLoading,
+    orderDetailsQuery.status,
+    orderId,
+  ]);
+
   const riderLocation = useOrderRiderLocationSync(
     order?.orderType === "delivery" ? (order?.rider?.userId ?? null) : null,
     getOrderRiderLocation(order?.rider),

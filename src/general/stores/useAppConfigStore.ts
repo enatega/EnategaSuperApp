@@ -47,6 +47,7 @@ export type DeliveriesPlatformConfiguration = {
 export type DeliveriesAppSettings = {
   is_maintenance_mode: boolean;
   maintenance_message: string | null;
+  promotional_banner: string | null;
   primary_color: string | null;
   secondary_color: string | null;
   tertiary_color: string | null;
@@ -104,7 +105,7 @@ const initialDeliveriesConfigState: DeliveriesAppConfigState = {
   appSettings: null,
   deliveryMode: null,
   currency: null,
-  orderTrackingVariant: 'modern',
+  orderTrackingVariant: 'legacy',
   isLoading: false,
   isLoaded: false,
   error: null,

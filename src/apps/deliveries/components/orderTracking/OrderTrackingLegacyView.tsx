@@ -51,13 +51,26 @@ export default function OrderTrackingLegacyView({ viewModel }: Props) {
       <ScreenHeader rightSlot={helpButton} title={t("order_tracking_title")} variant="close" />
       {orderDetailsQuery.isLoading ? (
         <OrderTrackingLoadingSkeleton />
-      ) : orderDetailsQuery.isError || !order ? (
-        <OrderTrackingErrorState
-          isRetrying={orderDetailsQuery.isFetching}
-          onRetry={() => {
-            void orderDetailsQuery.refetch();
-          }}
-        />
+      ) : !order ? (
+        <>
+          {console.log("[OrderTracking][Legacy][RenderErrorState]", {
+            errorMessage:
+              orderDetailsQuery.error instanceof Error
+                ? orderDetailsQuery.error.message
+                : orderDetailsQuery.error,
+            isError: orderDetailsQuery.isError,
+            isFetching: orderDetailsQuery.isFetching,
+            isLoading: orderDetailsQuery.isLoading,
+            order,
+            queryStatus: orderDetailsQuery.status,
+          })}
+          <OrderTrackingErrorState
+            isRetrying={orderDetailsQuery.isFetching}
+            onRetry={() => {
+              void orderDetailsQuery.refetch();
+            }}
+          />
+        </>
       ) : (
         <View style={styles.screen}>
           <ScrollView

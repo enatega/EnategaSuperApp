@@ -632,7 +632,9 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
     latitude: resolveDiscoveryCoordinate(options?.requestParams?.latitude, latitude),
     longitude: resolveDiscoveryCoordinate(options?.requestParams?.longitude, longitude),
     category_ids: normalizeCategoryIds(options?.filters?.category_ids),
-    price_tiers: options?.filters?.price_tiers ?? undefined,
+    price_tiers: options?.filters?.price_tiers
+      ? [options.filters.price_tiers]
+      : undefined,
     stock: normalizeStockValue(options?.filters?.stock),
     sort_by: options?.filters?.sort_by ?? undefined,
   };
@@ -675,7 +677,8 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
     getNextPageParam: (lastPage) =>
       lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
     enabled: options?.enabled ?? true,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const items =

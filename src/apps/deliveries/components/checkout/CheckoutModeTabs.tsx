@@ -32,14 +32,14 @@ export default function CheckoutModeTabs({
           activeMode === 'delivery' && styles.activeTab,
           { opacity: isDeliveryEnabled ? 1 : 0.45 },
           activeMode === 'delivery'
-            ? { backgroundColor: colors.surface, shadowColor: colors.shadowColor }
+            ? { backgroundColor: colors.primary, shadowColor: colors.shadowColor }
             : null,
         ]}
       >
         <Text
           weight="medium"
           style={{
-            color: activeMode === 'delivery' ? colors.text : colors.mutedText,
+            color: activeMode === 'delivery' ? colors.white : colors.mutedText,
             fontSize: typography.size.sm2,
             lineHeight: typography.lineHeight.md,
           }}
@@ -57,14 +57,14 @@ export default function CheckoutModeTabs({
           activeMode === 'pickup' && styles.activeTab,
           { opacity: isPickupEnabled ? 1 : 0.45 },
           activeMode === 'pickup'
-            ? { backgroundColor: colors.surface, shadowColor: colors.shadowColor }
+            ? { backgroundColor: colors.primary, shadowColor: colors.shadowColor }
             : null,
         ]}
       >
         <Text
           weight="medium"
           style={{
-            color: activeMode === 'pickup' ? colors.text : colors.mutedText,
+            color: activeMode === 'pickup' ? colors.white : colors.mutedText,
             fontSize: typography.size.sm2,
             lineHeight: typography.lineHeight.md,
           }}
