@@ -106,6 +106,9 @@ export default function OrderTrackingModernView({ viewModel }: Props) {
   const activeOrCompletedTimelineItem = order?.timeline?.find(
     (item) => item.active || item.completed,
   );
+  const formattedEta = order
+    ? formatTrackingEta(order.store.estimatedDeliveryTime, order.scheduledAt)
+    : "--";
   const progressTimeLabel = activeOrCompletedTimelineItem?.completedAt
     ? new Date(activeOrCompletedTimelineItem.completedAt).toLocaleTimeString([], {
         hour: "numeric",
@@ -168,10 +171,7 @@ export default function OrderTrackingModernView({ viewModel }: Props) {
                 etaLabel={
                   viewModel.isDelivered
                     ? t("order_tracking_delivered_title")
-                    : formatTrackingEta(order.store.estimatedDeliveryTime, order.scheduledAt).replace(
-                        " min",
-                        "",
-                      )
+                    : formattedEta
                 }
                 status={order.status}
                 showDeliveredTitle={viewModel.isDelivered}
