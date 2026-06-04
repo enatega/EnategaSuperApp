@@ -66,6 +66,9 @@ export default function DeliveriesNavigator() {
   const deliveryMode = useDeliveriesDeliveryMode();
   const deliveriesAppSettings = useDeliveriesAppSettings();
   const configQuery = useInitializeDeliveriesConfig();
+  const initialRouteName = mapDeliveryModeToRoute(
+    deliveryMode ?? DEFAULT_DELIVERY_MODE,
+  );
   const [isPromotionalBannerVisible, setIsPromotionalBannerVisible] = useState(false);
   const [hasPromotionalBannerWindowExpired, setHasPromotionalBannerWindowExpired] =
     useState(false);
@@ -74,6 +77,9 @@ export default function DeliveriesNavigator() {
     () => normalizePromotionalBannerUri(deliveriesAppSettings?.promotional_banner),
     [deliveriesAppSettings?.promotional_banner],
   );
+  const isStartupBlocking =
+    configQuery.isHydratingCache ||
+    (!deliveryMode && (configQuery.isLoading || configQuery.isFetching));
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -86,7 +92,7 @@ export default function DeliveriesNavigator() {
   }, []);
 
   useEffect(() => {
-    if (!promotionalBannerUri || configQuery.isLoading || configQuery.isFetching) {
+    if (!promotionalBannerUri || isStartupBlocking) {
       return;
     }
 
@@ -100,9 +106,8 @@ export default function DeliveriesNavigator() {
 
     setIsPromotionalBannerVisible(true);
   }, [
-    configQuery.isFetching,
-    configQuery.isLoading,
     hasPromotionalBannerWindowExpired,
+    isStartupBlocking,
     promotionalBannerUri,
   ]);
 
@@ -124,7 +129,7 @@ export default function DeliveriesNavigator() {
 
   return (
     <>
-      <Stack.Navigator initialRouteName={mapDeliveryModeToRoute(deliveryMode)}>
+      <Stack.Navigator initialRouteName={initialRouteName}>
         <Stack.Screen
           name="SingleVendor"
           component={SingleVendorNavigator}

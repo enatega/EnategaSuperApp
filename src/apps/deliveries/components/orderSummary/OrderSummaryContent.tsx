@@ -45,25 +45,25 @@ export default function OrderSummaryContent({
           value={formatCurrency(summary.discountAmount)}
         />
       ) : null}
-      {shouldShowAmountRow(summary.taxAmount) ? (
+      {summary.taxAmount > 0 ? (
         <OrderDetailsSummaryRow
           label={t("order_details_tax")}
           value={formatCurrency(summary.taxAmount)}
         />
       ) : null}
-      {shouldShowAmountRow(summary.packingCharges) ? (
+      {summary.packingCharges > 0 ? (
         <OrderDetailsSummaryRow
           label={t("order_details_packing_charges")}
           value={formatCurrency(summary.packingCharges)}
         />
       ) : null}
-      {shouldShowAmountRow(summary.deliveryFee) ? (
+      {summary.deliveryFee > 0 ? (
         <OrderDetailsSummaryRow
           label={t("order_details_delivery_fee")}
           value={formatCurrency(summary.deliveryFee)}
         />
       ) : null}
-      {shouldShowAmountRow(summary.courierTip) ? (
+      {summary.courierTip > 0 ? (
         <OrderDetailsSummaryRow
           label={t("order_details_courier_tip")}
           value={formatCurrency(summary.courierTip)}
