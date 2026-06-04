@@ -45,25 +45,25 @@ export default function OrderSummaryContent({
           value={formatCurrency(summary.discountAmount)}
         />
       ) : null}
-      {summary.taxAmount > 0 ? (
+      {shouldShowAmountRow(summary.taxAmount) ? (
         <OrderDetailsSummaryRow
           label={t("order_details_tax")}
           value={formatCurrency(summary.taxAmount)}
         />
       ) : null}
-      {summary.packingCharges > 0 ? (
+      {shouldShowAmountRow(summary.packingCharges) ? (
         <OrderDetailsSummaryRow
           label={t("order_details_packing_charges")}
           value={formatCurrency(summary.packingCharges)}
         />
       ) : null}
-      {summary.deliveryFee > 0 ? (
+      {shouldShowAmountRow(summary.deliveryFee) ? (
         <OrderDetailsSummaryRow
           label={t("order_details_delivery_fee")}
           value={formatCurrency(summary.deliveryFee)}
         />
       ) : null}
-      {summary.courierTip > 0 ? (
+      {shouldShowAmountRow(summary.courierTip) ? (
         <OrderDetailsSummaryRow
           label={t("order_details_courier_tip")}
           value={formatCurrency(summary.courierTip)}
@@ -88,3 +88,7 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
 });
+
+function shouldShowAmountRow(value: number | null | undefined) {
+  return typeof value === "number" && Math.abs(value) > 0;
+}

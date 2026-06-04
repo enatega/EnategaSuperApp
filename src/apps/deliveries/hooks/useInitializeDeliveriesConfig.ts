@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { deliveryKeys } from '../api/queryKeys';
 import {
@@ -13,12 +13,13 @@ import {
   type DeliveriesAppSettings,
   type DeliveriesPlatformConfiguration,
 } from '../../../general/stores/useAppConfigStore';
+import {
+  getStoredDeliveriesBootstrapConfig,
+  setStoredDeliveriesBootstrapConfig,
+  type DeliveriesBootstrapConfigCache,
+} from '../storage/deliveriesBootstrapConfigStorage';
 
-type DeliveriesBootstrapConfig = {
-  platformConfiguration: DeliveriesPlatformConfiguration;
-  appSettings: DeliveriesAppSettings | null;
-  currency: AppCurrency | null;
-};
+type DeliveriesBootstrapConfig = DeliveriesBootstrapConfigCache;
 
 function toPlatformConfiguration(
   response: DeliveriesPlatformConfigurationResponse,
@@ -71,6 +72,51 @@ export function useInitializeDeliveriesConfig() {
     setDeliveriesConfigError,
     markDeliveriesConfigLoaded,
   } = useAppConfigStore();
+  const [isHydratingCache, setIsHydratingCache] = useState(true);
+  const [hasCachedConfig, setHasCachedConfig] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function hydrateStoredConfig() {
+      try {
+        const storedConfig = await getStoredDeliveriesBootstrapConfig();
+
+        if (!isMounted || !storedConfig) {
+          return;
+        }
+
+        setDeliveriesPlatformConfiguration(storedConfig.platformConfiguration);
+        setDeliveriesAppSettings(storedConfig.appSettings);
+        setDeliveriesDeliveryMode(
+          mapPlatformTypeToDeliveryMode(
+            storedConfig.platformConfiguration.platform_type,
+          ),
+        );
+        setDeliveriesCurrency(storedConfig.currency);
+        markDeliveriesConfigLoaded();
+        setDeliveriesConfigError(null);
+        setHasCachedConfig(true);
+      } finally {
+        if (isMounted) {
+          setIsHydratingCache(false);
+        }
+      }
+    }
+
+    hydrateStoredConfig();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [
+    markDeliveriesConfigLoaded,
+    setDeliveriesAppSettings,
+    setDeliveriesConfigError,
+    setDeliveriesCurrency,
+    setDeliveriesDeliveryMode,
+    setDeliveriesPlatformConfiguration,
+  ]);
 
   const platformConfigurationQuery = useQuery<DeliveriesBootstrapConfig, ApiError>({
     queryKey: deliveryKeys.appConfig(),
@@ -95,17 +141,25 @@ export function useInitializeDeliveriesConfig() {
     },
     staleTime: Infinity,
     gcTime: Infinity,
-    refetchOnMount: false,
+    refetchOnMount: true,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
-    enabled: !deliveries.isLoaded,
   });
 
   useEffect(() => {
-    setDeliveriesConfigLoading(
-      platformConfigurationQuery.isLoading || platformConfigurationQuery.isFetching,
-    );
+    const shouldShowLoadingState =
+      !hasCachedConfig &&
+      !deliveries.platformConfiguration &&
+      !deliveries.deliveryMode &&
+      !isHydratingCache &&
+      (platformConfigurationQuery.isLoading || platformConfigurationQuery.isFetching);
+
+    setDeliveriesConfigLoading(shouldShowLoadingState);
   }, [
+    deliveries.deliveryMode,
+    deliveries.platformConfiguration,
+    hasCachedConfig,
+    isHydratingCache,
     platformConfigurationQuery.isFetching,
     platformConfigurationQuery.isLoading,
     setDeliveriesConfigLoading,
@@ -126,6 +180,8 @@ export function useInitializeDeliveriesConfig() {
     setDeliveriesCurrency(platformConfigurationQuery.data.currency);
     markDeliveriesConfigLoaded();
     setDeliveriesConfigError(null);
+    setHasCachedConfig(true);
+    void setStoredDeliveriesBootstrapConfig(platformConfigurationQuery.data);
   }, [
     markDeliveriesConfigLoaded,
     platformConfigurationQuery.data,
@@ -141,17 +197,24 @@ export function useInitializeDeliveriesConfig() {
       return;
     }
 
-    const fallbackDeliveryMode = mapPlatformTypeToDeliveryMode('MULTI_VENDOR');
     const errorMessage =
       platformConfigurationQuery.error instanceof ApiError
         ? platformConfigurationQuery.error.message
         : 'Failed to load deliveries configuration';
 
     setDeliveriesConfigError(errorMessage);
+
+    if (deliveries.platformConfiguration && deliveries.deliveryMode) {
+      markDeliveriesConfigLoaded();
+      return;
+    }
+
     setDeliveriesAppSettings(null);
-    setDeliveriesDeliveryMode(fallbackDeliveryMode);
+    setDeliveriesDeliveryMode(mapPlatformTypeToDeliveryMode('MULTI_VENDOR'));
     markDeliveriesConfigLoaded();
   }, [
+    deliveries.deliveryMode,
+    deliveries.platformConfiguration,
     markDeliveriesConfigLoaded,
     platformConfigurationQuery.error,
     setDeliveriesConfigError,
@@ -159,5 +222,9 @@ export function useInitializeDeliveriesConfig() {
     setDeliveriesDeliveryMode,
   ]);
 
-  return platformConfigurationQuery;
+  return {
+    ...platformConfigurationQuery,
+    hasCachedConfig,
+    isHydratingCache,
+  };
 }

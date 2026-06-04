@@ -38,6 +38,7 @@ import SupportTicketDetailScreen from "../screens/SupportTicketDetailScreen";
 import RiderChatScreen from "../screens/RiderChatScreen/RiderChatScreen";
 import CouponsScreen from "../screens/CouponsScreen/CouponsScreen";
 import {
+  DEFAULT_DELIVERY_MODE,
   mapDeliveryModeToRoute,
 } from "./deliveryModePreference";
 import type { DeliveriesStackParamList } from "./types";
@@ -113,7 +114,11 @@ export default function DeliveriesNavigator() {
     setIsPromotionalBannerVisible(false);
   };
 
-  if (!deliveryMode || configQuery.isLoading || configQuery.isFetching) {
+  if (configQuery.isHydratingCache) {
+    return null;
+  }
+
+  if (!deliveryMode && (configQuery.isLoading || configQuery.isFetching)) {
     return <DeliveriesStartupSkeleton />;
   }
 
