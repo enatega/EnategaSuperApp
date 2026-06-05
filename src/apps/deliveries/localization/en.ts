@@ -727,6 +727,8 @@ const en = {
   checkout_collection_time_title: 'Collection Time',
   checkout_delivery_time_standard: 'Standard',
   checkout_delivery_time_standard_eta: '10-20 min',
+  checkout_delivery_time_eta_day_single: '{{count}} day',
+  checkout_delivery_time_eta_day_plural: '{{count}} days',
   checkout_delivery_time_schedule: 'Schedule',
   checkout_delivery_time_schedule_hint: 'Choose a delivery time',
   checkout_schedule_title: 'Schedule delivery time',

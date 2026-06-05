@@ -523,6 +523,8 @@ const fr = {
   checkout_collection_time_title: 'Heure de retrait',
   checkout_delivery_time_standard: 'Standard',
   checkout_delivery_time_standard_eta: '10-20 min',
+  checkout_delivery_time_eta_day_single: '{{count}} jour',
+  checkout_delivery_time_eta_day_plural: '{{count}} jours',
   checkout_delivery_time_schedule: 'Planifier',
   checkout_delivery_time_schedule_hint: 'Choisissez une heure de livraison',
   checkout_schedule_title: 'Planifier l’heure de livraison',

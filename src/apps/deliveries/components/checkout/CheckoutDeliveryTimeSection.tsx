@@ -14,6 +14,7 @@ type Props = {
   orderType: CheckoutOrderType;
   scheduledLabel?: string | null;
   selectedMode: CheckoutDeliveryTimeMode;
+  standardEtaLabel: string;
 };
 
 export default function CheckoutDeliveryTimeSection({
@@ -22,6 +23,7 @@ export default function CheckoutDeliveryTimeSection({
   orderType,
   selectedMode,
   scheduledLabel,
+  standardEtaLabel,
   onSelectMode,
 }: Props) {
   const { colors, typography } = useTheme();
@@ -78,58 +80,58 @@ export default function CheckoutDeliveryTimeSection({
               lineHeight: typography.lineHeight.sm,
             }}
           >
-            {t('checkout_delivery_time_standard_eta')}
+            {standardEtaLabel}
           </Text>
         </View>
       </Pressable>
 
-      <Pressable
-        accessibilityRole="radio"
-        accessibilityState={{ selected: selectedMode === 'schedule', disabled: !isScheduleEnabled }}
-        disabled={!isScheduleEnabled}
-        onPress={() => {
-          onSelectMode('schedule');
-          onSchedulePress();
-        }}
-        style={[
-          styles.option,
-          {
-            backgroundColor: colors.surface,
-            borderColor: selectedMode === 'schedule' ? colors.blue800 : colors.border,
-            opacity: isScheduleEnabled ? 1 : 0.5,
-            shadowColor: colors.shadowColor,
-          },
-        ]}
-      >
-        <Ionicons
-          color={selectedMode === 'schedule' ? colors.blue800 : colors.border}
-          name={selectedMode === 'schedule' ? 'radio-button-on' : 'radio-button-off'}
-          size={18}
-        />
-        <View style={styles.optionText}>
-          <Text
-            weight="medium"
-            style={{
-              color: colors.text,
-              fontSize: typography.size.sm2,
-              lineHeight: typography.lineHeight.md,
-            }}
-          >
-            {t('checkout_delivery_time_schedule')}
-          </Text>
-          <Text
-            style={{
-              color: colors.mutedText,
-              fontSize: typography.size.xs2,
-              lineHeight: typography.lineHeight.sm,
-            }}
-          >
-            {selectedMode === 'schedule' && scheduledLabel
-              ? scheduledLabel
-              : t('checkout_delivery_time_schedule_hint')}
-          </Text>
-        </View>
-      </Pressable>
+      {isScheduleEnabled ? (
+        <Pressable
+          accessibilityRole="radio"
+          accessibilityState={{ selected: selectedMode === 'schedule' }}
+          onPress={() => {
+            onSelectMode('schedule');
+            onSchedulePress();
+          }}
+          style={[
+            styles.option,
+            {
+              backgroundColor: colors.surface,
+              borderColor: selectedMode === 'schedule' ? colors.blue800 : colors.border,
+              shadowColor: colors.shadowColor,
+            },
+          ]}
+        >
+          <Ionicons
+            color={selectedMode === 'schedule' ? colors.blue800 : colors.border}
+            name={selectedMode === 'schedule' ? 'radio-button-on' : 'radio-button-off'}
+            size={18}
+          />
+          <View style={styles.optionText}>
+            <Text
+              weight="medium"
+              style={{
+                color: colors.text,
+                fontSize: typography.size.sm2,
+                lineHeight: typography.lineHeight.md,
+              }}
+            >
+              {t('checkout_delivery_time_schedule')}
+            </Text>
+            <Text
+              style={{
+                color: colors.mutedText,
+                fontSize: typography.size.xs2,
+                lineHeight: typography.lineHeight.sm,
+              }}
+            >
+              {selectedMode === 'schedule' && scheduledLabel
+                ? scheduledLabel
+                : t('checkout_delivery_time_schedule_hint')}
+            </Text>
+          </View>
+        </Pressable>
+      ) : null}
     </View>
   );
 }

@@ -10,7 +10,9 @@ type Props = {
 export default function PromotionalBannerVideo({ uri, onReady }: Props) {
   const player = useVideoPlayer({ uri }, (videoPlayer) => {
     videoPlayer.loop = true;
-    videoPlayer.muted = true;
+    videoPlayer.muted = false;
+    videoPlayer.volume = 1;
+    videoPlayer.audioMixingMode = 'doNotMix';
     videoPlayer.play();
   });
 
@@ -18,10 +20,11 @@ export default function PromotionalBannerVideo({ uri, onReady }: Props) {
     <VideoView
       allowsFullscreen={false}
       allowsPictureInPicture={false}
-      contentFit="cover"
+      contentFit="contain"
       nativeControls={false}
       onFirstFrameRender={onReady}
       player={player}
+      playsInline
       style={styles.video}
     />
   );

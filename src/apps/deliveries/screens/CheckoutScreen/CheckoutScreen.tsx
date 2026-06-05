@@ -40,6 +40,7 @@ import {
   type CheckoutMessageTarget,
 } from '../../components/checkout/checkoutMessageUtils';
 import CheckoutScheduleScreen from '../../components/checkout/CheckoutScheduleScreen';
+import { isCheckoutScheduleAvailable } from '../../components/checkout/checkoutDeliveryTimeUtils';
 import {
   isCheckoutScheduledAtInFuture,
   type CheckoutDeliveryTimeMode,
@@ -458,11 +459,15 @@ export default function CheckoutScreen() {
   }, [orderType]);
 
   React.useEffect(() => {
-    if (preview?.schedule.scheduleAllowed === false && deliveryTimeMode === 'schedule') {
+    if (
+      preview?.store
+      && !isCheckoutScheduleAvailable(preview.store)
+      && deliveryTimeMode === 'schedule'
+    ) {
       setDeliveryTimeMode('standard');
       setScheduledAt(null);
     }
-  }, [deliveryTimeMode, preview?.schedule.scheduleAllowed]);
+  }, [deliveryTimeMode, preview?.store]);
 
   React.useEffect(() => {
     if (
@@ -898,6 +903,19 @@ export default function CheckoutScreen() {
     () => (preview && adjustedPricing ? { ...preview, pricing: adjustedPricing } : preview),
     [adjustedPricing, preview],
   );
+  const checkoutPreview = React.useMemo(() => {
+    if (!adjustedPreview) {
+      return null;
+    }
+
+    return {
+      ...adjustedPreview,
+      schedule: {
+        ...adjustedPreview.schedule,
+        scheduleAllowed: isCheckoutScheduleAvailable(adjustedPreview.store),
+      },
+    };
+  }, [adjustedPreview]);
   const previewTotal = adjustedPreview?.pricing.totalAmount ?? cart.finalPrice;
   const selectedAddressLabel = formatDeliveryAddressLabel(selectedAddress);
   const paymentIconName = paymentMethod === 'stripe' ? 'card-outline' : 'cash-outline';
@@ -1070,7 +1088,7 @@ export default function CheckoutScreen() {
         promoCode={promoCode}
         promoTitle={promoTitle}
         promoSubtitle={promoSubtitle}
-        preview={adjustedPreview ?? null}
+        preview={checkoutPreview}
         restaurantMessage={messages.restaurant}
         scheduledAt={scheduledAt}
         selectedAddressLabel={selectedAddressLabel}

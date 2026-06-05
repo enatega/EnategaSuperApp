@@ -18,6 +18,7 @@ import CheckoutModeTabs from './CheckoutModeTabs';
 import CheckoutPaymentSection from './CheckoutPaymentSection';
 import CheckoutSummaryFooter from './CheckoutSummaryFooter';
 import CheckoutTipSection from './CheckoutTipSection';
+import { getCheckoutStandardEtaLabel } from './checkoutDeliveryTimeUtils';
 import { getCheckoutMessagePreview } from './checkoutMessageUtils';
 import { formatCheckoutScheduledAt, type CheckoutDeliveryTimeMode } from './checkoutScheduleUtils';
 
@@ -133,6 +134,7 @@ export default function CheckoutScreenContent({
   const scheduledLabel = scheduledAt
     ? formatCheckoutScheduledAt(scheduledAt)
     : null;
+  const standardEtaLabel = getCheckoutStandardEtaLabel(preview?.store ?? null, t);
 
   return (
     <View style={styles.container}>
@@ -195,6 +197,7 @@ export default function CheckoutScreenContent({
           orderType={orderType}
           scheduledLabel={scheduledLabel}
           selectedMode={deliveryTimeMode}
+          standardEtaLabel={standardEtaLabel}
           onSelectMode={onDeliveryTimeModeChange}
         />
 

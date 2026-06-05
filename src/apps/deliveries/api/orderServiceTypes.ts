@@ -52,6 +52,8 @@ export type CheckoutPreviewStore = {
   scheduleAllowed: boolean;
   codAllowed: boolean;
   stripeAllowed: boolean;
+  isInstantDelivery?: boolean;
+  instantDeliveryTime?: number | null;
 };
 
 export type CheckoutPreviewPickup = {

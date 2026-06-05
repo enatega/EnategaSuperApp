@@ -15,7 +15,12 @@ export default function PromotionalBannerMedia({ uri }: Props) {
   const isVideo = isPromotionalBannerVideo(uri);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.border }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isVideo ? colors.shadowColor : colors.border },
+      ]}
+    >
       {!isReady ? (
         <View style={styles.loader}>
           <ActivityIndicator color={colors.primary} size="large" />
