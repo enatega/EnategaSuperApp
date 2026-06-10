@@ -192,7 +192,7 @@ export default function CheckoutScreenContent({
         ) : null}
 
         <CheckoutDeliveryTimeSection
-          isScheduleEnabled={preview?.schedule.scheduleAllowed ?? false}
+          isScheduleEnabled={!!(preview?.schedule.scheduleAllowed || preview?.store?.isInstantDelivery)}
           onSchedulePress={onSchedulePress}
           orderType={orderType}
           scheduledLabel={scheduledLabel}
