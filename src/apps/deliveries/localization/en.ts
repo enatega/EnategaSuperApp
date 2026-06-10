@@ -292,6 +292,9 @@ const en = {
   rate_order_subheading: 'Your feedback helps us improve our delivery.',
   rate_order_comment_placeholder: 'Write your experience here...',
   rate_order_submit: 'Submit',
+  rate_order_success_title: 'THANKS !',
+  rate_order_success_message: 'Your feedback has been submitted.',
+  rate_order_error_title: 'Submission Failed',
   // Settings screen
   settings_title: 'Settings',
   settings_notifications: 'Notification Settings',

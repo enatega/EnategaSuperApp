@@ -18,7 +18,8 @@ export default function CartStatusBanner({ onInfoPress, totalPrice }: Props) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.messageRow}>
+      {/* Todo: currently hidden */}
+      {/* <View style={styles.messageRow}>
         <Text
           style={{
             color: colors.mutedText,
@@ -72,7 +73,7 @@ export default function CartStatusBanner({ onInfoPress, totalPrice }: Props) {
             </View>
           );
         })}
-      </View>
+      </View> */}
     </View>
   );
 }
