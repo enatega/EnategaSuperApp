@@ -50,74 +50,56 @@ import ChainCategoriesSeeAll from "../screens/ChainCategoriesSeeAll/ChainCategor
 import ChainCategoryProductsSeeAll from "../screens/ChainCategoryProductsSeeAll/ChainCategoryProductsSeeAll";
 import DeliveriesStartupSkeleton from "../components/DeliveriesStartupSkeleton";
 import { useInitializeDeliveriesConfig } from "../hooks/useInitializeDeliveriesConfig";
-import {
-  useDeliveriesAppSettings,
-  useDeliveriesDeliveryMode,
-} from "../../../general/stores/useAppConfigStore";
-import StartupPromotionalBannerModal from "../../../general/components/promotionalBanner/StartupPromotionalBannerModal";
-import { normalizePromotionalBannerUri } from "../../../general/utils/promotionalBanner";
+import { useDeliveriesDeliveryMode } from "../../../general/stores/useAppConfigStore";
+import { useAppConfigStore } from "../../../general/stores/useAppConfigStore";
+import AuthenticatedPromotionalBannerModal from "../../../general/components/promotionalBanner/AuthenticatedPromotionalBannerModal";
 
 const Stack = createNativeStackNavigator<DeliveriesStackParamList>();
 
 const sharedScreenOptions = { headerShown: false } as const;
-const PROMOTIONAL_BANNER_AUTO_SHOW_WINDOW_MS = 1500;
 
 export default function DeliveriesNavigator() {
   const deliveryMode = useDeliveriesDeliveryMode();
-  const deliveriesAppSettings = useDeliveriesAppSettings();
+  const promotionalSettings = useAppConfigStore(
+    (state) => state.deliveries.appSettings,
+  );
   const configQuery = useInitializeDeliveriesConfig();
   const initialRouteName = mapDeliveryModeToRoute(
     deliveryMode ?? DEFAULT_DELIVERY_MODE,
   );
-  const [isPromotionalBannerVisible, setIsPromotionalBannerVisible] = useState(false);
-  const [hasPromotionalBannerWindowExpired, setHasPromotionalBannerWindowExpired] =
+  const [isPromotionalBannerVisible, setIsPromotionalBannerVisible] =
     useState(false);
-  const dismissedBannerUrisRef = useRef<Set<string>>(new Set());
-  const promotionalBannerUri = useMemo(
-    () => normalizePromotionalBannerUri(deliveriesAppSettings?.promotional_banner),
-    [deliveriesAppSettings?.promotional_banner],
-  );
-  const isStartupBlocking =
-    configQuery.isHydratingCache ||
-    (!deliveryMode && (configQuery.isLoading || configQuery.isFetching));
+  const dismissedBannerKeysRef = useRef<Set<string>>(new Set());
+  const promotionalBannerKey = useMemo(() => {
+    const bannerUri = promotionalSettings?.promotional_banner?.trim();
+
+    if (!bannerUri) {
+      return null;
+    }
+
+    return [
+      bannerUri,
+      promotionalSettings?.promotional_banner_title ?? '',
+      promotionalSettings?.promotional_banner_description ?? '',
+    ].join('::');
+  }, [
+    promotionalSettings?.promotional_banner,
+    promotionalSettings?.promotional_banner_description,
+    promotionalSettings?.promotional_banner_title,
+  ]);
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setHasPromotionalBannerWindowExpired(true);
-    }, PROMOTIONAL_BANNER_AUTO_SHOW_WINDOW_MS);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!promotionalBannerUri || isStartupBlocking) {
+    if (!promotionalBannerKey) {
+      setIsPromotionalBannerVisible(false);
       return;
     }
 
-    if (hasPromotionalBannerWindowExpired) {
-      return;
-    }
-
-    if (dismissedBannerUrisRef.current.has(promotionalBannerUri)) {
+    if (dismissedBannerKeysRef.current.has(promotionalBannerKey)) {
       return;
     }
 
     setIsPromotionalBannerVisible(true);
-  }, [
-    hasPromotionalBannerWindowExpired,
-    isStartupBlocking,
-    promotionalBannerUri,
-  ]);
-
-  const handleDismissPromotionalBanner = () => {
-    if (promotionalBannerUri) {
-      dismissedBannerUrisRef.current.add(promotionalBannerUri);
-    }
-
-    setIsPromotionalBannerVisible(false);
-  };
+  }, [promotionalBannerKey]);
 
   if (configQuery.isHydratingCache) {
     return null;
@@ -126,6 +108,14 @@ export default function DeliveriesNavigator() {
   if (!deliveryMode && (configQuery.isLoading || configQuery.isFetching)) {
     return <DeliveriesStartupSkeleton />;
   }
+
+  const handleDismissPromotionalBanner = () => {
+    if (promotionalBannerKey) {
+      dismissedBannerKeysRef.current.add(promotionalBannerKey);
+    }
+
+    setIsPromotionalBannerVisible(false);
+  };
 
   return (
     <>
@@ -348,10 +338,12 @@ export default function DeliveriesNavigator() {
         />
       </Stack.Navigator>
 
-      {promotionalBannerUri ? (
-        <StartupPromotionalBannerModal
+      {promotionalSettings?.promotional_banner ? (
+        <AuthenticatedPromotionalBannerModal
           visible={isPromotionalBannerVisible}
-          mediaUri={promotionalBannerUri}
+          mediaUri={promotionalSettings.promotional_banner}
+          title={promotionalSettings.promotional_banner_title}
+          description={promotionalSettings.promotional_banner_description}
           onClose={handleDismissPromotionalBanner}
         />
       ) : null}

@@ -8,7 +8,7 @@ export function useAppLogout(options?: UseMutationOptions<void, ApiError, void>)
     ...options,
     onSuccess: async (data, variables, onMutateResult, context) => {
       // `useLogout` already clears the persisted auth session, including the stored token.
-      resetToAuth();
+      resetToAuth('login');
       await options?.onSuccess?.(data, variables, onMutateResult, context);
     },
   });

@@ -43,6 +43,8 @@ function toDeliveriesAppSettings(
     typeof response.is_maintenance_mode === 'boolean' ||
     typeof response.maintenance_message === 'string' ||
     typeof response.promotional_banner === 'string' ||
+    typeof response.promotional_banner_title === 'string' ||
+    typeof response.promotional_banner_description === 'string' ||
     response.primary_color != null ||
     response.secondary_color != null ||
     response.tertiary_color != null;
@@ -55,6 +57,9 @@ function toDeliveriesAppSettings(
     is_maintenance_mode: response.is_maintenance_mode ?? false,
     maintenance_message: response.maintenance_message ?? null,
     promotional_banner: response.promotional_banner ?? null,
+    promotional_banner_title: response.promotional_banner_title ?? null,
+    promotional_banner_description:
+      response.promotional_banner_description ?? null,
     primary_color: response.primary_color ?? null,
     secondary_color: response.secondary_color ?? null,
     tertiary_color: response.tertiary_color ?? null,

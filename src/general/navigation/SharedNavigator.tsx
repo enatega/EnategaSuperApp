@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import {
   createNativeStackNavigator,
@@ -44,41 +44,6 @@ function AppThemeScope({ appId, children }: AppThemeScopeProps) {
 }
 
 export default function SharedNavigator() {
-  const [initialRouteName, setInitialRouteName] = useState<
-    keyof SharedStackParamList | null
-  >(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const resolveInitialRoute = async () => {
-      const token = await authSession.getAccessToken();
-
-      if (!isMounted) {
-        return;
-      }
-
-      if (token) {
-        setInitialRouteName("Deliveries");
-        return;
-      }
-
-      await setPendingAppRoute("Deliveries");
-
-      if (!isMounted) {
-        return;
-      }
-
-      setInitialRouteName("Auth");
-    };
-
-    void resolveInitialRoute();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
   const handleSelectMiniApp = useCallback(
     async (
       id: MiniAppId,
@@ -109,12 +74,8 @@ export default function SharedNavigator() {
     [],
   );
 
-  if (!initialRouteName) {
-    return null;
-  }
-
   return (
-    <Stack.Navigator initialRouteName={initialRouteName}>
+    <Stack.Navigator initialRouteName="Auth">
       <Stack.Screen name="Home" options={{ headerShown: false }}>
         {(props) => (
           <AppThemeScope appId="general">
@@ -148,9 +109,9 @@ export default function SharedNavigator() {
         );
       })}
       <Stack.Screen name="Auth" options={{ headerShown: false }}>
-        {() => (
+        {({ route }) => (
           <AppThemeScope appId="general">
-            <AuthNavigator />
+            <AuthNavigator initialRouteName={route.params?.screen} />
           </AppThemeScope>
         )}
       </Stack.Screen>

@@ -1,13 +1,18 @@
 import { createNavigationContainerRef } from '@react-navigation/native';
-import type { RootStackParamList, SharedAppRouteName, SharedStackParamList } from './navigationTypes';
+import type {
+  AuthStackParamList,
+  RootStackParamList,
+  SharedAppRouteName,
+  SharedStackParamList,
+} from './navigationTypes';
 import { clearPendingAppRoute, getPendingAppRoute, setActiveAppRoute } from './pendingAppRedirect';
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 export async function redirectToPendingAppIfNeeded() {
-  const routeName = await getPendingAppRoute();
+  const routeName = (await getPendingAppRoute()) ?? 'Deliveries';
 
-  if (!routeName || !navigationRef.isReady()) {
+  if (!navigationRef.isReady()) {
     return false;
   }
 
@@ -72,7 +77,7 @@ export function resetToSharedHome() {
   return true;
 }
 
-export function resetToAuth() {
+export function resetToAuth(screen: keyof AuthStackParamList = 'login') {
   if (!navigationRef.isReady()) {
     return false;
   }
@@ -84,6 +89,9 @@ export function resetToAuth() {
         name: 'Main',
         params: {
           screen: 'Auth',
+          params: {
+            screen,
+          },
         },
       },
     ],
