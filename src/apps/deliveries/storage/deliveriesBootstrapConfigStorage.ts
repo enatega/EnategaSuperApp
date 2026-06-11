@@ -36,6 +36,12 @@ function isAppSettings(value: unknown): value is DeliveriesAppSettings {
     typeof value.is_maintenance_mode === 'boolean' &&
     (typeof value.maintenance_message === 'string' ||
       value.maintenance_message === null) &&
+    (typeof value.promotional_banner === 'string' ||
+      value.promotional_banner === null) &&
+    (typeof value.promotional_banner_title === 'string' ||
+      value.promotional_banner_title === null) &&
+    (typeof value.promotional_banner_description === 'string' ||
+      value.promotional_banner_description === null) &&
     (typeof value.primary_color === 'string' || value.primary_color === null) &&
     (typeof value.secondary_color === 'string' ||
       value.secondary_color === null) &&

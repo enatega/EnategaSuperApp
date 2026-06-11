@@ -1,5 +1,6 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import AuthIntroBannerScreen from "../screens/auth/AuthIntroBannerScreen";
 import Login from "../screens/auth/login/Login";
 import EnterPhoneNumber from "../screens/auth/enterPhoneNumber/EnterPhoneNumber";
 import Signup from "../screens/auth/signup/Signup";
@@ -11,12 +12,22 @@ import ForgetPasswordEnterOtp from "../screens/auth/forgetPasswordEnterOtp/Forge
 import EnterPhoneOtpLogin from "../screens/auth/enterPhoneOtpLogin/EnterPhoneOtpLogin";
 import EnterPhoneOtpSignup from "../screens/auth/enterPhoneOtpSignup/EnterPhoneOtpSignup";
 import EnterEmailOtpSignup from "../screens/auth/enterEmailOtpSignup/EnterEmailOtpSignup";
+import type { AuthStackParamList } from "./navigationTypes";
 
 const Stack = createNativeStackNavigator();
 
-export default function AuthNavigator() {
+type Props = {
+  initialRouteName?: keyof AuthStackParamList;
+};
+
+export default function AuthNavigator({ initialRouteName = "introBanner" }: Props) {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName={initialRouteName}>
+      <Stack.Screen
+        name="introBanner"
+        component={AuthIntroBannerScreen}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="login"
         component={Login}

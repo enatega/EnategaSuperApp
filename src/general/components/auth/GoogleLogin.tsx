@@ -1,9 +1,7 @@
 import React from "react";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { useGoogleLogin } from "../../hooks/useAuthMutations";
-import { getPendingAppRoute } from "../../navigation/pendingAppRedirect";
 import { showToast } from "../AppToast";
-import { useNavigation } from "@react-navigation/native";
 import Button from "../Button";
 import Svg from "../Svg";
 import { useTheme } from "../../theme/theme";
@@ -24,7 +22,6 @@ GoogleSignin.configure({
 const GoogleLogin = () => {
   const { colors } = useTheme();
   const { t } = useTranslation("general");
-  const navigation = useNavigation();
 
   const resolveGoogleLoginErrorMessage = (error: ApiError | Error | unknown) => {
     const apiError = error as ApiError | undefined;
@@ -51,11 +48,6 @@ const GoogleLogin = () => {
   const googleLoginMutation = useGoogleLogin({
     onSuccess: async () => {
       showToast.success("Success!", "Logged in successfully.");
-      const pendingRoute = await getPendingAppRoute();
-
-      if (!pendingRoute) {
-        navigation.navigate("Main" as never);
-      }
     },
     onError: (error) => {
       showToast.error("Error!", resolveGoogleLoginErrorMessage(error));
