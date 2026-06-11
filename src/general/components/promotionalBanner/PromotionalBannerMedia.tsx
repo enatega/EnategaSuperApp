@@ -7,9 +7,10 @@ import PromotionalBannerVideo from './PromotionalBannerVideo';
 
 type Props = {
   uri: string;
+  onVideoEnd?: () => void;
 };
 
-export default function PromotionalBannerMedia({ uri }: Props) {
+export default function PromotionalBannerMedia({ uri, onVideoEnd }: Props) {
   const { colors } = useTheme();
   const [isReady, setIsReady] = useState(false);
   const isVideo = isPromotionalBannerVideo(uri);
@@ -28,7 +29,11 @@ export default function PromotionalBannerMedia({ uri }: Props) {
       ) : null}
 
       {isVideo ? (
-        <PromotionalBannerVideo uri={uri} onReady={() => setIsReady(true)} />
+        <PromotionalBannerVideo
+          uri={uri}
+          onReady={() => setIsReady(true)}
+          onEnd={onVideoEnd}
+        />
       ) : (
         <Image
           fadeDuration={0}

@@ -47,7 +47,7 @@ export default function StartupPromotionalBannerModal({
           </Pressable>
 
           <View style={styles.mediaContainer}>
-            <PromotionalBannerMedia uri={mediaUri} />
+            <PromotionalBannerMedia uri={mediaUri} onVideoEnd={onClose} />
           </View>
         </View>
       </View>

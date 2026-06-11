@@ -7,7 +7,6 @@ import {
 } from 'react-native';
 import { useTranslations } from '../../localization/LocalizationProvider';
 import { useTheme } from '../../theme/theme';
-import Button from '../Button';
 import Text from '../Text';
 import PromotionalBannerMedia from './PromotionalBannerMedia';
 
@@ -74,12 +73,6 @@ export default function AuthenticatedPromotionalBannerModal({
                 {description}
               </Text>
             ) : null}
-
-            <Button
-              label={t('promotional_banner_primary_action')}
-              onPress={onClose}
-              style={styles.actionButton}
-            />
           </View>
         </Pressable>
       </Pressable>
@@ -97,8 +90,8 @@ const styles = StyleSheet.create({
   },
   sheet: {
     width: '100%',
-    minHeight: '54%',
-    maxHeight: '72%',
+    maxWidth: 420,
+    height: '80%',
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     borderBottomLeftRadius: 28,
@@ -117,19 +110,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   mediaContainer: {
+    flex: 1,
     width: '100%',
-    height: 280,
+    overflow: 'hidden',
   },
   content: {
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 28,
+    paddingBottom: 20,
     gap: 12,
   },
   description: {
     marginTop: -4,
-  },
-  actionButton: {
-    marginTop: 8,
   },
 });
