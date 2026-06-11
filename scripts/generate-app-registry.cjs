@@ -26,7 +26,8 @@ const APP_ROUTE_META = {
   appointments: {
     routeName: 'Appointments',
     navigatorImport: '../../appointments/navigation/AppointmentsNavigator',
-    paramsType: 'undefined',
+    paramsTypeImport: "import type { AppointmentsStackParamList } from '../../appointments/navigation/types';",
+    paramsType: 'NavigatorScreenParams<AppointmentsStackParamList> | undefined',
   },
   developerMode: {
     routeName: 'DeveloperMode',

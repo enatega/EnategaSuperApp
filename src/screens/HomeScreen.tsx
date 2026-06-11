@@ -154,7 +154,7 @@ export default function HomeScreen({ onSelectMiniApp }: Props) {
             <RecommendedStoresSection onSelectMiniApp={onSelectMiniApp} />
           ) : null}
           <HomeTravelBannerSection onPress={handleSelectTravelBanner} />
-          {/* <OurServicesSection onSelectMiniApp={onSelectMiniApp} /> */}
+          <OurServicesSection onSelectMiniApp={onSelectMiniApp} />
         </ScrollView>
       </SafeAreaView>
 

@@ -1,13 +1,14 @@
 import { createNavigationContainerRef } from '@react-navigation/native';
-import type { RootStackParamList, SharedAppRouteName, SharedStackParamList } from './navigationTypes';
+import type { RootStackParamList, SharedStackParamList } from './navigationTypes';
+import type { SharedAppRouteName } from '../../apps/registry/generated/appRegistry';
 import { clearPendingAppRoute, getPendingAppRoute, setActiveAppRoute } from './pendingAppRedirect';
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 export async function redirectToPendingAppIfNeeded() {
-  const routeName = await getPendingAppRoute();
+  const pendingRoute = await getPendingAppRoute();
 
-  if (!routeName || !navigationRef.isReady()) {
+  if (!pendingRoute || !navigationRef.isReady()) {
     return false;
   }
 
@@ -17,13 +18,14 @@ export async function redirectToPendingAppIfNeeded() {
       {
         name: 'Main',
         params: {
-          screen: routeName,
+          screen: pendingRoute.routeName,
+          params: pendingRoute.params,
         },
       },
     ],
   });
 
-  await setActiveAppRoute(routeName);
+  await setActiveAppRoute(pendingRoute.routeName);
   await clearPendingAppRoute();
   return true;
 }
