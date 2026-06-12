@@ -12,6 +12,28 @@ interface StoreDeliveryInfoProps {
   distance: number;
 }
 
+function hasNonZeroPrice(value: number) {
+  return Number.isFinite(value) && value > 0;
+}
+
+function hasNonZeroDeliveryTime(value: number | string) {
+  if (typeof value === "number") {
+    return Number.isFinite(value) && value > 0;
+  }
+
+  const normalizedValue = value.trim();
+  if (!normalizedValue) {
+    return false;
+  }
+
+  const numericValue = Number.parseFloat(normalizedValue);
+  if (Number.isNaN(numericValue)) {
+    return true;
+  }
+
+  return numericValue > 0;
+}
+
 function formatDeliveryTime(value: number | string) {
   if (typeof value === "string") {
     return value;
@@ -27,10 +49,11 @@ function formatPrice(value: number, currencyLabel: string) {
 export default function StoreDeliveryInfo({ price, deliveryTime, distance }: StoreDeliveryInfoProps) {
   const { colors } = useTheme();
   const currencyLabel = useDeliveriesCurrencyLabel();
+  const infoItems: React.ReactNode[] = [];
 
-  return (
-    <View style={styles.row}>
-      <View style={[styles.infoItem, { gap: 6 }]}>
+  if (hasNonZeroPrice(price)) {
+    infoItems.push(
+      <View key="price" style={[styles.infoItem, { gap: 6 }]}>
         <Icon
           type="Ionicons"
           name="bicycle"
@@ -45,15 +68,13 @@ export default function StoreDeliveryInfo({ price, deliveryTime, distance }: Sto
             {formatPrice(price, currencyLabel)}
           </Text>
         </View>
-      </View>
+      </View>,
+    );
+  }
 
-      <Icon
-        type="Entypo"
-        name="dot-single"
-        size={16}
-        color={colors.border}
-      />
-      <View style={styles.infoItem}>
+  if (hasNonZeroDeliveryTime(deliveryTime)) {
+    infoItems.push(
+      <View key="delivery-time" style={styles.infoItem}>
         <Icon
           type="Ionicons"
           name="time-outline"
@@ -66,28 +87,42 @@ export default function StoreDeliveryInfo({ price, deliveryTime, distance }: Sto
         >
           {formatDeliveryTime(deliveryTime)}
         </Text>
-      </View>
+      </View>,
+    );
+  }
 
+  infoItems.push(
+    <View key="distance" style={styles.infoItem}>
       <Icon
-        type="Entypo"
-        name="dot-single"
+        type="Ionicons"
+        name="location-outline"
         size={16}
-        color={colors.border}
+        color={colors.mutedText}
       />
-      <View style={styles.infoItem}>
-        <Icon
-          type="Ionicons"
-          name="location-outline"
-          size={16}
-          color={colors.mutedText}
-        />
-        <Text
-          weight="medium"
-          style={[styles.infoText, { color: colors.mutedText }]}
-        >
-          {distance} km
-        </Text>
-      </View>
+      <Text
+        weight="medium"
+        style={[styles.infoText, { color: colors.mutedText }]}
+      >
+        {distance} km
+      </Text>
+    </View>,
+  );
+
+  return (
+    <View style={styles.row}>
+      {infoItems.map((item, index) => (
+        <React.Fragment key={index}>
+          {index > 0 ? (
+            <Icon
+              type="Entypo"
+              name="dot-single"
+              size={16}
+              color={colors.border}
+            />
+          ) : null}
+          {item}
+        </React.Fragment>
+      ))}
     </View>
   );
 }

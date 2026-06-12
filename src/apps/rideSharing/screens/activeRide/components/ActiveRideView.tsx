@@ -16,6 +16,7 @@ import { useActiveRideCancellation } from '../hooks';
 import { getActiveRideDriverUserId } from '../../../utils/activeRideMapper';
 import { getRideChatBoxes, getRideChatBoxId, getRideChatParticipantId } from '../../../utils/rideChatMappers';
 import { isCourierRideRequest } from '../../../utils/courierBooking';
+import { resolveDropoffLocationLabel, resolvePickupLocationLabel } from '../../../utils/rideLocationLabels';
 import { openEmergencyDialer } from '../../../utils/safety';
 import ActiveRideMapLayer from './ActiveRideMapLayer';
 import ActiveRideBottomSheet from './ActiveRideBottomSheet';
@@ -287,13 +288,13 @@ function ActiveRideView({ activeRide }: Props) {
     ? { latitude: driverLocation.latitude, longitude: driverLocation.longitude }
     : undefined;
   const driverHeading = driverLocation?.heading;
-  const pickupLabel = activeRide.pickup_location;
+  const pickupLabel = resolvePickupLocationLabel(activeRide) ?? activeRide.pickup_location;
   const pickupCoordinates = readCoordinates(activeRide.pickup);
-  const fromAddress = rideId && activeRide.pickup_location && pickupCoordinates
+  const fromAddress = rideId && pickupLabel && pickupCoordinates
     ? createAddressSelection(rideId, 'pickup', pickupLabel, pickupCoordinates)
     : null;
   const dropoffCoordinates = readCoordinates(activeRide.dropoff);
-  const dropoffLabel = activeRide.dropoff_location;
+  const dropoffLabel = resolveDropoffLocationLabel(activeRide) ?? activeRide.dropoff_location;
   const toAddress = rideId && dropoffLabel && dropoffCoordinates
     ? createAddressSelection(rideId, 'dropoff', dropoffLabel, dropoffCoordinates)
     : null;

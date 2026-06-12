@@ -13,6 +13,7 @@ import { useTheme } from '../../../../../general/theme/theme';
 import { useFindingRideController } from '../hooks/useFindingRideController';
 import type { FindingRideViewProps } from '../types/view';
 import { isCourierRideRequest } from '../../../utils/courierBooking';
+import { resolveDropoffLocationLabel, resolvePickupLocationLabel } from '../../../utils/rideLocationLabels';
 import { useRideBidsStore } from '../../../stores/useRideBidsStore';
 import CancelRideBottomSheet from '../../../components/reservation/CancelRideBottomSheet';
 
@@ -122,24 +123,34 @@ export default function FindingRideView({
     () => readRequestCoordinates(activeRideRequest.dropoff),
     [activeRideRequest.dropoff],
   );
+  const pickupLabel = useMemo(
+    () => resolvePickupLocationLabel(activeRideRequest),
+    [activeRideRequest],
+  );
+  const dropoffLabel = useMemo(
+    () => resolveDropoffLocationLabel(activeRideRequest),
+    [activeRideRequest],
+  );
   const fromAddress = useMemo(() => toAddressSelection(
     activeRideRequest.id,
     'pickup',
-    activeRideRequest.pickup_location,
+    pickupLabel ?? activeRideRequest.pickup_location,
     pickupCoordinates!,
   ), [
     activeRideRequest.id,
     activeRideRequest.pickup_location,
+    pickupLabel,
     pickupCoordinates,
   ]);
   const toAddress = useMemo(() => toAddressSelection(
     activeRideRequest.id,
     'dropoff',
-    activeRideRequest.dropoff_location,
+    dropoffLabel ?? activeRideRequest.dropoff_location,
     dropoffCoordinates!,
   ), [
     activeRideRequest.dropoff_location,
     activeRideRequest.id,
+    dropoffLabel,
     dropoffCoordinates,
   ]);
   const stopAddresses = useMemo(() => (

@@ -20,7 +20,6 @@ export default function CartScreen() {
   const { showMutationError, showMutationSuccess } = useCartMutationFeedback();
   const navigation = useNavigation<NavigationProp<Record<string, object | undefined>>>();
   const [isClearCartVisible, setIsClearCartVisible] = React.useState(false);
-  const [isFeeModalVisible, setIsFeeModalVisible] = React.useState(false);
   const [updatingItemId, setUpdatingItemId] = React.useState<string | null>(null);
   const [pendingItemIds, setPendingItemIds] = React.useState<string[]>([]);
   const {
@@ -165,17 +164,14 @@ export default function CartScreen() {
         cart={cart}
         isClearCartVisible={isClearCartVisible}
         isClearingCart={isClearing}
-        isFeeModalVisible={isFeeModalVisible}
         isMutatingCart={isCartMutating}
         isUpdatingItemId={updatingItemId}
         navigation={navigation}
         onCloseClearCart={handleCloseClearCart}
-        onCloseFeeModal={() => setIsFeeModalVisible(false)}
         onConfirmClearCart={handleConfirmClearCart}
         onCheckoutPress={handleCheckoutPress}
         onItemPendingChange={handleItemPendingChange}
         onOpenClearCart={handleOpenClearCart}
-        onOpenFeeModal={() => setIsFeeModalVisible(true)}
         onRemoveItem={handleRemoveItem}
         onSetItemQuantity={handleSetItemQuantity}
         recommendations={recommendations}

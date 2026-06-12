@@ -11,6 +11,17 @@ interface StoreRatingProps {
   cuisine?: string;
 }
 
+function hasVisibleRating(rating?: number, reviewCount?: number) {
+  const hasPositiveRating =
+    typeof rating === "number" && Number.isFinite(rating) && rating > 0;
+  const hasPositiveReviewCount =
+    typeof reviewCount === "number" &&
+    Number.isFinite(reviewCount) &&
+    reviewCount > 0;
+
+  return hasPositiveRating || hasPositiveReviewCount;
+}
+
 function decodeDisplayText(value: string) {
   let decodedValue = value;
 
@@ -31,15 +42,24 @@ export default function StoreRating({
   cuisine,
 }: StoreRatingProps) {
   const { colors } = useTheme();
-  const hasRating = rating != null;
-  const hasReviewCount = reviewCount != null;
+  const shouldShowRatingBlock = hasVisibleRating(rating, reviewCount);
+  const hasRating = typeof rating === "number" && Number.isFinite(rating) && rating > 0;
+  const hasReviewCount =
+    typeof reviewCount === "number" &&
+    Number.isFinite(reviewCount) &&
+    reviewCount > 0;
   const hasCuisine = Boolean(cuisine);
   const resolvedCuisine = cuisine ? decodeDisplayText(cuisine) : undefined;
 
   return (
-    <View style={[styles.row, { justifyContent: "space-between" }]}>
+    <View
+      style={[
+        styles.row,
+        { justifyContent: shouldShowRatingBlock ? "space-between" : "flex-start" },
+      ]}
+    >
       <View style={styles.row}>
-        {hasRating && (
+        {shouldShowRatingBlock && hasRating ? (
           <View style={styles.ratingContainer}>
             <Icon
               type="AntDesign"
@@ -54,9 +74,9 @@ export default function StoreRating({
               {rating.toFixed(1)}
             </Text>
           </View>
-        )}
+        ) : null}
 
-        {hasReviewCount && (
+        {shouldShowRatingBlock && hasReviewCount ? (
           <Text
             weight="regular"
             style={[
@@ -70,14 +90,18 @@ export default function StoreRating({
           >
             ({reviewCount.toLocaleString()}+)
           </Text>
-        )}
+        ) : null}
       </View>
 
       {hasCuisine && (
         <Text
           weight="medium"
           color={colors.mutedText}
-          style={{ fontSize: 12, lineHeight: 18 }}
+          style={{
+            fontSize: 12,
+            lineHeight: 18,
+            marginLeft: shouldShowRatingBlock ? 0 : 4,
+          }}
         >
           {resolvedCuisine}
         </Text>

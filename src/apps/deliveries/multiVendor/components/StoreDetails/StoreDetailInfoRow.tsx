@@ -15,6 +15,17 @@ type Props = {
   email?: string | null;
 };
 
+function hasVisibleRating(rating?: number | null, reviewCount?: number | null) {
+  const hasPositiveRating =
+    typeof rating === 'number' && Number.isFinite(rating) && rating > 0;
+  const hasPositiveReviewCount =
+    typeof reviewCount === 'number' &&
+    Number.isFinite(reviewCount) &&
+    reviewCount > 0;
+
+  return hasPositiveRating || hasPositiveReviewCount;
+}
+
 export default function StoreDetailInfoRow({
   rating,
   reviewCount,
@@ -26,26 +37,35 @@ export default function StoreDetailInfoRow({
 }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
-  const hasRating = typeof rating === 'number';
-  const hasReviewCount = typeof reviewCount === 'number';
+  const shouldShowRatingBlock = hasVisibleRating(rating, reviewCount);
+  const hasRating =
+    typeof rating === 'number' && Number.isFinite(rating) && rating > 0;
+  const hasReviewCount =
+    typeof reviewCount === 'number' &&
+    Number.isFinite(reviewCount) &&
+    reviewCount > 0;
   const hasContact = Boolean(phone || email);
 
   return (
     <View style={styles.wrapper}>
       <View style={styles.metaRow}>
-        {hasRating ? (
+        {shouldShowRatingBlock ? (
           <View style={styles.metaItem}>
             <Icon color={colors.yellow500} name="star" size={14} type="Ionicons" />
-            <Text style={[styles.metaValue, { color: colors.text }]} weight="semiBold">
-              {rating.toFixed(1)}
-            </Text>
+            {hasRating ? (
+              <Text style={[styles.metaValue, { color: colors.text }]} weight="semiBold">
+                {rating.toFixed(1)}
+              </Text>
+            ) : null}
             {hasReviewCount ? (
               <Text style={[styles.metaText, { color: colors.mutedText }]}>({reviewCount})</Text>
             ) : null}
           </View>
         ) : null}
 
-        {hasRating && hours ? <View style={[styles.dot, { backgroundColor: colors.border }]} /> : null}
+        {shouldShowRatingBlock && hours ? (
+          <View style={[styles.dot, { backgroundColor: colors.border }]} />
+        ) : null}
 
         {hours ? <Text style={[styles.metaText, { color: colors.mutedText }]}>{hours}</Text> : null}
 

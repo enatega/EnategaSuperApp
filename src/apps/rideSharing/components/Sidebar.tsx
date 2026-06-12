@@ -17,6 +17,7 @@ import SidebarItem from "./SidebarItem";
 import Icon from "../../../general/components/Icon";
 import { useTheme } from "../../../general/theme/theme";
 import { useTranslation } from "react-i18next";
+import AppPopup from "../../../general/components/AppPopup";
 
 export type UserProfile = {
   name: string;
@@ -60,6 +61,7 @@ export default function Sidebar({
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation("rideSharing");
+  const [isLogoutConfirmVisible, setIsLogoutConfirmVisible] = React.useState(false);
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
   const sidebarWidth = React.useMemo(
@@ -253,7 +255,7 @@ export default function Sidebar({
                   style={[styles.logoutDivider, { backgroundColor: colors.border }]}
                 />
                 <TouchableOpacity
-                  onPress={onLogout}
+                  onPress={() => setIsLogoutConfirmVisible(true)}
                   style={[styles.logoutButton, { borderColor: colors.danger }]}
                 >
                   <Text
@@ -268,6 +270,27 @@ export default function Sidebar({
             ) : null}
           </ScrollView>
         </Animated.View>
+
+        <AppPopup
+          visible={isLogoutConfirmVisible}
+          title={t("logout_confirm_title")}
+          description={t("logout_confirm_message")}
+          onRequestClose={() => setIsLogoutConfirmVisible(false)}
+          dismissOnOverlayPress
+          primaryAction={{
+            label: t("logout_confirm_confirm"),
+            onPress: () => {
+              setIsLogoutConfirmVisible(false);
+              onLogout?.();
+            },
+            variant: "danger",
+          }}
+          secondaryAction={{
+            label: t("logout_confirm_cancel"),
+            onPress: () => setIsLogoutConfirmVisible(false),
+            variant: "secondary",
+          }}
+        />
       </View>
     </Modal>
   );

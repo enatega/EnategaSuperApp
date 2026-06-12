@@ -41,9 +41,9 @@ export default function SpecialOffersBannerCard({
 
       <View style={styles.bannerCard}>
         <LinearGradient
-          colors={['rgba(0, 0, 0, 0.08)', 'rgba(0, 0, 0, 0.72)']}
-          end={{ x: 0.9, y: 1 }}
-          start={{ x: 0.2, y: 0 }}
+          colors={['rgba(0, 0, 0, 0.2)', 'rgba(0, 0, 0, 0.52)', 'rgba(0, 0, 0, 0.88)']}
+          end={{ x: 0.95, y: 1 }}
+          start={{ x: 0.15, y: 0.1 }}
           style={styles.overlay}
         />
 
@@ -55,6 +55,9 @@ export default function SpecialOffersBannerCard({
               style={{
                 fontSize: typography.size.xs2,
                 lineHeight: typography.lineHeight.sm,
+                textShadowColor: 'rgba(0, 0, 0, 0.55)',
+                textShadowOffset: { width: 0, height: 1 },
+                textShadowRadius: 3,
               }}
             >
               {storeAddress}
@@ -66,8 +69,12 @@ export default function SpecialOffersBannerCard({
             numberOfLines={2}
             weight="extraBold"
             style={{
-              fontSize: typography.size.xl,
-              lineHeight: typography.lineHeight.xl,
+              fontSize: typography.size.lg,
+              lineHeight: 30,
+              letterSpacing: -0.3,
+              textShadowColor: 'rgba(0, 0, 0, 0.72)',
+              textShadowOffset: { width: 0, height: 2 },
+              textShadowRadius: 6,
             }}
           >
             {banner.title}
@@ -79,8 +86,11 @@ export default function SpecialOffersBannerCard({
               numberOfLines={3}
               weight="medium"
               style={{
-                fontSize: typography.size.sm2,
-                lineHeight: typography.lineHeight.md,
+                fontSize: typography.size.sm,
+                lineHeight: 22,
+                textShadowColor: 'rgba(0, 0, 0, 0.65)',
+                textShadowOffset: { width: 0, height: 1 },
+                textShadowRadius: 4,
               }}
             >
               {description}

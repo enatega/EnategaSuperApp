@@ -40,7 +40,12 @@ export default function SettingsItem({
               style={styles.icon}
             />
           ) : null}
-          <Text variant="subtitle" weight="semiBold" color={colors.text}>
+          <Text
+            variant="subtitle"
+            weight="semiBold"
+            color={colors.text}
+            style={styles.titleText}
+          >
             {title}
           </Text>
         </View>
@@ -114,6 +119,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     gap: 12,
+    minWidth: 0,
   },
   icon: {
     width: 24,
@@ -123,9 +129,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    flexShrink: 1,
+    marginLeft: 12,
+  },
+  titleText: {
+    flexShrink: 1,
   },
   valueText: {
     maxWidth: 150,
+    flexShrink: 1,
+    textAlign: 'right',
   },
   radioOuter: {
     width: 20,

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
@@ -19,6 +19,7 @@ import ProfileMenuItem from '../../components/profile/ProfileMenuItem';
 import ProfileMenuSection from '../../components/profile/ProfileMenuSection';
 import ProfileSkeleton from '../../components/profile/ProfileSkeleton';
 import WalletCard from '../../components/profile/WalletCard';
+import AppPopup from '../../components/AppPopup';
 
 const ICON_SIZE = 20;
 
@@ -51,6 +52,7 @@ export default function ProfileTabScreen({
   const navigation =
     useNavigation<NavigationProp<ProfileTabNavigationParamList>>();
   const logoutMutation = useAppLogout();
+  const [isLogoutConfirmVisible, setIsLogoutConfirmVisible] = useState(false);
 
   const handleLogout = useCallback(async () => {
     await logoutMutation.mutateAsync();
@@ -140,11 +142,32 @@ export default function ProfileTabScreen({
         <ProfileMenuItem
           icon={<Ionicons name="log-out-outline" size={ICON_SIZE} color={iconColor} />}
           label={t('profile_menu_logout')}
-          onPress={() => {
-            void handleLogout();
-          }}
+          onPress={() => setIsLogoutConfirmVisible(true)}
         />
       </ProfileMenuSection>
+
+      <AppPopup
+        visible={isLogoutConfirmVisible}
+        title={t('logout_confirm_title')}
+        description={t('logout_confirm_message')}
+        onRequestClose={() => setIsLogoutConfirmVisible(false)}
+        dismissOnOverlayPress
+        primaryAction={{
+          label: t('logout_confirm_confirm'),
+          onPress: () => {
+            setIsLogoutConfirmVisible(false);
+            void handleLogout();
+          },
+          variant: 'danger',
+          isLoading: logoutMutation.isPending,
+        }}
+        secondaryAction={{
+          label: t('logout_confirm_cancel'),
+          onPress: () => setIsLogoutConfirmVisible(false),
+          variant: 'secondary',
+          disabled: logoutMutation.isPending,
+        }}
+      />
     </ScrollView>
   );
 }
