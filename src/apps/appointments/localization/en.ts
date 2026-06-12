@@ -18,6 +18,12 @@ const en = {
   mode_screen_subtitle: '{{mode}} workspace',
   mode_screen_body: 'This is the {{screen}} placeholder for {{mode}} appointments.',
   mode_screen_note: 'Appointments structure is ready for feature-specific screens, hooks, and data layers.',
+  multi_vendor_home_intro_title: 'Address-based discovery is ready',
+  multi_vendor_home_intro_body:
+    'Open the address selector to choose a saved address, use your current location, or add a new one just like the deliveries flow.',
+  multi_vendor_home_next_step_title: 'Next we can build the listing sections',
+  multi_vendor_home_next_step_body:
+    'Once the address flow is in place, we can connect nearby clinics, categories, and appointment cards to this home screen.',
 };
 
 export default en;

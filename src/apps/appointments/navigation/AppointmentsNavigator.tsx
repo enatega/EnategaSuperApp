@@ -5,6 +5,9 @@ import AppointmentDetails from '../screens/AppointmentDetails';
 import ChainNavigator from '../chain/navigation/ChainNavigator';
 import MultiVendorNavigator from '../multiVendor/navigation/MultiVendorNavigator';
 import SingleVendorNavigator from '../singleVendor/navigation/SingleVendorNavigator';
+import AddressSearchScreen from '../../../general/screens/address/AddressSearchScreen';
+import AddressChooseOnMapScreen from '../../../general/screens/address/AddressChooseOnMapScreen';
+import AddressDetailScreen from '../../../general/screens/address/AddressDetailScreen';
 import { useTranslation } from 'react-i18next';
 import type { AppointmentsStackParamList } from './types';
 
@@ -39,6 +42,21 @@ export default function AppointmentsNavigator() {
       <Stack.Screen
         name="Chain"
         component={ChainNavigator}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="AddressSearch"
+        component={AddressSearchScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="AddressChooseOnMap"
+        component={AddressChooseOnMapScreen}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="AddressDetail"
+        component={AddressDetailScreen}
         options={hiddenHeaderOptions}
       />
     </Stack.Navigator>
