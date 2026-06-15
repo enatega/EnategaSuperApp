@@ -84,9 +84,9 @@ export default function ItemInfo({
             {priceLabel}
           </Text>
           {offerLabel ? (
-            <View style={[styles.offerBadge, { backgroundColor: colors.primary }]}>
+            <View style={[styles.offerBadge, { backgroundColor: colors.secondary }]}>
               <Text
-                color={colors.white}
+                color={colors.blue800}
                 weight="medium"
                 style={{
                   fontSize: typography.size.xxs,

@@ -1,3 +1,4 @@
+import type { DeliveriesAppSettings } from '../stores/useAppConfigStore';
 import { resolveThemeColors, type ThemeColors, type ThemedMiniAppId } from './colors';
 import { typography } from './typography';
 
@@ -10,11 +11,16 @@ export type Theme = {
 export const buildTheme = (
   scheme: 'light' | 'dark' | null,
   activeMiniApp: ThemedMiniAppId = 'general',
+  deliveriesAppSettings?: DeliveriesAppSettings | null,
 ): Theme => {
   const isDark = scheme === 'dark';
   return {
     isDark,
-    colors: resolveThemeColors(isDark ? 'dark' : 'light', activeMiniApp),
+    colors: resolveThemeColors(
+      isDark ? 'dark' : 'light',
+      activeMiniApp,
+      deliveriesAppSettings,
+    ),
     typography,
   };
 };
