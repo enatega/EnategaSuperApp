@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Skeleton from '../../../../general/components/Skeleton';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import type { WalletBalance } from '../../types/wallet';
@@ -9,6 +10,7 @@ type Props = {
   balance: WalletBalance;
   balanceLabel: string;
   addFundsLabel: string;
+  isLoading?: boolean;
   onAddFunds: () => void;
 };
 
@@ -16,6 +18,7 @@ export default function BalanceCard({
   balance,
   balanceLabel,
   addFundsLabel,
+  isLoading = false,
   onAddFunds,
 }: Props) {
   const { colors, typography } = useTheme();
@@ -37,14 +40,25 @@ export default function BalanceCard({
           color={colors.text}
           style={{ fontSize: 32, lineHeight: 38, letterSpacing: -0.48 }}
         >
-          {balance.currency} {balance.amount.toFixed(2)}
+          {isLoading ? null : `${balance.currency} ${balance.amount.toFixed(2)}`}
         </Text>
+        {isLoading ? (
+          <Skeleton
+            width={220}
+            height={38}
+            borderRadius={10}
+          />
+        ) : null}
       </View>
       <Pressable
         onPress={onAddFunds}
+        disabled={isLoading}
         style={({ pressed }) => [
           styles.addButton,
-          { backgroundColor: colors.findingRidePrimary, opacity: pressed ? 0.85 : 1 },
+          {
+            backgroundColor: colors.findingRidePrimary,
+            opacity: isLoading ? 0.6 : pressed ? 0.85 : 1,
+          },
         ]}
         accessibilityRole="button"
         accessibilityLabel={addFundsLabel}

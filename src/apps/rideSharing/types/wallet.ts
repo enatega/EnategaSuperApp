@@ -15,9 +15,12 @@ export type PaymentCardBrand = 'visa' | 'mastercard';
 
 export type PaymentCard = {
   id: string;
+  paymentMethodId: string;
   brand: PaymentCardBrand;
   lastFour: string;
   expiryDate: string;
+  isDefault?: boolean;
+  holderName?: string | null;
 };
 
 export type WalletBalance = {

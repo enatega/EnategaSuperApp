@@ -14,6 +14,7 @@ import useDeliveriesSeeAllScreenConfig from './useDeliveriesSeeAllScreenConfig';
 import useDeliveriesSeeAllScreenState from './useDeliveriesSeeAllScreenState';
 import type { DeliveryNearbyStore } from '../../api/types';
 import AppPopup from '../../../../general/components/AppPopup';
+import { G } from 'react-native-svg';
 
 type NavigationProp = NativeStackNavigationProp<DeliveriesSeeAllParamList>;
 type SeeAllRouteProp = RouteProp<DeliveriesSeeAllParamList, 'SeeAllScreen'>;
@@ -65,11 +66,14 @@ export default function DeliveriesSeeAllScreen() {
     categoryId,
   });
 
+
   const items = listQuery.data ?? [];
   const closedStoreTypeName = useMemo(
     () => selectedClosedStore?.shopTypeName?.trim() || t('store_details_closed_store_fallback_name', { ns: 'deliveries' }),
     [selectedClosedStore?.shopTypeName, t],
   );
+
+  console.log("my items are :", items);
   const isMapVisible =
     cardType === 'product'
       ? false

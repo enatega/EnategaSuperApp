@@ -68,12 +68,14 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
 export const MOCK_PAYMENT_CARDS: PaymentCard[] = [
   {
     id: 'card_1',
+    paymentMethodId: 'pm_xxxxxxxxx',
     brand: 'mastercard',
     lastFour: '1412',
     expiryDate: '12/26',
   },
   {
     id: 'card_2',
+    paymentMethodId: 'pm_yyyyyyyyy',
     brand: 'visa',
     lastFour: '9432',
     expiryDate: '08/27',

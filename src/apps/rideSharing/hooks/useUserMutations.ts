@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { rideKeys, userKeys } from '../api/queryKeys';
 import { rideService } from '../api/rideService';
 import { userService } from '../api/userService';
+import type { ProfileAppPrefix } from '../../../general/api/profileService';
 import type {
     UpdateUserPayload,
     UpdateProfileImagePayload,
@@ -66,16 +67,27 @@ export function useUpdatePassword() {
     });
 }
 
-export function useWalletTopUp() {
+export function useWalletTopUp(appPrefix: ProfileAppPrefix) {
     const queryClient = useQueryClient();
 
     return useMutation<WalletTopUpResponse, ApiError, WalletTopUpPayload>({
-        mutationFn: (payload) => userService.topUpWallet(payload),
+        mutationFn: (payload) => {
+            console.log('[useWalletTopUp] mutate called with payload', {
+                appPrefix,
+                payload,
+            });
+            return userService.topUpWallet(appPrefix, payload);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: userKeys.walletBalance() });
         },
         onError: (error) => {
-            console.error('[useWalletTopUp] Failed:', error.message);
+            console.error('[useWalletTopUp] Failed:', {
+                message: error.message,
+                status: error.status,
+                code: error.code,
+                data: error.data,
+            });
         },
     });
 }

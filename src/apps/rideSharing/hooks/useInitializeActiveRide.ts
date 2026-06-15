@@ -13,6 +13,11 @@ type Options = {
 
 const MAX_BOOTSTRAP_RETRIES = 2;
 const BOOTSTRAP_RETRY_DELAY_MS = 450;
+const WALLET_ROUTE_NAMES = new Set([
+  'WalletHome',
+  'WalletAddFunds',
+  'WalletAddCard',
+]);
 
 function delay(ms: number) {
   return new Promise((resolve) => {
@@ -63,7 +68,11 @@ export default function useInitializeActiveRide(options?: Options) {
             setActiveRide(nextActiveRide);
 
             const navigationState = navigation.getState();
-            if (navigationState.index > 0) {
+            const activeRouteName = navigationState.routes[navigationState.index]?.name;
+            if (
+              navigationState.index > 0 &&
+              !WALLET_ROUTE_NAMES.has(String(activeRouteName))
+            ) {
               navigation.reset({
                 index: 0,
                 routes: [{ name: 'RideSharingHome' }],

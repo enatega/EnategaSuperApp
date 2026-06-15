@@ -25,6 +25,7 @@ import RiderChatScreen from '../screens/riderChat/RiderChatScreen';
 import SafetyScreen from '../screens/safety/SafetyScreen';
 import WalletHomeScreen from '../screens/wallet/WalletHomeScreen';
 import AddFundsScreen from '../screens/wallet/AddFundsScreen';
+import AddCardScreen from '../screens/wallet/AddCardScreen';
 import RideSupportChatScreen from '../screens/support/RideSupportChatScreen';
 import NotificationsScreen from '../screens/notifications/NotificationsScreen';
 import NotificationDetailScreen from '../screens/notifications/NotificationDetailScreen';
@@ -135,6 +136,7 @@ export type RideSharingStackParamList = {
   } | undefined;
   WalletHome: undefined;
   WalletAddFunds: undefined;
+  WalletAddCard: undefined;
   Notifications: undefined;
   RideHistory: undefined;
   NotificationDetail: {
@@ -261,6 +263,11 @@ export default function RideSharingNavigator() {
       <Stack.Screen
         name="WalletAddFunds"
         component={AddFundsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="WalletAddCard"
+        component={AddCardScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen

@@ -9,6 +9,8 @@ import {
     userService,
     type UserNotificationsResponse,
     type WalletBalanceResponse,
+    type WalletTransactionHistoryFilter,
+    type WalletTransactionHistoryResponse,
 } from '../api/userService';
 import type { UserApiData } from '../api/types';
 import { ApiError } from '../../../general/api/apiClient';
@@ -43,6 +45,41 @@ export function useWalletBalance(options?: UseWalletBalanceOptions) {
         queryFn: () => userService.getWalletBalance(),
         staleTime: 60 * 1000,
         ...options,
+    });
+}
+
+const DEFAULT_WALLET_TRANSACTIONS_LIMIT = 10;
+
+export function useWalletTransactions(
+    filter?: WalletTransactionHistoryFilter,
+    limit = DEFAULT_WALLET_TRANSACTIONS_LIMIT,
+) {
+    return useInfiniteQuery<WalletTransactionHistoryResponse, ApiError>({
+        queryKey: userKeys.walletTransactions(filter ?? 'all', limit),
+        queryFn: ({ pageParam = 1 }) =>
+            userService.getWalletTransactions({
+                filter,
+                offset: pageParam as number,
+                limit,
+            }),
+        initialPageParam: 1,
+        getNextPageParam: (lastPage) => {
+            if (lastPage.isEnd) {
+                return undefined;
+            }
+
+            const currentOffset = lastPage.offset ?? 0;
+            const currentLimit = lastPage.limit ?? limit;
+            const currentPageSize = lastPage.data?.length ?? 0;
+            const nextOffset = currentOffset + 1;
+
+            if (typeof lastPage.total === 'number') {
+                return currentOffset * currentLimit < lastPage.total ? nextOffset : undefined;
+            }
+
+            return currentPageSize >= currentLimit ? nextOffset : undefined;
+        },
+        staleTime: 60 * 1000,
     });
 }
 

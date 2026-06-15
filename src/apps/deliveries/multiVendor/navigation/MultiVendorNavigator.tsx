@@ -11,6 +11,7 @@ import ShopTypesSeeAll from '../screens/ShopTypesSeeAll/ShopTypesSeeAll';
 import CategoriesSeeAll from '../screens/CategoriesSeeAll/CategoriesSeeAll';
 import TopBrandsSeeAll from '../screens/TopBrandsSeeAll/TopBrandsSeeAll';
 import MainSeeAllScreen from '../screens/MainSeeAllScreen';
+import DeliveriesSeeAllScreen from '../../screens/SeeAllScreen/DeliveriesSeeAllScreen';
 
 const Stack = createNativeStackNavigator<MultiVendorStackParamList>();
 
@@ -59,6 +60,11 @@ export default function MultiVendorNavigator() {
       <Stack.Screen
         name="TopBrandsSeeAll"
         component={TopBrandsSeeAll}
+        options={hiddenHeaderOptions}
+      />
+      <Stack.Screen
+        name="SeeAllScreen"
+        component={DeliveriesSeeAllScreen}
         options={hiddenHeaderOptions}
       />
       <Stack.Screen

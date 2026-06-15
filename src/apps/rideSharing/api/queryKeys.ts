@@ -74,6 +74,8 @@ export const userKeys = {
   /** Current authenticated user profile. */
   profile: () => [...userKeys.all, 'profile'] as const,
   walletBalance: () => [...userKeys.all, 'wallet-balance'] as const,
+  walletTransactions: (filter: string, limit: number) =>
+    [...userKeys.all, 'wallet-transactions', filter, limit] as const,
   notifications: () => [...userKeys.all, 'notifications'] as const,
   notificationsToday: (userId: string, limit: number, search?: string) =>
     [...userKeys.notifications(), 'today', userId, limit, search ?? ''] as const,

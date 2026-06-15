@@ -1,4 +1,6 @@
-import apiClient from '../../../general/api/apiClient';
+import apiClient, { ApiError, tokenManager } from '../../../general/api/apiClient';
+import { apiConfig } from '../../../general/config/apiConfig';
+import type { ProfileAppPrefix } from '../../../general/api/profileService';
 import type { UserApiData, UserApiResponse } from './types';
 
 // ---------------------------------------------------------------------------
@@ -31,12 +33,50 @@ export type WalletBalanceResponse = {
 export type WalletTopUpPayload = {
     amount: number;
     currency: string;
+    paymentMethodId: string;
 };
 
 export type WalletTopUpResponse = {
-    checkoutUrl: string;
-    sessionId: string;
-    mode: string;
+    message: string;
+    paymentIntentId: string;
+    status: string;
+    type: string;
+    stripeCustomerId?: string;
+};
+
+export type WalletTransactionHistoryFilter = 'deposit' | 'booking';
+
+type WalletTransactionHistoryApiItem = {
+    id?: string;
+    type?: string;
+    status?: string;
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    message?: string;
+    amount?: number | string;
+    transactionAmount?: number | string;
+    paymentAmount?: number | string;
+    value?: number | string;
+    createdAt?: string;
+    created_at?: string;
+};
+
+export type WalletTransactionHistoryResponse = {
+    data: WalletTransactionHistoryApiItem[];
+    total?: number;
+    offset?: number;
+    limit?: number;
+    isEnd?: boolean;
+};
+
+type WalletTransactionHistoryApiResponse = {
+    data?: WalletTransactionHistoryApiItem[];
+    transactions?: WalletTransactionHistoryApiItem[];
+    total?: number;
+    offset?: number;
+    limit?: number;
+    isEnd?: boolean;
 };
 
 export type UserNotificationsQueryParams = {
@@ -61,6 +101,28 @@ export type UserNotificationsResponse = {
     nextOffset: number | null;
 };
 
+function buildApiUrl(path: string) {
+    const normalizedBaseUrl = apiConfig.baseUrl.replace(/\/+$/, '');
+    return `${normalizedBaseUrl}${path}`;
+}
+
+function readNumber(...values: unknown[]) {
+    for (const value of values) {
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return value;
+        }
+
+        if (typeof value === 'string') {
+            const parsedValue = Number.parseFloat(value);
+            if (Number.isFinite(parsedValue)) {
+                return parsedValue;
+            }
+        }
+    }
+
+    return 0;
+}
+
 export const userService = {
     // ── Queries ───────────────────────────────────────────────────────────
 
@@ -74,9 +136,95 @@ export const userService = {
     getWalletBalance: async (): Promise<WalletBalanceResponse> =>
         apiClient.get<WalletBalanceResponse>('/api/v1/apps/ride-hailing/wallet/balance/customer'),
 
-    /** Create a Stripe checkout session for wallet top-up. */
-    topUpWallet: async (payload: WalletTopUpPayload): Promise<WalletTopUpResponse> =>
-        apiClient.post<WalletTopUpResponse>('/api/v1/wallet/topup', payload),
+    /** Fetch customer wallet transaction history. */
+    getWalletTransactions: async (input: {
+        filter?: WalletTransactionHistoryFilter;
+        offset?: number;
+        limit?: number;
+    }): Promise<WalletTransactionHistoryResponse> =>
+        apiClient.get<WalletTransactionHistoryApiResponse>(
+            '/api/v1/apps/ride-hailing/wallet/transaction-history/customer',
+            {
+                filter: input.filter,
+                offset: input.offset ?? 1,
+                limit: input.limit ?? 10,
+            },
+        ).then((response) => {
+            const sourceTransactions = response.transactions ?? response.data ?? [];
+            const normalizedResponse = {
+                data: sourceTransactions.map((item, index) => ({
+                    ...item,
+                    id: item.id ?? `wallet_transaction_${input.offset ?? 1}_${index}`,
+                    amount: readNumber(
+                        item.amount,
+                        item.transactionAmount,
+                        item.paymentAmount,
+                        item.value,
+                    ),
+                })),
+                total: response.total,
+                offset: response.offset ?? input.offset ?? 1,
+                limit: response.limit ?? input.limit ?? 10,
+                isEnd: response.isEnd,
+            };
+
+            console.log('[userService.getWalletTransactions] Response', {
+                filter: input.filter ?? 'all',
+                requestedOffset: input.offset ?? 1,
+                requestedLimit: input.limit ?? 10,
+                responseKeys: Object.keys(response),
+                receivedCount: normalizedResponse.data.length,
+                total: normalizedResponse.total,
+                offset: normalizedResponse.offset,
+                limit: normalizedResponse.limit,
+                isEnd: normalizedResponse.isEnd,
+            });
+
+            return normalizedResponse;
+        }),
+
+    /** Charge a saved card for wallet top-up. */
+    topUpWallet: async (
+        appPrefix: ProfileAppPrefix,
+        payload: WalletTopUpPayload,
+    ): Promise<WalletTopUpResponse> => {
+        const path = `/api/v1/apps/${appPrefix}/wallet/topup`;
+        const token = await tokenManager.getToken();
+
+        console.log('[userService.topUpWallet] Request', {
+            appPrefix,
+            url: buildApiUrl(path),
+            hasAuthToken: Boolean(token),
+            payload,
+        });
+
+        try {
+            const response = await apiClient.post<WalletTopUpResponse>(path, payload);
+            console.log('[userService.topUpWallet] Response', response);
+            return response;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                console.error('[userService.topUpWallet] ApiError', {
+                    appPrefix,
+                    url: buildApiUrl(path),
+                    status: error.status,
+                    message: error.message,
+                    code: error.code,
+                    data: error.data,
+                    payload,
+                });
+            } else {
+                console.error('[userService.topUpWallet] Unknown error', {
+                    appPrefix,
+                    url: buildApiUrl(path),
+                    payload,
+                    error,
+                });
+            }
+
+            throw error;
+        }
+    },
 
     /** Fetch today's notifications for a ride-hailing user. */
     getTodayNotifications: async (

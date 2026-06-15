@@ -101,7 +101,7 @@ export const walletSavedCardsService = {
       total?: number;
       offset?: number;
       limit?: number;
-    }>(`/api/v1/apps/${appPrefix}/wallet/transaction-history`, input).then((response) => ({
+    }>(`/api/v1/apps/${appPrefix}/wallet/transaction-history/customer`, input).then((response) => ({
       data: (response.data ?? []).map(mapWalletTransaction),
       total: response.total,
       offset: response.offset,
