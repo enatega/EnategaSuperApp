@@ -12,6 +12,8 @@ type Props = {
   width: number;
   sidePadding: number;
   onPress?: () => void;
+  isClosed?: boolean;
+  closedLabel?: string;
 };
 
 export default function SpecialOffersBannerCard({
@@ -19,6 +21,8 @@ export default function SpecialOffersBannerCard({
   width,
   sidePadding,
   onPress,
+  isClosed = false,
+  closedLabel,
 }: Props) {
   const { colors, typography } = useTheme();
   const videoUri = banner.bannerVideoLink?.trim() ?? '';
@@ -47,6 +51,18 @@ export default function SpecialOffersBannerCard({
           style={styles.overlay}
         />
 
+        {isClosed ? (
+          <View style={styles.closedOverlay}>
+            <Text
+              color={colors.white}
+              style={styles.closedLabel}
+              weight="bold"
+            >
+              {closedLabel}
+            </Text>
+          </View>
+        ) : null}
+
         <View style={styles.content}>
           {storeAddress ? (
             <Text
@@ -70,7 +86,7 @@ export default function SpecialOffersBannerCard({
             weight="extraBold"
             style={{
               fontSize: typography.size.lg,
-              lineHeight: 30,
+              lineHeight: 18,
               letterSpacing: -0.3,
               textShadowColor: 'rgba(0, 0, 0, 0.72)',
               textShadowOffset: { width: 0, height: 2 },
@@ -87,7 +103,7 @@ export default function SpecialOffersBannerCard({
               weight="medium"
               style={{
                 fontSize: typography.size.sm,
-                lineHeight: 22,
+                lineHeight: 16,
                 textShadowColor: 'rgba(0, 0, 0, 0.65)',
                 textShadowOffset: { width: 0, height: 1 },
                 textShadowRadius: 4,
@@ -118,6 +134,18 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
+  },
+  closedOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.42)',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  closedLabel: {
+    fontSize: 14,
+    lineHeight: 18,
+    letterSpacing: 0.3,
   },
   content: {
     gap: 8,

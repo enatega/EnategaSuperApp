@@ -9,6 +9,7 @@ type Props = {
   rating?: number | null;
   reviewCount?: number | null;
   hours?: string | null;
+  isClosed?: boolean;
   deliveryFee?: string | null;
   distance?: string | null;
   phone?: string | null;
@@ -30,6 +31,7 @@ export default function StoreDetailInfoRow({
   rating,
   reviewCount,
   hours,
+  isClosed = false,
   deliveryFee,
   distance,
   phone,
@@ -67,7 +69,17 @@ export default function StoreDetailInfoRow({
           <View style={[styles.dot, { backgroundColor: colors.border }]} />
         ) : null}
 
-        {hours ? <Text style={[styles.metaText, { color: colors.mutedText }]}>{hours}</Text> : null}
+        {hours ? (
+          <Text
+            style={[
+              styles.metaText,
+              { color: isClosed ? colors.danger : colors.mutedText },
+            ]}
+            weight={isClosed ? 'semiBold' : 'regular'}
+          >
+            {hours}
+          </Text>
+        ) : null}
 
         {hours && deliveryFee ? (
           <View style={[styles.dot, { backgroundColor: colors.border }]} />

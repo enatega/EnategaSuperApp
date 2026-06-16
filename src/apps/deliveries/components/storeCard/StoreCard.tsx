@@ -78,9 +78,9 @@ export default function StoreCard({
   const isPressable = Boolean(onPress) || !isProductItem;
   const resolvedImageUrl = isProductItem
     ? store.productImage ||
-      store.storeImage ||
-      store.storeLogo ||
-      "https://placehold.co/400x400.png"
+    store.storeImage ||
+    store.storeLogo ||
+    "https://placehold.co/400x400.png"
     : store.coverImage || store.logo || "https://placehold.co/400x400.png";
   const resolvedOffer = resolveOfferLabel(
     store.dealAmount,
@@ -102,7 +102,7 @@ export default function StoreCard({
     : store.deliveryTime ?? 0;
   const resolvedDistance = store.distanceKm ?? 0;
   const isClosedStore =
-    !isProductItem && showClosedOverlay && store.isAvailable === false;
+    !isProductItem && showClosedOverlay && store.isOpen === false;
 
   const handlePress = useCallback(() => {
     if (isClosedStore) {

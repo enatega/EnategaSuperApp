@@ -16,7 +16,7 @@ export type CheckoutScheduleDayOption = {
 
 export type CheckoutScheduleSlot = {
   id: string;
-  isAvailable: boolean;
+  isOpen: boolean;
   label: string;
   scheduledAt: string;
 };
@@ -125,10 +125,10 @@ export function buildCheckoutScheduleSlots(
   const slotsSource = selectedDay?.slots ?? [];
 
   return slotsSource
-    .filter((slot) => slot.isAvailable !== false)
+    .filter((slot) => slot.isOpen !== false)
     .map((slot, index) => ({
       id: `${selectedDayKey}-${slot.start}-${slot.end}-${index}`,
-      isAvailable: slot.isAvailable !== false,
+      isOpen: slot.isOpen !== false,
       label: formatScheduleSlotLabel(slot),
       scheduledAt: buildScheduledAt(selectedDayKey, slot.start),
     }))

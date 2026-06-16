@@ -26,6 +26,7 @@ type Props = {
   email?: string | null;
   heroTitle: string;
   hours?: string | null;
+  isClosed?: boolean;
   logoImageUrl: string;
   onBackPress: () => void;
   onCategorySelect: (categoryId: string | null) => void;
@@ -55,6 +56,7 @@ export default function StoreDetailListHeader({
   email,
   heroTitle,
   hours,
+  isClosed = false,
   logoImageUrl,
   onBackPress,
   onCategorySelect,
@@ -172,6 +174,7 @@ export default function StoreDetailListHeader({
           distance={distance}
           email={email}
           hours={hours}
+          isClosed={isClosed}
           phone={phone}
           rating={rating}
           reviewCount={reviewCount}

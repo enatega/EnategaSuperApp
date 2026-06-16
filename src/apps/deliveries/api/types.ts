@@ -123,14 +123,14 @@ export interface DeliveryFilterValuePriceTier {
     min: number;
     max: number | null;
     productCount: number;
-    isAvailable: boolean;
+    isOpen: boolean;
 }
 
 export interface DeliveryFilterValueStockOption {
     value: string;
     label: string;
     productCount: number;
-    isAvailable: boolean;
+    isOpen: boolean;
 }
 
 export interface DeliveryFilterValueSortOption {
@@ -180,6 +180,7 @@ export interface DeliveryNearbyStore {
     baseFee?: number | null;
     distanceKm?: number | null;
     isAvailable?: boolean;
+    isOpen?: boolean;
     deal?: string | null;
     dealType?: string | null;
     dealAmount?: number | null;
@@ -310,17 +311,17 @@ export interface DeliveryOrderAgainItem {
     storeImage?: string | null;
     price?: number | null;
     deal?:
-        | string
-        | {
-              id?: string;
-              deal_name?: string;
-              discount_type?: string;
-              discount_value?: number;
-              discounted_price?: number;
-              start_date?: string;
-              end_date?: string;
-          }
-        | null;
+    | string
+    | {
+        id?: string;
+        deal_name?: string;
+        discount_type?: string;
+        discount_value?: number;
+        discounted_price?: number;
+        start_date?: string;
+        end_date?: string;
+    }
+    | null;
     dealType?: string | null;
     dealAmount?: number | null;
     discountedPrice?: number | null;

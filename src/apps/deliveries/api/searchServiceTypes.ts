@@ -98,6 +98,7 @@ export type SearchStoreItem = {
   baseFee: number;
   distanceKm: number;
   isAvailable: boolean;
+  isOpen: boolean;
   deal: string | null;
   dealType: string | null;
   dealAmount: number | null;

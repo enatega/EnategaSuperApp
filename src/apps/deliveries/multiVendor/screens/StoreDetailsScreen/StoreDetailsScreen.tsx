@@ -13,7 +13,6 @@ import { useTheme } from '../../../../../general/theme/theme';
 import { useStoreProducts, useStoreView } from '../../../hooks';
 import type {
   DeliveryNearbyStore,
-  DeliveryStoreTimings,
 } from '../../../api/types';
 import StoreDetailListHeader from '../../components/StoreDetails/StoreDetailListHeader';
 import StoreDetailProductsList from '../../components/StoreDetails/StoreDetailProductsList';
@@ -22,6 +21,10 @@ import DeliveriesFloatingCartButton from '../../../components/navigation/Deliver
 import { useToggleFavouriteMutation } from '../../hooks/useToggleFavouriteMutation';
 import type { MultiVendorStackParamList } from '../../navigation/types';
 import type { DeliveryProductActionTarget } from '../../../cart/productActionTypes';
+import {
+  getTodayStoreHours,
+  isStoreEffectivelyClosed,
+} from '../../../utils/storeAvailability';
 // import { data } from './storedetaiolsData';
 
 type StoreDetailsParamList = {
@@ -32,36 +35,6 @@ type StoreDetailsParamList = {
 
 const SEARCH_DEBOUNCE_MS = 450;
 const MIN_SEARCH_QUERY_LENGTH = 2;
-
-function getTodayStoreHours(
-  storeTimings?: DeliveryStoreTimings | null,
-  fallback?: string,
-) {
-  if (!storeTimings) {
-    return fallback ?? null;
-  }
-
-  const dayKey = new Intl.DateTimeFormat('en-US', { weekday: 'long' })
-    .format(new Date())
-    .toLowerCase();
-  const daySchedule = storeTimings[dayKey];
-
-  if (!daySchedule) {
-    return fallback ?? null;
-  }
-
-  if (!daySchedule.is_active || daySchedule.slots.length === 0) {
-    return fallback ?? null;
-  }
-
-  const firstSlot = daySchedule.slots[0];
-
-  if (!firstSlot?.open || !firstSlot?.close) {
-    return fallback ?? null;
-  }
-
-  return `${firstSlot.open} - ${firstSlot.close}`;
-}
 
 export default function StoreDetailsScreen() {
   const { colors } = useTheme();
@@ -230,6 +203,8 @@ export default function StoreDetailsScreen() {
     setIsInfoModalVisible(true);
   }, []);
 
+  const storeName = store?.name ?? selectedStore?.name ?? t('store_details_store_name');
+
   const handleSharePress = useCallback(async () => {
     try {
       await Share.share({
@@ -249,14 +224,19 @@ export default function StoreDetailsScreen() {
     setIsStoreClosedModalVisible(false);
   }, []);
 
+  const isStoreClosed = isStoreEffectivelyClosed({
+    isOpen: store?.isOpen,
+    storeTimings: store?.storeTimings,
+  });
+
   const handleStoreProductOpen = useCallback((target: DeliveryProductActionTarget) => {
-    if (store?.isAvailable === false) {
+    if (isStoreClosed) {
       setIsStoreClosedModalVisible(true);
       return;
     }
 
     navigation.navigate('ProductInfo', { productId: target.productId });
-  }, [navigation, store?.isAvailable]);
+  }, [isStoreClosed, navigation]);
 
   const handleLoadMoreProducts = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -264,7 +244,6 @@ export default function StoreDetailsScreen() {
     }
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  const storeName = store?.name ?? selectedStore?.name ?? t('store_details_store_name');
   const rating = store?.averageRating ?? selectedStore?.averageRating ?? null;
   const reviewCount = store?.reviewCount ?? selectedStore?.reviewCount ?? null;
   const deliveryFee =
@@ -282,6 +261,7 @@ export default function StoreDetailsScreen() {
   const logoImageUrl = store?.logo ?? selectedStore?.logo ?? 'https://placehold.co/176x176.png';
   const heroTitle = '';
   const hours = getTodayStoreHours(store?.storeTimings, t('store_details_hours_unavailable'));
+  const storeStatusText = isStoreClosed ? t('store_status_closed') : hours;
   const phone = store?.contact?.phone ?? null;
   const email = store?.contact?.email ?? null;
   const sectionTitle = activeCategory?.name ?? t('store_details_all_offered_items');
@@ -302,7 +282,8 @@ export default function StoreDetailsScreen() {
         distance={distance}
         email={email}
         heroTitle={heroTitle}
-        hours={hours}
+        hours={storeStatusText}
+        isClosed={isStoreClosed}
         logoImageUrl={logoImageUrl}
         onBackPress={handleBackPress}
         onCategorySelect={handleCategorySelect}
@@ -331,7 +312,8 @@ export default function StoreDetailsScreen() {
       distance,
       email,
       heroTitle,
-      hours,
+      storeStatusText,
+      isStoreClosed,
       logoImageUrl,
       handleBackPress,
       handleCategorySelect,
@@ -416,12 +398,14 @@ export default function StoreDetailsScreen() {
         style={{ backgroundColor: colors.background }}
       />
       <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
-        <DeliveriesFloatingCartButton
-          style={[
-            styles.floatingCartButton,
-            { bottom: insets.bottom + 86 },
-          ]}
-        />
+        {!isStoreClosed ? (
+          <DeliveriesFloatingCartButton
+            style={[
+              styles.floatingCartButton,
+              { bottom: insets.bottom + 86 },
+            ]}
+          />
+        ) : null}
       </View>
 
       <AppPopup

@@ -81,8 +81,8 @@ export default function NearbyStoreList(props: Props) {
   const renderItem = ({ item }: { item: DeliveryNearbyStore }) => (
     <StoreCard
       store={item}
-      showClosedOverlay={item.isAvailable === false}
-      onClosedPress={item.isAvailable === false ? () => setSelectedClosedStore(item) : undefined}
+      showClosedOverlay={item.isOpen === false}
+      onClosedPress={item.isOpen === false ? () => setSelectedClosedStore(item) : undefined}
     />
   );
 

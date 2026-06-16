@@ -80,7 +80,7 @@ export default function Deals({
   }, [navigation, selectedClosedStore]);
   const renderItem = useCallback(
     ({ item }: { item: DealsItem }) => {
-      const isClosedStore = !isProductItem(item) && item.isAvailable === false;
+      const isClosedStore = !isProductItem(item) && item.isOpen === false;
 
       return (
         <StoreCard

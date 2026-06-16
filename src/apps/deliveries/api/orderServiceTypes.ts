@@ -22,6 +22,7 @@ export type CheckoutScheduleApiSlot = {
   start: string;
   end: string;
   isAvailable?: boolean;
+  isOpen?: boolean;
   maxOrders?: number;
 };
 

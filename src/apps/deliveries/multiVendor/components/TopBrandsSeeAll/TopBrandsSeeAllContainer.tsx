@@ -4,12 +4,13 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FlatList, StyleSheet } from 'react-native';
 import useDebouncedValue from '../../../../../general/hooks/useDebouncedValue';
 import type { DeliveryTopBrand } from '../../../api/types';
-import { usePaginatedTopBrands } from '../../../hooks';
+import { useNearbyStores, usePaginatedTopBrands } from '../../../hooks';
 import TopBrandsSeeAllEmptyState from './TopBrandsSeeAllEmptyState';
 import TopBrandsSeeAllErrorState from './TopBrandsSeeAllErrorState';
 import TopBrandsSeeAllItem from './TopBrandsSeeAllItem';
 import TopBrandsSeeAllSkeleton from './TopBrandsSeeAllSkeleton';
 import type { MultiVendorStackParamList } from '../../navigation/types';
+import type { DeliveryNearbyStore } from '../../../api/types';
 
 type TopBrandsSeeAllContainerProps = {
   searchValue: string;
@@ -25,6 +26,7 @@ export default function TopBrandsSeeAllContainer({
 }: TopBrandsSeeAllContainerProps) {
   const navigation = useNavigation<NavigationProp>();
   const debouncedSearchValue = useDebouncedValue(searchValue.trim(), 500);
+  const { data: nearbyStores = [] } = useNearbyStores();
   const {
     data: topBrands = [],
     isPending,
@@ -45,8 +47,31 @@ export default function TopBrandsSeeAllContainer({
     }
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
+  const resolveStoreFromBrand = useCallback((brand: DeliveryTopBrand) => {
+    const normalizedBrandName = brand.name.trim().toLowerCase();
+
+    const exactMatch = nearbyStores.find(
+      (store: DeliveryNearbyStore) => store.name.trim().toLowerCase() === normalizedBrandName,
+    );
+
+    if (exactMatch) {
+      return exactMatch;
+    }
+
+    return nearbyStores.find((store: DeliveryNearbyStore) =>
+      store.name.trim().toLowerCase().includes(normalizedBrandName),
+    );
+  }, [nearbyStores]);
+
   const handleBrandPress = useCallback(
     (brand: DeliveryTopBrand) => {
+      const matchedStore = resolveStoreFromBrand(brand);
+
+      if (matchedStore) {
+        navigation.navigate('StoreDetails', { store: matchedStore });
+        return;
+      }
+
       if (!brand.vendorId) {
         return;
       }
@@ -58,7 +83,7 @@ export default function TopBrandsSeeAllContainer({
         vendorId: brand.vendorId,
       });
     },
-    [navigation],
+    [navigation, resolveStoreFromBrand],
   );
 
   if (isPending) {
