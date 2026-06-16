@@ -82,6 +82,9 @@ const fr = {
   single_vendor_track_worker_payment_failed: 'Echec du paiement',
   single_vendor_track_worker_payment_processing: 'Le paiement est en cours',
   single_vendor_track_worker_payment_confirmed: 'Paiement confirme',
+  single_vendor_track_worker_saved_card_required_title: 'Carte enregistree requise',
+  single_vendor_track_worker_saved_card_required_message:
+    'Ajoutez une carte enregistree dans votre portefeuille Home Visits avant de payer ce service.',
   single_vendor_track_worker_feedback_title: 'Comment etait votre experience ?',
   single_vendor_track_worker_feedback_subtitle:
     'Votre retour nous aide a ameliorer nos services.',
@@ -146,6 +149,93 @@ const fr = {
   single_vendor_cancel_appointment_body_bottom:
     'Êtes-vous sûr de vouloir annuler votre rendez-vous ?',
   single_vendor_cancel_appointment_cta: 'Oui, annuler le rendez-vous',
+  single_vendor_cancel_appointment_loading: 'Annulation...',
+  single_vendor_cancel_appointment_success_title: 'Rendez-vous annulé',
+  single_vendor_cancel_appointment_success_message:
+    'Votre rendez-vous a été annulé avec succès.',
+  single_vendor_cancel_appointment_error_title:
+    'Impossible d’annuler le rendez-vous',
+  single_vendor_cancel_appointment_started_message:
+    'Cette intervention ne peut plus être annulée une fois commencée.',
+  single_vendor_contract_details_title: 'Détails du contrat',
+  single_vendor_contract_loading: 'Chargement du contrat...',
+  single_vendor_contract_overview_title: 'Aperçu',
+  single_vendor_contract_assigned_team_title: 'Équipe assignée',
+  single_vendor_contract_notes_title: 'Notes',
+  single_vendor_contract_billing_title: 'État de facturation',
+  single_vendor_contract_invoices_title: 'Factures',
+  single_vendor_contract_schedule_title: 'Planning',
+  single_vendor_contract_plan_label: 'Forfait',
+  single_vendor_contract_status_label: 'Statut',
+  single_vendor_contract_team_label: 'Équipe',
+  single_vendor_contract_daily_hours_label: 'Heures par jour',
+  single_vendor_contract_service_center_label: 'Centre de service',
+  single_vendor_contract_visit_days_label: 'Jours de visite',
+  single_vendor_contract_start_date_label: 'Date de début',
+  single_vendor_contract_end_date_label: 'Date de fin',
+  single_vendor_contract_supervisor_members_label: 'Superviseur et membres',
+  single_vendor_contract_lead_worker_label: 'Travailleur principal',
+  single_vendor_contract_team_member_label: 'Membre de l’équipe',
+  single_vendor_contract_job_description_label: 'Description du travail',
+  single_vendor_contract_customer_note_label: 'Note du client',
+  single_vendor_contract_saved_card_label: 'Carte enregistrée',
+  single_vendor_contract_saved_card_available: 'Disponible',
+  single_vendor_contract_saved_card_missing: 'Non ajoutée',
+  single_vendor_contract_due_date_label: 'Date d’échéance',
+  single_vendor_contract_visits_in_invoice_label: 'Visites dans la facture',
+  single_vendor_contract_paid_at_label: 'Payée le',
+  single_vendor_contract_pay_invoice: 'Payer la facture',
+  single_vendor_contract_pay_overdue_invoice: 'Payer la facture en retard',
+  single_vendor_contract_schedule_coverage_label: 'Couverture',
+  single_vendor_contract_schedule_delivery_label: 'Prestation',
+  single_vendor_contract_schedule_delivery_value:
+    'Géré par l’administrateur avec facturation mensuelle',
+  single_vendor_contract_pending_status_label: 'En attente d’approbation',
+  single_vendor_contract_flexible: 'Flexible',
+  single_vendor_contract_no_team: 'Aucune équipe assignée pour le moment',
+  single_vendor_contract_worker_fallback: 'Travailleur',
+  single_vendor_contract_individual: 'Individuel',
+  single_vendor_contract_team_value: 'Équipe ({{count}})',
+  single_vendor_contract_daily_hours_value: '{{count}} h',
+  single_vendor_contract_contract_cancellation_title: 'Annulation du contrat',
+  single_vendor_contract_contract_cancellation_status_label:
+    'Statut de l’annulation',
+  single_vendor_contract_contract_cancellation_reason_label: 'Raison',
+  single_vendor_contract_contract_cancellation_review_note_label:
+    'Note de l’administrateur',
+  single_vendor_contract_contract_cancellation_requested_at_label:
+    'Demandé le',
+  single_vendor_contract_contract_cancellation_reviewed_at_label:
+    'Examiné le',
+  single_vendor_contract_contract_cancellation_request_button:
+    'Demander l’annulation',
+  single_vendor_contract_contract_cancellation_request_again_button:
+    'Redemander l’annulation',
+  single_vendor_contract_contract_cancellation_reason_placeholder:
+    'Expliquez pourquoi vous souhaitez annuler ce contrat.',
+  single_vendor_contract_contract_cancellation_submit: 'Envoyer la demande',
+  single_vendor_contract_contract_cancellation_submitting: 'Envoi...',
+  single_vendor_contract_contract_cancellation_success_title: 'Demande envoyée',
+  single_vendor_contract_contract_cancellation_success_message:
+    'Votre demande d’annulation a été envoyée pour validation par l’administrateur.',
+  single_vendor_contract_contract_cancellation_error_title:
+    'Impossible de demander l’annulation',
+  single_vendor_contract_contract_cancellation_status_none: 'Aucune demande',
+  single_vendor_contract_contract_cancellation_status_requested:
+    'Annulation demandée',
+  single_vendor_contract_contract_cancellation_status_rejected:
+    'Demande refusée',
+  single_vendor_contract_contract_cancellation_status_approved: 'Annulé',
+  single_vendor_contract_invoice_paid_title: 'Facture payée',
+  single_vendor_contract_invoice_paid_message:
+    'Votre facture de contrat a été payée avec succès.',
+  single_vendor_contract_invoice_processing_title: 'Paiement en cours',
+  single_vendor_contract_invoice_payment_failed_title: 'Paiement échoué',
+  single_vendor_contract_saved_card_required_title: 'Carte enregistrée requise',
+  single_vendor_contract_saved_card_required_message:
+    'Ajoutez une carte enregistrée dans votre portefeuille Home Visits avant de payer cette facture.',
+  single_vendor_contract_invoice_payment_failed_message:
+    'Nous n’avons pas pu traiter le paiement de la facture du contrat.',
   single_vendor_home_body: 'Écran d’accueil de base pour le flux à prestataire unique.',
   single_vendor_search_body: 'Écran de recherche de base pour le flux à prestataire unique.',
   single_vendor_orders_body: 'Écran de réservations de base pour le flux à prestataire unique.',
@@ -239,6 +329,8 @@ const fr = {
   team_schedule_contract_type_weekly: 'Hebdomadaire',
   team_schedule_contract_type_monthly: 'Mensuel',
   team_schedule_contract_type_yearly: 'Annuel',
+  team_schedule_working_hours_hour: 'heure',
+  team_schedule_working_hours_hours: 'heures',
   team_schedule_repeat_label: 'Repeter chaque {{contractType}}',
   team_schedule_repeat_every_week: 'Repeter chaque semaine',
   team_schedule_repeat_weekly_description: 'Appliquer les memes jours chaque semaine',
@@ -307,7 +399,14 @@ const fr = {
   review_confirm_summary_title: 'Resume',
   review_confirm_summary_subtitle:
     'Taxes incluses (si applicables) • Les prix peuvent varier selon les services supplementaires',
+  review_confirm_contract_price_pending:
+    'L\'administrateur fixera le prix du contrat après approbation.',
+  review_confirm_contract_price_footer_note:
+    'Les frais mensuels apparaîtront une fois le contrat approuvé par l\'administrateur.',
   review_confirm_footer_cta: 'Confirmer',
+  single_vendor_contract_pending_approval: 'En attente du tarif fixé par admin',
+  single_vendor_contract_monthly_fee: 'Frais mensuels',
+  single_vendor_contract_approved_at: 'Approuvé le',
   review_confirm_services_title: 'Services selectionnes',
   review_confirm_schedule_title: 'Equipe et planning',
   review_confirm_team_label: 'Equipe',

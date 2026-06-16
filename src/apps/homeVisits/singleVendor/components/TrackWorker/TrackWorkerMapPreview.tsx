@@ -1,5 +1,5 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import type { LatLng, Region } from 'react-native-maps';
 import Map, { type MapMarker, type MapPolyline } from '../../../../../general/components/Map';
@@ -11,6 +11,7 @@ type Props = {
   variant?: 'card' | 'full';
   workerLocation?: LatLng | null;
   customerLocation?: LatLng | null;
+  routePath?: LatLng[] | null;
 };
 
 const FALLBACK_REGION: Region = {
@@ -24,21 +25,55 @@ export default function TrackWorkerMapPreview({
   variant = 'card',
   workerLocation,
   customerLocation,
+  routePath,
 }: Props) {
   const { colors } = useTheme();
   const isFull = variant === 'full';
+  const mapRef = useRef<React.ElementRef<typeof Map> | null>(null);
+
+  const displayedRoute = useMemo(() => {
+    if (routePath && routePath.length > 1) {
+      return routePath;
+    }
+
+    if (workerLocation && customerLocation) {
+      return buildCurvedFallbackRoute(workerLocation, customerLocation);
+    }
+
+    return null;
+  }, [customerLocation, routePath, workerLocation]);
 
   const region = useMemo<Region>(() => {
+    const routeCoordinates = displayedRoute && displayedRoute.length > 1 ? displayedRoute : null;
+
+    if (routeCoordinates) {
+      const latitudes = routeCoordinates.map((point) => point.latitude);
+      const longitudes = routeCoordinates.map((point) => point.longitude);
+      const minLat = Math.min(...latitudes);
+      const maxLat = Math.max(...latitudes);
+      const minLng = Math.min(...longitudes);
+      const maxLng = Math.max(...longitudes);
+      const latitudeSpan = Math.max(maxLat - minLat, 0.004);
+      const longitudeSpan = Math.max(maxLng - minLng, 0.004);
+
+      return {
+        latitude: (minLat + maxLat) / 2,
+        longitude: (minLng + maxLng) / 2,
+        latitudeDelta: Math.max(latitudeSpan * (isFull ? 1.18 : 1.08), isFull ? 0.012 : 0.008),
+        longitudeDelta: Math.max(longitudeSpan * (isFull ? 1.18 : 1.08), isFull ? 0.012 : 0.008),
+      };
+    }
+
     if (workerLocation && customerLocation) {
       const latitude = (workerLocation.latitude + customerLocation.latitude) / 2;
       const longitude = (workerLocation.longitude + customerLocation.longitude) / 2;
       const latitudeDelta = Math.max(
-        Math.abs(workerLocation.latitude - customerLocation.latitude) * 1.8,
-        isFull ? 0.035 : 0.02,
+        Math.abs(workerLocation.latitude - customerLocation.latitude) * (isFull ? 1.18 : 1.08),
+        isFull ? 0.012 : 0.008,
       );
       const longitudeDelta = Math.max(
-        Math.abs(workerLocation.longitude - customerLocation.longitude) * 1.8,
-        isFull ? 0.035 : 0.02,
+        Math.abs(workerLocation.longitude - customerLocation.longitude) * (isFull ? 1.18 : 1.08),
+        isFull ? 0.012 : 0.008,
       );
 
       return {
@@ -53,8 +88,8 @@ export default function TrackWorkerMapPreview({
       return {
         latitude: workerLocation.latitude,
         longitude: workerLocation.longitude,
-        latitudeDelta: isFull ? 0.02 : 0.012,
-        longitudeDelta: isFull ? 0.02 : 0.012,
+        latitudeDelta: isFull ? 0.012 : 0.008,
+        longitudeDelta: isFull ? 0.012 : 0.008,
       };
     }
 
@@ -62,13 +97,13 @@ export default function TrackWorkerMapPreview({
       return {
         latitude: customerLocation.latitude,
         longitude: customerLocation.longitude,
-        latitudeDelta: isFull ? 0.02 : 0.012,
-        longitudeDelta: isFull ? 0.02 : 0.012,
+        latitudeDelta: isFull ? 0.012 : 0.008,
+        longitudeDelta: isFull ? 0.012 : 0.008,
       };
     }
 
     return FALLBACK_REGION;
-  }, [customerLocation, isFull, workerLocation]);
+  }, [customerLocation, displayedRoute, isFull, workerLocation]);
 
   const markers = useMemo<MapMarker[]>(() => {
     const next: MapMarker[] = [];
@@ -97,31 +132,41 @@ export default function TrackWorkerMapPreview({
   }, [customerLocation, workerLocation]);
 
   const polylines = useMemo<MapPolyline[]>(() => {
-    if (!workerLocation || !customerLocation) {
-      return [];
+    if (displayedRoute) {
+      return [
+        {
+          id: 'route-path',
+          coordinates: displayedRoute,
+          strokeColor: colors.warning,
+          strokeWidth: 4,
+          zIndex: 1,
+        },
+      ];
+    }
+    return [];
+  }, [colors.warning, displayedRoute]);
+
+  useEffect(() => {
+    const coordinates = displayedRoute;
+
+    if (!coordinates || coordinates.length < 2) {
+      return undefined;
     }
 
-    return [
-      {
-        id: 'route-path',
-        coordinates: [
-          workerLocation,
-          {
-            latitude: (workerLocation.latitude * 0.7) + (customerLocation.latitude * 0.3),
-            longitude: (workerLocation.longitude * 0.7) + (customerLocation.longitude * 0.3),
-          },
-          {
-            latitude: (workerLocation.latitude * 0.35) + (customerLocation.latitude * 0.65),
-            longitude: (workerLocation.longitude * 0.35) + (customerLocation.longitude * 0.65),
-          },
-          customerLocation,
-        ],
-        strokeColor: colors.warning,
-        strokeWidth: 4,
-        zIndex: 1,
-      },
-    ];
-  }, [colors.warning, customerLocation, workerLocation]);
+    const timer = setTimeout(() => {
+      mapRef.current?.fitToCoordinates(coordinates, {
+        edgePadding: {
+          top: isFull ? 120 : 40,
+          right: isFull ? 80 : 24,
+          bottom: isFull ? 320 : 24,
+          left: isFull ? 80 : 24,
+        },
+        animated: true,
+      });
+    }, 80);
+
+    return () => clearTimeout(timer);
+  }, [displayedRoute, isFull]);
 
   return (
     <View
@@ -132,6 +177,7 @@ export default function TrackWorkerMapPreview({
       ]}
     >
       <Map
+        ref={mapRef}
         initialRegion={region}
         markers={markers}
         polylines={polylines}
@@ -183,3 +229,36 @@ const styles = StyleSheet.create({
     width: 42,
   },
 });
+
+function buildCurvedFallbackRoute(workerLocation: LatLng, customerLocation: LatLng): LatLng[] {
+  const deltaLat = customerLocation.latitude - workerLocation.latitude;
+  const deltaLng = customerLocation.longitude - workerLocation.longitude;
+  const distance = Math.sqrt(deltaLat * deltaLat + deltaLng * deltaLng);
+  const bendStrength = Math.min(0.004, Math.max(distance * 0.18, 0.0012));
+  const bendDirection = deltaLng >= 0 ? 1 : -1;
+  const curveLat = deltaLng * 0.08 * bendDirection;
+  const curveLng = deltaLat * -0.08 * bendDirection;
+  const midLat = workerLocation.latitude + deltaLat * 0.5;
+  const midLng = workerLocation.longitude + deltaLng * 0.5;
+
+  return [
+    workerLocation,
+    {
+      latitude: workerLocation.latitude + deltaLat * 0.18 + curveLat,
+      longitude: workerLocation.longitude + deltaLng * 0.18 + curveLng,
+    },
+    {
+      latitude: midLat + bendStrength + curveLat,
+      longitude: midLng - bendStrength + curveLng,
+    },
+    {
+      latitude: midLat - bendStrength * 0.6 + curveLat,
+      longitude: midLng + bendStrength * 0.75 + curveLng,
+    },
+    {
+      latitude: workerLocation.latitude + deltaLat * 0.82 - curveLat * 0.3,
+      longitude: workerLocation.longitude + deltaLng * 0.82 - curveLng * 0.3,
+    },
+    customerLocation,
+  ];
+}

@@ -49,6 +49,20 @@ const ACTIVE_BOOKING_QUERY_KEY = homeVisitsKeys.singleVendorBookings({
   tab: "ongoing",
 });
 
+function formatWeekdaySummary(weekdays?: number[] | null) {
+  if (!weekdays?.length) {
+    return null;
+  }
+
+  return weekdays
+    .map((day) =>
+      new Intl.DateTimeFormat("en-US", { weekday: "short" }).format(
+        new Date(2024, 0, 7 + day),
+      ),
+    )
+    .join(", ");
+}
+
 export default function BookingDetailsScreen({ navigation, route }: Props) {
   const { t } = useTranslation("homeVisits");
   const { colors } = useTheme();
@@ -89,6 +103,57 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
     data?.cancellationPolicy ?? t("single_vendor_booking_cancellation_body");
   const scheduledAt = data?.scheduledAt ?? data?.orderedAt;
   const summaryStatusMessage = data?.statusMessage ?? durationLabel;
+  const assignedTeamLabel = React.useMemo(() => {
+    const members = data?.assignedWorkers ?? [];
+    if (members.length === 0 && !data?.assignedWorker) {
+      return null;
+    }
+
+    const roster = members.length > 0 ? members : data?.assignedWorker ? [data.assignedWorker] : [];
+    const supervisorId = data?.supervisorWorkerId ?? data?.assignedWorker?.id;
+
+    return roster
+      .map((worker) => {
+        const name = worker.name?.trim() || "Worker";
+        const isSupervisor = worker.id === supervisorId || worker.role === "supervisor";
+        return isSupervisor ? `${name} (Lead)` : name;
+      })
+      .join(", ");
+  }, [data?.assignedWorker, data?.assignedWorkers, data?.supervisorWorkerId, t]);
+  const assignmentModeLabel =
+    data?.workerType === "team"
+      ? `Team${data?.teamSize ? ` (${data.teamSize})` : ""}`
+      : data?.workerType === "individual"
+        ? "Individual"
+        : null;
+  const contractSummary = React.useMemo(() => {
+    if (data?.bookingType !== "contract") {
+      return null;
+    }
+
+    const labels: string[] = [];
+    const contractTypeLabel =
+      data.contractType === "yearly"
+        ? "Yearly"
+        : data.contractType === "monthly"
+          ? "Monthly"
+          : data.contractType === "weekly"
+            ? "Weekly"
+            : "Contract";
+
+    labels.push(`Plan: ${contractTypeLabel}`);
+
+    const weekdaySummary = formatWeekdaySummary(data.selectedWeekdays);
+    if (weekdaySummary) {
+      labels.push(`Days: ${weekdaySummary}`);
+    }
+
+    return labels.join("\n");
+  }, [
+    data?.bookingType,
+    data?.contractType,
+    data?.selectedWeekdays,
+  ]);
   const reviewLabel = t("single_vendor_reviews_summary_label", {
     count:
       reviewSummary.distribution.find((item) => item.rating === 5)?.count ?? 0,
@@ -234,6 +299,18 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
             />
           ) : null}
 
+          {contractSummary || assignmentModeLabel || assignedTeamLabel ? (
+            <BookingDetailsTextSection
+              primaryText={contractSummary ?? assignmentModeLabel ?? assignedTeamLabel}
+              secondaryText={
+                contractSummary && (assignmentModeLabel || assignedTeamLabel)
+                  ? [assignmentModeLabel, assignedTeamLabel].filter(Boolean).join("\n")
+                  : null
+              }
+              title="Booking setup"
+            />
+          ) : null}
+
           {data?.addressLabel || data?.address ? (
             <BookingDetailsTextSection
               primaryText={
@@ -242,6 +319,15 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
               primaryWeight="semiBold"
               secondaryText={data?.address}
               title={t("single_vendor_booking_address_title")}
+            />
+          ) : null}
+
+          {assignmentModeLabel || assignedTeamLabel ? (
+            <BookingDetailsTextSection
+              primaryText={assignmentModeLabel}
+              primaryWeight="semiBold"
+              secondaryText={assignedTeamLabel}
+              title="Assigned team"
             />
           ) : null}
 

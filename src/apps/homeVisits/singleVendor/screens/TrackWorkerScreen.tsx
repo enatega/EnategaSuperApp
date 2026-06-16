@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useWalletSavedCardsQuery } from '../../../../general/api/walletSavedCardsService';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
 import useAddress from '../../../../general/hooks/useAddress';
 import AppPopup from '../../../../general/components/AppPopup';
@@ -25,7 +27,9 @@ import TrackWorkerFeedbackSection from '../components/TrackWorker/TrackWorkerFee
 import TrackWorkerHeader from '../components/TrackWorker/TrackWorkerHeader';
 import TrackWorkerMapPreview from '../components/TrackWorker/TrackWorkerMapPreview';
 import TrackWorkerStatusBlock from '../components/TrackWorker/TrackWorkerStatusBlock';
+import useHomeVisitRouteEstimate from '../hooks/useHomeVisitRouteEstimate';
 import { homeVisitsKeys } from '../../api/queryKeys';
+import type { HomeVisitsStackParamList } from '../../navigation/types';
 import { homeVisitsSingleVendorDiscoveryService } from '../api/discoveryService';
 import useTrackWorkerRealtime from '../hooks/useTrackWorkerRealtime';
 import useSingleVendorBookingDetails from '../hooks/useSingleVendorBookingDetails';
@@ -48,6 +52,16 @@ type Props = NativeStackScreenProps<
 
 type LocalFlowState = 'none' | 'payment_confirmed' | 'feedback';
 
+function isMissingSavedCardError(error: unknown) {
+  const message = error instanceof Error ? error.message.toLowerCase() : '';
+  return (
+    message.includes('saved card') ||
+    message.includes('no card') ||
+    message.includes('payment method') ||
+    message.includes('wallet')
+  );
+}
+
 export default function TrackWorkerScreen({ navigation, route }: Props) {
   const { t } = useTranslation('homeVisits');
   const { colors } = useTheme();
@@ -62,6 +76,7 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
   const currentUserId = sessionQuery.data?.user?.id ?? null;
 
   const { data, isLoading } = useSingleVendorBookingDetails({ orderId });
+  const savedCardsQuery = useWalletSavedCardsQuery('home-services');
 
   const [isServiceDetailsExpanded, setIsServiceDetailsExpanded] = React.useState(true);
   const [localFlow, setLocalFlow] = React.useState<LocalFlowState>('none');
@@ -72,7 +87,7 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
     setLocalFlow('none');
   }, []);
 
-  const { liveBookingData, workerLocation } = useTrackWorkerRealtime({
+  const { liveBookingData, trackingSnapshot, workerLocation } = useTrackWorkerRealtime({
     currentUserId,
     initialBookingData: data,
     orderId,
@@ -101,6 +116,9 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
 
   const progressStep = getProgressStep(stageToRender);
   const services = bookingData?.services ?? [];
+  const hasSavedCard = (savedCardsQuery.data?.cards?.length ?? 0) > 0;
+  const rootNavigation =
+    navigation.getParent<NativeStackNavigationProp<HomeVisitsStackParamList>>();
 
   const destinationLocation = React.useMemo(
     () => extractDestinationLocation(bookingData),
@@ -117,6 +135,14 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
 
     return destinationLocation;
   }, [currentLatitude, currentLongitude, destinationLocation]);
+
+  const routeEstimate = useHomeVisitRouteEstimate({
+    destination: customerLocation,
+    origin: workerLocation ?? seededWorkerLocation,
+    preferredDistanceKm: trackingSnapshot?.distanceKm,
+    preferredEstimatedMinutes: trackingSnapshot?.estimatedMinutes,
+    preferredRoutePath: trackingSnapshot?.routePath,
+  });
 
   const sheetExpandedHeight = React.useMemo(() => {
     if (isMapVisible) {
@@ -142,8 +168,23 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
     return sheetExpandedHeight;
   }, [insets.bottom, isMapVisible, sheetExpandedHeight]);
 
+  const contactWorkerPhone = React.useMemo(() => {
+    const assignedWorkers = bookingData?.assignedWorkers ?? [];
+    const supervisorId = bookingData?.supervisorWorkerId ?? bookingData?.assignedWorker?.id;
+    const supervisor = assignedWorkers.find(
+      (worker) => worker.id === supervisorId || worker.role === 'supervisor',
+    );
+
+    return supervisor?.phone ?? bookingData?.assignedWorker?.phone ?? null;
+  }, [
+    bookingData?.assignedWorker?.id,
+    bookingData?.assignedWorker?.phone,
+    bookingData?.assignedWorkers,
+    bookingData?.supervisorWorkerId,
+  ]);
+
   const onPressContactWorker = React.useCallback(async () => {
-    const phone = bookingData?.assignedWorker?.phone;
+    const phone = contactWorkerPhone;
 
     if (!phone) {
       showToast.error(t('single_vendor_track_worker_contact_unavailable'));
@@ -160,7 +201,7 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
     } catch {
       showToast.error(t('single_vendor_track_worker_contact_unavailable'));
     }
-  }, [bookingData?.assignedWorker?.phone, t]);
+  }, [contactWorkerPhone, t]);
 
   const payWithSavedCardMutation = useMutation({
     mutationFn: (targetOrderId: string) =>
@@ -196,6 +237,15 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
       showToast.success(t('single_vendor_track_worker_payment_processing'));
     },
     onError: (error) => {
+      if (isMissingSavedCardError(error)) {
+        showToast.error(
+          t('single_vendor_track_worker_saved_card_required_title'),
+          t('single_vendor_track_worker_saved_card_required_message'),
+        );
+        rootNavigation?.navigate('WalletAddCard');
+        return;
+      }
+
       const message =
         error instanceof Error
           ? error.message
@@ -205,13 +255,37 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
   });
 
   const onPayNow = React.useCallback(() => {
+    const handleNoSavedCard = () => {
+      showToast.error(
+        t('single_vendor_track_worker_saved_card_required_title'),
+        t('single_vendor_track_worker_saved_card_required_message'),
+      );
+      rootNavigation?.navigate('WalletAddCard');
+    };
+
     if (!bookingData?.orderId) {
       showToast.error(t('single_vendor_track_worker_payment_failed'));
       return;
     }
 
+    if (savedCardsQuery.isPending) {
+      return;
+    }
+
+    if (!hasSavedCard) {
+      handleNoSavedCard();
+      return;
+    }
+
     payWithSavedCardMutation.mutate(bookingData.orderId);
-  }, [bookingData?.orderId, payWithSavedCardMutation, t]);
+  }, [
+    bookingData?.orderId,
+    hasSavedCard,
+    payWithSavedCardMutation,
+    rootNavigation,
+    savedCardsQuery.isPending,
+    t,
+  ]);
 
   const onSubmitFeedback = React.useCallback(() => {
     showToast.success(t('single_vendor_track_worker_feedback_success'));
@@ -230,6 +304,7 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
         <View style={styles.mapLayer}>
           <TrackWorkerMapPreview
             customerLocation={customerLocation}
+            routePath={routeEstimate.routePath}
             variant="full"
             workerLocation={workerLocation ?? seededWorkerLocation}
           />
@@ -275,6 +350,8 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
                 <>
                   <View style={styles.content}>
                     <TrackWorkerStatusBlock
+                      distanceKm={routeEstimate.distanceKm}
+                      estimatedMinutes={routeEstimate.estimatedMinutes}
                       progressStep={progressStep}
                       stage={stageToRender}
                       statusMessage={bookingData?.statusMessage}
@@ -311,8 +388,8 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
                       <Button
                         label={t('single_vendor_track_worker_pay_now')}
                         onPress={onPayNow}
-                        isLoading={payWithSavedCardMutation.isPending}
-                        disabled={payWithSavedCardMutation.isPending}
+                        isLoading={payWithSavedCardMutation.isPending || savedCardsQuery.isPending}
+                        disabled={payWithSavedCardMutation.isPending || savedCardsQuery.isPending}
                         style={styles.payNowButton}
                         labelStyle={{ color: '#030712' }}
                       />

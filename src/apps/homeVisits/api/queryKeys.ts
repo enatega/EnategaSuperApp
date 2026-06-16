@@ -1,5 +1,7 @@
 export const homeVisitsKeys = {
   all: ['homeVisits'] as const,
+  singleVendorContractsBase: () =>
+    [...homeVisitsKeys.all, 'single-vendor-contracts'] as const,
   notifications: () => [...homeVisitsKeys.all, 'notifications'] as const,
   homeVisitsTodayNotifications: (filters: { userId: string; limit?: number }) =>
     [...homeVisitsKeys.notifications(), 'today', filters] as const,
@@ -101,8 +103,12 @@ export const homeVisitsKeys = {
     ] as const,
   singleVendorBookings: (filters?: { limit?: number; tab?: string }) =>
     [...homeVisitsKeys.all, 'single-vendor-bookings', filters] as const,
+  singleVendorContracts: (filters?: { limit?: number; tab?: string }) =>
+    [...homeVisitsKeys.singleVendorContractsBase(), filters] as const,
   singleVendorBookingDetail: (orderId: string) =>
     [...homeVisitsKeys.all, 'single-vendor-booking-detail', orderId] as const,
+  singleVendorContractDetail: (contractId: string) =>
+    [...homeVisitsKeys.all, 'single-vendor-contract-detail', contractId] as const,
   bookingSummaryPreview: (input: {
     serviceCenterId: string;
     bookingType: 'one_time' | 'contract';

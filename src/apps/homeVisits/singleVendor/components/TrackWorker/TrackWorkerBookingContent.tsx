@@ -18,6 +18,20 @@ import {
 const cashImage = require('../../../assets/images/cash.png');
 const visaImage = require('../../../assets/images/visa.png');
 
+function formatWeekdaySummary(weekdays?: number[] | null) {
+  if (!weekdays?.length) {
+    return null;
+  }
+
+  return weekdays
+    .map((day) =>
+      new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(
+        new Date(2024, 0, 7 + day),
+      ),
+    )
+    .join(', ');
+}
+
 type Props = {
   data?: HomeVisitsSingleVendorBookingDetails | null;
   stage: TrackWorkerStage;
@@ -48,11 +62,34 @@ export default function TrackWorkerBookingContent({
   const isPaymentStage = stage === 'payment';
   const savedCardsQuery = useWalletSavedCardsQuery('home-services');
   const hasSavedCard = (savedCardsQuery.data?.cards?.length ?? 0) > 0;
-  const baseServiceCharge = getFirstNumeric([summary?.baseServiceCharge]);
+  const laborAmount = getFirstNumeric([summary?.laborAmount, summary?.baseServiceCharge]);
   const hourlyRate = getFirstNumeric([summary?.hourlyRate]);
-  const itemsUsedAmount = getFirstNumeric([summary?.itemsUsedAmount]);
+  const workingHours = getFirstNumeric([summary?.workingHours]);
+  const materialsAmount = getFirstNumeric([summary?.materialsAmount, summary?.itemsUsedAmount]);
+  const subtotalAmount = getFirstNumeric([summary?.subtotalAmount, summary?.subtotal]);
   const taxAmount = getFirstNumeric([summary?.taxAmount]);
-  const shouldShowSummaryItemsUsed = itemsUsedAmount !== null && !hasAddOns;
+  const shouldShowSummaryItemsUsed = materialsAmount !== null && !hasAddOns;
+  const assignedWorkers = data?.assignedWorkers ?? [];
+  const assignedTeamLabel = React.useMemo(() => {
+    if (assignedWorkers.length === 0 && !data?.assignedWorker) {
+      return null;
+    }
+
+    const roster = assignedWorkers.length > 0 ? assignedWorkers : data?.assignedWorker ? [data.assignedWorker] : [];
+    const supervisorId = data?.supervisorWorkerId ?? data?.assignedWorker?.id;
+
+    return roster
+      .map((worker) => {
+        const name = worker.name?.trim() || 'Worker';
+        const isSupervisor = worker.id === supervisorId || worker.role === 'supervisor';
+        return isSupervisor ? `${name} (Lead)` : name;
+      })
+      .join(', ');
+  }, [assignedWorkers, data?.assignedWorker, data?.supervisorWorkerId]);
+  const contractDaysLabel = React.useMemo(
+    () => formatWeekdaySummary(data?.selectedWeekdays),
+    [data?.selectedWeekdays],
+  );
 
   return (
     <>
@@ -102,6 +139,53 @@ export default function TrackWorkerBookingContent({
             {data?.address ?? t('single_vendor_track_worker_address_fallback')}
           </Text>
         </View>
+
+        {assignedTeamLabel ? (
+          <View style={styles.keyValueRow}>
+            <Text style={[styles.valueLabel, { color: colors.mutedText }]} weight="medium">
+              Assigned team
+            </Text>
+            <Text
+              numberOfLines={3}
+              style={[styles.addressValue, { color: colors.text, textAlign: 'right', flex: 1 }]}
+              weight="medium"
+            >
+              {assignedTeamLabel}
+            </Text>
+          </View>
+        ) : null}
+
+        {data?.bookingType === 'contract' ? (
+          <>
+            <View style={styles.keyValueRow}>
+              <Text style={[styles.valueLabel, { color: colors.mutedText }]} weight="medium">
+                Contract plan
+              </Text>
+              <Text style={[styles.valueLabel, { color: colors.text }]} weight="semiBold">
+                {data.contractType === 'yearly'
+                  ? 'Yearly'
+                  : data.contractType === 'monthly'
+                    ? 'Monthly'
+                    : 'Contract'}
+              </Text>
+            </View>
+
+            {contractDaysLabel ? (
+              <View style={styles.keyValueRow}>
+                <Text style={[styles.valueLabel, { color: colors.mutedText }]} weight="medium">
+                  Visit days
+                </Text>
+                <Text
+                  numberOfLines={2}
+                  style={[styles.addressValue, { color: colors.text, textAlign: 'right', flex: 1 }]}
+                  weight="medium"
+                >
+                  {contractDaysLabel}
+                </Text>
+              </View>
+            ) : null}
+          </>
+        ) : null}
       </View>
 
       <View style={[styles.section, { borderTopColor: colors.border }]}> 
@@ -137,7 +221,7 @@ export default function TrackWorkerBookingContent({
                   <Text style={[styles.serviceTitle, { color: colors.text }]} weight="medium">
                     {formatAmount(
                       resolveServiceAmount({
-                        baseServiceCharge,
+                        laborAmount,
                         isPaymentStage,
                         service,
                         servicesCount: services.length,
@@ -148,7 +232,7 @@ export default function TrackWorkerBookingContent({
               </View>
             ))}
 
-            {isPaymentStage && baseServiceCharge !== null ? (
+            {isPaymentStage && laborAmount !== null ? (
               <>
                 <View style={[styles.divider, { backgroundColor: colors.border }]} />
                 <Text style={[styles.paymentTitle, { color: colors.text }]} weight="bold">
@@ -156,10 +240,10 @@ export default function TrackWorkerBookingContent({
                 </Text>
                 <View style={styles.totalRow}>
                   <Text style={[styles.serviceTitle, { color: colors.mutedText }]} weight="medium">
-                    Base Service Charges
+                    Labor
                   </Text>
                   <Text style={[styles.serviceTitle, { color: colors.text }]} weight="medium">
-                    {formatAmount(baseServiceCharge)}
+                    {formatAmount(laborAmount)}
                   </Text>
                 </View>
 
@@ -172,13 +256,24 @@ export default function TrackWorkerBookingContent({
                   </Text>
                 </View>
 
+                {workingHours !== null ? (
+                  <View style={styles.totalRow}>
+                    <Text style={[styles.serviceTitle, { color: colors.mutedText }]} weight="medium">
+                      Working Hours
+                    </Text>
+                    <Text style={[styles.serviceTitle, { color: colors.text }]} weight="medium">
+                      {`${workingHours.toFixed(1)} hrs`}
+                    </Text>
+                  </View>
+                ) : null}
+
                 {shouldShowSummaryItemsUsed ? (
                   <View style={styles.totalRow}>
                     <Text style={[styles.serviceTitle, { color: colors.mutedText }]} weight="medium">
                       Items Used
                     </Text>
                     <Text style={[styles.serviceTitle, { color: colors.text }]} weight="medium">
-                      {formatAmount(itemsUsedAmount)}
+                      {formatAmount(materialsAmount)}
                     </Text>
                   </View>
                 ) : null}
@@ -240,7 +335,7 @@ export default function TrackWorkerBookingContent({
                 {t('single_vendor_booking_total')}
               </Text>
               <Text style={[styles.totalValue, { color: colors.text }]} weight="semiBold">
-                {formatAmount(data?.totalAmount ?? data?.summary?.totalAmount ?? data?.summary?.subtotal)}
+                {formatAmount(data?.totalAmount ?? data?.summary?.totalAmount ?? subtotalAmount)}
               </Text>
             </View>
           </>
@@ -353,15 +448,15 @@ function resolveServiceAmount({
   service,
   isPaymentStage,
   servicesCount,
-  baseServiceCharge,
+  laborAmount,
 }: {
   service: HomeVisitsSingleVendorBookingServiceItem;
   isPaymentStage: boolean;
   servicesCount: number;
-  baseServiceCharge: number | null;
+  laborAmount: number | null;
 }) {
-  if (isPaymentStage && servicesCount === 1 && baseServiceCharge !== null) {
-    return baseServiceCharge;
+  if (isPaymentStage && servicesCount === 1 && laborAmount !== null) {
+    return laborAmount;
   }
 
   return service.totalPrice;

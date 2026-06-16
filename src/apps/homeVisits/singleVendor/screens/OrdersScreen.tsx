@@ -13,6 +13,7 @@ import BookingListItem from '../components/Bookings/BookingListItem';
 import BookingsListSkeleton from '../components/Bookings/BookingsListSkeleton';
 import BookingsTabs from '../components/Bookings/BookingsTabs';
 import useSingleVendorBookings from '../hooks/useSingleVendorBookings';
+import useSingleVendorContracts from '../hooks/useSingleVendorContracts';
 import type {
   HomeVisitsSingleVendorBookingItem,
   HomeVisitsSingleVendorBookingsTab,
@@ -20,6 +21,22 @@ import type {
 import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
 
 type Props = Record<string, never>;
+
+function getContractPlanLabel(contractType: 'weekly' | 'monthly' | 'yearly') {
+  if (contractType === 'yearly') {
+    return 'Yearly';
+  }
+
+  if (contractType === 'monthly') {
+    return 'Monthly';
+  }
+
+  return 'Weekly';
+}
+
+function formatDateRange(startDate: string, endDate: string) {
+  return `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`;
+}
 
 export default function SingleVendorOrdersScreen({}: Props) {
   const { colors, typography } = useTheme();
@@ -29,6 +46,7 @@ export default function SingleVendorOrdersScreen({}: Props) {
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const [activeTab, setActiveTab] =
     React.useState<HomeVisitsSingleVendorBookingsTab>('ongoing');
+  const [contentTab, setContentTab] = React.useState<'services' | 'contracts'>('services');
   const {
     data,
     isLoading,
@@ -41,9 +59,41 @@ export default function SingleVendorOrdersScreen({}: Props) {
   } = useSingleVendorBookings({
     tab: activeTab,
   });
-
-  const emptyTitle = t('single_vendor_bookings_empty_generic_title');
-  const emptySubtitle = t('single_vendor_bookings_empty_generic_subtitle');
+  const contractsQuery = useSingleVendorContracts(activeTab);
+  const filteredData = React.useMemo(
+    () => data.filter((item) => item.bookingType !== 'contract'),
+    [data],
+  );
+  const contractData = contractsQuery.data;
+  const listData = React.useMemo<HomeVisitsSingleVendorBookingItem[]>(
+    () =>
+      contentTab === 'contracts'
+        ? contractData.map((item) => ({
+            orderId: item.contractId,
+            title: `${getContractPlanLabel(item.contractType)} Contract`,
+            durationLabel:
+              item.status === 'pending_approval'
+                ? t('single_vendor_contract_pending_approval')
+                : formatDateRange(item.startDate, item.endDate),
+            itemCount: item.teamSize ?? 1,
+            totalAmount: item.currentInvoiceAmount ?? item.monthlyFeeAmount ?? 0,
+            status: item.status,
+            jobStatus: item.currentInvoiceStatus ?? item.status,
+            orderedAt: item.startDate,
+            scheduledAt: item.startDate,
+            bookingType: 'contract',
+            canViewDetails: true,
+            canBookAgain: false,
+          }))
+        : filteredData,
+    [contentTab, contractData, filteredData],
+  );
+  const emptyTitle = contentTab === 'contracts'
+    ? 'No contracts found'
+    : t('single_vendor_bookings_empty_generic_title');
+  const emptySubtitle = contentTab === 'contracts'
+    ? 'Your active and past service contracts will appear here.'
+    : t('single_vendor_bookings_empty_generic_subtitle');
 
   const handleEmptyStateCtaPress = React.useCallback(() => {
     navigation.navigate('SingleVendorTabs', {
@@ -52,34 +102,48 @@ export default function SingleVendorOrdersScreen({}: Props) {
   }, [navigation]);
 
   const onEndReached = React.useCallback(() => {
+    if (contentTab === 'contracts') {
+      if (!contractsQuery.hasNextPage || contractsQuery.isFetchingNextPage) {
+        return;
+      }
+      void contractsQuery.fetchNextPage();
+      return;
+    }
     if (!hasNextPage || isFetchingNextPage) {
       return;
     }
 
     void fetchNextPage();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, [contentTab, contractsQuery, fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  const renderBookingItem = React.useCallback(
-    ({ item }: { item: HomeVisitsSingleVendorBookingItem }) => (
-      <BookingListItem
-        bookAgainLabel={t('single_vendor_bookings_book_again')}
-        booking={item}
-        itemLabel={t('single_vendor_bookings_item')}
-        itemsLabel={t('single_vendor_bookings_items')}
-        onPress={(orderId) => {
-          navigation.navigate('SingleVendorBookingDetails', { orderId });
-        }}
-        onViewDetails={(orderId) => {
-          navigation.navigate('SingleVendorBookingDetails', { orderId });
-        }}
-        tab={activeTab}
-        viewDetailsLabel={t('single_vendor_bookings_view_details')}
-      />
-    ),
+  const renderListItem = React.useCallback(
+    ({ item }: { item: HomeVisitsSingleVendorBookingItem }) => {
+      const isContract = item.bookingType === 'contract';
+      const handlePress = (id: string) => {
+        if (isContract) {
+          navigation.navigate('SingleVendorContractDetails', { contractId: id });
+          return;
+        }
+        navigation.navigate('SingleVendorBookingDetails', { orderId: id });
+      };
+
+      return (
+        <BookingListItem
+          bookAgainLabel={t('single_vendor_bookings_book_again')}
+          booking={item}
+          itemLabel={isContract ? 'member' : t('single_vendor_bookings_item')}
+          itemsLabel={isContract ? 'members' : t('single_vendor_bookings_items')}
+          onPress={handlePress}
+          onViewDetails={handlePress}
+          tab={activeTab}
+          viewDetailsLabel={t('single_vendor_bookings_view_details')}
+        />
+      );
+    },
     [activeTab, navigation, t],
   );
 
-  if (isLoading && data.length === 0) {
+  if (isLoading && filteredData.length === 0) {
     return (
       <View style={[styles.screen, { backgroundColor: colors.background }]}>
         <ScreenHeader
@@ -93,13 +157,27 @@ export default function SingleVendorOrdersScreen({}: Props) {
             onTabChange={setActiveTab}
             pastLabel={t('single_vendor_bookings_tab_past')}
           />
+          <View style={[styles.contentTabs, { backgroundColor: colors.backgroundTertiary }]}>
+            {(['services', 'contracts'] as const).map((tab) => {
+              const selected = contentTab === tab;
+              return (
+                <Button
+                  key={tab}
+                  label={tab === 'contracts' ? 'Contracts' : 'Services'}
+                  onPress={() => setContentTab(tab)}
+                  variant={selected ? 'primary' : 'secondary'}
+                  style={styles.contentTabButton}
+                />
+              );
+            })}
+          </View>
           <BookingsListSkeleton />
         </View>
       </View>
     );
   }
 
-  if (isError && data.length === 0) {
+  if (isError && filteredData.length === 0) {
     return (
       <View style={[styles.screen, { backgroundColor: colors.background }]}>
         <ScreenHeader
@@ -113,6 +191,20 @@ export default function SingleVendorOrdersScreen({}: Props) {
             onTabChange={setActiveTab}
             pastLabel={t('single_vendor_bookings_tab_past')}
           />
+          <View style={[styles.contentTabs, { backgroundColor: colors.backgroundTertiary }]}>
+            {(['services', 'contracts'] as const).map((tab) => {
+              const selected = contentTab === tab;
+              return (
+                <Button
+                  key={tab}
+                  label={tab === 'contracts' ? 'Contracts' : 'Services'}
+                  onPress={() => setContentTab(tab)}
+                  variant={selected ? 'primary' : 'secondary'}
+                  style={styles.contentTabButton}
+                />
+              );
+            })}
+          </View>
           <View style={styles.errorState}>
             <Text
               style={{
@@ -151,21 +243,39 @@ export default function SingleVendorOrdersScreen({}: Props) {
           onTabChange={setActiveTab}
           pastLabel={t('single_vendor_bookings_tab_past')}
         />
+        <View style={[styles.contentTabs, { backgroundColor: colors.backgroundTertiary }]}>
+          {(['services', 'contracts'] as const).map((tab) => {
+            const selected = contentTab === tab;
+            return (
+              <Button
+                key={tab}
+                label={tab === 'contracts' ? 'Contracts' : 'Services'}
+                onPress={() => setContentTab(tab)}
+                variant={selected ? 'primary' : 'secondary'}
+                style={styles.contentTabButton}
+              />
+            );
+          })}
+        </View>
         <FlatList
-          data={data}
+          data={listData}
           keyExtractor={(item) => item.orderId}
           onEndReached={onEndReached}
           onEndReachedThreshold={0.3}
           refreshControl={
             <RefreshControl
               onRefresh={() => {
+                if (contentTab === 'contracts') {
+                  void contractsQuery.refetch();
+                  return;
+                }
                 void refetch();
               }}
-              refreshing={isRefetching}
+              refreshing={contentTab === 'contracts' ? contractsQuery.isRefetching : isRefetching}
               tintColor={colors.primary}
             />
           }
-          renderItem={renderBookingItem}
+          renderItem={renderListItem}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <BookingListEmptyState
@@ -175,7 +285,11 @@ export default function SingleVendorOrdersScreen({}: Props) {
               title={emptyTitle}
             />
           }
-          ListFooterComponent={isFetchingNextPage ? <BookingsListSkeleton /> : null}
+          ListFooterComponent={
+            (contentTab === 'contracts' ? contractsQuery.isFetchingNextPage : isFetchingNextPage)
+              ? <BookingsListSkeleton />
+              : null
+          }
           contentContainerStyle={[
             styles.listContent,
             {
@@ -193,6 +307,16 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 4,
+  },
+  contentTabButton: {
+    flex: 1,
+  },
+  contentTabs: {
+    borderRadius: 8,
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+    padding: 8,
   },
   errorState: {
     alignItems: 'center',

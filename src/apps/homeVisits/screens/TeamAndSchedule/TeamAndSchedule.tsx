@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -37,12 +37,24 @@ export default function TeamAndSchedule() {
   } = route.params;
 
   const [workerType, setWorkerType] = useState<HomeVisitsWorkerType>('individual');
-  const workingHours = 5;
+  const baseWorkingHours = useMemo(
+    () => Math.max(1, Math.ceil((summary.durationMinutes || 60) / 60)),
+    [summary.durationMinutes],
+  );
+  const [workingHours] = useState(baseWorkingHours);
   const [serviceMode, setServiceMode] = useState<'one-time' | 'contract'>('one-time');
   const [jobDescription, setJobDescription] = useState('');
   const trimmedJobDescription = jobDescription.trim();
-  const [contractDays, setContractDays] = useState(30);
-  const teamSize = workerType === 'team' ? 2 : 1;
+  const [teamSize, setTeamSize] = useState(1);
+  useEffect(() => {
+    setTeamSize((current) => {
+      if (workerType === 'individual') {
+        return 1;
+      }
+
+      return Math.max(current, 2);
+    });
+  }, [workerType]);
   const totalPrice = summary.totalPrice + Math.max(teamSize - 1, 0) * 12 * workingHours;
   const totalDurationMinutes = summary.durationMinutes + (workingHours * 60);
   const totalDurationLabel = formatMinutesToDurationLabel(totalDurationMinutes) ?? summary.durationLabel;
@@ -62,7 +74,7 @@ export default function TeamAndSchedule() {
     }
 
     navigation.push('ChooseDateAndTime', {
-      contractDays,
+      contractType: serviceMode === 'contract' ? 'monthly' : undefined,
       initialSelection,
       selectedServiceIds,
       selectedServices,
