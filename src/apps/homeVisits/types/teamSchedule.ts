@@ -9,7 +9,7 @@ export type HomeVisitsBookingSummary = {
 
 export type HomeVisitsTeamScheduleMode = 'one-time' | 'contract';
 export type HomeVisitsWorkerType = 'individual' | 'team';
-export type HomeVisitsContractType = 'weekly';
+export type HomeVisitsContractType = 'weekly' | 'monthly' | 'yearly';
 
 export type HomeVisitsSelectedServiceSnapshot = {
   id: string;
@@ -39,8 +39,9 @@ export type HomeVisitsReviewAndConfirmRouteParams =
     workingHours: number;
     workerType: HomeVisitsWorkerType;
     jobDescription?: string;
-    contractDays: number;
+    contractDays?: number;
     contractType?: HomeVisitsContractType;
+    selectedWeekdays?: number[];
     repeatEnabled?: boolean;
     contractEndDateUnix?: number;
     repeatEndDateUnix?: number;
@@ -59,6 +60,6 @@ export type HomeVisitsChooseDateAndTimeRouteParams =
     workingHours: number;
     workerType: HomeVisitsWorkerType;
     jobDescription?: string;
-    contractDays: number;
     serviceMode: HomeVisitsTeamScheduleMode;
+    contractType?: HomeVisitsContractType;
   };

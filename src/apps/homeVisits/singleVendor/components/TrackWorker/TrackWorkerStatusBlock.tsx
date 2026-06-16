@@ -10,15 +10,42 @@ type Props = {
   stage: TrackWorkerStage;
   progressStep: number;
   statusMessage?: string | null;
+  estimatedMinutes?: number | null;
+  distanceKm?: number | null;
 };
 
-export default function TrackWorkerStatusBlock({ stage, progressStep, statusMessage }: Props) {
+function formatEta(estimatedMinutes?: number | null) {
+  if (typeof estimatedMinutes !== 'number' || estimatedMinutes <= 0) {
+    return null;
+  }
+
+  const hours = Math.floor(estimatedMinutes / 60);
+  const minutes = Math.max(0, Math.round(estimatedMinutes % 60));
+  if (hours <= 0) {
+    return `${minutes} min`;
+  }
+
+  return `${hours}h ${minutes}m`;
+}
+
+export default function TrackWorkerStatusBlock({
+  stage,
+  progressStep,
+  statusMessage,
+  estimatedMinutes,
+  distanceKm,
+}: Props) {
   const { t } = useTranslation('homeVisits');
   const { colors } = useTheme();
 
   const title = resolveStageTitle(stage, t);
   const subtitle = statusMessage || resolveStageSubtitle(stage, t);
   const etaLabel = resolveStageEta(stage, t);
+  const etaValue = formatEta(estimatedMinutes);
+  const distanceLabel =
+    typeof distanceKm === 'number' && Number.isFinite(distanceKm)
+      ? `${distanceKm.toFixed(1)} km away`
+      : null;
 
   if (stage === 'payment_confirmed') {
     return (
@@ -66,9 +93,21 @@ export default function TrackWorkerStatusBlock({ stage, progressStep, statusMess
       </View>
 
       {etaLabel ? (
-        <Text style={[styles.etaLabel, { color: colors.mutedText }]} weight="medium">
-          {etaLabel}
-        </Text>
+        <>
+          <Text style={[styles.etaLabel, { color: colors.mutedText }]} weight="medium">
+            {etaLabel}
+          </Text>
+          {etaValue ? (
+            <Text style={[styles.etaValue, { color: colors.text }]} weight="bold">
+              {etaValue}
+            </Text>
+          ) : null}
+          {distanceLabel ? (
+            <Text style={[styles.etaMeta, { color: colors.mutedText }]} weight="medium">
+              {distanceLabel}
+            </Text>
+          ) : null}
+        </>
       ) : null}
 
       <Text style={[styles.title, { color: colors.text }]} weight="bold">
@@ -128,7 +167,7 @@ function resolveStageIcon(stage: TrackWorkerStage) {
 function resolveStageTitle(stage: TrackWorkerStage, t: (key: string) => string) {
   switch (stage) {
     case 'on_way':
-      return t('single_vendor_track_worker_eta_15_25');
+      return t('single_vendor_track_worker_on_the_way');
     case 'anytime_now':
       return t('single_vendor_track_worker_anytime_now');
     case 'service_started':
@@ -140,7 +179,7 @@ function resolveStageTitle(stage: TrackWorkerStage, t: (key: string) => string) 
     case 'failed':
       return t('single_vendor_track_worker_failed');
     default:
-      return t('single_vendor_track_worker_eta_10_15');
+      return t('single_vendor_track_worker_title');
   }
 }
 
@@ -177,18 +216,30 @@ function resolveStageEta(stage: TrackWorkerStage, t: (key: string) => string) {
 
 const styles = StyleSheet.create({
   etaLabel: {
-    fontSize: 14,
-    lineHeight: 22,
-    marginBottom: 2,
+    fontSize: 13,
+    lineHeight: 18,
+    marginBottom: 1,
+    textAlign: 'center',
+  },
+  etaValue: {
+    fontSize: 20,
+    lineHeight: 26,
+    marginBottom: 1,
+    textAlign: 'center',
+  },
+  etaMeta: {
+    fontSize: 12,
+    lineHeight: 16,
+    marginBottom: 4,
     textAlign: 'center',
   },
   iconCircle: {
     alignItems: 'center',
     borderRadius: 44,
-    height: 88,
+    height: 72,
     justifyContent: 'center',
-    marginBottom: 14,
-    width: 88,
+    marginBottom: 10,
+    width: 72,
   },
   paymentConfirmedTitle: {
     fontSize: 18,
@@ -208,9 +259,9 @@ const styles = StyleSheet.create({
   },
   paymentHeading: {
     fontSize: 54 / 2,
-    lineHeight: 38,
-    marginBottom: 8,
-    marginTop: 12,
+    lineHeight: 32,
+    marginBottom: 6,
+    marginTop: 8,
     textAlign: 'center',
     width: '92%',
   },
@@ -218,28 +269,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F59E0B',
     borderRadius: 52,
-    height: 104,
+    height: 88,
     justifyContent: 'center',
-    width: 104,
+    width: 88,
   },
   paymentIconOuter: {
     alignItems: 'center',
     backgroundColor: '#F9E9D0',
     borderRadius: 56,
-    height: 112,
+    height: 96,
     justifyContent: 'center',
-    width: 112,
+    width: 96,
   },
   paymentWrap: {
     alignItems: 'center',
-    paddingBottom: 8,
-    paddingTop: 10,
+    paddingBottom: 4,
+    paddingTop: 6,
   },
   progressRow: {
     flexDirection: 'row',
     gap: 4,
-    marginBottom: 8,
-    marginTop: 8,
+    marginBottom: 6,
+    marginTop: 6,
     width: '80%',
   },
   progressSegment: {
@@ -249,23 +300,22 @@ const styles = StyleSheet.create({
   },
   statusBlock: {
     alignItems: 'center',
-    paddingBottom: 2,
-    paddingTop: 8,
+    paddingBottom: 0,
+    paddingTop: 4,
   },
   statusBlockOnly: {
     alignItems: 'center',
-    minHeight: 520,
-    paddingTop: 250,
+    paddingVertical: 24,
   },
   subtitle: {
-    fontSize: 14,
-    lineHeight: 22,
+    fontSize: 13,
+    lineHeight: 20,
     textAlign: 'center',
     width: '90%',
   },
   title: {
-    fontSize: 24,
-    lineHeight: 28,
+    fontSize: 20,
+    lineHeight: 24,
     textAlign: 'center',
   },
 });

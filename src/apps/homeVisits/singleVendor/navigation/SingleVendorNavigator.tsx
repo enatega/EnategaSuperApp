@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import VisitDetails from '../../screens/VisitDetails';
 import BookingDetailsScreen from '../screens/BookingDetailsScreen';
+import ContractDetailsScreen from '../screens/ContractDetailsScreen';
 import ManageAppointmentScreen from '../screens/ManageAppointmentScreen';
 import CancelAppointmentScreen from '../screens/CancelAppointmentScreen';
 import ServiceDetails from '../../screens/ServiceDetails/ServiceDetails';
@@ -62,6 +63,11 @@ export default function SingleVendorNavigator() {
       <Stack.Screen
         name="SingleVendorBookingDetails"
         component={BookingDetailsScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SingleVendorContractDetails"
+        component={ContractDetailsScreen}
         options={sharedScreenOptions}
       />
       <Stack.Screen

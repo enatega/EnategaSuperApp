@@ -161,12 +161,13 @@ export interface HomeVisitsServiceOrderPreviewPayload {
   workerType?: 'individual' | 'team';
   workingHours: number;
   contractDays?: number;
-  contractType?: 'weekly';
+  contractType?: 'weekly' | 'monthly' | 'yearly';
   repeatEnabled?: boolean;
   contractEndDateUnix?: number;
   repeatEndDateUnix?: number;
   selectedDateUnix?: number;
   selectedDateUnixList?: number[];
+  selectedWeekdays?: number[];
   startTimeUnix?: number;
   endTimeUnix?: number;
   slot: HomeVisitsServicePreviewSlot;
@@ -212,6 +213,7 @@ export interface HomeVisitsServiceOrderPreviewResponse {
 export interface HomeVisitsServicePlaceOrderResponse {
   mode: HomeVisitsOrderPaymentMethod;
   orderId?: string;
+  contractId?: string | null;
   status?: string;
   paymentStatus?: string;
   paymentMethod?: string;
@@ -226,6 +228,85 @@ export interface HomeVisitsServicePlaceOrderResponse {
   checkoutUrl?: string | null;
   sessionId?: string;
 }
+
+export interface HomeVisitsContractInvoice {
+  invoiceId: string;
+  status: 'upcoming' | 'pending' | 'paid' | 'overdue' | 'cancelled';
+  periodStart: string;
+  periodEnd: string;
+  dueDate: string;
+  amount: number;
+  visitCount: number;
+  paidAt?: string | null;
+}
+
+export interface HomeVisitsContractVisit {
+  visitId: string;
+  scheduledAt: string;
+  visitDate: string;
+  visitStatus: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+  orderId?: string | null;
+  jobStatus?: string | null;
+  paymentStatus?: string | null;
+}
+
+export interface HomeVisitsContractAssignedWorker {
+  id: string;
+  name?: string | null;
+  phone?: string | null;
+  profile?: string | null;
+  role: 'supervisor' | 'member';
+}
+
+export interface HomeVisitsSingleVendorContractListItem {
+  contractId: string;
+  serviceCenterId?: string;
+  status: 'pending_approval' | 'active' | 'completed' | 'cancelled';
+  cancellationStatus?: 'none' | 'requested' | 'rejected' | 'approved';
+  cancellationRequestedAt?: string | null;
+  cancellationRequestedBy?: string | null;
+  cancellationReason?: string | null;
+  cancellationReviewedAt?: string | null;
+  cancellationReviewedBy?: string | null;
+  cancellationReviewNote?: string | null;
+  cancelledAt?: string | null;
+  contractType: 'weekly' | 'monthly' | 'yearly';
+  workerType?: 'individual' | 'team' | null;
+  teamSize?: number | null;
+  workingHours?: number | null;
+  selectedWeekdays?: number[] | null;
+  startDate: string;
+  endDate: string;
+  nextVisitAt?: string | null;
+  currentInvoiceStatus?: 'upcoming' | 'pending' | 'paid' | 'overdue' | 'cancelled' | null;
+  currentInvoiceAmount?: number | null;
+  monthlyFeeAmount?: number | null;
+  approvedAt?: string | null;
+  serviceCenterName?: string | null;
+}
+
+export interface HomeVisitsSingleVendorContractDetails extends HomeVisitsSingleVendorContractListItem {
+  jobDescription?: string | null;
+  customerNote?: string | null;
+  supervisorWorkerId?: string | null;
+  assignedWorkers: HomeVisitsContractAssignedWorker[];
+  visits: HomeVisitsContractVisit[];
+  invoices: HomeVisitsContractInvoice[];
+}
+
+export interface HomeVisitsCancelAppointmentResponse {
+  message: string;
+  orderId: string;
+  status: string;
+  scheduledAt?: string | null;
+}
+
+export interface HomeVisitsRequestContractCancellationPayload {
+  reason: string;
+}
+
+export type HomeVisitsSingleVendorContractsApiResponse =
+  PaginatedHomeVisitsResponse<HomeVisitsSingleVendorContractListItem>;
 
 export interface HomeVisitsSingleVendorServiceCenterListCategory {
   id: string;
@@ -469,6 +550,7 @@ export interface HomeVisitsSingleVendorBookingItem {
   scheduledAt?: string | null;
   image?: string | null;
   statusLabel?: string | null;
+  bookingType?: HomeVisitsBookingType | null;
   canViewDetails?: boolean;
   canBookAgain?: boolean;
 }
@@ -496,6 +578,7 @@ export interface HomeVisitsSingleVendorBookingStore {
 
 export interface HomeVisitsSingleVendorBookingSummary {
   subtotal?: number | null;
+  subtotalAmount?: number | null;
   discountAmount?: number | null;
   taxAmount?: number | null;
   deliveryFee?: number | null;
@@ -503,6 +586,9 @@ export interface HomeVisitsSingleVendorBookingSummary {
   riderTip?: number | null;
   totalAmount?: number | null;
   couponCode?: string | null;
+  laborAmount?: number | null;
+  materialsAmount?: number | null;
+  workingHours?: number | null;
   baseServiceCharge?: number | null;
   hourlyRate?: number | null;
   itemsUsedAmount?: number | null;
@@ -513,6 +599,7 @@ export interface HomeVisitsSingleVendorAssignedWorker {
   name?: string | null;
   phone?: string | null;
   profile?: string | null;
+  role?: 'supervisor' | 'member' | null;
 }
 
 export interface HomeVisitsSingleVendorBookingCategoryImage {
@@ -534,6 +621,9 @@ export interface HomeVisitsSingleVendorBookingDetails {
   bookingType?: string | null;
   contractDays?: number | null;
   teamSize?: number | null;
+  workerType?: 'individual' | 'team' | null;
+  contractType?: 'weekly' | 'monthly' | 'yearly' | null;
+  selectedWeekdays?: number[] | null;
   totalAmount?: number | null;
   paymentMethod?: string | null;
   orderedAt?: string | null;
@@ -548,6 +638,13 @@ export interface HomeVisitsSingleVendorBookingDetails {
   customerNote?: string | null;
   cancellationPolicy?: string | null;
   assignedWorker?: HomeVisitsSingleVendorAssignedWorker | null;
+  assignedWorkers?: HomeVisitsSingleVendorAssignedWorker[] | null;
+  workerIds?: string[] | null;
+  supervisorWorkerId?: string | null;
+  minimumServiceMinutes?: number | null;
+  serviceStartedAt?: string | null;
+  serviceCompletedAt?: string | null;
+  elapsedServiceSeconds?: number | null;
   [key: string]: unknown;
 }
 
@@ -563,4 +660,17 @@ export interface HomeVisitsPayPaymentRequestedSavedCardResponse {
   stripeStatus?: string;
   paymentStatus?: string;
   jobStatus?: string;
+}
+
+export interface HomeVisitsPayContractInvoiceSavedCardPayload {
+  paymentMethodId?: string;
+}
+
+export interface HomeVisitsPayContractInvoiceSavedCardResponse {
+  message: string;
+  invoiceId: string;
+  paymentIntentId?: string;
+  paymentMethodId?: string;
+  stripeStatus?: string;
+  paymentStatus?: string;
 }

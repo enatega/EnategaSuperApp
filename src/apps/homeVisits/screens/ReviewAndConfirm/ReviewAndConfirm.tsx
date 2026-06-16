@@ -14,22 +14,17 @@ import useSelectSavedAddress from '../../../../general/hooks/useSelectSavedAddre
 import { getApiErrorMessage } from '../../../../general/utils/apiError';
 import { resolveSavedAddressId } from '../../../../general/utils/address';
 import { useTheme } from '../../../../general/theme/theme';
-import { formatPrice } from '../../components/ServiceDetailsPage/serviceDetailsSelection';
 import ReviewAddressRowSection from '../../components/ReviewAndConfirm/ReviewAddressRowSection';
 import ReviewAndConfirmFooter from '../../components/ReviewAndConfirm/ReviewAndConfirmFooter';
 import ReviewAndConfirmHeader from '../../components/ReviewAndConfirm/ReviewAndConfirmHeader';
 import ReviewAppointmentConfirmedTransition from '../../components/ReviewAndConfirm/ReviewAppointmentConfirmedTransition';
 import ReviewCancellationSection from '../../components/ReviewAndConfirm/ReviewCancellationSection';
 import ReviewConfirmBookingPopup from '../../components/ReviewAndConfirm/ReviewConfirmBookingPopup';
-import ReviewDiscountCodeBottomSheet from '../../components/ReviewAndConfirm/ReviewDiscountCodeBottomSheet';
 import ReviewMapHeroSection from '../../components/ReviewAndConfirm/ReviewMapHeroSection';
-import ReviewPaymentMethodBottomSheet, {
-  type ReviewPaymentMethod,
-} from '../../components/ReviewAndConfirm/ReviewPaymentMethodBottomSheet';
 import ReviewNotesSection from '../../components/ReviewAndConfirm/ReviewNotesSection';
-import ReviewPaymentSection from '../../components/ReviewAndConfirm/ReviewPaymentSection';
 import ReviewScheduleSection from '../../components/ReviewAndConfirm/ReviewScheduleSection';
 import ReviewSummarySection from '../../components/ReviewAndConfirm/ReviewSummarySection';
+import ReviewTeamScheduleSection from '../../components/ReviewAndConfirm/ReviewTeamScheduleSection';
 import { useBookingSummaryPreview } from '../../hooks/useBookingSummaryPreview';
 import { usePlaceBookingOrder } from '../../hooks/usePlaceBookingOrder';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../../singleVendor/navigation/types';
@@ -58,6 +53,20 @@ function formatScheduleLabel(isoDate: string) {
   return `${DATE_FORMATTER.format(date)}, ${TIME_FORMATTER.format(date)}`;
 }
 
+function formatWeekdaySummary(weekdays?: number[]) {
+  if (!weekdays?.length) {
+    return null;
+  }
+
+  return weekdays
+    .map((day) =>
+      new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(
+        new Date(2024, 0, 7 + day),
+      ),
+    )
+    .join(', ');
+}
+
 export default function ReviewAndConfirm() {
   const { colors } = useTheme();
   const { t } = useTranslation('homeVisits');
@@ -83,11 +92,10 @@ export default function ReviewAndConfirm() {
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const { summary } = route.params;
+  const isContractBooking = route.params.serviceMode === 'contract';
   const [isConfirmPopupVisible, setIsConfirmPopupVisible] = useState(false);
-  const [isPaymentMethodSheetVisible, setIsPaymentMethodSheetVisible] = useState(false);
-  const [isDiscountCodeSheetVisible, setIsDiscountCodeSheetVisible] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<ReviewPaymentMethod>('cash');
-  const [discountCode, setDiscountCode] = useState('');
+  const selectedPaymentMethod = 'cash';
+  const discountCode = '';
   const [availabilityPopup, setAvailabilityPopup] = useState<{
     visible: boolean;
     title: string;
@@ -107,12 +115,60 @@ export default function ReviewAndConfirm() {
     () => formatScheduleLabel(selectedScheduledAt.toISOString()),
     [selectedScheduledAt],
   );
-  const paymentTitle = selectedPaymentMethod === 'cash'
-    ? t('review_confirm_payment_title')
-    : t('review_confirm_payment_card_label');
-  const discountSubtitle = discountCode
-    ? t('review_confirm_discount_applied', { code: discountCode })
-    : t('review_confirm_discount_subtitle');
+  const reviewTeamLabel = useMemo(() => {
+    const assignmentMode =
+      route.params.workerType === 'team'
+        ? t('team_schedule_worker_type_team_title')
+        : t('team_schedule_worker_type_individual_title');
+
+    return `${assignmentMode} • ${route.params.teamSize} ${
+      route.params.teamSize === 1
+        ? t('team_worker_singular')
+        : t('team_worker_plural')
+    }`;
+  }, [route.params.teamSize, route.params.workerType, t]);
+  const reviewHoursLabel = useMemo(
+    () =>
+      `${route.params.workingHours} ${
+        route.params.workingHours === 1
+          ? t('team_schedule_working_hours_hour')
+          : t('team_schedule_working_hours_hours')
+      }`,
+    [route.params.workingHours, t],
+  );
+  const reviewServiceModeLabel = useMemo(() => {
+    if (route.params.serviceMode !== 'contract') {
+      return t('team_schedule_service_mode_one_time_title');
+    }
+
+    if (route.params.contractType === 'yearly') {
+      return t('team_schedule_contract_type_yearly');
+    }
+
+    return t('team_schedule_contract_type_monthly');
+  }, [route.params.contractType, route.params.serviceMode, t]);
+  const reviewScheduleLabel = useMemo(() => {
+    if (route.params.serviceMode !== 'contract') {
+      return scheduleForLabel;
+    }
+
+    const weekdaySummary = formatWeekdaySummary(route.params.selectedWeekdays);
+    const datePrefix = DATE_FORMATTER.format(selectedScheduledAt);
+    const timeLabel = `${route.params.scheduledSlot.startTime} - ${route.params.scheduledSlot.endTime}`;
+
+    if (!weekdaySummary) {
+      return `${datePrefix} • ${timeLabel}`;
+    }
+
+    return `${weekdaySummary} • ${timeLabel}`;
+  }, [
+    route.params.scheduledSlot.endTime,
+    route.params.scheduledSlot.startTime,
+    route.params.selectedWeekdays,
+    route.params.serviceMode,
+    scheduleForLabel,
+    selectedScheduledAt,
+  ]);
   const bookingSummaryPayload = useMemo(
     () =>
       buildBookingSummaryPreviewPayload({
@@ -140,25 +196,29 @@ export default function ReviewAndConfirm() {
   const serviceCenterLocation = bookingPreviewData?.serviceCenterLocation;
 
   const summaryRows = useMemo(
-    () => [
-      {
-        id: 'services',
-        label: t('review_confirm_price_services'),
-        value: previewSummary?.subtotal ?? summary.totalPrice,
-      },
-      {
-        id: 'discount',
-        label: t('review_confirm_discount_title'),
-        value: -(previewSummary?.discountAmount ?? 0),
-      },
-      {
-        id: 'total',
-        label: t('review_confirm_price_total'),
-        value: previewSummary?.payableAmount ?? summary.totalPrice,
-        isEmphasized: true,
-      },
-    ],
+    () =>
+      isContractBooking
+        ? []
+        : [
+            {
+              id: 'services',
+              label: t('review_confirm_price_services'),
+              value: previewSummary?.subtotal ?? summary.totalPrice,
+            },
+            {
+              id: 'discount',
+              label: t('review_confirm_discount_title'),
+              value: -(previewSummary?.discountAmount ?? 0),
+            },
+            {
+              id: 'total',
+              label: t('review_confirm_price_total'),
+              value: previewSummary?.payableAmount ?? summary.totalPrice,
+              isEmphasized: true,
+            },
+          ],
     [
+      isContractBooking,
       previewSummary?.discountAmount,
       previewSummary?.payableAmount,
       previewSummary?.subtotal,
@@ -167,7 +227,9 @@ export default function ReviewAndConfirm() {
     ],
   );
 
-  const totalForFooter = previewSummary?.payableAmount ?? summary.totalPrice;
+  const totalForFooter = isContractBooking
+    ? null
+    : previewSummary?.payableAmount ?? summary.totalPrice;
   const serviceCountForFooter = previewSummary?.serviceCount ?? summary.serviceCount;
   const serviceCountLabel = `${serviceCountForFooter} ${
     serviceCountForFooter === 1
@@ -231,8 +293,16 @@ export default function ReviewAndConfirm() {
       try {
         const response = await placeBookingOrderMutation.mutateAsync({
           ...bookingSummaryPayload,
-          totalAmount: totalForFooter,
+          totalAmount: totalForFooter ?? 0,
         });
+
+        if (isContractBooking && response.contractId) {
+          setIsConfirmPopupVisible(false);
+          navigation.replace('SingleVendorContractDetails', {
+            contractId: response.contractId,
+          });
+          return;
+        }
 
         if (!response.orderId) {
           setAvailabilityPopup({
@@ -329,15 +399,16 @@ export default function ReviewAndConfirm() {
           title={t('review_confirm_schedule_for')}
         />
 
-        <ReviewPaymentSection
-          discountSubtitle={discountSubtitle}
-          discountTitle={t('review_confirm_discount_title')}
-          onDiscountPress={() => setIsDiscountCodeSheetVisible(true)}
-          onPaymentPress={() => setIsPaymentMethodSheetVisible(true)}
-          paymentMethod={selectedPaymentMethod}
-          paymentSubtitle={t('review_confirm_payment_subtitle')}
-          paymentTitle={paymentTitle}
-          title={t('review_confirm_payment_section_title')}
+        <ReviewTeamScheduleSection
+          dateTimeLabel={t('review_confirm_date_time_label')}
+          hoursLabel={t('review_confirm_hours_label')}
+          scheduleLabel={reviewScheduleLabel}
+          serviceModeLabel={reviewServiceModeLabel}
+          teamLabel={t('review_confirm_team_label')}
+          teamSizeLabel={reviewTeamLabel}
+          title={t('review_confirm_schedule_title')}
+          typeLabel={t('review_confirm_type_label')}
+          workingHoursLabel={reviewHoursLabel}
         />
 
         <ReviewCancellationSection
@@ -347,6 +418,9 @@ export default function ReviewAndConfirm() {
 
         <ReviewSummarySection
           rows={summaryRows}
+          emptyMessage={
+            isContractBooking ? t('review_confirm_contract_price_pending') : null
+          }
           subtitle={t('review_confirm_summary_subtitle')}
           title={t('review_confirm_summary_title')}
         />
@@ -359,6 +433,9 @@ export default function ReviewAndConfirm() {
         onConfirm={() => setIsConfirmPopupVisible(true)}
         serviceCountLabel={serviceCountLabel}
         totalPrice={totalForFooter}
+        supportingText={
+          isContractBooking ? t('review_confirm_contract_price_footer_note') : null
+        }
       />
 
       <AddressSelectionBottomSheet
@@ -381,28 +458,6 @@ export default function ReviewAndConfirm() {
         onConfirm={handleConfirmBooking}
         title={t('review_confirm_popup_title')}
         visible={isConfirmPopupVisible}
-      />
-
-      <ReviewPaymentMethodBottomSheet
-        cardMaskedLabel="**** 9432"
-        onChangeMethod={(method) => {
-          setSelectedPaymentMethod(method);
-          setIsPaymentMethodSheetVisible(false);
-        }}
-        onClose={() => setIsPaymentMethodSheetVisible(false)}
-        selectedMethod={selectedPaymentMethod}
-        totalAmountLabel={formatPrice(totalForFooter) ?? '$0'}
-        visible={isPaymentMethodSheetVisible}
-      />
-
-      <ReviewDiscountCodeBottomSheet
-        initialCode={discountCode}
-        onApply={(code) => {
-          setDiscountCode(code);
-          setIsDiscountCodeSheetVisible(false);
-        }}
-        onClose={() => setIsDiscountCodeSheetVisible(false)}
-        visible={isDiscountCodeSheetVisible}
       />
 
       <AppPopup

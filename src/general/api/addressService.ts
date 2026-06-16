@@ -130,6 +130,28 @@ export const addressService = {
     }));
   },
 
+  getDistanceMatrix: async (
+    origin: { lat: number; lng: number },
+    destination: { lat: number; lng: number },
+  ) => {
+    const response = await apiClient.post<{
+      distanceKm?: number;
+      durationMin?: number;
+    }>(
+      '/api/v1/maps/distance-matrix',
+      {
+        origins: [`${origin.lat},${origin.lng}`],
+        destinations: [`${destination.lat},${destination.lng}`],
+      },
+      { skipAuth: true },
+    );
+
+    return {
+      distanceKm: typeof response.distanceKm === 'number' ? response.distanceKm : null,
+      durationMin: typeof response.durationMin === 'number' ? response.durationMin : null,
+    };
+  },
+
   // Address CRUD methods (require appPrefix)
   getSavedAddresses: (appPrefix: ProfileAppPrefix) =>
     createAddressService(appPrefix).getSavedAddresses(),
