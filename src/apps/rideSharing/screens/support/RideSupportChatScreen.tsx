@@ -213,12 +213,18 @@ export default function RideSupportChatScreen() {
     ]);
 
     const resolvedChatBoxId = chatBoxId ?? getRideSupportChatBoxId(activeChatBox) ?? undefined;
-
-    sendToChatBoxMutation.mutate({
+    const payload = {
       senderId: currentUserId,
       chatBoxId: resolvedChatBoxId,
       text: trimmed,
+    };
+
+    console.log('[rideSharing][support-chat] send tapped', {
+      endpoint: '/api/v1/apps/ride-hailing/support-chat-app/send-to-admin',
+      payload,
     });
+
+    sendToChatBoxMutation.mutate(payload);
   }, [activeChatBox, chatBoxId, currentUserId, sendToChatBoxMutation, t]);
 
   const handleAttachmentPress = useCallback(async () => {

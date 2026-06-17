@@ -44,8 +44,22 @@ export const rideSupportChatService = {
     apiClient.get<RideSupportChatMessagesResponse>(`${RIDE_SUPPORT_CHAT_APP_BASE}/my-active-messages`),
 
   sendMessage: (payload: SendRideSupportChatMessagePayload) =>
-    apiClient.post<SendRideSupportChatMessageResponse>(`${RIDE_SUPPORT_CHAT_BASE}/send`, payload),
+    apiClient.post<SendRideSupportChatMessageResponse>(
+      `${RIDE_SUPPORT_CHAT_BASE}/send`,
+      payload,
+      { skipSessionExpiryHandling: true },
+    ),
 
-  sendMessageToChatBox: (payload: SendRideSupportChatMessageToChatBoxPayload) =>
-    apiClient.post<SendRideSupportChatMessageResponse>(`${RIDE_SUPPORT_CHAT_APP_BASE}/send-to-admin`, payload),
+  sendMessageToChatBox: (payload: SendRideSupportChatMessageToChatBoxPayload) => {
+    console.log(
+      '[rideSharing][support-chat] POST /api/v1/apps/ride-hailing/support-chat-app/send-to-admin',
+      payload,
+    );
+
+    return apiClient.post<SendRideSupportChatMessageResponse>(
+      `${RIDE_SUPPORT_CHAT_APP_BASE}/send-to-admin`,
+      payload,
+      { skipSessionExpiryHandling: true },
+    );
+  },
 };

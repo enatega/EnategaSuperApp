@@ -5,9 +5,9 @@ const hasValidGoogleIosUrlScheme = iosUrlScheme.startsWith('com.googleuserconten
 module.exports = {
   expo: {
     name: 'Shaaneiol',
-  
+
     version: "1.0.5",
-     slug: "shaaneiol",
+    slug: "shaaneiol",
     owner: "shaaneiol",
     orientation: 'portrait',
     icon: './assets/icon.png',
@@ -36,6 +36,11 @@ module.exports = {
       predictiveBackGestureEnabled: false,
       package: 'com.shaaneiol.app',
       googleServicesFile: './google-services.json',
+      config: {
+        googleMaps: {
+          apiKey: googleMapsApiKey,
+        },
+      },
     },
     web: {
       favicon: './assets/favicon.png',
@@ -48,7 +53,7 @@ module.exports = {
     },
     extra: {
       eas: {
-       projectId: "28588087-0036-483d-9bef-b4fa08944212"
+        projectId: "28588087-0036-483d-9bef-b4fa08944212"
       },
     },
     plugins: [
@@ -69,13 +74,13 @@ module.exports = {
             'Allow EnategaSuperApp to access your location to show nearby stores and delivery availability.',
         },
       ],
-      [
-        'react-native-maps',
-        {
-          androidGoogleMapsApiKey: googleMapsApiKey,
-          iosGoogleMapsApiKey: googleMapsApiKey,
-        },
-      ],
+      // [
+      //   'react-native-maps',
+      //   {
+      //     androidGoogleMapsApiKey: googleMapsApiKey,
+      //     iosGoogleMapsApiKey: googleMapsApiKey,
+      //   },
+      // ],
       hasValidGoogleIosUrlScheme
         ? [
           '@react-native-google-signin/google-signin',
