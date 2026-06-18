@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
@@ -9,9 +9,11 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
 import Text from '../../../../../general/components/Text';
 import HorizontalList from '../../../../../general/components/HorizontalList';
+import AppPopup from '../../../../../general/components/AppPopup';
 import { useTheme } from '../../../../../general/theme/theme';
 import { useShopTypeStoresSections, useShopTypes } from '../../../hooks';
 import StoreCard from '../../../components/storeCard/StoreCard';
+import type { DeliveryNearbyStore } from '../../../api/types';
 import { DeliveriesStackParamList } from '../../../navigation/types';
 import { MultiVendorStackParamList } from '../../navigation/types';
 import DeliveriesSectionEmptyState from '../../../components/home/DeliveriesSectionEmptyState';
@@ -45,6 +47,11 @@ export default function ShopTypeStoreSections() {
   const navigation = useNavigation<NavProp>();
   const { data: shopTypes = [] } = useShopTypes();
   const shopTypeStoreSections = useShopTypeStoresSections(shopTypes);
+  const [selectedClosedStore, setSelectedClosedStore] = useState<DeliveryNearbyStore | null>(null);
+  const closedStoreTypeName = useMemo(
+    () => selectedClosedStore?.shopTypeName?.trim() || t('store_details_closed_store_fallback_name'),
+    [selectedClosedStore?.shopTypeName, t],
+  );
 
   const handleShopTypeSeeAll = useCallback(
     (shopTypeId: string, title: string) => {
@@ -57,6 +64,18 @@ export default function ShopTypeStoreSections() {
     },
     [navigation],
   );
+  const handleCloseClosedStorePopup = useCallback(() => {
+    setSelectedClosedStore(null);
+  }, []);
+
+  const handleSeeMenu = useCallback(() => {
+    if (!selectedClosedStore) {
+      return;
+    }
+
+    navigation.navigate('StoreDetails', { store: selectedClosedStore });
+    setSelectedClosedStore(null);
+  }, [navigation, selectedClosedStore]);
 
 
 
@@ -65,8 +84,34 @@ export default function ShopTypeStoreSections() {
       {shopTypeStoreSections.map(
         ({ shopType, data = [], error, isPending: isStoresPending }) => {
           const resolvedShopTypeName = decodeDisplayText(shopType.name);
+          const normalizedShopTypeName = resolvedShopTypeName.trim().toLowerCase();
           const isEmpty = !isStoresPending && !error && data.length === 0;
           const shouldShowSeeAll = !isStoresPending && !error && data.length > 0;
+          const trackedSectionNames = new Set([
+            'bakery',
+            'farmer market',
+            'flower and gift',
+            'flower and gifts',
+            'food deliveries',
+          ]);
+
+          if (trackedSectionNames.has(normalizedShopTypeName)) {
+            console.log('[deliveries][home-section] shop type section', {
+              heading: resolvedShopTypeName,
+              shopTypeId: shopType.id,
+              shopTypesApi: '/api/v1/apps/deliveries/discovery/shop-types',
+              storesApi: `/api/v1/apps/deliveries/discovery/shop-types/${shopType.id}/stores`,
+              storeCount: data.length,
+              isPending: isStoresPending,
+              hasError: Boolean(error),
+              storeStatuses: data.map((item) => ({
+                storeId: item.storeId,
+                name: item.name,
+                isOpen: item.isOpen ?? null,
+                isAvailable: item.isAvailable ?? null,
+              })),
+            });
+          }
 
           return (
             <View key={shopType.id} style={styles.storeSection}>
@@ -105,16 +150,62 @@ export default function ShopTypeStoreSections() {
               ) : (
                 <HorizontalList
                   data={data}
-                  keyExtractor={(item) => item.storeId}
+                  extraData={data.map((item) => `${item.storeId}:${item.isOpen}:${item.isAvailable}`).join('|')}
+                  keyExtractor={(item, index) =>
+                    `${shopType.id}-${item.storeId}-${item.isOpen === false ? 'closed' : 'open'}-${
+                      item.isAvailable === false ? 'unavailable' : 'available'
+                    }-${index}`
+                  }
                   contentContainerStyle={styles.listContent}
                   ItemSeparatorComponent={() => <View style={styles.separator} />}
-                  renderItem={({ item }) => <StoreCard store={item} />}
+                  renderItem={({ item }) => {
+                    const isClosedStore = item.isOpen === false || item.isAvailable === false;
+
+                    console.log('[deliveries][home-section] render store card', {
+                      heading: resolvedShopTypeName,
+                      shopTypeId: shopType.id,
+                      storeId: item.storeId,
+                      name: item.name,
+                      isOpen: item.isOpen ?? null,
+                      isAvailable: item.isAvailable ?? null,
+                      isClosedStore,
+                    });
+
+                    return (
+                      <StoreCard
+                        store={item}
+                        showClosedOverlay={isClosedStore}
+                        onClosedPress={
+                          isClosedStore
+                            ? () => setSelectedClosedStore(item)
+                            : undefined
+                        }
+                      />
+                    );
+                  }}
                 />
               )}
             </View>
           );
         },
       )}
+
+      <AppPopup
+        description={t('store_details_closed_store_description', { shopTypeName: closedStoreTypeName })}
+        dismissOnOverlayPress
+        onRequestClose={handleCloseClosedStorePopup}
+        primaryAction={{
+          label: t('store_details_close'),
+          onPress: handleCloseClosedStorePopup,
+        }}
+        secondaryAction={{
+          label: t('store_closed_see_menu'),
+          onPress: handleSeeMenu,
+          variant: 'secondary',
+        }}
+        title={t('store_closed_modal_title')}
+        visible={Boolean(selectedClosedStore)}
+      />
     </View>
   );
 }

@@ -22,6 +22,7 @@ export const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: 140,
+    overflow: 'hidden',
   },
   image: {
     width: '100%',
@@ -32,6 +33,8 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 2,
+    elevation: 2,
   },
   closedLabel: {
     fontSize: 14,
@@ -50,6 +53,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
+    zIndex: 1,
   },
   offerIcon: {
     marginRight: 4,
