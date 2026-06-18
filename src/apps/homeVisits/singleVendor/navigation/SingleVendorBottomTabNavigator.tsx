@@ -1,8 +1,11 @@
 import React from 'react';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Image, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../general/theme/theme';
+import Icon from '../../../../general/components/Icon';
+import useProfile from '../../../../general/hooks/useProfile';
 import SingleVendorTabButton from '../components/navigation/SingleVendorTabButton';
 import SingleVendorHomeScreen from '../screens/HomeScreen';
 import SingleVendorOrdersScreen from '../screens/OrdersScreen';
@@ -17,9 +20,43 @@ type TabIconProps = {
   size: number;
 };
 
+function ProfileTabAvatar({
+  color,
+  imageUri,
+  isFocused,
+  size,
+}: TabIconProps & {
+  imageUri?: string;
+  isFocused: boolean;
+}) {
+  return (
+    <View
+      style={[
+        styles.profileAvatarShell,
+        {
+          borderColor: isFocused ? color : 'transparent',
+        },
+      ]}
+    >
+      {imageUri ? (
+        <Image source={{ uri: imageUri }} style={styles.profileAvatarImage} />
+      ) : (
+        <Icon
+          type="MaterialCommunityIcons"
+          name="account-outline"
+          size={size}
+          color={color}
+        />
+      )}
+    </View>
+  );
+}
+
 export default function SingleVendorBottomTabNavigator() {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('homeVisits');
+  const { user } = useProfile('home-services');
+  const profileImageUri = user?.image ?? undefined;
 
   return (
     <Tab.Navigator
@@ -99,10 +136,11 @@ export default function SingleVendorBottomTabNavigator() {
         component={SingleVendorProfileScreen}
         name="SingleVendorTabProfile"
         options={{
-          tabBarIcon: ({ color, size }: TabIconProps) => (
-            <MaterialCommunityIcons
+          tabBarIcon: ({ color, focused, size }) => (
+            <ProfileTabAvatar
               color={color}
-              name="account-outline"
+              imageUri={profileImageUri}
+              isFocused={focused}
               size={size}
             />
           ),
@@ -113,3 +151,19 @@ export default function SingleVendorBottomTabNavigator() {
     </Tab.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  profileAvatarShell: {
+    alignItems: 'center',
+    borderRadius: 999,
+    borderWidth: 2,
+    height: 28,
+    justifyContent: 'center',
+    overflow: 'hidden',
+    width: 28,
+  },
+  profileAvatarImage: {
+    height: '100%',
+    width: '100%',
+  },
+});
