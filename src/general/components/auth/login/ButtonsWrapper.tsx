@@ -29,6 +29,7 @@ const ButtonsWrapper = () => {
             />
           }
           label={t("continue_with_email")}
+          labelStyle={{ color: colors.primary }}
           style={{ backgroundColor: colors.backgroundTertiary }}
           onPress={() => {
             setFlowType("login");

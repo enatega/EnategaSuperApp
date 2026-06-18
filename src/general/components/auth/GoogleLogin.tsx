@@ -96,6 +96,7 @@ const GoogleLogin = () => {
       variant="secondary"
       icon={<Svg name="google" height={20} width={20} />}
       label={t("continue_with_google")}
+      labelStyle={{ color: colors.primary }}
       style={{ backgroundColor: colors.backgroundTertiary }}
       onPress={handleGoogleLogin}
       isLoading={googleLoginMutation.isPending}
