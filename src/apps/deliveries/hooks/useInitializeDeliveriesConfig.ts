@@ -8,6 +8,7 @@ import {
   type DeliveriesPlatformConfigurationResponse,
 } from '../api/platformConfigurationService';
 import { ApiError } from '../../../general/api/apiClient';
+import { useAuthSessionQuery } from '../../../general/hooks/useAuthQueries';
 import {
   mapPlatformTypeToDeliveryMode,
   useAppConfigStore,
@@ -78,6 +79,7 @@ function areBootstrapConfigsEqual(
 }
 
 export function useInitializeDeliveriesConfig() {
+  const authSessionQuery = useAuthSessionQuery();
   const {
     deliveries,
     setDeliveriesPlatformConfiguration,
@@ -92,6 +94,7 @@ export function useInitializeDeliveriesConfig() {
   const [hasCachedConfig, setHasCachedConfig] = useState(false);
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
   const lastForegroundRefetchAtRef = useRef(0);
+  const hasAccessToken = Boolean(authSessionQuery.data?.token);
 
   useEffect(() => {
     let isMounted = true;
@@ -142,6 +145,7 @@ export function useInitializeDeliveriesConfig() {
 
   const platformConfigurationQuery = useQuery<DeliveriesBootstrapConfig, ApiError>({
     queryKey: deliveryKeys.appConfig(),
+    enabled: hasAccessToken,
     queryFn: async () => {
       const [platformConfigurationResponse, appSettingsResponse, currencies] =
         await Promise.all([
@@ -175,6 +179,25 @@ export function useInitializeDeliveriesConfig() {
   });
 
   useEffect(() => {
+    if (!hasAccessToken) {
+      if (__DEV__) {
+        console.log('[DeliveriesConfig] Skipping remote config bootstrap because no auth token is available');
+      }
+
+      setDeliveriesConfigLoading(false);
+      setDeliveriesConfigError(null);
+
+      if (deliveries.platformConfiguration && deliveries.deliveryMode) {
+        markDeliveriesConfigLoaded();
+        return;
+      }
+
+      setDeliveriesAppSettings(null);
+      setDeliveriesDeliveryMode(mapPlatformTypeToDeliveryMode('MULTI_VENDOR'));
+      markDeliveriesConfigLoaded();
+      return;
+    }
+
     const shouldShowLoadingState =
       !hasCachedConfig &&
       !deliveries.platformConfiguration &&
@@ -184,13 +207,19 @@ export function useInitializeDeliveriesConfig() {
 
     setDeliveriesConfigLoading(shouldShowLoadingState);
   }, [
+    hasAccessToken,
+    deliveries.appSettings,
     deliveries.deliveryMode,
     deliveries.platformConfiguration,
     hasCachedConfig,
     isHydratingCache,
+    markDeliveriesConfigLoaded,
     platformConfigurationQuery.isFetching,
     platformConfigurationQuery.isLoading,
+    setDeliveriesAppSettings,
+    setDeliveriesConfigError,
     setDeliveriesConfigLoading,
+    setDeliveriesDeliveryMode,
   ]);
 
   useEffect(() => {
@@ -201,6 +230,13 @@ export function useInitializeDeliveriesConfig() {
       appStateRef.current = nextAppState;
 
       if (!wasBackgrounded || nextAppState !== 'active') {
+        return;
+      }
+
+      if (!hasAccessToken) {
+        if (__DEV__) {
+          console.log('[DeliveriesConfig] Skipping foreground refetch because user is logged out');
+        }
         return;
       }
 
@@ -224,7 +260,7 @@ export function useInitializeDeliveriesConfig() {
     return () => {
       subscription.remove();
     };
-  }, [platformConfigurationQuery]);
+  }, [hasAccessToken, platformConfigurationQuery]);
 
   useEffect(() => {
     if (!platformConfigurationQuery.data) {
