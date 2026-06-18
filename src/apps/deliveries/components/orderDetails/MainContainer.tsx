@@ -142,7 +142,7 @@ export default function MainContainer({ navigation, orderId }: Props) {
           shouldShowTrackProgress={shouldShowTrackProgress}
           shouldShowOrderAgain={shouldShowOrderAgain}
           navigation={navigation}
-          orderId={order.orderId}
+          orderId={orderId}
           storeName={order.store.name}
         />
       </ScrollView>

@@ -38,6 +38,7 @@ import SupportTicketDetailScreen from "../screens/SupportTicketDetailScreen";
 import RiderChatScreen from "../screens/RiderChatScreen/RiderChatScreen";
 import CouponsScreen from "../screens/CouponsScreen/CouponsScreen";
 import {
+  DEFAULT_DELIVERY_MODE,
   mapDeliveryModeToRoute,
 } from "./deliveryModePreference";
 import type { DeliveriesStackParamList } from "./types";
@@ -58,13 +59,20 @@ const sharedScreenOptions = { headerShown: false } as const;
 export default function DeliveriesNavigator() {
   const deliveryMode = useDeliveriesDeliveryMode();
   const configQuery = useInitializeDeliveriesConfig();
+  const initialRouteName = mapDeliveryModeToRoute(
+    deliveryMode ?? DEFAULT_DELIVERY_MODE,
+  );
 
-  if (!deliveryMode || configQuery.isLoading || configQuery.isFetching) {
+  if (configQuery.isHydratingCache) {
+    return null;
+  }
+
+  if (!deliveryMode && (configQuery.isLoading || configQuery.isFetching)) {
     return <DeliveriesStartupSkeleton />;
   }
 
   return (
-    <Stack.Navigator initialRouteName={mapDeliveryModeToRoute(deliveryMode)}>
+    <Stack.Navigator initialRouteName={initialRouteName}>
       <Stack.Screen
         name="SingleVendor"
         component={SingleVendorNavigator}

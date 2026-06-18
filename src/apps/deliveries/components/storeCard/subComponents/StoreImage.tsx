@@ -40,17 +40,17 @@ export default function StoreImage({
       ) : null}
 
       {offer && (
-        <View style={[styles.offerBadge, { backgroundColor: colors.primary }]}>
+        <View style={[styles.offerBadge, { backgroundColor: colors.secondary }]}>
           <Ionicons
             name="pricetag"
             size={12}
-            color={colors.white}
+            color={colors.blue800}
             style={styles.offerIcon}
           />
           <Text
             variant="caption"
             weight="semiBold"
-            style={[styles.offerText, { color: colors.white }]}
+            style={[styles.offerText, { color: colors.blue800 }]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >

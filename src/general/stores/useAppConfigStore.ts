@@ -44,12 +44,23 @@ export type DeliveriesPlatformConfiguration = {
   updated_at: string;
 };
 
+export type DeliveriesAppSettings = {
+  is_maintenance_mode: boolean;
+  maintenance_message: string | null;
+  primary_color: string | null;
+  secondary_color: string | null;
+  tertiary_color: string | null;
+};
+
 export type DeliveryMode = 'singleVendor' | 'multiVendor' | 'chain';
+export type OrderTrackingVariant = 'legacy' | 'modern';
 
 type DeliveriesAppConfigState = AppConfigStatus & {
   platformConfiguration: DeliveriesPlatformConfiguration | null;
+  appSettings: DeliveriesAppSettings | null;
   deliveryMode: DeliveryMode | null;
   currency: AppCurrency | null;
+  orderTrackingVariant: OrderTrackingVariant;
 };
 
 type AppConfigState = {
@@ -66,8 +77,14 @@ type AppConfigState = {
   setDeliveriesPlatformConfiguration: (
     platformConfiguration: DeliveriesPlatformConfiguration | null,
   ) => void;
+  setDeliveriesAppSettings: (
+    appSettings: DeliveriesAppSettings | null,
+  ) => void;
   setDeliveriesDeliveryMode: (deliveryMode: DeliveryMode | null) => void;
   setDeliveriesCurrency: (currency: AppCurrency | null) => void;
+  setDeliveriesOrderTrackingVariant: (
+    orderTrackingVariant: OrderTrackingVariant,
+  ) => void;
   setDeliveriesConfigLoading: (isLoading: boolean) => void;
   setDeliveriesConfigError: (error: string | null) => void;
   markDeliveriesConfigLoaded: () => void;
@@ -84,8 +101,10 @@ const initialRideSharingConfigState: RideSharingAppConfigState = {
 
 const initialDeliveriesConfigState: DeliveriesAppConfigState = {
   platformConfiguration: null,
+  appSettings: null,
   deliveryMode: null,
   currency: null,
+  orderTrackingVariant: 'modern',
   isLoading: false,
   isLoaded: false,
   error: null,
@@ -151,6 +170,15 @@ export const useAppConfigStore = create<AppConfigState>((set) => ({
       },
     })),
 
+  setDeliveriesAppSettings: (appSettings) =>
+    set((state) => ({
+      deliveries: {
+        ...state.deliveries,
+        appSettings,
+        error: null,
+      },
+    })),
+
   setDeliveriesDeliveryMode: (deliveryMode) =>
     set((state) => ({
       deliveries: {
@@ -165,6 +193,14 @@ export const useAppConfigStore = create<AppConfigState>((set) => ({
         ...state.deliveries,
         currency,
         error: null,
+      },
+    })),
+
+  setDeliveriesOrderTrackingVariant: (orderTrackingVariant) =>
+    set((state) => ({
+      deliveries: {
+        ...state.deliveries,
+        orderTrackingVariant,
       },
     })),
 
@@ -224,6 +260,15 @@ export function useRideSharingCurrencyCode() {
   return resolveCurrencyCodeValue(currency);
 }
 
+export function useDeliveriesOrderTrackingVariant() {
+  return useAppConfigStore((state) => state.deliveries.orderTrackingVariant);
+}
+
+export function getDeliveriesOrderTrackingVariant(): OrderTrackingVariant {
+  const variant = useAppConfigStore.getState().deliveries.orderTrackingVariant;
+  return variant === 'legacy' || variant === 'modern' ? variant : 'legacy';
+}
+
 export function getRideSharingCurrencyLabel() {
   return resolveCurrencyDisplayValue(useAppConfigStore.getState().rideSharing.currency);
 }
@@ -248,6 +293,10 @@ export function mapPlatformTypeToDeliveryMode(
 
 export function useDeliveriesPlatformConfiguration() {
   return useAppConfigStore((state) => state.deliveries.platformConfiguration);
+}
+
+export function useDeliveriesAppSettings() {
+  return useAppConfigStore((state) => state.deliveries.appSettings);
 }
 
 export function useDeliveriesDeliveryMode() {
