@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AppPopup from '../../../../../general/components/AppPopup';
+import { useTheme } from '../../../../../general/theme/theme';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
 import { useNearbyStores } from '../../../hooks';
@@ -31,6 +32,7 @@ type Props = {
 export default function NearbyStoreList(props: Props) {
   const { search, selectedCategoryId, selectedShopTypeId, filters } = props;
   const { t } = useTranslation('deliveries');
+  const { colors } = useTheme();
   const navigation = useNavigation<NavProp>();
   const resolvedCategoryIds =
     selectedCategoryId ? [selectedCategoryId] : (filters?.category_ids ?? []);
@@ -130,6 +132,7 @@ export default function NearbyStoreList(props: Props) {
             setSelectedClosedStore(null);
           },
           variant: 'secondary',
+          labelStyle: { color: colors.primary },
         }}
         title={t('store_closed_modal_title')}
         visible={Boolean(selectedClosedStore)}

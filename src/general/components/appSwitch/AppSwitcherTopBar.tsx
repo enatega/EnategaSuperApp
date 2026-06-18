@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View, Platform, StatusBar, Image, type Ima
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme/theme';
 import { resetToSharedRoute } from '../../navigation/rootNavigation';
+import { useDeliveriesAppSettings } from '../../stores/useAppConfigStore';
 
 type SwitcherKey = 'ride' | 'deliveries' | 'courier';
 
@@ -25,6 +26,21 @@ const OPTIONS: SwitchOption[] = [
   { key: 'courier', label: 'Courier', icon: require('../../../apps/rideSharing/assets/images/courierHomeIcon.png') },
 ];
 
+function normalizeHexColor(value: string | null | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  const trimmedValue = value.trim();
+  const normalizedValue = trimmedValue.startsWith('#')
+    ? trimmedValue
+    : `#${trimmedValue}`;
+
+  return /^#[0-9A-Fa-f]{6}$/.test(normalizedValue)
+    ? normalizedValue.toUpperCase()
+    : null;
+}
+
 function AppSwitcherTopBarComponent({
   activeKey,
   rightAction,
@@ -32,12 +48,31 @@ function AppSwitcherTopBarComponent({
   overlayOnMap = false,
 }: AppSwitcherTopBarProps) {
   const { colors, typography } = useTheme();
+  const deliveriesAppSettings = useDeliveriesAppSettings();
   const insets = useSafeAreaInsets();
   const androidStatusBarHeight = StatusBar.currentHeight ?? 0;
   const topInset = Math.max(
     insets.top,
     Platform.OS === 'android' ? androidStatusBarHeight : 0,
   );
+  const switcherAccentBackground =
+    normalizeHexColor(deliveriesAppSettings?.primary_color) ?? colors.primary;
+  const switcherAccentBorder =
+    normalizeHexColor(deliveriesAppSettings?.secondary_color) ?? colors.primaryDark;
+  const switcherAccentText =
+    normalizeHexColor(deliveriesAppSettings?.button_text_color) ?? colors.onPrimary;
+  const topBackgroundColor = overlayOnMap ? 'transparent' : colors.background;
+
+  if (__DEV__) {
+    console.log('[AppSwitcherTopBar] Branding state', {
+      activeKey,
+      primary: colors.primary,
+      onPrimary: colors.onPrimary,
+      topBackgroundColor,
+      overlayOnMap,
+      deliveriesAppSettings,
+    });
+  }
 
   const handlePress = useCallback(
     (key: SwitcherKey) => {
@@ -71,8 +106,25 @@ function AppSwitcherTopBarComponent({
   );
 
   return (
-    <View style={[styles.wrapper, overlayOnMap ? styles.wrapperOverlay : null, { paddingTop: topInset }]}>
-      <View style={[styles.container, { backgroundColor: colors.surface }]}>
+    <View
+      style={[
+        styles.wrapper,
+        overlayOnMap ? styles.wrapperOverlay : null,
+        {
+          paddingTop: topInset,
+          backgroundColor: topBackgroundColor,
+        },
+      ]}
+    >
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: colors.surface,
+            borderColor: colors.border,
+          },
+        ]}
+      >
         <View style={styles.tabsRow}>
           {OPTIONS.map((option) => {
             const isActive = option.key === activeKey;
@@ -84,8 +136,8 @@ function AppSwitcherTopBarComponent({
                 style={[
                   styles.optionButton,
                   {
-                    backgroundColor: isActive ? colors.blue50 : 'transparent',
-                    borderColor: isActive ? colors.blue800 : 'transparent',
+                    backgroundColor: isActive ? switcherAccentBackground : 'transparent',
+                    borderColor: isActive ? switcherAccentBorder : 'transparent',
                   },
                 ]}
               >
@@ -94,7 +146,7 @@ function AppSwitcherTopBarComponent({
                   style={[
                     styles.optionText,
                     {
-                      color: isActive ? colors.blue800 : '#374151',
+                      color: isActive ? switcherAccentText : colors.text,
                       fontFamily: isActive
                         ? typography.fontFamily.semiBold
                         : typography.fontFamily.medium,
@@ -114,7 +166,7 @@ function AppSwitcherTopBarComponent({
           style={[
             styles.expandedContent,
             {
-              backgroundColor: overlayOnMap ? 'transparent' : colors.surface,
+              backgroundColor: overlayOnMap ? topBackgroundColor : colors.surface,
             },
           ]}
         >

@@ -15,12 +15,14 @@ import useDeliveriesSeeAllScreenState from './useDeliveriesSeeAllScreenState';
 import type { DeliveryNearbyStore } from '../../api/types';
 import AppPopup from '../../../../general/components/AppPopup';
 import { G } from 'react-native-svg';
+import { useTheme } from '../../../../general/theme/theme';
 
 type NavigationProp = NativeStackNavigationProp<DeliveriesSeeAllParamList>;
 type SeeAllRouteProp = RouteProp<DeliveriesSeeAllParamList, 'SeeAllScreen'>;
 
 export default function DeliveriesSeeAllScreen() {
   const { t } = useTranslation('general');
+  const { colors } = useTheme();
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<SeeAllRouteProp>();
   const { queryType, title, shopTypeId, vendorId, categoryId, cardType, cardVariant } =
@@ -193,6 +195,7 @@ export default function DeliveriesSeeAllScreen() {
             setSelectedClosedStore(null);
           },
           variant: 'secondary',
+          labelStyle: { color: colors.primary },
         }}
         title={t('store_closed_modal_title', { ns: 'deliveries' })}
         visible={Boolean(selectedClosedStore)}

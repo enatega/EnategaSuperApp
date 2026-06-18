@@ -38,7 +38,8 @@ export default function SectionActionHeader({
           style={[
             styles.actionButton,
             {
-              backgroundColor: colors.blue100,
+              backgroundColor: colors.primary,
+              borderColor: colors.primary,
               shadowColor: colors.shadowColor,
             },
           ]}
@@ -46,7 +47,7 @@ export default function SectionActionHeader({
           <Text
             weight="medium"
             style={{
-              color: colors.text,
+              color: colors.onPrimary,
               fontSize: typography.size.sm2,
               lineHeight: 22,
               fontWeight: '700',
@@ -68,6 +69,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     alignItems: 'center',
+    borderWidth: 1,
     borderRadius: 5,
     justifyContent: 'center',
     minHeight: 30,

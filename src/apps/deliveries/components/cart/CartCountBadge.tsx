@@ -17,7 +17,7 @@ export default function CartCountBadge({ count, style }: Props) {
 
   return (
     <View style={[styles.badge, { backgroundColor: colors.primary }, style]}>
-      <Text color={colors.white} style={styles.label} weight="semiBold">
+      <Text color={colors.onPrimary} style={styles.label} weight="semiBold">
         {count}
       </Text>
     </View>

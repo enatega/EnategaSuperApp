@@ -25,20 +25,13 @@ export default function SingleVendorTabButton({
       onPress={onPress}
       style={[
         styles.button,
+        isSelected ? styles.selectedButton : null,
         {
-          backgroundColor: isSelected ? colors.blue100 : colors.surface,
+          backgroundColor: isSelected ? colors.primary : 'transparent',
         },
       ]}
       testID={testID}
     >
-      <View
-        style={[
-          styles.indicator,
-          {
-            backgroundColor: isSelected ? colors.primary : 'transparent',
-          },
-        ]}
-      />
       {children}
     </Pressable>
   );
@@ -49,11 +42,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
-    minHeight: 72,
+    minHeight: 56,
+    marginHorizontal: 4,
+    marginVertical: 6,
+    borderRadius: 18,
   },
-  indicator: {
-    alignSelf: 'stretch',
-    height: 2,
-    marginBottom: 6,
+  selectedButton: {
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
 });

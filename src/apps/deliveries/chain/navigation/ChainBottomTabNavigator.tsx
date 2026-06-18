@@ -47,7 +47,7 @@ export default function ChainBottomTabNavigator() {
       screenOptions={{
         freezeOnBlur: true,
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: colors.onPrimary,
         tabBarButton: (props) => <ChainTabButton {...props} />,
         tabBarHideOnKeyboard: true,
         tabBarIconStyle: {
@@ -64,8 +64,11 @@ export default function ChainBottomTabNavigator() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
+          borderTopWidth: 1,
           height: DELIVERIES_TAB_BAR_HEIGHT + safeBottom,
           paddingBottom: safeBottom,
+          paddingHorizontal: 8,
+          paddingTop: 4,
         },
       }}
     >

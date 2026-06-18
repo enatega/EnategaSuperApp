@@ -8,6 +8,18 @@ import type {
 const DELIVERIES_PLATFORM_CONFIGURATION_PATH =
   '/api/v1/apps/deliveries/platform-configuration';
 const DELIVERIES_CURRENCY_PATH = '/api/v1/apps/deliveries/currency';
+const DELIVERIES_APP_SETTINGS_PATH =
+  '/api/v1/apps/deliveries/app-settings/CUSTOMER';
+
+export type DeliveriesAppSettingsResponse = DeliveriesAppSettings & {
+  id: string;
+  app_type: string;
+  global_logo: string | null;
+  splash_screen: string | null;
+  maintenance_message_image: string | null;
+  created_at: string;
+  updated_at: string;
+};
 
 export type DeliveriesPlatformConfigurationResponse =
   DeliveriesPlatformConfiguration & {
@@ -17,12 +29,20 @@ export type DeliveriesPlatformConfigurationResponse =
     primary_color?: string | null;
     secondary_color?: string | null;
     tertiary_color?: string | null;
+    button_text_color?: string | null;
   };
 
 export const platformConfigurationService = {
   getPlatformConfiguration: () =>
     apiClient.get<DeliveriesPlatformConfigurationResponse>(
       DELIVERIES_PLATFORM_CONFIGURATION_PATH,
+    ),
+
+  getAppSettings: () =>
+    apiClient.get<DeliveriesAppSettingsResponse>(
+      DELIVERIES_APP_SETTINGS_PATH,
+      undefined,
+      { skipAuth: true, skipSessionExpiryHandling: true },
     ),
 
   getCurrencies: async (): Promise<AppCurrency[]> => {

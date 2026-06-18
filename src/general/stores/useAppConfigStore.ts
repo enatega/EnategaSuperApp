@@ -50,6 +50,7 @@ export type DeliveriesAppSettings = {
   primary_color: string | null;
   secondary_color: string | null;
   tertiary_color: string | null;
+  button_text_color: string | null;
 };
 
 export type DeliveryMode = 'singleVendor' | 'multiVendor' | 'chain';

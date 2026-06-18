@@ -217,6 +217,7 @@ export default function SpecialOffersBanner({
             setSelectedClosedStore(null);
           },
           variant: 'secondary',
+          labelStyle: { color: colors.primary },
         }}
         title={t('store_closed_modal_title')}
         visible={Boolean(selectedClosedStore)}

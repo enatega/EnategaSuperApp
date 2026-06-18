@@ -190,7 +190,10 @@ function FindingRideBidCard({
                 ]}
               />
             </View>
-            <Text weight="medium" style={styles.acceptLabel}>
+            <Text
+              weight="medium"
+              style={[styles.acceptLabel, { color: colors.onPrimary }]}
+            >
               {isAccepting ? 'Accepting...' : isExpired ? 'Expired' : 'Accept'}
             </Text>
           </Pressable>
@@ -307,6 +310,5 @@ const styles = StyleSheet.create({
   acceptLabel: {
     fontSize: 16,
     lineHeight: 24,
-    color: '#FFFFFF',
   },
 });

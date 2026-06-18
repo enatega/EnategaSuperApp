@@ -15,6 +15,9 @@ const baseLightColors = {
   primary: "#2346E8",
   primaryDark: "#1C2FA6",
   secondary: "#6B5BFF",
+  onPrimary: "#FFFFFF",
+  onSecondary: "#FFFFFF",
+  onTertiary: "#111827",
   text: "#111827",
   mutedText: "#6B7280",
   border: "#E4E4E7",
@@ -82,6 +85,14 @@ type ThemeScheme = "light" | "dark";
 type ThemeColorOverrides = Partial<ThemeColors>;
 type ThemeColorOverrideSet = Record<ThemeScheme, ThemeColorOverrides>;
 
+function shouldApplyDeliveriesBranding(appId: ThemedMiniAppId) {
+  return (
+    appId === "deliveries" ||
+    appId === "general" ||
+    appId === "rideSharing"
+  );
+}
+
 function normalizeHexColor(value: string | null | undefined): string | null {
   if (!value) {
     return null;
@@ -144,14 +155,18 @@ function buildDeliveriesDynamicOverrides(
   const primaryColor = normalizeHexColor(appSettings?.primary_color);
   const secondaryColor = normalizeHexColor(appSettings?.secondary_color);
   const tertiaryColor = normalizeHexColor(appSettings?.tertiary_color);
+  const buttonTextColor = normalizeHexColor(appSettings?.button_text_color);
 
-  if (!primaryColor && !secondaryColor && !tertiaryColor) {
+  if (!primaryColor && !secondaryColor && !tertiaryColor && !buttonTextColor) {
     return {};
   }
 
   const resolvedPrimary = primaryColor ?? baseLightColors.primary;
   const resolvedSecondary = secondaryColor ?? resolvedPrimary;
   const resolvedTertiary = tertiaryColor ?? resolvedSecondary;
+  const resolvedButtonTextColor =
+    buttonTextColor ??
+    (scheme === "dark" ? baseDarkColors.onPrimary : baseLightColors.onPrimary);
   const warmSurfaceSoft = lighten(resolvedTertiary, 0.34);
   const warmSurfaceStrong = mixColors(resolvedTertiary, resolvedSecondary, 0.08);
   const darkAccent = darken(resolvedPrimary, 0.04);
@@ -167,6 +182,9 @@ function buildDeliveriesDynamicOverrides(
       primary: lightPrimary,
       primaryDark: resolvedSecondary,
       secondary: resolvedSecondary,
+      onPrimary: resolvedButtonTextColor,
+      onSecondary: resolvedButtonTextColor,
+      onTertiary: resolvedButtonTextColor,
       blue50: darkSurfaceSoft,
       blue100: darkWarmAccent,
       blue500: resolvedSecondary,
@@ -195,6 +213,9 @@ function buildDeliveriesDynamicOverrides(
     primary: darkAccent,
     primaryDark: darken(resolvedPrimary, 0.08),
     secondary: resolvedSecondary,
+    onPrimary: resolvedButtonTextColor,
+    onSecondary: resolvedButtonTextColor,
+    onTertiary: resolvedButtonTextColor,
     blue50: warmSurfaceSoft,
     blue100: warmSurfaceStrong,
     blue500: resolvedSecondary,
@@ -226,6 +247,9 @@ const baseDarkColors: ThemeColors = {
   primary: "#4C7DFF",
   primaryDark: "#2E4BC8",
   secondary: "#8B7BFF",
+  onPrimary: "#0F1117",
+  onSecondary: "#0F1117",
+  onTertiary: "#0F1117",
   text: "#F9FAFB",
   mutedText: "#9CA3AF",
   border: "#424244",
@@ -407,11 +431,12 @@ export function resolveThemeColors(
   deliveriesAppSettings?: DeliveriesAppSettings | null,
 ): ThemeColors {
   const dynamicDeliveriesSignature =
-    appId === "deliveries"
+    shouldApplyDeliveriesBranding(appId)
       ? JSON.stringify({
           primary: normalizeHexColor(deliveriesAppSettings?.primary_color),
           secondary: normalizeHexColor(deliveriesAppSettings?.secondary_color),
           tertiary: normalizeHexColor(deliveriesAppSettings?.tertiary_color),
+          buttonText: normalizeHexColor(deliveriesAppSettings?.button_text_color),
         })
       : "static";
   const cacheKey = `${scheme}:${appId}:${dynamicDeliveriesSignature}`;
@@ -425,10 +450,21 @@ export function resolveThemeColors(
   const mergedColors = Object.freeze({
     ...baseColors,
     ...appColorOverrides[appId][scheme],
-    ...(appId === "deliveries"
+    ...(shouldApplyDeliveriesBranding(appId)
       ? buildDeliveriesDynamicOverrides(scheme, deliveriesAppSettings)
       : {}),
   });
+
+  if (__DEV__ && shouldApplyDeliveriesBranding(appId)) {
+    console.log("[Theme] Resolved colors", {
+      appId,
+      scheme,
+      primary: mergedColors.primary,
+      secondary: mergedColors.secondary,
+      onPrimary: mergedColors.onPrimary,
+      hasDeliveriesSettings: Boolean(deliveriesAppSettings),
+    });
+  }
 
   resolvedThemeColorsCache.set(cacheKey, mergedColors);
   return mergedColors;

@@ -61,7 +61,7 @@ export default function ItemInfo({
         <View style={styles.priceRow}>
           {originalPriceLabel ? (
             <Text
-              color={colors.fontSecondColor}
+              color={colors.mutedText}
               style={[
                 styles.originalPrice,
                 {
@@ -86,7 +86,7 @@ export default function ItemInfo({
           {offerLabel ? (
             <View style={[styles.offerBadge, { backgroundColor: colors.secondary }]}>
               <Text
-                color={colors.blue800}
+                color={colors.onSecondary}
                 weight="medium"
                 style={{
                   fontSize: typography.size.xxs,

@@ -52,7 +52,7 @@ function RideEstimateAddressSummaryCard({
       ]}
     >
       <Pressable onPress={onFromPress} style={styles.row} accessibilityRole="button">
-        <View style={[styles.statusDot, { borderColor: '#6EE7B7' }]} />
+        <View style={[styles.statusDot, { borderColor: colors.success }]} />
         <Text numberOfLines={1} style={styles.addressText}>
           {fromAddress.description}
         </Text>
@@ -60,7 +60,7 @@ function RideEstimateAddressSummaryCard({
 
       {visibleStop ? (
         <Pressable onPress={() => onStopPress?.(0)} style={styles.row} accessibilityRole="button">
-          <View style={[styles.statusDot, { borderColor: '#FBBF24' }]} />
+          <View style={[styles.statusDot, { borderColor: colors.warning }]} />
           <Text numberOfLines={1} style={styles.addressText}>
             {visibleStop.description}
           </Text>
@@ -78,7 +78,7 @@ function RideEstimateAddressSummaryCard({
 
       <View style={styles.row}>
         <Pressable onPress={onToPress} style={[styles.row, styles.addressRow]} accessibilityRole="button">
-          <View style={[styles.statusDot, { borderColor: '#F87171' }]} />
+          <View style={[styles.statusDot, { borderColor: colors.danger }]} />
           <Text numberOfLines={1} style={styles.addressText}>
             {toAddress.description}
           </Text>

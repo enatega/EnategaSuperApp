@@ -55,7 +55,7 @@ export default function Deals({
   onActionPress,
   onItemPress,
 }: Props) {
-  const { typography } = useTheme();
+  const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavigationProp>();
   const [selectedClosedStore, setSelectedClosedStore] = useState<DeliveryNearbyStore | null>(null);
@@ -150,6 +150,7 @@ export default function Deals({
           label: t('store_closed_see_menu'),
           onPress: handleSeeMenu,
           variant: 'secondary',
+          labelStyle: { color: colors.primary },
         }}
         title={t('store_closed_modal_title')}
         visible={Boolean(selectedClosedStore)}

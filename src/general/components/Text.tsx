@@ -11,6 +11,7 @@ type Props = {
   weight?: "regular" | "medium" | "semiBold" | "bold" | "extraBold";
   color?: string;
   numberOfLines?: number;
+  ellipsizeMode?: "head" | "middle" | "tail" | "clip";
 };
 
 export default function Text({
@@ -20,6 +21,7 @@ export default function Text({
   weight = "regular",
   color,
   numberOfLines,
+  ellipsizeMode,
 }: Props) {
   const { colors, typography } = useTheme();
 
@@ -61,6 +63,7 @@ export default function Text({
         style,
       ]}
       numberOfLines={numberOfLines}
+      ellipsizeMode={ellipsizeMode}
     >
       {children}
     </RNText>

@@ -38,7 +38,7 @@ function DeliveriesFloatingCartButton({ style }: Props) {
         style,
         {
           backgroundColor: colors.primary,
-          borderColor: colors.white,
+          borderColor: colors.onPrimary,
           opacity: pressed ? 0.94 : 1,
           shadowColor: colors.shadowColor,
         },
@@ -49,7 +49,7 @@ function DeliveriesFloatingCartButton({ style }: Props) {
         style={[styles.iconHalo, { backgroundColor: 'rgba(255, 255, 255, 0.14)' }]}
       />
       <MaterialCommunityIcons
-        color={colors.white}
+        color={colors.onPrimary}
         name="cart-outline"
         size={24}
       />
@@ -57,13 +57,13 @@ function DeliveriesFloatingCartButton({ style }: Props) {
         style={[
           styles.badge,
           {
-            backgroundColor: colors.surface,
-            borderColor: colors.primary,
+            backgroundColor: colors.primary,
+            borderColor: colors.onPrimary,
           },
         ]}
       >
         <Text
-          color={colors.primary}
+          color={colors.onPrimary}
           style={{
             fontFamily: typography.fontFamily.semiBold,
             fontSize: typography.size.xs2,

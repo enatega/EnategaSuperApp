@@ -61,6 +61,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     [activeMiniApp, activeScheme, deliveriesAppSettings],
   );
 
+  useEffect(() => {
+    if (!__DEV__) {
+      return;
+    }
+
+    console.log('[ThemeProvider] Active theme state', {
+      activeMiniApp,
+      activeScheme,
+      themeMode,
+      primary: theme.colors.primary,
+      secondary: theme.colors.secondary,
+      onPrimary: theme.colors.onPrimary,
+      deliveriesAppSettings,
+    });
+  }, [activeMiniApp, activeScheme, deliveriesAppSettings, theme, themeMode]);
+
   const value = useMemo(
     () => ({ theme, themeMode, activeMiniApp, setThemeMode, setActiveMiniApp }),
     [activeMiniApp, theme, themeMode, setActiveMiniApp]

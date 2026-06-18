@@ -39,7 +39,9 @@ function isAppSettings(value: unknown): value is DeliveriesAppSettings {
     (typeof value.primary_color === 'string' || value.primary_color === null) &&
     (typeof value.secondary_color === 'string' ||
       value.secondary_color === null) &&
-    (typeof value.tertiary_color === 'string' || value.tertiary_color === null)
+    (typeof value.tertiary_color === 'string' || value.tertiary_color === null) &&
+    (typeof value.button_text_color === 'string' ||
+      value.button_text_color === null)
   );
 }
 

@@ -11,10 +11,12 @@ import { StripeProvider } from "@stripe/stripe-react-native";
 import "./src/general/localization/i18n";
 import AppToast from "./src/general/components/AppToast";
 import { useSocketSession } from "./src/general/hooks/useSocketSession";
+import { useInitializeDeliveriesConfig } from "./src/apps/deliveries/hooks/useInitializeDeliveriesConfig";
 
 function ThemedApp() {
   const { theme } = useAppTheme();
   useSocketSession();
+  useInitializeDeliveriesConfig();
 
   return (
     <View style={styles.container}>

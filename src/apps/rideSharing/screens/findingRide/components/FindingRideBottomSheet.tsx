@@ -112,11 +112,14 @@ function FindingRideBottomSheet({
             disabled={isDecreaseDisabled}
             style={[
               styles.adjustButton,
-              { backgroundColor: colors.findingRideMutedSurface },
+              {
+                backgroundColor: colors.backgroundTertiary,
+                borderColor: colors.border,
+              },
               isDecreaseDisabled ? styles.adjustButtonDisabled : null,
             ]}
           >
-            <Text weight="medium" color={colors.findingRideMutedText} style={styles.adjustLabel}>
+            <Text weight="medium" color={colors.mutedText} style={styles.adjustLabel}>
               -0.5
             </Text>
           </Pressable>
@@ -139,11 +142,14 @@ function FindingRideBottomSheet({
             disabled={isIncreaseDisabled}
             style={[
               styles.adjustButton,
-              { backgroundColor: colors.findingRidePrimarySoft },
+              {
+                backgroundColor: colors.primary,
+                borderColor: colors.primary,
+              },
               isIncreaseDisabled ? styles.adjustButtonDisabled : null,
             ]}
           >
-            <Text weight="medium" color={colors.findingRidePrimary} style={styles.adjustLabel}>
+            <Text weight="medium" color={colors.onPrimary} style={styles.adjustLabel}>
               +0.5
             </Text>
           </Pressable>
@@ -165,6 +171,7 @@ function FindingRideBottomSheet({
             label={t('ride_finding_keep_searching')}
             onPress={onKeepSearching}
             isLoading={isKeepSearchingLoading}
+            labelStyle={{ color: colors.onPrimary }}
             style={[
               styles.primaryButton,
 
@@ -177,6 +184,7 @@ function FindingRideBottomSheet({
           onPress={onCancelRide}
           isLoading={isCancelLoading}
           variant="secondary"
+          labelStyle={{ color: colors.primary }}
           style={[
             styles.secondaryButton,
           ]}
@@ -255,6 +263,7 @@ const styles = StyleSheet.create({
     width: 62,
     height: 44,
     borderRadius: 6,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

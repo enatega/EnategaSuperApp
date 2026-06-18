@@ -30,6 +30,8 @@ function RideEstimateSelectedOptionCard({
 }: Props) {
   const { colors } = useTheme();
   const iconSource = item.icon ? { uri: item.icon } : undefined;
+  const accentColor = colors.findingRidePrimary;
+  const accentSoftColor = colors.findingRidePrimarySoft;
 
   return (
     <View
@@ -46,7 +48,7 @@ function RideEstimateSelectedOptionCard({
         style={[
           styles.headerCard,
           {
-            backgroundColor: '#D3F2FA',
+            backgroundColor: accentSoftColor,
             shadowColor: colors.shadowColor,
           },
         ]}
@@ -57,13 +59,19 @@ function RideEstimateSelectedOptionCard({
               {iconSource ? <Image source={iconSource} style={styles.icon} /> : null}
             </View>
             <View style={styles.metaRow}>
-              <Text weight="medium" style={styles.primaryMetaText}>
+              <Text
+                weight="medium"
+                style={[styles.primaryMetaText, { color: accentColor }]}
+              >
                 {item.title}
               </Text>
               {item.seats ? (
                 <View style={styles.seatsRow}>
-                  <Icon type="Feather" name="user" size={16} color="#1677A4" />
-                  <Text weight="medium" style={styles.primaryMetaText}>
+                  <Icon type="Feather" name="user" size={16} color={accentColor} />
+                  <Text
+                    weight="medium"
+                    style={[styles.primaryMetaText, { color: accentColor }]}
+                  >
                     {item.seats}
                   </Text>
                 </View>
@@ -73,10 +81,13 @@ function RideEstimateSelectedOptionCard({
 
           <View style={styles.optionsColumn}>
             <Pressable onPress={onEditPress} hitSlop={8} style={styles.editButton}>
-              <Icon type="Feather" name="edit-2" size={16} color="#1677A4" />
+              <Icon type="Feather" name="edit-2" size={16} color={accentColor} />
             </Pressable>
             {metaLabel ? (
-              <Text weight="medium" style={styles.metaLabel}>
+              <Text
+                weight="medium"
+                style={[styles.metaLabel, { color: accentColor }]}
+              >
                 {metaLabel}
               </Text>
             ) : null}
@@ -104,12 +115,12 @@ function RideEstimateSelectedOptionCard({
           <Text
             weight="extraBold"
             style={[
-              styles.fareValue,
-              {
-                color: '#1677A4',
-              },
-            ]}
-          >
+            styles.fareValue,
+            {
+              color: accentColor,
+            },
+          ]}
+        >
             {formatRideCurrency(fare)}
           </Text>
           <Text weight="medium" style={styles.recommendedFare}>
@@ -181,7 +192,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   primaryMetaText: {
-    color: '#1677A4',
     fontSize: 14,
     lineHeight: 22,
   },
@@ -197,7 +207,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   metaLabel: {
-    color: '#1677A4',
     fontSize: 14,
     lineHeight: 22,
   },

@@ -37,7 +37,7 @@ export default function SinglevendorBottomTabNavigator() {
       screenOptions={{
         freezeOnBlur: true,
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: colors.onPrimary,
         tabBarButton: (props) => <SingleVendorTabButton {...props} />,
         tabBarHideOnKeyboard: true,
         tabBarIconStyle: {
@@ -54,8 +54,11 @@ export default function SinglevendorBottomTabNavigator() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
+          borderTopWidth: 1,
           height: DELIVERIES_TAB_BAR_HEIGHT + safeBottom,
           paddingBottom: safeBottom,
+          paddingHorizontal: 8,
+          paddingTop: 4,
         },
       }}
     >

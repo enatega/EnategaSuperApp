@@ -4,6 +4,7 @@ import {
   Pressable,
   StyleProp,
   StyleSheet,
+  TextStyle,
   View,
   ViewStyle,
 } from 'react-native';
@@ -18,6 +19,7 @@ type PopupAction = {
   isLoading?: boolean;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
+  labelStyle?: StyleProp<TextStyle>;
 };
 
 type Props = {
@@ -96,6 +98,7 @@ export default function AppPopup({
                       variant={primaryAction.variant}
                       isLoading={primaryAction.isLoading}
                       disabled={primaryAction.disabled}
+                      labelStyle={primaryAction.labelStyle}
                       style={[styles.button, primaryAction.style]}
                     />
                   ) : null}
@@ -107,6 +110,7 @@ export default function AppPopup({
                       variant={secondaryAction.variant}
                       isLoading={secondaryAction.isLoading}
                       disabled={secondaryAction.disabled}
+                      labelStyle={secondaryAction.labelStyle}
                       style={[styles.button, secondaryAction.style]}
                     />
                   ) : null}

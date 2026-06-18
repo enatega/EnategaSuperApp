@@ -41,7 +41,7 @@ function MultiVendorBottomTabNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: colors.onPrimary,
         tabBarInactiveTintColor: colors.iconMuted,
         tabBarButton: (props) => <MultiVendorTabButton {...props} />,
         tabBarIconStyle: {
@@ -57,8 +57,11 @@ function MultiVendorBottomTabNavigator() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
+          borderTopWidth: 1,
           height: DELIVERIES_TAB_BAR_HEIGHT + safeBottom,
           paddingBottom: safeBottom,
+          paddingHorizontal: 8,
+          paddingTop: 4,
         },
       }}
       tabBar={(props) => <DeliveriesTabBar {...props} />}

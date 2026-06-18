@@ -44,13 +44,13 @@ export default function StoreImage({
           <Ionicons
             name="pricetag"
             size={12}
-            color={colors.blue800}
+            color={colors.onSecondary}
             style={styles.offerIcon}
           />
           <Text
             variant="caption"
             weight="semiBold"
-            style={[styles.offerText, { color: colors.blue800 }]}
+            style={[styles.offerText, { color: colors.onSecondary }]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >

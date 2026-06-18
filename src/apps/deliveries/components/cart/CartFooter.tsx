@@ -49,7 +49,11 @@ export default function CartFooter({
           <View
             style={[
               styles.countBadge,
-              { backgroundColor: disabled ? colors.surfaceSoft : colors.white },
+              {
+                backgroundColor: disabled
+                  ? colors.surfaceSoft
+                  : colors.onPrimary,
+              },
             ]}
           >
             <Text
@@ -67,7 +71,7 @@ export default function CartFooter({
           <Text
             weight="semiBold"
             style={{
-              color: disabled ? colors.mutedText : colors.white,
+              color: disabled ? colors.mutedText : colors.onPrimary,
               flex: 1,
               fontSize: typography.size.md2,
               lineHeight: typography.lineHeight.md,
@@ -79,7 +83,7 @@ export default function CartFooter({
           <Text
             weight="semiBold"
             style={{
-              color: disabled ? colors.mutedText : colors.white,
+              color: disabled ? colors.mutedText : colors.onPrimary,
               fontSize: typography.size.md2,
               lineHeight: typography.lineHeight.md,
             }}

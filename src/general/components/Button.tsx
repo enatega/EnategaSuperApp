@@ -105,9 +105,13 @@ export default function Button({
     ? colors.primary
     : isDisabled && isLightColor(resolvedBackgroundColor)
       ? colors.mutedText
-      : isSecondary || isLightColor(resolvedBackgroundColor)
-        ? colors.text
-        : colors.white;
+      : isSecondary
+        ? colors.onSecondary
+        : isDanger
+          ? colors.onPrimary
+          : isLightColor(resolvedBackgroundColor)
+            ? colors.text
+            : colors.onPrimary;
 
   return (
     <Pressable

@@ -207,7 +207,7 @@ export default function MultiVendorAddressHeader({
                 style={[styles.cartBadge, { backgroundColor: colors.primary }]}
               >
                 <Text
-                  color={colors.white}
+                  color={colors.onPrimary}
                   weight="semiBold"
                   style={{
                     fontSize: 11,

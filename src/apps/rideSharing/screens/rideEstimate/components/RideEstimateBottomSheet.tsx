@@ -327,7 +327,5 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     borderRadius: 6,
-    backgroundColor: '#1691BF',
-    borderColor: '#1691BF',
   },
 });

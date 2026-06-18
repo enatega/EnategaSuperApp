@@ -138,13 +138,13 @@ export default function StoreMenuProductCard({
                   style={[styles.badge, { backgroundColor: colors.secondary }]}
                 >
                   <Icon
-                    color={colors.blue800}
+                    color={colors.onSecondary}
                     name="pricetag-outline"
                     size={11}
                     type="Ionicons"
                   />
                   <Text
-                    style={[styles.badgeText, { color: colors.blue800 }]}
+                    style={[styles.badgeText, { color: colors.onSecondary }]}
                     weight="medium"
                   >
                     {resolvedOffer}

@@ -41,11 +41,11 @@ export default function MapCurrentLocationButton({
         style,
       ]}
     >
-      <View style={[styles.iconWrap, { backgroundColor: colors.blue50 }]}>
+      <View style={styles.iconWrap}>
         {isLoading ? (
-          <ActivityIndicator size="small" color={colors.blue800} />
+          <ActivityIndicator size="small" color={colors.primary} />
         ) : (
-          <Icon type="MaterialIcons" name="my-location" size={18} color={colors.blue800} />
+          <Icon type="MaterialIcons" name="my-location" size={18} color={colors.primary} />
         )}
       </View>
       {label && <Text variant='caption' weight="semiBold">{label}</Text>}

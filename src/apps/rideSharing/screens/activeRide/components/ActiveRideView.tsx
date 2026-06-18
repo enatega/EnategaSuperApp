@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { Linking, Platform, StyleSheet, View } from 'react-native';
+import { Share, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { LatLng } from 'react-native-maps';
@@ -398,68 +398,58 @@ function ActiveRideView({ activeRide }: Props) {
     const originLongitude = fromAddress?.coordinates.longitude;
     const destinationLatitude = toAddress?.coordinates.latitude;
     const destinationLongitude = toAddress?.coordinates.longitude;
+    const driverLabel = driverName ?? t('ride_active_driver_fallback');
+    const shareTitle = isCourierFlow
+      ? t('ride_active_share_courier')
+      : t('ride_active_share_my_ride');
+    const mapsUrl =
+      originLatitude !== undefined &&
+      originLongitude !== undefined &&
+      destinationLatitude !== undefined &&
+      destinationLongitude !== undefined
+        ? `https://www.google.com/maps/dir/?api=1&origin=${originLatitude},${originLongitude}&destination=${destinationLatitude},${destinationLongitude}&travelmode=driving`
+        : null;
 
+    const shareMessage = [
+      isCourierFlow ? t('ride_active_share_courier') : t('ride_active_share_my_ride'),
+      driverLabel ? `Driver: ${driverLabel}` : null,
+      fromAddress?.description ? `Pickup: ${fromAddress.description}` : null,
+      toAddress?.description ? `Dropoff: ${toAddress.description}` : null,
+      statusLabel ? `Status: ${statusLabel}` : null,
+      mapsUrl ? `Track route: ${mapsUrl}` : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
 
-    if (
-      originLatitude === undefined
-      || originLongitude === undefined
-      || destinationLatitude === undefined
-      || destinationLongitude === undefined
-    ) {
-      showToast.error(t('error'), t('ride_active_map_open_error'));
-      return;
-    }
-
-    const openMaps = async () => {
+    const shareRide = async () => {
       try {
-        if (Platform.OS === 'ios') {
-          const appleMapsUrl = `http://maps.apple.com/?saddr=${originLatitude},${originLongitude}&daddr=${destinationLatitude},${destinationLongitude}&dirflg=d`;
-          console.log('[ActiveRideView][ShareRide] Apple Maps URL:', appleMapsUrl);
-          const canOpenAppleMaps = await Linking.canOpenURL(appleMapsUrl);
-          console.log('[ActiveRideView][ShareRide] canOpenAppleMaps:', canOpenAppleMaps);
+        console.log('[ActiveRideView][ShareRide] Share payload:', {
+          shareTitle,
+          shareMessage,
+          mapsUrl,
+        });
 
-          if (!canOpenAppleMaps) {
-            showToast.error(t('error'), t('ride_active_map_unavailable'));
-            return;
-          }
-
-          await Linking.openURL(appleMapsUrl);
-          return;
-        }
-
-        const googleNavigationUrl = `google.navigation:q=${destinationLatitude},${destinationLongitude}&mode=d`;
-        console.log('[ActiveRideView][ShareRide] Google Navigation URL:', googleNavigationUrl);
-        const canOpenGoogleNavigation = await Linking.canOpenURL(googleNavigationUrl);
-        console.log('[ActiveRideView][ShareRide] canOpenGoogleNavigation:', canOpenGoogleNavigation);
-
-        if (canOpenGoogleNavigation) {
-          await Linking.openURL(googleNavigationUrl);
-          return;
-        }
-
-        const googleMapsWebDirectionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${originLatitude},${originLongitude}&destination=${destinationLatitude},${destinationLongitude}&travelmode=driving`;
-        console.log('[ActiveRideView][ShareRide] Google Maps Web URL:', googleMapsWebDirectionsUrl);
-        const canOpenGoogleMapsWeb = await Linking.canOpenURL(googleMapsWebDirectionsUrl);
-        console.log('[ActiveRideView][ShareRide] canOpenGoogleMapsWeb:', canOpenGoogleMapsWeb);
-
-        if (!canOpenGoogleMapsWeb) {
-          showToast.error(t('error'), t('ride_active_map_unavailable'));
-          return;
-        }
-
-        await Linking.openURL(googleMapsWebDirectionsUrl);
+        await Share.share({
+          title: shareTitle,
+          message: shareMessage,
+        });
       } catch {
-        showToast.error(t('error'), t('ride_active_map_open_error'));
+        showToast.error(t('error'), t('ride_active_share_coming_soon'));
       }
     };
 
-    void openMaps();
+    void shareRide();
   }, [
+    driverName,
     fromAddress?.coordinates.latitude,
     fromAddress?.coordinates.longitude,
+    fromAddress?.description,
+    isCourierFlow,
+    statusLabel,
     t,
     toAddress?.coordinates.latitude,
     toAddress?.coordinates.longitude,
+    toAddress?.description,
   ]);
 
   const handleEmergencyPress = useCallback(() => {
