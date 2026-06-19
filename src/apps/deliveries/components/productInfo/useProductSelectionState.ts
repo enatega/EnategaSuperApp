@@ -192,7 +192,19 @@ export default function useProductSelectionState({ variations, addons }: Props) 
       ) ?? null,
     [selectedVariationKey, variationOptions],
   );
-  const addonSections = useMemo(() => buildSelectableSections(addons), [addons]);
+  const addonSections = useMemo(() => {
+    const sections = buildSelectableSections(addons);
+
+    if (!selectedVariation) {
+      return sections.filter((section) => section.dependsOnVariationId == null);
+    }
+
+    return sections.filter(
+      (section) =>
+        section.dependsOnVariationId == null ||
+        section.dependsOnVariationId === selectedVariation.groupId,
+    );
+  }, [addons, selectedVariation]);
 
   useEffect(() => {
     setSelectedVariationKey((current) => {
