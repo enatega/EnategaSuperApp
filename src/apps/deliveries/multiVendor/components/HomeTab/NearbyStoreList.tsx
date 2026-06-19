@@ -63,7 +63,6 @@ export default function NearbyStoreList(props: Props) {
       shop_type_id: activeShopTypeId,
     },
   });
-  console.log("my store data :", nearbyStoresData);
   const [selectedClosedStore, setSelectedClosedStore] = useState<DeliveryNearbyStore | null>(null);
   const isEmpty = !isNearbyStoresPending && nearbyStoresData.length === 0;
   const shouldShowSeeAll = !isNearbyStoresPending && nearbyStoresData.length > 0;

@@ -95,23 +95,6 @@ export default function ShopTypeStoreSections() {
             'food deliveries',
           ]);
 
-          if (trackedSectionNames.has(normalizedShopTypeName)) {
-            console.log('[deliveries][home-section] shop type section', {
-              heading: resolvedShopTypeName,
-              shopTypeId: shopType.id,
-              shopTypesApi: '/api/v1/apps/deliveries/discovery/shop-types',
-              storesApi: `/api/v1/apps/deliveries/discovery/shop-types/${shopType.id}/stores`,
-              storeCount: data.length,
-              isPending: isStoresPending,
-              hasError: Boolean(error),
-              storeStatuses: data.map((item) => ({
-                storeId: item.storeId,
-                name: item.name,
-                isOpen: item.isOpen ?? null,
-                isAvailable: item.isAvailable ?? null,
-              })),
-            });
-          }
 
           return (
             <View key={shopType.id} style={styles.storeSection}>
@@ -152,25 +135,13 @@ export default function ShopTypeStoreSections() {
                   data={data}
                   extraData={data.map((item) => `${item.storeId}:${item.isOpen}:${item.isAvailable}`).join('|')}
                   keyExtractor={(item, index) =>
-                    `${shopType.id}-${item.storeId}-${item.isOpen === false ? 'closed' : 'open'}-${
-                      item.isAvailable === false ? 'unavailable' : 'available'
+                    `${shopType.id}-${item.storeId}-${item.isOpen === false ? 'closed' : 'open'}-${item.isAvailable === false ? 'unavailable' : 'available'
                     }-${index}`
                   }
                   contentContainerStyle={styles.listContent}
                   ItemSeparatorComponent={() => <View style={styles.separator} />}
                   renderItem={({ item }) => {
                     const isClosedStore = item.isOpen === false || item.isAvailable === false;
-
-                    console.log('[deliveries][home-section] render store card', {
-                      heading: resolvedShopTypeName,
-                      shopTypeId: shopType.id,
-                      storeId: item.storeId,
-                      name: item.name,
-                      isOpen: item.isOpen ?? null,
-                      isAvailable: item.isAvailable ?? null,
-                      isClosedStore,
-                    });
-
                     return (
                       <StoreCard
                         store={item}

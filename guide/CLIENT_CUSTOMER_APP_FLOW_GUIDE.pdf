@@ -1,0 +1,766 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+3 0 obj
+<< /Length 781 >>
+stream
+q 0.13 0.35 0.64 rg 0 751.89 595.28 90 re f Q
+q 0.93 0.95 0.98 rg 54 531.89 487.28 180 re f Q
+BT /F2 22 Tf 54 681.89 Td (Customer App Module Flow Guide) Tj ET
+BT /F1 12 Tf 54 646.89 Td (Enatega Super App Customer Application) Tj ET
+BT /F1 11 Tf 54 616.89 Td (Modules covered: RideSharing and Deliveries) Tj ET
+BT /F1 11 Tf 54 596.89 Td (Document type: Client Guide) Tj ET
+BT /F1 11 Tf 54 576.89 Td (Prepared from current codebase snapshot: June 19, 2026) Tj ET
+q 0.20 0.24 0.31 RG 54 150 m 541.28 150 l S Q
+BT /F1 12 Tf 54 120.00 Td (This guide explains the customer journey, module behavior, and key operational) Tj ET
+BT /F1 12 Tf 54 102.00 Td (considerations for the RideSharing and Deliveries experiences within the) Tj ET
+BT /F1 12 Tf 54 84.00 Td (unified customer app.) Tj ET
+endstream
+endobj
+4 0 obj
+<< /Type /Page /Parent 31 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 3 0 R >>
+endobj
+5 0 obj
+<< /Length 3230 >>
+stream
+BT /F1 9 Tf 54 807.89 Td (Enatega Super App | Customer Module Flow Guide) Tj ET
+q 0.86 0.89 0.93 rg 54 761.89 487.28 26 re f Q
+BT /F2 18 Tf 54.00 767.89 Td (Customer App Module Flow Guide) Tj ET
+BT /F1 11 Tf 54.00 730.89 Td (**Project:** Enatega Super App Customer Application) Tj ET
+BT /F1 11 Tf 54.00 706.89 Td (**Modules Covered:** RideSharing and Deliveries) Tj ET
+BT /F1 11 Tf 54.00 682.89 Td (**Document Type:** Client Guide) Tj ET
+BT /F1 11 Tf 54.00 658.89 Td (**Prepared From Current Codebase Snapshot:** June 19, 2026) Tj ET
+BT /F2 14 Tf 54.00 621.89 Td (1. Purpose of This Document) Tj ET
+BT /F1 11 Tf 54.00 591.89 Td (This document explains how the customer application works at a module level for the) Tj ET
+BT /F1 11 Tf 54.00 575.89 Td (RideSharing and Deliveries experiences. It is intended for client stakeholders who) Tj ET
+BT /F1 11 Tf 54.00 559.89 Td (need a clear view of the customer journey, the responsibilities of each module, and) Tj ET
+BT /F1 11 Tf 54.00 543.89 Td (the important operational points that affect rollout, support, and day-to-day usage.) Tj ET
+BT /F1 11 Tf 54.00 514.89 Td (The application is a single customer app that contains multiple service capabilities) Tj ET
+BT /F1 11 Tf 54.00 498.89 Td (under one shared platform. In the current scope, the two major customer modules are:) Tj ET
+BT /F1 11 Tf 54.00 469.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 469.89 Td (RideSharing) Tj ET
+BT /F1 11 Tf 54.00 449.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 449.89 Td (Deliveries) Tj ET
+BT /F1 11 Tf 54.00 424.89 Td (Both modules run inside one shared mobile application and use common platform) Tj ET
+BT /F1 11 Tf 54.00 408.89 Td (services such as authentication, profile management, saved addresses, wallet-related) Tj ET
+BT /F1 11 Tf 54.00 392.89 Td (flows, notifications, localization, and support.) Tj ET
+BT /F2 14 Tf 54.00 355.89 Td (2. Overall Customer App Architecture) Tj ET
+BT /F1 11 Tf 54.00 325.89 Td (At a high level, the customer app works in three layers:) Tj ET
+BT /F1 11 Tf 54.00 296.89 Td (1. ) Tj ET
+BT /F1 11 Tf 72.00 296.89 Td (Shared App Layer) Tj ET
+BT /F1 11 Tf 54.00 276.89 Td (This layer handles the global customer experience, including app entry,) Tj ET
+BT /F1 11 Tf 54.00 260.89 Td (authentication, profile data, saved addresses, theme, localization, notifications,) Tj ET
+BT /F1 11 Tf 54.00 244.89 Td (and navigation between mini-apps.) Tj ET
+BT /F1 11 Tf 54.00 215.89 Td (2. ) Tj ET
+BT /F1 11 Tf 72.00 215.89 Td (RideSharing Module) Tj ET
+BT /F1 11 Tf 54.00 195.89 Td (This module manages ride booking, courier booking, fare estimation, live driver) Tj ET
+BT /F1 11 Tf 54.00 179.89 Td (matching, active trip tracking, ride chat, safety actions, ride history,) Tj ET
+BT /F1 11 Tf 54.00 163.89 Td (reservations, and post-ride feedback.) Tj ET
+BT /F1 11 Tf 54.00 134.89 Td (3. ) Tj ET
+BT /F1 11 Tf 72.00 134.89 Td (Deliveries Module) Tj ET
+BT /F1 11 Tf 54.00 114.89 Td (This module manages delivery-mode setup, store discovery, search, product browsing,) Tj ET
+BT /F1 11 Tf 54.00 98.89 Td (cart, checkout, order placement, order tracking, rider chat, support, wallet screens,) Tj ET
+BT /F1 11 Tf 54.00 82.89 Td (and profile-related flows.) Tj ET
+BT /F1 9 Tf 505.28 28 Td (Page 2) Tj ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 31 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 5 0 R >>
+endobj
+7 0 obj
+<< /Length 3524 >>
+stream
+BT /F1 9 Tf 54 807.89 Td (Enatega Super App | Customer Module Flow Guide) Tj ET
+BT /F2 14 Tf 54.00 777.89 Td (3. Shared Platform Features Used by Both Modules) Tj ET
+BT /F1 11 Tf 54.00 747.89 Td (The two modules are separate in business flow, but they rely on the same customer) Tj ET
+BT /F1 11 Tf 54.00 731.89 Td (account and common utility layers.) Tj ET
+BT /F1 11 Tf 54.00 702.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 702.89 Td (Authentication is shared across the entire app.) Tj ET
+BT /F1 11 Tf 54.00 682.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 682.89 Td (A single customer profile is used across modules.) Tj ET
+BT /F1 11 Tf 54.00 662.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 662.89 Td (Saved addresses are reusable across supported flows.) Tj ET
+BT /F1 11 Tf 54.00 642.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 642.89 Td (Notifications are handled centrally and surfaced in-app.) Tj ET
+BT /F1 11 Tf 54.00 622.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 622.89 Td (Localization is already structured for English and French.) Tj ET
+BT /F1 11 Tf 54.00 602.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 602.89 Td (Theme and branding are centrally managed.) Tj ET
+BT /F1 11 Tf 54.00 582.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 582.89 Td (Shared support and settings flows are available at the app level.) Tj ET
+BT /F1 11 Tf 54.00 562.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 562.89 Td (Shared navigation allows the user to move between the home app selector and) Tj ET
+BT /F1 11 Tf 68.00 546.89 Td (enabled service modules.) Tj ET
+BT /F1 11 Tf 54.00 521.89 Td (For the client, this means the customer does not need separate apps or separate) Tj ET
+BT /F1 11 Tf 54.00 505.89 Td (accounts for RideSharing and Deliveries. The experience is designed as one) Tj ET
+BT /F1 11 Tf 54.00 489.89 Td (consolidated customer platform.) Tj ET
+BT /F2 14 Tf 54.00 452.89 Td (4. RideSharing Module Flow) Tj ET
+BT /F2 14 Tf 54.00 414.89 Td (4.1 RideSharing Entry and Initialization) Tj ET
+BT /F1 11 Tf 54.00 384.89 Td (When the customer enters the RideSharing module, the app initializes) Tj ET
+BT /F1 11 Tf 54.00 368.89 Td (RideSharing-specific configuration before the full journey continues. This) Tj ET
+BT /F1 11 Tf 54.00 352.89 Td (configuration includes operational values such as active currency and emergency) Tj ET
+BT /F1 11 Tf 54.00 336.89 Td (contact information.) Tj ET
+BT /F1 11 Tf 54.00 307.89 Td (The RideSharing home experience is not just a static landing page. It behaves like a) Tj ET
+BT /F1 11 Tf 54.00 291.89 Td (state-driven controller that can show one of the following views depending on the) Tj ET
+BT /F1 11 Tf 54.00 275.89 Td (customer?s current status:) Tj ET
+BT /F1 11 Tf 54.00 246.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 246.89 Td (Standard ride booking view) Tj ET
+BT /F1 11 Tf 54.00 226.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 226.89 Td (Finding ride view while a request is being matched) Tj ET
+BT /F1 11 Tf 54.00 206.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 206.89 Td (Active ride view when a ride is already in progress) Tj ET
+BT /F1 11 Tf 54.00 186.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 186.89 Td (Completed ride feedback sheet after the trip ends) Tj ET
+BT /F1 11 Tf 54.00 161.89 Td (This design helps the app resume the correct customer state even if the user returns) Tj ET
+BT /F1 11 Tf 54.00 145.89 Td (to the module in the middle of a journey.) Tj ET
+BT /F2 14 Tf 54.00 108.89 Td (4.2 RideSharing Main Customer Journey) Tj ET
+BT /F1 11 Tf 54.00 78.89 Td (The standard RideSharing booking flow follows this sequence:) Tj ET
+BT /F1 9 Tf 505.28 28 Td (Page 3) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 31 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 3605 >>
+stream
+BT /F1 9 Tf 54 807.89 Td (Enatega Super App | Customer Module Flow Guide) Tj ET
+BT /F1 11 Tf 54.00 777.89 Td (1. ) Tj ET
+BT /F1 11 Tf 72.00 777.89 Td (Customer opens RideSharing.) Tj ET
+BT /F1 11 Tf 54.00 757.89 Td (2. ) Tj ET
+BT /F1 11 Tf 72.00 757.89 Td (Customer selects the ride intent or service type.) Tj ET
+BT /F1 11 Tf 54.00 737.89 Td (3. ) Tj ET
+BT /F1 11 Tf 72.00 737.89 Td (Customer searches for pickup and destination addresses.) Tj ET
+BT /F1 11 Tf 54.00 717.89 Td (4. ) Tj ET
+BT /F1 11 Tf 72.00 717.89 Td (Customer reaches the fare estimation screen.) Tj ET
+BT /F1 11 Tf 54.00 697.89 Td (5. ) Tj ET
+BT /F1 11 Tf 72.00 697.89 Td (Customer selects a ride option and payment method.) Tj ET
+BT /F1 11 Tf 54.00 677.89 Td (6. ) Tj ET
+BT /F1 11 Tf 72.00 677.89 Td (Customer confirms the booking request.) Tj ET
+BT /F1 11 Tf 54.00 657.89 Td (7. ) Tj ET
+BT /F1 11 Tf 72.00 657.89 Td (The app creates the ride request and begins live driver matching.) Tj ET
+BT /F1 11 Tf 54.00 637.89 Td (8. ) Tj ET
+BT /F1 11 Tf 72.00 637.89 Td (The customer either accepts a driver bid or continues searching.) Tj ET
+BT /F1 11 Tf 54.00 617.89 Td (9. ) Tj ET
+BT /F1 11 Tf 72.00 617.89 Td (Once matched, the app moves into active ride tracking.) Tj ET
+BT /F1 11 Tf 54.00 597.89 Td (10. ) Tj ET
+BT /F1 11 Tf 72.00 597.89 Td (After trip completion, the customer can rate the experience and review ride) Tj ET
+BT /F1 11 Tf 72.00 581.89 Td (details.) Tj ET
+BT /F2 14 Tf 54.00 548.89 Td (4.3 Ride Type and Service Selection) Tj ET
+BT /F1 11 Tf 54.00 518.89 Td (The first RideSharing view allows the customer to select the intended service from) Tj ET
+BT /F1 11 Tf 54.00 502.89 Td (available ride types returned by backend configuration. This means the visible ride) Tj ET
+BT /F1 11 Tf 54.00 486.89 Td (options are not completely hardcoded. They are designed to reflect what the platform) Tj ET
+BT /F1 11 Tf 54.00 470.89 Td (makes available.) Tj ET
+BT /F1 11 Tf 54.00 441.89 Td (From the current flow, RideSharing supports:) Tj ET
+BT /F1 11 Tf 54.00 412.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 412.89 Td (Standard ride booking) Tj ET
+BT /F1 11 Tf 54.00 392.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 392.89 Td (Courier-oriented ride flow) Tj ET
+BT /F1 11 Tf 54.00 372.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 372.89 Td (Scheduled ride flow) Tj ET
+BT /F1 11 Tf 54.00 352.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 352.89 Td (Hourly fare flow where applicable) Tj ET
+BT /F1 11 Tf 54.00 327.89 Td (The module also remembers the customer?s recently used addresses and preferred) Tj ET
+BT /F1 11 Tf 54.00 311.89 Td (payment method to reduce booking friction.) Tj ET
+BT /F2 14 Tf 54.00 274.89 Td (4.4 Address Search and Trip Setup) Tj ET
+BT /F1 11 Tf 54.00 244.89 Td (After selecting a service, the customer moves to address search. In this step, the) Tj ET
+BT /F1 11 Tf 54.00 228.89 Td (app supports:) Tj ET
+BT /F1 11 Tf 54.00 199.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 199.89 Td (Pickup location selection) Tj ET
+BT /F1 11 Tf 54.00 179.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 179.89 Td (Drop-off location selection) Tj ET
+BT /F1 11 Tf 54.00 159.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 159.89 Td (Multiple stops where supported) Tj ET
+BT /F1 11 Tf 54.00 139.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 139.89 Td (Recent address reuse) Tj ET
+BT /F1 11 Tf 54.00 119.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 119.89 Td (Map-assisted location choice) Tj ET
+BT /F1 11 Tf 54.00 94.89 Td (This stage prepares the trip structure that will be used for route drawing, fare) Tj ET
+BT /F1 11 Tf 54.00 78.89 Td (estimation, and request creation.) Tj ET
+BT /F1 9 Tf 505.28 28 Td (Page 4) Tj ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 31 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 3197 >>
+stream
+BT /F1 9 Tf 54 807.89 Td (Enatega Super App | Customer Module Flow Guide) Tj ET
+BT /F2 14 Tf 54.00 777.89 Td (4.5 Fare Estimate and Booking Confirmation) Tj ET
+BT /F1 11 Tf 54.00 747.89 Td (Once the route is known, the app requests:) Tj ET
+BT /F1 11 Tf 54.00 718.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 718.89 Td (Route path data for trip visualization) Tj ET
+BT /F1 11 Tf 54.00 698.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 698.89 Td (Fare estimates for available ride types) Tj ET
+BT /F1 11 Tf 54.00 673.89 Td (On the estimate screen, the customer can:) Tj ET
+BT /F1 11 Tf 54.00 644.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 644.89 Td (Review pickup and drop-off summary) Tj ET
+BT /F1 11 Tf 54.00 624.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 624.89 Td (View available ride categories) Tj ET
+BT /F1 11 Tf 54.00 604.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 604.89 Td (Select a payment method) Tj ET
+BT /F1 11 Tf 54.00 584.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 584.89 Td (Schedule the ride for later) Tj ET
+BT /F1 11 Tf 54.00 564.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 564.89 Td (Adjust the offer fare in supported ride modes) Tj ET
+BT /F1 11 Tf 54.00 544.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 544.89 Td (Enter courier details when the journey is courier-related) Tj ET
+BT /F1 11 Tf 54.00 519.89 Td (This is the main decision screen before a ride request is sent.) Tj ET
+BT /F2 14 Tf 54.00 482.89 Td (4.6 Live Matching and Bid-Based Search) Tj ET
+BT /F1 11 Tf 54.00 452.89 Td (After confirmation, the RideSharing module enters a live matching phase. This is one) Tj ET
+BT /F1 11 Tf 54.00 436.89 Td (of the most important parts of the flow.) Tj ET
+BT /F1 11 Tf 54.00 407.89 Td (The app creates the ride request through the API, then uses socket-based real-time) Tj ET
+BT /F1 11 Tf 54.00 391.89 Td (communication to:) Tj ET
+BT /F1 11 Tf 54.00 362.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 362.89 Td (Broadcast the request to nearby drivers) Tj ET
+BT /F1 11 Tf 54.00 342.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 342.89 Td (Receive incoming bids) Tj ET
+BT /F1 11 Tf 54.00 322.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 322.89 Td (Update search state without requiring a screen refresh) Tj ET
+BT /F1 11 Tf 54.00 302.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 302.89 Td (Allow the customer to accept or reject driver bids) Tj ET
+BT /F1 11 Tf 54.00 282.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 282.89 Td (Allow continued searching if no suitable match is found) Tj ET
+BT /F1 11 Tf 54.00 262.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 262.89 Td (Allow fare increase in supported matching flows) Tj ET
+BT /F1 11 Tf 54.00 237.89 Td (This means the module is not only API-driven. It also depends on a real-time socket) Tj ET
+BT /F1 11 Tf 54.00 221.89 Td (layer for driver discovery and ride progression.) Tj ET
+BT /F2 14 Tf 54.00 184.89 Td (4.7 Active Ride Flow) Tj ET
+BT /F1 11 Tf 54.00 154.89 Td (After a driver is accepted, the module transitions into active ride management. The) Tj ET
+BT /F1 11 Tf 54.00 138.89 Td (home screen can automatically switch into an active ride overlay if a live trip) Tj ET
+BT /F1 11 Tf 54.00 122.89 Td (already exists.) Tj ET
+BT /F1 11 Tf 54.00 93.89 Td (During an active ride, the module supports:) Tj ET
+BT /F1 9 Tf 505.28 28 Td (Page 5) Tj ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 31 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 11 0 R >>
+endobj
+13 0 obj
+<< /Length 3422 >>
+stream
+BT /F1 9 Tf 54 807.89 Td (Enatega Super App | Customer Module Flow Guide) Tj ET
+BT /F1 11 Tf 54.00 777.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 777.89 Td (Real-time ride status updates) Tj ET
+BT /F1 11 Tf 54.00 757.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 757.89 Td (Trip map and route visibility) Tj ET
+BT /F1 11 Tf 54.00 737.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 737.89 Td (Driver profile access) Tj ET
+BT /F1 11 Tf 54.00 717.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 717.89 Td (Rider-to-driver chat) Tj ET
+BT /F1 11 Tf 54.00 697.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 697.89 Td (Safety information and emergency actions) Tj ET
+BT /F1 11 Tf 54.00 677.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 677.89 Td (Support chat access) Tj ET
+BT /F1 11 Tf 54.00 652.89 Td (This active-state overlay is important for business continuity because the customer) Tj ET
+BT /F1 11 Tf 54.00 636.89 Td (can reopen the app and return directly to the current ride state.) Tj ET
+BT /F2 14 Tf 54.00 599.89 Td (4.8 Post-Ride Experience) Tj ET
+BT /F1 11 Tf 54.00 569.89 Td (After trip completion, the customer journey does not end immediately. The module) Tj ET
+BT /F1 11 Tf 54.00 553.89 Td (includes:) Tj ET
+BT /F1 11 Tf 54.00 524.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 524.89 Td (Trip completion feedback and rating flow) Tj ET
+BT /F1 11 Tf 54.00 504.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 504.89 Td (Ride history) Tj ET
+BT /F1 11 Tf 54.00 484.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 484.89 Td (Reservation list and reservation detail views) Tj ET
+BT /F1 11 Tf 54.00 464.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 464.89 Td (Notification screens) Tj ET
+BT /F1 11 Tf 54.00 444.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 444.89 Td (Wallet-related screens for ride payments and card handling) Tj ET
+BT /F1 11 Tf 54.00 419.89 Td (This creates a full service loop from booking through post-service engagement.) Tj ET
+BT /F2 14 Tf 54.00 382.89 Td (4.9 RideSharing Operational Notes for Client) Tj ET
+BT /F1 11 Tf 54.00 352.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 352.89 Td (RideSharing depends on both backend APIs and real-time socket connectivity.) Tj ET
+BT /F1 11 Tf 54.00 332.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 332.89 Td (Currency and emergency contact data are initialized through module configuration.) Tj ET
+BT /F1 11 Tf 54.00 312.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 312.89 Td (Payment handling is customer-selectable and currently includes cash, wallet, and) Tj ET
+BT /F1 11 Tf 68.00 296.89 Td (card-oriented flows depending on availability.) Tj ET
+BT /F1 11 Tf 54.00 276.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 276.89 Td (The home view is state-aware, which allows ride recovery if the customer reopens) Tj ET
+BT /F1 11 Tf 68.00 260.89 Td (the app during search or during an active ride.) Tj ET
+BT /F1 11 Tf 54.00 240.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 240.89 Td (Scheduled and courier scenarios are supported as dedicated variants of the same) Tj ET
+BT /F1 11 Tf 68.00 224.89 Td (RideSharing module rather than as separate apps.) Tj ET
+BT /F2 14 Tf 54.00 191.89 Td (5. Deliveries Module Flow) Tj ET
+BT /F2 14 Tf 54.00 153.89 Td (5.1 Deliveries Entry and Initialization) Tj ET
+BT /F1 11 Tf 54.00 123.89 Td (When the customer enters Deliveries, the app first initializes delivery-specific) Tj ET
+BT /F1 11 Tf 54.00 107.89 Td (platform configuration. This includes:) Tj ET
+BT /F1 11 Tf 54.00 78.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 78.89 Td (Platform type) Tj ET
+BT /F1 9 Tf 505.28 28 Td (Page 6) Tj ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 31 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 13 0 R >>
+endobj
+15 0 obj
+<< /Length 2973 >>
+stream
+BT /F1 9 Tf 54 807.89 Td (Enatega Super App | Customer Module Flow Guide) Tj ET
+BT /F1 11 Tf 54.00 777.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 777.89 Td (Delivery mode) Tj ET
+BT /F1 11 Tf 54.00 757.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 757.89 Td (App settings) Tj ET
+BT /F1 11 Tf 54.00 737.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 737.89 Td (Currency data) Tj ET
+BT /F1 11 Tf 54.00 712.89 Td (This configuration is cached locally so the app can recover faster on the next) Tj ET
+BT /F1 11 Tf 54.00 696.89 Td (launch, while still refreshing from the backend when needed.) Tj ET
+BT /F1 11 Tf 54.00 667.89 Td (An important business detail is that the Deliveries module is configuration-driven.) Tj ET
+BT /F1 11 Tf 54.00 651.89 Td (Based on the platform type, the customer is routed into one of three delivery) Tj ET
+BT /F1 11 Tf 54.00 635.89 Td (operating models:) Tj ET
+BT /F1 11 Tf 54.00 606.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 606.89 Td (Single Vendor) Tj ET
+BT /F1 11 Tf 54.00 586.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 586.89 Td (Multi Vendor) Tj ET
+BT /F1 11 Tf 54.00 566.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 566.89 Td (Chain) Tj ET
+BT /F1 11 Tf 54.00 541.89 Td (This allows the same customer app to support multiple delivery business structures) Tj ET
+BT /F1 11 Tf 54.00 525.89 Td (without requiring separate customer applications.) Tj ET
+BT /F2 14 Tf 54.00 488.89 Td (5.2 Deliveries Module Structure) Tj ET
+BT /F1 11 Tf 54.00 458.89 Td (The Deliveries module contains three storefront experiences under one shared delivery) Tj ET
+BT /F1 11 Tf 54.00 442.89 Td (umbrella.) Tj ET
+BT /F2 12 Tf 54.00 407.89 Td (Single Vendor) Tj ET
+BT /F1 11 Tf 54.00 381.89 Td (This mode is used when the customer is interacting with one dedicated vendor) Tj ET
+BT /F1 11 Tf 54.00 365.89 Td (structure. The module presents:) Tj ET
+BT /F1 11 Tf 54.00 336.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 336.89 Td (Home tab) Tj ET
+BT /F1 11 Tf 54.00 316.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 316.89 Td (Search tab) Tj ET
+BT /F1 11 Tf 54.00 296.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 296.89 Td (Orders tab) Tj ET
+BT /F1 11 Tf 54.00 276.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 276.89 Td (Profile tab) Tj ET
+BT /F1 11 Tf 54.00 256.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 256.89 Td (Delivery details flow) Tj ET
+BT /F2 12 Tf 54.00 225.89 Td (Multi Vendor) Tj ET
+BT /F1 11 Tf 54.00 199.89 Td (This mode is used when the customer browses multiple vendors and store types in one) Tj ET
+BT /F1 11 Tf 54.00 183.89 Td (marketplace model. The module presents:) Tj ET
+BT /F1 11 Tf 54.00 154.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 154.89 Td (Home tab) Tj ET
+BT /F1 11 Tf 54.00 134.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 134.89 Td (Search tab) Tj ET
+BT /F1 11 Tf 54.00 114.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 114.89 Td (Orders tab) Tj ET
+BT /F1 11 Tf 54.00 94.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 94.89 Td (Profile tab) Tj ET
+BT /F1 11 Tf 54.00 74.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 74.89 Td (Favourites) Tj ET
+BT /F1 9 Tf 505.28 28 Td (Page 7) Tj ET
+endstream
+endobj
+16 0 obj
+<< /Type /Page /Parent 31 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 15 0 R >>
+endobj
+17 0 obj
+<< /Length 3460 >>
+stream
+BT /F1 9 Tf 54 807.89 Td (Enatega Super App | Customer Module Flow Guide) Tj ET
+BT /F1 11 Tf 54.00 777.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 777.89 Td (Store details) Tj ET
+BT /F1 11 Tf 54.00 757.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 757.89 Td (Category and discovery extensions) Tj ET
+BT /F1 11 Tf 54.00 737.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 737.89 Td (Map-based and see-all browsing flows) Tj ET
+BT /F2 12 Tf 54.00 706.89 Td (Chain) Tj ET
+BT /F1 11 Tf 54.00 680.89 Td (This mode is used for chain-style catalog structures. In addition to the standard) Tj ET
+BT /F1 11 Tf 54.00 664.89 Td (tabs, the flow supports menu-template-based browsing so a chain can switch categories) Tj ET
+BT /F1 11 Tf 54.00 648.89 Td (or structured menus cleanly.) Tj ET
+BT /F2 14 Tf 54.00 611.89 Td (5.3 Deliveries Main Customer Journey) Tj ET
+BT /F1 11 Tf 54.00 581.89 Td (The standard Deliveries journey follows this sequence:) Tj ET
+BT /F1 11 Tf 54.00 552.89 Td (1. ) Tj ET
+BT /F1 11 Tf 72.00 552.89 Td (Customer opens Deliveries.) Tj ET
+BT /F1 11 Tf 54.00 532.89 Td (2. ) Tj ET
+BT /F1 11 Tf 72.00 532.89 Td (Delivery mode is resolved from configuration.) Tj ET
+BT /F1 11 Tf 54.00 512.89 Td (3. ) Tj ET
+BT /F1 11 Tf 72.00 512.89 Td (Customer selects or confirms an address.) Tj ET
+BT /F1 11 Tf 54.00 492.89 Td (4. ) Tj ET
+BT /F1 11 Tf 72.00 492.89 Td (Customer browses stores, categories, offers, or search results.) Tj ET
+BT /F1 11 Tf 54.00 472.89 Td (5. ) Tj ET
+BT /F1 11 Tf 72.00 472.89 Td (Customer opens a store or product detail.) Tj ET
+BT /F1 11 Tf 54.00 452.89 Td (6. ) Tj ET
+BT /F1 11 Tf 72.00 452.89 Td (Customer adds items to cart.) Tj ET
+BT /F1 11 Tf 54.00 432.89 Td (7. ) Tj ET
+BT /F1 11 Tf 72.00 432.89 Td (Customer reviews cart and resolves any store conflict rules.) Tj ET
+BT /F1 11 Tf 54.00 412.89 Td (8. ) Tj ET
+BT /F1 11 Tf 72.00 412.89 Td (Customer proceeds to checkout.) Tj ET
+BT /F1 11 Tf 54.00 392.89 Td (9. ) Tj ET
+BT /F1 11 Tf 72.00 392.89 Td (Customer selects fulfillment, payment, notes, schedule, and tip.) Tj ET
+BT /F1 11 Tf 54.00 372.89 Td (10. ) Tj ET
+BT /F1 11 Tf 72.00 372.89 Td (Customer places the order.) Tj ET
+BT /F1 11 Tf 54.00 352.89 Td (11. ) Tj ET
+BT /F1 11 Tf 72.00 352.89 Td (Customer tracks order status in real time.) Tj ET
+BT /F1 11 Tf 54.00 332.89 Td (12. ) Tj ET
+BT /F1 11 Tf 72.00 332.89 Td (Customer can chat with the rider where applicable.) Tj ET
+BT /F1 11 Tf 54.00 312.89 Td (13. ) Tj ET
+BT /F1 11 Tf 72.00 312.89 Td (Customer reviews order details and rates the order after completion.) Tj ET
+BT /F2 14 Tf 54.00 279.89 Td (5.4 Address Selection as a Core Deliveries Dependency) Tj ET
+BT /F1 11 Tf 54.00 249.89 Td (Address selection is central to the Deliveries experience. The delivery home flows) Tj ET
+BT /F1 11 Tf 54.00 233.89 Td (are built around the customer?s selected address because store availability, offers,) Tj ET
+BT /F1 11 Tf 54.00 217.89 Td (and checkout depend on fulfillment context.) Tj ET
+BT /F1 11 Tf 54.00 188.89 Td (Across delivery modes, the customer can:) Tj ET
+BT /F1 11 Tf 54.00 159.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 159.89 Td (Select from saved addresses) Tj ET
+BT /F1 11 Tf 54.00 139.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 139.89 Td (Add a new saved address) Tj ET
+BT /F1 11 Tf 54.00 119.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 119.89 Td (Use current location) Tj ET
+BT /F1 11 Tf 54.00 99.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 99.89 Td (Choose location on map) Tj ET
+BT /F1 9 Tf 505.28 28 Td (Page 8) Tj ET
+endstream
+endobj
+18 0 obj
+<< /Type /Page /Parent 31 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 17 0 R >>
+endobj
+19 0 obj
+<< /Length 3063 >>
+stream
+BT /F1 9 Tf 54 807.89 Td (Enatega Super App | Customer Module Flow Guide) Tj ET
+BT /F1 11 Tf 54.00 777.89 Td (This makes address management one of the first operational dependencies the client) Tj ET
+BT /F1 11 Tf 54.00 761.89 Td (should validate during testing.) Tj ET
+BT /F2 14 Tf 54.00 724.89 Td (5.5 Discovery and Browsing Flow) Tj ET
+BT /F1 11 Tf 54.00 694.89 Td (The browsing experience changes slightly by delivery mode, but the core pattern is) Tj ET
+BT /F1 11 Tf 54.00 678.89 Td (consistent.) Tj ET
+BT /F1 11 Tf 54.00 649.89 Td (In Multi Vendor, the home and search flows emphasize:) Tj ET
+BT /F1 11 Tf 54.00 620.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 620.89 Td (Shop types) Tj ET
+BT /F1 11 Tf 54.00 600.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 600.89 Td (Nearby stores) Tj ET
+BT /F1 11 Tf 54.00 580.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 580.89 Td (Top brands) Tj ET
+BT /F1 11 Tf 54.00 560.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 560.89 Td (Deals) Tj ET
+BT /F1 11 Tf 54.00 540.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 540.89 Td (Order again) Tj ET
+BT /F1 11 Tf 54.00 520.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 520.89 Td (Marketplace search and discovery) Tj ET
+BT /F1 11 Tf 54.00 495.89 Td (In Single Vendor, the home flow is more focused on:) Tj ET
+BT /F1 11 Tf 54.00 466.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 466.89 Td (Promotional banners) Tj ET
+BT /F1 11 Tf 54.00 446.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 446.89 Td (Vendor categories) Tj ET
+BT /F1 11 Tf 54.00 426.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 426.89 Td (Vendor deals) Tj ET
+BT /F1 11 Tf 54.00 401.89 Td (In Chain mode, the home flow includes:) Tj ET
+BT /F1 11 Tf 54.00 372.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 372.89 Td (Promotional banners) Tj ET
+BT /F1 11 Tf 54.00 352.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 352.89 Td (Category sections) Tj ET
+BT /F1 11 Tf 54.00 332.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 332.89 Td (Deals) Tj ET
+BT /F1 11 Tf 54.00 312.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 312.89 Td (Menu template selection for chain-specific catalog organization) Tj ET
+BT /F1 11 Tf 54.00 287.89 Td (This means each delivery mode has a different storefront presentation, but all of) Tj ET
+BT /F1 11 Tf 54.00 271.89 Td (them lead into a shared purchase pipeline.) Tj ET
+BT /F2 14 Tf 54.00 234.89 Td (5.6 Product, Cart, and Checkout Flow) Tj ET
+BT /F1 11 Tf 54.00 204.89 Td (After discovery, the customer can open product details, add items to cart, and move) Tj ET
+BT /F1 11 Tf 54.00 188.89 Td (into checkout.) Tj ET
+BT /F1 11 Tf 54.00 159.89 Td (The cart and checkout layers are among the most business-critical parts of the) Tj ET
+BT /F1 11 Tf 54.00 143.89 Td (Deliveries module. The current implementation supports:) Tj ET
+BT /F1 11 Tf 54.00 114.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 114.89 Td (Product detail-driven add-to-cart actions) Tj ET
+BT /F1 11 Tf 54.00 94.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 94.89 Td (Cart validation rules) Tj ET
+BT /F1 11 Tf 54.00 74.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 74.89 Td (Store conflict handling when products come from incompatible stores) Tj ET
+BT /F1 9 Tf 505.28 28 Td (Page 9) Tj ET
+endstream
+endobj
+20 0 obj
+<< /Type /Page /Parent 31 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 19 0 R >>
+endobj
+21 0 obj
+<< /Length 3050 >>
+stream
+BT /F1 9 Tf 54 807.89 Td (Enatega Super App | Customer Module Flow Guide) Tj ET
+BT /F1 11 Tf 54.00 777.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 777.89 Td (Checkout preview before final submission) Tj ET
+BT /F1 11 Tf 54.00 757.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 757.89 Td (Delivery or pickup-style order type logic where configured) Tj ET
+BT /F1 11 Tf 54.00 737.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 737.89 Td (Customer notes for restaurant and courier) Tj ET
+BT /F1 11 Tf 54.00 717.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 717.89 Td (Leave-at-door handling) Tj ET
+BT /F1 11 Tf 54.00 697.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 697.89 Td (Delivery scheduling) Tj ET
+BT /F1 11 Tf 54.00 677.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 677.89 Td (Rider tips) Tj ET
+BT /F1 11 Tf 54.00 657.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 657.89 Td (Coupon application) Tj ET
+BT /F1 11 Tf 54.00 637.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 637.89 Td (Multiple payment paths including codified support for card and Stripe-related) Tj ET
+BT /F1 11 Tf 68.00 621.89 Td (flows where enabled) Tj ET
+BT /F1 11 Tf 54.00 596.89 Td (The checkout flow also refreshes the cart and order queries after successful) Tj ET
+BT /F1 11 Tf 54.00 580.89 Td (placement so the customer immediately sees the updated order state.) Tj ET
+BT /F2 14 Tf 54.00 543.89 Td (5.7 Order Placement and Post-Checkout Flow) Tj ET
+BT /F1 11 Tf 54.00 513.89 Td (After checkout, the app sends the order to backend services and routes the customer) Tj ET
+BT /F1 11 Tf 54.00 497.89 Td (into post-order management.) Tj ET
+BT /F1 11 Tf 54.00 468.89 Td (The module then supports:) Tj ET
+BT /F1 11 Tf 54.00 439.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 439.89 Td (Orders list) Tj ET
+BT /F1 11 Tf 54.00 419.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 419.89 Td (Order details) Tj ET
+BT /F1 11 Tf 54.00 399.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 399.89 Td (Live order tracking) Tj ET
+BT /F1 11 Tf 54.00 379.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 379.89 Td (Rider chat) Tj ET
+BT /F1 11 Tf 54.00 359.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 359.89 Td (Rate order flow) Tj ET
+BT /F1 11 Tf 54.00 334.89 Td (This creates a complete commerce loop from browse to fulfillment follow-up.) Tj ET
+BT /F2 14 Tf 54.00 297.89 Td (5.8 Real-Time Delivery Features) Tj ET
+BT /F1 11 Tf 54.00 267.89 Td (The Deliveries module is not purely static after order placement. It includes live) Tj ET
+BT /F1 11 Tf 54.00 251.89 Td (operational features such as:) Tj ET
+BT /F1 11 Tf 54.00 222.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 222.89 Td (Order tracking status updates) Tj ET
+BT /F1 11 Tf 54.00 202.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 202.89 Td (Rider chat) Tj ET
+BT /F1 11 Tf 54.00 182.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 182.89 Td (Delivery support communication) Tj ET
+BT /F1 11 Tf 54.00 157.89 Td (As with RideSharing, this means backend services and real-time connectivity are both) Tj ET
+BT /F1 11 Tf 54.00 141.89 Td (important for a complete customer experience.) Tj ET
+BT /F2 14 Tf 54.00 104.89 Td (5.9 Deliveries Operational Notes for Client) Tj ET
+BT /F1 9 Tf 505.28 28 Td (Page 10) Tj ET
+endstream
+endobj
+22 0 obj
+<< /Type /Page /Parent 31 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 21 0 R >>
+endobj
+23 0 obj
+<< /Length 3368 >>
+stream
+BT /F1 9 Tf 54 807.89 Td (Enatega Super App | Customer Module Flow Guide) Tj ET
+BT /F1 11 Tf 54.00 777.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 777.89 Td (Deliveries is configuration-driven and can launch into Single Vendor, Multi) Tj ET
+BT /F1 11 Tf 68.00 761.89 Td (Vendor, or Chain mode based on backend settings.) Tj ET
+BT /F1 11 Tf 54.00 741.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 741.89 Td (Cached bootstrap configuration improves reopen speed while still allowing remote) Tj ET
+BT /F1 11 Tf 68.00 725.89 Td (refresh.) Tj ET
+BT /F1 11 Tf 54.00 705.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 705.89 Td (Address accuracy is critical because storefront visibility, delivery coverage, and) Tj ET
+BT /F1 11 Tf 68.00 689.89 Td (checkout depend on it.) Tj ET
+BT /F1 11 Tf 54.00 669.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 669.89 Td (Checkout supports several operational modifiers such as schedule, tips, notes, and) Tj ET
+BT /F1 11 Tf 68.00 653.89 Td (payment choices.) Tj ET
+BT /F1 11 Tf 54.00 633.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 633.89 Td (The order journey continues after placement through tracking, chat, support, and) Tj ET
+BT /F1 11 Tf 68.00 617.89 Td (rating.) Tj ET
+BT /F2 14 Tf 54.00 584.89 Td (6. Shared Support, Wallet, Profile, and Settings Flows) Tj ET
+BT /F1 11 Tf 54.00 554.89 Td (Although RideSharing and Deliveries have different commercial flows, both modules) Tj ET
+BT /F1 11 Tf 54.00 538.89 Td (rely on common customer-account capabilities.) Tj ET
+BT /F1 11 Tf 54.00 509.89 Td (These include:) Tj ET
+BT /F1 11 Tf 54.00 480.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 480.89 Td (Profile viewing and editing) Tj ET
+BT /F1 11 Tf 54.00 460.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 460.89 Td (Address management) Tj ET
+BT /F1 11 Tf 54.00 440.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 440.89 Td (Notification screens) Tj ET
+BT /F1 11 Tf 54.00 420.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 420.89 Td (Wallet and saved card flows) Tj ET
+BT /F1 11 Tf 54.00 400.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 400.89 Td (Language settings) Tj ET
+BT /F1 11 Tf 54.00 380.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 380.89 Td (Appearance or theme settings) Tj ET
+BT /F1 11 Tf 54.00 360.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 360.89 Td (Privacy and terms screens) Tj ET
+BT /F1 11 Tf 54.00 340.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 340.89 Td (Password and account management) Tj ET
+BT /F1 11 Tf 54.00 320.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 320.89 Td (Support conversations and ticketing flows) Tj ET
+BT /F1 11 Tf 54.00 295.89 Td (For the client, these shared layers reduce duplication and make the app feel like one) Tj ET
+BT /F1 11 Tf 54.00 279.89 Td (platform rather than multiple disconnected products.) Tj ET
+BT /F2 14 Tf 54.00 242.89 Td (7. What Is Important for the Client to Know) Tj ET
+BT /F1 11 Tf 54.00 212.89 Td (The following points are especially important for business review, user acceptance) Tj ET
+BT /F1 11 Tf 54.00 196.89 Td (testing, and launch planning.) Tj ET
+BT /F2 12 Tf 54.00 161.89 Td (7.1 The Customer App Is a Unified Platform) Tj ET
+BT /F1 11 Tf 54.00 135.89 Td (RideSharing and Deliveries are separate modules, but they share one customer) Tj ET
+BT /F1 11 Tf 54.00 119.89 Td (identity, one app shell, and several common utility layers. This simplifies customer) Tj ET
+BT /F1 11 Tf 54.00 103.89 Td (onboarding and increases cross-service convenience.) Tj ET
+BT /F1 9 Tf 505.28 28 Td (Page 11) Tj ET
+endstream
+endobj
+24 0 obj
+<< /Type /Page /Parent 31 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 23 0 R >>
+endobj
+25 0 obj
+<< /Length 3291 >>
+stream
+BT /F1 9 Tf 54 807.89 Td (Enatega Super App | Customer Module Flow Guide) Tj ET
+BT /F2 12 Tf 54.00 777.89 Td (7.2 Several Behaviors Are Controlled by Backend Configuration) Tj ET
+BT /F1 11 Tf 54.00 751.89 Td (The app is not entirely fixed at build time. Important behavior can be shaped by) Tj ET
+BT /F1 11 Tf 54.00 735.89 Td (backend responses, including:) Tj ET
+BT /F1 11 Tf 54.00 706.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 706.89 Td (Active delivery mode) Tj ET
+BT /F1 11 Tf 54.00 686.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 686.89 Td (Currency) Tj ET
+BT /F1 11 Tf 54.00 666.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 666.89 Td (Emergency contact data) Tj ET
+BT /F1 11 Tf 54.00 646.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 646.89 Td (Branding-related app settings) Tj ET
+BT /F1 11 Tf 54.00 626.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 626.89 Td (Maintenance messaging) Tj ET
+BT /F1 11 Tf 54.00 606.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 606.89 Td (Available service content) Tj ET
+BT /F1 11 Tf 54.00 581.89 Td (This gives the client flexibility, but it also means backend configuration must be) Tj ET
+BT /F1 11 Tf 54.00 565.89 Td (validated carefully before release.) Tj ET
+BT /F2 12 Tf 54.00 530.89 Td (7.3 Real-Time Connectivity Is Essential for Service Quality) Tj ET
+BT /F1 11 Tf 54.00 504.89 Td (Both modules rely on real-time features.) Tj ET
+BT /F1 11 Tf 54.00 475.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 475.89 Td (RideSharing uses real-time matching and trip-state synchronization.) Tj ET
+BT /F1 11 Tf 54.00 455.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 455.89 Td (Deliveries uses real-time order tracking and chat-style communication.) Tj ET
+BT /F1 11 Tf 54.00 430.89 Td (If real-time infrastructure is degraded, core user journeys will still partially) Tj ET
+BT /F1 11 Tf 54.00 414.89 Td (exist, but the service quality and responsiveness will be affected.) Tj ET
+BT /F2 12 Tf 54.00 379.89 Td (7.4 Address Data Quality Has Direct Business Impact) Tj ET
+BT /F1 11 Tf 54.00 353.89 Td (Saved address accuracy is especially important for Deliveries and still important for) Tj ET
+BT /F1 11 Tf 54.00 337.89 Td (RideSharing.) Tj ET
+BT /F1 11 Tf 54.00 308.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 308.89 Td (It affects store availability.) Tj ET
+BT /F1 11 Tf 54.00 288.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 288.89 Td (It affects checkout readiness.) Tj ET
+BT /F1 11 Tf 54.00 268.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 268.89 Td (It affects route and fare calculations.) Tj ET
+BT /F1 11 Tf 54.00 248.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 248.89 Td (It affects pickup and drop-off correctness.) Tj ET
+BT /F2 12 Tf 54.00 217.89 Td (7.5 Payment Experience Depends on the Enabled Business Setup) Tj ET
+BT /F1 11 Tf 54.00 191.89 Td (The app already supports multiple payment-related paths, but the exact operational) Tj ET
+BT /F1 11 Tf 54.00 175.89 Td (experience depends on backend-enabled methods and business policy. Client-side) Tj ET
+BT /F1 11 Tf 54.00 159.89 Td (testing should therefore validate:) Tj ET
+BT /F1 11 Tf 54.00 130.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 130.89 Td (Cash or COD paths) Tj ET
+BT /F1 11 Tf 54.00 110.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 110.89 Td (Wallet-related flows) Tj ET
+BT /F1 11 Tf 54.00 90.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 90.89 Td (Saved card behavior) Tj ET
+BT /F1 9 Tf 505.28 28 Td (Page 12) Tj ET
+endstream
+endobj
+26 0 obj
+<< /Type /Page /Parent 31 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 25 0 R >>
+endobj
+27 0 obj
+<< /Length 3882 >>
+stream
+BT /F1 9 Tf 54 807.89 Td (Enatega Super App | Customer Module Flow Guide) Tj ET
+BT /F1 11 Tf 54.00 777.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 777.89 Td (Stripe or card-based payment paths where enabled) Tj ET
+BT /F2 12 Tf 54.00 746.89 Td (7.6 Testing Should Cover Resume and Recovery Scenarios) Tj ET
+BT /F1 11 Tf 54.00 720.89 Td (Because the app maintains active ride and active order states, testing should not) Tj ET
+BT /F1 11 Tf 54.00 704.89 Td (only cover fresh bookings and fresh orders. It should also cover:) Tj ET
+BT /F1 11 Tf 54.00 675.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 675.89 Td (Reopening the app during active ride search) Tj ET
+BT /F1 11 Tf 54.00 655.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 655.89 Td (Reopening the app during an active ride) Tj ET
+BT /F1 11 Tf 54.00 635.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 635.89 Td (Reopening the app after order placement) Tj ET
+BT /F1 11 Tf 54.00 615.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 615.89 Td (Reopening the app during order tracking) Tj ET
+BT /F1 11 Tf 54.00 595.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 595.89 Td (Notification-driven entry into active flows) Tj ET
+BT /F1 11 Tf 54.00 570.89 Td (These recovery scenarios are important for real-world customer reliability.) Tj ET
+BT /F2 14 Tf 54.00 533.89 Td (8. Recommended Client Review Checklist) Tj ET
+BT /F1 11 Tf 54.00 503.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 503.89 Td (Confirm which delivery operating mode is intended for launch.) Tj ET
+BT /F1 11 Tf 54.00 483.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 483.89 Td (Validate backend configuration for currency, branding, and maintenance messaging.) Tj ET
+BT /F1 11 Tf 54.00 463.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 463.89 Td (Test saved address selection, current location, and map-based address flows.) Tj ET
+BT /F1 11 Tf 54.00 443.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 443.89 Td (Test RideSharing request creation, driver matching, active trip state, and trip) Tj ET
+BT /F1 11 Tf 68.00 427.89 Td (completion.) Tj ET
+BT /F1 11 Tf 54.00 407.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 407.89 Td (Test Deliveries browsing, cart, checkout, order placement, tracking, and rating.) Tj ET
+BT /F1 11 Tf 54.00 387.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 387.89 Td (Test payment methods that will be active in production.) Tj ET
+BT /F1 11 Tf 54.00 367.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 367.89 Td (Test support, chat, and notifications with real data.) Tj ET
+BT /F1 11 Tf 54.00 347.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 347.89 Td (Test resume behavior after app close or backgrounding.) Tj ET
+BT /F1 11 Tf 54.00 327.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 327.89 Td (Test English and French content completeness.) Tj ET
+BT /F2 14 Tf 54.00 294.89 Td (9. Conclusion) Tj ET
+BT /F1 11 Tf 54.00 264.89 Td (The current customer app is designed as a modular service platform rather than a) Tj ET
+BT /F1 11 Tf 54.00 248.89 Td (single-purpose application. RideSharing and Deliveries are implemented as distinct) Tj ET
+BT /F1 11 Tf 54.00 232.89 Td (customer journeys, but they operate on top of one shared customer foundation.) Tj ET
+BT /F1 11 Tf 54.00 203.89 Td (From a client perspective, the most important strengths of the current architecture) Tj ET
+BT /F1 11 Tf 54.00 187.89 Td (are:) Tj ET
+BT /F1 11 Tf 54.00 158.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 158.89 Td (One customer app for multiple services) Tj ET
+BT /F1 11 Tf 54.00 138.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 138.89 Td (Configurable delivery business models) Tj ET
+BT /F1 11 Tf 54.00 118.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 118.89 Td (Real-time operational support for rides and orders) Tj ET
+BT /F1 11 Tf 54.00 98.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 98.89 Td (Shared account, address, profile, and support layers) Tj ET
+BT /F1 11 Tf 54.00 78.89 Td (? ) Tj ET
+BT /F1 11 Tf 68.00 78.89 Td (End-to-end flows from discovery or booking through completion and follow-up) Tj ET
+BT /F1 9 Tf 505.28 28 Td (Page 13) Tj ET
+endstream
+endobj
+28 0 obj
+<< /Type /Page /Parent 31 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 27 0 R >>
+endobj
+29 0 obj
+<< /Length 361 >>
+stream
+BT /F1 9 Tf 54 807.89 Td (Enatega Super App | Customer Module Flow Guide) Tj ET
+BT /F1 11 Tf 54.00 777.89 Td (This makes the app suitable for a multi-service customer experience, while still) Tj ET
+BT /F1 11 Tf 54.00 761.89 Td (allowing each business module to keep its own operational logic and customer journey.) Tj ET
+BT /F1 9 Tf 505.28 28 Td (Page 14) Tj ET
+endstream
+endobj
+30 0 obj
+<< /Type /Page /Parent 31 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 29 0 R >>
+endobj
+31 0 obj
+<< /Type /Pages /Count 14 /Kids [ 4 0 R 6 0 R 8 0 R 10 0 R 12 0 R 14 0 R 16 0 R 18 0 R 20 0 R 22 0 R 24 0 R 26 0 R 28 0 R 30 0 R ] >>
+endobj
+32 0 obj
+<< /Type /Catalog /Pages 31 0 R >>
+endobj
+xref
+0 33
+0000000000 65535 f 
+0000000015 00000 n 
+0000000085 00000 n 
+0000000160 00000 n 
+0000000992 00000 n 
+0000001135 00000 n 
+0000004417 00000 n 
+0000004560 00000 n 
+0000008136 00000 n 
+0000008279 00000 n 
+0000011936 00000 n 
+0000012080 00000 n 
+0000015330 00000 n 
+0000015475 00000 n 
+0000018950 00000 n 
+0000019095 00000 n 
+0000022121 00000 n 
+0000022266 00000 n 
+0000025779 00000 n 
+0000025924 00000 n 
+0000029040 00000 n 
+0000029185 00000 n 
+0000032288 00000 n 
+0000032433 00000 n 
+0000035854 00000 n 
+0000035999 00000 n 
+0000039343 00000 n 
+0000039488 00000 n 
+0000043423 00000 n 
+0000043568 00000 n 
+0000043981 00000 n 
+0000044126 00000 n 
+0000044276 00000 n 
+trailer
+<< /Size 33 /Root 32 0 R >>
+startxref
+44327
+%%EOF

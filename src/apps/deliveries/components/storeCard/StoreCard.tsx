@@ -112,7 +112,6 @@ export default function StoreCard({
   const isClosedStore =
     !isProductItem && showClosedOverlay && isClosedStoreState(store);
 
-  console.log("my store in shopTypeStoreSections", { store });
 
   const handlePress = useCallback(() => {
     if (isClosedStore) {
