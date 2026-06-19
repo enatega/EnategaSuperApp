@@ -32,7 +32,11 @@ export default function TrackWorkerMapPreview({
   const mapRef = useRef<React.ElementRef<typeof Map> | null>(null);
 
   const displayedRoute = useMemo(() => {
-    if (routePath && routePath.length > 1) {
+    if (
+      routePath &&
+      routePath.length > 1 &&
+      isRouteAnchoredToEndpoints(routePath, workerLocation, customerLocation)
+    ) {
       return routePath;
     }
 
@@ -261,4 +265,28 @@ function buildCurvedFallbackRoute(workerLocation: LatLng, customerLocation: LatL
     },
     customerLocation,
   ];
+}
+
+function isRouteAnchoredToEndpoints(
+  routePath: LatLng[],
+  workerLocation: LatLng | null | undefined,
+  customerLocation: LatLng | null | undefined,
+) {
+  if (!workerLocation || !customerLocation || routePath.length < 2) {
+    return false;
+  }
+
+  const startPoint = routePath[0];
+  const endPoint = routePath[routePath.length - 1];
+
+  return (
+    distanceBetween(startPoint, workerLocation) <= 0.0015 &&
+    distanceBetween(endPoint, customerLocation) <= 0.0015
+  );
+}
+
+function distanceBetween(a: LatLng, b: LatLng) {
+  const deltaLat = a.latitude - b.latitude;
+  const deltaLng = a.longitude - b.longitude;
+  return Math.sqrt(deltaLat * deltaLat + deltaLng * deltaLng);
 }
