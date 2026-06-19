@@ -12,9 +12,9 @@ export type CartCustomizationSummary = {
 };
 
 export function isCustomizationSectionRequired(
-  section: Pick<ProductInfoCustomizationSection, 'minSelect'>,
+  section: Pick<ProductInfoCustomizationSection, 'minSelect' | 'required'>,
 ) {
-  return section.minSelect > 0;
+  return section.required || section.minSelect > 0;
 }
 
 export function summarizeCartCustomizations(
@@ -26,7 +26,19 @@ export function summarizeCartCustomizations(
   );
   const variationSections = customizations?.variations ?? [];
   const addonSections = customizations?.addons ?? [];
+  const selectedVariationGroupIds = new Set(
+    variationSections
+      .filter((section) => selectedGroupIds.has(section.groupId))
+      .map((section) => section.groupId),
+  );
   const requiredAddonGroupIds = addonSections
+    .filter((section) => {
+      if (!section.dependsOnVariationId) {
+        return true;
+      }
+
+      return selectedVariationGroupIds.has(section.dependsOnVariationId);
+    })
     .filter((section) => isCustomizationSectionRequired(section))
     .map((section) => section.groupId);
   const hasRequiredVariationChoice = variationSections.some((section) =>

@@ -7,6 +7,8 @@ export type ProductSelectionOption = {
   optionId: string;
   groupId: string;
   label: string;
+  description: string | null;
+  imageUrl: string | null;
   price: number;
 };
 
@@ -18,6 +20,7 @@ export type ProductVariationOption = ProductSelectionOption & {
 };
 
 export type ProductSelectionSection = {
+  dependsOnVariationId: string | null;
   groupId: string;
   helperText: string | null;
   isMarkedRequired: boolean;
@@ -34,6 +37,7 @@ const buildSelectableSections = (
   sections: ProductInfoCustomizationSection[],
 ): ProductSelectionSection[] =>
   sections.map((section) => ({
+    dependsOnVariationId: section.dependsOnVariationId ?? null,
     groupId: section.groupId,
     helperText: section.helperText,
     isMarkedRequired: section.required,
@@ -41,8 +45,10 @@ const buildSelectableSections = (
     required: isCustomizationSectionRequired(section),
     selectionType: normalizeSelectionType(section.selectionType),
     options: section.options.map((option) => ({
+      description: option.description,
       optionId: option.optionId,
       groupId: section.groupId,
+      imageUrl: option.imageUrl ?? null,
       label: option.title,
       price: option.price,
     })),
@@ -66,9 +72,36 @@ const buildVariationOptions = (
     return [];
   }
 
-  const shouldUseOptionlessVariationMode = sections.every(isOptionlessVariationSection);
+  const isImplicitSingleBaseVariation =
+    sections.length === 1 && isOptionlessVariationSection(sections[0]);
 
-  if (shouldUseOptionlessVariationMode) {
+  if (isImplicitSingleBaseVariation) {
+    const section = sections[0];
+    const firstOption = section.options[0];
+
+    if (!firstOption) {
+      return [];
+    }
+
+    return [
+      {
+        description: firstOption.description,
+        groupId: section.groupId,
+        helperText: section.helperText,
+        imageUrl: firstOption.imageUrl ?? null,
+        isMarkedRequired: section.required,
+        label: section.name,
+        optionId: firstOption.optionId,
+        price: firstOption.price,
+        pricingMode: "replace_base" as const,
+        required: isCustomizationSectionRequired(section),
+      },
+    ];
+  }
+
+  const shouldUseSectionLevelVariationOptions = sections.every(isOptionlessVariationSection);
+
+  if (shouldUseSectionLevelVariationOptions) {
     const options = sections
       .map((section) => {
         const firstOption = section.options[0];
@@ -78,13 +111,15 @@ const buildVariationOptions = (
         }
 
         return {
+          description: firstOption.description,
           groupId: section.groupId,
           helperText: section.helperText,
+          imageUrl: firstOption.imageUrl ?? null,
           isMarkedRequired: section.required,
           label: section.name,
           optionId: firstOption.optionId,
           price: firstOption.price,
-          pricingMode: "additive" as const,
+          pricingMode: "replace_base" as const,
           required: isCustomizationSectionRequired(section),
         };
       });
@@ -95,8 +130,10 @@ const buildVariationOptions = (
   const primarySection = sections[0];
 
   return primarySection.options.map((option) => ({
+    description: option.description,
     groupId: primarySection.groupId,
     helperText: primarySection.helperText,
+    imageUrl: option.imageUrl ?? null,
     isMarkedRequired: primarySection.required,
     label: option.title,
     optionId: option.optionId,
@@ -136,7 +173,10 @@ type Props = {
 
 export default function useProductSelectionState({ variations, addons }: Props) {
   const variationOptions = useMemo(() => buildVariationOptions(variations), [variations]);
-  const addonSections = useMemo(() => buildSelectableSections(addons), [addons]);
+  const shouldHideVariationSelector = useMemo(
+    () => variations.length === 1 && isOptionlessVariationSection(variations[0]),
+    [variations],
+  );
   const [selectedVariationKey, setSelectedVariationKey] = useState<string | null>(
     () =>
       variationOptions[0]
@@ -145,6 +185,14 @@ export default function useProductSelectionState({ variations, addons }: Props) 
   );
   const [selectedAddonOptionIdsByGroup, setSelectedAddonOptionIdsByGroup] =
     useState<Record<string, string[]>>({});
+  const selectedVariation = useMemo(
+    () =>
+      variationOptions.find(
+        (option) => `${option.groupId}:${option.optionId}` === selectedVariationKey,
+      ) ?? null,
+    [selectedVariationKey, variationOptions],
+  );
+  const addonSections = useMemo(() => buildSelectableSections(addons), [addons]);
 
   useEffect(() => {
     setSelectedVariationKey((current) => {
@@ -187,14 +235,6 @@ export default function useProductSelectionState({ variations, addons }: Props) 
       return areStringArrayMapsEqual(current, next) ? current : next;
     });
   }, [addonSections]);
-
-  const selectedVariation = useMemo(
-    () =>
-      variationOptions.find(
-        (option) => `${option.groupId}:${option.optionId}` === selectedVariationKey,
-      ) ?? null,
-    [selectedVariationKey, variationOptions],
-  );
 
   const variationHelperText = useMemo(
     () => variationOptions.find((option) => option.helperText)?.helperText ?? null,
@@ -293,5 +333,6 @@ export default function useProductSelectionState({ variations, addons }: Props) 
     toggleAddonOption,
     variationHelperText,
     variationOptions,
+    shouldHideVariationSelector,
   };
 }

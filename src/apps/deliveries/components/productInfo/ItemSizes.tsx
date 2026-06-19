@@ -48,10 +48,12 @@ export default function ItemSizes({
       <View accessibilityRole="radiogroup" style={styles.options}>
         <FlatList
           data={variations}
-          keyExtractor={(item) => item.groupId}
+          keyExtractor={(item) => `${item.groupId}:${item.optionId}`}
           renderItem={({ item }) => (
             <ProductOptionRow
               controlType="radio"
+              description={item.description}
+              imageUrl={item.imageUrl}
               isSelected={
                 selectedVariationKey === `${item.groupId}:${item.optionId}`
               }

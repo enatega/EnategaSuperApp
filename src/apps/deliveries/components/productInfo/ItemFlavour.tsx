@@ -81,6 +81,8 @@ export default function ItemFlavour({
               renderItem={({ item }) => (
                 <ProductOptionRow
                   controlType="checkbox"
+                  description={item.description}
+                  imageUrl={item.imageUrl}
                   isSelected={
                     (selectedOptionIdsByGroup[section.groupId] ?? []).includes(item.optionId)
                   }

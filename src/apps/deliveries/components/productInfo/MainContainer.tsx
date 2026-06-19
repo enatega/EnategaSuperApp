@@ -93,6 +93,7 @@ export default function MainContainer({
     toggleAddonOption,
     variationHelperText,
     variationOptions,
+    shouldHideVariationSelector,
   } = useProductSelectionState({ addons, variations });
   const resolvedProductBasePrice =
     typeof initialBasePrice === "number" && Number.isFinite(initialBasePrice)
@@ -113,7 +114,7 @@ export default function MainContainer({
       productInfoData.usage?.trim() ||
       productInfoData.nutrition?.length,
   );
-  const hasSizes = variations.length > 0;
+  const hasSizes = variationOptions.length > 0 && !shouldHideVariationSelector;
   const hasFlavours = addonSections.length > 0;
   const hasCustomizationSection = hasSizes || hasFlavours;
   const hasDetailSections =

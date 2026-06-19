@@ -1,10 +1,12 @@
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 
 type Props = {
   label: string;
+  description?: string | null;
+  imageUrl?: string | null;
   priceLabel: string;
   isSelected: boolean;
   onPress: () => void;
@@ -13,6 +15,8 @@ type Props = {
 
 export default function ProductOptionRow({
   label,
+  description,
+  imageUrl,
   priceLabel,
   isSelected,
   onPress,
@@ -51,19 +55,38 @@ export default function ProductOptionRow({
             />
           ) : null}
         </View>
-        <Text
-          color={colors.text}
-          weight="medium"
-          style={[
-            styles.label,
-            {
-              fontSize: typography.size.sm2,
-              lineHeight: typography.lineHeight.md,
-            },
-          ]}
-        >
-          {label}
-        </Text>
+        {imageUrl ? (
+          <Image source={{ uri: imageUrl }} style={styles.optionImage} />
+        ) : null}
+        <View style={styles.textContent}>
+          <Text
+            color={colors.text}
+            weight="medium"
+            style={[
+              styles.label,
+              {
+                fontSize: typography.size.sm2,
+                lineHeight: typography.lineHeight.md,
+              },
+            ]}
+          >
+            {label}
+          </Text>
+          {description ? (
+            <Text
+              color={colors.mutedText}
+              style={[
+                styles.description,
+                {
+                  fontSize: typography.size.xs,
+                  lineHeight: typography.lineHeight.sm,
+                },
+              ]}
+            >
+              {description}
+            </Text>
+          ) : null}
+        </View>
       </View>
       <Text
         color={colors.mutedText}
@@ -104,14 +127,22 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   leftContent: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     flexDirection: 'row',
     flex: 1,
     gap: 12,
     paddingRight: 12,
   },
+  description: {
+    marginTop: 2,
+  },
   label: {
     flex: 1,
+  },
+  optionImage: {
+    borderRadius: 10,
+    height: 40,
+    width: 40,
   },
   radioOuter: {
     alignItems: 'center',
@@ -128,5 +159,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     height: 8,
     width: 8,
+  },
+  textContent: {
+    flex: 1,
   },
 });

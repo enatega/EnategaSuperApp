@@ -12,6 +12,7 @@ export interface ProductInfoCustomizationOption {
   title: string;
   description: string | null;
   price: number;
+  imageUrl?: string | null;
 }
 
 export interface ProductInfoCustomizationSection {
@@ -19,6 +20,7 @@ export interface ProductInfoCustomizationSection {
   name: string;
   description: string | null;
   type: string;
+  dependsOnVariationId?: string | null;
   price?: number;
   minSelect: number;
   maxSelect: number;
