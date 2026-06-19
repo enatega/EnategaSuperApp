@@ -25,12 +25,12 @@ export default function CartStoreConflictModal({
   const { colors } = useTheme();
   const baseDescription = prompt?.productName
     ? t('cart_store_conflict_message_with_product', {
-        incomingStore: prompt?.incomingStoreName || t('cart_store_conflict_store_fallback'),
-        product: prompt.productName,
-      })
+      incomingStore: prompt?.incomingStoreName || t('cart_store_conflict_store_fallback'),
+      product: prompt.productName,
+    })
     : t('cart_store_conflict_message', {
-        incomingStore: prompt?.incomingStoreName || t('cart_store_conflict_store_fallback'),
-      });
+      incomingStore: prompt?.incomingStoreName || t('cart_store_conflict_store_fallback'),
+    });
 
   return (
     <AppPopup
@@ -54,6 +54,7 @@ export default function CartStoreConflictModal({
         onPress: onCancel,
         variant: 'secondary',
         disabled: isSubmitting,
+        labelStyle: { color: colors.primary },
       }}
       title={t('cart_store_conflict_title')}
       visible={visible}
