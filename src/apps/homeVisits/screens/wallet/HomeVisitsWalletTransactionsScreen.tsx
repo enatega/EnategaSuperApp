@@ -5,7 +5,7 @@ import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import { useWalletTransactionsQuery } from '../../../../general/api/walletSavedCardsService';
-import WalletTransactionItem from '../../../deliveries/components/wallet/WalletTransactionItem';
+import WalletTransactionItem from '../../components/wallet/WalletTransactionItem';
 
 export default function HomeVisitsWalletTransactionsScreen() {
   const { colors } = useTheme();

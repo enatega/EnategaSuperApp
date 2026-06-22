@@ -12,10 +12,10 @@ import {
   useWalletSetDefaultCardMutation,
   useWalletTransactionsQuery,
 } from '../../../../general/api/walletSavedCardsService';
-import WalletBalanceHeader from '../../../deliveries/components/wallet/WalletBalanceHeader';
-import SavedCardRow from '../../../deliveries/components/wallet/SavedCardRow';
-import AddCardRow from '../../../deliveries/components/wallet/AddCardRow';
-import WalletTransactionItem from '../../../deliveries/components/wallet/WalletTransactionItem';
+import WalletBalanceHeader from '../../components/wallet/WalletBalanceHeader';
+import SavedCardRow from '../../components/wallet/SavedCardRow';
+import AddCardRow from '../../components/wallet/AddCardRow';
+import WalletTransactionItem from '../../components/wallet/WalletTransactionItem';
 import type { HomeVisitsStackParamList } from '../../navigation/types';
 
 export default function HomeVisitsWalletScreen() {
