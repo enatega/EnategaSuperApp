@@ -42,7 +42,11 @@ import {
   isCourierBookingValid,
   isCourierRideRequest,
 } from '../../utils/courierBooking';
-import { resolveRideOfferMode, type RideOfferMode } from '../../utils/rideOffer';
+import {
+  getRecommendedOfferFare,
+  resolveRideOfferMode,
+  type RideOfferMode,
+} from '../../utils/rideOffer';
 import type { RideIntent } from '../../utils/rideOptions';
 import { formatScheduledRideSummary, toApiScheduledDateString } from '../../utils/rideSchedule';
 import { toCreateRideStops } from '../../utils/rideStops';
@@ -94,6 +98,24 @@ function toRideOption(ride: RideTypeFare): RideOptionItem & { fare?: number; rec
   };
 }
 
+function resolveDisplayedFare(params: {
+  fare?: number;
+  offerMode: RideOfferMode;
+  hourlyHours?: number;
+}) {
+  const { fare, offerMode, hourlyHours } = params;
+
+  if (offerMode !== 'hourly' || typeof hourlyHours !== 'number') {
+    return fare;
+  }
+
+  return getRecommendedOfferFare({
+    baseFare: fare,
+    offerMode,
+    hourlyHours,
+  });
+}
+
 function getPassengerUserId(passenger: ActiveRideRequestPayload['passenger']) {
   return (
     passenger as { userProfile?: { user?: { id?: string } } } | undefined
@@ -126,9 +148,24 @@ export default function RideEstimateScreen() {
     ? getApiErrorMessage(routeQuery.error, t('ride_estimate_route_error_description'))
     : null;
   const isQuoteLoading = !quoteQuery.data && (quoteQuery.isLoading || quoteQuery.isFetching);
+  const offerMode = resolveRideOfferMode(rideType, initialOfferMode);
+  const isHourlyRide = offerMode === 'hourly';
   const mappedOptions = useMemo(
-    () => (quoteQuery.data?.rideTypeFares ?? []).map(toRideOption),
-    [quoteQuery.data?.rideTypeFares],
+    () => (quoteQuery.data?.rideTypeFares ?? []).map((ride) => {
+      const option = toRideOption(ride);
+      const displayedFare = resolveDisplayedFare({
+        fare: option.fare,
+        offerMode,
+        hourlyHours: initialHourlyHours,
+      });
+
+      return {
+        ...option,
+        fare: displayedFare,
+        recommendedFare: displayedFare,
+      };
+    }),
+    [initialHourlyHours, offerMode, quoteQuery.data?.rideTypeFares],
   );
   const [selectedOptionId, setSelectedOptionId] = useState<RideOptionItem['id']>(
     rideCategory ?? (mappedOptions[0]?.id ?? 'ride'),
@@ -222,8 +259,6 @@ export default function RideEstimateScreen() {
     ? (selectedPaymentMethod.value
       ?? (selectedPaymentMethodId === 'cash' ? t('ride_payment_cash') : ''))
     : t('ride_active_payment');
-  const offerMode = resolveRideOfferMode(rideType, initialOfferMode);
-  const isHourlyRide = offerMode === 'hourly';
   const isCourierFlow = rideType === 'courier' || isCourierRideRequest(selectedOption.title);
   const isCourierDetailsValid = isCourierBookingValid(courierBooking);
   const isConfirmDisabled = !selectedPaymentMethodId

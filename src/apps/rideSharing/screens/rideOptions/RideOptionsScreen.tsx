@@ -117,7 +117,15 @@ function resolveRideIntentFromSelection(params: {
     return routeRideType;
   }
 
-  return selectedOption.title.toLowerCase().includes('courier') ? 'courier' : 'now';
+  if (selectedOption.title.toLowerCase().includes('courier')) {
+    return 'courier';
+  }
+
+  if (routeRideType === 'schedule' || routeRideType === 'rental') {
+    return routeRideType;
+  }
+
+  return 'now';
 }
 
 export default function RideOptionsScreen() {

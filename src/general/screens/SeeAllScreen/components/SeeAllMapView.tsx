@@ -159,7 +159,6 @@ function SeeAllMapViewComponent<TItem>({
             ? getRegionFromCoordinates(userCoordinate)
             : DEFAULT_REGION
         }
-        showsUserLocation
         showsMyLocationButton={false}
         showsCompass={false}
         toolbarEnabled={false}

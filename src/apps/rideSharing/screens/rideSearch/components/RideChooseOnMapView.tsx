@@ -304,7 +304,6 @@ function RideChooseOnMapView({
           hasPendingGestureRef.current = true;
         }}
         onRegionChangeComplete={handleRegionChangeComplete}
-        showsUserLocation
         showsMyLocationButton={false}
         showsCompass={false}
         toolbarEnabled={false}
