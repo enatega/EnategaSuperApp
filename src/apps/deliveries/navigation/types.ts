@@ -4,6 +4,7 @@ import type { ProfileNavigationParamList } from "../../../general/navigation/pro
 import type { ChainStackParamList } from "../chain/navigation/types";
 import type { MultiVendorStackParamList } from "../multiVendor/navigation/types";
 import type { SingleVendorStackParamList } from "../singleVendor/navigation/types";
+import type { DeliveryNearbyStore } from "../api/types";
 import { SupportedCardType } from "../../../general/components/filterablePaginatedList";
 import { ProductCardVariant } from "../components/productCard/types";
 
@@ -59,6 +60,9 @@ export type DeliveriesStackParamList = DeliveriesAccountNavigationParamList & {
   RiderChat: RiderChatScreenParams['RiderChat'];
   ProductInfo: {
     productId: string;
+  };
+  StoreDetails: {
+    store?: DeliveryNearbyStore;
   };
   Cart: undefined;
   Checkout: undefined;

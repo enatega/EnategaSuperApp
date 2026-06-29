@@ -50,7 +50,6 @@ export default function useProductInfoCartFlow({
   const isAddDisabled =
     isSubmitting ||
     !product.inStock ||
-    decision.kind === 'open_product_info' ||
     decision.kind === 'await_customization_context';
 
   const submitAddToCart = useCallback(async () => {
@@ -61,9 +60,9 @@ export default function useProductInfoCartFlow({
     });
 
     showMutationSuccess('add', {
-        product: product.name,
-        quantity,
-      });
+      product: product.name,
+      quantity,
+    });
   }, [
     addCartItemMutation,
     product.name,
@@ -74,7 +73,11 @@ export default function useProductInfoCartFlow({
   ]);
 
   const handleAddToCart = useCallback(async () => {
-    if (isAddDisabled) {
+
+    const shouldShowBlockedFeedback =
+      isAddDisabled || decision.kind === 'open_product_info';
+
+    if (shouldShowBlockedFeedback) {
       const feedback = getCartActionBlockedFeedback(t, decision.kind);
 
       if (feedback) {

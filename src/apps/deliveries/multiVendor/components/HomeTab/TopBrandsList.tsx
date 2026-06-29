@@ -5,11 +5,11 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
-import { useNearbyStores, useTopBrands } from '../../../hooks';
-import type { DeliveryTopBrand } from '../../../api/types';
+import { useTopBrands } from '../../../hooks';
 import TopBrandsListSkeleton from './HomeTabSkeletons/TopBrandsListSkeleton';
 import TopBrandCard from '../../../components/storeCard/TopBrandCard';
 import type { MultiVendorStackParamList } from '../../navigation/types';
+import useTopBrandNavigation from '../../hooks/useTopBrandNavigation';
 
 type NavigationProp = NativeStackNavigationProp<
   MultiVendorStackParamList,
@@ -20,46 +20,10 @@ export default function TopBrandsList() {
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavigationProp>();
   const { data: topBrands = [], isPending: isTopBrandsPending } = useTopBrands();
-  const { data: nearbyStores = [] } = useNearbyStores();
+  const { canOpenBrand, openTopBrand } = useTopBrandNavigation();
   const handleSeeAllPress = useCallback(() => {
     navigation.navigate('TopBrandsSeeAll');
   }, [navigation]);
-
-  const resolveStoreFromBrand = useCallback((brand: DeliveryTopBrand) => {
-    const normalizedBrandName = brand.name.trim().toLowerCase();
-
-    const exactMatch = nearbyStores.find(
-      (store) => store.name.trim().toLowerCase() === normalizedBrandName,
-    );
-
-    if (exactMatch) {
-      return exactMatch;
-    }
-
-    return nearbyStores.find((store) =>
-      store.name.trim().toLowerCase().includes(normalizedBrandName),
-    );
-  }, [nearbyStores]);
-
-  const handleTopBrandPress = useCallback((brand: DeliveryTopBrand) => {
-    const matchedStore = resolveStoreFromBrand(brand);
-
-    if (matchedStore) {
-      navigation.navigate('StoreDetails', { store: matchedStore });
-      return;
-    }
-
-    if (!brand.vendorId) {
-      return;
-    }
-
-    navigation.navigate('SeeAllScreen', {
-      queryType: 'top-brand-stores',
-      title: brand.name,
-      cardType: 'store',
-      vendorId: brand.vendorId,
-    });
-  }, [navigation, resolveStoreFromBrand]);
 
   return (
     <View style={styles.section}>
@@ -81,8 +45,8 @@ export default function TopBrandsList() {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={item.name}
-              onPress={() => handleTopBrandPress(item)}
-              disabled={!item.vendorId}
+              onPress={() => openTopBrand(item)}
+              disabled={!canOpenBrand(item)}
             >
               <TopBrandCard brand={item} />
             </Pressable>

@@ -12,9 +12,9 @@ export type CartCustomizationSummary = {
 };
 
 export function isCustomizationSectionRequired(
-  section: Pick<ProductInfoCustomizationSection, 'minSelect'>,
+  section: Pick<ProductInfoCustomizationSection, 'minSelect' | 'required'>,
 ) {
-  return section.minSelect > 0;
+  return section.required || section.minSelect > 0;
 }
 
 export function summarizeCartCustomizations(

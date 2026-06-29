@@ -51,6 +51,7 @@ import ChainCategoryProductsSeeAll from "../screens/ChainCategoryProductsSeeAll/
 import DeliveriesStartupSkeleton from "../components/DeliveriesStartupSkeleton";
 import { useInitializeDeliveriesConfig } from "../hooks/useInitializeDeliveriesConfig";
 import { useDeliveriesDeliveryMode } from "../../../general/stores/useAppConfigStore";
+import StoreDetailsScreen from "../multiVendor/screens/StoreDetailsScreen/StoreDetailsScreen";
 
 const Stack = createNativeStackNavigator<DeliveriesStackParamList>();
 
@@ -227,6 +228,11 @@ export default function DeliveriesNavigator() {
       <Stack.Screen
         name="ProductInfo"
         component={ProductInfo}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="StoreDetails"
+        component={StoreDetailsScreen}
         options={sharedScreenOptions}
       />
       <Stack.Screen
