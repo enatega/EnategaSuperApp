@@ -5,6 +5,25 @@ import { Platform } from "react-native";
 let cachedToken: string | null = null;
 let inFlightTokenPromise: Promise<string | null> | null = null;
 
+function normalizePushToken(value: unknown): string | null {
+  if (typeof value === "string") {
+    const trimmedValue = value.trim();
+    return trimmedValue.length > 0 ? trimmedValue : null;
+  }
+
+  if (
+    value &&
+    typeof value === "object" &&
+    "data" in value &&
+    typeof (value as { data?: unknown }).data === "string"
+  ) {
+    const nestedValue = (value as { data: string }).data.trim();
+    return nestedValue.length > 0 ? nestedValue : null;
+  }
+
+  return null;
+}
+
 function getEasProjectId(): string | undefined {
   const expoConfigProjectId = Constants.expoConfig?.extra?.eas?.projectId;
   const easConfigProjectId = Constants.easConfig?.projectId;
@@ -43,7 +62,7 @@ async function getPushTokenInternal(): Promise<string | null> {
       ? await Notifications.getExpoPushTokenAsync({ projectId })
       : await Notifications.getExpoPushTokenAsync();
 
-    return response.data ?? null;
+    return normalizePushToken(response.data);
   } catch {
     return null;
   }
@@ -59,14 +78,12 @@ export async function getExpoPushTokenForAuth(): Promise<string | null> {
   inFlightTokenPromise = getPushTokenInternal();
 
   try {
-    const token = await inFlightTokenPromise;
+    const token = normalizePushToken(await inFlightTokenPromise);
     if (token) {
       cachedToken = token;
     }
-    console.log("Expo Push Token for Auth:", token);
     return token;
   } finally {
     inFlightTokenPromise = null;
   }
 }
-
