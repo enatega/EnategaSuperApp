@@ -1,5 +1,6 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useNavigation } from "@react-navigation/native";
 import SingleVendorNavigator from "../singleVendor/navigation/SingleVendorNavigator";
 import MultiVendorNavigator from "../multiVendor/navigation/MultiVendorNavigator";
 import ChainNavigator from "../chain/navigation/ChainNavigator";
@@ -38,8 +39,10 @@ import SupportTicketDetailScreen from "../screens/SupportTicketDetailScreen";
 import RiderChatScreen from "../screens/RiderChatScreen/RiderChatScreen";
 import CouponsScreen from "../screens/CouponsScreen/CouponsScreen";
 import {
+  DeliveryMode,
   DEFAULT_DELIVERY_MODE,
   mapDeliveryModeToRoute,
+  setDeliveryModePreference,
 } from "./deliveryModePreference";
 import type { DeliveriesStackParamList } from "./types";
 import DeliveriesSeeAllScreen from "../screens/SeeAllScreen/DeliveriesSeeAllScreen";
@@ -50,19 +53,44 @@ import ChainCategoriesSeeAll from "../screens/ChainCategoriesSeeAll/ChainCategor
 import ChainCategoryProductsSeeAll from "../screens/ChainCategoryProductsSeeAll/ChainCategoryProductsSeeAll";
 import DeliveriesStartupSkeleton from "../components/DeliveriesStartupSkeleton";
 import { useInitializeDeliveriesConfig } from "../hooks/useInitializeDeliveriesConfig";
-import { useDeliveriesDeliveryMode } from "../../../general/stores/useAppConfigStore";
+import DeliveriesHomeScreen from "../screens/HomeScreen";
+import {
+  useAppConfigStore,
+  useDeliveriesDeliveryMode,
+} from "../../../general/stores/useAppConfigStore";
+import { isDeliveriesDemoModeEnabled } from "./deliveryDemoMode";
 import StoreDetailsScreen from "../multiVendor/screens/StoreDetailsScreen/StoreDetailsScreen";
 
 const Stack = createNativeStackNavigator<DeliveriesStackParamList>();
 
 const sharedScreenOptions = { headerShown: false } as const;
 
+function DeliveriesModeSelectorScreen() {
+  const navigation = useNavigation<any>();
+  const setDeliveriesDeliveryMode = useAppConfigStore(
+    (state) => state.setDeliveriesDeliveryMode,
+  );
+
+  const handleSelect = async (mode: DeliveryMode) => {
+    await setDeliveryModePreference(mode);
+    setDeliveriesDeliveryMode(mode);
+    navigation.reset({
+      index: 0,
+      routes: [{ name: mapDeliveryModeToRoute(mode) }],
+    });
+  };
+
+  return <DeliveriesHomeScreen onSelect={handleSelect} />;
+}
+
 export default function DeliveriesNavigator() {
+  const isDemoModeEnabled = isDeliveriesDemoModeEnabled();
   const deliveryMode = useDeliveriesDeliveryMode();
   const configQuery = useInitializeDeliveriesConfig();
-  const initialRouteName = mapDeliveryModeToRoute(
-    deliveryMode ?? DEFAULT_DELIVERY_MODE,
-  );
+  const initialRouteName =
+    isDemoModeEnabled 
+      ? 'DeliveriesModeSelector'
+      : mapDeliveryModeToRoute(deliveryMode ?? DEFAULT_DELIVERY_MODE);
 
   if (configQuery.isHydratingCache) {
     return null;
@@ -74,6 +102,11 @@ export default function DeliveriesNavigator() {
 
   return (
     <Stack.Navigator initialRouteName={initialRouteName}>
+      <Stack.Screen
+        name="DeliveriesModeSelector"
+        component={DeliveriesModeSelectorScreen}
+        options={sharedScreenOptions}
+      />
       <Stack.Screen
         name="SingleVendor"
         component={SingleVendorNavigator}
