@@ -37,11 +37,24 @@ const SERVICE_TABS: ServiceTab[] = [
 export default function AllInOneHomeHero() {
   const { t } = useTranslation('deliveries');
   const { colors, typography } = useTheme();
+  const greetingKey = React.useMemo(() => {
+    const hour = new Date().getHours();
+
+    if (hour < 12) {
+      return 'multi_vendor_home_greeting_morning';
+    }
+
+    if (hour < 17) {
+      return 'multi_vendor_home_greeting_afternoon';
+    }
+
+    return 'multi_vendor_home_greeting_evening';
+  }, []);
 
   return (
     <View style={styles.wrapper}>
       <Text style={[styles.greetingText, { color: colors.text, fontSize: typography.size.sm2 }]} weight="medium">
-        {t('multi_vendor_home_greeting')}
+        {t(greetingKey)}
       </Text>
       <Text style={[styles.headingText, { color: colors.text, fontSize: typography.size.h5 }]} weight="bold">
         {t('multi_vendor_home_heading')}

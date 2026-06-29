@@ -7,15 +7,21 @@ import TopBrandCard from '../../../components/storeCard/TopBrandCard';
 type Props = {
   brand: DeliveryTopBrand;
   onPress: (brand: DeliveryTopBrand) => void;
+  isDisabled?: boolean;
 };
 
-export default function TopBrandsSeeAllItem({ brand, onPress }: Props) {
+export default function TopBrandsSeeAllItem({
+  brand,
+  onPress,
+  isDisabled = false,
+}: Props) {
   const { typography } = useTheme();
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={brand.name}
+      disabled={isDisabled}
       onPress={() => onPress(brand)}
       style={styles.item}
     >

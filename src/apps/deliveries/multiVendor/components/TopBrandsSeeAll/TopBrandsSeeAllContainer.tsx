@@ -1,6 +1,4 @@
 import React, { useCallback } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FlatList, StyleSheet } from 'react-native';
 import useDebouncedValue from '../../../../../general/hooks/useDebouncedValue';
 import type { DeliveryTopBrand } from '../../../api/types';
@@ -9,22 +7,17 @@ import TopBrandsSeeAllEmptyState from './TopBrandsSeeAllEmptyState';
 import TopBrandsSeeAllErrorState from './TopBrandsSeeAllErrorState';
 import TopBrandsSeeAllItem from './TopBrandsSeeAllItem';
 import TopBrandsSeeAllSkeleton from './TopBrandsSeeAllSkeleton';
-import type { MultiVendorStackParamList } from '../../navigation/types';
+import useTopBrandNavigation from '../../hooks/useTopBrandNavigation';
 
 type TopBrandsSeeAllContainerProps = {
   searchValue: string;
 };
 
-type NavigationProp = NativeStackNavigationProp<
-  MultiVendorStackParamList,
-  'SeeAllScreen'
->;
-
 export default function TopBrandsSeeAllContainer({
   searchValue,
 }: TopBrandsSeeAllContainerProps) {
-  const navigation = useNavigation<NavigationProp>();
   const debouncedSearchValue = useDebouncedValue(searchValue.trim(), 500);
+  const { canOpenBrand, openTopBrand } = useTopBrandNavigation();
   const {
     data: topBrands = [],
     isPending,
@@ -47,18 +40,9 @@ export default function TopBrandsSeeAllContainer({
 
   const handleBrandPress = useCallback(
     (brand: DeliveryTopBrand) => {
-      if (!brand.vendorId) {
-        return;
-      }
-
-      navigation.navigate('SeeAllScreen', {
-        queryType: 'top-brand-stores',
-        title: brand.name,
-        cardType: 'store',
-        vendorId: brand.vendorId,
-      });
+      openTopBrand(brand);
     },
-    [navigation],
+    [openTopBrand],
   );
 
   if (isPending) {
@@ -82,7 +66,11 @@ export default function TopBrandsSeeAllContainer({
       numColumns={2}
       keyExtractor={(item, index) => `${item.name}-${index}`}
       renderItem={({ item }) => (
-        <TopBrandsSeeAllItem brand={item} onPress={handleBrandPress} />
+        <TopBrandsSeeAllItem
+          brand={item}
+          onPress={handleBrandPress}
+          isDisabled={!canOpenBrand(item)}
+        />
       )}
       keyboardDismissMode="on-drag"
       keyboardShouldPersistTaps="handled"

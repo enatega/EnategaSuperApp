@@ -27,6 +27,19 @@ export default function HomeHeader({ backgroundVariant = 'gradient' }: Props) {
   const { t } = useTranslation('general');
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const greetingKey = React.useMemo(() => {
+    const hour = new Date().getHours();
+
+    if (hour < 12) {
+      return 'greeting_morning';
+    }
+
+    if (hour < 17) {
+      return 'greeting_afternoon';
+    }
+
+    return 'greeting_evening';
+  }, []);
  
   const bannerSidePadding = 16;
   const bannerWidth = width - bannerSidePadding * 2;
@@ -65,7 +78,7 @@ export default function HomeHeader({ backgroundVariant = 'gradient' }: Props) {
           weight="semiBold"
           style={{ fontSize: typography.size.sm2, lineHeight: typography.lineHeight.sm2 }}
         >
-          {t('greeting')}
+          {t(greetingKey)}
         </Text>
         <Text
           weight="semiBold"

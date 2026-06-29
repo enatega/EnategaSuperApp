@@ -59,6 +59,7 @@ import {
   useDeliveriesDeliveryMode,
 } from "../../../general/stores/useAppConfigStore";
 import { isDeliveriesDemoModeEnabled } from "./deliveryDemoMode";
+import StoreDetailsScreen from "../multiVendor/screens/StoreDetailsScreen/StoreDetailsScreen";
 
 const Stack = createNativeStackNavigator<DeliveriesStackParamList>();
 
@@ -260,6 +261,11 @@ export default function DeliveriesNavigator() {
       <Stack.Screen
         name="ProductInfo"
         component={ProductInfo}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="StoreDetails"
+        component={StoreDetailsScreen}
         options={sharedScreenOptions}
       />
       <Stack.Screen
