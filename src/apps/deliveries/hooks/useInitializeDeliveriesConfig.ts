@@ -18,6 +18,8 @@ import {
   setStoredDeliveriesBootstrapConfig,
   type DeliveriesBootstrapConfigCache,
 } from '../storage/deliveriesBootstrapConfigStorage';
+import { getDeliveryModePreference } from '../navigation/deliveryModePreference';
+import { isDeliveriesDemoModeEnabled } from '../navigation/deliveryDemoMode';
 
 type DeliveriesBootstrapConfig = DeliveriesBootstrapConfigCache;
 
@@ -60,6 +62,7 @@ function toDeliveriesAppSettings(
 }
 
 export function useInitializeDeliveriesConfig() {
+  const isDemoModeEnabled = isDeliveriesDemoModeEnabled();
   const {
     deliveries,
     setDeliveriesPlatformConfiguration,
@@ -86,11 +89,15 @@ export function useInitializeDeliveriesConfig() {
 
         setDeliveriesPlatformConfiguration(storedConfig.platformConfiguration);
         setDeliveriesAppSettings(storedConfig.appSettings);
-        setDeliveriesDeliveryMode(
-          mapPlatformTypeToDeliveryMode(
-            storedConfig.platformConfiguration.platform_type,
-          ),
-        );
+        if (isDemoModeEnabled) {
+          setDeliveriesDeliveryMode(await getDeliveryModePreference());
+        } else {
+          setDeliveriesDeliveryMode(
+            mapPlatformTypeToDeliveryMode(
+              storedConfig.platformConfiguration.platform_type,
+            ),
+          );
+        }
         setDeliveriesCurrency(storedConfig.currency);
         markDeliveriesConfigLoaded();
         setDeliveriesConfigError(null);
@@ -114,6 +121,7 @@ export function useInitializeDeliveriesConfig() {
     setDeliveriesCurrency,
     setDeliveriesDeliveryMode,
     setDeliveriesPlatformConfiguration,
+    isDemoModeEnabled,
   ]);
 
   const platformConfigurationQuery = useQuery<DeliveriesBootstrapConfig, ApiError>({
@@ -166,17 +174,27 @@ export function useInitializeDeliveriesConfig() {
 
     setDeliveriesPlatformConfiguration(platformConfigurationQuery.data.platformConfiguration);
     setDeliveriesAppSettings(platformConfigurationQuery.data.appSettings);
-    setDeliveriesDeliveryMode(
-      mapPlatformTypeToDeliveryMode(
-        platformConfigurationQuery.data.platformConfiguration.platform_type,
-      ),
-    );
     setDeliveriesCurrency(platformConfigurationQuery.data.currency);
-    markDeliveriesConfigLoaded();
-    setDeliveriesConfigError(null);
-    setHasCachedConfig(true);
-    void setStoredDeliveriesBootstrapConfig(platformConfigurationQuery.data);
+    const finalize = async () => {
+      if (isDemoModeEnabled) {
+        setDeliveriesDeliveryMode(await getDeliveryModePreference());
+      } else {
+        setDeliveriesDeliveryMode(
+          mapPlatformTypeToDeliveryMode(
+            platformConfigurationQuery.data.platformConfiguration.platform_type,
+          ),
+        );
+      }
+
+      markDeliveriesConfigLoaded();
+      setDeliveriesConfigError(null);
+      setHasCachedConfig(true);
+      await setStoredDeliveriesBootstrapConfig(platformConfigurationQuery.data);
+    };
+
+    void finalize();
   }, [
+    isDemoModeEnabled,
     markDeliveriesConfigLoaded,
     platformConfigurationQuery.data,
     setDeliveriesConfigError,
@@ -203,12 +221,23 @@ export function useInitializeDeliveriesConfig() {
       return;
     }
 
-    setDeliveriesAppSettings(null);
-    setDeliveriesDeliveryMode(mapPlatformTypeToDeliveryMode('MULTI_VENDOR'));
-    markDeliveriesConfigLoaded();
+    const finalizeErrorState = async () => {
+      setDeliveriesAppSettings(null);
+
+      if (isDemoModeEnabled) {
+        setDeliveriesDeliveryMode(await getDeliveryModePreference());
+      } else {
+        setDeliveriesDeliveryMode(mapPlatformTypeToDeliveryMode('MULTI_VENDOR'));
+      }
+
+      markDeliveriesConfigLoaded();
+    };
+
+    void finalizeErrorState();
   }, [
     deliveries.deliveryMode,
     deliveries.platformConfiguration,
+    isDemoModeEnabled,
     markDeliveriesConfigLoaded,
     platformConfigurationQuery.error,
     setDeliveriesConfigError,
