@@ -45,6 +45,8 @@ export default function TeamAndSchedule() {
   const [serviceMode, setServiceMode] = useState<'one-time' | 'contract'>('one-time');
   const [jobDescription, setJobDescription] = useState('');
   const trimmedJobDescription = jobDescription.trim();
+  const isJobDescriptionRequired = true;
+  const isJobDescriptionMissing = isJobDescriptionRequired && trimmedJobDescription.length === 0;
   const [teamSize, setTeamSize] = useState(1);
   useEffect(() => {
     setTeamSize((current) => {
@@ -115,6 +117,10 @@ export default function TeamAndSchedule() {
   };
 
   const navigateToChooseDateAndTime = () => {
+    if (isJobDescriptionMissing) {
+      return;
+    }
+
     navigation.push('ChooseDateAndTime', {
       contractType: serviceMode === 'contract' ? 'monthly' : undefined,
       initialSelection,
@@ -152,16 +158,30 @@ export default function TeamAndSchedule() {
         <View style={styles.jobDescriptionWrap}>
           <View style={styles.jobDescriptionHeader}>
             <Icon type="Feather" name="file-text" size={20} color={colors.warning} />
-            <Text
-              weight="extraBold"
-              style={{
-                color: colors.text,
-                fontSize: 18,
-                lineHeight: 24,
-              }}
-            >
-              {t('team_schedule_job_description_title')}
-            </Text>
+            <View style={styles.jobDescriptionHeaderTextWrap}>
+              <Text
+                weight="extraBold"
+                style={{
+                  color: colors.text,
+                  fontSize: 18,
+                  lineHeight: 24,
+                }}
+              >
+                {t('team_schedule_job_description_title')}
+              </Text>
+              {isJobDescriptionRequired ? (
+                <Text
+                  weight="semiBold"
+                  style={{
+                    color: colors.mutedText,
+                    fontSize: 12,
+                    lineHeight: 16,
+                  }}
+                >
+                  Required
+                </Text>
+              ) : null}
+            </View>
           </View>
           <View style={styles.jobDescriptionCard}>
             <TextInput
@@ -180,6 +200,16 @@ export default function TeamAndSchedule() {
               textAlignVertical="top"
               value={jobDescription}
             />
+            <Text
+              weight="medium"
+              style={{
+                color: colors.mutedText,
+                fontSize: 12,
+                lineHeight: 16,
+              }}
+            >
+              A short description helps the worker prepare for the visit.
+            </Text>
           </View>
         </View>
 
@@ -204,15 +234,16 @@ export default function TeamAndSchedule() {
         />
       </ScrollView>
 
-      <TeamAndScheduleFooter
-        bottomInset={insets.bottom}
-        continueLabel={t('team_schedule_continue')}
-        durationLabel={totalDurationLabel}
-        onContinue={navigateToChooseDateAndTime}
-        serviceCountLabel={serviceCountLabel}
-        totalPrice={totalPrice}
-        workersLabel={workersLabel}
-      />
+        <TeamAndScheduleFooter
+          bottomInset={insets.bottom}
+          continueLabel={t('team_schedule_continue')}
+          durationLabel={totalDurationLabel}
+          disabled={isJobDescriptionMissing}
+          onContinue={navigateToChooseDateAndTime}
+          serviceCountLabel={serviceCountLabel}
+          totalPrice={totalPrice}
+          workersLabel={workersLabel}
+        />
 
     </View>
   );
@@ -226,6 +257,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: 10,
+  },
+  jobDescriptionHeaderTextWrap: {
+    flex: 1,
+    gap: 2,
   },
   jobDescriptionInput: {
     borderRadius: 12,

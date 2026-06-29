@@ -10,6 +10,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useWalletSavedCardsQuery } from '../../../../general/api/walletSavedCardsService';
@@ -119,6 +120,12 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
   const hasSavedCard = (savedCardsQuery.data?.cards?.length ?? 0) > 0;
   const rootNavigation =
     navigation.getParent<NativeStackNavigationProp<HomeVisitsStackParamList>>();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      void savedCardsQuery.refetch();
+    }, [savedCardsQuery.refetch]),
+  );
 
   const destinationLocation = React.useMemo(
     () => extractDestinationLocation(bookingData),
@@ -373,8 +380,14 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
                       <TrackWorkerBookingContent
                         data={bookingData}
                         isServiceDetailsExpanded={isServiceDetailsExpanded}
+                        onPressAddPaymentMethod={() => {
+                          rootNavigation?.navigate('WalletAddCard');
+                        }}
                         onPressContactWorker={() => {
                           void onPressContactWorker();
+                        }}
+                        onPressChangePaymentMethod={() => {
+                          rootNavigation?.navigate('Wallet');
                         }}
                         onToggleServiceDetails={() => setIsServiceDetailsExpanded((prev) => !prev)}
                         services={services}

@@ -1,10 +1,12 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import React from 'react';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useWalletSavedCardsQuery } from '../../../../../general/api/walletSavedCardsService';
+import Button from '../../../../../general/components/Button';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
+import SavedCardRow from '../../../components/wallet/SavedCardRow';
 import type {
   HomeVisitsSingleVendorBookingDetails,
   HomeVisitsSingleVendorBookingServiceItem,
@@ -14,9 +16,6 @@ import {
   formatAmount,
   isContactVisible,
 } from '../../utils/trackWorkerFormatters';
-
-const cashImage = require('../../../assets/images/cash.png');
-const visaImage = require('../../../assets/images/visa.png');
 
 function formatWeekdaySummary(weekdays?: number[] | null) {
   if (!weekdays?.length) {
@@ -39,6 +38,8 @@ type Props = {
   isServiceDetailsExpanded: boolean;
   onToggleServiceDetails: () => void;
   onPressContactWorker: () => void;
+  onPressChangePaymentMethod: () => void;
+  onPressAddPaymentMethod: () => void;
 };
 
 type AddOnLine = {
@@ -53,6 +54,8 @@ export default function TrackWorkerBookingContent({
   isServiceDetailsExpanded,
   onToggleServiceDetails,
   onPressContactWorker,
+  onPressChangePaymentMethod,
+  onPressAddPaymentMethod,
 }: Props) {
   const { t } = useTranslation('homeVisits');
   const { colors } = useTheme();
@@ -61,7 +64,9 @@ export default function TrackWorkerBookingContent({
   const summary = data?.summary;
   const isPaymentStage = stage === 'payment';
   const savedCardsQuery = useWalletSavedCardsQuery('home-services');
-  const hasSavedCard = (savedCardsQuery.data?.cards?.length ?? 0) > 0;
+  const savedCards = savedCardsQuery.data?.cards ?? [];
+  const selectedCard = savedCards.find((card) => card.isDefault) ?? savedCards[0] ?? null;
+  const hasSavedCard = Boolean(selectedCard);
   const laborAmount = getFirstNumeric([summary?.laborAmount, summary?.baseServiceCharge]);
   const hourlyRate = getFirstNumeric([summary?.hourlyRate]);
   const workingHours = getFirstNumeric([summary?.workingHours]);
@@ -314,17 +319,67 @@ export default function TrackWorkerBookingContent({
 
             {stage === 'payment' ? (
               <>
-                <View style={styles.paymentMethodRow}>
-                  <Image
-                    source={hasSavedCard ? visaImage : cashImage}
-                    style={styles.paymentMethodIcon}
-                    resizeMode="contain"
-                  />
-                  <Text style={[styles.paymentMethod, { color: colors.text }]} weight="semiBold">
-                    {hasSavedCard
-                      ? t('single_vendor_track_worker_online_payment')
-                      : t('review_confirm_payment_title')}
-                  </Text>
+                <View
+                  style={[
+                    styles.paymentMethodCard,
+                    { borderColor: colors.border, backgroundColor: colors.background },
+                  ]}
+                >
+                  <View style={styles.paymentMethodHeader}>
+                    <Text style={[styles.paymentTitle, { color: colors.text }]} weight="bold">
+                      Payment method
+                    </Text>
+                    <Text style={[styles.paymentMethodHint, { color: colors.mutedText }]} weight="medium">
+                      {hasSavedCard ? 'Default card' : t('review_confirm_payment_title')}
+                    </Text>
+                  </View>
+
+                  {selectedCard ? (
+                    <View style={styles.paymentMethodContent}>
+                      <SavedCardRow
+                        brand={selectedCard.brand}
+                        holderName={selectedCard.name?.trim() || `${selectedCard.brand.toUpperCase()} Card`}
+                        subtitle={`•••• •••• •••• ${selectedCard.last4}`}
+                        secondarySubtitle={`${String(selectedCard.expMonth).padStart(2, '0')}/${String(selectedCard.expYear).slice(-2)}`}
+                        isDefault={selectedCard.isDefault}
+                        onPress={onPressChangePaymentMethod}
+                      />
+                      <Text style={[styles.paymentMethodNote, { color: colors.mutedText }]} weight="medium">
+                        This card will be charged when you tap Pay Now.
+                      </Text>
+                    </View>
+                  ) : (
+                    <View style={styles.noCardWrap}>
+                      <MaterialCommunityIcons color={colors.iconMuted} name="credit-card-outline" size={24} />
+                      <View style={styles.noCardCopy}>
+                        <Text style={[styles.noCardTitle, { color: colors.text }]} weight="semiBold">
+                          No saved card yet
+                        </Text>
+                        <Text style={[styles.noCardSubtitle, { color: colors.mutedText }]} weight="medium">
+                          Add a card to continue with payment.
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+
+                  <View style={styles.paymentActionRow}>
+                    {hasSavedCard ? (
+                      <Button
+                        label="Change card"
+                        onPress={onPressChangePaymentMethod}
+                        variant="secondary"
+                        icon={<MaterialCommunityIcons color={colors.text} name="swap-horizontal" size={18} />}
+                        style={styles.paymentActionButton}
+                      />
+                    ) : null}
+                    <Button
+                      label={hasSavedCard ? 'Add card' : 'Add card to pay'}
+                      onPress={onPressAddPaymentMethod}
+                      variant={hasSavedCard ? 'ghost' : 'primary'}
+                      icon={<MaterialCommunityIcons color={hasSavedCard ? colors.primary : colors.text} name="plus" size={18} />}
+                      style={styles.paymentActionButton}
+                    />
+                  </View>
                 </View>
                 <View style={[styles.divider, { backgroundColor: colors.border }]} />
               </>
@@ -505,14 +560,58 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
   },
-  paymentMethodIcon: {
-    height: 24,
-    width: 34,
+  paymentMethodCard: {
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    backgroundColor: '#FFFFFF',
+    gap: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
   },
-  paymentMethodRow: {
+  paymentMethodHeader: {
     alignItems: 'center',
     flexDirection: 'row',
+    justifyContent: 'space-between',
     gap: 10,
+  },
+  paymentMethodContent: {
+    gap: 8,
+  },
+  paymentMethodHint: {
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  paymentMethodNote: {
+    fontSize: 12,
+    lineHeight: 18,
+    paddingHorizontal: 16,
+  },
+  paymentActionRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  paymentActionButton: {
+    flex: 1,
+  },
+  noCardWrap: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+  },
+  noCardCopy: {
+    flex: 1,
+    gap: 2,
+  },
+  noCardTitle: {
+    fontSize: 15,
+    lineHeight: 21,
+  },
+  noCardSubtitle: {
+    fontSize: 12,
+    lineHeight: 18,
   },
   paymentTitle: {
     fontSize: 18,

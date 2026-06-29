@@ -1,5 +1,5 @@
 const en = {
-  app_name: 'Super Customer App',
+  app_name: 'Fix Right',
   greeting: 'Good Morning 👋',
   home_question: 'What are you looking for Today?',
   home_title: 'Home',
@@ -25,7 +25,7 @@ const en = {
   service_ride_sharing: 'Ride Sharing',
   recommended_price: '${{price}}/hr',
   recommended_reviews: '{{count}}+ reviews',
-  splash_title: 'Food Delivery',
+  splash_title: 'Fix Right',
   loading: 'Loading...',
   splash_progress: '{{value}}%',
   developer_mode: 'Dev Mode',
@@ -233,7 +233,7 @@ const en = {
   settings_app_version: 'App Version 1.0.0',
   // Notification settings screen
   notif_settings_title: 'Notification Settings',
-  notif_settings_food_delivery: 'Food Delivery',
+  notif_settings_food_delivery: 'Fix Right',
   notif_settings_marketing: 'Marketing',
   notif_settings_email: 'Email',
   notif_settings_sms: 'SMS',
@@ -245,16 +245,16 @@ const en = {
   privacy_title: 'Privacy Policy',
   privacy_last_updated: 'Last updated 2 months ago',
   privacy_intro:
-    'This privacy policy explains how we handle your personal information while using the food delivery app. By registering or accessing the app, you consent to the practices described in this policy.',
+    'This privacy policy explains how we handle your personal information while using the Fix Right app. By registering or accessing the app, you consent to the practices described in this policy.',
   privacy_section_app_title: 'Privacy policy for the app',
   privacy_section_app_body:
-    'The food delivery app is committed to protecting and managing your personal data and orders securely. You are authorized to use the app for personal and business purposes, subject to compliance with this policy and all applicable laws.',
+    'The Fix Right app is committed to protecting and managing your personal data and service requests securely. You are authorized to use the app for personal and business purposes, subject to compliance with this policy and all applicable laws.',
   privacy_section_responsibilities_title: 'User responsibilities',
   privacy_section_responsibilities_body:
     'Users are responsible for keeping their delivery addresses and payment information accurate. It is important to keep this information up to date to avoid issues during the ordering process.',
   privacy_section_data_title: 'Data collection',
   privacy_section_data_body:
-    'The food delivery app collects essential data to improve your experience, including your location, order history, and preferences.',
+    'The Fix Right app collects essential data to improve your experience, including your location, order history, and preferences.',
   privacy_section_modifications_title: 'Order modifications',
   privacy_section_modifications_body:
     'You may modify or cancel your orders through the app before they are processed. Once an order is confirmed, changes may no longer be possible.',
@@ -264,16 +264,16 @@ const en = {
   privacy_section_contact_title: 'Contact us',
   privacy_section_contact_body:
     'If you have any questions about these terms, please feel free to contact us:',
-  privacy_contact_email: 'Email: contact@fooddelivery.com',
-  privacy_contact_address: 'Address: Doha, Qatar',
+  privacy_contact_email: 'Email: mansoor.fixright@gmail.com',
+  privacy_contact_address: 'Address: mansoor.fixright@gmail.com',
   // Terms of Service screen
   tos_title: 'Terms of Service',
   tos_last_updated: 'Last updated 2 months ago',
   tos_intro:
-    'These terms of service define your access to and use of the food delivery app.',
+    'These terms of service define your access to and use of the Fix Right app.',
   tos_section_usage_title: 'Use of the service',
   tos_section_usage_body:
-    'The food delivery app provides a reliable platform for placing orders and managing your meal deliveries.',
+    'The Fix Right app provides a reliable platform for placing orders and managing service bookings.',
   tos_section_orders_title: 'Order management',
   tos_section_orders_body:
     'The app allows you to track your orders easily, modify details, or cancel them within the allowed timeframe.',
@@ -289,8 +289,8 @@ const en = {
   tos_section_contact_title: 'Contact us',
   tos_section_contact_body:
     'If you have any questions about these terms, please feel free to contact us:',
-  tos_contact_email: 'Email: contact@fooddelivery.com',
-  tos_contact_address: 'Address: Doha, Qatar',
+  tos_contact_email: 'Email: mansoor.fixright@gmail.com',
+  tos_contact_address: 'Address: mansoor.fixright@gmail.com',
   // Terms of Use screen
   tou_title: 'Terms of Use',
   tou_last_updated: 'Updated 2 months ago',
@@ -317,8 +317,8 @@ const en = {
   tou_section_contact_title: 'Contact us',
   tou_section_contact_body:
     'If you have any questions, please feel free to contact us:',
-  tou_contact_email: 'Email: contact@fooddelivery.com',
-  tou_contact_address: 'Address: Doha, Qatar',
+  tou_contact_email: 'Email: mansoor.fixright@gmail.com',
+  tou_contact_address: 'Address: mansoor.fixright@gmail.com',
   // Change password flow
   change_password_title: 'Change Password',
   change_password_new_title: 'New Password',
@@ -347,17 +347,17 @@ const en = {
   delete_account_step_label: 'Delete my account',
   delete_account_sorry_heading: "We'll be sorry to see you go",
   delete_account_sorry_subtext: 'Can we change your mind? Drop a line at',
-  delete_account_contact_email: 'hello@enategadelivery.com',
-  delete_account_reason_heading: 'Why do you wish to leave Food delivery?',
+  delete_account_contact_email: 'mansoor.fixright@gmail.com',
+  delete_account_reason_heading: 'Why do you wish to leave Fix Right?',
   delete_account_reason_subtext: 'Please let us know the reason for deleting your account:',
   delete_account_reason_mistake: 'I created this account by mistake',
-  delete_account_reason_no_longer: 'I do not want to use Food delivery anymore',
+  delete_account_reason_no_longer: 'I do not want to use Fix Right anymore',
   delete_account_reason_no_venues: "I can't find the venues or services I want",
   delete_account_reason_other: 'Other',
-  delete_account_confirm_heading: 'Delete your Food delivery account',
+  delete_account_confirm_heading: 'Delete your Fix Right account',
   delete_account_confirm_description: 'This action will delete your account and you won\'t be able to retrieve it. Please confirm you understand by ticking the below statements:',
   delete_account_confirm_item_orders: 'I know I won\'t be able to access my orders.',
-  delete_account_confirm_item_marketplace: 'I know I will no longer be able to book orders via Food delivery marketplace.',
+  delete_account_confirm_item_marketplace: 'I know I will no longer be able to book orders via the Fix Right marketplace.',
   delete_account_final_heading: 'Confirm you are happy to proceed',
   delete_account_final_description: 'Please note this is permanent and can\'t be undone. To confirm deleting your account, please review your email below:',
   delete_account_email_label: 'Email',
