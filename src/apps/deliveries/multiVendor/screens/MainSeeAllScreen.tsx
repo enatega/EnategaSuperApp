@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
+import { useQueryClient } from "@tanstack/react-query";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
@@ -22,6 +23,7 @@ import {
 } from "../../hooks";
 import type { MultiVendorStackParamList } from "../navigation/types";
 import NearbyStoreList from "../components/HomeTab/NearbyStoreList";
+import { deliveryKeys } from "../../api/queryKeys";
 
 type NavigationProp = NativeStackNavigationProp<
   MultiVendorStackParamList,
@@ -38,8 +40,10 @@ export default function MainSeeAllScreen() {
   const { t } = useTranslation("deliveries");
   const { t: tGeneral } = useTranslation("general");
   const navigation = useNavigation<NavigationProp>();
+  const queryClient = useQueryClient();
   const route = useRoute<MainSeeAllRouteProp>();
   const [searchValue, setSearchValue] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const debouncedSearch = useDebouncedValue(searchValue.trim(), 450);
   const initialShopTypeId = route.params?.initialShopTypeId;
 
@@ -100,6 +104,19 @@ export default function MainSeeAllScreen() {
     setSelectedCategoryId(null);
   };
 
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+
+    try {
+      await queryClient.refetchQueries({
+        queryKey: deliveryKeys.discovery(),
+        type: 'active',
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [queryClient]);
+
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <DeliveriesSeeAllHeader
@@ -130,6 +147,15 @@ export default function MainSeeAllScreen() {
 
       <ScrollView
         contentContainerStyle={styles.contentContainer}
+        refreshControl={(
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={() => {
+              void handleRefresh();
+            }}
+            tintColor={colors.primary}
+          />
+        )}
         showsVerticalScrollIndicator={false}
       >
         <MainSeeAllCategoriesSection

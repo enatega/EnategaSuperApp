@@ -27,6 +27,7 @@ export default function OrderDetailsProductCard({
   const { colors, typography } = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
   const hasAddons = addonLines.length > 0;
+  const hasExpandableAddons = addonLines.length > 1;
   const detailsPreview =
     subtitle || (hasAddons ? addonLines.map((item) => item.label).join(", ") : null);
 
@@ -65,7 +66,7 @@ export default function OrderDetailsProductCard({
               lineHeight: typography.lineHeight.md,
             },
           ]}
-          weight="semiBold"
+          weight="bold"
         >
           {name}
         </Text>
@@ -88,7 +89,7 @@ export default function OrderDetailsProductCard({
               {detailsPreview}
             </Text>
 
-            {hasAddons ? (
+            {hasExpandableAddons ? (
               <Pressable
                 accessibilityRole="button"
                 hitSlop={8}
@@ -105,7 +106,7 @@ export default function OrderDetailsProductCard({
           </View>
         ) : null}
 
-        {isExpanded && hasAddons ? (
+        {isExpanded && hasExpandableAddons ? (
           <View style={styles.addonList}>
             {addonLines.map((addonLine, index) => (
               <View key={`${addonLine.label}-${index}`} style={styles.addonRow}>
@@ -159,11 +160,11 @@ export default function OrderDetailsProductCard({
           {priceLabel ? (
             <Text
               style={{
-                color: colors.mutedText,
+                color: colors.text,
                 fontSize: typography.size.xs2,
                 lineHeight: typography.lineHeight.sm,
               }}
-              weight="medium"
+              weight="semiBold"
             >
               {priceLabel}
             </Text>

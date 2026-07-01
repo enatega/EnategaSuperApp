@@ -64,9 +64,9 @@ export default function NearbyStoreList(props: Props) {
   const [selectedClosedStore, setSelectedClosedStore] = useState<DeliveryNearbyStore | null>(null);
   const isEmpty = !isNearbyStoresPending && nearbyStoresData.length === 0;
   const shouldShowSeeAll = !isNearbyStoresPending && nearbyStoresData.length > 0;
-  const closedStoreTypeName = useMemo(
-    () => selectedClosedStore?.shopTypeName?.trim() || t('store_details_closed_store_fallback_name'),
-    [selectedClosedStore?.shopTypeName, t],
+  const closedStoreName = useMemo(
+    () => selectedClosedStore?.name?.trim() || t('store_details_closed_store_fallback_name'),
+    [selectedClosedStore?.name, t],
   );
 
   const handleSeeAllNearbyRestaurants = useCallback(() => {
@@ -80,8 +80,12 @@ export default function NearbyStoreList(props: Props) {
   const renderItem = ({ item }: { item: DeliveryNearbyStore }) => (
     <StoreCard
       store={item}
-      showClosedOverlay={item.isAvailable === false}
-      onClosedPress={item.isAvailable === false ? () => setSelectedClosedStore(item) : undefined}
+      showClosedOverlay={item.isAvailable === false || item.isClosed === true}
+      onClosedPress={
+        item.isAvailable === false || item.isClosed === true
+          ? () => setSelectedClosedStore(item)
+          : undefined
+      }
     />
   );
 
@@ -111,7 +115,7 @@ export default function NearbyStoreList(props: Props) {
       )}
 
       <AppPopup
-        description={t('store_details_closed_store_description', { shopTypeName: closedStoreTypeName })}
+        description={t('store_details_closed_store_description', { storeName: closedStoreName })}
         dismissOnOverlayPress
         onRequestClose={() => setSelectedClosedStore(null)}
         primaryAction={{
@@ -130,7 +134,7 @@ export default function NearbyStoreList(props: Props) {
           },
           variant: 'secondary',
         }}
-        title={t('store_closed_modal_title')}
+        title={t('store_closed_modal_title', { storeName: closedStoreName })}
         visible={Boolean(selectedClosedStore)}
       />
     </View>

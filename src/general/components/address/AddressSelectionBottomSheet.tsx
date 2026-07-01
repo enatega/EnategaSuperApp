@@ -70,7 +70,7 @@ export default function AddressSelectionBottomSheet({
   const [locationPopupMode, setLocationPopupMode] =
     useState<LocationPopupMode>('request');
   const resolvedSelectedAddressId =
-    getSelectedSavedAddressId(addresses) ?? selectedAddressId;
+    selectedAddressId ?? getSelectedSavedAddressId(addresses);
 
   const expandedHeight = useMemo(() => {
     const estimatedContentHeight =

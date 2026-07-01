@@ -75,8 +75,8 @@ export default function ExtendableOrderItems({
                 product.totalPrice
               ) === "number"
                 ? formatCurrency(
-                    product.price ?? product.unitPrice ?? product.totalPrice,
-                  )
+                  product.price ?? product.unitPrice ?? product.totalPrice,
+                )
                 : null
             }
             quantityLabel={t("order_details_quantity_one", {

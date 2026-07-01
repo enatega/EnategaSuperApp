@@ -47,7 +47,9 @@ export function renderSeeAllItemCard(
     }
 
     const storeItem = item as DeliveryNearbyStore;
-    const isClosedStore = storeCardOptions?.showClosedOverlay && storeItem.isAvailable === false;
+    const isClosedStore =
+      storeCardOptions?.showClosedOverlay
+      && (storeItem.isAvailable === false || storeItem.isClosed === true);
     return (
       <StoreCard
         layout="fullWidth"

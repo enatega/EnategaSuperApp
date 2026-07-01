@@ -23,8 +23,8 @@ export default function OrderDetailsSection({
           styles.title,
           {
             color: colors.text,
-            fontSize: typography.size.xl,
-            lineHeight: typography.lineHeight.h5,
+            fontSize: typography.size.lg,
+            lineHeight: typography.lineHeight.lg,
           },
         ]}
         weight="bold"
@@ -38,7 +38,7 @@ export default function OrderDetailsSection({
             styles.subtitle,
             {
               color: colors.mutedText,
-              fontSize: typography.size.sm2,
+              fontSize: typography.size.md,
               lineHeight: typography.lineHeight.md,
             },
           ]}
@@ -64,7 +64,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.36,
   },
   wrapper: {
-    gap: 10,
-    paddingVertical: 20,
+    gap: 8,
   },
 });

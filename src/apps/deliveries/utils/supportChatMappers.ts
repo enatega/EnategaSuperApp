@@ -23,10 +23,37 @@ function toArray<T>(value: unknown): T[] {
   return Array.isArray(value) ? (value as T[]) : [];
 }
 
+function parseSupportChatDate(value?: string) {
+  if (!value) {
+    return null;
+  }
+
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return null;
+  }
+
+  const normalizedValue = /(?:Z|[+-]\d{2}:\d{2})$/i.test(trimmedValue)
+    ? trimmedValue
+    : `${trimmedValue}Z`;
+  const date = new Date(normalizedValue);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return date;
+}
+
 function sortByUpdatedAtDesc(items: SupportChatBoxRecord[]) {
   return [...items].sort((left, right) => {
-    const leftTime = new Date(left.updatedAt ?? left.updated_at ?? left.createdAt ?? left.created_at ?? 0).getTime();
-    const rightTime = new Date(right.updatedAt ?? right.updated_at ?? right.createdAt ?? right.created_at ?? 0).getTime();
+    const leftTime = parseSupportChatDate(
+      left.updatedAt ?? left.updated_at ?? left.createdAt ?? left.created_at,
+    )?.getTime() ?? 0;
+    const rightTime = parseSupportChatDate(
+      right.updatedAt ?? right.updated_at ?? right.createdAt ?? right.created_at,
+    )?.getTime() ?? 0;
 
     return rightTime - leftTime;
   });
@@ -290,13 +317,9 @@ export function getSupportChatAvatarTone(index: number) {
 }
 
 export function formatSupportChatDateLabel(value?: string) {
-  if (!value) {
-    return '';
-  }
+  const date = parseSupportChatDate(value);
 
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
+  if (!date) {
     return '';
   }
 
@@ -324,18 +347,15 @@ export function formatSupportChatDateLabel(value?: string) {
 }
 
 export function formatSupportChatTimeLabel(value?: string) {
-  if (!value) {
-    return '';
-  }
+  const date = parseSupportChatDate(value);
 
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
+  if (!date) {
     return '';
   }
 
   return new Intl.DateTimeFormat(undefined, {
     hour: 'numeric',
+    hour12: false,
     minute: '2-digit',
   }).format(date);
 }

@@ -41,7 +41,7 @@ export default function SavedAddressesList({
   const { t } = useTranslation('general');
   const isCompact = variant === 'compact';
   const resolvedSelectedAddressId =
-    getSelectedSavedAddressId(addresses) ?? selectedAddressId;
+    selectedAddressId ?? getSelectedSavedAddressId(addresses);
   const isSelectionPending = Boolean(selectingAddressId);
 
   return (

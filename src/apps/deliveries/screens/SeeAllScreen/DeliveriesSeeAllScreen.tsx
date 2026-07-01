@@ -67,9 +67,9 @@ export default function DeliveriesSeeAllScreen() {
   });
 
   const items = listQuery.data ?? [];
-  const closedStoreTypeName = useMemo(
-    () => selectedClosedStore?.shopTypeName?.trim() || t('store_details_closed_store_fallback_name', { ns: 'deliveries' }),
-    [selectedClosedStore?.shopTypeName, t],
+  const closedStoreName = useMemo(
+    () => selectedClosedStore?.name?.trim() || t('store_details_closed_store_fallback_name', { ns: 'deliveries' }),
+    [selectedClosedStore?.name, t],
   );
   const isMapVisible =
     cardType === 'product'
@@ -171,7 +171,7 @@ export default function DeliveriesSeeAllScreen() {
       <AppPopup
         description={t(
           'store_details_closed_store_description',
-          { shopTypeName: closedStoreTypeName, ns: 'deliveries' },
+          { storeName: closedStoreName, ns: 'deliveries' },
         )}
         dismissOnOverlayPress
         onRequestClose={() => setSelectedClosedStore(null)}
@@ -191,7 +191,7 @@ export default function DeliveriesSeeAllScreen() {
           },
           variant: 'secondary',
         }}
-        title={t('store_closed_modal_title', { ns: 'deliveries' })}
+        title={t('store_closed_modal_title', { storeName: closedStoreName, ns: 'deliveries' })}
         visible={Boolean(selectedClosedStore)}
       />
     </>

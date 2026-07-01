@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect } from 'react';
-import { ScrollView, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { RefreshControl, ScrollView, View } from 'react-native';
+import { useQueryClient } from '@tanstack/react-query';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -25,6 +26,7 @@ import useAddress from '../../../../../general/hooks/useAddress';
 import useCurrentLocation from '../../../../../general/hooks/useCurrentLocation';
 import useSelectSavedAddress from '../../../../../general/hooks/useSelectSavedAddress';
 import AppSwitcherTopBar from '../../../../../general/components/appSwitch/AppSwitcherTopBar';
+import { deliveryKeys } from '../../../api/queryKeys';
 
 type NavProp = NativeStackNavigationProp<DeliveriesStackParamList>;
 
@@ -32,7 +34,9 @@ export default function HomeTab() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavProp>();
+  const queryClient = useQueryClient();
   const { data: cartCount } = useCartCount();
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const {
     addresses,
     isLoading: isAddressesLoading,
@@ -90,6 +94,26 @@ export default function HomeTab() {
   const handleCartPress = useCallback(() => {
     navigation.navigate('Cart');
   }, [navigation]);
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+
+    try {
+      await Promise.all([
+        refetch(),
+        queryClient.refetchQueries({
+          queryKey: deliveryKeys.discovery(),
+          type: 'active',
+        }),
+        queryClient.refetchQueries({
+          queryKey: deliveryKeys.cartCount(),
+          type: 'active',
+        }),
+      ]);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [queryClient, refetch]);
 
   useEffect(() => {
     if (!currentCoordinates || isAddressesLoading) {
@@ -191,6 +215,15 @@ export default function HomeTab() {
         contentContainerStyle={[
           styles.contentContainer,
         ]}
+        refreshControl={(
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={() => {
+              void handleRefresh();
+            }}
+            tintColor={colors.primary}
+          />
+        )}
         showsVerticalScrollIndicator={false}
       >
         <ShopTypeList />

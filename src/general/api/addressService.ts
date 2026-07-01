@@ -11,12 +11,24 @@ function getAddressBase(appPrefix: ProfileAppPrefix) {
 
 export type AddressType = "HOME" | "APARTMENT" | "OFFICE" | "OTHER";
 
+export type AddressAdditionalFields = {
+  apartmentNo?: string;
+  building?: string;
+  companyName?: string;
+  department?: string;
+  floorNo?: string;
+  houseNo?: string;
+  landmark?: string;
+  societyArea?: string;
+};
+
 export type AddressPayload = {
   address: string;
   latitude: number;
   longitude: number;
   type: AddressType;
-  location_name: string;
+  location_name?: string;
+  additional_fields?: AddressAdditionalFields;
 };
 
 export type AddressResponse = {
@@ -24,7 +36,8 @@ export type AddressResponse = {
   latitude: number;
   longitude: number;
   type: AddressType;
-  location_name: string;
+  location_name?: string | null;
+  additional_fields?: AddressAdditionalFields;
 };
 
 export type SavedAddress = {
@@ -37,6 +50,7 @@ export type SavedAddress = {
   };
   location_name: string | null;
   type: AddressType;
+  additional_fields?: AddressAdditionalFields;
   is_selected: boolean;
   createdAt: string;
   updatedAt: string;

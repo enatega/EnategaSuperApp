@@ -18,6 +18,7 @@ import ProfilePhotoEditor from '../../components/profile/ProfilePhotoEditor';
 import ProfileImageViewerModal from '../../components/profile/ProfileImageViewerModal';
 import AddressOptionsBottomSheet from '../../components/address/AddressOptionsBottomSheet';
 import SavedAddressesList from '../../components/profile/SavedAddressesList';
+import { ApiError } from '../../api/apiClient';
 import type {
   ProfileAddress,
   ProfileAppPrefix,
@@ -137,7 +138,19 @@ export default function MyProfileScreen({ profilePrefix }: Props) {
       showToast.success(t('address_delete_success'));
       setAddressMenuTarget(null);
       refetch();
-    } catch {
+    } catch (error) {
+      const normalizedMessage =
+        error instanceof ApiError
+          ? error.message.trim().toLowerCase()
+          : error instanceof Error
+            ? error.message.trim().toLowerCase()
+            : '';
+
+      if (normalizedMessage.includes('linked to existing orders')) {
+        showToast.error(t('address_delete_linked_orders_error'));
+        return;
+      }
+
       showToast.error(t('address_delete_error'));
     }
   }, [addressMenuTarget, clearSelectedAddress, refetch, selectedAddress?.id, t]);
