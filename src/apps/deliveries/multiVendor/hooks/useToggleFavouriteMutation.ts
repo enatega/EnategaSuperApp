@@ -18,7 +18,12 @@ export function useToggleFavouriteMutation(options?: Options) {
 
     return useMutation<ToggleFavouriteResponse, ApiError, ToggleFavouriteParams>({
         mutationFn: favouritesService.toggleFavourite,
-        onSuccess: (data) => {
+        retry: false,
+        onSuccess: (data, variables) => {
+            console.log('[Deliveries][Favourites] mutation success', {
+                data,
+                variables,
+            });
             // Invalidate favourites list screen
             queryClient.invalidateQueries({ queryKey: favouriteKeys.list() });
 
@@ -31,7 +36,14 @@ export function useToggleFavouriteMutation(options?: Options) {
 
             options?.onSuccess?.(data);
         },
-        onError: (error) => {
+        onError: (error, variables) => {
+            console.error('[Deliveries][Favourites] mutation error', {
+                message: error.message,
+                status: error.status,
+                code: error.code,
+                data: error.data,
+                variables,
+            });
             options?.onError?.(error);
         },
     });

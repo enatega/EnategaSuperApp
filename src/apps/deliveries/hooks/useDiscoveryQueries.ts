@@ -706,6 +706,7 @@ export function useStoreView(
     queryKey: deliveryKeys.storeView(storeId),
     queryFn: () => discoveryService.getStoreView(storeId),
     staleTime: 5 * 60 * 1000,
+    refetchOnMount: 'always',
     enabled: Boolean(storeId),
     ...options,
   });

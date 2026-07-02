@@ -59,7 +59,10 @@ export default function FavouritesScreen() {
             isFavourite={item.isFavorite ?? false}
             isLoading={isToggling && toggleVariables?.storeId === item.storeId}
             accessibilityLabel={item.isFavorite ? removeFromFavLabel : addToFavLabel}
-            onPress={() => toggleFavourite({ storeId: item.storeId })}
+            onPress={() => toggleFavourite({
+              storeId: item.storeId,
+              nextIsFavorite: !(item.isFavorite ?? false),
+            })}
           />
         }
       />

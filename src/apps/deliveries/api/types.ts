@@ -257,6 +257,7 @@ export interface DeliveryStoreDetailsStore {
     storeTimings?: DeliveryStoreTimings | null;
     isAvailable?: boolean;
     isFavorited?: boolean;
+    isFavorite?: boolean;
     contact?: DeliveryStoreContact | null;
 }
 
