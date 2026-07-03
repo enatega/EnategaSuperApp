@@ -99,6 +99,7 @@ type Props = {
   canCancelRide?: boolean;
   waitingRemainingSec?: number;
   hideWaitingCard?: boolean;
+  isAcknowledgingDriverWaiting?: boolean;
   onDriverPress?: () => void;
   onContactDriver?: () => void;
   onSafetyPress?: () => void;
@@ -135,6 +136,7 @@ function ActiveRideBottomSheet({
   canCancelRide = false,
   waitingRemainingSec = 0,
   hideWaitingCard = false,
+  isAcknowledgingDriverWaiting = false,
   onDriverPress,
   onContactDriver,
   onSafetyPress,
@@ -237,18 +239,25 @@ function ActiveRideBottomSheet({
           <View style={[styles.waitingCard, { backgroundColor: '#F3F4F6' }]}>
             <View style={styles.waitingHeader}>
               <Text style={[styles.waitingText, { color: colors.mutedText }]}>
-                Please don&apos;t be late, it may affect your rating
+                {t('ride_active_waiting_notice')}
               </Text>
               <Text weight="extraBold" style={[styles.waitingTimer, { color: colors.text }]}>
                 {formatCountdown(waitingRemainingSec)}
               </Text>
             </View>
             <Pressable
+              disabled={isAcknowledgingDriverWaiting}
               onPress={onAcknowledgeDriverWaiting}
-              style={[styles.waitingButton, { backgroundColor: colors.findingRidePrimary }]}
+              style={[
+                styles.waitingButton,
+                {
+                  backgroundColor: colors.findingRidePrimary,
+                  opacity: isAcknowledgingDriverWaiting ? 0.6 : 1,
+                },
+              ]}
             >
               <Text weight="medium" style={styles.waitingButtonLabel}>
-                Ok, I&apos;m coming
+                {t('ride_active_waiting_acknowledge')}
               </Text>
             </Pressable>
           </View>

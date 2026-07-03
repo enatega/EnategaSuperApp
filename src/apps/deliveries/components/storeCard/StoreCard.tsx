@@ -102,6 +102,16 @@ export default function StoreCard({
   const resolvedCuisine = isProductItem
     ? store.storeName ?? undefined
     : store.shopTypeName ?? undefined;
+  const hasVisibleRating =
+    typeof resolvedRating === "number" &&
+    Number.isFinite(resolvedRating) &&
+    resolvedRating > 0;
+  const hasVisibleReviewCount =
+    typeof resolvedReviewCount === "number" &&
+    Number.isFinite(resolvedReviewCount) &&
+    resolvedReviewCount > 0;
+  const shouldInlineCuisineWithName =
+    Boolean(resolvedCuisine?.trim()) && !hasVisibleRating && !hasVisibleReviewCount;
   const resolvedPrice = isProductItem ? store.price ?? 0 : store.baseFee ?? 0;
   const resolvedDeliveryTime = isProductItem
     ? store.deliveryTime ?? ""
@@ -152,11 +162,18 @@ export default function StoreCard({
       />
 
       <View style={styles.content}>
-        <StoreInfo name={resolvedName} />
+        <StoreInfo
+          name={resolvedName}
+          trailingLabel={shouldInlineCuisineWithName ? resolvedCuisine : undefined}
+        />
         <StoreRating
           rating={resolvedRating}
           reviewCount={resolvedReviewCount}
-          cuisine={resolvedCuisine ?? resolvedLocation}
+          cuisine={
+            shouldInlineCuisineWithName
+              ? undefined
+              : (resolvedCuisine ?? resolvedLocation)
+          }
         />
         <View style={[styles.line, { backgroundColor: colors.border }]} />
         <StoreDeliveryInfo

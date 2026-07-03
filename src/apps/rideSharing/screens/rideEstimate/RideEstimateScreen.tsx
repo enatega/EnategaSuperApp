@@ -522,6 +522,7 @@ export default function RideEstimateScreen() {
 
       try {
         await socketClient.connect();
+        console.log("is the socket pressed")
         emitRideSharingEvent('ride-request-created-by-customer', {
           rideRequestData: {
             ...createRidePayload,

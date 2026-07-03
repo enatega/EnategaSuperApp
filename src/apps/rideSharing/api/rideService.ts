@@ -26,6 +26,8 @@ import type {
     CustomerRideDetail,
     NearbyDriver,
     CancelRideParams,
+    CustomerComingPayload,
+    CustomerComingResponse,
     UpdateRiderPhonePayload,
     VerifyRiderPhoneUpdateOtpPayload,
     SubmitRideReviewPayload,
@@ -340,6 +342,17 @@ export const rideService = {
     /** Cancel a pending ride request before a ride is accepted. */
     cancelRideRequest: (rideId: string): Promise<void> =>
         apiClient.patch(`/api/v1/rides/${rideId}/cancel`),
+
+    /** Notify the backend that the customer acknowledged the waiting driver. */
+    sendCustomerComing: ({
+        rideId,
+        customerId,
+        driverId,
+    }: CustomerComingPayload): Promise<CustomerComingResponse> =>
+        apiClient.post<CustomerComingResponse>(
+            `/api/v1/apps/ride-hailing/rides/${rideId}/customer-coming`,
+            { customerId, driverId },
+        ),
 
     /** Start rider phone update flow and trigger OTP. */
     updateRiderPhone: (payload: UpdateRiderPhonePayload): Promise<{ message?: string }> =>

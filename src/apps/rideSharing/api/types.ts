@@ -333,6 +333,22 @@ export interface CancelRideParams {
     chatBoxId?: string;
 }
 
+export interface CustomerComingPayload {
+    rideId: string;
+    customerId: string;
+    driverId: string;
+}
+
+export interface CustomerComingResponse {
+    success: boolean;
+    message: string;
+    data: {
+        rideId: string;
+        acknowledged: boolean;
+        acknowledgedAt: string;
+    };
+}
+
 export interface UpdateRiderPhonePayload {
     phone: string;
 }

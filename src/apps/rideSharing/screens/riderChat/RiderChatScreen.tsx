@@ -81,8 +81,14 @@ export default function RiderChatScreen() {
       setPendingMessages((current) => current.slice(0, -1));
       showToast.error(t('ride_chat_send_error_title'), error.message || t('ride_chat_send_error_message'));
     },
-    onSuccess: (response) => {
+    onSuccess: (response, variables) => {
       const nextChatBoxId = response.chatBoxId ?? resolvedChatBoxId;
+
+      socketClient.sendMessage({
+        sender: variables.senderId,
+        receiver: variables.receiverId,
+        text: variables.text,
+      });
 
       if (response.chatBoxId) {
         setChatBoxId(response.chatBoxId);
