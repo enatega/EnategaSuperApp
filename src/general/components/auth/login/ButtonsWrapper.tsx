@@ -7,6 +7,7 @@ import { useTheme } from "../../../theme/theme";
 import { useTranslation } from "react-i18next";
 import { useNavigation } from "@react-navigation/native";
 import { useAuthStore } from "../../../stores/useAuthStore";
+import AppleLogin from "../AppleLogin";
 import GoogleLogin from "../GoogleLogin";
 
 const ButtonsWrapper = () => {
@@ -17,6 +18,7 @@ const ButtonsWrapper = () => {
   return (
     <View>
       <View style={{ gap: 12 }}>
+        <AppleLogin />
         <GoogleLogin />
         <Button
           variant="secondary"
