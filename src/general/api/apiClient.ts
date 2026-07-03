@@ -54,6 +54,26 @@ type ExtendedAxiosRequestConfig = AxiosRequestConfig & {
   skipSessionExpiryHandling?: boolean;
 };
 
+function sanitizeHeaders(headers: unknown): Record<string, unknown> | undefined {
+  if (!headers || typeof headers !== 'object') {
+    return undefined;
+  }
+
+  const entries = Object.entries(headers as Record<string, unknown>);
+
+  return Object.fromEntries(
+    entries.map(([key, value]) => {
+      const normalizedKey = key.toLowerCase();
+
+      if (normalizedKey === 'authorization') {
+        return [key, '[redacted]'];
+      }
+
+      return [key, value];
+    }),
+  );
+}
+
 function hasMissingAuthHeaderSignal(responseData?: ApiErrorResponseData): boolean {
   const messageText = toLowerCaseMessage(responseData?.message);
   const errorText = toLowerCaseMessage(responseData?.error);
@@ -112,6 +132,19 @@ export class ApiError extends Error {
     this.data = data;
   }
 }
+
+export type ApiNetworkFailureDetails = {
+  url?: string;
+  method?: string;
+  baseURL?: string;
+  timeout?: number;
+  params?: unknown;
+  data?: unknown;
+  headers?: Record<string, unknown>;
+  requestStatus?: unknown;
+  requestReadyState?: unknown;
+  rawResponse?: string;
+};
 
 // ---------------------------------------------------------------------------
 // Token helpers (using expo-secure-store for sensitive data – never AsyncStorage)
@@ -200,16 +233,66 @@ function toApiError(error: unknown): ApiError {
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError<ApiErrorResponseData>;
     const status = axiosError.response?.status ?? 0;
-    const data = axiosError.response?.data;
-    const message = Array.isArray(data?.message)
-      ? data.message.filter(Boolean).join('\n')
-      : data?.message;
+    const responseData = axiosError.response?.data;
+    const message = Array.isArray(responseData?.message)
+      ? responseData.message.filter(Boolean).join('\n')
+      : responseData?.message;
+
+    const requestDetails = {
+      url: axiosError.config?.url,
+      method: axiosError.config?.method,
+      baseURL: axiosError.config?.baseURL,
+      timeout: axiosError.config?.timeout,
+      params: axiosError.config?.params,
+      data: axiosError.config?.data,
+      headers: sanitizeHeaders(axiosError.config?.headers),
+    };
+
+    if (!axiosError.response) {
+      const rawRequest = axiosError.request as
+        | { _response?: unknown; responseText?: unknown; status?: unknown; readyState?: unknown }
+        | undefined;
+      const networkFailureDetails: ApiNetworkFailureDetails = {
+        ...requestDetails,
+        requestStatus: rawRequest?.status,
+        requestReadyState: rawRequest?.readyState,
+        rawResponse:
+          typeof rawRequest?._response === 'string'
+            ? rawRequest._response
+            : typeof rawRequest?.responseText === 'string'
+              ? rawRequest.responseText
+              : undefined,
+      };
+
+      console.error('[API] network request failed before response', {
+        message: axiosError.message,
+        code: axiosError.code,
+        hasRequest: Boolean(axiosError.request),
+        ...networkFailureDetails,
+      });
+
+      return new ApiError(
+        axiosError.message ?? 'Request failed',
+        status,
+        undefined,
+        networkFailureDetails,
+      );
+    } else {
+      console.error('[API] request failed with response', {
+        ...requestDetails,
+        message: axiosError.message,
+        code: axiosError.code,
+        status,
+        responseData,
+        responseHeaders: sanitizeHeaders(axiosError.response.headers),
+      });
+    }
 
     return new ApiError(
-      message ?? data?.error ?? axiosError.message ?? 'Request failed',
+      message ?? responseData?.error ?? axiosError.message ?? 'Request failed',
       status,
-      data?.code,
-      data,
+      responseData?.code,
+      responseData,
     );
   }
 

@@ -39,6 +39,12 @@ function isProductStoreCardData(
   return "productId" in store && "productName" in store;
 }
 
+function isStoreClosed(
+  store: Exclude<StoreCardData, DeliveryShopTypeProduct>,
+) {
+  return store.isAvailable === false || store.isClosed === true;
+}
+
 function resolveOfferLabel(
   dealAmount: number | null | undefined,
   dealType: string | null | undefined,
@@ -102,7 +108,7 @@ export default function StoreCard({
     : store.deliveryTime ?? 0;
   const resolvedDistance = store.distanceKm ?? 0;
   const isClosedStore =
-    !isProductItem && showClosedOverlay && store.isAvailable === false;
+    !isProductItem && showClosedOverlay && isStoreClosed(store);
 
   const handlePress = useCallback(() => {
     if (isClosedStore) {

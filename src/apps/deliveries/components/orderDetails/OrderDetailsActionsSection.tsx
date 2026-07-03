@@ -36,11 +36,16 @@ export default function OrderDetailsActionsSection({
   storeName,
 }: Props) {
   const { t } = useTranslation("deliveries");
-  const { colors } = useTheme();
+  const { colors, typography } = useTheme();
   const secondaryButtonStyle = {
-    backgroundColor: colors.blue50,
-    borderColor: colors.blue50,
+    backgroundColor: colors.surface,
+    borderColor: colors.primary,
   } as const;
+  const labelStyle = {
+    fontSize: typography.size.md2,
+    lineHeight: typography.lineHeight.md2,
+  } as const;
+  const shouldUseTwoColumnLayout = shouldShowTrackProgress && shouldShowOrderAgain;
 
   return (
     <View style={styles.container}>
@@ -62,35 +67,56 @@ export default function OrderDetailsActionsSection({
             });
           }}
           style={secondaryButtonStyle}
+          labelStyle={labelStyle}
+          variant="secondary"
         />
       ) : null}
-      {shouldShowTrackProgress ? (
-        <Button
-          label={t("order_details_track_progress")}
-          onPress={() =>
-            navigation.navigate("OrderTrackingScreen", { orderId })
-          }
-        />
-      ) : null}
-      {shouldShowOrderAgain ? (
-        <Button
-          isLoading={isOrderAgainLoading}
-          label={t("order_details_order_again")}
-          onPress={onOrderAgain}
-          style={styles.primaryButton}
-        />
-      ) : null}
+      <View style={shouldUseTwoColumnLayout ? styles.row : styles.stack}>
+        {shouldShowOrderAgain ? (
+          <Button
+            isLoading={isOrderAgainLoading}
+            label={t("order_details_order_again")}
+            onPress={onOrderAgain}
+            style={[
+              shouldUseTwoColumnLayout ? styles.rowButton : styles.primaryButton,
+              secondaryButtonStyle,
+            ]}
+            labelStyle={labelStyle}
+            variant="secondary"
+          />
+        ) : null}
+        {shouldShowTrackProgress ? (
+          <Button
+            label={t("order_details_track_progress")}
+            onPress={() =>
+              navigation.navigate("OrderTrackingScreen", { orderId })
+            }
+            style={shouldUseTwoColumnLayout ? styles.rowButton : undefined}
+            labelStyle={labelStyle}
+          />
+        ) : null}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    gap: 12,
+    gap: 14,
     paddingBottom: 24,
-    paddingTop: 16,
+    paddingTop: 8,
   },
   primaryButton: {
-    marginTop: 4,
+    marginTop: 0,
+  },
+  row: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  rowButton: {
+    flex: 1,
+  },
+  stack: {
+    gap: 12,
   },
 });

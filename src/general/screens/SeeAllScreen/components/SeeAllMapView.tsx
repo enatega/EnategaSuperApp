@@ -11,7 +11,6 @@ import MapStoreMarker from './MapStoreMarker';
 import {
   SEE_ALL_DEFAULT_USER_COORDINATE,
   toSeeAllMapStore,
-  type SeeAllMapStore,
   type SeeAllMapStoreSource,
 } from './mapStoreUtils';
 import SeeAllMapLoadingState from './SeeAllMapLoadingState';
@@ -40,6 +39,7 @@ type Props<TItem> = {
   items: TItem[];
   title: string;
   onBack: () => void;
+  onViewStore: (item: TItem) => void;
   mapStoreFromItem: (item: TItem, index: number) => SeeAllMapStoreSource;
   currencyLabel?: string;
 };
@@ -48,6 +48,7 @@ function SeeAllMapViewComponent<TItem>({
   items,
   title,
   onBack,
+  onViewStore,
   mapStoreFromItem,
   currencyLabel,
 }: Props<TItem>) {
@@ -58,8 +59,12 @@ function SeeAllMapViewComponent<TItem>({
   const hasInitializedSelectionRef = useRef(false);
   const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
 
-  const stores = useMemo<SeeAllMapStore[]>(
-    () => items.map((item, index) => toSeeAllMapStore(mapStoreFromItem(item, index))),
+  const storeItems = useMemo(
+    () =>
+      items.map((item, index) => ({
+        item,
+        store: toSeeAllMapStore(mapStoreFromItem(item, index)),
+      })),
     [items, mapStoreFromItem],
   );
 
@@ -67,27 +72,27 @@ function SeeAllMapViewComponent<TItem>({
   const userCoordinate = SEE_ALL_DEFAULT_USER_COORDINATE;
 
   const storesWithCoordinates = useMemo(
-    () => stores.filter((store) => Boolean(store.coordinate)),
-    [stores],
+    () => storeItems.filter(({ store }) => Boolean(store.coordinate)),
+    [storeItems],
   );
 
   const selectedStore =
-    stores.find((store) => store.id === selectedStoreId) ?? null;
+    storeItems.find(({ store }) => store.id === selectedStoreId) ?? null;
 
   const markers = useMemo<MapMarker[]>(
     () =>
       storesWithCoordinates.map((store) => ({
-        id: store.id,
-        coordinate: store.coordinate!,
+        id: store.store.id,
+        coordinate: store.store.coordinate!,
         active: true,
-        zIndex: store.id === selectedStoreId ? 3 : 1,
-        keyOverride: `${store.id}-${store.id === selectedStoreId ? 'selected' : 'default'}`,
-        onPress: () => setSelectedStoreId(store.id),
+        zIndex: store.store.id === selectedStoreId ? 3 : 1,
+        keyOverride: `${store.store.id}-${store.store.id === selectedStoreId ? 'selected' : 'default'}`,
+        onPress: () => setSelectedStoreId(store.store.id),
         tracksViewChanges: true,
         render: (
           <MapStoreMarker
-            title={store.title}
-            isSelected={store.id === selectedStoreId}
+            title={store.store.title}
+            isSelected={store.store.id === selectedStoreId}
           />
         ),
       })),
@@ -99,16 +104,16 @@ function SeeAllMapViewComponent<TItem>({
       return;
     }
 
-    if (selectedStore?.coordinate) {
+    if (selectedStore?.store.coordinate) {
       mapRef.current.animateToRegion(
-        getRegionFromCoordinates(selectedStore.coordinate),
+        getRegionFromCoordinates(selectedStore.store.coordinate),
         350,
       );
       return;
     }
 
     const coordinates = storesWithCoordinates
-      .map((store) => store.coordinate)
+      .map(({ store }) => store.coordinate)
       .filter(Boolean) as LatLng[];
 
     if (coordinates.length === 1) {
@@ -135,7 +140,7 @@ function SeeAllMapViewComponent<TItem>({
   useEffect(() => {
     if (!hasInitializedSelectionRef.current) {
       hasInitializedSelectionRef.current = true;
-      setSelectedStoreId(storesWithCoordinates[0]?.id ?? null);
+      setSelectedStoreId(storesWithCoordinates[0]?.store.id ?? null);
       return;
     }
 
@@ -143,7 +148,7 @@ function SeeAllMapViewComponent<TItem>({
       return;
     }
 
-    if (storesWithCoordinates.some((store) => store.id === selectedStoreId)) {
+    if (storesWithCoordinates.some(({ store }) => store.id === selectedStoreId)) {
       return;
     }
 
@@ -193,9 +198,15 @@ function SeeAllMapViewComponent<TItem>({
       ) : null}
 
       <MapStoreBottomSheet
-        store={selectedStore}
+        store={selectedStore?.store ?? null}
         onClose={() => setSelectedStoreId(null)}
-        onViewStore={onBack}
+        onViewStore={() => {
+          if (!selectedStore) {
+            return;
+          }
+
+          onViewStore(selectedStore.item);
+        }}
         title={t('see_all_map_sheet_title')}
         ctaLabel={t('see_all_map_cta')}
         closeLabel={t('filter_close_label')}

@@ -108,7 +108,14 @@ export default function ShopTypeStoreSections() {
                   keyExtractor={(item) => item.storeId}
                   contentContainerStyle={styles.listContent}
                   ItemSeparatorComponent={() => <View style={styles.separator} />}
-                  renderItem={({ item }) => <StoreCard store={item} />}
+                  renderItem={({ item }) => (
+                    <StoreCard
+                      store={item}
+                      showClosedOverlay={
+                        item.isAvailable === false || item.isClosed === true
+                      }
+                    />
+                  )}
                 />
               )}
             </View>

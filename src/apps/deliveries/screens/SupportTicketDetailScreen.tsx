@@ -7,7 +7,8 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
+import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import SupportHeader from '../../../general/components/support/SupportHeader';
@@ -21,7 +22,13 @@ import ChatMessageBubble from '../components/chat/ChatMessageBubble';
 import ChatQuickReplyChip from '../components/chat/ChatQuickReplyChip';
 import { useDeliveriesSocketSession } from '../hooks';
 import { useSendSupportChatMessage } from '../hooks/useSupportChatMutations';
-import { useSupportChatBox } from '../hooks/useSupportChatQueries';
+import { useSupportChatBox, useSupportChatMessages } from '../hooks/useSupportChatQueries';
+import { deliveryKeys } from '../api/queryKeys';
+import type {
+  SupportChatBoxDetailResponse,
+  SupportChatMessageRecord,
+  SupportChatMessagesResponse,
+} from '../api/supportChatTypes';
 import type { SupportNavigationParamList } from '../navigation/supportNavigationTypes';
 import { subscribeDeliveriesEvent } from '../socket/deliveriesSocket';
 import {
@@ -44,24 +51,26 @@ type TicketChatMessage = {
 
 export default function SupportTicketDetailScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
-  const sessionStartedAtRef = useRef(Date.now());
+  const queryClient = useQueryClient();
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
   const route = useRoute<SupportTicketDetailRouteProp>();
   const { openMode, ticket } = route.params;
-  const isFreshTicketSession = openMode === 'fresh';
+  const lockedTicketChatBoxId = ticket.chatBoxId ?? undefined;
   const sessionQuery = useAuthSessionQuery();
   useDeliveriesSocketSession();
-  const [chatBoxId, setChatBoxId] = useState(ticket.chatBoxId);
+  const [chatBoxId, setChatBoxId] = useState(lockedTicketChatBoxId);
   const [draftMessage, setDraftMessage] = useState('');
   const [pendingMessages, setPendingMessages] = useState<TicketChatMessage[]>([]);
   const [realtimeMessages, setRealtimeMessages] = useState<TicketChatMessage[]>([]);
-  const supportChatBoxQuery = useSupportChatBox(chatBoxId);
+  const resolvedChatBoxId = lockedTicketChatBoxId ?? chatBoxId;
+  const supportChatBoxQuery = useSupportChatBox(resolvedChatBoxId);
+  const supportChatMessagesQuery = useSupportChatMessages(resolvedChatBoxId);
   const refetchSupportChatBox = supportChatBoxQuery.refetch;
+  const refetchSupportChatMessages = supportChatMessagesQuery.refetch;
   const supportChatSendMutation = useSendSupportChatMessage({
     onError: (error) => {
-      setPendingMessages((current) => current.slice(0, -1));
       showToast.error(
         t('support_chat_send_error_title'),
         error.message || t('support_chat_send_error_message'),
@@ -74,29 +83,18 @@ export default function SupportTicketDetailScreen() {
         response.detail?.chatBoxId ??
         response.detail?.chat_box_id;
 
-      if (nextChatBoxId) {
+      if (nextChatBoxId && !lockedTicketChatBoxId) {
         setChatBoxId(nextChatBoxId);
       }
-
-      setDraftMessage('');
     },
   });
 
   useEffect(() => {
-    console.log('SupportTicketDetailScreen route ticket', {
-      ticketChatBoxId: ticket.chatBoxId,
-      ticketId: ticket.id,
-      ticketTitle: ticket.title,
-    });
-  }, [ticket.chatBoxId, ticket.id, ticket.title]);
-
-  useEffect(() => {
-    const serverMessages = getSupportChatMessages(supportChatBoxQuery.data);
-
-    if (serverMessages.length > 0 && pendingMessages.length > 0) {
-      setPendingMessages([]);
-    }
-  }, [pendingMessages.length, supportChatBoxQuery.data]);
+    setChatBoxId(lockedTicketChatBoxId);
+    setDraftMessage('');
+    setPendingMessages([]);
+    setRealtimeMessages([]);
+  }, [lockedTicketChatBoxId, openMode, ticket.id]);
 
   const activeChatBox = useMemo(
     () => getSupportChatBox(supportChatBoxQuery.data),
@@ -110,43 +108,10 @@ export default function SupportTicketDetailScreen() {
     [activeChatBox, sessionQuery.data?.user?.id, ticket.assignedAdminId],
   );
 
-  useEffect(() => {
-    console.log('SupportTicketDetailScreen chat setup', {
-      activeChatBox,
-      chatBoxId,
-      receiverId,
-      ticketAssignedAdminId: ticket.assignedAdminId,
-      supportChatBoxData: supportChatBoxQuery.data,
-      ticketChatBoxId: ticket.chatBoxId,
-      userId: sessionQuery.data?.user?.id,
-    });
-  }, [
-    activeChatBox,
-    chatBoxId,
-    receiverId,
-    sessionQuery.data?.user?.id,
-    supportChatBoxQuery.data,
-    ticket.assignedAdminId,
-    ticket.chatBoxId,
-  ]);
-
   const messages = useMemo(() => {
     const currentUserId = sessionQuery.data?.user?.id;
-    const rawServerMessages = getSupportChatMessages(supportChatBoxQuery.data);
-    const shouldSuppressHistoricalMessages = isFreshTicketSession || !ticket.chatBoxId;
-    const visibleServerMessages = shouldSuppressHistoricalMessages
-      ? rawServerMessages.filter((message) => {
-        const timestamp = new Date(message.createdAt ?? message.created_at ?? '').getTime();
-
-        if (Number.isNaN(timestamp)) {
-          return false;
-        }
-
-        // For brand-new tickets, keep only messages from the current session.
-        return timestamp >= sessionStartedAtRef.current - 3000;
-      })
-      : rawServerMessages;
-    const mappedServerMessages = visibleServerMessages.map((message) => ({
+    const rawServerMessages = getSupportChatMessages(supportChatMessagesQuery.data);
+    const mappedServerMessages = rawServerMessages.map((message) => ({
       id: getSupportChatMessageId(message),
       isCurrentUser:
         (message.senderId ?? message.sender_id ?? getSupportChatParticipantId(message.sender)) ===
@@ -154,8 +119,16 @@ export default function SupportTicketDetailScreen() {
       text: message.text ?? message.message ?? '',
       timeLabel: formatSupportChatTimeLabel(message.createdAt ?? message.created_at),
     }));
+    const acknowledgedCurrentUserMessages = new Set(
+      mappedServerMessages
+        .filter((message) => message.isCurrentUser)
+        .map((message) => message.text.trim()),
+    );
+    const unresolvedPendingMessages = pendingMessages.filter(
+      (message) => !acknowledgedCurrentUserMessages.has(message.text.trim()),
+    );
 
-    if (!mappedServerMessages.length && !realtimeMessages.length && !pendingMessages.length) {
+    if (!mappedServerMessages.length && !realtimeMessages.length && !unresolvedPendingMessages.length) {
       return [
         {
           id: 'support-auto-message',
@@ -166,15 +139,13 @@ export default function SupportTicketDetailScreen() {
       ];
     }
 
-    return [...mappedServerMessages, ...realtimeMessages, ...pendingMessages];
+    return [...mappedServerMessages, ...realtimeMessages, ...unresolvedPendingMessages];
   }, [
     pendingMessages,
     realtimeMessages,
     sessionQuery.data?.user?.id,
-    supportChatBoxQuery.data,
+    supportChatMessagesQuery.data,
     t,
-    isFreshTicketSession,
-    ticket.chatBoxId,
   ]);
 
   const quickReplies = useMemo(
@@ -206,6 +177,211 @@ export default function SupportTicketDetailScreen() {
       return nextMessages.length === current.length ? current : nextMessages;
     });
   }, [messages]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!resolvedChatBoxId) {
+        return undefined;
+      }
+
+      void refetchSupportChatBox();
+      void refetchSupportChatMessages();
+
+      return undefined;
+    }, [refetchSupportChatBox, refetchSupportChatMessages, resolvedChatBoxId]),
+  );
+
+  useEffect(() => {
+    const rawServerMessages = getSupportChatMessages(supportChatMessagesQuery.data);
+
+    console.log('SupportTicketDetailScreen message debug', {
+      activeChatBoxId: activeChatBox?.id,
+      chatBoxId,
+      mappedMessageCount: messages.length,
+      mappedMessages: messages.map((message) => ({
+        id: message.id,
+        isCurrentUser: message.isCurrentUser,
+        text: message.text,
+        timeLabel: message.timeLabel,
+      })),
+      pendingCount: pendingMessages.length,
+      pendingMessages,
+      rawServerCount: rawServerMessages.length,
+      rawServerMessages: rawServerMessages.map((message) => ({
+        createdAt: message.createdAt ?? message.created_at,
+        id: getSupportChatMessageId(message),
+        senderId:
+          message.senderId ??
+          message.sender_id ??
+          getSupportChatParticipantId(message.sender),
+        text: message.text ?? message.message ?? '',
+      })),
+      resolvedChatBoxId,
+      realtimeCount: realtimeMessages.length,
+      realtimeMessages,
+      ticketChatBoxId: ticket.chatBoxId,
+      ticketId: ticket.id,
+    });
+  }, [
+    activeChatBox?.id,
+    chatBoxId,
+    messages,
+    pendingMessages,
+    realtimeMessages,
+    resolvedChatBoxId,
+    supportChatBoxQuery.data,
+    supportChatMessagesQuery.data,
+    ticket.chatBoxId,
+    ticket.id,
+  ]);
+
+  const appendMessageToChatBoxCache = (
+    nextChatBoxId: string,
+    nextMessage: SupportChatMessageRecord,
+  ) => {
+    queryClient.setQueryData<SupportChatMessagesResponse | undefined>(
+      deliveryKeys.supportChatMessages(nextChatBoxId),
+      (current) => {
+        const currentMessages = getSupportChatMessages(current);
+        const alreadyExists = currentMessages.some(
+          (message) =>
+            getSupportChatMessageId(message) === getSupportChatMessageId(nextMessage)
+            || (
+              (message.text ?? message.message ?? '').trim() ===
+                (nextMessage.text ?? nextMessage.message ?? '').trim()
+              && (message.senderId ?? message.sender_id) ===
+                (nextMessage.senderId ?? nextMessage.sender_id)
+            ),
+        );
+
+        if (alreadyExists) {
+          return current;
+        }
+
+        const nextMessages = [...currentMessages, nextMessage];
+
+        if (!current) {
+          return {
+            messages: nextMessages,
+          };
+        }
+
+        if (Array.isArray(current)) {
+          return nextMessages;
+        }
+
+        if ('messages' in current && Array.isArray(current.messages)) {
+          return {
+            ...current,
+            messages: nextMessages,
+          };
+        }
+
+        if ('data' in current && Array.isArray(current.data)) {
+          return {
+            ...current,
+            data: nextMessages,
+          };
+        }
+
+        if ('data' in current && current.data && !Array.isArray(current.data)) {
+          return {
+            ...current,
+            data: {
+              ...current.data,
+              items: nextMessages,
+            },
+          };
+        }
+
+        return {
+          ...current,
+          messages: nextMessages,
+        };
+      },
+    );
+
+    queryClient.setQueryData<SupportChatBoxDetailResponse | undefined>(
+      deliveryKeys.supportChatBox(nextChatBoxId),
+      (current) => {
+        if (!current) {
+          return {
+            chatBox: {
+              chatBoxId: nextChatBoxId,
+              messages: [nextMessage],
+            },
+          };
+        }
+
+        const currentMessages = getSupportChatMessages(current);
+        const alreadyExists = currentMessages.some(
+          (message) =>
+            getSupportChatMessageId(message) === getSupportChatMessageId(nextMessage)
+            || (
+              (message.text ?? message.message ?? '').trim() ===
+                (nextMessage.text ?? nextMessage.message ?? '').trim()
+              && (message.senderId ?? message.sender_id) ===
+                (nextMessage.senderId ?? nextMessage.sender_id)
+            ),
+        );
+
+        if (alreadyExists) {
+          return current;
+        }
+
+        const nextMessages = [...currentMessages, nextMessage];
+
+        if (Array.isArray(current)) {
+          return current;
+        }
+
+        if ('messages' in current && Array.isArray(current.messages)) {
+          return {
+            ...current,
+            messages: nextMessages,
+          };
+        }
+
+        if ('chatBox' in current && current.chatBox) {
+          return {
+            ...current,
+            chatBox: {
+              ...current.chatBox,
+              chatBoxId: getSupportChatBox(current)?.id ?? nextChatBoxId,
+              messages: nextMessages,
+            },
+          };
+        }
+
+        if ('chat_box' in current && current.chat_box) {
+          return {
+            ...current,
+            chat_box: {
+              ...current.chat_box,
+              chatBoxId: getSupportChatBox(current)?.id ?? nextChatBoxId,
+              messages: nextMessages,
+            },
+          };
+        }
+
+        if ('data' in current && current.data && !Array.isArray(current.data)) {
+          return {
+            ...current,
+            data: {
+              ...current.data,
+              chatBoxId: getSupportChatBox(current)?.id ?? nextChatBoxId,
+              messages: nextMessages,
+            },
+          };
+        }
+
+        return {
+          ...current,
+          messages: nextMessages,
+        };
+      },
+    );
+  };
 
   useEffect(() => {
     const currentUserId = sessionQuery.data?.user?.id;
@@ -242,14 +418,16 @@ export default function SupportTicketDetailScreen() {
         ];
       });
 
-      if (chatBoxId) {
+      if (resolvedChatBoxId) {
         void refetchSupportChatBox();
+        void refetchSupportChatMessages();
       }
     });
   }, [
-    chatBoxId,
     receiverId,
     refetchSupportChatBox,
+    refetchSupportChatMessages,
+    resolvedChatBoxId,
     sessionQuery.data?.user?.id,
   ]);
 
@@ -268,34 +446,72 @@ export default function SupportTicketDetailScreen() {
     }
 
     if (!receiverId) {
-      console.log('SupportTicketDetailScreen missing receiver', {
-        activeChatBox,
-        chatBoxId,
-        supportChatBoxData: supportChatBoxQuery.data,
-        ticketAssignedAdminId: ticket.assignedAdminId,
-        ticketChatBoxId: ticket.chatBoxId,
-        userId: sessionQuery.data?.user?.id,
-      });
       showToast.error(t('support_chat_send_error_title'), t('support_chat_missing_receiver_error'));
       return;
     }
 
+    if (
+      supportChatSendMutation.isPending
+      && pendingMessages.some((message) => message.text.trim() === trimmedValue)
+    ) {
+      return;
+    }
+
+    const pendingMessageId = `pending-${Date.now()}`;
+    const pendingTimeLabel = formatSupportChatTimeLabel(new Date().toISOString());
+
     setPendingMessages((current) => [
       ...current,
       {
-        id: `pending-${Date.now()}`,
+        id: pendingMessageId,
         isCurrentUser: true,
         text: trimmedValue,
-        timeLabel: formatSupportChatTimeLabel(new Date().toISOString()),
+        timeLabel: pendingTimeLabel,
       },
     ]);
+    setDraftMessage('');
 
-    supportChatSendMutation.mutate({
-      senderId,
-      receiverId,
-      text: trimmedValue,
-      chatBoxId,
-    });
+    supportChatSendMutation.mutate(
+      {
+        senderId,
+        receiverId,
+        text: trimmedValue,
+        chatBoxId: resolvedChatBoxId,
+      },
+      {
+        onError: () => {
+          setPendingMessages((current) =>
+            current.filter((message) => message.id !== pendingMessageId),
+          );
+        },
+        onSuccess: (response) => {
+          setPendingMessages((current) =>
+            current.filter((message) => message.id !== pendingMessageId),
+          );
+
+          const nextChatBoxId =
+            lockedTicketChatBoxId ??
+            response.chatBoxId ??
+            response.data?.chatBoxId ??
+            response.detail?.chatBoxId ??
+            response.detail?.chat_box_id ??
+            resolvedChatBoxId;
+
+          if (!nextChatBoxId) {
+            return;
+          }
+
+          appendMessageToChatBoxCache(nextChatBoxId, {
+            id: response.data?.id ?? response.detail?.id ?? pendingMessageId,
+            senderId,
+            receiverId,
+            text: response.detail?.text ?? trimmedValue,
+            createdAt: response.detail?.createdAt ?? new Date().toISOString(),
+            chatBoxId: nextChatBoxId,
+          });
+        },
+      },
+    );
 
     requestAnimationFrame(() => {
       scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -363,14 +579,18 @@ export default function SupportTicketDetailScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {chatBoxId && supportChatBoxQuery.isPending ? (
+          {resolvedChatBoxId
+          && (supportChatBoxQuery.isPending || supportChatMessagesQuery.isPending)
+          && messages.length === 0 ? (
             <View style={styles.centerState}>
               <ActivityIndicator size="large" color={colors.primary} />
               <Text color={colors.mutedText}>{t('support_chat_loading')}</Text>
             </View>
-          ) : supportChatBoxQuery.isError ? (
+          ) : supportChatBoxQuery.isError || supportChatMessagesQuery.isError ? (
             <View style={styles.centerState}>
-              <Text color={colors.danger}>{supportChatBoxQuery.error.message}</Text>
+              <Text color={colors.danger}>
+                {supportChatMessagesQuery.error?.message ?? supportChatBoxQuery.error?.message}
+              </Text>
             </View>
           ) : (
             <View style={styles.messageSection}>
@@ -396,6 +616,7 @@ export default function SupportTicketDetailScreen() {
             {quickReplies.map((reply) => (
               <ChatQuickReplyChip
                 key={reply}
+                disabled={supportChatSendMutation.isPending}
                 label={reply}
                 onPress={() => handleAppendMessage(reply)}
               />

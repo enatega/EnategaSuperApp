@@ -6,9 +6,10 @@ import { styles } from "../styles";
 
 interface StoreInfoProps {
   name: string;
+  trailingLabel?: string;
 }
 
-export default function StoreInfo({ name }: StoreInfoProps) {
+export default function StoreInfo({ name, trailingLabel }: StoreInfoProps) {
   const { colors } = useTheme();
 
   return (
@@ -21,6 +22,17 @@ export default function StoreInfo({ name }: StoreInfoProps) {
       >
         {name}
       </Text>
+
+      {trailingLabel ? (
+        <Text
+          weight="medium"
+          color={colors.mutedText}
+          numberOfLines={1}
+          style={styles.location}
+        >
+          {trailingLabel}
+        </Text>
+      ) : null}
     </View>
   );
 }

@@ -49,7 +49,7 @@ type SupportMessageItem = {
   timeLabel?: string;
 };
 
-const SUPPORT_PHONE_NUMBER = '+14232900408';
+const SUPPORT_PHONE_NUMBER = '+13077768999';
 
 export default function RideSupportChatScreen() {
   const scrollViewRef = useRef<ScrollView>(null);

@@ -5,12 +5,10 @@ import type { DeliveryOrderAgainItem } from '../../api/types';
 import type { CartResponse } from '../../api/cartServiceTypes';
 import CartClearPopup from './CartClearPopup';
 import CartEmptyState from './CartEmptyState';
-import CartFeeInfoModal from './CartFeeInfoModal';
 import CartFooter from './CartFooter';
 import CartHeader from './CartHeader';
 import CartItemsSection from './CartItemsSection';
 import CartRecommendationsSection from './CartRecommendationsSection';
-import CartStatusBanner from './CartStatusBanner';
 import { formatCartPrice } from './cartUtils';
 
 type Props = {
@@ -116,7 +114,9 @@ export default function CartScreenContent({
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/*
         <CartStatusBanner onInfoPress={onOpenFeeModal} totalPrice={cart.finalPrice} />
+        */}
         <CartItemsSection
           isUpdatingItemId={isUpdatingItemId}
           items={cart.items}
@@ -139,7 +139,6 @@ export default function CartScreenContent({
         onConfirm={onConfirmClearCart}
         visible={isClearCartVisible}
       />
-      <CartFeeInfoModal onClose={onCloseFeeModal} visible={isFeeModalVisible} />
     </View>
   );
 }

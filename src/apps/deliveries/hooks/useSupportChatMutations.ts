@@ -27,9 +27,11 @@ export function useSendSupportChatMessage(
     onSuccess: (data, variables, onMutateResult, context) => {
       queryClient.invalidateQueries({
         queryKey: deliveryKeys.supportChat(),
+        refetchType: 'inactive',
       });
       queryClient.invalidateQueries({
         queryKey: deliveryKeys.supportChatBoxes({}),
+        refetchType: 'inactive',
       });
       options?.onSuccess?.(data, variables, onMutateResult, context);
     },
@@ -55,9 +57,11 @@ export function useSendSupportChatMessageToAdmin(
     onSuccess: (data, variables, onMutateResult, context) => {
       queryClient.invalidateQueries({
         queryKey: deliveryKeys.supportChat(),
+        refetchType: 'inactive',
       });
       queryClient.invalidateQueries({
         queryKey: deliveryKeys.supportChatBoxes({}),
+        refetchType: 'inactive',
       });
       options?.onSuccess?.(data, variables, onMutateResult, context);
     },
