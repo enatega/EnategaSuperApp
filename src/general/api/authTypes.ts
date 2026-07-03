@@ -110,6 +110,22 @@ export type GoogleLoginResponse = {
   accessToken: string;
 };
 
+export type AppleLoginPayload = {
+  identityToken: string;
+  authorizationCode?: string;
+  appleUser: string;
+  email?: string | null;
+  name?: string | null;
+  user_type: "Customer" | "Rider";
+  device_push_token?: string;
+};
+
+export type AppleLoginResponse = {
+  user: User;
+  profiles: Profile;
+  accessToken: string;
+};
+
 export type SendForgotPasswordOtpPayload = {
   email: string;
   otp_type: 'email' | 'sms' | 'call';
