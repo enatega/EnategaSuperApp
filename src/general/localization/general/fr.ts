@@ -103,6 +103,7 @@ const fr = {
   email_already_exist: 'Votre e-mail existe déjà.',
   remember_me: 'Se souvenir de moi',
   forget_password: 'Mot de passe oublié ?',
+  invalid_password: 'Mot de passe invalide',
   enter_correct_password: 'Veuillez saisir le bon mot de passe.',
   forget_password_desc: 'Saisissez votre e-mail et nous vous enverrons un code pour réinitialiser votre mot de passe.',
   create_new_password: 'Créez votre nouveau mot de passe',

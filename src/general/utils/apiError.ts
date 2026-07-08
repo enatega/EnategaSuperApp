@@ -1,11 +1,14 @@
-import { ApiError } from '../api/apiClient';
+import { ApiError, extractApiErrorMessage } from '../api/apiClient';
 
 export function getApiErrorMessage(
   error: unknown,
   fallbackMessage: string,
 ): string {
   if (error instanceof ApiError) {
-    const serverMessage = error.message?.trim();
+    const serverMessage =
+      extractApiErrorMessage(error.data) ??
+      extractApiErrorMessage(error.message) ??
+      error.message?.trim();
     return serverMessage || fallbackMessage;
   }
 

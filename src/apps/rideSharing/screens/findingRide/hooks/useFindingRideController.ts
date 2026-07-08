@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
+import { ApiError } from '../../../../../general/api/apiClient';
 import { useAuthSessionQuery } from '../../../../../general/hooks/useAuthQueries';
 import { socketClient, socketLogger } from '../../../../../general/services/socket';
 import { showToast } from '../../../../../general/components/AppToast';
@@ -72,6 +73,30 @@ function delay(ms: number) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
+}
+
+function isTransientAcceptedBidResponseError(error: unknown): error is ApiError {
+  return (
+    error instanceof ApiError
+    && error.code === 'TRANSIENT_RESPONSE_STREAM_LOST'
+    && error.status >= 200
+    && error.status < 300
+  );
+}
+
+function isRecoverableCreateRideError(error: unknown): boolean {
+  return (
+    error instanceof ApiError
+    && (
+      (error.code === 'TRANSIENT_RESPONSE_STREAM_LOST' && error.status >= 200 && error.status < 300)
+      || error.status === 409
+    )
+  );
+}
+
+async function recoverActiveRideRequestAfterCreateError() {
+  const response = await rideService.getActiveRideRequest();
+  return response.success ? response.activeRideRequest ?? null : null;
 }
 
 function getRemainingSearchSeconds(expiresAt?: string | null, fallback = SEARCH_DURATION_SECONDS) {
@@ -213,6 +238,7 @@ export function useFindingRideController({
   const [searchRadiusKm, setSearchRadiusKm] = useState(DEFAULT_SEARCH_RADIUS_KM);
   const [acceptingBidId, setAcceptingBidId] = useState<string | null>(null);
   const [decliningBidId, setDecliningBidId] = useState<string | null>(null);
+  const [isAcceptedRideFinalizing, setIsAcceptedRideFinalizing] = useState(false);
 
   const committedFareRef = useRef<number>(selectedRide.fare ?? minimumFare);
   const activeRideRequestRef = useRef(activeRideRequest);
@@ -382,10 +408,15 @@ export function useFindingRideController({
     console.log('[useFindingRideController] handleCancelRide:start', {
       resolvedRideRequestId,
       isCancelPending: cancelRideRequestMutation.isPending,
+      isAcceptedRideFinalizing,
     });
-    if (!resolvedRideRequestId || cancelRideRequestMutation.isPending) {
+    if (!resolvedRideRequestId || cancelRideRequestMutation.isPending || isAcceptedRideFinalizing) {
       console.log('[useFindingRideController] handleCancelRide:early-return', {
-        reason: !resolvedRideRequestId ? 'missing_ride_request_id' : 'cancel_mutation_pending',
+        reason: !resolvedRideRequestId
+          ? 'missing_ride_request_id'
+          : cancelRideRequestMutation.isPending
+            ? 'cancel_mutation_pending'
+            : 'accepted_ride_finalizing',
       });
       return;
     }
@@ -453,6 +484,7 @@ export function useFindingRideController({
     onCancelSuccess,
     resolvedRideRequestId,
     authSessionQuery.data?.user?.id,
+    isAcceptedRideFinalizing,
     t,
   ]);
 
@@ -496,15 +528,33 @@ export function useFindingRideController({
     setAcceptingBidId(bid.id);
 
     try {
-      const acceptedBidResponse = await acceptRideBidMutation.mutateAsync({
-        rideBidId: bid.id,
-        payload: buildAcceptBidPayload({
-          customerId,
+      let acceptedBidResponse: unknown = null;
+
+      try {
+        acceptedBidResponse = await acceptRideBidMutation.mutateAsync({
+          rideBidId: bid.id,
+          payload: buildAcceptBidPayload({
+            customerId,
+            bidId: bid.id,
+            paymentVia: activeRideRequestRef.current?.payment_via,
+            isScheduled: activeRideRequestRef.current?.is_scheduled,
+          }),
+        });
+      } catch (error) {
+        if (!isTransientAcceptedBidResponseError(error)) {
+          throw error;
+        }
+
+        socketLogger.warn('Bid accept response stream was lost after a successful status', {
+          rideRequestId: resolvedRideRequestId,
           bidId: bid.id,
-          paymentVia: activeRideRequestRef.current?.payment_via,
-          isScheduled: activeRideRequestRef.current?.is_scheduled,
-        }),
-      });
+          status: error.status,
+        });
+      }
+
+      setIsAcceptedRideFinalizing(true);
+      clearBids();
+
       const isScheduledRide = Boolean(
         activeRideRequestRef.current?.is_scheduled
         ?? (acceptedBidResponse as { is_scheduled?: boolean } | null)?.is_scheduled,
@@ -558,28 +608,31 @@ export function useFindingRideController({
           rideRequestId: resolvedRideRequestId,
           bidId: bid.id,
         });
-        throw new Error('Unable to load accepted ride.');
+        throw new Error('Accepted ride is still loading.');
       }
 
       clearBids();
       clearActiveRideRequest();
       setActiveRide(activeRide);
     } catch (error) {
-      if (error instanceof Error && error.message === 'Unable to load accepted ride.') {
-        showToast.error(t('error'), 'Ride accepted, but we could not load the active ride yet. Please try again.');
+      if (error instanceof Error && error.message === 'Accepted ride is still loading.') {
+        showToast.success(t('success'), 'Ride accepted. Loading your driver...');
         return;
       }
 
       if (error instanceof Error && error.message === 'Socket connection timed out.') {
+        setIsAcceptedRideFinalizing(false);
         showToast.error(t('error'), 'Ride accepted, but the live ride session could not start. Please try again.');
         return;
       }
 
       if (error instanceof Error && error.message.startsWith('Socket emit failed')) {
+        setIsAcceptedRideFinalizing(false);
         showToast.error(t('error'), 'Ride accepted, but the live ride session could not start. Please try again.');
         return;
       }
 
+      setIsAcceptedRideFinalizing(false);
       showToast.error(t('error'), getApiErrorMessage(error, 'Failed to accept bid. Please try again.'));
     } finally {
       setAcceptingBidId(null);
@@ -593,6 +646,7 @@ export function useFindingRideController({
     decliningBidId,
     navigation,
     resolvedRideRequestId,
+    setIsAcceptedRideFinalizing,
     setActiveRide,
     t,
   ]);
@@ -664,11 +718,21 @@ export function useFindingRideController({
           ...(currentRequest.scheduled_at ? { scheduled_at: currentRequest.scheduled_at } : {}),
         };
 
-        const createdRide = await createRide(createRidePayload) as {
-          rideReq?: ActiveRideRequestPayload | null;
-        } | null;
+        let createdRideRequest: ActiveRideRequestPayload | null = null;
 
-        const createdRideRequest = createdRide?.rideReq ?? null;
+        try {
+          const createdRide = await createRide(createRidePayload) as {
+            rideReq?: ActiveRideRequestPayload | null;
+          } | null;
+          createdRideRequest = createdRide?.rideReq ?? null;
+        } catch (error) {
+          if (!isRecoverableCreateRideError(error)) {
+            throw error;
+          }
+
+          createdRideRequest = await recoverActiveRideRequestAfterCreateError();
+        }
+
         if (!createdRideRequest?.id) {
           showToast.error(t('error'), t('ride_create_invalid_response_description'));
           return;
@@ -767,13 +831,13 @@ export function useFindingRideController({
     searchRadiusKm,
     acceptingBidId,
     decliningBidId,
-    isBidInteractionLocked: Boolean(acceptingBidId || decliningBidId),
+    isBidInteractionLocked: Boolean(acceptingBidId || decliningBidId || isAcceptedRideFinalizing),
     isFareDirty: toCurrencyNumber(currentFare) !== toCurrencyNumber(committedFareRef.current),
     isIncreaseDisabled: isRaiseRideFarePending,
     isDecreaseDisabled: isRaiseRideFarePending || currentFare <= minimumFare,
     isCommitFareLoading: isRaiseRideFarePending,
     isKeepSearchingLoading: isCreateRidePending || isRaiseRideFarePending || isKeepSearchingPending,
-    isCancelLoading: cancelRideRequestMutation.isPending,
+    isCancelLoading: cancelRideRequestMutation.isPending || isAcceptedRideFinalizing,
     handleIncreaseFare,
     handleDecreaseFare,
     handleCommitFare,

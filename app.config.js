@@ -43,6 +43,11 @@ module.exports = {
         foregroundImage: './assets/adaptive-icon.png',
         backgroundColor: '#ffffff',
       },
+      config: {
+        googleMaps: {
+          apiKey: googleMapsApiKey,
+        },
+      },
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
       package: 'com.enategasuper.app',

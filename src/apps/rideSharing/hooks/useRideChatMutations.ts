@@ -26,6 +26,7 @@ export function useSendRideChatMessage(
     SendRideChatMessagePayload
   >({
     mutationFn: rideChatService.sendMessage,
+    retry: false,
     ...options,
     onSuccess: (data, variables, onMutateResult, context) => {
       queryClient.invalidateQueries({

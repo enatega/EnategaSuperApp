@@ -3,6 +3,7 @@ import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
+import { ApiError } from '../../../../general/api/apiClient';
 import RideEstimateStatusCard from '../../components/rideEstimate/RideEstimateStatusCard';
 import RideScheduleBottomSheet from '../../components/rideEstimate/schedule/RideScheduleBottomSheet';
 import PaymentMethodBadge from '../../components/payment/PaymentMethodBadge';
@@ -50,6 +51,7 @@ import {
 import type { RideIntent } from '../../utils/rideOptions';
 import { formatScheduledRideSummary, toApiScheduledDateString } from '../../utils/rideSchedule';
 import { toCreateRideStops } from '../../utils/rideStops';
+import { rideService } from '../../api/rideService';
 import { rideEstimateIcons } from './rideEstimateAssets';
 import { showToast } from '../../../../general/components/AppToast';
 
@@ -85,6 +87,21 @@ function mapPaymentMethodToApi(paymentMethodId: PaymentMethodId) {
     default:
       return 'CASH';
   }
+}
+
+function isRecoverableCreateRideError(error: unknown): boolean {
+  return (
+    error instanceof ApiError
+    && (
+      (error.code === 'TRANSIENT_RESPONSE_STREAM_LOST' && error.status >= 200 && error.status < 300)
+      || error.status === 409
+    )
+  );
+}
+
+async function recoverActiveRideRequestAfterCreateError() {
+  const response = await rideService.getActiveRideRequest();
+  return response.success ? response.activeRideRequest ?? null : null;
 }
 
 function toRideOption(ride: RideTypeFare): RideOptionItem & { fare?: number; recommendedFare?: number } {
@@ -507,18 +524,28 @@ export default function RideEstimateScreen() {
     };
 
     try {
-      const createdRide = await createRideMutation.mutateAsync(createRidePayload) as {
-        rideReq?: ActiveRideRequestPayload | null;
-      } | null;
-      console.log('Create ride API response', JSON.stringify(createdRide));
-      const createdRideRequest = createdRide?.rideReq ?? null;
+      let createdRideRequest: ActiveRideRequestPayload | null = null;
+
+      try {
+        const createdRide = await createRideMutation.mutateAsync(createRidePayload) as {
+          rideReq?: ActiveRideRequestPayload | null;
+        } | null;
+        console.log('Create ride API response', JSON.stringify(createdRide));
+        createdRideRequest = createdRide?.rideReq ?? null;
+      } catch (error) {
+        if (!isRecoverableCreateRideError(error)) {
+          throw error;
+        }
+
+        createdRideRequest = await recoverActiveRideRequestAfterCreateError();
+      }
 
       if (!createdRideRequest?.id) {
         showToast.error(t('error'), t('ride_create_invalid_response_description'));
         return;
       }
 
-      console.log('Ride created successfully, emitting socket event...', JSON.stringify(createdRide))
+      console.log('Ride created successfully, emitting socket event...', JSON.stringify(createdRideRequest))
 
       try {
         await socketClient.connect();

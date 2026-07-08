@@ -1,5 +1,6 @@
 import apiClient from "./apiClient";
 import type { ProfileAppPrefix } from "./profileService";
+import { retryTransientMapRequest } from "./retryTransientMapRequest";
 
 function getProfileBase(appPrefix: ProfileAppPrefix) {
   return `/api/v1/apps/${appPrefix}/profile`;
@@ -106,17 +107,21 @@ export function createAddressService(appPrefix: ProfileAppPrefix) {
 // Main service object
 export const addressService = {
   searchPlaces: (input: string) =>
-    apiClient.post<Array<{ description: string; place_id: string }>>(
-      "/api/v1/maps/places",
-      { input },
-      { skipAuth: true },
+    retryTransientMapRequest(() =>
+      apiClient.post<Array<{ description: string; place_id: string }>>(
+        "/api/v1/maps/places",
+        { input },
+        { skipAuth: true },
+      ),
     ),
 
   getPlaceDetails: (placeId: string) =>
-    apiClient.post<{ lat: string; lng: string }>(
-      "/api/v1/maps/place-details",
-      { placeId },
-      { skipAuth: true },
+    retryTransientMapRequest(() =>
+      apiClient.post<{ lat: string; lng: string }>(
+        "/api/v1/maps/place-details",
+        { placeId },
+        { skipAuth: true },
+      ),
     ),
 
   getRoutePath: async (
@@ -148,16 +153,18 @@ export const addressService = {
     origin: { lat: number; lng: number },
     destination: { lat: number; lng: number },
   ) => {
-    const response = await apiClient.post<{
-      distanceKm?: number;
-      durationMin?: number;
-    }>(
-      '/api/v1/maps/distance-matrix',
-      {
-        origins: [`${origin.lat},${origin.lng}`],
-        destinations: [`${destination.lat},${destination.lng}`],
-      },
-      { skipAuth: true },
+    const response = await retryTransientMapRequest(() =>
+      apiClient.post<{
+        distanceKm?: number;
+        durationMin?: number;
+      }>(
+        '/api/v1/maps/distance-matrix',
+        {
+          origins: [`${origin.lat},${origin.lng}`],
+          destinations: [`${destination.lat},${destination.lng}`],
+        },
+        { skipAuth: true },
+      ),
     );
 
     return {

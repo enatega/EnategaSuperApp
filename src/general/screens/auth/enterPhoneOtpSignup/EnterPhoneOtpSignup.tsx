@@ -7,6 +7,7 @@ import {
   useSignupSendOtp,
 } from "../../../hooks/useAuthMutations";
 import { getPendingAppRoute } from "../../../navigation/pendingAppRedirect";
+import { resetToSharedHome } from "../../../navigation/rootNavigation";
 import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal";
 import AppPopup from "../../../components/AppPopup";
 import { showToast } from "../../../components/AppToast";
@@ -53,7 +54,7 @@ const EnterPhoneOtpSignup = () => {
       const pendingRoute = await getPendingAppRoute();
 
       if (!pendingRoute) {
-        navigation.navigate("login" as never);
+        resetToSharedHome();
       }
 
       setOtpType("sms")

@@ -1,4 +1,5 @@
 import apiClient from '../../../general/api/apiClient';
+import { retryTransientMapRequest } from '../../../general/api/retryTransientMapRequest';
 import type {
     ApiResponse,
     CreateRidePayload,
@@ -225,18 +226,22 @@ export const rideService = {
 
     /** Search place suggestions through backend Google proxy. */
     searchPlaces: (input: string): Promise<RidePlacePrediction[]> =>
-        apiClient.post<RidePlacePrediction[]>(
-            '/api/v1/maps/places',
-            { input },
-            { skipAuth: true },
+        retryTransientMapRequest(() =>
+            apiClient.post<RidePlacePrediction[]>(
+                '/api/v1/maps/places',
+                { input },
+                { skipAuth: true },
+            ),
         ),
 
     /** Resolve a Google place id to lat/lng through backend proxy. */
     getPlaceDetails: (placeId: string): Promise<RidePlaceCoordinates> =>
-        apiClient.post<RidePlaceCoordinates>(
-            '/api/v1/maps/place-details',
-            { placeId },
-            { skipAuth: true },
+        retryTransientMapRequest(() =>
+            apiClient.post<RidePlaceCoordinates>(
+                '/api/v1/maps/place-details',
+                { placeId },
+                { skipAuth: true },
+            ),
         ),
 
     /** Fetch distance + duration between origin and destination. */
@@ -244,10 +249,12 @@ export const rideService = {
         origins: string[],
         destinations: string[],
     ): Promise<DistanceMatrixResponse> =>
-        apiClient.post<DistanceMatrixResponse>(
-            '/api/v1/maps/distance-matrix',
-            { origins, destinations },
-            { skipAuth: true },
+        retryTransientMapRequest(() =>
+            apiClient.post<DistanceMatrixResponse>(
+                '/api/v1/maps/distance-matrix',
+                { origins, destinations },
+                { skipAuth: true },
+            ),
         ),
 
     /** Fetch route polyline path through backend proxy. */

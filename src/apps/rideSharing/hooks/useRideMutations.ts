@@ -35,6 +35,7 @@ export function useCreateRide(options?: UseCreateRideOptions) {
 
     return useMutation<RideDetails, ApiError, CreateRidePayload, unknown>({
         mutationFn: rideService.createRide,
+        retry: false,
         onSuccess: (data, variables, onMutateResult, ctx) => {
             // Invalidate lists so new ride appears
             queryClient.invalidateQueries({ queryKey: rideKeys.lists() });
@@ -74,6 +75,7 @@ export function useUpdateRide(options?: UseUpdateRideOptions) {
         UpdateRideContext
     >({
         mutationFn: rideService.updateRide,
+        retry: false,
         // ── Optimistic update ────────────────────────────────────────────
         onMutate: async (variables) => {
             // Cancel in-flight refetches to prevent overwriting optimistic data
@@ -136,6 +138,7 @@ export function useCancelRide(options?: UseCancelRideOptions) {
 
     return useMutation<void, ApiError, CancelRideParams, unknown>({
         mutationFn: rideService.cancelRide,
+        retry: false,
         onSuccess: (data, variables, onMutateResult, ctx) => {
             queryClient.invalidateQueries({ queryKey: rideKeys.detail(variables.rideId) });
             queryClient.invalidateQueries({ queryKey: rideKeys.lists() });
@@ -159,6 +162,7 @@ export function useCancelRideRequest(options?: UseCancelRideRequestOptions) {
 
     return useMutation<void, ApiError, string, unknown>({
         mutationFn: rideService.cancelRideRequest,
+        retry: false,
         onSuccess: (data, rideId, onMutateResult, ctx) => {
             queryClient.invalidateQueries({ queryKey: rideKeys.detail(rideId) });
             queryClient.invalidateQueries({ queryKey: rideKeys.lists() });
@@ -182,6 +186,7 @@ export function useSendCustomerComing(options?: UseSendCustomerComingOptions) {
 
     return useMutation<CustomerComingResponse, ApiError, CustomerComingPayload, unknown>({
         mutationFn: rideService.sendCustomerComing,
+        retry: false,
         onSuccess: (data, variables, onMutateResult, ctx) => {
             queryClient.invalidateQueries({ queryKey: rideKeys.detail(variables.rideId) });
             queryClient.invalidateQueries({ queryKey: rideKeys.customerRides() });
@@ -204,6 +209,7 @@ export function useRaiseRideFare<TContext = unknown>(options?: UseRaiseRideFareO
 
     return useMutation<RaiseRideFareResponse, ApiError, RaiseRideFarePayload, TContext>({
         mutationFn: rideService.raiseRideFare,
+        retry: false,
         onMutate: options?.onMutate,
         onSuccess: (data, variables, onMutateResult, ctx) => {
             queryClient.invalidateQueries({
@@ -234,6 +240,7 @@ export function useAcceptRideBid(options?: UseAcceptRideBidOptions) {
 
     return useMutation<unknown, ApiError, AcceptRideBidParams, unknown>({
         mutationFn: rideService.acceptRideBid,
+        retry: false,
         onSuccess: (data, variables, onMutateResult, ctx) => {
             queryClient.invalidateQueries({ queryKey: rideKeys.lists() });
             queryClient.invalidateQueries({ queryKey: rideKeys.customerRides() });
@@ -256,6 +263,7 @@ export function useRejectRideBid(options?: UseRejectRideBidOptions) {
 
     return useMutation<unknown, ApiError, RejectRideBidParams, unknown>({
         mutationFn: rideService.rejectRideBid,
+        retry: false,
         onSuccess: (data, variables, onMutateResult, ctx) => {
             queryClient.invalidateQueries({ queryKey: rideKeys.lists() });
             queryClient.invalidateQueries({ queryKey: rideKeys.customerRides() });
@@ -282,6 +290,7 @@ export function useRateRide(options?: UseRateRideOptions) {
 
     return useMutation<unknown, ApiError, SubmitRideReviewPayload, unknown>({
         mutationFn: rideService.submitRideReview,
+        retry: false,
         onSuccess: (data, variables, onMutateResult, ctx) => {
             queryClient.invalidateQueries({
                 queryKey: rideKeys.detail(variables.rideId),

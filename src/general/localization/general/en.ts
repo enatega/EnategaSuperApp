@@ -103,6 +103,7 @@ const en = {
   email_already_exist: 'Your email already exist.',
   remember_me: 'Remember me',
   forget_password: 'Forget Password?',
+  invalid_password: 'Invalid password',
   enter_correct_password: 'Please enter the correct password.',
   forget_password_desc: 'Enter your email and we’ll send an OTP to reset your password.',
   create_new_password: 'Create your new password',
