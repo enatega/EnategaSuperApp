@@ -1,9 +1,10 @@
 import type { NavigationProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
+import { Linking } from 'react-native';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import SupportAdminPickerBottomSheet from '../../../../general/components/support/SupportAdminPickerBottomSheet';
+import { showToast } from '../../../../general/components/AppToast';
 import SupportChatFooter from '../../../../general/components/support/SupportChatFooter';
 import SupportHeader from '../../../../general/components/support/SupportHeader';
 import SupportIssueDropdown, {
@@ -13,7 +14,7 @@ import SupportTopicItem from '../../../../general/components/support/SupportTopi
 import Text from '../../../../general/components/Text';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
 import { useTheme } from '../../../../general/theme/theme';
-import { useSupportAdmins } from '../../hooks/useSupportAdmins';
+import { HOME_VISITS_SUPPORT_PHONE_NUMBER } from '../../constants/support';
 import { useSupportTicketOptionsQuery } from '../../hooks/useSupportTicketOptionsQuery';
 import type { HomeVisitsStackParamList } from '../../navigation/types';
 import { buildSupportOptions, orderSupportCategoryKeys } from '../../utils/supportFormOptions';
@@ -23,11 +24,16 @@ export default function HomeVisitsSupportScreen() {
   const { t, i18n } = useTranslation(['homeVisits', 'general']);
   const navigation = useNavigation<NavigationProp<HomeVisitsStackParamList>>();
   const sessionQuery = useAuthSessionQuery();
-  const [isAdminPickerVisible, setIsAdminPickerVisible] = useState(false);
-  const supportAdminsQuery = useSupportAdmins();
   const supportTicketOptionsQuery = useSupportTicketOptionsQuery();
-  const admins = supportAdminsQuery.data?.admins ?? supportAdminsQuery.data?.data?.admins ?? [];
   const displayName = sessionQuery.data?.user?.name ?? t('home_visits_support_guest_name', { ns: 'homeVisits' });
+
+  const handleCallSupport = async () => {
+    try {
+      await Linking.openURL(`tel:${HOME_VISITS_SUPPORT_PHONE_NUMBER}`);
+    } catch {
+      showToast.error(t('support_call_action', { ns: 'homeVisits' }));
+    }
+  };
 
   const issueOptions = useMemo<SupportIssueOption[]>(
     () => {
@@ -53,6 +59,9 @@ export default function HomeVisitsSupportScreen() {
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <SupportHeader
         backAccessibilityLabel={t('home_visits_support_back_action', { ns: 'homeVisits' })}
+        onRightPress={() => {
+          void handleCallSupport();
+        }}
         rightAccessibilityLabel={t('support_call_action', { ns: 'homeVisits' })}
         title={t('profile_menu_support', { ns: 'general' })}
       />
@@ -135,26 +144,7 @@ export default function HomeVisitsSupportScreen() {
 
       <SupportChatFooter
         ctaLabel={t('home_visits_support_chat_cta', { ns: 'homeVisits' })}
-        onPress={() => setIsAdminPickerVisible(true)}
-      />
-
-      <SupportAdminPickerBottomSheet
-        admins={admins}
-        emptyLabel={t('home_visits_support_admin_picker_empty', { ns: 'homeVisits' })}
-        isLoading={supportAdminsQuery.isPending}
-        isVisible={isAdminPickerVisible}
-        loadingLabel={t('home_visits_support_admin_picker_loading', { ns: 'homeVisits' })}
-        onClose={() => setIsAdminPickerVisible(false)}
-        onSelectAdmin={(admin) => {
-          setIsAdminPickerVisible(false);
-          navigation.navigate('SupportChat', {
-            agentName: admin.name,
-            receiverId: admin.id,
-          });
-        }}
-        rowSubtitle={t('home_visits_support_admin_picker_row_subtitle', { ns: 'homeVisits' })}
-        subtitle={t('home_visits_support_admin_picker_subtitle', { ns: 'homeVisits' })}
-        title={t('home_visits_support_admin_picker_title', { ns: 'homeVisits' })}
+        onPress={() => navigation.navigate('SupportChat')}
       />
     </View>
   );

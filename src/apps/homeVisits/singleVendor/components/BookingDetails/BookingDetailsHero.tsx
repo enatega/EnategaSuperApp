@@ -4,7 +4,7 @@ import { ImageBackground, Pressable, StyleSheet, View } from 'react-native';
 import { useTheme } from '../../../../../general/theme/theme';
 
 type Props = {
-  heroImage: string;
+  heroImage?: string | null;
   topInset: number;
   onBack: () => void;
   onClose: () => void;
@@ -12,13 +12,25 @@ type Props = {
 
 export default function BookingDetailsHero({ heroImage, topInset, onBack, onClose }: Props) {
   const { colors } = useTheme();
+  const hasHeroImage = Boolean(heroImage);
 
   return (
-    <ImageBackground
-    resizeMode='contain'
-      source={{ uri: heroImage }}
-      style={styles.hero}
-    >
+    <View style={[styles.hero, { backgroundColor: colors.backgroundTertiary }]}>
+      {hasHeroImage ? (
+        <ImageBackground
+          resizeMode="contain"
+          source={{ uri: heroImage! }}
+          style={styles.heroImage}
+        >
+          <View
+            style={[
+              styles.heroOverlay,
+              { backgroundColor: colors.overlayDark20 },
+            ]}
+          />
+        </ImageBackground>
+      ) : null}
+
       <View style={[styles.heroOverlay, { backgroundColor: colors.overlayDark20 }]} />
       <View style={[styles.heroActions, { paddingTop: topInset + 8 }]}>
         <Pressable
@@ -54,7 +66,7 @@ export default function BookingDetailsHero({ heroImage, topInset, onBack, onClos
           />
         </Pressable>
       </View>
-    </ImageBackground>
+    </View>
   );
 }
 
@@ -70,6 +82,10 @@ const styles = StyleSheet.create({
   hero: {
     height: 212,
     justifyContent: 'flex-start',
+    overflow: 'hidden',
+  },
+  heroImage: {
+    ...StyleSheet.absoluteFillObject,
   },
   heroActions: {
     flexDirection: 'row',

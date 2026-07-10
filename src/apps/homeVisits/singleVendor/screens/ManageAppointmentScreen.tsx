@@ -16,6 +16,7 @@ import type { HomeVisitsSingleVendorBookingsTab } from '../api/types';
 import BookingsTabs from '../components/Bookings/BookingsTabs';
 import useSingleVendorBookingDetails from '../hooks/useSingleVendorBookingDetails';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
+import { normalizeJobStatus } from '../utils/trackWorkerStatus';
 
 type Props = NativeStackScreenProps<
   HomeVisitsSingleVendorNavigationParamList,
@@ -36,6 +37,8 @@ export default function ManageAppointmentScreen({ navigation, route }: Props) {
   const scheduleLabel = formatShortScheduleDate(data?.scheduledAt ?? data?.orderedAt);
   const serviceName = data?.services?.[0]?.name ?? t('single_vendor_bookings_title');
   const showEmptyState = !isLoading && !data?.orderId;
+  const isCompletedAppointment =
+    normalizeJobStatus(data?.jobStatus ?? data?.status) === 'completed';
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background, paddingBottom: insets.bottom }]}>
@@ -179,44 +182,48 @@ export default function ManageAppointmentScreen({ navigation, route }: Props) {
             </View>
           </View>
 
-          <Pressable style={[styles.actionRow, { borderTopColor: colors.border, borderBottomColor: colors.border }]}>
-            <View style={styles.actionLeft}>
-              <MaterialCommunityIcons color={colors.text} name="calendar-clock-outline" size={24} />
-              <Text
-                style={{
-                  color: colors.text,
-                  fontSize: typography.size.md2,
-                  lineHeight: typography.lineHeight.md2,
-                }}
-                weight="medium"
-              >
-                {t('single_vendor_manage_appointment_reschedule')}
-              </Text>
-            </View>
-            <MaterialCommunityIcons color={colors.iconMuted} name="chevron-right" size={20} />
-          </Pressable>
+          {!isCompletedAppointment ? (
+            <>
+              <Pressable style={[styles.actionRow, { borderTopColor: colors.border, borderBottomColor: colors.border }]}>
+                <View style={styles.actionLeft}>
+                  <MaterialCommunityIcons color={colors.text} name="calendar-clock-outline" size={24} />
+                  <Text
+                    style={{
+                      color: colors.text,
+                      fontSize: typography.size.md2,
+                      lineHeight: typography.lineHeight.md2,
+                    }}
+                    weight="medium"
+                  >
+                    {t('single_vendor_manage_appointment_reschedule')}
+                  </Text>
+                </View>
+                <MaterialCommunityIcons color={colors.iconMuted} name="chevron-right" size={20} />
+              </Pressable>
 
-          <Pressable
-            onPress={() => {
-              navigation.navigate('SingleVendorCancelAppointment', { orderId });
-            }}
-            style={[styles.actionRow, { borderBottomColor: colors.border }]}
-          >
-            <View style={styles.actionLeft}>
-              <MaterialCommunityIcons color={colors.text} name="calendar-remove-outline" size={24} />
-              <Text
-                style={{
-                  color: colors.text,
-                  fontSize: typography.size.md2,
-                  lineHeight: typography.lineHeight.md2,
+              <Pressable
+                onPress={() => {
+                  navigation.navigate('SingleVendorCancelAppointment', { orderId });
                 }}
-                weight="medium"
+                style={[styles.actionRow, { borderBottomColor: colors.border }]}
               >
-                {t('single_vendor_manage_appointment_cancel')}
-              </Text>
-            </View>
-            <MaterialCommunityIcons color={colors.iconMuted} name="chevron-right" size={20} />
-          </Pressable>
+                <View style={styles.actionLeft}>
+                  <MaterialCommunityIcons color={colors.text} name="calendar-remove-outline" size={24} />
+                  <Text
+                    style={{
+                      color: colors.text,
+                      fontSize: typography.size.md2,
+                      lineHeight: typography.lineHeight.md2,
+                    }}
+                    weight="medium"
+                  >
+                    {t('single_vendor_manage_appointment_cancel')}
+                  </Text>
+                </View>
+                <MaterialCommunityIcons color={colors.iconMuted} name="chevron-right" size={20} />
+              </Pressable>
+            </>
+          ) : null}
         </View>
       )}
     </View>

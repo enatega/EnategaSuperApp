@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { RefreshControl, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useWalletSavedCardsQuery } from '../../../../general/api/walletSavedCardsService';
 import { showToast } from '../../../../general/components/AppToast';
 import Button from '../../../../general/components/Button';
@@ -10,6 +11,7 @@ import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import { homeVisitsKeys } from '../../api/queryKeys';
+import type { HomeVisitsStackParamList } from '../../navigation/types';
 import { homeVisitsSingleVendorDiscoveryService } from '../api/discoveryService';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
 import useSingleVendorContractDetails from '../hooks/useSingleVendorContractDetails';
@@ -46,11 +48,17 @@ export default function ContractDetailsScreen({ navigation, route }: Props) {
   const [cancellationReason, setCancellationReason] = React.useState('');
   const [showCancellationForm, setShowCancellationForm] = React.useState(false);
   const savedCardsQuery = useWalletSavedCardsQuery('home-services');
-  const hasSavedCard = (savedCardsQuery.data?.cards?.length ?? 0) > 0;
+  const defaultSavedCard =
+    savedCardsQuery.data?.cards.find((card) => card.isDefault) ?? null;
+  const rootNavigation =
+    navigation.getParent<NativeStackNavigationProp<HomeVisitsStackParamList>>();
 
   const payInvoiceMutation = useMutation({
     mutationFn: (invoiceId: string) =>
-      homeVisitsSingleVendorDiscoveryService.payContractInvoiceWithSavedCard(invoiceId),
+      homeVisitsSingleVendorDiscoveryService.payContractInvoiceWithSavedCard(
+        invoiceId,
+        defaultSavedCard?.id ? { paymentMethodId: defaultSavedCard.id } : {},
+      ),
     onSuccess: async (response) => {
       await Promise.all([
         queryClient.invalidateQueries({
@@ -118,17 +126,18 @@ export default function ContractDetailsScreen({ navigation, route }: Props) {
 
   const onPayInvoice = React.useCallback(
     (invoiceId: string) => {
-      if (!hasSavedCard) {
+      if (!defaultSavedCard?.id) {
         showToast.error(
-          t('single_vendor_contract_saved_card_required_title'),
-          t('single_vendor_contract_saved_card_required_message'),
+          t('single_vendor_contract_default_card_required_title'),
+          t('single_vendor_contract_default_card_required_message'),
         );
+        rootNavigation?.navigate('Wallet');
         return;
       }
 
       payInvoiceMutation.mutate(invoiceId);
     },
-    [hasSavedCard, payInvoiceMutation],
+    [defaultSavedCard?.id, payInvoiceMutation, rootNavigation, t],
   );
 
   const assignedTeamLabel = React.useMemo(() => {

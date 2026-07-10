@@ -5,6 +5,7 @@ import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { showToast } from '../../../../general/components/AppToast';
 import BookingReviewsModal from '../../singleVendor/components/Reviews/BookingReviewsModal';
 import useServiceReviews from '../../singleVendor/hooks/useServiceReviews';
 
@@ -29,7 +30,7 @@ export default function ServiceDetails() {
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const route = useRoute<ServiceDetailsRouteProp>();
-  const { serviceId } = route.params;
+  const { bookingFlow, serviceId } = route.params;
   const [isReviewsVisible, setIsReviewsVisible] = React.useState(false);
   const query = useServiceDetailsBookingScreen(serviceId);
   const serviceReviewsQuery = useServiceReviews(serviceId, {
@@ -50,12 +51,18 @@ export default function ServiceDetails() {
         return;
       }
 
+      if (serviceData.canBook === false) {
+        showToast.error(t('home_visits_service_unavailable_booking'));
+        return;
+      }
+
       const durationMinutes =
         selection.summary.estimatedDurationMinutes > 0
           ? selection.summary.estimatedDurationMinutes
           : (serviceData.pricingSummary.estimatedDurationMinutes ?? 0);
 
       navigation.push('TeamAndSchedule', {
+        bookingFlow,
         initialSelection: selection.selectionState,
         selectedServiceIds: [serviceId],
         selectedServices: [
@@ -77,7 +84,7 @@ export default function ServiceDetails() {
         },
       });
     },
-    [navigation, query.data, serviceId],
+    [bookingFlow, navigation, query.data, serviceId, t],
   );
 
   const handleFavoritePress = useCallback(async () => {

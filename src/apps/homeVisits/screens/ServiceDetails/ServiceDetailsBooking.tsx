@@ -40,7 +40,7 @@ export default function ServiceDetailsBooking() {
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const route = useRoute<ServiceDetailsBookingRouteProp>();
-  const { serviceId, serviceCenterId, initialSelection } = route.params;
+  const { bookingFlow, serviceId, serviceCenterId, initialSelection } = route.params;
   const query = useServiceDetailsBookingScreen(serviceId);
   const [selectedListServices, setSelectedListServices] =
     useState<HomeVisitsSingleVendorServiceCenterListItem[]>([]);
@@ -158,6 +158,7 @@ export default function ServiceDetailsBooking() {
       : t('service_details_service_plural');
   const handleBookService = useCallback(() => {
     navigation.push('TeamAndSchedule', {
+      bookingFlow,
       initialSelection,
       selectedServiceIds,
       selectedServices,
@@ -172,6 +173,7 @@ export default function ServiceDetailsBooking() {
     });
   }, [
     initialSelection,
+    bookingFlow,
     navigation,
     selectedServiceIds,
     selectedServices,

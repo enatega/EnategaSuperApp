@@ -18,6 +18,7 @@ type Props = {
   horizontalPadding?: number;
   onAddAddressPress?: () => void;
   onAddressPress?: () => void;
+  leftAccessory?: ReactNode;
   rightAccessory?: ReactNode;
 };
 
@@ -25,6 +26,7 @@ export default function HomeVisitsAddressHeader({
   addresses = [],
   addressVariant = 'button',
   horizontalPadding = 16,
+  leftAccessory,
   onAddAddressPress,
   onAddressPress,
   rightAccessory,
@@ -50,6 +52,7 @@ export default function HomeVisitsAddressHeader({
         { paddingHorizontal: horizontalPadding, paddingTop: insets.top + 8 },
       ]}
     >
+      {leftAccessory ? <View style={styles.accessorySlot}>{leftAccessory}</View> : null}
       <View style={styles.leftSlot}>
         {resolvedSelectedAddress && addressVariant === 'label' ? (
           <Pressable
@@ -238,6 +241,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'flex-start',
+  },
+  accessorySlot: {
+    marginRight: 10,
   },
   leftSlot: {
     flex: 1,

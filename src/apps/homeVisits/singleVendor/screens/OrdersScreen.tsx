@@ -1,10 +1,9 @@
 import React from 'react';
-import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Button from '../../../../general/components/Button';
 import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
@@ -44,6 +43,11 @@ export default function SingleVendorOrdersScreen({}: Props) {
   const insets = useSafeAreaInsets();
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
+  const route = useRoute();
+  const isMultiVendorTab = route.name === 'MultiVendorTabOrders';
+  const flowNavigation = navigation as unknown as {
+    navigate: (screen: string, params?: Record<string, unknown>) => void;
+  };
   const [activeTab, setActiveTab] =
     React.useState<HomeVisitsSingleVendorBookingsTab>('ongoing');
   const [contentTab, setContentTab] = React.useState<'services' | 'contracts'>('services');
@@ -96,10 +100,10 @@ export default function SingleVendorOrdersScreen({}: Props) {
     : t('single_vendor_bookings_empty_generic_subtitle');
 
   const handleEmptyStateCtaPress = React.useCallback(() => {
-    navigation.navigate('SingleVendorTabs', {
-      screen: 'SingleVendorTabSearch',
+    flowNavigation.navigate(isMultiVendorTab ? 'MultiVendorTabs' : 'SingleVendorTabs', {
+      screen: isMultiVendorTab ? 'MultiVendorTabSearch' : 'SingleVendorTabSearch',
     });
-  }, [navigation]);
+  }, [flowNavigation, isMultiVendorTab]);
 
   const onEndReached = React.useCallback(() => {
     if (contentTab === 'contracts') {
@@ -121,10 +125,18 @@ export default function SingleVendorOrdersScreen({}: Props) {
       const isContract = item.bookingType === 'contract';
       const handlePress = (id: string) => {
         if (isContract) {
-          navigation.navigate('SingleVendorContractDetails', { contractId: id });
+          flowNavigation.navigate(
+            isMultiVendorTab
+              ? 'MultiVendorContractDetails'
+              : 'SingleVendorContractDetails',
+            { contractId: id },
+          );
           return;
         }
-        navigation.navigate('SingleVendorBookingDetails', { orderId: id });
+        flowNavigation.navigate(
+          isMultiVendorTab ? 'MultiVendorBookingDetails' : 'SingleVendorBookingDetails',
+          { orderId: id },
+        );
       };
 
       return (
@@ -140,7 +152,7 @@ export default function SingleVendorOrdersScreen({}: Props) {
         />
       );
     },
-    [activeTab, navigation, t],
+    [activeTab, flowNavigation, isMultiVendorTab, t],
   );
 
   if (isLoading && filteredData.length === 0) {
@@ -161,13 +173,27 @@ export default function SingleVendorOrdersScreen({}: Props) {
             {(['services', 'contracts'] as const).map((tab) => {
               const selected = contentTab === tab;
               return (
-                <Button
+                <Pressable
                   key={tab}
-                  label={tab === 'contracts' ? 'Contracts' : 'Services'}
                   onPress={() => setContentTab(tab)}
-                  variant={selected ? 'primary' : 'secondary'}
-                  style={styles.contentTabButton}
-                />
+                  style={[
+                    styles.contentTabButton,
+                    selected
+                      ? { backgroundColor: colors.primary, borderColor: colors.primary }
+                      : { backgroundColor: colors.surface, borderColor: colors.border },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      color: selected ? colors.white : colors.text,
+                      fontSize: typography.size.md,
+                      lineHeight: typography.lineHeight.md,
+                    }}
+                    weight={selected ? 'semiBold' : 'medium'}
+                  >
+                    {tab === 'contracts' ? 'Contracts' : 'Services'}
+                  </Text>
+                </Pressable>
               );
             })}
           </View>
@@ -195,13 +221,27 @@ export default function SingleVendorOrdersScreen({}: Props) {
             {(['services', 'contracts'] as const).map((tab) => {
               const selected = contentTab === tab;
               return (
-                <Button
+                <Pressable
                   key={tab}
-                  label={tab === 'contracts' ? 'Contracts' : 'Services'}
                   onPress={() => setContentTab(tab)}
-                  variant={selected ? 'primary' : 'secondary'}
-                  style={styles.contentTabButton}
-                />
+                  style={[
+                    styles.contentTabButton,
+                    selected
+                      ? { backgroundColor: colors.primary, borderColor: colors.primary }
+                      : { backgroundColor: colors.surface, borderColor: colors.border },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      color: selected ? colors.white : colors.text,
+                      fontSize: typography.size.md,
+                      lineHeight: typography.lineHeight.md,
+                    }}
+                    weight={selected ? 'semiBold' : 'medium'}
+                  >
+                    {tab === 'contracts' ? 'Contracts' : 'Services'}
+                  </Text>
+                </Pressable>
               );
             })}
           </View>
@@ -217,13 +257,24 @@ export default function SingleVendorOrdersScreen({}: Props) {
             >
               {t('single_vendor_bookings_error_title')}
             </Text>
-            <Button
-              label={t('single_vendor_bookings_retry')}
+            <Pressable
+              accessibilityRole="button"
               onPress={() => {
                 void refetch();
               }}
-              variant="secondary"
-            />
+              style={[styles.retryButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            >
+              <Text
+                style={{
+                  color: colors.text,
+                  fontSize: typography.size.md,
+                  lineHeight: typography.lineHeight.md,
+                }}
+                weight="semiBold"
+              >
+                {t('single_vendor_bookings_retry')}
+              </Text>
+            </Pressable>
           </View>
         </View>
       </View>
@@ -247,13 +298,27 @@ export default function SingleVendorOrdersScreen({}: Props) {
           {(['services', 'contracts'] as const).map((tab) => {
             const selected = contentTab === tab;
             return (
-              <Button
+              <Pressable
                 key={tab}
-                label={tab === 'contracts' ? 'Contracts' : 'Services'}
                 onPress={() => setContentTab(tab)}
-                variant={selected ? 'primary' : 'secondary'}
-                style={styles.contentTabButton}
-              />
+                style={[
+                  styles.contentTabButton,
+                  selected
+                    ? { backgroundColor: colors.primary, borderColor: colors.primary }
+                    : { backgroundColor: colors.surface, borderColor: colors.border },
+                ]}
+              >
+                <Text
+                  style={{
+                    color: selected ? colors.white : colors.text,
+                    fontSize: typography.size.md,
+                    lineHeight: typography.lineHeight.md,
+                  }}
+                  weight={selected ? 'semiBold' : 'medium'}
+                >
+                  {tab === 'contracts' ? 'Contracts' : 'Services'}
+                </Text>
+              </Pressable>
             );
           })}
         </View>
@@ -304,17 +369,22 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 4,
+    paddingTop: 2,
   },
   contentTabButton: {
+    alignItems: 'center',
+    borderRadius: 14,
+    borderWidth: 1,
     flex: 1,
+    justifyContent: 'center',
+    minHeight: 44,
   },
   contentTabs: {
-    borderRadius: 8,
+    borderRadius: 16,
     flexDirection: 'row',
-    gap: 8,
-    marginBottom: 12,
-    padding: 8,
+    gap: 10,
+    marginBottom: 14,
+    padding: 6,
   },
   errorState: {
     alignItems: 'center',
@@ -325,6 +395,14 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 0,
     paddingTop: 4,
+  },
+  retryButton: {
+    alignItems: 'center',
+    borderRadius: 12,
+    borderWidth: 1,
+    justifyContent: 'center',
+    minHeight: 42,
+    paddingHorizontal: 18,
   },
   screen: {
     flex: 1,

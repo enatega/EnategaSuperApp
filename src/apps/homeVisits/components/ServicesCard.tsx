@@ -26,9 +26,11 @@ interface DealCardProps {
     | SearchServiceItem;
   onPress?: () => void;
   layout?: 'compact' | 'fullWidth';
+  bookingFlow?: 'singleVendor' | 'multiVendor';
 }
 
 export default function ServicesCard({
+  bookingFlow,
   item,
   onPress,
   layout = 'compact',
@@ -39,9 +41,14 @@ export default function ServicesCard({
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const imageUrl =
     item.productImage || item.storeImage || item.storeLogo || 'https://placehold.co/400x400.png';
-  const shouldShowFavoriteIcon = typeof item.isFavorite === 'boolean';
-  const favoriteIconName = item.isFavorite ? 'heart' : 'heart-outline';
+  const isFavorite = 'isFavorite' in item ? item.isFavorite : undefined;
+  const shouldShowFavoriteIcon = typeof isFavorite === 'boolean';
+  const favoriteIconName = isFavorite ? 'heart' : 'heart-outline';
   const resolvedDeal = item?.dealType === 'percentage' ? item?.dealAmount + ' % ' + t('off') : item?.dealAmount + t('off');
+  const ratingValue =
+    typeof item.averageRating === 'number' && item.averageRating > 0
+      ? item.averageRating
+      : null;
 
   const handlePress = () => {
     if (onPress) {
@@ -49,7 +56,7 @@ export default function ServicesCard({
       return;
     }
 
-    navigation.push('ServiceDetails', { serviceId: item.productId });
+    navigation.push('ServiceDetails', { bookingFlow, serviceId: item.productId });
   };
 
   return (
@@ -62,8 +69,13 @@ export default function ServicesCard({
         { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.shadowColor },
       ]}
     >
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: imageUrl }} style={styles.image} />
+      <View
+        style={[
+          styles.imageContainer,
+          { backgroundColor: colors.backgroundTertiary },
+        ]}
+      >
+        <Image source={{ uri: imageUrl }} resizeMode="contain" style={styles.image} />
         {shouldShowFavoriteIcon ? (
           <View
             style={[
@@ -74,7 +86,7 @@ export default function ServicesCard({
             <Ionicons
               name={favoriteIconName}
               size={20}
-              color={item.isFavorite ? colors.danger : colors.text}
+              color={isFavorite ? colors.danger : colors.text}
             />
           </View>
         ) : null}
@@ -99,15 +111,15 @@ export default function ServicesCard({
         </Text>
 
         <View style={styles.row}>
-          {item.averageRating != null && (
+          {ratingValue != null && (
             <View style={styles.ratingRow}>
               <Icon type="AntDesign" name="star" size={14} color={colors.yellow500} />
               <Text weight="semiBold" style={{ color: colors.text, marginLeft: 4 }}>
-                {item.averageRating.toFixed(1)}
+                {ratingValue.toFixed(1)}
               </Text>
             </View>
           )}
-          {item.reviewCount != null && (
+          {ratingValue != null && item.reviewCount != null && item.reviewCount > 0 && (
             <Text weight="regular" style={{ color: colors.mutedText, fontSize: 12, lineHeight: 18, marginRight: 6 }}>
               ({item.reviewCount.toLocaleString()}+)
             </Text>
@@ -165,15 +177,15 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   compactContainer: {
-    width: 280,
+    width: 260,
   },
   fullWidthContainer: {
     width: '100%',
   },
   imageContainer: {
-    width: '100%',
-    height: 140,
+    height: 128,
     position: 'relative',
+    width: '100%',
   },
   image: {
     width: '100%',

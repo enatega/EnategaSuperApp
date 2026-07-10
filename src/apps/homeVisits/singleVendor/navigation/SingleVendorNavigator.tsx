@@ -19,6 +19,7 @@ import FavoriteServicesScreen from '../screens/FavoriteServicesScreen';
 import TrackWorkerScreen from '../screens/TrackWorkerScreen';
 import NotificationsScreen from '../../../../general/screens/notifications/NotificationsScreen';
 import useHomeVisitsSocketSync from "../hooks/useHomeVisitsSocketSync";
+import CenterDetailsScreen from '../../multiVendor/screens/CenterDetailsScreen';
 
 const Stack = createNativeStackNavigator<HomeVisitsSingleVendorNavigationParamList>();
 
@@ -53,6 +54,11 @@ export default function SingleVendorNavigator() {
       <Stack.Screen
         name="SingleVendorNotifications"
         component={NotificationsScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="MultiVendorCenterDetails"
+        component={CenterDetailsScreen}
         options={sharedScreenOptions}
       />
       <Stack.Screen

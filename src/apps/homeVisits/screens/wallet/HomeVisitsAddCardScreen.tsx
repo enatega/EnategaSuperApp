@@ -9,11 +9,55 @@ import Text from '../../../../general/components/Text';
 import Button from '../../../../general/components/Button';
 import { showToast } from '../../../../general/components/AppToast';
 import {
+  useWalletSetDefaultCardMutation,
   useWalletSetupIntentMutation,
+  walletSavedCardsService,
   walletSavedCardsKeys,
 } from '../../../../general/api/walletSavedCardsService';
 import { useTheme } from '../../../../general/theme/theme';
 import type { HomeVisitsStackParamList } from '../../navigation/types';
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function extractPaymentMethodId(result: unknown): string | null {
+  if (!isRecord(result)) {
+    return null;
+  }
+
+  const directPaymentMethodId =
+    typeof result.paymentMethodId === 'string' ? result.paymentMethodId : null;
+
+  if (directPaymentMethodId) {
+    return directPaymentMethodId;
+  }
+
+  if (isRecord(result.setupIntent)) {
+    const setupIntentPaymentMethodId =
+      typeof result.setupIntent.paymentMethodId === 'string'
+        ? result.setupIntent.paymentMethodId
+        : null;
+
+    if (setupIntentPaymentMethodId) {
+      return setupIntentPaymentMethodId;
+    }
+
+    if (isRecord(result.setupIntent.paymentMethod)) {
+      return typeof result.setupIntent.paymentMethod.id === 'string'
+        ? result.setupIntent.paymentMethod.id
+        : null;
+    }
+  }
+
+  if (isRecord(result.paymentMethod)) {
+    return typeof result.paymentMethod.id === 'string'
+      ? result.paymentMethod.id
+      : null;
+  }
+
+  return null;
+}
 
 export default function HomeVisitsAddCardScreen() {
   const { colors, typography } = useTheme();
@@ -21,6 +65,7 @@ export default function HomeVisitsAddCardScreen() {
   const navigation = useNavigation<NavigationProp<HomeVisitsStackParamList>>();
   const queryClient = useQueryClient();
   const setupIntentMutation = useWalletSetupIntentMutation('home-services');
+  const setDefaultCardMutation = useWalletSetDefaultCardMutation('home-services');
   const { confirmSetupIntent } = useConfirmSetupIntent();
 
   const [holderName, setHolderName] = useState('');
@@ -44,7 +89,7 @@ export default function HomeVisitsAddCardScreen() {
 
     try {
       const setupIntent = await setupIntentMutation.mutateAsync();
-      const { error } = await confirmSetupIntent(setupIntent.clientSecret, {
+      const result = await confirmSetupIntent(setupIntent.clientSecret, {
         paymentMethodData: {
           billingDetails: {
             name: holderName.trim() || undefined,
@@ -52,10 +97,31 @@ export default function HomeVisitsAddCardScreen() {
         },
         paymentMethodType: 'Card',
       });
+      const { error } = result;
 
       if (error) {
         showToast.error(t('wallet_add_card_error'), error.message);
         return;
+      }
+
+      const confirmedPaymentMethodId = extractPaymentMethodId(result);
+
+      if (confirmedPaymentMethodId) {
+        await setDefaultCardMutation.mutateAsync(confirmedPaymentMethodId);
+      } else {
+        const savedCardsResponse =
+          await walletSavedCardsService.listSavedCards('home-services');
+        queryClient.setQueryData(
+          walletSavedCardsKeys.byApp('home-services'),
+          savedCardsResponse,
+        );
+
+        const existingDefaultCard = savedCardsResponse.cards.find((card) => card.isDefault);
+        const fallbackCard = savedCardsResponse.cards[0];
+
+        if (!existingDefaultCard && fallbackCard?.id) {
+          await setDefaultCardMutation.mutateAsync(fallbackCard.id);
+        }
       }
 
       await queryClient.invalidateQueries({
@@ -73,6 +139,7 @@ export default function HomeVisitsAddCardScreen() {
     isCardComplete,
     navigation,
     queryClient,
+    setDefaultCardMutation,
     setupIntentMutation,
     stripePublishableKey,
     t,

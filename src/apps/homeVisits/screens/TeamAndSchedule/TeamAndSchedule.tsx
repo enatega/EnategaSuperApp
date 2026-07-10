@@ -5,6 +5,7 @@ import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { showToast } from '../../../../general/components/AppToast';
 import { useTheme } from '../../../../general/theme/theme';
 import Icon from '../../../../general/components/Icon';
 import Text from '../../../../general/components/Text';
@@ -28,6 +29,7 @@ export default function TeamAndSchedule() {
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const route = useRoute<TeamAndScheduleRouteProp>();
   const {
+    bookingFlow,
     initialSelection,
     selectedServiceIds,
     selectedServices,
@@ -115,6 +117,11 @@ export default function TeamAndSchedule() {
   };
 
   const navigateToChooseDateAndTime = () => {
+    if (bookingFlow === 'multiVendor' && !trimmedJobDescription) {
+      showToast.error(t('team_schedule_job_description_required'));
+      return;
+    }
+
     navigation.push('ChooseDateAndTime', {
       contractType: serviceMode === 'contract' ? 'monthly' : undefined,
       initialSelection,

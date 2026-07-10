@@ -8,6 +8,8 @@ import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 
 type Props = {
+  bookingDisabled?: boolean;
+  bookingDisabledHint?: string | null;
   durationLabel: string | null;
   onBookService: () => void;
   serviceCount: number;
@@ -16,6 +18,8 @@ type Props = {
 };
 
 export default function ServiceDetailsFooter({
+  bookingDisabled = false,
+  bookingDisabledHint = null,
   durationLabel,
   onBookService,
   serviceCount,
@@ -80,10 +84,24 @@ export default function ServiceDetailsFooter({
               </>
             ) : null}
           </View>
+
+          {bookingDisabledHint ? (
+            <Text
+              weight="medium"
+              style={{
+                color: colors.danger,
+                fontSize: typography.size.xs2,
+                lineHeight: typography.lineHeight.sm,
+              }}
+            >
+              {bookingDisabledHint}
+            </Text>
+          ) : null}
         </View>
 
         <View style={styles.footerAction}>
           <Button
+            disabled={bookingDisabled}
             label={t('service_details_book_service')}
             onPress={onBookService}
             style={{

@@ -1,7 +1,10 @@
 import * as SecureStore from 'expo-secure-store';
 import type { HomeVisitsMode, HomeVisitsStackParamList } from './types';
 
-export type HomeVisitModeRootRoute = keyof HomeVisitsStackParamList;
+export type HomeVisitModeRootRoute = Extract<
+  keyof HomeVisitsStackParamList,
+  'SingleVendor' | 'MultiVendor' | 'Chain'
+>;
 
 const HOME_VISIT_MODE_KEY = 'super_app_home_visits_mode';
 export const DEFAULT_HOME_VISIT_MODE: HomeVisitsMode = 'singleVendor';

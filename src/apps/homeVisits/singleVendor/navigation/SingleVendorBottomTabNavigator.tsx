@@ -3,6 +3,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../../../general/theme/theme';
 import Icon from '../../../../general/components/Icon';
 import useProfile from '../../../../general/hooks/useProfile';
@@ -55,8 +56,11 @@ function ProfileTabAvatar({
 export default function SingleVendorBottomTabNavigator() {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('homeVisits');
+  const insets = useSafeAreaInsets();
   const { user } = useProfile('home-services');
   const profileImageUri = user?.image ?? undefined;
+  const tabBarBottomInset = Math.max(insets.bottom, 12);
+  const tabBarHeight = 72 + tabBarBottomInset;
 
   return (
     <Tab.Navigator
@@ -78,12 +82,14 @@ export default function SingleVendorBottomTabNavigator() {
           fontSize: typography.size.xs2,
           fontWeight: '600',
           lineHeight: typography.lineHeight.sm,
-          marginBottom: 8,
+          marginBottom: 0,
         },
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          height: 82,
+          height: tabBarHeight,
+          paddingBottom: tabBarBottomInset,
+          paddingTop: 4,
         },
       }}
     >

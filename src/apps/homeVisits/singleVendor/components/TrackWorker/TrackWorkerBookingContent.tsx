@@ -70,6 +70,13 @@ export default function TrackWorkerBookingContent({
   const taxAmount = getFirstNumeric([summary?.taxAmount]);
   const shouldShowSummaryItemsUsed = materialsAmount !== null && !hasAddOns;
   const assignedWorkers = data?.assignedWorkers ?? [];
+  const hasAssignedWorker = React.useMemo(() => {
+    if (assignedWorkers.some((worker) => Boolean(worker?.id))) {
+      return true;
+    }
+
+    return Boolean(data?.assignedWorker?.id);
+  }, [assignedWorkers, data?.assignedWorker?.id]);
   const assignedTeamLabel = React.useMemo(() => {
     if (assignedWorkers.length === 0 && !data?.assignedWorker) {
       return null;
@@ -93,7 +100,7 @@ export default function TrackWorkerBookingContent({
 
   return (
     <>
-      {isContactVisible(stage) ? (
+      {isContactVisible(stage) && hasAssignedWorker ? (
         <Pressable
           onPress={onPressContactWorker}
           style={[styles.actionRow, { borderTopColor: colors.border, borderBottomColor: colors.border }]}
@@ -401,6 +408,13 @@ function resolveAddOnLines(data?: HomeVisitsSingleVendorBookingDetails | null): 
         return null;
       }
 
+      const quantity = getFirstNumeric([record.quantity]);
+      const unit = typeof record.unit === 'string' ? record.unit.trim() : '';
+      const detailSuffix =
+        quantity !== null && quantity > 0
+          ? ` x${quantity}${unit ? ` ${unit}` : ''}`
+          : '';
+
       const amount = getFirstNumeric([
         record.totalPrice,
         record.amount,
@@ -408,7 +422,7 @@ function resolveAddOnLines(data?: HomeVisitsSingleVendorBookingDetails | null): 
         record.totalAmount,
       ]);
 
-      return { label, amount };
+      return { label: `${label}${detailSuffix}`, amount };
     })
     .filter((item): item is AddOnLine => Boolean(item));
 
@@ -474,12 +488,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 0,
-    paddingVertical: 14,
+    paddingVertical: 16,
   },
   addressValue: {
     flex: 1,
-    fontSize: 14,
-    lineHeight: 21,
+    fontSize: 15,
+    lineHeight: 22,
     marginLeft: 16,
     textAlign: 'right',
   },
@@ -493,13 +507,13 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    marginVertical: 12,
+    marginVertical: 16,
   },
   keyValueRow: {
     alignItems: 'flex-start',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginTop: 20,
   },
   paymentMethod: {
     fontSize: 16,
@@ -517,14 +531,14 @@ const styles = StyleSheet.create({
   paymentTitle: {
     fontSize: 18,
     lineHeight: 28,
-    marginBottom: 8,
+    marginBottom: 10,
     marginTop: 2,
   },
   section: {
     borderTopWidth: StyleSheet.hairlineWidth,
     marginTop: 0,
-    paddingBottom: 16,
-    paddingTop: 16,
+    paddingBottom: 18,
+    paddingTop: 18,
   },
   sectionHeaderRow: {
     alignItems: 'center',
@@ -549,7 +563,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 14,
+    marginTop: 16,
   },
   serviceTitle: {
     fontSize: 14,
@@ -559,8 +573,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 6,
-    minHeight: 30,
+    marginTop: 8,
+    minHeight: 32,
   },
   totalLabel: {
     fontSize: 14,

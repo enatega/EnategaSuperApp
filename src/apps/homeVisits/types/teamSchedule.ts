@@ -10,6 +10,7 @@ export type HomeVisitsBookingSummary = {
 export type HomeVisitsTeamScheduleMode = 'one-time' | 'contract';
 export type HomeVisitsWorkerType = 'individual' | 'team';
 export type HomeVisitsContractType = 'weekly' | 'monthly' | 'yearly';
+export type HomeVisitsBookingFlow = 'singleVendor' | 'multiVendor';
 
 export type HomeVisitsSelectedServiceSnapshot = {
   id: string;
@@ -27,6 +28,7 @@ export type HomeVisitsScheduledSlot = {
 export type HomeVisitsTeamAndScheduleRouteParams = {
   serviceId: string;
   serviceCenterId: string;
+  bookingFlow?: HomeVisitsBookingFlow;
   initialSelection: HomeVisitsServiceDetailsSelectionState;
   selectedServiceIds: string[];
   selectedServices: HomeVisitsSelectedServiceSnapshot[];

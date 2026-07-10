@@ -50,7 +50,7 @@ export default function TrackWorkerStatusBlock({
   if (stage === 'payment_confirmed') {
     return (
       <View style={styles.statusBlockOnly}>
-        <View style={[styles.iconCircle, { backgroundColor: '#F59E0B' }]}> 
+        <View style={[styles.iconCircle, { backgroundColor: '#F59E0B' }]}>
           <MaterialCommunityIcons color="#fff" name="check" size={38} />
         </View>
         <Text style={[styles.paymentConfirmedTitle, { color: colors.text }]} weight="bold">
@@ -88,7 +88,7 @@ export default function TrackWorkerStatusBlock({
 
   return (
     <View style={styles.statusBlock}>
-      <View style={[styles.iconCircle, { backgroundColor: '#F59E0B' }]}> 
+      <View style={[styles.iconCircle, { backgroundColor: '#F59E0B' }]}>
         <MaterialCommunityIcons color="#fff" name={resolveStageIcon(stage)} size={34} />
       </View>
 
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     borderRadius: 44,
     height: 72,
     justifyContent: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
     width: 72,
   },
   paymentConfirmedTitle: {
@@ -284,13 +284,13 @@ const styles = StyleSheet.create({
   paymentWrap: {
     alignItems: 'center',
     paddingBottom: 4,
-    paddingTop: 6,
+    paddingTop: 2,
   },
   progressRow: {
     flexDirection: 'row',
     gap: 4,
-    marginBottom: 6,
-    marginTop: 6,
+    marginBottom: 4,
+    marginTop: 4,
     width: '80%',
   },
   progressSegment: {
@@ -300,12 +300,12 @@ const styles = StyleSheet.create({
   },
   statusBlock: {
     alignItems: 'center',
-    paddingBottom: 0,
-    paddingTop: 4,
+    paddingBottom: 2,
+    paddingTop: 6,
   },
   statusBlockOnly: {
     alignItems: 'center',
-    paddingVertical: 24,
+    paddingVertical: 18,
   },
   subtitle: {
     fontSize: 13,

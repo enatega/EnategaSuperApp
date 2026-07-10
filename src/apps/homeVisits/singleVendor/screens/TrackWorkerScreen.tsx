@@ -5,6 +5,7 @@ import {
   FlatList,
   Linking,
   Platform,
+  RefreshControl,
   StyleSheet,
   View,
   useWindowDimensions,
@@ -21,6 +22,7 @@ import Button from '../../../../general/components/Button';
 import { showToast } from '../../../../general/components/AppToast';
 import Skeleton from '../../../../general/components/Skeleton';
 import SwipeableBottomSheet from '../../../../general/components/SwipeableBottomSheet';
+import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import TrackWorkerBookingContent from '../components/TrackWorker/TrackWorkerBookingContent';
 import TrackWorkerFeedbackSection from '../components/TrackWorker/TrackWorkerFeedbackSection';
@@ -33,6 +35,7 @@ import type { HomeVisitsStackParamList } from '../../navigation/types';
 import { homeVisitsSingleVendorDiscoveryService } from '../api/discoveryService';
 import useTrackWorkerRealtime from '../hooks/useTrackWorkerRealtime';
 import useSingleVendorBookingDetails from '../hooks/useSingleVendorBookingDetails';
+import useRefetchOnAppActive from '../hooks/useRefetchOnAppActive';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
 import {
   extractDestinationLocation,
@@ -40,6 +43,7 @@ import {
 } from '../utils/trackWorkerLocation';
 import {
   getProgressStep,
+  normalizeJobStatus,
   resolveTrackWorkerStage,
   type TrackWorkerStage,
 } from '../utils/trackWorkerStatus';
@@ -75,8 +79,15 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
   const token = sessionQuery.data?.token ?? null;
   const currentUserId = sessionQuery.data?.user?.id ?? null;
 
-  const { data, isLoading } = useSingleVendorBookingDetails({ orderId });
+  const bookingDetailsQuery = useSingleVendorBookingDetails({ orderId });
+  const {
+    data,
+    isLoading,
+    isRefetching,
+    refetch: refetchBookingDetails,
+  } = bookingDetailsQuery;
   const savedCardsQuery = useWalletSavedCardsQuery('home-services');
+  const { refetch: refetchSavedCards } = savedCardsQuery;
 
   const [isServiceDetailsExpanded, setIsServiceDetailsExpanded] = React.useState(true);
   const [localFlow, setLocalFlow] = React.useState<LocalFlowState>('none');
@@ -100,6 +111,9 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
 
   const bookingData = liveBookingData ?? data ?? null;
   const stage = resolveTrackWorkerStage(bookingData);
+  const normalizedJobStatus = normalizeJobStatus(
+    bookingData?.jobStatus ?? bookingData?.status,
+  );
   const stageToRender: TrackWorkerStage =
     localFlow === 'payment_confirmed'
       ? 'payment_confirmed'
@@ -116,7 +130,9 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
 
   const progressStep = getProgressStep(stageToRender);
   const services = bookingData?.services ?? [];
-  const hasSavedCard = (savedCardsQuery.data?.cards?.length ?? 0) > 0;
+  const defaultSavedCard =
+    savedCardsQuery.data?.cards.find((card) => card.isDefault) ?? null;
+  const isWorkerPaymentRequested = normalizedJobStatus === 'payment_requested';
   const rootNavigation =
     navigation.getParent<NativeStackNavigationProp<HomeVisitsStackParamList>>();
 
@@ -142,6 +158,18 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
     preferredDistanceKm: trackingSnapshot?.distanceKm,
     preferredEstimatedMinutes: trackingSnapshot?.estimatedMinutes,
     preferredRoutePath: trackingSnapshot?.routePath,
+  });
+
+  const handleRefresh = React.useCallback(async () => {
+    await Promise.all([
+      refetchBookingDetails(),
+      refetchSavedCards(),
+    ]);
+  }, [refetchBookingDetails, refetchSavedCards]);
+
+  useRefetchOnAppActive({
+    enabled: Boolean(orderId),
+    onActive: handleRefresh,
   });
 
   const sheetExpandedHeight = React.useMemo(() => {
@@ -207,6 +235,7 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
     mutationFn: (targetOrderId: string) =>
       homeVisitsSingleVendorDiscoveryService.payPaymentRequestedJobWithSavedCard(
         targetOrderId,
+        defaultSavedCard?.id ? { paymentMethodId: defaultSavedCard.id } : {},
       ),
     onSuccess: async (response) => {
       await Promise.all([
@@ -239,10 +268,10 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
     onError: (error) => {
       if (isMissingSavedCardError(error)) {
         showToast.error(
-          t('single_vendor_track_worker_saved_card_required_title'),
-          t('single_vendor_track_worker_saved_card_required_message'),
+          t('single_vendor_track_worker_default_card_required_title'),
+          t('single_vendor_track_worker_default_card_required_message'),
         );
-        rootNavigation?.navigate('WalletAddCard');
+        rootNavigation?.navigate('Wallet');
         return;
       }
 
@@ -255,12 +284,12 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
   });
 
   const onPayNow = React.useCallback(() => {
-    const handleNoSavedCard = () => {
+    const handleNoDefaultCard = () => {
       showToast.error(
-        t('single_vendor_track_worker_saved_card_required_title'),
-        t('single_vendor_track_worker_saved_card_required_message'),
+        t('single_vendor_track_worker_default_card_required_title'),
+        t('single_vendor_track_worker_default_card_required_message'),
       );
-      rootNavigation?.navigate('WalletAddCard');
+      rootNavigation?.navigate('Wallet');
     };
 
     if (!bookingData?.orderId) {
@@ -268,22 +297,27 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
       return;
     }
 
+    if (!isWorkerPaymentRequested) {
+      return;
+    }
+
     if (savedCardsQuery.isPending) {
       return;
     }
 
-    if (!hasSavedCard) {
-      handleNoSavedCard();
+    if (!defaultSavedCard?.id) {
+      handleNoDefaultCard();
       return;
     }
 
     payWithSavedCardMutation.mutate(bookingData.orderId);
   }, [
     bookingData?.orderId,
-    hasSavedCard,
+    defaultSavedCard?.id,
     payWithSavedCardMutation,
     rootNavigation,
     savedCardsQuery.isPending,
+    isWorkerPaymentRequested,
     t,
   ]);
 
@@ -389,10 +423,21 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
                         label={t('single_vendor_track_worker_pay_now')}
                         onPress={onPayNow}
                         isLoading={payWithSavedCardMutation.isPending || savedCardsQuery.isPending}
-                        disabled={payWithSavedCardMutation.isPending || savedCardsQuery.isPending}
+                        disabled={
+                          payWithSavedCardMutation.isPending ||
+                          savedCardsQuery.isPending ||
+                          !isWorkerPaymentRequested
+                        }
                         style={styles.payNowButton}
                         labelStyle={{ color: '#030712' }}
                       />
+                      {!isWorkerPaymentRequested ? (
+                        <View style={styles.payHintWrap}>
+                          <Text style={[styles.payHintText, { color: colors.mutedText }]}>
+                            {t('single_vendor_track_worker_waiting_payment_request')}
+                          </Text>
+                        </View>
+                      ) : null}
                     </View>
                   ) : null}
                 </>
@@ -403,11 +448,21 @@ export default function TrackWorkerScreen({ navigation, route }: Props) {
           contentContainerStyle={[
             styles.sheetContent,
             {
-              paddingTop: isMapVisible ? 0 : insets.top + 62,
+              paddingTop: isMapVisible ? 0 : Math.max(insets.top + 76, 88),
+              paddingBottom: insets.bottom + 28,
             },
           ]}
           keyboardShouldPersistTaps="handled"
           nestedScrollEnabled
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching && !isLoading}
+              onRefresh={() => {
+                void handleRefresh();
+              }}
+              tintColor={colors.primary}
+            />
+          }
           showsVerticalScrollIndicator={false}
         />
       </SwipeableBottomSheet>
@@ -453,6 +508,14 @@ const styles = StyleSheet.create({
     borderColor: '#FC9401',
     borderRadius: 6,
     minHeight: 48,
+  },
+  payHintText: {
+    fontSize: 12,
+    lineHeight: 18,
+    textAlign: 'center',
+  },
+  payHintWrap: {
+    marginTop: 8,
   },
   screen: {
     flex: 1,

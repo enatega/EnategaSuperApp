@@ -1,5 +1,6 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import type { AddressFlowParamList } from "../../../../general/navigation/addressFlowTypes";
+import type { HomeVisitsMultiVendorProvider } from '../../multiVendor/api/types';
 import type { HomeVisitsServiceDetailsSelectionState } from '../../types/serviceDetails';
 import type {
   HomeVisitsChooseDateAndTimeRouteParams,
@@ -20,6 +21,9 @@ export type SingleVendorStackParamList = {
   SingleVendorCategoriesSeeAll: undefined;
   SingleVendorFavorites: undefined;
   SingleVendorNotifications: undefined;
+  MultiVendorCenterDetails: {
+    provider: HomeVisitsMultiVendorProvider;
+  };
   SeeAllScreen: {
     scope?: 'single-vendor' | 'multi-vendor' | 'chain';
     queryType:
@@ -52,10 +56,12 @@ export type SingleVendorStackParamList = {
   };
   ServiceDetails: {
     serviceId: string;
+    bookingFlow?: 'singleVendor' | 'multiVendor';
   };
   ServiceDetailsBooking: {
     serviceId: string;
     serviceCenterId: string;
+    bookingFlow?: 'singleVendor' | 'multiVendor';
     initialSelection: HomeVisitsServiceDetailsSelectionState;
   };
   TeamAndSchedule: HomeVisitsTeamAndScheduleRouteParams;

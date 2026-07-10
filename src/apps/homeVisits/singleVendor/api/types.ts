@@ -594,6 +594,15 @@ export interface HomeVisitsSingleVendorBookingSummary {
   itemsUsedAmount?: number | null;
 }
 
+export interface HomeVisitsSingleVendorUsedItem {
+  name?: string | null;
+  quantity?: number | null;
+  unit?: string | null;
+  unitPrice?: number | null;
+  totalPrice?: number | null;
+  notes?: string | null;
+}
+
 export interface HomeVisitsSingleVendorAssignedWorker {
   id?: string;
   name?: string | null;
@@ -633,6 +642,7 @@ export interface HomeVisitsSingleVendorBookingDetails {
   store?: HomeVisitsSingleVendorBookingStore | null;
   services?: HomeVisitsSingleVendorBookingServiceItem[] | null;
   summary?: HomeVisitsSingleVendorBookingSummary | null;
+  usedItems?: HomeVisitsSingleVendorUsedItem[] | null;
   addressLabel?: string | null;
   address?: string | null;
   customerNote?: string | null;

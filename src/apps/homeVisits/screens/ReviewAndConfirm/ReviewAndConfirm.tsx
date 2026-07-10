@@ -67,6 +67,23 @@ function formatWeekdaySummary(weekdays?: number[]) {
     .join(', ');
 }
 
+function getCancellationNoticeKey(scheduledAt: Date) {
+  const diffMinutes = Math.max(
+    0,
+    Math.floor((scheduledAt.getTime() - Date.now()) / (1000 * 60)),
+  );
+
+  if (diffMinutes >= 120) {
+    return 'review_confirm_cancellation_notice_two_hours';
+  }
+
+  if (diffMinutes >= 60) {
+    return 'review_confirm_cancellation_notice_thirty_minutes';
+  }
+
+  return 'review_confirm_cancellation_notice_fifteen_minutes';
+}
+
 export default function ReviewAndConfirm() {
   const { colors } = useTheme();
   const { t } = useTranslation('homeVisits');
@@ -91,8 +108,16 @@ export default function ReviewAndConfirm() {
   );
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
+  const flowNavigation = useMemo(
+    () =>
+      navigation as unknown as {
+        replace: (screen: string, params: Record<string, unknown>) => void;
+      },
+    [navigation],
+  );
   const { summary } = route.params;
   const isContractBooking = route.params.serviceMode === 'contract';
+  const isMultiVendorBooking = route.params.bookingFlow === 'multiVendor';
   const [isConfirmPopupVisible, setIsConfirmPopupVisible] = useState(false);
   const selectedPaymentMethod = 'cash';
   const discountCode = '';
@@ -169,6 +194,10 @@ export default function ReviewAndConfirm() {
     scheduleForLabel,
     selectedScheduledAt,
   ]);
+  const cancellationNotice = useMemo(
+    () => t(getCancellationNoticeKey(selectedScheduledAt)),
+    [selectedScheduledAt, t],
+  );
   const bookingSummaryPayload = useMemo(
     () =>
       buildBookingSummaryPreviewPayload({
@@ -196,32 +225,86 @@ export default function ReviewAndConfirm() {
   const serviceCenterLocation = bookingPreviewData?.serviceCenterLocation;
 
   const summaryRows = useMemo(
-    () =>
-      isContractBooking
-        ? []
-        : [
-            {
-              id: 'services',
-              label: t('review_confirm_price_services'),
-              value: previewSummary?.subtotal ?? summary.totalPrice,
-            },
-            {
-              id: 'discount',
-              label: t('review_confirm_discount_title'),
-              value: -(previewSummary?.discountAmount ?? 0),
-            },
-            {
-              id: 'total',
-              label: t('review_confirm_price_total'),
-              value: previewSummary?.payableAmount ?? summary.totalPrice,
-              isEmphasized: true,
-            },
-          ],
+    () => {
+      if (isContractBooking) {
+        return [];
+      }
+
+      const rows: Array<{
+        id: string;
+        label: string;
+        value: number;
+        isEmphasized?: boolean;
+      }> = [];
+      const selectedServicesAmount = previewSummary?.subtotal ?? summary.totalPrice;
+      const discountAmount = previewSummary?.discountAmount ?? 0;
+      const taxAmount = previewSummary?.tax ?? 0;
+      const deliveryFeeAmount = previewSummary?.deliveryFee ?? 0;
+      const packingChargesAmount = previewSummary?.packingCharges ?? 0;
+      const riderTipAmount = previewSummary?.riderTip ?? 0;
+
+      rows.push({
+        id: 'services',
+        label: t('review_confirm_price_services'),
+        value: selectedServicesAmount,
+      });
+
+      if (taxAmount > 0) {
+        rows.push({
+          id: 'tax',
+          label: t('review_confirm_price_tax'),
+          value: taxAmount,
+        });
+      }
+
+      if (deliveryFeeAmount > 0) {
+        rows.push({
+          id: 'delivery-fee',
+          label: t('review_confirm_price_delivery_fee'),
+          value: deliveryFeeAmount,
+        });
+      }
+
+      if (packingChargesAmount > 0) {
+        rows.push({
+          id: 'packing-charges',
+          label: t('review_confirm_price_packing_charges'),
+          value: packingChargesAmount,
+        });
+      }
+
+      if (riderTipAmount > 0) {
+        rows.push({
+          id: 'tip',
+          label: t('review_confirm_price_tip'),
+          value: riderTipAmount,
+        });
+      }
+
+      rows.push({
+        id: 'discount',
+        label: t('review_confirm_discount_title'),
+        value: -discountAmount,
+      });
+
+      rows.push({
+        id: 'total',
+        label: t('review_confirm_price_total'),
+        value: previewSummary?.payableAmount ?? summary.totalPrice,
+        isEmphasized: true,
+      });
+
+      return rows;
+    },
     [
       isContractBooking,
       previewSummary?.discountAmount,
+      previewSummary?.deliveryFee,
       previewSummary?.payableAmount,
+      previewSummary?.packingCharges,
+      previewSummary?.riderTip,
       previewSummary?.subtotal,
+      previewSummary?.tax,
       summary.totalPrice,
       t,
     ],
@@ -298,9 +381,14 @@ export default function ReviewAndConfirm() {
 
         if (isContractBooking && response.contractId) {
           setIsConfirmPopupVisible(false);
-          navigation.replace('SingleVendorContractDetails', {
-            contractId: response.contractId,
-          });
+          flowNavigation.replace(
+            isMultiVendorBooking
+              ? 'MultiVendorContractDetails'
+              : 'SingleVendorContractDetails',
+            {
+              contractId: response.contractId,
+            },
+          );
           return;
         }
 
@@ -338,15 +426,20 @@ export default function ReviewAndConfirm() {
     }
 
     const timeoutId = setTimeout(() => {
-      navigation.replace('SingleVendorBookingDetails', {
-        orderId: confirmedOrderId,
-      });
+      flowNavigation.replace(
+        isMultiVendorBooking
+          ? 'MultiVendorBookingDetails'
+          : 'SingleVendorBookingDetails',
+        {
+          orderId: confirmedOrderId,
+        },
+      );
     }, CONFIRMATION_TRANSITION_MS);
 
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [confirmedOrderId, navigation]);
+  }, [confirmedOrderId, flowNavigation, isMultiVendorBooking]);
 
   if (confirmedOrderId) {
     return (
@@ -412,7 +505,7 @@ export default function ReviewAndConfirm() {
         />
 
         <ReviewCancellationSection
-          body={t('review_confirm_cancellation_body')}
+          body={cancellationNotice}
           title={t('review_confirm_cancellation_title')}
         />
 
@@ -452,7 +545,7 @@ export default function ReviewAndConfirm() {
 
       <ReviewConfirmBookingPopup
         confirmLabel={t('review_confirm_popup_accept')}
-        description={`${t('review_confirm_popup_line_one')}\n\n${t('review_confirm_popup_line_two')}`}
+        description={`${cancellationNotice}\n\n${t('review_confirm_popup_line_two')}`}
         isConfirmLoading={placeBookingOrderMutation.isPending}
         onClose={handleClosePopup}
         onConfirm={handleConfirmBooking}

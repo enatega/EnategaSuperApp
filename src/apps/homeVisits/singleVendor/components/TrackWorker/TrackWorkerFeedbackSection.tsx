@@ -77,8 +77,8 @@ export default function TrackWorkerFeedbackSection({
 const styles = StyleSheet.create({
   feedbackBlock: {
     gap: 12,
-    minHeight: 560,
-    paddingTop: 180,
+    minHeight: 0,
+    paddingTop: 8,
   },
   feedbackInput: {
     borderRadius: 8,
