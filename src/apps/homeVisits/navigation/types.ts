@@ -1,13 +1,16 @@
+import type { NavigatorScreenParams } from "@react-navigation/native";
 import type { AddressFlowParamList } from "../../../general/navigation/addressFlowTypes";
 import type { ProfileNavigationParamList } from "../../../general/navigation/profileTypes";
+import type { ChainStackParamList } from "../chain/navigation/types";
 
 export type HomeVisitsMode = 'singleVendor' | 'multiVendor' | 'chain';
 
 export type HomeVisitsStackParamList = ProfileNavigationParamList &
   AddressFlowParamList & {
+  HomeVisitsModeSelector: undefined;
   SingleVendor: undefined;
   MultiVendor: undefined;
-  Chain: undefined;
+  Chain: NavigatorScreenParams<ChainStackParamList> | undefined;
   Settings: undefined;
   NotificationSettings: undefined;
   ChangePassword: undefined;

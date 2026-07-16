@@ -63,6 +63,10 @@ export default function ServiceDetailsContent({
     () => buildSelectionPayload(data, selectionState, pricingState),
     [data, pricingState, selectionState],
   );
+  const isBookingDisabled = data.canBook === false;
+  const bookingDisabledHint = isBookingDisabled
+    ? t("home_visits_service_unavailable_booking")
+    : null;
 
   const totalPrice = pricingState.totalPriceLabel;
   const durationLabel = pricingState.durationLabel;
@@ -167,6 +171,8 @@ export default function ServiceDetailsContent({
       </ScrollView>
 
       <ServiceDetailsFooter
+        bookingDisabled={isBookingDisabled}
+        bookingDisabledHint={bookingDisabledHint}
         durationLabel={durationLabel}
         onBookService={handleBookServicePress}
         serviceCount={pricingState.serviceCount}

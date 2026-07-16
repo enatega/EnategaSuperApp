@@ -7,14 +7,16 @@ import { useTheme } from '../../../../../general/theme/theme';
 
 type Props = {
   onAddToCalendar: () => void;
-  onManageAppointment: () => void;
   onTrackWorker: () => void;
+  onCancelAppointment?: () => void;
+  showCancelAppointment?: boolean;
 };
 
 export default function BookingDetailsActionsSection({
   onAddToCalendar,
-  onManageAppointment,
+  onCancelAppointment,
   onTrackWorker,
+  showCancelAppointment = false,
 }: Props) {
   const { t } = useTranslation('homeVisits');
   const { colors, typography } = useTheme();
@@ -52,41 +54,6 @@ export default function BookingDetailsActionsSection({
             weight="medium"
           >
             {t('single_vendor_booking_add_calendar_subtitle')}
-          </Text>
-        </View>
-      </Pressable>
-
-      <Pressable
-        onPress={onManageAppointment}
-        style={[styles.actionRow, { borderTopColor: colors.border }]}
-      >
-        <View style={[styles.actionIcon, { backgroundColor: colors.backgroundTertiary }]}>
-          <MaterialCommunityIcons
-            color={colors.primary}
-            name="square-edit-outline"
-            size={20}
-          />
-        </View>
-        <View style={styles.actionText}>
-          <Text
-            style={{
-              color: colors.text,
-              fontSize: typography.size.sm2,
-              lineHeight: typography.lineHeight.md,
-            }}
-            weight="semiBold"
-          >
-            {t('single_vendor_booking_manage_title')}
-          </Text>
-          <Text
-            style={{
-              color: colors.mutedText,
-              fontSize: typography.size.xs2,
-              lineHeight: typography.lineHeight.sm,
-            }}
-            weight="medium"
-          >
-            {t('single_vendor_booking_manage_subtitle')}
           </Text>
         </View>
       </Pressable>
@@ -130,6 +97,48 @@ export default function BookingDetailsActionsSection({
           size={20}
         />
       </Pressable>
+
+      {showCancelAppointment && onCancelAppointment ? (
+        <Pressable
+          onPress={onCancelAppointment}
+          style={[styles.actionRow, { borderTopColor: colors.border }]}
+        >
+          <View style={[styles.actionIcon, { backgroundColor: colors.backgroundTertiary }]}>
+            <MaterialCommunityIcons
+              color={colors.danger}
+              name="calendar-remove-outline"
+              size={20}
+            />
+          </View>
+          <View style={styles.actionText}>
+            <Text
+              style={{
+                color: colors.text,
+                fontSize: typography.size.sm2,
+                lineHeight: typography.lineHeight.md,
+              }}
+              weight="semiBold"
+            >
+              {t('single_vendor_manage_appointment_cancel')}
+            </Text>
+            <Text
+              style={{
+                color: colors.mutedText,
+                fontSize: typography.size.xs2,
+                lineHeight: typography.lineHeight.sm,
+              }}
+              weight="medium"
+            >
+              {t('single_vendor_booking_cancel_subtitle')}
+            </Text>
+          </View>
+          <MaterialCommunityIcons
+            color={colors.iconMuted}
+            name="chevron-right"
+            size={20}
+          />
+        </Pressable>
+      ) : null}
     </>
   );
 }

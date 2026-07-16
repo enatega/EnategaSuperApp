@@ -31,10 +31,18 @@ export default function StoreRating({
   cuisine,
 }: StoreRatingProps) {
   const { colors } = useTheme();
-  const hasRating = rating != null;
-  const hasReviewCount = reviewCount != null;
-  const hasCuisine = Boolean(cuisine);
+  const hasRating = typeof rating === "number" && Number.isFinite(rating) && rating > 0;
+  const hasReviewCount =
+    typeof reviewCount === "number" &&
+    Number.isFinite(reviewCount) &&
+    reviewCount > 0;
+  const hasCuisine = Boolean(cuisine?.trim());
   const resolvedCuisine = cuisine ? decodeDisplayText(cuisine) : undefined;
+  const shouldRender = hasRating || hasReviewCount || hasCuisine;
+
+  if (!shouldRender) {
+    return null;
+  }
 
   return (
     <View style={[styles.row, { justifyContent: "space-between" }]}>

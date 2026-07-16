@@ -19,6 +19,7 @@ export {
     useCreateRide,
     useUpdateRide,
     useCancelRide,
+    useSendCustomerComing,
     useRateRide,
 } from './useRideMutations';
 

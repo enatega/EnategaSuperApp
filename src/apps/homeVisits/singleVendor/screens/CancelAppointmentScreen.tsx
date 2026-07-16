@@ -1,5 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Image,
   Pressable,
@@ -9,8 +10,11 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Button from '../../../../general/components/Button';
+import { showToast } from '../../../../general/components/AppToast';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
+import { homeVisitsKeys } from '../../api/queryKeys';
+import { homeVisitsSingleVendorDiscoveryService } from '../api/discoveryService';
 import useSingleVendorBookingDetails from '../hooks/useSingleVendorBookingDetails';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../navigation/types';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -22,12 +26,52 @@ type Props = NativeStackScreenProps<
 
 const FALLBACK_IMAGE = 'https://placehold.co/600x400/png';
 
+function resolveCancelAppointmentErrorMessage(error: unknown, fallbackMessage: string) {
+  const message = error instanceof Error ? error.message : '';
+  const normalizedMessage = message.trim().toLowerCase();
+
+  if (normalizedMessage.includes('scheduled booking not found')) {
+    return fallbackMessage;
+  }
+
+  return message || fallbackMessage;
+}
+
 export default function CancelAppointmentScreen({ navigation, route }: Props) {
   const { t } = useTranslation('homeVisits');
   const { colors, typography } = useTheme();
   const insets = useSafeAreaInsets();
   const { orderId } = route.params;
+  const queryClient = useQueryClient();
   const { data } = useSingleVendorBookingDetails({ orderId });
+  const cancelMutation = useMutation({
+    mutationFn: () => homeVisitsSingleVendorDiscoveryService.cancelScheduledOrder(orderId),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: homeVisitsKeys.singleVendorBookingDetail(orderId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: homeVisitsKeys.singleVendorBookings(),
+          exact: false,
+        }),
+      ]);
+      showToast.success(
+        t('single_vendor_cancel_appointment_success_title'),
+        t('single_vendor_cancel_appointment_success_message'),
+      );
+      navigation.pop(2);
+    },
+    onError: (error) => {
+      showToast.error(
+        t('single_vendor_cancel_appointment_error_title'),
+        resolveCancelAppointmentErrorMessage(
+          error,
+          t('single_vendor_cancel_appointment_started_message'),
+        ),
+      );
+    },
+  });
 
   const heroImage = data?.services?.[0]?.image ?? data?.store?.image ?? FALLBACK_IMAGE;
   const scheduleLabel = formatShortScheduleDate(data?.scheduledAt ?? data?.orderedAt);
@@ -125,8 +169,13 @@ export default function CancelAppointmentScreen({ navigation, route }: Props) {
         ]}
       >
         <Button
-          label={t('single_vendor_cancel_appointment_cta')}
-          onPress={() => navigation.goBack()}
+          label={
+            cancelMutation.isPending
+              ? t('single_vendor_cancel_appointment_loading')
+              : t('single_vendor_cancel_appointment_cta')
+          }
+          onPress={() => cancelMutation.mutate()}
+          isLoading={cancelMutation.isPending}
           style={{ backgroundColor: colors.warning, borderColor: colors.warning }}
           variant="primary"
         />

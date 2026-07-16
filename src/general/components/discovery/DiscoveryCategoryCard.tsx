@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     gap: 0,
-    width: 68,
+    width: 84,
   },
   image: {
     borderRadius: 4,
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
-
+    width: 72,
   },
   title: {
     textAlign: 'center',

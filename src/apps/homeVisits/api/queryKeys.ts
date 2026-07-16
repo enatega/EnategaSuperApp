@@ -1,11 +1,19 @@
 export const homeVisitsKeys = {
   all: ['homeVisits'] as const,
+  singleVendorContractsBase: () =>
+    [...homeVisitsKeys.all, 'single-vendor-contracts'] as const,
   notifications: () => [...homeVisitsKeys.all, 'notifications'] as const,
   homeVisitsTodayNotifications: (filters: { userId: string; limit?: number }) =>
     [...homeVisitsKeys.notifications(), 'today', filters] as const,
   homeVisitsPastNotifications: (filters: { userId: string; limit?: number }) =>
     [...homeVisitsKeys.notifications(), 'past', filters] as const,
   supportChat: () => [...homeVisitsKeys.all, 'support-chat'] as const,
+  supportChatBoxes: (filters: Record<string, unknown>) =>
+    [...homeVisitsKeys.supportChat(), 'boxes', filters] as const,
+  supportChatBox: (chatBoxId: string) =>
+    [...homeVisitsKeys.supportChat(), 'box', chatBoxId] as const,
+  supportChatMyActiveMessages: () =>
+    [...homeVisitsKeys.supportChat(), 'my-active-messages'] as const,
   supportChatConversations: () =>
     [...homeVisitsKeys.supportChat(), 'conversations'] as const,
   supportChatAdmins: () => [...homeVisitsKeys.supportChat(), 'admins'] as const,
@@ -85,6 +93,11 @@ export const homeVisitsKeys = {
     limit?: number;
   }) =>
     [...homeVisitsKeys.discovery(), 'single-vendor-favorite-services', filters] as const,
+  favoriteServiceCenters: (filters?: {
+    offset?: number;
+    limit?: number;
+  }) =>
+    [...homeVisitsKeys.discovery(), 'favorite-service-centers', filters] as const,
   singleVendorServiceBookingScreen: (serviceId: string) =>
     [...homeVisitsKeys.discovery(), 'single-vendor-service-booking-screen', serviceId] as const,
   singleVendorServiceReviews: (serviceId: string, filters?: { limit?: number }) =>
@@ -99,10 +112,121 @@ export const homeVisitsKeys = {
       serviceCenterId,
       filters,
     ] as const,
+  multiVendorMainServices: (filters?: {
+    limit?: number;
+    search?: string;
+  }) =>
+    [...homeVisitsKeys.discovery(), 'multi-vendor-main-services', filters] as const,
+  multiVendorMainServiceCategories: (
+    mainServiceId: string,
+    filters?: {
+      limit?: number;
+      search?: string;
+    },
+  ) =>
+    [
+      ...homeVisitsKeys.discovery(),
+      'multi-vendor-main-service-categories',
+      mainServiceId,
+      filters,
+    ] as const,
+  multiVendorProviders: (filters?: {
+    limit?: number;
+    scope?: 'top-centers' | 'service-providers';
+    search?: string;
+    mainServiceId?: string;
+    latitude?: number;
+    longitude?: number;
+  }) =>
+    [...homeVisitsKeys.discovery(), 'multi-vendor-providers', filters] as const,
+  multiVendorDeals: (filters?: {
+    limit?: number;
+    search?: string;
+    mainServiceId?: string;
+    providerId?: string;
+    latitude?: number;
+    longitude?: number;
+    stock?: string;
+    category_ids?: string;
+    subcategory_id?: string;
+    price_tiers?: string;
+    sort_by?: string;
+  }) =>
+    [...homeVisitsKeys.discovery(), 'multi-vendor-deals', filters] as const,
+  multiVendorNearbyServices: (filters?: {
+    limit?: number;
+    search?: string;
+    mainServiceId?: string;
+    providerId?: string;
+    latitude?: number;
+    longitude?: number;
+    stock?: string;
+    category_ids?: string;
+    subcategory_id?: string;
+    price_tiers?: string;
+    sort_by?: string;
+  }) =>
+    [...homeVisitsKeys.discovery(), 'multi-vendor-nearby-services', filters] as const,
+  chainMenuTemplates: (filters?: { limit?: number }) =>
+    [...homeVisitsKeys.discovery(), 'chain-menu-templates', filters] as const,
+  chainMenuCategories: (menuTemplateId: string, filters?: { limit?: number }) =>
+    [
+      ...homeVisitsKeys.discovery(),
+      'chain-menu-categories',
+      menuTemplateId,
+      filters,
+    ] as const,
+  chainMenuCategoryServices: (
+    menuTemplateId: string,
+    categoryId: string,
+    filters?: {
+      limit?: number;
+      search?: string;
+      latitude?: number;
+      longitude?: number;
+      stock?: string;
+      category_ids?: string;
+      subcategory_id?: string;
+      price_tiers?: string;
+      sort_by?: string;
+    },
+  ) =>
+    [
+      ...homeVisitsKeys.discovery(),
+      'chain-menu-category-services',
+      menuTemplateId,
+      categoryId,
+      filters,
+    ] as const,
+  chainMenuDeals: (
+    menuTemplateId: string,
+    filters?: {
+      limit?: number;
+      search?: string;
+      latitude?: number;
+      longitude?: number;
+      stock?: string;
+      category_ids?: string;
+      subcategory_id?: string;
+      price_tiers?: string;
+      sort_by?: string;
+      tab?: string;
+    },
+  ) =>
+    [
+      ...homeVisitsKeys.discovery(),
+      'chain-menu-deals',
+      menuTemplateId,
+      filters,
+    ] as const,
   singleVendorBookings: (filters?: { limit?: number; tab?: string }) =>
     [...homeVisitsKeys.all, 'single-vendor-bookings', filters] as const,
+  singleVendorContracts: (filters?: { limit?: number; tab?: string }) =>
+    [...homeVisitsKeys.singleVendorContractsBase(), filters] as const,
   singleVendorBookingDetail: (orderId: string) =>
     [...homeVisitsKeys.all, 'single-vendor-booking-detail', orderId] as const,
+  singleVendorContractDetail: (contractId: string) =>
+    [...homeVisitsKeys.all, 'single-vendor-contract-detail', contractId] as const,
   bookingSummaryPreview: (input: {
     serviceCenterId: string;
     bookingType: 'one_time' | 'contract';

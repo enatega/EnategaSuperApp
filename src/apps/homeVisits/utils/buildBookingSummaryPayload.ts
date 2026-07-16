@@ -16,6 +16,18 @@ function toOrderPaymentMethod(value: HomeVisitsServicePaymentMethod): HomeVisits
   return value === 'card' ? 'stripe' : 'cod';
 }
 
+function resolveContractDays(routeParams: HomeVisitsReviewAndConfirmRouteParams) {
+  if (routeParams.serviceMode !== 'contract') {
+    return undefined;
+  }
+
+  if (typeof routeParams.contractDays === 'number' && routeParams.contractDays > 0) {
+    return routeParams.contractDays;
+  }
+
+  return routeParams.selectedDateUnixList?.length;
+}
+
 export function buildBookingSummaryPreviewPayload(params: {
   routeParams: HomeVisitsReviewAndConfirmRouteParams;
   addressId?: string;
@@ -69,7 +81,7 @@ export function buildBookingSummaryPreviewPayload(params: {
     teamSize: routeParams.teamSize,
     workerType: routeParams.workerType,
     workingHours: routeParams.workingHours,
-    contractDays: routeParams.serviceMode === 'contract' ? routeParams.contractDays : undefined,
+    contractDays: resolveContractDays(routeParams),
     contractType: routeParams.serviceMode === 'contract' ? routeParams.contractType : undefined,
     repeatEnabled: routeParams.serviceMode === 'contract' ? routeParams.repeatEnabled : false,
     contractEndDateUnix: routeParams.serviceMode === 'contract'
@@ -78,6 +90,7 @@ export function buildBookingSummaryPreviewPayload(params: {
     repeatEndDateUnix: routeParams.serviceMode === 'contract' ? routeParams.repeatEndDateUnix : undefined,
     selectedDateUnix: routeParams.selectedDateUnix,
     selectedDateUnixList: routeParams.selectedDateUnixList,
+    selectedWeekdays: routeParams.selectedWeekdays,
     startTimeUnix: routeParams.startTimeUnix,
     endTimeUnix: routeParams.endTimeUnix,
     slot: scheduledSlot,

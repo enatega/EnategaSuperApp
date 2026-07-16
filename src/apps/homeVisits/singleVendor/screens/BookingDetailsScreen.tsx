@@ -29,6 +29,7 @@ import { resolveBookingStatusLabel } from "../utils/bookingStatusLabel";
 import BookingDetailsActionsSection from "../components/BookingDetails/BookingDetailsActionsSection";
 import BookingDetailsEventsFeed from "../components/BookingDetails/BookingDetailsEventsFeed";
 import BookingDetailsHero from "../components/BookingDetails/BookingDetailsHero";
+import BookingDetailsScreenSkeleton from "../components/BookingDetails/BookingDetailsScreenSkeleton";
 import BookingDetailsServicesSection from "../components/BookingDetails/BookingDetailsServicesSection";
 import BookingDetailsSummarySection from "../components/BookingDetails/BookingDetailsSummarySection";
 import BookingDetailsTextSection from "../components/BookingDetails/BookingDetailsTextSection";
@@ -36,18 +37,58 @@ import type { BookingDetailsLiveEvent } from "../components/BookingDetails/types
 import {
   isTerminalBookingStatus,
 } from "../realtime/jobStatusSync";
+import { normalizeJobStatus } from "../utils/trackWorkerStatus";
 
 type Props = NativeStackScreenProps<
   HomeVisitsSingleVendorNavigationParamList,
   "SingleVendorBookingDetails"
 >;
 
-const HERO_FALLBACK_IMAGE = "https://placehold.co/900x500/png";
 const MAX_LIVE_EVENTS = 10;
 const ACTIVE_BOOKING_QUERY_KEY = homeVisitsKeys.singleVendorBookings({
   limit: 1,
   tab: "ongoing",
 });
+
+function getCancellationLeadMinutes(scheduledAt?: string | null) {
+  if (!scheduledAt) {
+    return null;
+  }
+
+  const scheduledDate = new Date(scheduledAt);
+  if (Number.isNaN(scheduledDate.getTime())) {
+    return null;
+  }
+
+  const diffMinutes = Math.max(
+    0,
+    Math.floor((scheduledDate.getTime() - Date.now()) / (1000 * 60)),
+  );
+
+  if (diffMinutes >= 120) {
+    return 120;
+  }
+
+  if (diffMinutes >= 60) {
+    return 30;
+  }
+
+  return 15;
+}
+
+function formatWeekdaySummary(weekdays?: number[] | null) {
+  if (!weekdays?.length) {
+    return null;
+  }
+
+  return weekdays
+    .map((day) =>
+      new Intl.DateTimeFormat("en-US", { weekday: "short" }).format(
+        new Date(2024, 0, 7 + day),
+      ),
+    )
+    .join(", ");
+}
 
 export default function BookingDetailsScreen({ navigation, route }: Props) {
   const { t } = useTranslation("homeVisits");
@@ -62,6 +103,8 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
   const defaultReviews = React.useMemo(() => getDefaultBookingReviews(t), [t]);
 
   const isCancelled = `${data?.status ?? ""}`.toLowerCase() === "cancelled";
+  const isCompletedBooking =
+    normalizeJobStatus(data?.jobStatus ?? data?.status) === "completed";
   const statusLabel = resolveBookingStatusLabel(
     data?.jobStatus,
     data?.statusLabel,
@@ -77,18 +120,69 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
   );
   const services = data?.services ?? [];
   const totalAmount = formatAmount(
-    data?.summary?.subtotal ?? data?.summary?.totalAmount,
+    data?.totalAmount ?? data?.summary?.totalAmount ?? data?.summary?.subtotal,
   );
   const heroImage =
     data?.categoryImages?.[0]?.imageUrl ??
     data?.image ??
     services[0]?.image ??
-    data?.store?.image ??
-    HERO_FALLBACK_IMAGE;
+    data?.store?.image;
   const cancellationPolicy =
     data?.cancellationPolicy ?? t("single_vendor_booking_cancellation_body");
   const scheduledAt = data?.scheduledAt ?? data?.orderedAt;
   const summaryStatusMessage = data?.statusMessage ?? durationLabel;
+  const normalizedStatus = normalizeJobStatus(data?.jobStatus ?? data?.status);
+  const assignedTeamLabel = React.useMemo(() => {
+    const members = data?.assignedWorkers ?? [];
+    if (members.length === 0 && !data?.assignedWorker) {
+      return null;
+    }
+
+    const roster = members.length > 0 ? members : data?.assignedWorker ? [data.assignedWorker] : [];
+    const supervisorId = data?.supervisorWorkerId ?? data?.assignedWorker?.id;
+
+    return roster
+      .map((worker) => {
+        const name = worker.name?.trim() || "Worker";
+        const isSupervisor = worker.id === supervisorId || worker.role === "supervisor";
+        return isSupervisor ? `${name} (Lead)` : name;
+      })
+      .join(", ");
+  }, [data?.assignedWorker, data?.assignedWorkers, data?.supervisorWorkerId, t]);
+  const assignmentModeLabel =
+    data?.workerType === "team"
+      ? `Team${data?.teamSize ? ` (${data.teamSize})` : ""}`
+      : data?.workerType === "individual"
+        ? "Individual"
+        : null;
+  const contractSummary = React.useMemo(() => {
+    if (data?.bookingType !== "contract") {
+      return null;
+    }
+
+    const labels: string[] = [];
+    const contractTypeLabel =
+      data.contractType === "yearly"
+        ? "Yearly"
+        : data.contractType === "monthly"
+          ? "Monthly"
+          : data.contractType === "weekly"
+            ? "Weekly"
+            : "Contract";
+
+    labels.push(`Plan: ${contractTypeLabel}`);
+
+    const weekdaySummary = formatWeekdaySummary(data.selectedWeekdays);
+    if (weekdaySummary) {
+      labels.push(`Days: ${weekdaySummary}`);
+    }
+
+    return labels.join("\n");
+  }, [
+    data?.bookingType,
+    data?.contractType,
+    data?.selectedWeekdays,
+  ]);
   const reviewLabel = t("single_vendor_reviews_summary_label", {
     count:
       reviewSummary.distribution.find((item) => item.rating === 5)?.count ?? 0,
@@ -100,6 +194,49 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
       resolveDurationLabel(label, fallback, t),
     [t],
   );
+  const hasAssignedWorker = React.useMemo(() => {
+    if (data?.assignedWorkers?.some((worker) => Boolean(worker?.id))) {
+      return true;
+    }
+
+    return Boolean(data?.assignedWorker?.id);
+  }, [data?.assignedWorker?.id, data?.assignedWorkers]);
+  const canCancelAppointment = React.useMemo(() => {
+    if (!scheduledAt || isCancelled || isCompletedBooking || hasAssignedWorker) {
+      return false;
+    }
+
+    if (
+      normalizedStatus === "worker_assigned" ||
+      normalizedStatus === "on_my_way" ||
+      normalizedStatus === "reached" ||
+      normalizedStatus === "job_started" ||
+      normalizedStatus === "service_started" ||
+      normalizedStatus === "in_progress" ||
+      normalizedStatus === "marked_complete" ||
+      normalizedStatus === "payment_requested"
+    ) {
+      return false;
+    }
+
+    const leadMinutes = getCancellationLeadMinutes(scheduledAt);
+    if (leadMinutes === null) {
+      return false;
+    }
+
+    const scheduledDate = new Date(scheduledAt);
+    if (Number.isNaN(scheduledDate.getTime())) {
+      return false;
+    }
+
+    return Date.now() < scheduledDate.getTime() - leadMinutes * 60 * 1000;
+  }, [
+    hasAssignedWorker,
+    isCancelled,
+    isCompletedBooking,
+    normalizedStatus,
+    scheduledAt,
+  ]);
 
   React.useEffect(() => {
     if (!data) {
@@ -179,6 +316,14 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
     }
   }, [scheduledAt, t]);
 
+  if (isLoading && !data?.orderId) {
+    return (
+      <View style={[styles.screen, { backgroundColor: colors.background }]}>
+        <BookingDetailsScreenSkeleton topInset={insets.top} />
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <ScrollView
@@ -202,22 +347,26 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
             statusMessage={summaryStatusMessage}
           />
 
-          <BookingDetailsActionsSection
-            onAddToCalendar={() => {
-              void handleAddToCalendar();
-            }}
-            onManageAppointment={() => {
-              navigation.navigate("SingleVendorManageAppointment", { orderId });
-            }}
-            onTrackWorker={() => {
-              navigation.navigate("SingleVendorTrackWorker", {
-                orderId,
-                source: "booking_details",
-              });
-            }}
-          />
+          {!isCompletedBooking && !isCancelled ? (
+            <BookingDetailsActionsSection
+              onAddToCalendar={() => {
+                void handleAddToCalendar();
+              }}
+              onTrackWorker={() => {
+                navigation.navigate("SingleVendorTrackWorker", {
+                  orderId,
+                  source: "booking_details",
+                });
+              }}
+              onCancelAppointment={() => {
+                navigation.navigate("SingleVendorCancelAppointment", { orderId });
+              }}
+              showCancelAppointment={canCancelAppointment}
+            />
+          ) : null}
 
           <BookingDetailsServicesSection
+            details={data}
             formatAmount={formatAmount}
             isLoading={isLoading}
             resolveDurationLabel={resolveDuration}
@@ -234,6 +383,18 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
             />
           ) : null}
 
+          {contractSummary || assignmentModeLabel || assignedTeamLabel ? (
+            <BookingDetailsTextSection
+              primaryText={contractSummary ?? assignmentModeLabel ?? assignedTeamLabel}
+              secondaryText={
+                contractSummary && (assignmentModeLabel || assignedTeamLabel)
+                  ? [assignmentModeLabel, assignedTeamLabel].filter(Boolean).join("\n")
+                  : null
+              }
+              title="Booking setup"
+            />
+          ) : null}
+
           {data?.addressLabel || data?.address ? (
             <BookingDetailsTextSection
               primaryText={
@@ -242,6 +403,15 @@ export default function BookingDetailsScreen({ navigation, route }: Props) {
               primaryWeight="semiBold"
               secondaryText={data?.address}
               title={t("single_vendor_booking_address_title")}
+            />
+          ) : null}
+
+          {assignmentModeLabel || assignedTeamLabel ? (
+            <BookingDetailsTextSection
+              primaryText={assignmentModeLabel}
+              primaryWeight="semiBold"
+              secondaryText={assignedTeamLabel}
+              title="Assigned team"
             />
           ) : null}
 

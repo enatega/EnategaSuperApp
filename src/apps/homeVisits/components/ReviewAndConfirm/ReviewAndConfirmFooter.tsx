@@ -7,18 +7,20 @@ import { useTheme } from '../../../../general/theme/theme';
 import { formatPrice } from '../ServiceDetailsPage/serviceDetailsSelection';
 
 type Props = {
-  totalPrice: number;
+  totalPrice: number | null;
   serviceCountLabel: string;
   durationLabel: string | null;
   bottomInset: number;
   buttonLabel: string;
   onConfirm: () => void;
+  supportingText?: string | null;
 };
 
 function ReviewAndConfirmFooter({
   bottomInset,
   buttonLabel,
   durationLabel,
+  supportingText,
   onConfirm,
   serviceCountLabel,
   totalPrice,
@@ -38,16 +40,29 @@ function ReviewAndConfirmFooter({
     >
       <View style={styles.footerRow}>
         <View style={styles.footerMeta}>
-          <Text
-            weight="bold"
-            style={{
-              color: colors.text,
-              fontSize: typography.size.sm2,
-              lineHeight: typography.lineHeight.md,
-            }}
-          >
-            {formatPrice(totalPrice)}
-          </Text>
+          {totalPrice !== null ? (
+            <Text
+              weight="bold"
+              style={{
+                color: colors.text,
+                fontSize: typography.size.sm2,
+                lineHeight: typography.lineHeight.md,
+              }}
+            >
+              {formatPrice(totalPrice)}
+            </Text>
+          ) : supportingText ? (
+            <Text
+              weight="bold"
+              style={{
+                color: colors.text,
+                fontSize: typography.size.sm2,
+                lineHeight: typography.lineHeight.md,
+              }}
+            >
+              {supportingText}
+            </Text>
+          ) : null}
 
           <View style={styles.footerMetaLine}>
             <Text

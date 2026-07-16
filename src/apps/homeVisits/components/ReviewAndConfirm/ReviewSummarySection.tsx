@@ -13,9 +13,11 @@ type Props = {
     value: number;
     isEmphasized?: boolean;
   }>;
+  emptyMessage?: string | null;
 };
 
 function ReviewSummarySection({
+  emptyMessage,
   rows,
   subtitle,
   title,
@@ -52,32 +54,56 @@ function ReviewSummarySection({
         {subtitle}
       </Text>
 
-      <View style={styles.rows}>
-        {rows.map((row) => (
-          <View key={row.id} style={styles.row}>
-            <Text
-              weight={row.isEmphasized ? 'bold' : 'medium'}
-              style={{
-                color: row.isEmphasized ? colors.text : colors.iconMuted,
-                fontSize: typography.size.xs2,
-                lineHeight: typography.lineHeight.sm,
-              }}
-            >
-              {row.label}
-            </Text>
-            <Text
-              weight={row.isEmphasized ? 'bold' : 'medium'}
-              style={{
-                color: colors.text,
-                fontSize: typography.size.xs2,
-                lineHeight: typography.lineHeight.sm,
-              }}
-            >
-              {formatRowValue(row.value)}
-            </Text>
-          </View>
-        ))}
-      </View>
+      {rows.length > 0 ? (
+        <View style={styles.rows}>
+          {rows.map((row) => (
+            <View key={row.id} style={styles.row}>
+              <Text
+                weight={row.isEmphasized ? 'bold' : 'medium'}
+                style={{
+                  color: row.isEmphasized ? colors.text : colors.iconMuted,
+                  fontSize: typography.size.xs2,
+                  lineHeight: typography.lineHeight.sm,
+                }}
+              >
+                {row.label}
+              </Text>
+              <Text
+                weight={row.isEmphasized ? 'bold' : 'medium'}
+                style={{
+                  color: colors.text,
+                  fontSize: typography.size.xs2,
+                  lineHeight: typography.lineHeight.sm,
+                }}
+              >
+                {formatRowValue(row.value)}
+              </Text>
+            </View>
+          ))}
+        </View>
+      ) : emptyMessage ? (
+        <View
+          style={{
+            backgroundColor: colors.backgroundTertiary,
+            borderColor: colors.border,
+            borderRadius: 12,
+            borderWidth: 1,
+            paddingHorizontal: 14,
+            paddingVertical: 12,
+          }}
+        >
+          <Text
+            weight="medium"
+            style={{
+              color: colors.iconMuted,
+              fontSize: typography.size.xs2,
+              lineHeight: typography.lineHeight.sm,
+            }}
+          >
+            {emptyMessage}
+          </Text>
+        </View>
+      ) : null}
     </View>
   );
 }

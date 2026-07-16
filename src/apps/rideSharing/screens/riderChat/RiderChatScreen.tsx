@@ -75,14 +75,29 @@ export default function RiderChatScreen() {
     );
   }, [chatBoxId, chatBoxes, driverUserId, senderId]);
   const chatMessagesQuery = useRideChatMessages(resolvedChatBoxId);
+  const resolvedChatBoxIdRef = useRef(resolvedChatBoxId);
+  const refetchChatBoxesRef = useRef(chatBoxesQuery.refetch);
+  const refetchChatMessagesRef = useRef(chatMessagesQuery.refetch);
+
+  useEffect(() => {
+    resolvedChatBoxIdRef.current = resolvedChatBoxId;
+    refetchChatBoxesRef.current = chatBoxesQuery.refetch;
+    refetchChatMessagesRef.current = chatMessagesQuery.refetch;
+  }, [chatBoxesQuery.refetch, chatMessagesQuery.refetch, resolvedChatBoxId]);
 
   const sendMessageMutation = useSendRideChatMessage({
     onError: (error) => {
       setPendingMessages((current) => current.slice(0, -1));
       showToast.error(t('ride_chat_send_error_title'), error.message || t('ride_chat_send_error_message'));
     },
-    onSuccess: (response) => {
+    onSuccess: (response, variables) => {
       const nextChatBoxId = response.chatBoxId ?? resolvedChatBoxId;
+
+      socketClient.sendMessage({
+        sender: variables.senderId,
+        receiver: variables.receiverId,
+        text: variables.text,
+      });
 
       if (response.chatBoxId) {
         setChatBoxId(response.chatBoxId);
@@ -211,7 +226,7 @@ export default function RiderChatScreen() {
         return [
           ...current,
           {
-            id: `realtime-${Date.now()}`,
+            id: `realtime-${message.sender}-${message.receiver}-${message.text.trim()}`,
             isCurrentUser: false,
             text: message.text,
             timeLabel: formatRideChatTimeLabel(new Date().toISOString()),
@@ -219,18 +234,12 @@ export default function RiderChatScreen() {
         ];
       });
 
-      void chatBoxesQuery.refetch();
-      if (resolvedChatBoxId) {
-        void chatMessagesQuery.refetch();
+      void refetchChatBoxesRef.current();
+      if (resolvedChatBoxIdRef.current) {
+        void refetchChatMessagesRef.current();
       }
     });
-  }, [
-    chatBoxesQuery,
-    chatMessagesQuery,
-    driverUserId,
-    resolvedChatBoxId,
-    senderId,
-  ]);
+  }, [driverUserId, senderId]);
 
   const appendMessage = useCallback((messageText: string) => {
     const trimmed = messageText.trim();

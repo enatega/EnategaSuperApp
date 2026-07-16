@@ -13,12 +13,28 @@ import Text from "../../../components/Text";
 import Icon from "../../../components/Icon";
 import { useEmailLogin } from "../../../hooks/useAuthMutations";
 import { getPendingAppRoute } from "../../../navigation/pendingAppRedirect";
+import { resetToSharedHome } from "../../../navigation/rootNavigation";
 import { showToast } from "../../../components/AppToast";
 import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal";
 import AppPopup from "../../../components/AppPopup";
 import KeyboardDismissWrapper from "../../../components/KeyboardDismissWrapper";
 import { rememberedCredentials } from "../../../auth/rememberedCredentials";
 import { getExpoPushTokenForAuth } from "../../../services/notifications/expoPushTokenService";
+
+const resolveLoginErrorMessage = (
+  message: string | undefined,
+  t: (key: string) => string,
+) => {
+  if (!message) {
+    return t("something_went_wrong");
+  }
+
+  if (message.toLowerCase() === "invalid password") {
+    return t("invalid_password");
+  }
+
+  return message;
+};
 
 const EnterPassword = ({ route }) => {
   const {
@@ -60,7 +76,7 @@ const EnterPassword = ({ route }) => {
       const pendingRoute = await getPendingAppRoute();
 
       if (!pendingRoute) {
-        navigation.navigate("Home" as never);
+        resetToSharedHome();
       }
     },
     onError: (error) => {
@@ -68,8 +84,9 @@ const EnterPassword = ({ route }) => {
       if (error.status == 429) {
         rateLimitModal.show();
       } else {
-        showToast.error("Error!", error?.message);
-        seterrorMessage(error?.message);
+        const resolvedErrorMessage = resolveLoginErrorMessage(error?.message, t);
+        showToast.error("Error!", resolvedErrorMessage);
+        seterrorMessage(resolvedErrorMessage);
       }
     },
   });
@@ -100,6 +117,7 @@ const EnterPassword = ({ route }) => {
           onChangeText={(text) => {
             setPassword(text);
             setHasError(false);
+            seterrorMessage("");
           }}
           placeholder="password"
           iconName="lock"
@@ -114,7 +132,7 @@ const EnterPassword = ({ route }) => {
           <View style={rowStyles.errorContainer}>
             <Icon type="Feather" name="info" size={15} color={colors.danger} />
             <Text style={[rowStyles.errorText, { color: colors.danger }]}>
-              {t(errorMessage)}
+              {errorMessage}
             </Text>
           </View>
         )}

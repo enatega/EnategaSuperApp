@@ -48,11 +48,33 @@ type ApiErrorResponseData = {
   message?: string | string[];
   code?: string;
   error?: string;
+  detail?: string | string[];
 };
 
 type ExtendedAxiosRequestConfig = AxiosRequestConfig & {
   skipSessionExpiryHandling?: boolean;
+  suppressTransientSuccessStreamWarning?: boolean;
 };
+
+function sanitizeHeaders(headers: unknown): Record<string, unknown> | undefined {
+  if (!headers || typeof headers !== 'object') {
+    return undefined;
+  }
+
+  const entries = Object.entries(headers as Record<string, unknown>);
+
+  return Object.fromEntries(
+    entries.map(([key, value]) => {
+      const normalizedKey = key.toLowerCase();
+
+      if (normalizedKey === 'authorization') {
+        return [key, '[redacted]'];
+      }
+
+      return [key, value];
+    }),
+  );
+}
 
 function hasMissingAuthHeaderSignal(responseData?: ApiErrorResponseData): boolean {
   const messageText = toLowerCaseMessage(responseData?.message);
@@ -111,6 +133,141 @@ export class ApiError extends Error {
     this.code = code;
     this.data = data;
   }
+}
+
+export type ApiNetworkFailureDetails = {
+  url?: string;
+  method?: string;
+  baseURL?: string;
+  timeout?: number;
+  params?: unknown;
+  data?: unknown;
+  headers?: Record<string, unknown>;
+  requestStatus?: unknown;
+  requestReadyState?: unknown;
+  rawResponse?: string;
+  responseData?: unknown;
+};
+
+function normalizeApiMessageValue(value: unknown): string | undefined {
+  if (Array.isArray(value)) {
+    const joinedValue = value
+      .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+      .join('\n')
+      .trim();
+
+    return joinedValue.length > 0 ? joinedValue : undefined;
+  }
+
+  if (typeof value === 'string') {
+    const trimmedValue = value.trim();
+    return trimmedValue.length > 0 ? trimmedValue : undefined;
+  }
+
+  return undefined;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function parseRawResponse(rawResponse?: string): unknown {
+  const trimmedResponse = rawResponse?.trim();
+
+  if (!trimmedResponse) {
+    return undefined;
+  }
+
+  try {
+    return JSON.parse(trimmedResponse) as unknown;
+  } catch {
+    if (trimmedResponse.startsWith('<')) {
+      return undefined;
+    }
+
+    return trimmedResponse;
+  }
+}
+
+function isTransportNoiseMessage(value: unknown): boolean {
+  if (typeof value !== 'string') {
+    return false;
+  }
+
+  const normalizedValue = value.trim().toLowerCase();
+  return (
+    normalizedValue === 'stream was reset: cancel' ||
+    normalizedValue === 'canceled' ||
+    normalizedValue === 'cancelled' ||
+    normalizedValue === 'network error'
+  );
+}
+
+function isSuccessfulStatus(status: number): boolean {
+  return status >= 200 && status < 300;
+}
+
+function getSafeNetworkFailureMessage(
+  status: number,
+  recoveredMessage: string | undefined,
+  fallbackMessage: string | undefined,
+): string {
+  if (recoveredMessage && !isTransportNoiseMessage(recoveredMessage)) {
+    return recoveredMessage;
+  }
+
+  if (status >= 400) {
+    return 'Something went wrong.';
+  }
+
+  if (fallbackMessage && !isTransportNoiseMessage(fallbackMessage)) {
+    return fallbackMessage;
+  }
+
+  return 'Network error – please check your connection.';
+}
+
+export function extractApiErrorMessage(source: unknown): string | undefined {
+  const directMessage = normalizeApiMessageValue(source);
+
+  if (directMessage && !isTransportNoiseMessage(directMessage)) {
+    return directMessage;
+  }
+
+  if (!isRecord(source)) {
+    return undefined;
+  }
+
+  const nestedMessage =
+    normalizeApiMessageValue(source.message) ??
+    normalizeApiMessageValue(source.error) ??
+    normalizeApiMessageValue(source.detail);
+
+  if (nestedMessage && !isTransportNoiseMessage(nestedMessage)) {
+    return nestedMessage;
+  }
+
+  if ('responseData' in source) {
+    const responseDataMessage = extractApiErrorMessage(source.responseData);
+    if (responseDataMessage) {
+      return responseDataMessage;
+    }
+  }
+
+  if (typeof source.rawResponse === 'string') {
+    return extractApiErrorMessage(parseRawResponse(source.rawResponse));
+  }
+
+  return undefined;
+}
+
+function extractApiErrorCode(source: unknown): string | undefined {
+  if (!isRecord(source) || typeof source.code !== 'string') {
+    return undefined;
+  }
+
+  const trimmedCode = source.code.trim();
+  return trimmedCode.length > 0 ? trimmedCode : undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -200,16 +357,97 @@ function toApiError(error: unknown): ApiError {
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError<ApiErrorResponseData>;
     const status = axiosError.response?.status ?? 0;
-    const data = axiosError.response?.data;
-    const message = Array.isArray(data?.message)
-      ? data.message.filter(Boolean).join('\n')
-      : data?.message;
+    const responseData = axiosError.response?.data;
+    const message = extractApiErrorMessage(responseData);
+    const suppressTransientSuccessStreamWarning = Boolean(
+      (axiosError.config as ExtendedAxiosRequestConfig | undefined)
+        ?.suppressTransientSuccessStreamWarning,
+    );
+
+    const requestDetails = {
+      url: axiosError.config?.url,
+      method: axiosError.config?.method,
+      baseURL: axiosError.config?.baseURL,
+      timeout: axiosError.config?.timeout,
+      params: axiosError.config?.params,
+      data: axiosError.config?.data,
+      headers: sanitizeHeaders(axiosError.config?.headers),
+    };
+
+    if (!axiosError.response) {
+      const rawRequest = axiosError.request as
+        | { _response?: unknown; responseText?: unknown; status?: unknown; readyState?: unknown }
+        | undefined;
+      const networkFailureDetails: ApiNetworkFailureDetails = {
+        ...requestDetails,
+        requestStatus: rawRequest?.status,
+        requestReadyState: rawRequest?.readyState,
+        rawResponse:
+          typeof rawRequest?._response === 'string'
+            ? rawRequest._response
+            : typeof rawRequest?.responseText === 'string'
+              ? rawRequest.responseText
+              : undefined,
+      };
+      networkFailureDetails.responseData = parseRawResponse(
+        networkFailureDetails.rawResponse,
+      );
+      const recoveredMessage =
+        extractApiErrorMessage(networkFailureDetails.responseData) ??
+        extractApiErrorMessage(networkFailureDetails);
+      const recoveredCode = extractApiErrorCode(networkFailureDetails.responseData);
+      const normalizedStatus =
+        typeof networkFailureDetails.requestStatus === 'number'
+          ? networkFailureDetails.requestStatus
+          : status;
+      const safeMessage = getSafeNetworkFailureMessage(
+        normalizedStatus,
+        recoveredMessage,
+        axiosError.message,
+      );
+      const isTransientSuccessfulResponse = isSuccessfulStatus(normalizedStatus);
+      const logPayload = {
+        message: axiosError.message,
+        code: axiosError.code,
+        hasRequest: Boolean(axiosError.request),
+        ...networkFailureDetails,
+      };
+
+      if (isTransientSuccessfulResponse) {
+        if (!suppressTransientSuccessStreamWarning) {
+          console.warn('[API] successful response stream was lost before Axios could parse it', logPayload);
+        }
+      } else {
+        console.error('[API] network request failed before response', logPayload);
+      }
+
+      return new ApiError(
+        safeMessage,
+        normalizedStatus,
+        recoveredCode
+        ?? (isTransientSuccessfulResponse
+          ? 'TRANSIENT_RESPONSE_STREAM_LOST'
+          : recoveredMessage
+            ? undefined
+            : 'NETWORK_ERROR'),
+        networkFailureDetails,
+      );
+    } else {
+      console.error('[API] request failed with response', {
+        ...requestDetails,
+        message: axiosError.message,
+        code: axiosError.code,
+        status,
+        responseData,
+        responseHeaders: sanitizeHeaders(axiosError.response.headers),
+      });
+    }
 
     return new ApiError(
-      message ?? data?.error ?? axiosError.message ?? 'Request failed',
+      message ?? responseData?.error ?? axiosError.message ?? 'Request failed',
       status,
-      data?.code,
-      data,
+      extractApiErrorCode(responseData),
+      responseData,
     );
   }
 
@@ -222,6 +460,7 @@ function toApiError(error: unknown): ApiError {
 export type ApiRequestOptions = {
   skipSessionExpiryHandling?: boolean;
   skipAuth?: boolean;
+  suppressTransientSuccessStreamWarning?: boolean;
   headers?: Record<string, string>;
 };
 
@@ -233,6 +472,7 @@ async function request<T>(
     const requestConfig: ExtendedAxiosRequestConfig = {
       ...config,
       skipSessionExpiryHandling: options.skipSessionExpiryHandling,
+      suppressTransientSuccessStreamWarning: options.suppressTransientSuccessStreamWarning,
       headers: options.skipAuth
         ? { ...config.headers, ...options.headers, 'x-skip-auth': '1' }
         : { ...config.headers, ...options.headers },

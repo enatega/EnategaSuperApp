@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { showToast } from '../../../../../general/components/AppToast';
 import { useAuthSessionQuery } from '../../../../../general/hooks/useAuthQueries';
 import { getApiErrorMessage } from '../../../../../general/utils/apiError';
+import { ApiError } from '../../../../../general/api/apiClient';
 import type { ActiveRidePayload } from '../../../api/types';
 import { useRateRide } from '../../../hooks/useRideMutations';
 import { useCompletedRideFeedbackStore } from '../../../stores/useCompletedRideFeedbackStore';
@@ -61,6 +62,15 @@ export function useCompletedRideFeedbackController() {
         t('ride_feedback_submit_success_message'),
       );
     } catch (error) {
+      if (error instanceof ApiError && error.status >= 200 && error.status < 300) {
+        clearFeedbackRide();
+        showToast.success(
+          t('ride_feedback_submit_success_title'),
+          t('ride_feedback_submit_success_message'),
+        );
+        return;
+      }
+
       showToast.error(
         t('ride_feedback_submit_error_title'),
         getApiErrorMessage(error, t('ride_feedback_submit_error_message')),

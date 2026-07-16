@@ -46,7 +46,7 @@ export default function MultiVendorAddressHeader({
   const resolvedSelectedAddress =
     selectedAddress?.id === 'current-location'
       ? selectedAddress
-      : apiSelectedAddress ?? selectedAddress;
+      : selectedAddress ?? apiSelectedAddress;
   const resolvedSelectedAddressLabel = (() => {
     if (resolvedSelectedAddress?.id === 'current-location') {
       return (

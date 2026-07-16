@@ -133,7 +133,6 @@ function RideOptionsMapLayer({
       <Map
         ref={mapRef}
         initialRegion={initialRegion}
-        showsUserLocation={true}
         showsMyLocationButton={false}
         showsCompass={false}
         toolbarEnabled={false}

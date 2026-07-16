@@ -14,22 +14,17 @@ import useSelectSavedAddress from '../../../../general/hooks/useSelectSavedAddre
 import { getApiErrorMessage } from '../../../../general/utils/apiError';
 import { resolveSavedAddressId } from '../../../../general/utils/address';
 import { useTheme } from '../../../../general/theme/theme';
-import { formatPrice } from '../../components/ServiceDetailsPage/serviceDetailsSelection';
 import ReviewAddressRowSection from '../../components/ReviewAndConfirm/ReviewAddressRowSection';
 import ReviewAndConfirmFooter from '../../components/ReviewAndConfirm/ReviewAndConfirmFooter';
 import ReviewAndConfirmHeader from '../../components/ReviewAndConfirm/ReviewAndConfirmHeader';
 import ReviewAppointmentConfirmedTransition from '../../components/ReviewAndConfirm/ReviewAppointmentConfirmedTransition';
 import ReviewCancellationSection from '../../components/ReviewAndConfirm/ReviewCancellationSection';
 import ReviewConfirmBookingPopup from '../../components/ReviewAndConfirm/ReviewConfirmBookingPopup';
-import ReviewDiscountCodeBottomSheet from '../../components/ReviewAndConfirm/ReviewDiscountCodeBottomSheet';
 import ReviewMapHeroSection from '../../components/ReviewAndConfirm/ReviewMapHeroSection';
-import ReviewPaymentMethodBottomSheet, {
-  type ReviewPaymentMethod,
-} from '../../components/ReviewAndConfirm/ReviewPaymentMethodBottomSheet';
 import ReviewNotesSection from '../../components/ReviewAndConfirm/ReviewNotesSection';
-import ReviewPaymentSection from '../../components/ReviewAndConfirm/ReviewPaymentSection';
 import ReviewScheduleSection from '../../components/ReviewAndConfirm/ReviewScheduleSection';
 import ReviewSummarySection from '../../components/ReviewAndConfirm/ReviewSummarySection';
+import ReviewTeamScheduleSection from '../../components/ReviewAndConfirm/ReviewTeamScheduleSection';
 import { useBookingSummaryPreview } from '../../hooks/useBookingSummaryPreview';
 import { usePlaceBookingOrder } from '../../hooks/usePlaceBookingOrder';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../../singleVendor/navigation/types';
@@ -58,6 +53,37 @@ function formatScheduleLabel(isoDate: string) {
   return `${DATE_FORMATTER.format(date)}, ${TIME_FORMATTER.format(date)}`;
 }
 
+function formatWeekdaySummary(weekdays?: number[]) {
+  if (!weekdays?.length) {
+    return null;
+  }
+
+  return weekdays
+    .map((day) =>
+      new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(
+        new Date(2024, 0, 7 + day),
+      ),
+    )
+    .join(', ');
+}
+
+function getCancellationNoticeKey(scheduledAt: Date) {
+  const diffMinutes = Math.max(
+    0,
+    Math.floor((scheduledAt.getTime() - Date.now()) / (1000 * 60)),
+  );
+
+  if (diffMinutes >= 120) {
+    return 'review_confirm_cancellation_notice_two_hours';
+  }
+
+  if (diffMinutes >= 60) {
+    return 'review_confirm_cancellation_notice_thirty_minutes';
+  }
+
+  return 'review_confirm_cancellation_notice_fifteen_minutes';
+}
+
 export default function ReviewAndConfirm() {
   const { colors } = useTheme();
   const { t } = useTranslation('homeVisits');
@@ -82,12 +108,19 @@ export default function ReviewAndConfirm() {
   );
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
+  const flowNavigation = useMemo(
+    () =>
+      navigation as unknown as {
+        replace: (screen: string, params: Record<string, unknown>) => void;
+      },
+    [navigation],
+  );
   const { summary } = route.params;
+  const isContractBooking = route.params.serviceMode === 'contract';
+  const isMultiVendorBooking = route.params.bookingFlow === 'multiVendor';
   const [isConfirmPopupVisible, setIsConfirmPopupVisible] = useState(false);
-  const [isPaymentMethodSheetVisible, setIsPaymentMethodSheetVisible] = useState(false);
-  const [isDiscountCodeSheetVisible, setIsDiscountCodeSheetVisible] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<ReviewPaymentMethod>('cash');
-  const [discountCode, setDiscountCode] = useState('');
+  const selectedPaymentMethod = 'cash';
+  const discountCode = '';
   const [availabilityPopup, setAvailabilityPopup] = useState<{
     visible: boolean;
     title: string;
@@ -107,12 +140,64 @@ export default function ReviewAndConfirm() {
     () => formatScheduleLabel(selectedScheduledAt.toISOString()),
     [selectedScheduledAt],
   );
-  const paymentTitle = selectedPaymentMethod === 'cash'
-    ? t('review_confirm_payment_title')
-    : t('review_confirm_payment_card_label');
-  const discountSubtitle = discountCode
-    ? t('review_confirm_discount_applied', { code: discountCode })
-    : t('review_confirm_discount_subtitle');
+  const reviewTeamLabel = useMemo(() => {
+    const assignmentMode =
+      route.params.workerType === 'team'
+        ? t('team_schedule_worker_type_team_title')
+        : t('team_schedule_worker_type_individual_title');
+
+    return `${assignmentMode} • ${route.params.teamSize} ${
+      route.params.teamSize === 1
+        ? t('team_worker_singular')
+        : t('team_worker_plural')
+    }`;
+  }, [route.params.teamSize, route.params.workerType, t]);
+  const reviewHoursLabel = useMemo(
+    () =>
+      `${route.params.workingHours} ${
+        route.params.workingHours === 1
+          ? t('team_schedule_working_hours_hour')
+          : t('team_schedule_working_hours_hours')
+      }`,
+    [route.params.workingHours, t],
+  );
+  const reviewServiceModeLabel = useMemo(() => {
+    if (route.params.serviceMode !== 'contract') {
+      return t('team_schedule_service_mode_one_time_title');
+    }
+
+    if (route.params.contractType === 'yearly') {
+      return t('team_schedule_contract_type_yearly');
+    }
+
+    return t('team_schedule_contract_type_monthly');
+  }, [route.params.contractType, route.params.serviceMode, t]);
+  const reviewScheduleLabel = useMemo(() => {
+    if (route.params.serviceMode !== 'contract') {
+      return scheduleForLabel;
+    }
+
+    const weekdaySummary = formatWeekdaySummary(route.params.selectedWeekdays);
+    const datePrefix = DATE_FORMATTER.format(selectedScheduledAt);
+    const timeLabel = `${route.params.scheduledSlot.startTime} - ${route.params.scheduledSlot.endTime}`;
+
+    if (!weekdaySummary) {
+      return `${datePrefix} • ${timeLabel}`;
+    }
+
+    return `${weekdaySummary} • ${timeLabel}`;
+  }, [
+    route.params.scheduledSlot.endTime,
+    route.params.scheduledSlot.startTime,
+    route.params.selectedWeekdays,
+    route.params.serviceMode,
+    scheduleForLabel,
+    selectedScheduledAt,
+  ]);
+  const cancellationNotice = useMemo(
+    () => t(getCancellationNoticeKey(selectedScheduledAt)),
+    [selectedScheduledAt, t],
+  );
   const bookingSummaryPayload = useMemo(
     () =>
       buildBookingSummaryPreviewPayload({
@@ -140,34 +225,94 @@ export default function ReviewAndConfirm() {
   const serviceCenterLocation = bookingPreviewData?.serviceCenterLocation;
 
   const summaryRows = useMemo(
-    () => [
-      {
+    () => {
+      if (isContractBooking) {
+        return [];
+      }
+
+      const rows: Array<{
+        id: string;
+        label: string;
+        value: number;
+        isEmphasized?: boolean;
+      }> = [];
+      const selectedServicesAmount = previewSummary?.subtotal ?? summary.totalPrice;
+      const discountAmount = previewSummary?.discountAmount ?? 0;
+      const taxAmount = previewSummary?.tax ?? 0;
+      const deliveryFeeAmount = previewSummary?.deliveryFee ?? 0;
+      const packingChargesAmount = previewSummary?.packingCharges ?? 0;
+      const riderTipAmount = previewSummary?.riderTip ?? 0;
+
+      rows.push({
         id: 'services',
         label: t('review_confirm_price_services'),
-        value: previewSummary?.subtotal ?? summary.totalPrice,
-      },
-      {
+        value: selectedServicesAmount,
+      });
+
+      if (taxAmount > 0) {
+        rows.push({
+          id: 'tax',
+          label: t('review_confirm_price_tax'),
+          value: taxAmount,
+        });
+      }
+
+      if (deliveryFeeAmount > 0) {
+        rows.push({
+          id: 'delivery-fee',
+          label: t('review_confirm_price_delivery_fee'),
+          value: deliveryFeeAmount,
+        });
+      }
+
+      if (packingChargesAmount > 0) {
+        rows.push({
+          id: 'packing-charges',
+          label: t('review_confirm_price_packing_charges'),
+          value: packingChargesAmount,
+        });
+      }
+
+      if (riderTipAmount > 0) {
+        rows.push({
+          id: 'tip',
+          label: t('review_confirm_price_tip'),
+          value: riderTipAmount,
+        });
+      }
+
+      rows.push({
         id: 'discount',
         label: t('review_confirm_discount_title'),
-        value: -(previewSummary?.discountAmount ?? 0),
-      },
-      {
+        value: -discountAmount,
+      });
+
+      rows.push({
         id: 'total',
         label: t('review_confirm_price_total'),
         value: previewSummary?.payableAmount ?? summary.totalPrice,
         isEmphasized: true,
-      },
-    ],
+      });
+
+      return rows;
+    },
     [
+      isContractBooking,
       previewSummary?.discountAmount,
+      previewSummary?.deliveryFee,
       previewSummary?.payableAmount,
+      previewSummary?.packingCharges,
+      previewSummary?.riderTip,
       previewSummary?.subtotal,
+      previewSummary?.tax,
       summary.totalPrice,
       t,
     ],
   );
 
-  const totalForFooter = previewSummary?.payableAmount ?? summary.totalPrice;
+  const totalForFooter = isContractBooking
+    ? null
+    : previewSummary?.payableAmount ?? summary.totalPrice;
   const serviceCountForFooter = previewSummary?.serviceCount ?? summary.serviceCount;
   const serviceCountLabel = `${serviceCountForFooter} ${
     serviceCountForFooter === 1
@@ -231,8 +376,21 @@ export default function ReviewAndConfirm() {
       try {
         const response = await placeBookingOrderMutation.mutateAsync({
           ...bookingSummaryPayload,
-          totalAmount: totalForFooter,
+          totalAmount: totalForFooter ?? 0,
         });
+
+        if (isContractBooking && response.contractId) {
+          setIsConfirmPopupVisible(false);
+          flowNavigation.replace(
+            isMultiVendorBooking
+              ? 'MultiVendorContractDetails'
+              : 'SingleVendorContractDetails',
+            {
+              contractId: response.contractId,
+            },
+          );
+          return;
+        }
 
         if (!response.orderId) {
           setAvailabilityPopup({
@@ -268,15 +426,20 @@ export default function ReviewAndConfirm() {
     }
 
     const timeoutId = setTimeout(() => {
-      navigation.replace('SingleVendorBookingDetails', {
-        orderId: confirmedOrderId,
-      });
+      flowNavigation.replace(
+        isMultiVendorBooking
+          ? 'MultiVendorBookingDetails'
+          : 'SingleVendorBookingDetails',
+        {
+          orderId: confirmedOrderId,
+        },
+      );
     }, CONFIRMATION_TRANSITION_MS);
 
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [confirmedOrderId, navigation]);
+  }, [confirmedOrderId, flowNavigation, isMultiVendorBooking]);
 
   if (confirmedOrderId) {
     return (
@@ -329,24 +492,28 @@ export default function ReviewAndConfirm() {
           title={t('review_confirm_schedule_for')}
         />
 
-        <ReviewPaymentSection
-          discountSubtitle={discountSubtitle}
-          discountTitle={t('review_confirm_discount_title')}
-          onDiscountPress={() => setIsDiscountCodeSheetVisible(true)}
-          onPaymentPress={() => setIsPaymentMethodSheetVisible(true)}
-          paymentMethod={selectedPaymentMethod}
-          paymentSubtitle={t('review_confirm_payment_subtitle')}
-          paymentTitle={paymentTitle}
-          title={t('review_confirm_payment_section_title')}
+        <ReviewTeamScheduleSection
+          dateTimeLabel={t('review_confirm_date_time_label')}
+          hoursLabel={t('review_confirm_hours_label')}
+          scheduleLabel={reviewScheduleLabel}
+          serviceModeLabel={reviewServiceModeLabel}
+          teamLabel={t('review_confirm_team_label')}
+          teamSizeLabel={reviewTeamLabel}
+          title={t('review_confirm_schedule_title')}
+          typeLabel={t('review_confirm_type_label')}
+          workingHoursLabel={reviewHoursLabel}
         />
 
         <ReviewCancellationSection
-          body={t('review_confirm_cancellation_body')}
+          body={cancellationNotice}
           title={t('review_confirm_cancellation_title')}
         />
 
         <ReviewSummarySection
           rows={summaryRows}
+          emptyMessage={
+            isContractBooking ? t('review_confirm_contract_price_pending') : null
+          }
           subtitle={t('review_confirm_summary_subtitle')}
           title={t('review_confirm_summary_title')}
         />
@@ -359,6 +526,9 @@ export default function ReviewAndConfirm() {
         onConfirm={() => setIsConfirmPopupVisible(true)}
         serviceCountLabel={serviceCountLabel}
         totalPrice={totalForFooter}
+        supportingText={
+          isContractBooking ? t('review_confirm_contract_price_footer_note') : null
+        }
       />
 
       <AddressSelectionBottomSheet
@@ -375,34 +545,12 @@ export default function ReviewAndConfirm() {
 
       <ReviewConfirmBookingPopup
         confirmLabel={t('review_confirm_popup_accept')}
-        description={`${t('review_confirm_popup_line_one')}\n\n${t('review_confirm_popup_line_two')}`}
+        description={`${cancellationNotice}\n\n${t('review_confirm_popup_line_two')}`}
         isConfirmLoading={placeBookingOrderMutation.isPending}
         onClose={handleClosePopup}
         onConfirm={handleConfirmBooking}
         title={t('review_confirm_popup_title')}
         visible={isConfirmPopupVisible}
-      />
-
-      <ReviewPaymentMethodBottomSheet
-        cardMaskedLabel="**** 9432"
-        onChangeMethod={(method) => {
-          setSelectedPaymentMethod(method);
-          setIsPaymentMethodSheetVisible(false);
-        }}
-        onClose={() => setIsPaymentMethodSheetVisible(false)}
-        selectedMethod={selectedPaymentMethod}
-        totalAmountLabel={formatPrice(totalForFooter) ?? '$0'}
-        visible={isPaymentMethodSheetVisible}
-      />
-
-      <ReviewDiscountCodeBottomSheet
-        initialCode={discountCode}
-        onApply={(code) => {
-          setDiscountCode(code);
-          setIsDiscountCodeSheetVisible(false);
-        }}
-        onClose={() => setIsDiscountCodeSheetVisible(false)}
-        visible={isDiscountCodeSheetVisible}
       />
 
       <AppPopup

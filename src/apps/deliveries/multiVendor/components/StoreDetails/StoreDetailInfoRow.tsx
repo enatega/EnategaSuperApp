@@ -26,8 +26,12 @@ export default function StoreDetailInfoRow({
 }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('deliveries');
-  const hasRating = typeof rating === 'number';
-  const hasReviewCount = typeof reviewCount === 'number';
+  const hasRating = typeof rating === 'number' && Number.isFinite(rating) && rating > 0;
+  const hasReviewCount =
+    typeof reviewCount === 'number' && Number.isFinite(reviewCount) && reviewCount > 0;
+  const hasHours = Boolean(hours?.trim());
+  const hasDeliveryFee = Boolean(deliveryFee?.trim());
+  const hasDistance = Boolean(distance?.trim());
   const hasContact = Boolean(phone || email);
 
   return (
@@ -45,26 +49,26 @@ export default function StoreDetailInfoRow({
           </View>
         ) : null}
 
-        {hasRating && hours ? <View style={[styles.dot, { backgroundColor: colors.border }]} /> : null}
+        {hasRating && hasHours ? <View style={[styles.dot, { backgroundColor: colors.border }]} /> : null}
 
-        {hours ? <Text style={[styles.metaText, { color: colors.mutedText }]}>{hours}</Text> : null}
+        {hasHours ? <Text style={[styles.metaText, { color: colors.mutedText }]}>{hours}</Text> : null}
 
-        {hours && deliveryFee ? (
+        {hasHours && hasDeliveryFee ? (
           <View style={[styles.dot, { backgroundColor: colors.border }]} />
         ) : null}
 
-        {deliveryFee ? (
+        {hasDeliveryFee ? (
           <View style={styles.metaItem}>
             <Icon color={colors.mutedText} name="bicycle-outline" size={14} type="Ionicons" />
             <Text style={[styles.metaText, { color: colors.mutedText }]}>{deliveryFee}</Text>
           </View>
         ) : null}
 
-        {deliveryFee && distance ? (
+        {hasDeliveryFee && hasDistance ? (
           <View style={[styles.dot, { backgroundColor: colors.border }]} />
         ) : null}
 
-        {distance ? (
+        {hasDistance ? (
           <View style={styles.metaItem}>
             <Icon color={colors.mutedText} name="location-outline" size={14} type="Ionicons" />
             <Text style={[styles.metaText, { color: colors.mutedText }]}>{distance}</Text>

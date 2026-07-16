@@ -39,6 +39,12 @@ function isProductStoreCardData(
   return "productId" in store && "productName" in store;
 }
 
+function isStoreClosed(
+  store: Exclude<StoreCardData, DeliveryShopTypeProduct>,
+) {
+  return store.isAvailable === false || store.isClosed === true;
+}
+
 function resolveOfferLabel(
   dealAmount: number | null | undefined,
   dealType: string | null | undefined,
@@ -96,13 +102,23 @@ export default function StoreCard({
   const resolvedCuisine = isProductItem
     ? store.storeName ?? undefined
     : store.shopTypeName ?? undefined;
+  const hasVisibleRating =
+    typeof resolvedRating === "number" &&
+    Number.isFinite(resolvedRating) &&
+    resolvedRating > 0;
+  const hasVisibleReviewCount =
+    typeof resolvedReviewCount === "number" &&
+    Number.isFinite(resolvedReviewCount) &&
+    resolvedReviewCount > 0;
+  const shouldInlineCuisineWithName =
+    Boolean(resolvedCuisine?.trim()) && !hasVisibleRating && !hasVisibleReviewCount;
   const resolvedPrice = isProductItem ? store.price ?? 0 : store.baseFee ?? 0;
   const resolvedDeliveryTime = isProductItem
     ? store.deliveryTime ?? ""
     : store.deliveryTime ?? 0;
   const resolvedDistance = store.distanceKm ?? 0;
   const isClosedStore =
-    !isProductItem && showClosedOverlay && store.isAvailable === false;
+    !isProductItem && showClosedOverlay && isStoreClosed(store);
 
   const handlePress = useCallback(() => {
     if (isClosedStore) {
@@ -146,11 +162,18 @@ export default function StoreCard({
       />
 
       <View style={styles.content}>
-        <StoreInfo name={resolvedName} />
+        <StoreInfo
+          name={resolvedName}
+          trailingLabel={shouldInlineCuisineWithName ? resolvedCuisine : undefined}
+        />
         <StoreRating
           rating={resolvedRating}
           reviewCount={resolvedReviewCount}
-          cuisine={resolvedCuisine ?? resolvedLocation}
+          cuisine={
+            shouldInlineCuisineWithName
+              ? undefined
+              : (resolvedCuisine ?? resolvedLocation)
+          }
         />
         <View style={[styles.line, { backgroundColor: colors.border }]} />
         <StoreDeliveryInfo

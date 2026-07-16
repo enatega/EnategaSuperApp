@@ -1,8 +1,10 @@
 import React from 'react';
 import type { LatLng } from 'react-native-maps';
 import { subscribeHomeServicesEvent } from '../../socket/homeServicesSocket';
+import type { WorkerLocationEvent } from '../../socket/homeServicesSocket.types';
 import type { HomeVisitsSingleVendorBookingDetails } from '../api/types';
 import {
+  extractWorkerLocation,
   isWorkerLocationEvent,
   readString,
 } from '../utils/trackWorkerLocation';
@@ -22,6 +24,7 @@ export default function useTrackWorkerRealtime({
 }: Params) {
   const [liveBookingData, setLiveBookingData] = React.useState<HomeVisitsSingleVendorBookingDetails | null>(null);
   const [workerLocation, setWorkerLocation] = React.useState<LatLng | null>(null);
+  const [trackingSnapshot, setTrackingSnapshot] = React.useState<WorkerLocationEvent | null>(null);
 
   const currentOrderIdRef = React.useRef(orderId);
   const currentUserIdRef = React.useRef<string | null>(currentUserId);
@@ -41,6 +44,22 @@ export default function useTrackWorkerRealtime({
   }, [initialBookingData]);
 
   React.useEffect(() => {
+    if (!initialBookingData) {
+      return;
+    }
+
+    const seededWorkerLocation = extractWorkerLocation(initialBookingData);
+    if (seededWorkerLocation) {
+      setWorkerLocation((current) => current ?? seededWorkerLocation);
+    }
+
+    const seededTrackingSnapshot = extractTrackingSnapshot(initialBookingData, orderId);
+    if (seededTrackingSnapshot) {
+      setTrackingSnapshot((current) => current ?? seededTrackingSnapshot);
+    }
+  }, [initialBookingData, orderId]);
+
+  React.useEffect(() => {
     if (!token) {
       return undefined;
     }
@@ -54,12 +73,21 @@ export default function useTrackWorkerRealtime({
       }
 
       const eventCustomerUserId = readString(payload.customerUserId);
+      const eventOrderId = readString(payload.orderId);
       const activeCustomerUserId = currentUserIdRef.current;
 
       if (activeCustomerUserId && eventCustomerUserId && activeCustomerUserId !== eventCustomerUserId) {
         console.log('[home-services][track-worker] ignored worker location for different customer', {
           activeCustomerUserId,
           eventCustomerUserId,
+        });
+        return;
+      }
+
+      if (eventOrderId && eventOrderId !== currentOrderIdRef.current) {
+        console.log('[home-services][track-worker] ignored worker location for different order', {
+          activeOrderId: currentOrderIdRef.current,
+          eventOrderId,
         });
         return;
       }
@@ -75,6 +103,7 @@ export default function useTrackWorkerRealtime({
         latitude: payload.latitude,
         longitude: payload.longitude,
       });
+      setTrackingSnapshot(payload);
     });
 
     return () => {
@@ -84,6 +113,77 @@ export default function useTrackWorkerRealtime({
 
   return {
     liveBookingData,
+    trackingSnapshot,
     workerLocation,
   };
+}
+
+function extractTrackingSnapshot(
+  details: HomeVisitsSingleVendorBookingDetails,
+  orderId: string,
+): WorkerLocationEvent | null {
+  const detailsRecord = details as Record<string, unknown>;
+  const currentLocationRecord = toRecord(
+    detailsRecord.currentLocation ?? detailsRecord.workerLocation,
+  );
+  const latitude = toNumber(currentLocationRecord?.latitude);
+  const longitude = toNumber(currentLocationRecord?.longitude);
+
+  if (latitude === null || longitude === null) {
+    return null;
+  }
+
+  return {
+    orderId,
+    latitude,
+    longitude,
+    distanceKm: toNumber(detailsRecord.distanceKm),
+    estimatedMinutes: toNumber(detailsRecord.estimatedMinutes),
+    destinationLatitude: toNumber(detailsRecord.destinationLatitude),
+    destinationLongitude: toNumber(detailsRecord.destinationLongitude),
+    routePath: normalizeRoutePath(detailsRecord.routePath),
+  };
+}
+
+function normalizeRoutePath(value: unknown): LatLng[] | null {
+  if (!Array.isArray(value)) {
+    return null;
+  }
+
+  const coordinates = value
+    .map((point) => {
+      const record = toRecord(point);
+      const latitude = toNumber(record?.latitude);
+      const longitude = toNumber(record?.longitude);
+
+      if (latitude === null || longitude === null) {
+        return null;
+      }
+
+      return { latitude, longitude };
+    })
+    .filter((point): point is LatLng => point !== null);
+
+  return coordinates.length > 1 ? coordinates : null;
+}
+
+function toRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return null;
+  }
+
+  return value as Record<string, unknown>;
+}
+
+function toNumber(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
 }

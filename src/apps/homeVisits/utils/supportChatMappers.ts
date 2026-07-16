@@ -1,6 +1,9 @@
 import type {
+  SupportChatBoxDetailResponse,
   SupportChatBoxRecord,
   SupportChatBoxesGroupedResponse,
+  SupportChatMessageRecord,
+  SupportMyActiveMessagesResponse,
   SupportChatParticipant,
 } from '../api/supportChatTypes';
 
@@ -14,14 +17,37 @@ function toArray<T>(value: unknown): T[] {
   return Array.isArray(value) ? (value as T[]) : [];
 }
 
+function parseSupportChatDate(value?: string) {
+  if (!value) {
+    return null;
+  }
+
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return null;
+  }
+
+  const normalizedValue = /(?:Z|[+-]\d{2}:\d{2})$/i.test(trimmedValue)
+    ? trimmedValue
+    : `${trimmedValue}Z`;
+  const date = new Date(normalizedValue);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return date;
+}
+
 function sortByUpdatedAtDesc(items: SupportChatBoxRecord[]) {
   return [...items].sort((left, right) => {
-    const leftTime = new Date(
-      left.updatedAt ?? left.updated_at ?? left.createdAt ?? left.created_at ?? 0,
-    ).getTime();
-    const rightTime = new Date(
-      right.updatedAt ?? right.updated_at ?? right.createdAt ?? right.created_at ?? 0,
-    ).getTime();
+    const leftTime = parseSupportChatDate(
+      left.updatedAt ?? left.updated_at ?? left.createdAt ?? left.created_at,
+    )?.getTime() ?? 0;
+    const rightTime = parseSupportChatDate(
+      right.updatedAt ?? right.updated_at ?? right.createdAt ?? right.created_at,
+    )?.getTime() ?? 0;
 
     return rightTime - leftTime;
   });
@@ -33,6 +59,14 @@ export function getSupportChatBoxId(chatBox: SupportChatBoxRecord | null | undef
   }
 
   return chatBox.id ?? chatBox._id ?? chatBox.chatBoxId ?? chatBox.chat_box_id ?? '';
+}
+
+export function getSupportChatMessageId(message: SupportChatMessageRecord) {
+  return (
+    message.id ??
+    message._id ??
+    `${message.createdAt ?? message.created_at ?? 'message'}-${message.text ?? message.message ?? ''}`
+  );
 }
 
 export function getSupportChatParticipantId(participant?: SupportChatParticipant | null) {
@@ -56,6 +90,69 @@ export function getSupportChatParticipantName(participant?: SupportChatParticipa
     participant.phone ??
     ''
   );
+}
+
+export function getSupportChatMessages(
+  response:
+    | SupportChatBoxDetailResponse
+    | SupportMyActiveMessagesResponse
+    | undefined,
+) {
+  if (!response) {
+    return [] as SupportChatMessageRecord[];
+  }
+
+  if (Array.isArray(response)) {
+    return response as SupportChatMessageRecord[];
+  }
+
+  if (isRecord(response)) {
+    const responseRecord = response as Record<string, unknown>;
+
+    if (Array.isArray(responseRecord.messages)) {
+      return responseRecord.messages as SupportChatMessageRecord[];
+    }
+
+    if (isRecord(responseRecord.chatBox) && Array.isArray(responseRecord.chatBox.messages)) {
+      return responseRecord.chatBox.messages as SupportChatMessageRecord[];
+    }
+
+    if (isRecord(responseRecord.chat_box) && Array.isArray(responseRecord.chat_box.messages)) {
+      return responseRecord.chat_box.messages as SupportChatMessageRecord[];
+    }
+
+    if (isRecord(responseRecord.data) && Array.isArray(responseRecord.data.messages)) {
+      return responseRecord.data.messages as SupportChatMessageRecord[];
+    }
+  }
+
+  return [] as SupportChatMessageRecord[];
+}
+
+export function getSupportChatBox(response: SupportChatBoxDetailResponse | undefined) {
+  if (!response) {
+    return null;
+  }
+
+  if (Array.isArray(response)) {
+    return null;
+  }
+
+  const responseRecord = response as Record<string, unknown>;
+
+  if (isRecord(responseRecord.chatBox)) {
+    return responseRecord.chatBox as SupportChatBoxRecord;
+  }
+
+  if (isRecord(responseRecord.chat_box)) {
+    return responseRecord.chat_box as SupportChatBoxRecord;
+  }
+
+  if (isRecord(responseRecord.data)) {
+    return responseRecord.data as SupportChatBoxRecord;
+  }
+
+  return response as SupportChatBoxRecord;
 }
 
 export function getSupportChatConversationItems(
@@ -107,6 +204,12 @@ export function getSupportChatConversationItems(
   }
 
   return [];
+}
+
+export function getFirstSupportChatBox(
+  response: SupportChatBoxesGroupedResponse | undefined,
+) {
+  return getSupportChatConversationItems(response)[0] ?? null;
 }
 
 export function getSupportChatOtherParticipant(
@@ -201,13 +304,9 @@ export function getSupportChatAvatarTone(index: number) {
 }
 
 export function formatSupportChatDateLabel(value?: string) {
-  if (!value) {
-    return '';
-  }
+  const date = parseSupportChatDate(value);
 
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
+  if (!date) {
     return '';
   }
 
@@ -231,5 +330,19 @@ export function formatSupportChatDateLabel(value?: string) {
   return new Intl.DateTimeFormat(undefined, {
     day: 'numeric',
     month: 'short',
+  }).format(date);
+}
+
+export function formatSupportChatTimeLabel(value?: string) {
+  const date = parseSupportChatDate(value);
+
+  if (!date) {
+    return '';
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    hour: 'numeric',
+    hour12: false,
+    minute: '2-digit',
   }).format(date);
 }

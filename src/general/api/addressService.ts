@@ -1,5 +1,6 @@
 import apiClient from "./apiClient";
 import type { ProfileAppPrefix } from "./profileService";
+import { retryTransientMapRequest } from "./retryTransientMapRequest";
 
 function getProfileBase(appPrefix: ProfileAppPrefix) {
   return `/api/v1/apps/${appPrefix}/profile`;
@@ -11,12 +12,24 @@ function getAddressBase(appPrefix: ProfileAppPrefix) {
 
 export type AddressType = "HOME" | "APARTMENT" | "OFFICE" | "OTHER";
 
+export type AddressAdditionalFields = {
+  apartmentNo?: string;
+  building?: string;
+  companyName?: string;
+  department?: string;
+  floorNo?: string;
+  houseNo?: string;
+  landmark?: string;
+  societyArea?: string;
+};
+
 export type AddressPayload = {
   address: string;
   latitude: number;
   longitude: number;
   type: AddressType;
-  location_name: string;
+  location_name?: string;
+  additional_fields?: AddressAdditionalFields;
 };
 
 export type AddressResponse = {
@@ -24,7 +37,8 @@ export type AddressResponse = {
   latitude: number;
   longitude: number;
   type: AddressType;
-  location_name: string;
+  location_name?: string | null;
+  additional_fields?: AddressAdditionalFields;
 };
 
 export type SavedAddress = {
@@ -37,6 +51,7 @@ export type SavedAddress = {
   };
   location_name: string | null;
   type: AddressType;
+  additional_fields?: AddressAdditionalFields;
   is_selected: boolean;
   createdAt: string;
   updatedAt: string;
@@ -92,17 +107,21 @@ export function createAddressService(appPrefix: ProfileAppPrefix) {
 // Main service object
 export const addressService = {
   searchPlaces: (input: string) =>
-    apiClient.post<Array<{ description: string; place_id: string }>>(
-      "/api/v1/maps/places",
-      { input },
-      { skipAuth: true },
+    retryTransientMapRequest(() =>
+      apiClient.post<Array<{ description: string; place_id: string }>>(
+        "/api/v1/maps/places",
+        { input },
+        { skipAuth: true },
+      ),
     ),
 
   getPlaceDetails: (placeId: string) =>
-    apiClient.post<{ lat: string; lng: string }>(
-      "/api/v1/maps/place-details",
-      { placeId },
-      { skipAuth: true },
+    retryTransientMapRequest(() =>
+      apiClient.post<{ lat: string; lng: string }>(
+        "/api/v1/maps/place-details",
+        { placeId },
+        { skipAuth: true },
+      ),
     ),
 
   getRoutePath: async (
@@ -128,6 +147,30 @@ export const addressService = {
       latitude,
       longitude,
     }));
+  },
+
+  getDistanceMatrix: async (
+    origin: { lat: number; lng: number },
+    destination: { lat: number; lng: number },
+  ) => {
+    const response = await retryTransientMapRequest(() =>
+      apiClient.post<{
+        distanceKm?: number;
+        durationMin?: number;
+      }>(
+        '/api/v1/maps/distance-matrix',
+        {
+          origins: [`${origin.lat},${origin.lng}`],
+          destinations: [`${destination.lat},${destination.lng}`],
+        },
+        { skipAuth: true },
+      ),
+    );
+
+    return {
+      distanceKm: typeof response.distanceKm === 'number' ? response.distanceKm : null,
+      durationMin: typeof response.durationMin === 'number' ? response.durationMin : null,
+    };
   },
 
   // Address CRUD methods (require appPrefix)

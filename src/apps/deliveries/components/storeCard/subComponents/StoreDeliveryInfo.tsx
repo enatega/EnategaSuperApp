@@ -24,70 +24,77 @@ function formatPrice(value: number, currencyLabel: string) {
   return `${currencyLabel} ${value}`;
 }
 
+function toPositiveNumber(value: number | string) {
+  if (typeof value === "number") {
+    return Number.isFinite(value) && value > 0 ? value : null;
+  }
+
+  const parsedValue = Number.parseFloat(value);
+  return Number.isFinite(parsedValue) && parsedValue > 0 ? parsedValue : null;
+}
+
 export default function StoreDeliveryInfo({ price, deliveryTime, distance }: StoreDeliveryInfoProps) {
   const { colors } = useTheme();
   const currencyLabel = useDeliveriesCurrencyLabel();
+  const deliveryTimeValue = toPositiveNumber(deliveryTime);
+  const distanceValue = toPositiveNumber(distance);
+  const priceValue = toPositiveNumber(price);
+  const infoItems = [
+    priceValue != null
+      ? {
+          iconName: "bicycle",
+          iconType: "Ionicons" as const,
+          label: formatPrice(priceValue, currencyLabel),
+        }
+      : null,
+    deliveryTimeValue != null
+      ? {
+          iconName: "time-outline",
+          iconType: "Ionicons" as const,
+          label: formatDeliveryTime(deliveryTime),
+        }
+      : null,
+    distanceValue != null
+      ? {
+          iconName: "location-outline",
+          iconType: "Ionicons" as const,
+          label: `${distanceValue} km`,
+        }
+      : null,
+  ].filter((item): item is NonNullable<typeof item> => item != null);
+
+  if (infoItems.length === 0) {
+    return null;
+  }
 
   return (
     <View style={styles.row}>
-      <View style={[styles.infoItem, { gap: 6 }]}>
-        <Icon
-          type="Ionicons"
-          name="bicycle"
-          size={16}
-          color={colors.mutedText}
-        />
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text
-            weight="medium"
-            style={{ color: colors.mutedText, fontSize: 12, lineHeight: 18 }}
-          >
-            {formatPrice(price, currencyLabel)}
-          </Text>
-        </View>
-      </View>
-
-      <Icon
-        type="Entypo"
-        name="dot-single"
-        size={16}
-        color={colors.border}
-      />
-      <View style={styles.infoItem}>
-        <Icon
-          type="Ionicons"
-          name="time-outline"
-          size={16}
-          color={colors.mutedText}
-        />
-        <Text
-          weight="medium"
-          style={[styles.infoText, { color: colors.mutedText }]}
-        >
-          {formatDeliveryTime(deliveryTime)}
-        </Text>
-      </View>
-
-      <Icon
-        type="Entypo"
-        name="dot-single"
-        size={16}
-        color={colors.border}
-      />
-      <View style={styles.infoItem}>
-        <Icon
-          type="Ionicons"
-          name="location-outline"
-          size={16}
-          color={colors.mutedText}
-        />
-        <Text
-          weight="medium"
-          style={[styles.infoText, { color: colors.mutedText }]}
-        >
-          {distance} km
-        </Text>
-      </View>
+      {infoItems.map((item, index) => (
+        <React.Fragment key={`${item.iconName}-${item.label}`}>
+          {index > 0 ? (
+            <Icon
+              type="Entypo"
+              name="dot-single"
+              size={16}
+              color={colors.border}
+            />
+          ) : null}
+          <View style={[styles.infoItem, index === 0 ? { gap: 6 } : null]}>
+            <Icon
+              type={item.iconType}
+              name={item.iconName}
+              size={16}
+              color={colors.mutedText}
+            />
+            <Text
+              weight="medium"
+              style={[styles.infoText, { color: colors.mutedText }]}
+            >
+              {item.label}
+            </Text>
+          </View>
+        </React.Fragment>
+      ))}
     </View>
   );
 }

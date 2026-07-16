@@ -203,7 +203,6 @@ function AddressChooseOnMap({
         initialRegion={initialRegion}
         onPanDrag={() => { hasPendingGesture.current = true; }}
         onRegionChangeComplete={handleRegionComplete}
-        showsUserLocation
         showsMyLocationButton={false}
         showsCompass={false}
         toolbarEnabled={false}

@@ -35,6 +35,9 @@ export interface HomeVisitsSingleVendorServiceBookingScreenResponse {
   serviceId: string;
   serviceCenterId: string;
   isFavorite: boolean;
+  inStock: boolean;
+  isAvailable: boolean;
+  canBook: boolean;
   serviceName: string;
   imageUrl: string | null;
   description: string | null;

@@ -36,7 +36,7 @@ function TeamAndScheduleFooter({
         {
           backgroundColor: colors.background,
           borderTopColor: colors.border,
-          paddingBottom: Math.max(bottomInset, 10),
+          paddingBottom: Math.max(bottomInset, 12),
         },
       ]}
     >
@@ -57,7 +57,7 @@ function TeamAndScheduleFooter({
             <Text
               weight="medium"
               style={{
-                color: colors.iconMuted,
+                color: colors.mutedText,
                 fontSize: typography.size.xs2,
                 lineHeight: typography.lineHeight.sm,
               }}
@@ -71,7 +71,7 @@ function TeamAndScheduleFooter({
                 <Text
                   weight="medium"
                   style={{
-                    color: colors.iconMuted,
+                    color: colors.mutedText,
                     fontSize: typography.size.xs2,
                     lineHeight: typography.lineHeight.sm,
                   }}
@@ -85,7 +85,7 @@ function TeamAndScheduleFooter({
             <Text
               weight="medium"
               style={{
-                color: colors.iconMuted,
+                color: colors.mutedText,
                 fontSize: typography.size.xs2,
                 lineHeight: typography.lineHeight.sm,
               }}
@@ -99,10 +99,17 @@ function TeamAndScheduleFooter({
           <Button
             disabled={disabled}
             label={continueLabel}
+            labelStyle={{
+              color: colors.white,
+              fontSize: typography.size.lg,
+              lineHeight: typography.lineHeight.md,
+            }}
             onPress={onContinue}
             style={{
               backgroundColor: colors.warning,
               borderColor: colors.warning,
+              borderRadius: 14,
+              minHeight: 56,
             }}
           />
         </View>
@@ -133,6 +140,7 @@ const styles = StyleSheet.create({
   footerMetaLine: {
     alignItems: 'center',
     flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   footerRow: {
     alignItems: 'center',

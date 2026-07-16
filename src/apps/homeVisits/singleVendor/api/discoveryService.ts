@@ -8,9 +8,14 @@ import type {
   HomeVisitsSingleVendorBookingAvailabilityRangeResponse,
   HomeVisitsSingleVendorBookingAvailabilityResponse,
   HomeVisitsSingleVendorBookingDetails,
+  HomeVisitsSingleVendorContractDetails,
+  HomeVisitsSingleVendorContractsApiResponse,
   HomeVisitsPayPaymentRequestedSavedCardPayload,
+  HomeVisitsPayContractInvoiceSavedCardPayload,
+  HomeVisitsPayContractInvoiceSavedCardResponse,
   HomeVisitsPayPaymentRequestedSavedCardResponse,
   HomeVisitsSingleVendorBookingsApiResponse,
+  HomeVisitsCancelAppointmentResponse,
   HomeVisitsSingleVendorBookingsParams,
   HomeVisitsSingleVendorCategoriesApiResponse,
   HomeVisitsSingleVendorCategoriesParams,
@@ -32,6 +37,7 @@ import type {
   HomeVisitsServicePlaceOrderResponse,
   HomeVisitsServiceOrderPreviewResponse,
   HomeVisitsToggleFavoriteServiceResponse,
+  HomeVisitsRequestContractCancellationPayload,
 } from './types';
 
 const SINGLE_VENDOR_CATEGORIES_DEFAULTS = {
@@ -197,6 +203,39 @@ export const homeVisitsSingleVendorDiscoveryService = {
     }
   },
 
+  getContractsPage: async (
+    params: HomeVisitsSingleVendorBookingsParams,
+  ): Promise<HomeVisitsSingleVendorContractsApiResponse> => {
+    const {
+      offset = SINGLE_VENDOR_BOOKINGS_DEFAULTS.offset,
+      limit = SINGLE_VENDOR_BOOKINGS_DEFAULTS.limit,
+      tab = SINGLE_VENDOR_BOOKINGS_DEFAULTS.tab,
+    } = params;
+
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorContractsApiResponse>(
+        '/api/v1/apps/home-services/contracts/my-contracts',
+        { offset, limit, tab },
+      );
+    } catch (error) {
+      console.error('home visits single vendor contracts request failed', error);
+      throw error;
+    }
+  },
+
+  getContractDetails: async (
+    contractId: string,
+  ): Promise<HomeVisitsSingleVendorContractDetails> => {
+    try {
+      return await apiClient.get<HomeVisitsSingleVendorContractDetails>(
+        `/api/v1/apps/home-services/contracts/my-contracts/${contractId}`,
+      );
+    } catch (error) {
+      console.error('home visits single vendor contract details request failed', error);
+      throw error;
+    }
+  },
+
   getBookingDetails: async (
     orderId: string,
   ): Promise<HomeVisitsSingleVendorBookingDetails> => {
@@ -213,6 +252,35 @@ export const homeVisitsSingleVendorDiscoveryService = {
     }
   },
 
+  cancelScheduledOrder: async (
+    orderId: string,
+  ): Promise<HomeVisitsCancelAppointmentResponse> => {
+    try {
+      return await apiClient.patch<HomeVisitsCancelAppointmentResponse>(
+        `/api/v1/apps/home-services/orders/${orderId}/cancel`,
+        {},
+      );
+    } catch (error) {
+      console.error('home visits cancel appointment request failed', error);
+      throw error;
+    }
+  },
+
+  requestContractCancellation: async (
+    contractId: string,
+    payload: HomeVisitsRequestContractCancellationPayload,
+  ): Promise<HomeVisitsSingleVendorContractDetails> => {
+    try {
+      return await apiClient.post<HomeVisitsSingleVendorContractDetails>(
+        `/api/v1/apps/home-services/contracts/my-contracts/${contractId}/cancellation-request`,
+        payload,
+      );
+    } catch (error) {
+      console.error('home visits request contract cancellation failed', error);
+      throw error;
+    }
+  },
+
   payPaymentRequestedJobWithSavedCard: async (
     orderId: string,
     payload: HomeVisitsPayPaymentRequestedSavedCardPayload = {},
@@ -224,6 +292,21 @@ export const homeVisitsSingleVendorDiscoveryService = {
       );
     } catch (error) {
       console.error('home visits pay payment-requested job with saved card failed', error);
+      throw error;
+    }
+  },
+
+  payContractInvoiceWithSavedCard: async (
+    invoiceId: string,
+    payload: HomeVisitsPayContractInvoiceSavedCardPayload = {},
+  ): Promise<HomeVisitsPayContractInvoiceSavedCardResponse> => {
+    try {
+      return await apiClient.post<HomeVisitsPayContractInvoiceSavedCardResponse>(
+        `/api/v1/apps/home-services/contracts/invoices/${invoiceId}/pay-with-saved-card`,
+        payload,
+      );
+    } catch (error) {
+      console.error('home visits pay contract invoice with saved card failed', error);
       throw error;
     }
   },

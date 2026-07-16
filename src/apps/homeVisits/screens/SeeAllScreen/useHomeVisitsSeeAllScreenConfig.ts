@@ -11,12 +11,17 @@ import useSingleVendorCategoryServices from '../../singleVendor/hooks/useSingleV
 import useSingleVendorDeals from '../../singleVendor/hooks/useSingleVendorDeals';
 import useSingleVendorMostPopularServices from '../../singleVendor/hooks/useSingleVendorMostPopularServices';
 import useSingleVendorNearbyServices from '../../singleVendor/hooks/useSingleVendorNearbyServices';
+import useMultiVendorNearbyServices from '../../multiVendor/hooks/useMultiVendorNearbyServices';
+import type { HomeVisitsMultiVendorNearbyService } from '../../multiVendor/api/types';
+import useChainCategoryServices from '../../chain/hooks/useChainCategoryServices';
+import useChainDeals from '../../chain/hooks/useChainDeals';
 
 type HomeVisitsSeeAllItem =
   | HomeVisitsSingleVendorNearbyService
   | HomeVisitsSingleVendorMostPopularService
   | HomeVisitsSingleVendorDeal
-  | HomeVisitsSingleVendorCategoryService;
+  | HomeVisitsSingleVendorCategoryService
+  | HomeVisitsMultiVendorNearbyService;
 
 type HomeVisitsSeeAllScope = 'single-vendor' | 'multi-vendor' | 'chain';
 
@@ -30,7 +35,10 @@ type HomeVisitsRawQueryResult =
   | ReturnType<typeof useSingleVendorNearbyServices>
   | ReturnType<typeof useSingleVendorMostPopularServices>
   | ReturnType<typeof useSingleVendorDeals>
-  | ReturnType<typeof useSingleVendorCategoryServices>;
+  | ReturnType<typeof useSingleVendorCategoryServices>
+  | ReturnType<typeof useMultiVendorNearbyServices>
+  | ReturnType<typeof useChainCategoryServices>
+  | ReturnType<typeof useChainDeals>;
 
 type HomeVisitsSeeAllListQueryResult = {
   data: HomeVisitsSeeAllItem[];
@@ -51,6 +59,8 @@ type UseHomeVisitsSeeAllScreenConfigParams = {
   filters: HomeVisitsSeeAllFilters;
   search: string;
   categoryId?: string;
+  mainServiceId?: string;
+  providerId?: string;
   latitude?: number;
   longitude?: number;
 };
@@ -96,10 +106,14 @@ export default function useHomeVisitsSeeAllScreenConfig({
   filters,
   search,
   categoryId,
+  mainServiceId,
+  providerId,
   latitude,
   longitude,
 }: UseHomeVisitsSeeAllScreenConfigParams): UseHomeVisitsSeeAllScreenConfigResult {
   const isSingleVendorScope = scope === 'single-vendor';
+  const isMultiVendorScope = scope === 'multi-vendor';
+  const isChainScope = scope === 'chain';
   const searchParam = search.trim() || undefined;
 
   const nearbyQuery = useSingleVendorNearbyServices(
@@ -123,7 +137,7 @@ export default function useHomeVisitsSeeAllScreenConfig({
       latitude,
       longitude,
       stock: filters.stock,
-      category_ids: filters.categoryIds ?? undefined,
+      category_ids: categoryId ?? filters.categoryIds ?? undefined,
       subcategory_id: filters.subcategoryId ?? undefined,
       price_tiers: filters.priceTiers ?? undefined,
       sort_by: filters.sortBy,
@@ -167,7 +181,95 @@ export default function useHomeVisitsSeeAllScreenConfig({
     },
   );
 
+  const multiVendorNearbyQuery = useMultiVendorNearbyServices(
+    {
+      search: searchParam,
+      mainServiceId,
+      providerId,
+      latitude,
+      longitude,
+      stock: filters.stock,
+      category_ids: filters.categoryIds ?? undefined,
+      subcategory_id: filters.subcategoryId ?? undefined,
+      price_tiers: filters.priceTiers ?? undefined,
+      sort_by: filters.sortBy,
+    },
+    {
+      enabled:
+        enabled && isMultiVendorScope && queryType === 'nearby-services',
+    },
+  );
+
+  const chainDealsQuery = useChainDeals(
+    {
+      search: searchParam,
+      category_ids: filters.categoryIds ?? undefined,
+      subcategory_id: filters.subcategoryId ?? undefined,
+      price_tiers: filters.priceTiers ?? undefined,
+      latitude,
+      longitude,
+      sort_by: filters.sortBy,
+    },
+    {
+      enabled: enabled && isChainScope && queryType === 'deals-services',
+      mode: 'paginated',
+      tab: filters.tab,
+    },
+  );
+
+  const chainCategoryServicesQuery = useChainCategoryServices(
+    categoryId ?? '',
+    {
+      search: searchParam,
+      latitude,
+      longitude,
+      stock: filters.stock,
+      category_ids: filters.categoryIds ?? undefined,
+      subcategory_id: filters.subcategoryId ?? undefined,
+      price_tiers: filters.priceTiers ?? undefined,
+      sort_by: filters.sortBy,
+    },
+    {
+      enabled:
+        enabled &&
+        isChainScope &&
+        queryType === 'category-services' &&
+        Boolean(categoryId),
+      mode: 'paginated',
+    },
+  );
+
+  if (isMultiVendorScope && queryType === 'nearby-services') {
+    return {
+      listQuery: normalizeListQuery(multiVendorNearbyQuery),
+      itemKeyExtractor: (item, index) => `${item.productId}-${item.serviceCenterId}-${index}`,
+      loadingComponent: undefined,
+      paginationLoadingComponent: undefined,
+      isNearbyLocationMissing: false,
+    };
+  }
+
   if (!isSingleVendorScope) {
+    if (isChainScope && queryType === 'deals-services') {
+      return {
+        listQuery: normalizeListQuery(chainDealsQuery),
+        itemKeyExtractor: (item, index) => `${item.productId}-${item.serviceCenterId}-${index}`,
+        loadingComponent: undefined,
+        paginationLoadingComponent: undefined,
+        isNearbyLocationMissing: false,
+      };
+    }
+
+    if (isChainScope && queryType === 'category-services') {
+      return {
+        listQuery: normalizeListQuery(chainCategoryServicesQuery),
+        itemKeyExtractor: (item, index) => `${item.productId}-${item.serviceCenterId}-${index}`,
+        loadingComponent: undefined,
+        paginationLoadingComponent: undefined,
+        isNearbyLocationMissing: false,
+      };
+    }
+
     return {
       listQuery: EMPTY_QUERY_RESULT,
       itemKeyExtractor: (item, index) => `${item.productId}-${item.serviceCenterId}-${index}`,

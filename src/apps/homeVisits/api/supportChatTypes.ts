@@ -114,3 +114,56 @@ export type SupportChatBoxesGroupedResponse =
       message?: string;
       success?: boolean;
     };
+
+export type SupportChatBoxDetailResponse =
+  | SupportChatBoxRecord
+  | {
+      data?: SupportChatBoxRecord;
+      chatBox?: SupportChatBoxRecord;
+      chat_box?: SupportChatBoxRecord;
+      messages?: SupportChatMessageRecord[];
+      sender?: SupportChatParticipant;
+      receiver?: SupportChatParticipant;
+      otherUser?: SupportChatParticipant;
+      message?: string;
+      success?: boolean;
+    };
+
+export type SupportMyActiveMessagesResponse = {
+  message?: string;
+  hasActiveChat?: boolean;
+  chatBoxId?: string;
+  chat_box_id?: string;
+  status?: string;
+  totalMessages?: number;
+  messages?: SupportChatMessageRecord[];
+};
+
+export type SendSupportChatMessageToAdminPayload = {
+  senderId: string;
+  text: string;
+  chatBoxId?: string;
+};
+
+export type SendSupportChatMessageResponse = {
+  message?: string;
+  chatBoxId?: string;
+  data?: {
+    chatBoxId?: string;
+    id?: string;
+  };
+  detail?: {
+    id?: string;
+    senderId?: string;
+    sender_id?: string;
+    receiverId?: string;
+    receiver_id?: string;
+    text?: string;
+    chatBoxId?: string;
+    chat_box_id?: string;
+    createdAt?: string;
+    created_at?: string;
+    updatedAt?: string;
+    updated_at?: string;
+  };
+};

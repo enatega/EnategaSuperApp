@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { ApiError } from '../../../general/api/apiClient';
 import { rideService } from '../api/rideService';
 import type { FindingRideBid } from '../screens/findingRide/types/bids';
 
@@ -56,6 +57,10 @@ function mergeBidWithExpiry(nextBid: FindingRideBid, existingBid?: FindingRideBi
   };
 }
 
+function isAlreadyMatchedError(error: unknown) {
+  return error instanceof ApiError && error.status === 400 && error.message === 'Ride request already matched';
+}
+
 type RideBidsState = {
   currentRideRequestId?: string;
   bids: FindingRideBid[];
@@ -99,6 +104,10 @@ export const useRideBidsStore = create<RideBidsState>((set, get) => {
 
         void rideService.rejectRideBid({ rideBidId: bid.id })
           .catch((error) => {
+            if (isAlreadyMatchedError(error)) {
+              return;
+            }
+
             console.warn('[RideBidsStore] Failed to auto-decline expired bid', {
               bidId: bid.id,
               error: error instanceof Error ? error.message : String(error),

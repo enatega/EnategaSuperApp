@@ -7,6 +7,8 @@ import { authService } from "../api/authService";
 import { authKeys } from "../api/queryKeys";
 import type { ApiError } from "../api/apiClient";
 import type {
+  AppleLoginPayload,
+  AppleLoginResponse,
   EmailLoginPayload,
   EmailLoginRespoce,
   GoogleLoginPayload,
@@ -37,7 +39,8 @@ async function finalizeAuthSession(
     | SignupVerifyOtpResponse
     | LoginVerifyOtpResponse
     | EmailLoginRespoce
-    | GoogleLoginResponse,
+    | GoogleLoginResponse
+    | AppleLoginResponse,
 ) {
   await authSession.setSession(data);
   queryClient.setQueryData(authKeys.session(), {
@@ -168,6 +171,26 @@ export function useGoogleLogin(
 
   return useMutation<GoogleLoginResponse, ApiError, GoogleLoginPayload>({
     mutationFn: authService.googleLogin,
+    ...options,
+    onSuccess: async (data, variables, onMutateResult, context) => {
+      await finalizeAuthSession(queryClient, data);
+      options?.onSuccess?.(data, variables, onMutateResult, context);
+      await redirectToPendingAppIfNeeded();
+    },
+  });
+}
+
+export function useAppleLogin(
+  options?: UseMutationOptions<
+    AppleLoginResponse,
+    ApiError,
+    AppleLoginPayload
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation<AppleLoginResponse, ApiError, AppleLoginPayload>({
+    mutationFn: authService.appleLogin,
     ...options,
     onSuccess: async (data, variables, onMutateResult, context) => {
       await finalizeAuthSession(queryClient, data);

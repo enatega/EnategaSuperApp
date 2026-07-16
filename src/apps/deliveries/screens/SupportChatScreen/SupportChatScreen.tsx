@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { useQueryClient } from '@tanstack/react-query';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +24,7 @@ import ChatMessageBubble from '../../components/chat/ChatMessageBubble';
 import ChatQuickReplyChip from '../../components/chat/ChatQuickReplyChip';
 import { useDeliveriesSocketSession } from '../../hooks';
 import { useSendSupportChatMessageToAdmin } from '../../hooks/useSupportChatMutations';
+import { deliveryKeys } from '../../api/queryKeys';
 import {
   useSupportChatBox,
   useSupportGroupedChatBoxes,
@@ -41,6 +43,11 @@ import {
   getSupportChatParticipantId,
 } from '../../utils/supportChatMappers';
 import { DELIVERIES_SUPPORT_PHONE_NUMBER } from '../../constants/support';
+import type {
+  SupportChatBoxDetailResponse,
+  SupportChatMessageRecord,
+  SupportMyActiveMessagesResponse,
+} from '../../api/supportChatTypes';
 
 type SupportChatRouteProp = RouteProp<SupportNavigationParamList, 'SupportChat'>;
 
@@ -55,6 +62,7 @@ type PendingSupportMessage = {
 
 export default function SupportChatScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
+  const queryClient = useQueryClient();
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
@@ -86,7 +94,6 @@ export default function SupportChatScreen() {
   const refetchSupportChatBoxes = supportChatBoxesQuery.refetch;
   const supportChatSendMutation = useSendSupportChatMessageToAdmin({
     onError: (error) => {
-      setPendingMessages((current) => current.slice(0, -1));
       showToast.error(t('support_chat_send_error_title'), error.message || t('support_chat_send_error_message'));
     },
     onSuccess: (response) => {
@@ -100,10 +107,127 @@ export default function SupportChatScreen() {
         setChatBoxId(nextChatBoxId);
       }
 
-      setDraftMessage('');
+      void refetchSupportChatBoxes();
     },
   });
   const [draftMessage, setDraftMessage] = useState('');
+
+  const appendMessageToChatBoxCache = (
+    nextChatBoxId: string,
+    nextMessage: SupportChatMessageRecord,
+  ) => {
+    queryClient.setQueryData<SupportChatBoxDetailResponse | undefined>(
+      deliveryKeys.supportChatBox(nextChatBoxId),
+      (current) => {
+        if (!current) {
+          return {
+            chatBox: {
+              chatBoxId: nextChatBoxId,
+              messages: [nextMessage],
+            },
+          };
+        }
+
+        const currentMessages = getSupportChatMessages(current);
+        const alreadyExists = currentMessages.some(
+          (message) =>
+            getSupportChatMessageId(message) === getSupportChatMessageId(nextMessage)
+            || (
+              (message.text ?? message.message ?? '').trim() ===
+                (nextMessage.text ?? nextMessage.message ?? '').trim()
+              && (message.senderId ?? message.sender_id) ===
+                (nextMessage.senderId ?? nextMessage.sender_id)
+            ),
+        );
+
+        if (alreadyExists) {
+          return current;
+        }
+
+        const nextMessages = [...currentMessages, nextMessage];
+
+        if (Array.isArray(current)) {
+          return current;
+        }
+
+        if ('chatBox' in current && current.chatBox) {
+          return {
+            ...current,
+            chatBox: {
+              ...current.chatBox,
+              chatBoxId: getSupportChatBoxId(current.chatBox) || nextChatBoxId,
+              messages: nextMessages,
+            },
+          };
+        }
+
+        if ('chat_box' in current && current.chat_box) {
+          return {
+            ...current,
+            chat_box: {
+              ...current.chat_box,
+              chatBoxId: getSupportChatBoxId(current.chat_box) || nextChatBoxId,
+              messages: nextMessages,
+            },
+          };
+        }
+
+        if ('data' in current && current.data && !Array.isArray(current.data)) {
+          return {
+            ...current,
+            data: {
+              ...current.data,
+              chatBoxId: getSupportChatBoxId(current.data) || nextChatBoxId,
+              messages: nextMessages,
+            },
+          };
+        }
+
+        return current;
+      },
+    );
+
+    queryClient.setQueryData<SupportMyActiveMessagesResponse | undefined>(
+      deliveryKeys.supportChatMyActiveMessages(),
+      (current) => {
+        if (!current) {
+          return {
+            chatBoxId: nextChatBoxId,
+            hasActiveChat: true,
+            messages: [nextMessage],
+            totalMessages: 1,
+          };
+        }
+
+        const currentMessages = getSupportChatMessages(current);
+        const alreadyExists = currentMessages.some(
+          (message) =>
+            getSupportChatMessageId(message) === getSupportChatMessageId(nextMessage)
+            || (
+              (message.text ?? message.message ?? '').trim() ===
+                (nextMessage.text ?? nextMessage.message ?? '').trim()
+              && (message.senderId ?? message.sender_id) ===
+                (nextMessage.senderId ?? nextMessage.sender_id)
+            ),
+        );
+
+        if (alreadyExists) {
+          return current;
+        }
+
+        const nextMessages = [...currentMessages, nextMessage];
+
+        return {
+          ...current,
+          chatBoxId: current.chatBoxId ?? nextChatBoxId,
+          chat_box_id: current.chat_box_id ?? nextChatBoxId,
+          hasActiveChat: true,
+          messages: nextMessages,
+          totalMessages: nextMessages.length,
+        };
+      },
+    );
+  };
 
   useEffect(() => {
     if (!chatBoxId && initialChatBoxId) {
@@ -269,21 +393,65 @@ export default function SupportChatScreen() {
       return;
     }
 
+    if (
+      supportChatSendMutation.isPending
+      && pendingMessages.some((message) => message.text.trim() === trimmed)
+    ) {
+      return;
+    }
+
+    const pendingMessageId = `pending-${Date.now()}`;
+    const pendingTimeLabel = formatSupportChatTimeLabel(new Date().toISOString());
+
     setPendingMessages((current) => [
       ...current,
       {
-        id: `pending-${Date.now()}`,
+        id: pendingMessageId,
         isCurrentUser: true,
         text: trimmed,
-        timeLabel: formatSupportChatTimeLabel(new Date().toISOString()),
+        timeLabel: pendingTimeLabel,
       },
     ]);
+    setDraftMessage('');
 
-    supportChatSendMutation.mutate({
-      senderId,
-      text: trimmed,
-      chatBoxId: chatBoxId ?? undefined,
-    });
+    supportChatSendMutation.mutate(
+      {
+        senderId,
+        text: trimmed,
+        chatBoxId: chatBoxId ?? undefined,
+      },
+      {
+        onError: () => {
+          setPendingMessages((current) =>
+            current.filter((message) => message.id !== pendingMessageId),
+          );
+        },
+        onSuccess: (response) => {
+          setPendingMessages((current) =>
+            current.filter((message) => message.id !== pendingMessageId),
+          );
+
+          const nextChatBoxId =
+            response.chatBoxId ??
+            response.data?.chatBoxId ??
+            response.detail?.chatBoxId ??
+            response.detail?.chat_box_id ??
+            chatBoxId;
+
+          if (!nextChatBoxId) {
+            return;
+          }
+
+          appendMessageToChatBoxCache(nextChatBoxId, {
+            id: response.data?.id ?? response.detail?.id ?? pendingMessageId,
+            senderId,
+            text: response.detail?.text ?? trimmed,
+            createdAt: response.detail?.createdAt ?? new Date().toISOString(),
+            chatBoxId: nextChatBoxId,
+          });
+        },
+      },
+    );
   };
 
   const handleAttachmentPress = async () => {
@@ -386,6 +554,7 @@ export default function SupportChatScreen() {
             {quickReplies.map((reply) => (
               <ChatQuickReplyChip
                 key={reply}
+                disabled={supportChatSendMutation.isPending}
                 label={reply}
                 onPress={() => appendMessage(reply)}
               />

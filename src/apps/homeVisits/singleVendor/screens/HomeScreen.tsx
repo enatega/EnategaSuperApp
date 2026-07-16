@@ -22,16 +22,13 @@ import ActiveServiceCard from "../components/HomeScreen/ActiveServiceCard";
 import type { HomeVisitsSingleVendorNavigationParamList } from "../navigation/types";
 import useSingleVendorActiveBooking from "../hooks/useSingleVendorActiveBooking";
 import useSingleVendorSearchFlow from "../hooks/useSingleVendorSearchFlow";
-import useSingleVendorCategories from "../hooks/useSingleVendorCategories";
 import HomeVisitsSearchFilterSheet from "../../components/search/HomeVisitsSearchFilterSheet";
 import SearchResults from "../../components/search/SearchResults";
 import RecentSearches from "../../../../general/components/search/RecentSearches";
 import useProfile from "../../../../general/hooks/useProfile";
 import HomeHeroSection from "../components/HomeScreen/composed/HomeHeroSection";
-import QuickCategoriesRow from "../components/HomeScreen/composed/QuickCategoriesRow";
 
 type Props = Record<string, never>;
-const QUICK_CATEGORY_LIMIT = 5;
 
 export default function SingleVendorHomeScreen({}: Props) {
   const { colors } = useTheme();
@@ -50,13 +47,8 @@ export default function SingleVendorHomeScreen({}: Props) {
     isLoading: isAddressesLoading,
     refetch,
   } = useSavedAddresses("home-services");
-  const { data: categories = [] } = useSingleVendorCategories();
   const { selectedAddress } = useAddress();
   const { data: activeBooking } = useSingleVendorActiveBooking();
-  const quickCategories = React.useMemo(
-    () => categories.slice(0, QUICK_CATEGORY_LIMIT),
-    [categories],
-  );
   const apiSelectedAddress = React.useMemo(
     () => createSelectedDeliveryAddress(addresses),
     [addresses],
@@ -114,7 +106,6 @@ export default function SingleVendorHomeScreen({}: Props) {
 
     return fullName.split(" ")[0];
   }, [t, user?.name]);
-  const avatarUri = user?.image ?? undefined;
   const showSearchResults =
     searchFlow.isSearchActive || searchFlow.showRecentSearches;
 
@@ -133,7 +124,6 @@ export default function SingleVendorHomeScreen({}: Props) {
       >
         <HomeHeroSection
           addresses={addresses}
-          avatarUri={avatarUri}
           clearAllLabel={tGeneral("clear_all")}
           greetingName={greetingName}
           onAddressPress={handleOpenAddressSheet}
@@ -174,19 +164,6 @@ export default function SingleVendorHomeScreen({}: Props) {
           </View>
         ) : (
           <>
-            <QuickCategoriesRow
-              items={quickCategories}
-              onPressItem={(item) =>
-                navigation.navigate("SeeAllScreen", {
-                  scope: "single-vendor",
-                  queryType: "category-services",
-                  title: item.name,
-                  cardType: "service",
-                  categoryId: item.id,
-                })
-              }
-            />
-
             <SingleVendorSpecialOffersBanner />
             <SingleVendorCategorySection />
             <MostPopularServicesSection />

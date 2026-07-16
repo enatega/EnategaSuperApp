@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SingleVendorNavigator from '../singleVendor/navigation/SingleVendorNavigator';
 import MultiVendorNavigator from '../multiVendor/navigation/MultiVendorNavigator';
 import ChainNavigator from '../chain/navigation/ChainNavigator';
+import HomeVisitsHomeScreen from '../screens/HomeScreen';
 import HomeVisitsMyProfileScreen from '../screens/profile/HomeVisitsMyProfileScreen';
 import HomeVisitsEditProfileScreen from '../screens/profile/HomeVisitsEditProfileScreen';
 import HomeVisitsWalletScreen from '../screens/wallet/HomeVisitsWalletScreen';
@@ -26,13 +27,6 @@ import LanguageScreen from '../../../general/screens/settings/LanguageScreen';
 import AddressSearchScreen from '../../../general/screens/address/AddressSearchScreen';
 import AddressChooseOnMapScreen from '../../../general/screens/address/AddressChooseOnMapScreen';
 import AddressDetailScreen from '../../../general/screens/address/AddressDetailScreen';
-import type { HomeVisitModeRootRoute } from './homeVisitModePreference';
-import {
-  DEFAULT_HOME_VISIT_MODE,
-  getHomeVisitModePreference,
-  mapHomeVisitModeToRoute,
-  setHomeVisitModePreference,
-} from './homeVisitModePreference';
 import type { HomeVisitsStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<HomeVisitsStackParamList>();
@@ -40,38 +34,13 @@ const Stack = createNativeStackNavigator<HomeVisitsStackParamList>();
 const hiddenHeaderOptions = { headerShown: false } as const;
 
 export default function HomeVisitsNavigator() {
-  const [initialRouteName, setInitialRouteName] =
-    useState<HomeVisitModeRootRoute | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadInitialRoute = async () => {
-      const savedMode = await getHomeVisitModePreference();
-      const resolvedMode = savedMode ?? DEFAULT_HOME_VISIT_MODE;
-
-      if (!savedMode) {
-        await setHomeVisitModePreference(resolvedMode);
-      }
-
-      if (isMounted) {
-        setInitialRouteName(mapHomeVisitModeToRoute(resolvedMode));
-      }
-    };
-
-    void loadInitialRoute();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  if (!initialRouteName) {
-    return null;
-  }
-
   return (
-    <Stack.Navigator initialRouteName={initialRouteName}>
+    <Stack.Navigator initialRouteName="HomeVisitsModeSelector">
+      <Stack.Screen
+        name="HomeVisitsModeSelector"
+        component={HomeVisitsHomeScreen}
+        options={hiddenHeaderOptions}
+      />
       <Stack.Screen
         name="SingleVendor"
         component={SingleVendorNavigator}

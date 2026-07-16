@@ -1,4 +1,5 @@
 import apiClient from '../../../general/api/apiClient';
+import { retryTransientMapRequest } from '../../../general/api/retryTransientMapRequest';
 import type {
     ApiResponse,
     CreateRidePayload,
@@ -26,6 +27,8 @@ import type {
     CustomerRideDetail,
     NearbyDriver,
     CancelRideParams,
+    CustomerComingPayload,
+    CustomerComingResponse,
     UpdateRiderPhonePayload,
     VerifyRiderPhoneUpdateOtpPayload,
     SubmitRideReviewPayload,
@@ -223,18 +226,22 @@ export const rideService = {
 
     /** Search place suggestions through backend Google proxy. */
     searchPlaces: (input: string): Promise<RidePlacePrediction[]> =>
-        apiClient.post<RidePlacePrediction[]>(
-            '/api/v1/maps/places',
-            { input },
-            { skipAuth: true },
+        retryTransientMapRequest(() =>
+            apiClient.post<RidePlacePrediction[]>(
+                '/api/v1/maps/places',
+                { input },
+                { skipAuth: true },
+            ),
         ),
 
     /** Resolve a Google place id to lat/lng through backend proxy. */
     getPlaceDetails: (placeId: string): Promise<RidePlaceCoordinates> =>
-        apiClient.post<RidePlaceCoordinates>(
-            '/api/v1/maps/place-details',
-            { placeId },
-            { skipAuth: true },
+        retryTransientMapRequest(() =>
+            apiClient.post<RidePlaceCoordinates>(
+                '/api/v1/maps/place-details',
+                { placeId },
+                { skipAuth: true },
+            ),
         ),
 
     /** Fetch distance + duration between origin and destination. */
@@ -242,10 +249,12 @@ export const rideService = {
         origins: string[],
         destinations: string[],
     ): Promise<DistanceMatrixResponse> =>
-        apiClient.post<DistanceMatrixResponse>(
-            '/api/v1/maps/distance-matrix',
-            { origins, destinations },
-            { skipAuth: true },
+        retryTransientMapRequest(() =>
+            apiClient.post<DistanceMatrixResponse>(
+                '/api/v1/maps/distance-matrix',
+                { origins, destinations },
+                { skipAuth: true },
+            ),
         ),
 
     /** Fetch route polyline path through backend proxy. */
@@ -340,6 +349,17 @@ export const rideService = {
     /** Cancel a pending ride request before a ride is accepted. */
     cancelRideRequest: (rideId: string): Promise<void> =>
         apiClient.patch(`/api/v1/rides/${rideId}/cancel`),
+
+    /** Notify the backend that the customer acknowledged the waiting driver. */
+    sendCustomerComing: ({
+        rideId,
+        customerId,
+        driverId,
+    }: CustomerComingPayload): Promise<CustomerComingResponse> =>
+        apiClient.post<CustomerComingResponse>(
+            `/api/v1/apps/ride-hailing/rides/${rideId}/customer-coming`,
+            { customerId, driverId },
+        ),
 
     /** Start rider phone update flow and trigger OTP. */
     updateRiderPhone: (payload: UpdateRiderPhonePayload): Promise<{ message?: string }> =>

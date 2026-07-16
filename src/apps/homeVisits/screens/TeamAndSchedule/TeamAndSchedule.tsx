@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { showToast } from '../../../../general/components/AppToast';
 import { useTheme } from '../../../../general/theme/theme';
 import Icon from '../../../../general/components/Icon';
 import Text from '../../../../general/components/Text';
@@ -28,6 +29,7 @@ export default function TeamAndSchedule() {
     useNavigation<NativeStackNavigationProp<HomeVisitsSingleVendorNavigationParamList>>();
   const route = useRoute<TeamAndScheduleRouteProp>();
   const {
+    bookingFlow,
     initialSelection,
     selectedServiceIds,
     selectedServices,
@@ -37,14 +39,26 @@ export default function TeamAndSchedule() {
   } = route.params;
 
   const [workerType, setWorkerType] = useState<HomeVisitsWorkerType>('individual');
-  const workingHours = 5;
+  const baseWorkingHours = useMemo(
+    () => Math.max(1, Math.ceil((summary.durationMinutes || 60) / 60)),
+    [summary.durationMinutes],
+  );
+  const [workingHours] = useState(baseWorkingHours);
   const [serviceMode, setServiceMode] = useState<'one-time' | 'contract'>('one-time');
   const [jobDescription, setJobDescription] = useState('');
   const trimmedJobDescription = jobDescription.trim();
-  const [contractDays, setContractDays] = useState(30);
-  const teamSize = workerType === 'team' ? 2 : 1;
+  const [teamSize, setTeamSize] = useState(1);
+  useEffect(() => {
+    setTeamSize((current) => {
+      if (workerType === 'individual') {
+        return 1;
+      }
+
+      return Math.max(current, 2);
+    });
+  }, [workerType]);
   const totalPrice = summary.totalPrice + Math.max(teamSize - 1, 0) * 12 * workingHours;
-  const totalDurationMinutes = summary.durationMinutes + (workingHours * 60);
+  const totalDurationMinutes = summary.durationMinutes;
   const totalDurationLabel = formatMinutesToDurationLabel(totalDurationMinutes) ?? summary.durationLabel;
   const serviceCountLabel = `${summary.serviceCount} ${
     summary.serviceCount === 1
@@ -52,17 +66,64 @@ export default function TeamAndSchedule() {
       : t('service_details_service_plural')
   }`;
   const workersLabel = `${teamSize} ${teamSize === 1 ? t('team_worker_singular') : t('team_worker_plural')}`;
+  const workerTypeOptions = useMemo(
+    () => [
+      {
+        id: 'individual',
+        title: t('team_schedule_worker_type_individual_title'),
+        description: t('team_schedule_worker_type_individual_description'),
+        iconType: 'MaterialCommunityIcons' as const,
+        iconName: 'account',
+      },
+      {
+        id: 'team',
+        title: t('team_schedule_worker_type_team_title'),
+        description: t('team_schedule_worker_type_team_description'),
+        iconType: 'MaterialCommunityIcons' as const,
+        iconName: 'account-group',
+      },
+    ],
+    [t],
+  );
+  const serviceModeOptions = useMemo(
+    () => [
+      {
+        id: 'one-time',
+        title: t('team_schedule_service_mode_one_time_title'),
+        description: t('team_schedule_service_mode_one_time_description'),
+        iconType: 'MaterialCommunityIcons' as const,
+        iconName: 'hammer-wrench',
+      },
+      {
+        id: 'contract',
+        title: t('team_schedule_service_mode_contract_title'),
+        description: t('team_schedule_service_mode_contract_description'),
+        iconType: 'MaterialCommunityIcons' as const,
+        iconName: 'calendar-month-outline',
+      },
+    ],
+    [t],
+  );
+  const workerTypeInfoText = useMemo(
+    () => workerTypeOptions.find((option) => option.id === workerType)?.description,
+    [workerType, workerTypeOptions],
+  );
+  const serviceModeInfoText = useMemo(
+    () => serviceModeOptions.find((option) => option.id === serviceMode)?.description,
+    [serviceMode, serviceModeOptions],
+  );
   const handleSelectServiceMode = (nextMode: 'one-time' | 'contract') => {
     setServiceMode(nextMode);
   };
 
   const navigateToChooseDateAndTime = () => {
-    if (!trimmedJobDescription) {
+    if (bookingFlow === 'multiVendor' && !trimmedJobDescription) {
+      showToast.error(t('team_schedule_job_description_required'));
       return;
     }
 
     navigation.push('ChooseDateAndTime', {
-      contractDays,
+      contractType: serviceMode === 'contract' ? 'monthly' : undefined,
       initialSelection,
       selectedServiceIds,
       selectedServices,
@@ -75,7 +136,7 @@ export default function TeamAndSchedule() {
         durationMinutes: totalDurationMinutes,
         totalPrice,
       },
-      jobDescription: trimmedJobDescription,
+      jobDescription: trimmedJobDescription || undefined,
       workerType,
       teamSize,
       workingHours,
@@ -92,56 +153,24 @@ export default function TeamAndSchedule() {
       />
 
       <ScrollView
-        contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <ServiceModeSection
-          onSelect={(nextType) => setWorkerType(nextType as HomeVisitsWorkerType)}
-          options={[
-            {
-              id: 'individual',
-              title: t('team_schedule_worker_type_individual_title'),
-              description: t('team_schedule_worker_type_individual_description'),
-            },
-            {
-              id: 'team',
-              title: t('team_schedule_worker_type_team_title'),
-              description: t('team_schedule_worker_type_team_description'),
-            },
-          ]}
-          selectedMode={workerType}
-          title={t('team_schedule_worker_type_title')}
-        />
-
-        <ServiceModeSection
-          onSelect={(nextMode) => handleSelectServiceMode(nextMode as 'one-time' | 'contract')}
-          options={[
-            {
-              id: 'one-time',
-              title: t('team_schedule_service_mode_one_time_title'),
-              description: t('team_schedule_service_mode_one_time_description'),
-            },
-            {
-              id: 'contract',
-              title: t('team_schedule_service_mode_contract_title'),
-              description: t('team_schedule_service_mode_contract_description'),
-            },
-          ]}
-          selectedMode={serviceMode}
-          title={t('team_schedule_service_mode_title')}
-        />
-
         <View style={styles.jobDescriptionWrap}>
-          <View style={[styles.jobDescriptionCard, { borderColor: colors.border }]}>
-            <View style={styles.jobDescriptionHeader}>
-              <Icon type="Feather" name="file-text" size={16} color={colors.warning} />
-              <Text
-                weight="semiBold"
-                style={{ color: colors.text }}
-              >
-                {t('team_schedule_job_description_title')}
-              </Text>
-            </View>
+          <View style={styles.jobDescriptionHeader}>
+            <Icon type="Feather" name="file-text" size={20} color={colors.warning} />
+            <Text
+              weight="extraBold"
+              style={{
+                color: colors.text,
+                fontSize: 18,
+                lineHeight: 24,
+              }}
+            >
+              {t('team_schedule_job_description_title')}
+            </Text>
+          </View>
+          <View style={styles.jobDescriptionCard}>
             <TextInput
               multiline
               onChangeText={setJobDescription}
@@ -160,12 +189,31 @@ export default function TeamAndSchedule() {
             />
           </View>
         </View>
+
+        <ServiceModeSection
+          onSelect={(nextType) => setWorkerType(nextType as HomeVisitsWorkerType)}
+          infoText={workerTypeInfoText}
+          options={workerTypeOptions}
+          selectedMode={workerType}
+          title={t('team_schedule_worker_type_title')}
+          titleIconType="FontAwesome"
+          titleIconName="users"
+        />
+
+        <ServiceModeSection
+          onSelect={(nextMode) => handleSelectServiceMode(nextMode as 'one-time' | 'contract')}
+          infoText={serviceModeInfoText}
+          options={serviceModeOptions}
+          selectedMode={serviceMode}
+          title={t('team_schedule_service_mode_title')}
+          titleIconType="Feather"
+          titleIconName="briefcase"
+        />
       </ScrollView>
 
       <TeamAndScheduleFooter
         bottomInset={insets.bottom}
         continueLabel={t('team_schedule_continue')}
-        disabled={!trimmedJobDescription}
         durationLabel={totalDurationLabel}
         onContinue={navigateToChooseDateAndTime}
         serviceCountLabel={serviceCountLabel}
@@ -179,28 +227,31 @@ export default function TeamAndSchedule() {
 
 const styles = StyleSheet.create({
   jobDescriptionCard: {
-    borderRadius: 12,
-    borderWidth: 1,
-    gap: 10,
-    padding: 16,
+    gap: 12,
   },
   jobDescriptionHeader: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 8,
+    gap: 10,
   },
   jobDescriptionInput: {
-    borderRadius: 6,
+    borderRadius: 12,
     borderWidth: 1,
     fontSize: 14,
-    minHeight: 80,
-    padding: 10,
+    minHeight: 110,
+    padding: 12,
   },
   jobDescriptionWrap: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingTop: 12,
+    paddingBottom: 8,
+    gap: 10,
   },
   screen: {
     flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 148,
+    paddingTop: 8,
   },
 });

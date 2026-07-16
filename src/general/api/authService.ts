@@ -1,5 +1,7 @@
 import apiClient from "./apiClient";
 import type {
+  AppleLoginPayload,
+  AppleLoginResponse,
   EmailLoginPayload,
   EmailLoginRespoce,
   GoogleLoginPayload,
@@ -64,6 +66,11 @@ export const authService = {
 
   googleLogin: (payload: GoogleLoginPayload) =>
     apiClient.post<GoogleLoginResponse>(`/api/v1/auth/login/google`, payload, {
+      skipAuth: true,
+    }),
+
+  appleLogin: (payload: AppleLoginPayload) =>
+    apiClient.post<AppleLoginResponse>(`/api/v1/auth/login/apple`, payload, {
       skipAuth: true,
     }),
 

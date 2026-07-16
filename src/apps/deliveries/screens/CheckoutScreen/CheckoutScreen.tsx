@@ -25,6 +25,7 @@ import { useUseCouponMutation } from '../../hooks/useUseCouponMutation';
 import { claimedCouponsKeys } from '../../hooks/useClaimedCouponsQuery';
 import { formatCartPrice } from '../../components/cart/cartUtils';
 import {
+  createSelectedDeliveryAddress,
   formatDeliveryAddressLabel,
   resolveSavedAddressId,
 } from '../../../../general/utils/address';
@@ -175,6 +176,14 @@ export default function CheckoutScreen() {
     isLoading: isAddressesLoading,
     refetch: refetchAddresses,
   } = useSavedAddresses("deliveries");
+  const fallbackSelectedAddress = React.useMemo(
+    () => createSelectedDeliveryAddress(addresses),
+    [addresses],
+  );
+  const effectiveSelectedAddress = React.useMemo(
+    () => selectedAddress ?? fallbackSelectedAddress,
+    [fallbackSelectedAddress, selectedAddress],
+  );
   const resolvedAddressId = React.useMemo(
     () => resolveSavedAddressId(selectedAddress?.id, addresses),
     [addresses, selectedAddress?.id],
@@ -795,7 +804,7 @@ export default function CheckoutScreen() {
     [adjustedPricing, preview],
   );
   const previewTotal = adjustedPreview?.pricing.totalAmount ?? cart.finalPrice;
-  const selectedAddressLabel = formatDeliveryAddressLabel(selectedAddress);
+  const selectedAddressLabel = formatDeliveryAddressLabel(effectiveSelectedAddress);
   const paymentIconName = paymentMethod === 'stripe' ? 'card-outline' : 'cash-outline';
   const paymentTitle = getCheckoutPaymentMethodTitle(paymentMethod, t);
   const defaultSavedCard = React.useMemo(
@@ -918,7 +927,7 @@ export default function CheckoutScreen() {
       <CheckoutScreenContent
         courierMessage={messages.courier}
         deliveryTimeMode={deliveryTimeMode}
-        hasAddressRequirement={orderType === 'delivery' && !selectedAddress?.id}
+        hasAddressRequirement={orderType === 'delivery' && !resolvedAddressId}
         isPickupEnabled={adjustedPreview?.store.pickupAllowed ?? true}
         isPromoApplied={isPromoApplied}
         isPlacingOrder={placeOrderMutation.isPending}
@@ -982,7 +991,7 @@ export default function CheckoutScreen() {
         onSelectAddress={handleSelectAddress}
         onUseCurrentLocation={handleUseCurrentLocation}
         selectingAddressId={selectingAddressId}
-        selectedAddressId={selectedAddress?.id}
+        selectedAddressId={resolvedAddressId ?? selectedAddress?.id}
       />
 
       <CheckoutPaymentMethodBottomSheet

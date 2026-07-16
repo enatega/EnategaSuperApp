@@ -1,11 +1,14 @@
 import React from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Text from '../../../../../general/components/Text';
 import { useTheme } from '../../../../../general/theme/theme';
 import type {
   HomeVisitsSingleVendorBookingItem,
   HomeVisitsSingleVendorBookingsTab,
 } from '../../api/types';
+import { resolveBookingStatusLabel } from '../../utils/bookingStatusLabel';
+import { normalizeJobStatus } from '../../utils/trackWorkerStatus';
 
 type Props = {
   booking: HomeVisitsSingleVendorBookingItem;
@@ -31,8 +34,16 @@ export default function BookingListItem({
   onPress,
 }: Props) {
   const { colors, typography } = useTheme();
+  const { t } = useTranslation('homeVisits');
   const shouldShowViewDetails = booking.canViewDetails && tab === 'ongoing';
   const shouldShowBookAgain = booking.canBookAgain && tab === 'past';
+  const shouldShowStatusBadge = booking.bookingType !== 'contract';
+  const statusLabel = resolveBookingStatusLabel(
+    booking.jobStatus ?? booking.status,
+    booking.statusLabel,
+    t,
+  );
+  const statusTone = getStatusTone(booking.jobStatus ?? booking.status, colors);
   const metadata = [
     booking.durationLabel,
     getItemCountLabel(booking.itemCount, itemLabel, itemsLabel),
@@ -53,20 +64,54 @@ export default function BookingListItem({
           style={styles.image}
         />
         <View style={styles.details}>
-          <Text
-            numberOfLines={1}
-            style={[
-              styles.title,
-              {
-                color: colors.text,
-                fontSize: typography.size.sm2,
-                lineHeight: typography.lineHeight.md,
-              },
-            ]}
-            weight="semiBold"
-          >
-            {booking.title}
-          </Text>
+          <View style={styles.titleRow}>
+            <Text
+              numberOfLines={1}
+              style={[
+                styles.title,
+                {
+                  color: colors.text,
+                  fontSize: typography.size.sm2,
+                  lineHeight: typography.lineHeight.md,
+                },
+              ]}
+              weight="semiBold"
+            >
+              {booking.title}
+            </Text>
+            {shouldShowStatusBadge ? (
+              <View
+                style={[
+                  styles.statusBadge,
+                  {
+                    backgroundColor: statusTone.backgroundColor,
+                    borderColor: statusTone.borderColor,
+                  },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.statusDot,
+                    { backgroundColor: statusTone.accentColor },
+                  ]}
+                />
+                <Text
+                  numberOfLines={1}
+                  style={[
+                    styles.statusText,
+                    {
+                      color: statusTone.textColor,
+                      fontSize: typography.size.xs2,
+                      lineHeight: typography.lineHeight.sm,
+                    },
+                  ]}
+                  weight="medium"
+                >
+                  {statusLabel}
+                </Text>
+              </View>
+            ) : null}
+          </View>
           <Text
             numberOfLines={1}
             style={[
@@ -154,6 +199,62 @@ function formatAmount(totalAmount?: number | null) {
   return `$${amount}`;
 }
 
+function getStatusTone(
+  statusValue: string | null | undefined,
+  colors: ReturnType<typeof useTheme>['colors'],
+) {
+  const normalizedStatus = normalizeJobStatus(statusValue);
+
+  switch (normalizedStatus) {
+    case 'completed':
+    case 'marked_complete':
+      return {
+        backgroundColor: colors.successSoft,
+        borderColor: colors.success,
+        textColor: colors.successText,
+        accentColor: colors.success,
+      };
+    case 'cancelled':
+    case 'rejected':
+    case 'failed':
+      return {
+        backgroundColor: colors.dangerSoft,
+        borderColor: colors.danger,
+        textColor: colors.dangerText,
+        accentColor: colors.danger,
+      };
+    case 'payment_requested':
+      return {
+        backgroundColor: colors.backgroundTertiary,
+        borderColor: colors.primary,
+        textColor: colors.primary,
+        accentColor: colors.primary,
+      };
+    case 'worker_assigned':
+    case 'on_my_way':
+    case 'reached':
+    case 'job_started':
+    case 'service_started':
+    case 'in_progress':
+      return {
+        backgroundColor: colors.warningSoft,
+        borderColor: colors.warning,
+        textColor: colors.warningText,
+        accentColor: colors.warning,
+      };
+    case 'pending':
+    case 'scheduled':
+    case 'confirmed':
+    default:
+      return {
+        backgroundColor: colors.backgroundTertiary,
+        borderColor: colors.border,
+        textColor: colors.iconMuted,
+        accentColor: colors.iconMuted,
+      };
+  }
+}
+
 const styles = StyleSheet.create({
   actionButton: {
     alignItems: 'center',
@@ -190,7 +291,34 @@ const styles = StyleSheet.create({
   meta: {
     letterSpacing: 0,
   },
+  statusBadge: {
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: 'row',
+    flexShrink: 1,
+    gap: 6,
+    marginLeft: 10,
+    maxWidth: '48%',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  statusDot: {
+    borderRadius: 4,
+    height: 7,
+    width: 7,
+  },
+  statusText: {
+    letterSpacing: 0,
+  },
   title: {
     letterSpacing: 0,
+    flex: 1,
+  },
+  titleRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    minWidth: 0,
   },
 });

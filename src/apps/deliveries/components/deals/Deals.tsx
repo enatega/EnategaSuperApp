@@ -61,9 +61,9 @@ export default function Deals({
   const [selectedClosedStore, setSelectedClosedStore] = useState<DeliveryNearbyStore | null>(null);
   const isEmpty = !isPending && !isError && items.length === 0;
   const shouldShowAction = Boolean(actionLabel) && !isPending && !isError && items.length > 0;
-  const closedStoreTypeName = useMemo(
-    () => selectedClosedStore?.shopTypeName?.trim() || t('store_details_closed_store_fallback_name'),
-    [selectedClosedStore?.shopTypeName, t],
+  const closedStoreName = useMemo(
+    () => selectedClosedStore?.name?.trim() || t('store_details_closed_store_fallback_name'),
+    [selectedClosedStore?.name, t],
   );
 
   const handleCloseClosedStorePopup = useCallback(() => {
@@ -80,7 +80,9 @@ export default function Deals({
   }, [navigation, selectedClosedStore]);
   const renderItem = useCallback(
     ({ item }: { item: DealsItem }) => {
-      const isClosedStore = !isProductItem(item) && item.isAvailable === false;
+      const isClosedStore =
+        !isProductItem(item)
+        && (item.isAvailable === false || item.isClosed === true);
 
       return (
         <StoreCard
@@ -139,7 +141,7 @@ export default function Deals({
       )}
 
       <AppPopup
-        description={t('store_details_closed_store_description', { shopTypeName: closedStoreTypeName })}
+        description={t('store_details_closed_store_description', { storeName: closedStoreName })}
         dismissOnOverlayPress
         onRequestClose={handleCloseClosedStorePopup}
         primaryAction={{
@@ -151,7 +153,7 @@ export default function Deals({
           onPress: handleSeeMenu,
           variant: 'secondary',
         }}
-        title={t('store_closed_modal_title')}
+        title={t('store_closed_modal_title', { storeName: closedStoreName })}
         visible={Boolean(selectedClosedStore)}
       />
     </View>

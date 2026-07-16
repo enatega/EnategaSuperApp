@@ -15,28 +15,48 @@ import type {
   HomeVisitsSingleVendorNearbyService,
 } from '../../singleVendor/api/types';
 import type { HomeVisitsSingleVendorNavigationParamList } from '../../singleVendor/navigation/types';
+import type { MultiVendorStackParamList } from '../../multiVendor/navigation/types';
+import type { HomeVisitsMultiVendorNearbyService } from '../../multiVendor/api/types';
+import type { ChainStackParamList } from '../../chain/navigation/types';
 
 type HomeVisitsSingleVendorSeeAllItem =
   | HomeVisitsSingleVendorNearbyService
   | HomeVisitsSingleVendorMostPopularService
   | HomeVisitsSingleVendorDeal
-  | HomeVisitsSingleVendorCategoryService;
+  | HomeVisitsSingleVendorCategoryService
+  | HomeVisitsMultiVendorNearbyService;
 
 type SeeAllRouteProp = RouteProp<HomeVisitsSingleVendorNavigationParamList, 'SeeAllScreen'>;
+type MultiVendorSeeAllRouteProp = RouteProp<MultiVendorStackParamList, 'MultiVendorSeeAll'>;
+type ChainSeeAllRouteProp = RouteProp<ChainStackParamList, 'ChainSeeAll'>;
+type HomeVisitsSeeAllRouteParams =
+  (
+    | SeeAllRouteProp['params']
+    | MultiVendorSeeAllRouteProp['params']
+    | ChainSeeAllRouteProp['params']
+  ) & {
+    mainServiceId?: string;
+    providerId?: string;
+  };
 
 export default function HomeVisitsSeeAllScreen() {
   const { t } = useTranslation('homeVisits');
-  const route = useRoute<SeeAllRouteProp>();
+  const route = useRoute<
+    SeeAllRouteProp | MultiVendorSeeAllRouteProp | ChainSeeAllRouteProp
+  >();
+  const params = route.params as HomeVisitsSeeAllRouteParams;
   const {
     queryType,
     title,
     categoryId,
+    mainServiceId,
+    providerId,
     latitude,
     longitude,
     scope = 'single-vendor',
     cardType = 'service',
     cardVariant = 'default',
-  } = route.params;
+  } = params;
   void cardType;
   void cardVariant;
 
@@ -54,6 +74,8 @@ export default function HomeVisitsSeeAllScreen() {
     filters: state.appliedFilters,
     search: state.debouncedSearch,
     categoryId,
+    mainServiceId,
+    providerId,
     latitude,
     longitude,
   });
@@ -83,7 +105,17 @@ export default function HomeVisitsSeeAllScreen() {
           onClearAll={onClearAll}
         />
       )}
-      renderItemCard={(item) => <ServicesCard item={item} layout="fullWidth" />}
+      renderItemCard={(item) => (
+        <ServicesCard
+          bookingFlow={
+            scope === 'multi-vendor' || scope === 'chain'
+              ? 'multiVendor'
+              : undefined
+          }
+          item={item}
+          layout="fullWidth"
+        />
+      )}
       header={
         <HomeVisitsSeeAllHeader
           searchPlaceholder={t('home_visits_see_all_search_placeholder')}
@@ -112,15 +144,9 @@ export default function HomeVisitsSeeAllScreen() {
       }
       loadingComponent={loadingComponent}
       paginationLoadingComponent={paginationLoadingComponent}
-      emptyTitle={
-        scope !== 'single-vendor'
-          ? t('home_visits_see_all_coming_soon_title')
-          : t('single_vendor_home_section_empty_title')
-      }
+      emptyTitle={t('single_vendor_home_section_empty_title')}
       emptyDescription={
-        scope !== 'single-vendor'
-          ? t('home_visits_see_all_coming_soon_description')
-          : isNearbyLocationMissing
+        isNearbyLocationMissing
             ? t('single_vendor_nearby_location_select_address_message')
             : t('single_vendor_home_section_empty_message')
       }

@@ -9,6 +9,7 @@ import { useAuthSessionQuery } from '../../../../../general/hooks/useAuthQueries
 import { useTheme } from '../../../../../general/theme/theme';
 import { useRideSharingEmergencyContact } from '../../../../../general/stores/useAppConfigStore';
 import CancelRideBottomSheet from '../../../components/reservation/CancelRideBottomSheet';
+import { useSendCustomerComing } from '../../../hooks/useRideMutations';
 import type { ActiveRidePayload, RideAddressSelection } from '../../../api/types';
 import { useRideChatBoxes } from '../../../hooks/useRideChatQueries';
 import type { RideSharingStackParamList } from '../../../navigation/RideSharingNavigator';
@@ -53,6 +54,14 @@ function readDisplayString(...values: Array<unknown>) {
   return resolvedValue;
 }
 
+function readRecord(value: unknown) {
+  if (!value || typeof value !== 'object') {
+    return undefined;
+  }
+
+  return value as Record<string, unknown>;
+}
+
 function readChatBoxId(value: ActiveRidePayload) {
   const record = value as unknown as Record<string, unknown>;
   return readString(
@@ -60,6 +69,28 @@ function readChatBoxId(value: ActiveRidePayload) {
     record.chat_box_id,
     record.chatboxId,
     record.chatbox_id,
+  );
+}
+
+function readProfileEntityId(
+  profiles: Array<{ key: string; data: Record<string, unknown> }> | null | undefined,
+  profileKey: string,
+) {
+  if (!profiles?.length) {
+    return undefined;
+  }
+
+  const matchedProfile = profiles.find(
+    (profile) => profile.key.trim().toLowerCase() === profileKey.trim().toLowerCase(),
+  );
+  const profileData = readRecord(matchedProfile?.data);
+
+  return readString(
+    profileData?.id,
+    profileData?.customerId,
+    profileData?.customer_id,
+    profileData?.riderId,
+    profileData?.rider_id,
   );
 }
 
@@ -246,12 +277,45 @@ function ActiveRideView({ activeRide }: Props) {
   const fare = readNumber(activeRide.agreed_price);
   const paymentMethodLabel = formatPaymentMethod(activeRide.payment_via);
   const driver = activeRide.driver;
+  const activeRideRecord = readRecord(activeRide);
+  const driverRecord = readRecord(driver);
   const vehicle = driver?.vehicle;
   const isCourierFlow = isCourierRideRequest(activeRide.ride_type?.name) || isCourierRideRequest(activeRide.ride_type?.id) || Boolean(activeRide.courierDetail);
   const payloadChatBoxId = readChatBoxId(activeRide);
   const driverUserId = getActiveRideDriverUserId(activeRide);
   const senderId = sessionQuery.data?.user?.id;
+  const customerEntityId = readString(
+    activeRideRecord?.customerId,
+    activeRideRecord?.customer_id,
+    activeRideRecord?.passengerId,
+    activeRideRecord?.passenger_id,
+    readRecord(activeRideRecord?.customer)?.id,
+    readRecord(activeRideRecord?.passenger)?.id,
+    readProfileEntityId(sessionQuery.data?.profiles, 'customer'),
+  );
+  const driverEntityId = readString(
+    driver?.id,
+    driverRecord?.riderId,
+    driverRecord?.rider_id,
+    activeRideRecord?.driverId,
+    activeRideRecord?.driver_id,
+    activeRideRecord?.riderId,
+    activeRideRecord?.rider_id,
+  );
   const chatBoxesQuery = useRideChatBoxes(senderId ?? undefined);
+  const [hasAcknowledgedWaitingCard, setHasAcknowledgedWaitingCard] = useState(false);
+  const [nowTick, setNowTick] = useState(() => Date.now());
+  const sendCustomerComingMutation = useSendCustomerComing({
+    onError: (error) => {
+      showToast.error(
+        t('ride_active_waiting_acknowledge_error_title'),
+        error.message || t('ride_active_waiting_acknowledge_error_message'),
+      );
+    },
+    onSuccess: () => {
+      setHasAcknowledgedWaitingCard(true);
+    },
+  });
   const chatBoxes = useMemo(() => getRideChatBoxes(chatBoxesQuery.data), [chatBoxesQuery.data]);
   const resolvedChatBoxId = useMemo(() => {
     if (payloadChatBoxId) {
@@ -306,8 +370,6 @@ function ActiveRideView({ activeRide }: Props) {
   const waitingRemainingSec = Number.isFinite(driverReachedAtMs)
     ? Math.max(0, Math.floor(waitingWindowSec - ((Date.now() - driverReachedAtMs) / 1000)))
     : waitingWindowSec;
-  const [hasAcknowledgedWaitingCard, setHasAcknowledgedWaitingCard] = useState(false);
-  const [nowTick, setNowTick] = useState(() => Date.now());
   const waitingRemainingSecLive = Number.isFinite(driverReachedAtMs)
     ? Math.max(0, Math.floor(waitingWindowSec - ((nowTick - driverReachedAtMs) / 1000)))
     : waitingRemainingSec;
@@ -471,6 +533,38 @@ function ActiveRideView({ activeRide }: Props) {
     navigation.navigate('DriverProfile', { userId: driverUserId });
   }, [driverUserId, navigation]);
 
+  const handleAcknowledgeDriverWaiting = useCallback(() => {
+    if (!rideId) {
+      showToast.error(
+        t('ride_active_waiting_acknowledge_error_title'),
+        t('ride_active_waiting_missing_ride_error'),
+      );
+      return;
+    }
+
+    if (!customerEntityId) {
+      showToast.error(
+        t('ride_active_waiting_acknowledge_error_title'),
+        t('ride_active_waiting_missing_customer_error'),
+      );
+      return;
+    }
+
+    if (!driverEntityId) {
+      showToast.error(
+        t('ride_active_waiting_acknowledge_error_title'),
+        t('ride_active_waiting_missing_driver_error'),
+      );
+      return;
+    }
+
+    sendCustomerComingMutation.mutate({
+      rideId,
+      customerId: customerEntityId,
+      driverId: driverEntityId,
+    });
+  }, [customerEntityId, driverEntityId, rideId, sendCustomerComingMutation, t]);
+
   if (!rideId || !fromAddress || !toAddress) {
     return null;
   }
@@ -505,15 +599,14 @@ function ActiveRideView({ activeRide }: Props) {
         canCancelRide={canCancelRide}
         waitingRemainingSec={waitingRemainingSecLive}
         hideWaitingCard={hasAcknowledgedWaitingCard}
+        isAcknowledgingDriverWaiting={sendCustomerComingMutation.isPending}
         onDriverPress={handleDriverPress}
         onContactDriver={handleContactDriver}
         onSafetyPress={handleSafetyPress}
         onShareRide={handleShareRide}
         onEmergencyPress={handleEmergencyPress}
         onCancelRide={openCancelSheet}
-        onAcknowledgeDriverWaiting={() => {
-          setHasAcknowledgedWaitingCard(true);
-        }}
+        onAcknowledgeDriverWaiting={handleAcknowledgeDriverWaiting}
       />
       <CancelRideBottomSheet
         isVisible={isCancelSheetVisible}

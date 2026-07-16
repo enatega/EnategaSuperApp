@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import type { ProfileAddress } from "../../../../../../general/api/profileService";
 import HomeVisitsAddressHeader from "../../../../components/HomeVisitsAddressHeader";
 import HomeVisitsSearchInputWithFilter from "../../../../components/search/HomeVisitsSearchInputWithFilter";
@@ -10,7 +10,6 @@ import { useTheme } from "../../../../../../general/theme/theme";
 
 type Props = {
   addresses: ProfileAddress[];
-  avatarUri?: string;
   clearAllLabel: string;
   greetingName: string;
   onAddressPress: () => void;
@@ -22,7 +21,6 @@ type Props = {
 
 export default function HomeHeroSection({
   addresses,
-  avatarUri,
   clearAllLabel,
   greetingName,
   onAddressPress,
@@ -67,23 +65,6 @@ export default function HomeHeroSection({
                 color={colors.text}
               />
             </Pressable>
-            <View
-              style={[
-                styles.avatarShell,
-                { backgroundColor: colors.backgroundTertiary },
-              ]}
-            >
-              {avatarUri ? (
-                <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
-              ) : (
-                <Icon
-                  type="Ionicons"
-                  name="person"
-                  size={20}
-                  color={colors.iconMuted}
-                />
-              )}
-            </View>
           </View>
         }
       />
@@ -173,18 +154,6 @@ const styles = StyleSheet.create({
     height: 52,
     justifyContent: "center",
     width: 52,
-  },
-  avatarShell: {
-    alignItems: "center",
-    borderRadius: 20,
-    height: 40,
-    justifyContent: "center",
-    overflow: "hidden",
-    width: 40,
-  },
-  avatarImage: {
-    height: "100%",
-    width: "100%",
   },
   greetingSection: {
     gap: 4,

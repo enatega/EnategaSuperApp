@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import VisitDetails from '../../screens/VisitDetails';
 import BookingDetailsScreen from '../screens/BookingDetailsScreen';
+import ContractDetailsScreen from '../screens/ContractDetailsScreen';
 import ManageAppointmentScreen from '../screens/ManageAppointmentScreen';
 import CancelAppointmentScreen from '../screens/CancelAppointmentScreen';
 import ServiceDetails from '../../screens/ServiceDetails/ServiceDetails';
@@ -18,6 +19,7 @@ import FavoriteServicesScreen from '../screens/FavoriteServicesScreen';
 import TrackWorkerScreen from '../screens/TrackWorkerScreen';
 import NotificationsScreen from '../../../../general/screens/notifications/NotificationsScreen';
 import useHomeVisitsSocketSync from "../hooks/useHomeVisitsSocketSync";
+import CenterDetailsScreen from '../../multiVendor/screens/CenterDetailsScreen';
 
 const Stack = createNativeStackNavigator<HomeVisitsSingleVendorNavigationParamList>();
 
@@ -55,6 +57,11 @@ export default function SingleVendorNavigator() {
         options={sharedScreenOptions}
       />
       <Stack.Screen
+        name="MultiVendorCenterDetails"
+        component={CenterDetailsScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
         name="SeeAllScreen"
         component={HomeVisitsSingleVendorSeeAllScreen}
         options={sharedScreenOptions}
@@ -62,6 +69,11 @@ export default function SingleVendorNavigator() {
       <Stack.Screen
         name="SingleVendorBookingDetails"
         component={BookingDetailsScreen}
+        options={sharedScreenOptions}
+      />
+      <Stack.Screen
+        name="SingleVendorContractDetails"
+        component={ContractDetailsScreen}
         options={sharedScreenOptions}
       />
       <Stack.Screen

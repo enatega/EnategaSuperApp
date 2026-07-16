@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Share, StatusBar, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, Share, StatusBar, StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
@@ -35,10 +35,9 @@ const MIN_SEARCH_QUERY_LENGTH = 2;
 
 function getTodayStoreHours(
   storeTimings?: DeliveryStoreTimings | null,
-  fallback?: string,
 ) {
   if (!storeTimings) {
-    return fallback ?? null;
+    return null;
   }
 
   const dayKey = new Intl.DateTimeFormat('en-US', { weekday: 'long' })
@@ -47,20 +46,44 @@ function getTodayStoreHours(
   const daySchedule = storeTimings[dayKey];
 
   if (!daySchedule) {
-    return fallback ?? null;
+    return null;
   }
 
   if (!daySchedule.is_active || daySchedule.slots.length === 0) {
-    return fallback ?? null;
+    return null;
   }
 
   const firstSlot = daySchedule.slots[0];
 
   if (!firstSlot?.open || !firstSlot?.close) {
-    return fallback ?? null;
+    return null;
   }
 
   return `${firstSlot.open} - ${firstSlot.close}`;
+}
+
+function isStoreOrderAvailable(store?: {
+  isAvailable?: boolean;
+  storeTimings?: DeliveryStoreTimings | null;
+} | null) {
+  if (!store) {
+    return true;
+  }
+
+  if (store.isAvailable === false) {
+    return false;
+  }
+
+  const dayKey = new Intl.DateTimeFormat('en-US', { weekday: 'long' })
+    .format(new Date())
+    .toLowerCase();
+  const daySchedule = store.storeTimings?.[dayKey];
+
+  if (!daySchedule) {
+    return true;
+  }
+
+  return daySchedule.is_active && daySchedule.slots.length > 0;
 }
 
 export default function StoreDetailsScreen() {
@@ -72,7 +95,6 @@ export default function StoreDetailsScreen() {
   const route = useRoute<RouteProp<StoreDetailsParamList, 'StoreDetails'>>();
   const [searchValue, setSearchValue] = useState('');
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
-  const [isStoreClosedModalVisible, setIsStoreClosedModalVisible] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string | null>(null);
   const selectedStore = route.params?.store;
@@ -108,6 +130,8 @@ export default function StoreDetailsScreen() {
     data: storeData,
     error: storeError,
     isPending: isStorePending,
+    isRefetching: isStoreRefetching,
+    refetch: refetchStore,
   } = useStoreView(storeId, { enabled: Boolean(storeId) });
 
   const handleFavouritePress = useCallback(() => {
@@ -125,6 +149,7 @@ export default function StoreDetailsScreen() {
     hasNextPage,
     isFetched: hasFetchedProducts,
     isFetchingNextPage,
+    isRefetching: isProductsRefetching,
     refetch: refetchProducts,
   } = useStoreProducts(
     storeId,
@@ -245,18 +270,21 @@ export default function StoreDetailsScreen() {
     setIsInfoModalVisible(false);
   }, []);
 
-  const handleCloseStoreClosedModal = useCallback(() => {
-    setIsStoreClosedModalVisible(false);
-  }, []);
-
   const handleStoreProductOpen = useCallback((target: DeliveryProductActionTarget) => {
-    if (store?.isAvailable === false) {
-      setIsStoreClosedModalVisible(true);
+    if (!isStoreOrderAvailable(store)) {
+      showToast.info(
+        t('store_details_closed_store_title', {
+          storeName: store?.name?.trim() || t('store_details_closed_store_fallback_name'),
+        }),
+        t('store_details_closed_store_description', {
+          storeName: store?.name?.trim() || t('store_details_closed_store_fallback_name'),
+        }),
+      );
       return;
     }
 
     navigation.navigate('ProductInfo', { productId: target.productId });
-  }, [navigation, store?.isAvailable]);
+  }, [navigation, store, t]);
 
   const handleLoadMoreProducts = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -264,24 +292,40 @@ export default function StoreDetailsScreen() {
     }
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([
+      refetchStore(),
+      refetchProducts(),
+    ]);
+  }, [refetchProducts, refetchStore]);
+
   const storeName = store?.name ?? selectedStore?.name ?? t('store_details_store_name');
-  const rating = store?.averageRating ?? selectedStore?.averageRating ?? null;
-  const reviewCount = store?.reviewCount ?? selectedStore?.reviewCount ?? null;
+  const rawRating = store?.averageRating ?? selectedStore?.averageRating ?? null;
+  const rating =
+    typeof rawRating === 'number' && Number.isFinite(rawRating) && rawRating > 0
+      ? rawRating
+      : null;
+  const rawReviewCount = store?.reviewCount ?? selectedStore?.reviewCount ?? null;
+  const reviewCount =
+    typeof rawReviewCount === 'number' && Number.isFinite(rawReviewCount) && rawReviewCount > 0
+      ? rawReviewCount
+      : null;
   const deliveryFee =
-    typeof store?.baseFee === 'number'
+    typeof store?.baseFee === 'number' && store.baseFee > 0
       ? `${currencyLabel} ${store.baseFee}`
-      : typeof selectedStore?.baseFee === 'number'
+      : typeof selectedStore?.baseFee === 'number' && selectedStore.baseFee > 0
         ? `${currencyLabel} ${selectedStore.baseFee}`
         : null;
+  const rawDistanceKm = store?.distanceKm ?? selectedStore?.distanceKm ?? null;
   const distance =
-    typeof selectedStore?.distanceKm === 'number'
-      ? `${selectedStore.distanceKm.toFixed(1)} km`
+    typeof rawDistanceKm === 'number' && Number.isFinite(rawDistanceKm) && rawDistanceKm > 0
+      ? `${rawDistanceKm.toFixed(1)} km`
       : null;
   const coverImageUrl =
     store?.coverImage ?? selectedStore?.coverImage ?? 'https://placehold.co/1400x800.png';
   const logoImageUrl = store?.logo ?? selectedStore?.logo ?? 'https://placehold.co/176x176.png';
   const heroTitle = '';
-  const hours = getTodayStoreHours(store?.storeTimings, t('store_details_hours_unavailable'));
+  const hours = getTodayStoreHours(store?.storeTimings) ?? t('store_status_closed');
   const phone = store?.contact?.phone ?? null;
   const email = store?.contact?.email ?? null;
   const sectionTitle = activeCategory?.name ?? t('store_details_all_offered_items');
@@ -393,6 +437,15 @@ export default function StoreDetailsScreen() {
         keyExtractor={(item) => item.id}
         onEndReached={handleLoadMoreProducts}
         onEndReachedThreshold={0.4}
+        refreshControl={(
+          <RefreshControl
+            refreshing={(isStoreRefetching || isProductsRefetching) && !isStorePending}
+            onRefresh={() => {
+              void handleRefresh();
+            }}
+            tintColor={colors.primary}
+          />
+        )}
         renderItem={() => (
           <StoreDetailProductsList
             activeCategoryId={activeCategoryId}
@@ -436,20 +489,6 @@ export default function StoreDetailsScreen() {
         title={t('store_details_about_title')}
         visible={isInfoModalVisible}
 
-      />
-
-      <AppPopup
-        description={t('store_details_closed_store_description', {
-          shopTypeName: store?.shopTypeName?.trim() || t('store_details_closed_store_fallback_name'),
-        })}
-        dismissOnOverlayPress
-        onRequestClose={handleCloseStoreClosedModal}
-        primaryAction={{
-          label: t('store_details_close'),
-          onPress: handleCloseStoreClosedModal,
-        }}
-        title={t('store_details_closed_store_title')}
-        visible={isStoreClosedModalVisible}
       />
     </>
   );
