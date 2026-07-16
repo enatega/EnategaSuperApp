@@ -77,7 +77,7 @@ export default function SharedNavigator() {
         return;
       }
 
-      await setPendingAppRoute(routeName);
+      await setPendingAppRoute(routeName, params);
       navigation.navigate("Auth");
     },
     [],

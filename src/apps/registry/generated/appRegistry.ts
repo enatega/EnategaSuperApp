@@ -5,6 +5,7 @@
 import type { ComponentType } from 'react';
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import type { MiniAppId } from './appI18nRegistry';
+import type { AppointmentsStackParamList } from '../../appointments/navigation/types';
 import type { DeliveriesStackParamList } from '../../deliveries/navigation/types';
 import type { RideSharingStackParamList } from '../../rideSharing/navigation/RideSharingNavigator';
 import AppointmentsNavigator from '../../appointments/navigation/AppointmentsNavigator';
@@ -19,7 +20,7 @@ import DeliveriesRecommendedStoresSection from '../../deliveries/components/home
 export type SharedAppRouteName = 'Appointments' | 'Deliveries' | 'DeveloperMode' | 'HomeVisits' | 'RideSharing';
 
 export type MiniAppRouteParamsById = {
-  appointments: undefined;
+  appointments: NavigatorScreenParams<AppointmentsStackParamList> | undefined;
   deliveries: NavigatorScreenParams<DeliveriesStackParamList> | undefined;
   developerMode: undefined;
   homeVisits: undefined;
