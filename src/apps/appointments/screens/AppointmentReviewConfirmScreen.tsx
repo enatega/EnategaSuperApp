@@ -21,12 +21,12 @@ import { extractApiErrorMessage } from "../../../general/api/apiClient";
 import AppPopup from "../../../general/components/AppPopup";
 import { showToast } from "../../../general/components/AppToast";
 import Icon from "../../../general/components/Icon";
+import ScreenHeader from "../../../general/components/ScreenHeader";
 import Text from "../../../general/components/Text";
 import { useTheme } from "../../../general/theme/theme";
 import type { AppointmentBookingConfirmRequest } from "../api/types";
 import { appointmentBookingService } from "../api/appointmentBookingService";
 import AppointmentBookingFooter from "../components/booking/AppointmentBookingFooter";
-import AppointmentBookingHeader from "../components/booking/AppointmentBookingHeader";
 import AppointmentBookingLineItem from "../components/booking/AppointmentBookingLineItem";
 import AppointmentBookingStoreSummary from "../components/booking/AppointmentBookingStoreSummary";
 import { formatPrice } from "../components/details/detailHelpers";
@@ -210,11 +210,12 @@ export default function AppointmentReviewConfirmScreen() {
 
   return (
     <SafeAreaView
+      edges={["bottom"]}
       style={[styles.screen, { backgroundColor: colors.background }]}
     >
-      <AppointmentBookingHeader
-        insets={insets}
-        onBackPress={handleBack}
+      <ScreenHeader
+        onBack={handleBack}
+        showBack
         title={t("review_confirm_title")}
       />
 
@@ -496,9 +497,9 @@ const styles = StyleSheet.create({
     padding: 18,
   },
   content: {
-    gap: 30,
-    paddingHorizontal: 20,
-    paddingTop: 12,
+    gap: 20,
+    paddingHorizontal: 16,
+    paddingTop: 4,
   },
   metaRow: {
     alignItems: "center",
@@ -529,10 +530,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scheduleSection: {
-    gap: 16,
+    gap: 12,
   },
   section: {
-    gap: 14,
+    gap: 10,
   },
   totalRow: {
     alignItems: "center",

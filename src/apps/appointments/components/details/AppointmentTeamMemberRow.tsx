@@ -132,6 +132,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     justifyContent: 'space-between',
-    paddingVertical: 18,
+    paddingVertical: 14,
   },
 });

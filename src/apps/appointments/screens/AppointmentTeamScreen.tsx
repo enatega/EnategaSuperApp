@@ -8,7 +8,7 @@ import {
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { showToast } from "../../../general/components/AppToast";
-import Text from "../../../general/components/Text";
+import ScreenHeader from "../../../general/components/ScreenHeader";
 import { useTheme } from "../../../general/theme/theme";
 import AppointmentDetailsCircleButton from "../components/details/AppointmentDetailsCircleButton";
 import AppointmentTeamMemberRow from "../components/details/AppointmentTeamMemberRow";
@@ -28,7 +28,7 @@ type TeamListItem =
   | { type: "member"; id: string; member: TeamMember };
 
 export default function AppointmentTeamScreen() {
-  const { colors, typography } = useTheme();
+  const { colors } = useTheme();
   const { t } = useTranslation("appointments");
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<TeamRouteProp>();
@@ -115,24 +115,18 @@ export default function AppointmentTeamScreen() {
         barStyle="dark-content"
       />
       <View style={[styles.screen, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <AppointmentDetailsCircleButton
-            icon="chevron-back"
-            label={t("details_action_back")}
-            onPress={handleClose}
-          />
-          <Text
-            style={{ color: colors.text, fontSize: typography.size.xl }}
-            weight="extraBold"
-          >
-            {t("team_screen_title")}
-          </Text>
-          <AppointmentDetailsCircleButton
-            icon="close"
-            label={t("details_close")}
-            onPress={handleClose}
-          />
-        </View>
+        <ScreenHeader
+          onBack={handleClose}
+          rightSlot={(
+            <AppointmentDetailsCircleButton
+              icon="close"
+              label={t("details_close")}
+              onPress={handleClose}
+            />
+          )}
+          showBack
+          title={t("team_screen_title")}
+        />
 
         <FlatList
           contentContainerStyle={styles.content}
@@ -178,16 +172,8 @@ export default function AppointmentTeamScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    paddingBottom: 32,
-    paddingHorizontal: 20,
-  },
-  header: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingBottom: 18,
-    paddingHorizontal: 20,
-    paddingTop: 56,
+    paddingBottom: 24,
+    paddingHorizontal: 16,
   },
   screen: {
     flex: 1,

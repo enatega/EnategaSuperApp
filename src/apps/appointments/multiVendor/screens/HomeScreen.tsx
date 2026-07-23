@@ -351,9 +351,8 @@ export default function MultiVendorHomeScreen() {
 
 const styles = StyleSheet.create({
   contentContainer: {
-    gap: 8,
-    paddingBottom: 12,
-    paddingTop: 10,
+    gap: 18,
+    paddingVertical: 16,
   },
   screen: {
     flex: 1,

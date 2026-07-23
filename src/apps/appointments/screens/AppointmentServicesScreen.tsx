@@ -170,7 +170,6 @@ export default function AppointmentServicesScreen() {
       style={[styles.screen, { backgroundColor: colors.background }]}
     >
       <AppointmentServicesHeader
-        insets={insets}
         onBackPress={() => navigation.goBack()}
         onRightPress={handleRightPress}
         rightIcon={hasSelection ? "cart-outline" : "information-circle-outline"}
@@ -238,12 +237,12 @@ export default function AppointmentServicesScreen() {
 const styles = StyleSheet.create({
   content: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
   },
   cartButton: {
     bottom: 22,
     position: "absolute",
-    right: 24,
+    right: 16,
   },
   emptyState: {
     paddingTop: 24,

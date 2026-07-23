@@ -1,7 +1,6 @@
 import React from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { StyleSheet, View } from "react-native";
-import Card from "../../../../general/components/Card";
 import Image from "../../../../general/components/Image";
 import Text from "../../../../general/components/Text";
 import { useTheme } from "../../../../general/theme/theme";
@@ -25,16 +24,11 @@ export default function AppointmentsTopBrandCard({
       : null;
 
   return (
-    <Card
+    <View
       style={[
         styles.card,
         isFullWidth ? styles.cardFullWidth : null,
-        {
-          backgroundColor: colors.surface,
-          borderColor: colors.border,
-        },
       ]}
-      variant="outlined"
     >
       <View
         style={[
@@ -63,24 +57,17 @@ export default function AppointmentsTopBrandCard({
 
       <View style={styles.copy}>
         <Text
-          weight="bold"
           numberOfLines={1}
           style={{
             fontSize: typography.size.sm2,
             lineHeight: typography.lineHeight.sm2,
+            fontWeight: "700"
           }}
         >
           {brand.name}
         </Text>
-        <Text
-          color={colors.mutedText}
-          numberOfLines={1}
-          style={styles.subtitle}
-        >
-          {brand.deal || " "}
-        </Text>
       </View>
-    </Card>
+    </View>
   );
 }
 
@@ -101,21 +88,16 @@ const styles = StyleSheet.create({
     lineHeight: 14,
   },
   card: {
-    height: 158,
-    overflow: "hidden",
-    padding: 0,
     width: 118,
+
   },
   cardFullWidth: {
     width: "100%",
   },
   copy: {
-    flex: 1,
-    gap: 4,
-    justifyContent: "center",
-    minHeight: 60,
-    paddingHorizontal: 6,
-    paddingVertical: 8,
+    paddingHorizontal: 2,
+    paddingTop: 8,
+    alignItems: "center",
   },
   image: {
     height: "100%",
@@ -123,14 +105,9 @@ const styles = StyleSheet.create({
   },
   imageWrap: {
     alignItems: "center",
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    height: 96,
+    borderRadius: 14,
+    height: 110,
     justifyContent: "center",
     overflow: "hidden",
-  },
-  subtitle: {
-    fontSize: 11,
-    lineHeight: 14,
   },
 });

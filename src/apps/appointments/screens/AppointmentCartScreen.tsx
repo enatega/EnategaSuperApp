@@ -137,10 +137,10 @@ export default function AppointmentCartScreen() {
 
   return (
     <SafeAreaView
+      edges={["bottom"]}
       style={[styles.screen, { backgroundColor: colors.background }]}
     >
       <AppointmentServicesHeader
-        insets={insets}
         onBackPress={() => navigation.goBack()}
         onRightPress={hasSelection ? () => void handleClearCart() : undefined}
         rightIcon={hasSelection ? "trash-outline" : undefined}
@@ -278,9 +278,9 @@ export default function AppointmentCartScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    gap: 20,
-    paddingHorizontal: 24,
-    paddingTop: 12,
+    gap: 16,
+    paddingHorizontal: 16,
+    paddingTop: 4,
   },
   emptyBody: {
     maxWidth: 280,
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderBottomWidth: 1,
     flexDirection: "row",
-    paddingVertical: 18,
+    paddingVertical: 14,
   },
   itemsSection: {
     flex: 1,

@@ -36,19 +36,31 @@ export default function AppointmentsProviderRailCard({ provider, isFullWidth }: 
       <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
 
       <View style={styles.details}>
-        <Text
-          weight="bold"
-          numberOfLines={1}
-          style={{
-            fontSize: typography.size.md,
-            lineHeight: typography.lineHeight.md,
-          }}
-        >
-          {provider.name}
-        </Text>
+        <View style={styles.titleRow}>
+          <Text
+            weight="bold"
+            numberOfLines={1}
+            style={{
+              flex: 1,
+              fontSize: typography.size.md,
+              lineHeight: typography.lineHeight.md,
+            }}
+          >
+            {provider.name}
+          </Text>
+          {!hasRating && provider.shopTypeName ? (
+            <Text
+              color={colors.mutedText}
+              numberOfLines={1}
+              style={[styles.metaText, styles.shopType]}
+            >
+              {provider.shopTypeName}
+            </Text>
+          ) : null}
+        </View>
 
-        <View style={styles.providerMetaRow}>
-          {hasRating ? (
+        {hasRating ? (
+          <View style={styles.providerMetaRow}>
             <View style={styles.ratingWrap}>
               <MaterialCommunityIcons
                 color={colors.warning}
@@ -64,20 +76,18 @@ export default function AppointmentsProviderRailCard({ provider, isFullWidth }: 
                 </Text>
               ) : null}
             </View>
-          ) : (
-            <View />
-          )}
 
-          {provider.shopTypeName ? (
-            <Text
-              color={colors.mutedText}
-              numberOfLines={1}
-              style={[styles.metaText, styles.shopType]}
-            >
-              {provider.shopTypeName}
-            </Text>
-          ) : null}
-        </View>
+            {provider.shopTypeName ? (
+              <Text
+                color={colors.mutedText}
+                numberOfLines={1}
+                style={[styles.metaText, styles.shopType]}
+              >
+                {provider.shopTypeName}
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
 
         {provider.address ? (
           <Text color={colors.mutedText} numberOfLines={1} style={styles.metaText}>
@@ -129,6 +139,7 @@ const styles = StyleSheet.create({
   },
   details: {
     gap: 4,
+    minHeight: 80,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
@@ -168,5 +179,9 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     marginLeft: 12,
     textAlign: 'right',
+  },
+  titleRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
   },
 });

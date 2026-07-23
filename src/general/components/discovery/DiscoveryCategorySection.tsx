@@ -55,7 +55,6 @@ export default function DiscoveryCategorySection({
           data={items}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
           renderItem={({ item }) => (
             <DiscoveryCategoryCard
               imageUrl={item.imageUrl}
@@ -74,10 +73,9 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   section: {
-    gap: 12,
+    gap: 16,
     paddingHorizontal: 16,
+
   },
-  separator: {
-    width: 12,
-  },
+
 });

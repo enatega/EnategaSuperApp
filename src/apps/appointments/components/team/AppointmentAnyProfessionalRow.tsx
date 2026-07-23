@@ -97,6 +97,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 16,
     justifyContent: 'space-between',
-    paddingVertical: 18,
+    paddingVertical: 14,
   },
 });

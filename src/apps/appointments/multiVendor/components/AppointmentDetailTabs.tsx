@@ -108,11 +108,11 @@ export default function AppointmentDetailTabs({
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 4,
+    marginTop: 0,
   },
   content: {
     gap: 8,
-    paddingVertical: 8,
+    paddingVertical: 6,
   },
   tab: {
     alignItems: 'center',
@@ -121,6 +121,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minWidth: 68,
     paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingVertical: 7,
   },
 });
