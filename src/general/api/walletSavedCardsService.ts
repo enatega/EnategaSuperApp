@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from './apiClient';
-import type { ProfileAppPrefix } from './profileService';
+import {
+  resolveProfileApiAppPrefix,
+  type ProfileAppPrefix,
+} from './profileService';
 
 export type WalletSavedCard = {
   id: string;
@@ -73,7 +76,7 @@ function mapWalletTransaction(item: WalletTransactionApiItem, index: number): Wa
 }
 
 function getWalletSavedCardsBase(appPrefix: ProfileAppPrefix) {
-  return `/api/v1/apps/${appPrefix}/wallet/saved-cards`;
+  return `/api/v1/apps/${resolveProfileApiAppPrefix(appPrefix)}/wallet/saved-cards`;
 }
 
 export const walletSavedCardsService = {
@@ -101,7 +104,7 @@ export const walletSavedCardsService = {
       total?: number;
       offset?: number;
       limit?: number;
-    }>(`/api/v1/apps/${appPrefix}/wallet/transaction-history`, input).then((response) => ({
+    }>(`/api/v1/apps/${resolveProfileApiAppPrefix(appPrefix)}/wallet/transaction-history`, input).then((response) => ({
       data: (response.data ?? []).map(mapWalletTransaction),
       total: response.total,
       offset: response.offset,

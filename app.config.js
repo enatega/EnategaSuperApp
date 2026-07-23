@@ -87,6 +87,15 @@ module.exports = {
       ],
       'expo-secure-store',
       'expo-notifications',
+      [
+        'expo-calendar',
+        {
+          calendarPermission:
+            'Allow EnategaSuperApp to add appointment reminders to your calendar.',
+          remindersPermission:
+            'Allow EnategaSuperApp to add appointment reminders.',
+        },
+      ],
       'expo-apple-authentication',
       [
         '@stripe/stripe-react-native',

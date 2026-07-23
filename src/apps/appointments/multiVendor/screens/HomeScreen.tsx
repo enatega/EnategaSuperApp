@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -13,7 +14,14 @@ import useCurrentLocation from '../../../../general/hooks/useCurrentLocation';
 import useSavedAddresses from '../../../../general/hooks/useSavedAddresses';
 import useSelectSavedAddress from '../../../../general/hooks/useSelectSavedAddress';
 import { useTheme } from '../../../../general/theme/theme';
+import { appointmentKeys } from '../../api/queryKeys';
+import type {
+  AppointmentOrderAgainItem,
+  AppointmentProvider,
+  AppointmentShopType,
+} from '../../api/types';
 import AppointmentsAddressHeader from '../../components/AppointmentsAddressHeader';
+import AppointmentsMultiVendorHomeContent from '../../components/home/AppointmentsMultiVendorHomeContent';
 import type { AppointmentsStackParamList } from '../../navigation/types';
 
 type NavProp = NativeStackNavigationProp<AppointmentsStackParamList>;
@@ -23,6 +31,8 @@ export default function MultiVendorHomeScreen() {
   const { t } = useTranslation('appointments');
   const { t: tGeneral } = useTranslation('general');
   const navigation = useNavigation<NavProp>();
+  const queryClient = useQueryClient();
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const {
     addresses,
     isLoading: isAddressesLoading,
@@ -77,6 +87,22 @@ export default function MultiVendorHomeScreen() {
       origin: 'multi-vendor-home',
     });
   }, [handleCloseAddressSheet, navigation, refreshCurrentLocation]);
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+
+    try {
+      await Promise.all([
+        refetch(),
+        queryClient.refetchQueries({
+          queryKey: appointmentKeys.discovery(),
+          type: 'active',
+        }),
+      ]);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [queryClient, refetch]);
 
   useEffect(() => {
     if (!currentCoordinates || isAddressesLoading) {
@@ -166,21 +192,97 @@ export default function MultiVendorHomeScreen() {
     tGeneral,
   ]);
 
-  const contentCards = useMemo(
-    () => [
-      {
-        key: 'intro',
-        title: t('multi_vendor_home_intro_title'),
-        body: t('multi_vendor_home_intro_body'),
-      },
-      {
-        key: 'next-step',
-        title: t('multi_vendor_home_next_step_title'),
-        body: t('multi_vendor_home_next_step_body'),
-      },
-    ],
-    [t],
+  const handleOpenSeeAll = useCallback(
+    (
+      section:
+        | 'categories'
+        | 'shopTypeCategories'
+        | 'topBrands'
+        | 'nearbyProviders'
+        | 'mostPopular',
+      title: string,
+      shopTypeId?: string,
+      categoryId?: string,
+    ) => {
+      navigation.navigate('MultiVendor', {
+        screen: 'AppointmentsSeeAll',
+        params: {
+          section,
+          title,
+          shopTypeId,
+          categoryId,
+        },
+      });
+    },
+    [navigation],
   );
+
+  const handleCategoriesPress = useCallback(() => {
+    handleOpenSeeAll('categories', t('multi_vendor_shop_types_title'));
+  }, [handleOpenSeeAll, t]);
+
+  const handleCategoryPress = useCallback(
+    (shopType: AppointmentShopType) => {
+      handleOpenSeeAll('nearbyProviders', shopType.name, shopType.id);
+    },
+    [handleOpenSeeAll],
+  );
+
+  const handleTopBrandsPress = useCallback(() => {
+    handleOpenSeeAll('topBrands', t('multi_vendor_top_brands_title'));
+  }, [handleOpenSeeAll, t]);
+
+  const handleNearbyProvidersPress = useCallback(() => {
+    handleOpenSeeAll('nearbyProviders', t('multi_vendor_nearby_store_title'));
+  }, [handleOpenSeeAll, t]);
+
+  const handleOrderAgainPress = useCallback(() => {
+    handleOpenSeeAll('mostPopular', t('multi_vendor_order_again_title'));
+  }, [handleOpenSeeAll, t]);
+
+  const handleOpenProviderDetails = useCallback(
+    (provider: AppointmentProvider) => {
+      navigation.navigate('MultiVendor', {
+        screen: 'MultiVendorDetails',
+        params: {
+          provider,
+        },
+      });
+    },
+    [navigation],
+  );
+
+  const handleOpenOrderAgainDetails = useCallback(
+    (item: AppointmentOrderAgainItem) => {
+      const provider: AppointmentProvider = {
+        storeId: item.storeId,
+        vendorId: item.storeId,
+        name: item.storeName?.trim() || item.productName,
+        logo: item.storeLogo ?? null,
+        coverImage: item.storeImage ?? item.productImage ?? null,
+        deal: item.deal ?? null,
+        dealAmount: item.dealAmount ?? null,
+        dealType: item.dealType ?? null,
+      };
+
+      navigation.navigate('MultiVendor', {
+        screen: 'MultiVendorDetails',
+        params: {
+          provider,
+        },
+      });
+    },
+    [navigation],
+  );
+
+  const handleOpenBookings = useCallback(() => {
+    navigation.navigate('MultiVendor', {
+      screen: 'MultiVendorTabs',
+      params: {
+        screen: 'MultiVendorTabBookings',
+      },
+    });
+  }, [navigation]);
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -188,12 +290,48 @@ export default function MultiVendorHomeScreen() {
         addresses={addresses}
         onAddAddressPress={handleOpenAddressSheet}
         onAddressPress={handleOpenAddressSheet}
+        onNotificationPress={() => {
+          navigation.navigate('MultiVendor', {
+            screen: 'MultiVendorNotifications',
+          });
+        }}
       />
 
       <ScrollView
         contentContainerStyle={styles.contentContainer}
+        refreshControl={(
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={() => {
+              void handleRefresh();
+            }}
+            tintColor={colors.primary}
+          />
+        )}
         showsVerticalScrollIndicator={false}
       >
+        <AppointmentsMultiVendorHomeContent
+          title={t('multi_vendor_home_special_title')}
+          body={t('multi_vendor_home_special_body')}
+          bookingsLabel={t('multi_vendor_home_bookings_cta')}
+          categoriesTitle={t('multi_vendor_shop_types_title')}
+          topBrandsTitle={t('multi_vendor_top_brands_title')}
+          nearbyProvidersTitle={t('multi_vendor_nearby_store_title')}
+          orderAgainTitle={t('multi_vendor_order_again_title')}
+          seeAllLabel={t('multi_vendor_see_all')}
+          emptyTitle={t('multi_vendor_home_section_empty_title')}
+          topBrandsEmptyMessage={t('multi_vendor_top_brands_empty')}
+          nearbyProvidersEmptyMessage={t('multi_vendor_location_stores_empty')}
+          orderAgainEmptyMessage={t('multi_vendor_home_section_empty_order_again')}
+          onCategoriesPress={handleCategoriesPress}
+          onCategoryPress={handleCategoryPress}
+          onTopBrandsPress={handleTopBrandsPress}
+          onNearbyProvidersPress={handleNearbyProvidersPress}
+          onNearbyProviderPress={handleOpenProviderDetails}
+          onOrderAgainPress={handleOrderAgainPress}
+          onOrderAgainItemPress={handleOpenOrderAgainDetails}
+          onBookingsPress={handleOpenBookings}
+        />
       </ScrollView>
 
       <AddressSelectionBottomSheet
@@ -213,8 +351,9 @@ export default function MultiVendorHomeScreen() {
 
 const styles = StyleSheet.create({
   contentContainer: {
-    gap: 16,
-    padding: 16,
+    gap: 8,
+    paddingBottom: 12,
+    paddingTop: 10,
   },
   screen: {
     flex: 1,

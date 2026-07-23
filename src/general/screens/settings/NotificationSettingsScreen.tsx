@@ -15,9 +15,10 @@ type SettingKey = keyof UpdateNotificationSettingsPayload;
 
 type Props = {
   appPrefix: SettingsAppPrefix;
+  serviceSectionTitle?: string;
 };
 
-export default function NotificationSettingsScreen({ appPrefix }: Props) {
+export default function NotificationSettingsScreen({ appPrefix, serviceSectionTitle }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('general');
 
@@ -63,9 +64,8 @@ export default function NotificationSettingsScreen({ appPrefix }: Props) {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Food Delivery */}
         <Text variant="body" weight="bold" style={styles.sectionHeading}>
-          {t('notif_settings_food_delivery')}
+          {serviceSectionTitle ?? t('notif_settings_food_delivery')}
         </Text>
 
         <NotificationToggleRow

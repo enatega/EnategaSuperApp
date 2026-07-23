@@ -21,7 +21,6 @@ import type { SocketReceivedMessage } from '../../../../general/services/socket'
 import { useTheme } from '../../../../general/theme/theme';
 import ChatComposer from '../../components/chat/ChatComposer';
 import ChatMessageBubble from '../../components/chat/ChatMessageBubble';
-import ChatQuickReplyChip from '../../components/chat/ChatQuickReplyChip';
 import { useDeliveriesSocketSession } from '../../hooks';
 import { useSendSupportChatMessageToAdmin } from '../../hooks/useSupportChatMutations';
 import { deliveryKeys } from '../../api/queryKeys';
@@ -296,17 +295,6 @@ export default function SupportChatScreen() {
     getSupportChatParticipantId(activeParticipant) ||
     TEMP_SUPPORT_RECEIVER_ID;
 
-  const quickReplies = useMemo(
-    () => [
-      t('support_chat_quick_reply_here'),
-      t('support_chat_quick_reply_hello'),
-      t('support_chat_quick_reply_call_arrive'),
-      t('support_chat_quick_reply_where'),
-      t('support_chat_quick_reply_eta'),
-    ],
-    [t],
-  );
-
   useEffect(() => {
     requestAnimationFrame(() => {
       scrollViewRef.current?.scrollToEnd({ animated: false });
@@ -535,6 +523,7 @@ export default function SupportChatScreen() {
               {messages.map((message) => (
                 <ChatMessageBubble
                   key={message.id}
+                  bubbleMinWidth={72}
                   isCurrentUser={message.isCurrentUser}
                   text={message.text}
                   timeLabel={message.timeLabel}
@@ -544,30 +533,13 @@ export default function SupportChatScreen() {
           )}
         </ScrollView>
 
-        <View style={[styles.quickReplyRail, { borderTopColor: colors.border }]}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.quickReplyRow}
-            keyboardShouldPersistTaps="handled"
-          >
-            {quickReplies.map((reply) => (
-              <ChatQuickReplyChip
-                key={reply}
-                disabled={supportChatSendMutation.isPending}
-                label={reply}
-                onPress={() => appendMessage(reply)}
-              />
-            ))}
-          </ScrollView>
-        </View>
-
         <View
           style={[
             styles.composer,
             {
               backgroundColor: colors.background,
-              paddingBottom: insets.bottom + 12,
+              paddingBottom:
+                Platform.OS === 'ios' ? Math.max(insets.bottom, 12) : 12,
             },
           ]}
         >
@@ -598,9 +570,7 @@ const styles = StyleSheet.create({
   chatLayout: {
     flex: 1,
   },
-  composer: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-  },
+  composer: {},
   content: {
     flexGrow: 1,
     justifyContent: 'flex-end',
@@ -609,18 +579,8 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   messageSection: {
-    gap: 20,
-    paddingBottom: 8,
-  },
-  quickReplyRail: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-  },
-  quickReplyRow: {
-    alignItems: 'center',
     gap: 10,
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    paddingTop: 12,
+    paddingBottom: 8,
   },
   screen: {
     flex: 1,

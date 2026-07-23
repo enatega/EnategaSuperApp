@@ -4,12 +4,13 @@ import Text from '../Text';
 import { useTheme } from '../../theme/theme';
 
 type Props = {
+  bubbleMinWidth?: number;
   isCurrentUser?: boolean;
   text: string;
   timeLabel?: string;
 };
 
-export default function ChatMessageBubble({ isCurrentUser = false, text, timeLabel }: Props) {
+export default function ChatMessageBubble({ bubbleMinWidth, isCurrentUser = false, text, timeLabel }: Props) {
   const { colors, typography } = useTheme();
 
   return (
@@ -20,6 +21,7 @@ export default function ChatMessageBubble({ isCurrentUser = false, text, timeLab
           {
             backgroundColor: isCurrentUser ? colors.primary : colors.backgroundTertiary,
             borderColor: isCurrentUser ? colors.primary : 'transparent',
+            minWidth: bubbleMinWidth,
           },
         ]}
       >

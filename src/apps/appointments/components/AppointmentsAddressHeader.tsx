@@ -17,6 +17,7 @@ type Props = {
   includeTopInset?: boolean;
   onAddAddressPress?: () => void;
   onAddressPress?: () => void;
+  onNotificationPress?: () => void;
 };
 
 export default function AppointmentsAddressHeader({
@@ -24,10 +25,10 @@ export default function AppointmentsAddressHeader({
   includeTopInset = true,
   onAddAddressPress,
   onAddressPress,
+  onNotificationPress,
 }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation("general");
-  const { t: tAppointments } = useTranslation("appointments");
   const insets = useSafeAreaInsets();
   const { selectedAddress, selectedAddressLabel } = useAddress();
   const apiSelectedAddress = useMemo(
@@ -60,7 +61,7 @@ export default function AppointmentsAddressHeader({
         styles.container,
         {
           borderBottomColor: colors.border,
-          paddingTop: includeTopInset ? insets.top + 8 : 12,
+          paddingTop: includeTopInset ? insets.top + 4 : 0,
         },
       ]}
     >
@@ -73,33 +74,33 @@ export default function AppointmentsAddressHeader({
           onPress={onAddressPress}
           style={({ pressed }) => [
             styles.addressButton,
-            {
-              backgroundColor: colors.surface,
-              borderColor: colors.border,
-              opacity: pressed ? 0.92 : 1,
-            },
+            { opacity: pressed ? 0.72 : 1 },
           ]}
         >
-          <View style={styles.addressCopy}>
-            <Text
-              numberOfLines={1}
-              style={[
-                styles.addressText,
-                {
-                  color: colors.text,
-                  fontSize: typography.size.md,
-                  lineHeight: typography.lineHeight.md,
-                },
-              ]}
-              weight="semiBold"
-            >
-              {resolvedSelectedAddressLabel ?? t("multi_vendor_address_label")}
-            </Text>
-          </View>
           <Icon
-            color={colors.mutedText}
+            color={colors.text}
+            name="location-outline"
+            size={20}
+            type="Ionicons"
+          />
+          <Text
+            numberOfLines={1}
+            style={[
+              styles.addressText,
+              {
+                color: colors.text,
+                fontSize: typography.size.md,
+                lineHeight: typography.lineHeight.md,
+              },
+            ]}
+            weight="medium"
+          >
+            {resolvedSelectedAddressLabel ?? t("multi_vendor_address_label")}
+          </Text>
+          <Icon
+            color={colors.text}
             name="chevron-down"
-            size={18}
+            size={17}
             type="Ionicons"
           />
         </Pressable>
@@ -110,15 +111,17 @@ export default function AppointmentsAddressHeader({
           onPress={onAddAddressPress}
           style={({ pressed }) => [
             styles.addAddressButton,
-            {
-              backgroundColor: colors.surface,
-              borderColor: colors.border,
-              opacity: pressed ? 0.92 : 1,
-            },
+            { opacity: pressed ? 0.72 : 1 },
           ]}
         >
-          <Icon color={colors.primary} name="add" size={18} type="Ionicons" />
+          <Icon
+            color={colors.primary}
+            name="location-outline"
+            size={20}
+            type="Ionicons"
+          />
           <Text
+            numberOfLines={1}
             style={[
               styles.addAddressText,
               {
@@ -133,6 +136,27 @@ export default function AppointmentsAddressHeader({
           </Text>
         </Pressable>
       )}
+
+      <Pressable
+        accessibilityLabel={t("notifications_title")}
+        accessibilityRole="button"
+        disabled={!onNotificationPress}
+        onPress={onNotificationPress}
+        style={({ pressed }) => [
+          styles.notificationButton,
+          {
+            backgroundColor: colors.findingRideSweepEdge,
+            opacity: pressed ? 0.8 : 1,
+          },
+        ]}
+      >
+        <Icon
+          color={colors.text}
+          name="notifications-outline"
+          size={20}
+          type="Ionicons"
+        />
+      </Pressable>
     </View>
   );
 }
@@ -140,45 +164,42 @@ export default function AppointmentsAddressHeader({
 const styles = StyleSheet.create({
   addAddressButton: {
     alignItems: "center",
-    borderRadius: 16,
-    borderWidth: 1,
+    flex: 1,
     flexDirection: "row",
     gap: 8,
-    justifyContent: "center",
-    minHeight: 52,
-    paddingHorizontal: 16,
+    minHeight: 44,
+    minWidth: 0,
   },
   addAddressText: {
     flexShrink: 1,
   },
   addressButton: {
     alignItems: "center",
-    borderRadius: 16,
-    flexDirection: "row",
-    gap: 12,
-    justifyContent: "space-between",
-    minHeight: 42,
-    paddingHorizontal: 16,
-  },
-  addressCaption: {
-    letterSpacing: 0,
-  },
-  addressCopy: {
     flex: 1,
-    gap: 2,
+    flexDirection: "row",
+    gap: 8,
+    minHeight: 44,
     minWidth: 0,
   },
   addressText: {
+    flexShrink: 1,
     letterSpacing: 0,
   },
   container: {
+    alignItems: "center",
     borderBottomWidth: 1,
-    gap: 10,
-    paddingBottom: 16,
+    flexDirection: "row",
+    gap: 12,
+    minHeight: 64,
     paddingHorizontal: 16,
+    paddingVertical: 10,
   },
-  kicker: {
-    letterSpacing: 0.2,
-    textTransform: "uppercase",
+  notificationButton: {
+    alignItems: "center",
+    borderRadius: 20,
+    flexShrink: 0,
+    height: 40,
+    justifyContent: "center",
+    width: 40,
   },
 });

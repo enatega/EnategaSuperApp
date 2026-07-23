@@ -20,7 +20,7 @@ export default function SingleVendorNavigator() {
       <Stack.Screen
         name="SingleVendorDetails"
         component={SingleVendorDetailsScreen}
-        options={{ title: t('screen_details') }}
+        options={{ headerShown: false, title: t('screen_details') }}
       />
     </Stack.Navigator>
   );

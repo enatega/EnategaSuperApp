@@ -6,11 +6,20 @@ import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import { useWalletTransactionsQuery } from '../../../../general/api/walletSavedCardsService';
 import WalletTransactionItem from '../../../deliveries/components/wallet/WalletTransactionItem';
+import type { ProfileAppPrefix } from '../../../../general/api/profileService';
 
-export default function HomeVisitsWalletTransactionsScreen() {
+type Props = {
+  appPrefix?: ProfileAppPrefix;
+  translationNamespace?: 'appointments' | 'homeVisits';
+};
+
+export default function HomeVisitsWalletTransactionsScreen({
+  appPrefix = 'home-services',
+  translationNamespace = 'homeVisits',
+}: Props) {
   const { colors } = useTheme();
-  const { t } = useTranslation('homeVisits');
-  const walletTransactionsQuery = useWalletTransactionsQuery('home-services', { limit: 50, offset: 0 });
+  const { t } = useTranslation(translationNamespace);
+  const walletTransactionsQuery = useWalletTransactionsQuery(appPrefix, { limit: 50, offset: 0 });
   const transactions = walletTransactionsQuery.data?.data ?? [];
 
   const renderItem = useCallback(({ item }: { item: (typeof transactions)[number] }) => (

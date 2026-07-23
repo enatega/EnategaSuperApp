@@ -17,15 +17,24 @@ import SavedCardRow from '../../../deliveries/components/wallet/SavedCardRow';
 import AddCardRow from '../../../deliveries/components/wallet/AddCardRow';
 import WalletTransactionItem from '../../../deliveries/components/wallet/WalletTransactionItem';
 import type { HomeVisitsStackParamList } from '../../navigation/types';
+import type { ProfileAppPrefix } from '../../../../general/api/profileService';
 
-export default function HomeVisitsWalletScreen() {
+type Props = {
+  appPrefix?: ProfileAppPrefix;
+  translationNamespace?: 'appointments' | 'homeVisits';
+};
+
+export default function HomeVisitsWalletScreen({
+  appPrefix = 'home-services',
+  translationNamespace = 'homeVisits',
+}: Props) {
   const { colors } = useTheme();
-  const { t } = useTranslation('homeVisits');
+  const { t } = useTranslation(translationNamespace);
   const navigation = useNavigation<NavigationProp<HomeVisitsStackParamList>>();
-  const { wallet } = useProfile('home-services');
-  const savedCardsQuery = useWalletSavedCardsQuery('home-services');
-  const setDefaultCardMutation = useWalletSetDefaultCardMutation('home-services');
-  const walletTransactionsQuery = useWalletTransactionsQuery('home-services', { offset: 0, limit: 10 });
+  const { wallet } = useProfile(appPrefix);
+  const savedCardsQuery = useWalletSavedCardsQuery(appPrefix);
+  const setDefaultCardMutation = useWalletSetDefaultCardMutation(appPrefix);
+  const walletTransactionsQuery = useWalletTransactionsQuery(appPrefix, { offset: 0, limit: 10 });
   const savedCards = savedCardsQuery.data?.cards ?? [];
   const transactions = walletTransactionsQuery.data?.data ?? [];
   const [updatingCardId, setUpdatingCardId] = React.useState<string | null>(null);

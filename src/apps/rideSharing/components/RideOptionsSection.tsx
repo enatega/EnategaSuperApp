@@ -24,6 +24,7 @@ import ServiceRideImage from '../assets/images/rideIcon.png';
 import ServiceDeliveriesImage from '../assets/images/deliveriesIcon.png';
 import ServiceCourierImage from '../assets/images/courierHomeIcon.png';
 import ServiceHomeVisitsImage from '../../../general/assets/images/3d-house.png';
+import ServiceAppointmentsImage from '../../../general/assets/images/calendar.png';
 
 type RideOption = {
   id: RideIntent;
@@ -35,9 +36,18 @@ type Props = {
   onSelectRideOption?: (rideIntent: RideIntent) => void;
 };
 
-type SharedMiniAppRouteName = 'RideSharing' | 'Deliveries' | 'HomeVisits';
+type SharedMiniAppRouteName =
+  | 'RideSharing'
+  | 'Deliveries'
+  | 'HomeVisits'
+  | 'Appointments';
 
-type ServiceCardId = 'ride' | 'deliveries' | 'courier' | 'homeVisits';
+type ServiceCardId =
+  | 'ride'
+  | 'deliveries'
+  | 'courier'
+  | 'homeVisits'
+  | 'appointments';
 type ServiceCard = {
   id: ServiceCardId;
   title: string;
@@ -123,6 +133,13 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
       return;
     }
 
+    if (cardId === 'appointments') {
+      void handleSelectMiniApp('Appointments', {
+        screen: 'MultiVendor',
+      });
+      return;
+    }
+
     void handleSelectMiniApp('Deliveries');
   }
 
@@ -152,6 +169,12 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
       subtitle: t('ride_home_service_home_visits_subtitle'),
       icon: ServiceHomeVisitsImage,
     },
+    {
+      id: 'appointments',
+      title: t('ride_home_service_appointments_title'),
+      subtitle: t('ride_home_service_appointments_subtitle'),
+      icon: ServiceAppointmentsImage,
+    },
   ];
 
   const serviceCards = allServiceCards.filter((card) => {
@@ -165,6 +188,10 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
 
     if (card.id === 'homeVisits') {
       return enabledApps.has('homeVisits');
+    }
+
+    if (card.id === 'appointments') {
+      return enabledApps.has('appointments');
     }
 
     return true;

@@ -16,6 +16,9 @@ const fr = {
   ride_home_service_courier_subtitle: 'Envoyez vos colis en securite',
   ride_home_service_home_visits_title: 'Services a domicile',
   ride_home_service_home_visits_subtitle: 'Reservez des services chez vous',
+  ride_home_service_appointments_title: 'Reservation',
+  ride_home_service_appointments_subtitle:
+    'Reservez des rendez-vous a proximite',
   ride_options_title: 'Allez partout',
   ride_option_now_title: 'Trajet',
   ride_option_now_desc: 'Trouvez un chauffeur proche',

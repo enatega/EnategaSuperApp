@@ -3,8 +3,11 @@ import type { ChainStackParamList } from '../chain/navigation/types';
 import type { MultiVendorStackParamList } from '../multiVendor/navigation/types';
 import type { SingleVendorStackParamList } from '../singleVendor/navigation/types';
 import type { AddressFlowParamList } from '../../../general/navigation/addressFlowTypes';
+import type { ProfileNavigationParamList } from '../../../general/navigation/profileTypes';
+import type { AppointmentProvider, AppointmentTopBrand } from '../api/types';
+import type { AppointmentSupportTicket } from '../api/supportService';
 
-export type AppointmentsStackParamList = {
+export type AppointmentsStackParamList = ProfileNavigationParamList & {
   AppointmentsHome: undefined;
   AppointmentDetails: undefined;
   SingleVendor: NavigatorScreenParams<SingleVendorStackParamList> | undefined;
@@ -13,4 +16,28 @@ export type AppointmentsStackParamList = {
   AddressSearch: AddressFlowParamList['AddressSearch'];
   AddressChooseOnMap: AddressFlowParamList['AddressChooseOnMap'];
   AddressDetail: AddressFlowParamList['AddressDetail'];
+  AppointmentNotifications: undefined;
+  AppointmentFavourites: undefined;
+  AppointmentCoupons: undefined;
+  AppointmentBookingDetail: { orderId: string };
+  MultiVendorDetails: { provider?: AppointmentProvider; brand?: AppointmentTopBrand } | undefined;
+  Settings: undefined;
+  NotificationSettings: undefined;
+  ChangePassword: undefined;
+  PrivacyPolicy: undefined;
+  TermsOfService: undefined;
+  TermsOfUse: undefined;
+  DeleteAccount: undefined;
+  Support: undefined;
+  SupportFaq: undefined;
+  SupportConversations: undefined;
+  SupportTickets: undefined;
+  SupportContactForm: { issueLabel: string; issueValue: string };
+  SupportChat: { chatBoxId?: string; receiverId?: string; agentName?: string } | undefined;
+  SupportTicketDetail: { ticket: AppointmentSupportTicket };
+  Wallet: undefined;
+  WalletAddCard: undefined;
+  WalletTransactions: undefined;
+  ColorMode: undefined;
+  Language: undefined;
 };

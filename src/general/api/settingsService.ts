@@ -1,9 +1,10 @@
 import apiClient from './apiClient';
 
-export type SettingsAppPrefix = 'deliveries' | 'home-services';
+export type SettingsAppPrefix = 'appointments' | 'deliveries' | 'home-services';
 
 function getSettingsBase(appPrefix: SettingsAppPrefix) {
-  return `/api/v1/apps/${appPrefix}/settings`;
+  const apiPrefix = appPrefix === 'appointments' ? 'general-bookings' : appPrefix;
+  return `/api/v1/apps/${apiPrefix}/settings`;
 }
 
 // ---------------------------------------------------------------------------

@@ -2,8 +2,16 @@ import apiClient from "./apiClient";
 
 export type ProfileAppPrefix = "appointments" | "deliveries" | "home-services";
 
+export function resolveProfileApiAppPrefix(appPrefix: ProfileAppPrefix) {
+  if (appPrefix === "appointments") {
+    return "general-bookings";
+  }
+
+  return appPrefix;
+}
+
 function getProfileBase(appPrefix: ProfileAppPrefix) {
-  return `/api/v1/apps/${appPrefix}/profile`;
+  return `/api/v1/apps/${resolveProfileApiAppPrefix(appPrefix)}/profile`;
 }
 
 export type ProfileUser = {

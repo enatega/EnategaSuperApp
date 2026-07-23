@@ -13,7 +13,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import ChatComposer from '../../../../general/components/chat/ChatComposer';
 import ChatMessageBubble from '../../../../general/components/chat/ChatMessageBubble';
-import ChatQuickReplyChip from '../../../../general/components/chat/ChatQuickReplyChip';
 import { showToast } from '../../../../general/components/AppToast';
 import SupportHeader from '../../../../general/components/support/SupportHeader';
 import { useAuthSessionQuery } from '../../../../general/hooks/useAuthQueries';
@@ -142,16 +141,6 @@ export default function HomeVisitsSupportChatScreen() {
     });
   }, [messages]);
 
-  const quickReplies = useMemo(
-    () => [
-      t('home_visits_support_chat_quick_reply_help'),
-      t('home_visits_support_chat_quick_reply_booking'),
-      t('home_visits_support_chat_quick_reply_payment'),
-      t('home_visits_support_chat_quick_reply_provider'),
-    ],
-    [t],
-  );
-
   const handleSend = useCallback((text: string) => {
     const trimmed = text.trim();
 
@@ -254,6 +243,7 @@ export default function HomeVisitsSupportChatScreen() {
               {messages.map((message) => (
                 <ChatMessageBubble
                   key={message.id}
+                  bubbleMinWidth={72}
                   isCurrentUser={message.isCurrentUser}
                   text={message.text}
                   timeLabel={message.timeLabel}
@@ -263,6 +253,7 @@ export default function HomeVisitsSupportChatScreen() {
           ) : (
             <View style={styles.messageSection}>
               <ChatMessageBubble
+                bubbleMinWidth={72}
                 isCurrentUser={false}
                 text={t('home_visits_support_chat_auto_message')}
                 timeLabel={t('home_visits_support_chat_auto_time')}
@@ -270,20 +261,17 @@ export default function HomeVisitsSupportChatScreen() {
             </View>
           )}
 
-          {!messages.length ? (
-            <View style={styles.quickReplies}>
-              {quickReplies.map((reply) => (
-                <ChatQuickReplyChip
-                  key={reply}
-                  label={reply}
-                  onPress={() => setDraftMessage(reply)}
-                />
-              ))}
-            </View>
-          ) : null}
         </ScrollView>
 
-        <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+        <View
+          style={[
+            styles.footer,
+            {
+              paddingBottom:
+                Platform.OS === 'ios' ? Math.max(insets.bottom, 12) : 12,
+            },
+          ]}
+        >
           <ChatComposer
             attachmentAccessibilityLabel={t('home_visits_support_chat_attachment_action')}
             isSending={sendSupportMessageMutation.isPending}
@@ -316,12 +304,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   messageSection: {
-    gap: 12,
-  },
-  quickReplies: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
+    gap: 10,
   },
   screen: {
     flex: 1,

@@ -16,6 +16,7 @@ import {
 } from '../../../../general/api/walletSavedCardsService';
 import { useTheme } from '../../../../general/theme/theme';
 import type { HomeVisitsStackParamList } from '../../navigation/types';
+import type { ProfileAppPrefix } from '../../../../general/api/profileService';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -59,13 +60,21 @@ function extractPaymentMethodId(result: unknown): string | null {
   return null;
 }
 
-export default function HomeVisitsAddCardScreen() {
+type Props = {
+  appPrefix?: ProfileAppPrefix;
+  translationNamespace?: 'appointments' | 'homeVisits';
+};
+
+export default function HomeVisitsAddCardScreen({
+  appPrefix = 'home-services',
+  translationNamespace = 'homeVisits',
+}: Props) {
   const { colors, typography } = useTheme();
-  const { t } = useTranslation('homeVisits');
+  const { t } = useTranslation(translationNamespace);
   const navigation = useNavigation<NavigationProp<HomeVisitsStackParamList>>();
   const queryClient = useQueryClient();
-  const setupIntentMutation = useWalletSetupIntentMutation('home-services');
-  const setDefaultCardMutation = useWalletSetDefaultCardMutation('home-services');
+  const setupIntentMutation = useWalletSetupIntentMutation(appPrefix);
+  const setDefaultCardMutation = useWalletSetDefaultCardMutation(appPrefix);
   const { confirmSetupIntent } = useConfirmSetupIntent();
 
   const [holderName, setHolderName] = useState('');
@@ -110,9 +119,9 @@ export default function HomeVisitsAddCardScreen() {
         await setDefaultCardMutation.mutateAsync(confirmedPaymentMethodId);
       } else {
         const savedCardsResponse =
-          await walletSavedCardsService.listSavedCards('home-services');
+          await walletSavedCardsService.listSavedCards(appPrefix);
         queryClient.setQueryData(
-          walletSavedCardsKeys.byApp('home-services'),
+          walletSavedCardsKeys.byApp(appPrefix),
           savedCardsResponse,
         );
 
@@ -125,7 +134,7 @@ export default function HomeVisitsAddCardScreen() {
       }
 
       await queryClient.invalidateQueries({
-        queryKey: walletSavedCardsKeys.byApp('home-services'),
+        queryKey: walletSavedCardsKeys.byApp(appPrefix),
       });
       showToast.success(t('wallet_card_saved_success_title'), t('wallet_card_saved_success_message'));
       navigation.goBack();
@@ -135,6 +144,7 @@ export default function HomeVisitsAddCardScreen() {
     }
   }, [
     confirmSetupIntent,
+    appPrefix,
     holderName,
     isCardComplete,
     navigation,

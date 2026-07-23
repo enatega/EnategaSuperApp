@@ -1,13 +1,16 @@
 import apiClient from "./apiClient";
-import type { ProfileAppPrefix } from "./profileService";
+import {
+  resolveProfileApiAppPrefix,
+  type ProfileAppPrefix,
+} from "./profileService";
 import { retryTransientMapRequest } from "./retryTransientMapRequest";
 
 function getProfileBase(appPrefix: ProfileAppPrefix) {
-  return `/api/v1/apps/${appPrefix}/profile`;
+  return `/api/v1/apps/${resolveProfileApiAppPrefix(appPrefix)}/profile`;
 }
 
 function getAddressBase(appPrefix: ProfileAppPrefix) {
-  return `/api/v1/apps/${appPrefix}/profile/address`;
+  return `/api/v1/apps/${resolveProfileApiAppPrefix(appPrefix)}/profile/address`;
 }
 
 export type AddressType = "HOME" | "APARTMENT" | "OFFICE" | "OTHER";
