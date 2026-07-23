@@ -50,11 +50,10 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   input: {
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
-    minHeight: 52,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    height: 44,
+    paddingHorizontal: 12,
   },
   label: {
     fontSize: 14,

@@ -25,6 +25,7 @@ import { useTheme } from "../../../../general/theme/theme";
 import { appointmentKeys } from "../../api/queryKeys";
 import type {
   AppointmentCategory,
+  AppointmentMostPopularItem,
   AppointmentOrderAgainItem,
   AppointmentProvider,
   AppointmentSeeAllSection,
@@ -33,6 +34,7 @@ import type {
 import {
   useAppointmentBrands,
   useAppointmentNearbyProviders,
+  useAppointmentMostPopular,
   useAppointmentOrderAgain,
   useAppointmentShopTypeCategories,
   useAppointmentShopTypes,
@@ -65,6 +67,8 @@ function getSectionSubtitle(
       return t("see_all_top_brands_subtitle");
     case "nearbyProviders":
       return t("see_all_nearby_subtitle");
+    case "orderAgain":
+      return t("see_all_order_again_subtitle");
     case "mostPopular":
       return t("see_all_most_popular_subtitle");
     default:
@@ -193,10 +197,23 @@ export default function AppointmentsSeeAllScreen() {
     { enabled: section === "nearbyProviders" },
   );
   const {
+    data: orderAgainItems = [],
+    isPending: isOrderAgainPending,
+    isError: hasOrderAgainError,
+  } = useAppointmentOrderAgain(
+    {
+      limit: 100,
+      search: searchQuery.trim() || undefined,
+      shop_type_id: shopTypeId,
+      category_id: categoryId,
+    },
+    { enabled: section === "orderAgain" },
+  );
+  const {
     data: mostPopularItems = [],
     isPending: isMostPopularPending,
     isError: hasMostPopularError,
-  } = useAppointmentOrderAgain(
+  } = useAppointmentMostPopular(
     {
       limit: 100,
       search: searchQuery.trim() || undefined,
@@ -207,7 +224,10 @@ export default function AppointmentsSeeAllScreen() {
   );
 
   const data = useMemo<
-    CategoryLikeItem[] | AppointmentProvider[] | AppointmentOrderAgainItem[]
+    | CategoryLikeItem[]
+    | AppointmentProvider[]
+    | AppointmentOrderAgainItem[]
+    | AppointmentMostPopularItem[]
   >(() => {
     if (isShopTypesSection) {
       return shopTypes;
@@ -225,6 +245,10 @@ export default function AppointmentsSeeAllScreen() {
       return nearbyProviders;
     }
 
+    if (section === "orderAgain") {
+      return orderAgainItems;
+    }
+
     return mostPopularItems;
   }, [
     brands,
@@ -232,6 +256,7 @@ export default function AppointmentsSeeAllScreen() {
     isShopTypesSection,
     mostPopularItems,
     nearbyProviders,
+    orderAgainItems,
     section,
     shopTypeCategories,
     shopTypes,
@@ -242,6 +267,7 @@ export default function AppointmentsSeeAllScreen() {
     (isShopTypeCategoriesSection && isShopTypeCategoriesPending) ||
     (section === "topBrands" && isBrandsPending) ||
     (section === "nearbyProviders" && isNearbyPending) ||
+    (section === "orderAgain" && isOrderAgainPending) ||
     (section === "mostPopular" && isMostPopularPending);
 
   const isError =
@@ -249,6 +275,7 @@ export default function AppointmentsSeeAllScreen() {
     (isShopTypeCategoriesSection && hasShopTypeCategoriesError) ||
     (section === "topBrands" && hasBrandsError) ||
     (section === "nearbyProviders" && hasNearbyError) ||
+    (section === "orderAgain" && hasOrderAgainError) ||
     (section === "mostPopular" && hasMostPopularError);
 
   const subtitle = getSectionSubtitle(section, t);

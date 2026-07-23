@@ -92,7 +92,7 @@ const en = {
   review_confirm_title: "Review and confirm",
   review_confirm_professional_title: "Professional",
   review_confirm_payment_title: "Payment",
-  review_confirm_payment_cash: "Cash",
+  review_confirm_payment_cash: "Pay after service",
   review_confirm_payment_stripe: "Card",
   review_confirm_payment_change_hint: "Tap here to change",
   review_confirm_discount_title: "Discount code",
@@ -117,6 +117,30 @@ const en = {
   review_confirm_success_home: "Back to home",
   review_confirm_place_order_error_title: "Unable to confirm booking",
   review_confirm_place_order_error_body: "Please try again in a moment.",
+  review_confirm_discount_selected:
+    "{{code}} selected. Eligibility will be checked when you confirm.",
+  review_confirm_discount_refreshing: "Updating your appointment total…",
+  review_confirm_discount_applied: "{{code}} applied · You save {{value}}",
+  coupons_title: "Coupons",
+  coupons_description:
+    "Enter a coupon code or choose an available offer for your appointment.",
+  coupons_placeholder: "Enter coupon code",
+  coupons_apply: "Apply coupon",
+  coupons_off: "OFF",
+  coupons_minimum: "Minimum booking: ${{value}}",
+  coupons_valid_until: "Valid until {{date}}",
+  coupons_use: "Use coupon",
+  coupons_deactivate: "Deactivate",
+  coupons_applied_title: "Coupon applied",
+  coupons_applied_body: "Your appointment total will be updated at checkout.",
+  coupons_removed_title: "Coupon removed",
+  coupons_removed_body: "The coupon is no longer applied.",
+  coupons_error_title: "Coupon unavailable",
+  coupons_error_body: "Please try again in a moment.",
+  coupons_invalid_code: "Enter a valid active coupon code.",
+  coupons_load_error: "Coupons could not be loaded. Pull to retry.",
+  coupons_empty_title: "No coupons available",
+  coupons_empty_body: "New appointment offers will appear here.",
   cart_title: "Cart",
   cart_clear_action: "Clear cart",
   cart_empty_title: "Nothing here yet",
@@ -131,7 +155,10 @@ const en = {
   favourites_toggle_removed: "Removed from favourites",
   favourites_toggle_error: "Failed to update favourites",
   bookings_title: "Appointments",
+  bookings_my_appointments_title: "My appointments",
   bookings_upcoming_title: "Upcoming",
+  bookings_completed_title: "Completed",
+  bookings_cancelled_title: "Cancelled",
   bookings_past_title: "Past",
   bookings_empty_title: "No appointments found",
   bookings_empty_subtitle:
@@ -140,6 +167,13 @@ const en = {
   bookings_upcoming_empty_title: "No upcoming appointments",
   bookings_upcoming_empty_subtitle:
     "Your next booking will appear here once it is confirmed.",
+  bookings_completed_empty_title: "No completed appointments",
+  bookings_completed_empty_subtitle:
+    "Appointments you complete will appear here.",
+  bookings_cancelled_empty_title: "No cancelled appointments",
+  bookings_cancelled_empty_subtitle:
+    "Appointments you cancel will appear here.",
+  bookings_past_summary: "Appointment service",
   bookings_error_title: "Unable to load appointments",
   bookings_error_subtitle: "Pull to refresh or try again in a moment.",
   bookings_retry: "Retry",
@@ -248,7 +282,8 @@ const en = {
   multi_vendor_shop_types_title: "Appointments",
   multi_vendor_top_brands_title: "Top Brands",
   multi_vendor_nearby_store_title: "Nearby your Location",
-  multi_vendor_order_again_title: "Most Popular",
+  multi_vendor_order_again_title: "Order Again",
+  multi_vendor_most_popular_title: "Most Popular",
   multi_vendor_see_all: "See all",
   multi_vendor_home_section_empty_title: "Nothing here yet",
   multi_vendor_top_brands_empty:
@@ -257,6 +292,8 @@ const en = {
     "Add or select an address to discover providers available near you.",
   multi_vendor_home_section_empty_order_again:
     "Your recently booked services will appear here so you can book them again quickly.",
+  multi_vendor_home_section_empty_most_popular:
+    "Popular services will appear here after customers complete their bookings.",
   see_all_search_placeholder: "Search categories, brands, and providers",
   see_all_categories_subtitle:
     "Browse all appointment categories in one consistent list view.",
@@ -268,6 +305,8 @@ const en = {
     "Find nearby appointment providers using the same shared listing layout.",
   see_all_most_popular_subtitle:
     "Review the most popular appointment services in one place.",
+  see_all_order_again_subtitle:
+    "Quickly revisit services from your completed appointments.",
   see_all_error_message:
     "We could not load this section right now. Pull to refresh and try again.",
   see_all_empty_message: "No matching items were found for this section yet.",

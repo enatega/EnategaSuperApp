@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppointmentBanners } from '../../hooks/useDiscoveryQueries';
 import type {
+  AppointmentMostPopularItem,
   AppointmentOrderAgainItem,
   AppointmentProvider,
   AppointmentShopType,
@@ -8,6 +9,7 @@ import type {
 import AppointmentsCategoriesSection from './AppointmentsCategoriesSection';
 import AppointmentsHomeHero from './AppointmentsHomeHero';
 import AppointmentsNearbyProvidersSection from './AppointmentsNearbyProvidersSection';
+import AppointmentsMostPopularSection from './AppointmentsMostPopularSection';
 import AppointmentsOrderAgainSection from './AppointmentsOrderAgainSection';
 import AppointmentsTopBrandsSection from './AppointmentsTopBrandsSection';
 import useTopBrandNavigation from '../../multiVendor/hooks/useTopBrandNavigation';
@@ -19,17 +21,21 @@ type Props = {
   categoriesTitle: string;
   topBrandsTitle: string;
   nearbyProvidersTitle: string;
+  mostPopularTitle: string;
   orderAgainTitle: string;
   seeAllLabel: string;
   emptyTitle: string;
   topBrandsEmptyMessage: string;
   nearbyProvidersEmptyMessage: string;
+  mostPopularEmptyMessage: string;
   orderAgainEmptyMessage: string;
   onCategoriesPress: () => void;
   onCategoryPress: (shopType: AppointmentShopType) => void;
   onTopBrandsPress: () => void;
   onNearbyProvidersPress: () => void;
   onNearbyProviderPress: (provider: AppointmentProvider) => void;
+  onMostPopularPress: () => void;
+  onMostPopularItemPress: (item: AppointmentMostPopularItem) => void;
   onOrderAgainPress: () => void;
   onOrderAgainItemPress: (item: AppointmentOrderAgainItem) => void;
   onBookingsPress: () => void;
@@ -42,17 +48,21 @@ export default function AppointmentsMultiVendorHomeContent({
   categoriesTitle,
   topBrandsTitle,
   nearbyProvidersTitle,
+  mostPopularTitle,
   orderAgainTitle,
   seeAllLabel,
   emptyTitle,
   topBrandsEmptyMessage,
   nearbyProvidersEmptyMessage,
+  mostPopularEmptyMessage,
   orderAgainEmptyMessage,
   onCategoriesPress,
   onCategoryPress,
   onTopBrandsPress,
   onNearbyProvidersPress,
   onNearbyProviderPress,
+  onMostPopularPress,
+  onMostPopularItemPress,
   onOrderAgainPress,
   onOrderAgainItemPress,
   onBookingsPress,
@@ -100,6 +110,16 @@ export default function AppointmentsMultiVendorHomeContent({
         onItemPress={onNearbyProviderPress}
       />
 
+
+      <AppointmentsMostPopularSection
+        title={mostPopularTitle}
+        actionLabel={seeAllLabel}
+        emptyTitle={emptyTitle}
+        emptyMessage={mostPopularEmptyMessage}
+        onActionPress={onMostPopularPress}
+        onItemPress={onMostPopularItemPress}
+      />
+
       <AppointmentsOrderAgainSection
         title={orderAgainTitle}
         actionLabel={seeAllLabel}
@@ -108,6 +128,8 @@ export default function AppointmentsMultiVendorHomeContent({
         onActionPress={onOrderAgainPress}
         onItemPress={onOrderAgainItemPress}
       />
+
+
     </>
   );
 }

@@ -7,6 +7,8 @@ import type {
   AppointmentCategory,
   AppointmentCategoriesApiResponse,
   AppointmentListParams,
+  AppointmentMostPopularApiResponse,
+  AppointmentMostPopularItem,
   AppointmentNearbyProvidersApiResponse,
   AppointmentNearbyProvidersParams,
   AppointmentOrderAgainApiResponse,
@@ -232,6 +234,17 @@ export const appointmentsDiscoveryService = {
   ): Promise<AppointmentOrderAgainItem[]> => {
     const response = await apiClient.get<AppointmentOrderAgainApiResponse>(
       '/api/v1/apps/general-bookings/discovery/order-again',
+      toOrderAgainQueryParams(params),
+    );
+
+    return unwrapListResponse(response);
+  },
+
+  getMostPopular: async (
+    params: AppointmentOrderAgainParams = {},
+  ): Promise<AppointmentMostPopularItem[]> => {
+    const response = await apiClient.get<AppointmentMostPopularApiResponse>(
+      '/api/v1/apps/general-bookings/discovery/most-popular',
       toOrderAgainQueryParams(params),
     );
 

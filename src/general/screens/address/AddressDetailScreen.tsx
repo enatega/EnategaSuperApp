@@ -242,7 +242,6 @@ export default function AddressDetailScreen() {
           initialType={(params.editType as AddressType) ?? 'HOME'}
           onSave={handleSave}
           labels={{
-            apartmentDetailsTitle: t('address_apartment_details_title'),
             apartmentFloorTowerLabel: t('address_field_floor_tower_optional'),
             apartmentFloorTowerPlaceholder: t('address_detail_floor_placeholder'),
             apartmentLandmarkLabel: t('address_field_landmark_optional'),
@@ -256,7 +255,6 @@ export default function AddressDetailScreen() {
             locationTypeLabel: t('address_location_type_label'),
             homeAreaStreetLabel: t('address_field_area_street'),
             homeAreaStreetPlaceholder: t('address_detail_area_placeholder'),
-            homeDetailsTitle: t('address_home_details_title'),
             homeHouseFlatNumberLabel: t('address_field_house_flat_number'),
             homeHouseFlatNumberPlaceholder: t('address_detail_house_placeholder'),
             homeLandmarkLabel: t('address_field_landmark_optional'),
@@ -268,7 +266,6 @@ export default function AddressDetailScreen() {
             officeCompanyBuildingNamePlaceholder: t('address_detail_company_building_placeholder'),
             officeDepartmentLabel: t('address_field_department_optional'),
             officeDepartmentPlaceholder: t('address_detail_department_placeholder'),
-            officeDetailsTitle: t('address_office_details_title'),
             officeFloorSuiteUnitLabel: t('address_field_floor_suite_unit_optional'),
             officeFloorSuiteUnitPlaceholder: t('address_detail_floor_suite_unit_placeholder'),
             officeLandmarkLabel: t('address_field_landmark_optional'),

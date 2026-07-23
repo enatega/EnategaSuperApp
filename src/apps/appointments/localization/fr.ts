@@ -96,7 +96,7 @@ const fr = {
   review_confirm_title: "Vérifier et confirmer",
   review_confirm_professional_title: "Professionnel",
   review_confirm_payment_title: "Paiement",
-  review_confirm_payment_cash: "Espèces",
+  review_confirm_payment_cash: "Payer après le service",
   review_confirm_payment_stripe: "Carte",
   review_confirm_payment_change_hint: "Appuyez pour modifier",
   review_confirm_discount_title: "Code promo",
@@ -123,6 +123,34 @@ const fr = {
   review_confirm_place_order_error_title:
     "Impossible de confirmer la réservation",
   review_confirm_place_order_error_body: "Veuillez réessayer dans un instant.",
+  review_confirm_discount_selected:
+    "{{code}} sélectionné. L’éligibilité sera vérifiée lors de la confirmation.",
+  review_confirm_discount_refreshing:
+    "Mise à jour du total de votre rendez-vous…",
+  review_confirm_discount_applied:
+    "{{code}} appliqué · Vous économisez {{value}}",
+  coupons_title: "Coupons",
+  coupons_description:
+    "Saisissez un code promo ou choisissez une offre pour votre rendez-vous.",
+  coupons_placeholder: "Saisir un code promo",
+  coupons_apply: "Appliquer le coupon",
+  coupons_off: "DE RÉDUCTION",
+  coupons_minimum: "Réservation minimale : {{value}} $",
+  coupons_valid_until: "Valable jusqu’au {{date}}",
+  coupons_use: "Utiliser le coupon",
+  coupons_deactivate: "Désactiver",
+  coupons_applied_title: "Coupon appliqué",
+  coupons_applied_body:
+    "Le total de votre rendez-vous sera mis à jour au paiement.",
+  coupons_removed_title: "Coupon supprimé",
+  coupons_removed_body: "Le coupon n’est plus appliqué.",
+  coupons_error_title: "Coupon indisponible",
+  coupons_error_body: "Veuillez réessayer dans un instant.",
+  coupons_invalid_code: "Saisissez un code promo actif valide.",
+  coupons_load_error:
+    "Impossible de charger les coupons. Tirez pour réessayer.",
+  coupons_empty_title: "Aucun coupon disponible",
+  coupons_empty_body: "Les nouvelles offres de rendez-vous apparaîtront ici.",
   cart_title: "Panier",
   cart_clear_action: "Vider le panier",
   cart_empty_title: "Rien ici pour le moment",
@@ -138,7 +166,10 @@ const fr = {
   favourites_toggle_removed: "Retiré des favoris",
   favourites_toggle_error: "Échec de la mise à jour des favoris",
   bookings_title: "Rendez-vous",
+  bookings_my_appointments_title: "Mes rendez-vous",
   bookings_upcoming_title: "À venir",
+  bookings_completed_title: "Terminés",
+  bookings_cancelled_title: "Annulés",
   bookings_past_title: "Passés",
   bookings_empty_title: "Aucun rendez-vous trouvé",
   bookings_empty_subtitle:
@@ -147,6 +178,13 @@ const fr = {
   bookings_upcoming_empty_title: "Aucun rendez-vous à venir",
   bookings_upcoming_empty_subtitle:
     "Votre prochaine réservation apparaîtra ici une fois confirmée.",
+  bookings_completed_empty_title: "Aucun rendez-vous terminé",
+  bookings_completed_empty_subtitle:
+    "Les rendez-vous terminés apparaîtront ici.",
+  bookings_cancelled_empty_title: "Aucun rendez-vous annulé",
+  bookings_cancelled_empty_subtitle:
+    "Les rendez-vous annulés apparaîtront ici.",
+  bookings_past_summary: "Service de rendez-vous",
   bookings_error_title: "Impossible de charger les rendez-vous",
   bookings_error_subtitle: "Actualisez la page ou réessayez dans un instant.",
   bookings_retry: "Réessayer",
@@ -260,7 +298,8 @@ const fr = {
   multi_vendor_shop_types_title: "Catégories de rendez-vous",
   multi_vendor_top_brands_title: "Top marques",
   multi_vendor_nearby_store_title: "Près de votre zone",
-  multi_vendor_order_again_title: "Les plus populaires",
+  multi_vendor_order_again_title: "Réserver à nouveau",
+  multi_vendor_most_popular_title: "Les plus populaires",
   multi_vendor_see_all: "Voir tout",
   multi_vendor_home_section_empty_title: "Rien pour le moment",
   multi_vendor_top_brands_empty:
@@ -269,6 +308,8 @@ const fr = {
     "Ajoutez ou sélectionnez une adresse pour découvrir les prestataires proches de vous.",
   multi_vendor_home_section_empty_order_again:
     "Vos services réservés récemment apparaîtront ici pour vous permettre de les réserver à nouveau rapidement.",
+  multi_vendor_home_section_empty_most_popular:
+    "Les services populaires apparaîtront ici après les réservations terminées par les clients.",
   see_all_search_placeholder:
     "Rechercher des catégories, marques et prestataires",
   see_all_categories_subtitle:
@@ -281,6 +322,8 @@ const fr = {
     "Trouvez les prestataires proches avec la même interface partagée.",
   see_all_most_popular_subtitle:
     "Consultez les services de rendez-vous les plus populaires au même endroit.",
+  see_all_order_again_subtitle:
+    "Retrouvez rapidement les services de vos rendez-vous terminés.",
   see_all_error_message:
     "Impossible de charger cette section pour le moment. Actualisez puis réessayez.",
   see_all_empty_message:

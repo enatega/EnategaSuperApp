@@ -26,7 +26,7 @@ export default function AppointmentsHomeHero({
   bookingsLabel,
   onBookingsPress,
 }: Props) {
-  const { colors, typography } = useTheme();
+  const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const [bannerIndex, setBannerIndex] = useState(0);
   const bannerSidePadding = 4;
@@ -137,25 +137,24 @@ export default function AppointmentsHomeHero({
                 </View>
               ) : null}
 
-              <View style={styles.content}>
+              <View
+                style={[
+                  styles.content,
+                  locationLabel ? styles.contentWithKicker : null,
+                ]}
+              >
                 <Text
                   color={colors.white}
                   weight="extraBold"
-                  numberOfLines={2}
-                  style={[
-                    styles.title,
-                    {
-                      fontSize: typography.size.xxl,
-                      lineHeight: typography.lineHeight.xl,
-                    },
-                  ]}
+                  numberOfLines={locationLabel ? 1 : 2}
+                  style={styles.title}
                 >
                   {item.title || title}
                 </Text>
 
                 <Text
                   color={colors.white}
-                  numberOfLines={3}
+                  numberOfLines={2}
                   weight="medium"
                   style={styles.description}
                 >
@@ -172,7 +171,12 @@ export default function AppointmentsHomeHero({
                       pressed ? styles.primaryActionPressed : null,
                     ]}
                   >
-                    <Text color={colors.white} weight="bold">
+                    <Text
+                      color={colors.white}
+                      numberOfLines={1}
+                      style={styles.primaryActionLabel}
+                      weight="bold"
+                    >
                       {bookingsLabel}
                     </Text>
                   </Pressable>
@@ -216,13 +220,18 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: "flex-end",
-    paddingBottom: 18,
+    paddingBottom: 14,
     paddingHorizontal: 18,
-    paddingTop: 42,
+    paddingTop: 14,
     zIndex: 1,
   },
+  contentWithKicker: {
+    paddingTop: 42,
+  },
   description: {
-    marginTop: 8,
+    fontSize: 14,
+    lineHeight: 18,
+    marginTop: 4,
     maxWidth: "82%",
   },
   fallbackMedia: {
@@ -231,8 +240,9 @@ const styles = StyleSheet.create({
   footerRow: {
     alignItems: "center",
     flexDirection: "row",
+    gap: 10,
     justifyContent: "space-between",
-    marginTop: 14,
+    marginTop: 8,
   },
   kicker: {
     fontSize: 12,
@@ -261,9 +271,14 @@ const styles = StyleSheet.create({
   },
   primaryAction: {
     borderRadius: 16,
-    minHeight: 42,
+    flexShrink: 1,
     justifyContent: "center",
+    maxWidth: "68%",
+    minHeight: 40,
     paddingHorizontal: 14,
+  },
+  primaryActionLabel: {
+    flexShrink: 1,
   },
   primaryActionPressed: {
     opacity: 0.8,
@@ -278,7 +293,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   title: {
+    fontSize: 24,
     letterSpacing: -0.8,
+    lineHeight: 28,
+    maxWidth: "94%",
   },
   topRow: {
     left: 18,

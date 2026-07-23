@@ -21,7 +21,6 @@ export type AddressDetailValues = {
 };
 
 type Labels = {
-  apartmentDetailsTitle: string;
   apartmentFloorTowerLabel: string;
   apartmentFloorTowerPlaceholder: string;
   apartmentLandmarkLabel: string;
@@ -32,7 +31,6 @@ type Labels = {
   apartmentUnitPlaceholder: string;
   homeAreaStreetLabel: string;
   homeAreaStreetPlaceholder: string;
-  homeDetailsTitle: string;
   homeHouseFlatNumberLabel: string;
   homeHouseFlatNumberPlaceholder: string;
   homeLandmarkLabel: string;
@@ -41,7 +39,6 @@ type Labels = {
   officeCompanyBuildingNamePlaceholder: string;
   officeDepartmentLabel: string;
   officeDepartmentPlaceholder: string;
-  officeDetailsTitle: string;
   officeFloorSuiteUnitLabel: string;
   officeFloorSuiteUnitPlaceholder: string;
   officeLandmarkLabel: string;
@@ -64,12 +61,9 @@ type DetailFieldConfig = {
   placeholder: string;
 };
 
-function getCardConfig(addressType: AddressType, labels: Labels) {
+function getDetailFields(addressType: AddressType, labels: Labels) {
   if (addressType === 'OFFICE') {
-    return {
-      icon: 'briefcase-outline' as const,
-      title: labels.officeDetailsTitle,
-      fields: [
+    return [
         {
           key: 'officeFloorSuiteUnit',
           label: labels.officeFloorSuiteUnitLabel,
@@ -90,15 +84,11 @@ function getCardConfig(addressType: AddressType, labels: Labels) {
           label: labels.officeLandmarkLabel,
           placeholder: labels.officeLandmarkPlaceholder,
         },
-      ] satisfies DetailFieldConfig[],
-    };
+      ] satisfies DetailFieldConfig[];
   }
 
   if (addressType === 'APARTMENT') {
-    return {
-      icon: 'business-outline' as const,
-      title: labels.apartmentDetailsTitle,
-      fields: [
+    return [
         {
           key: 'apartmentUnit',
           label: labels.apartmentUnitLabel,
@@ -119,14 +109,10 @@ function getCardConfig(addressType: AddressType, labels: Labels) {
           label: labels.apartmentLandmarkLabel,
           placeholder: labels.apartmentLandmarkPlaceholder,
         },
-      ] satisfies DetailFieldConfig[],
-    };
+      ] satisfies DetailFieldConfig[];
   }
 
-  return {
-    icon: 'home-outline' as const,
-    title: labels.homeDetailsTitle,
-    fields: [
+  return [
       {
         key: 'homeHouseFlatNumber',
         label: labels.homeHouseFlatNumberLabel,
@@ -142,8 +128,7 @@ function getCardConfig(addressType: AddressType, labels: Labels) {
         label: labels.homeLandmarkLabel,
         placeholder: labels.homeLandmarkPlaceholder,
       },
-    ] satisfies DetailFieldConfig[],
-  };
+    ] satisfies DetailFieldConfig[];
 }
 
 function AddressTypeDetailsCard({
@@ -154,45 +139,18 @@ function AddressTypeDetailsCard({
   setAsDefault,
   values,
 }: Props) {
-  const { colors, typography } = useTheme();
+  const { colors } = useTheme();
 
   if (addressType === 'OTHER') {
     return null;
   }
 
-  const config = getCardConfig(addressType, labels);
+  const fields = getDetailFields(addressType, labels);
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: colors.blue50,
-          borderColor: colors.border,
-        },
-      ]}
-    >
-      <View style={styles.header}>
-        <View style={[styles.iconBadge, { backgroundColor: colors.surface }]}>
-          <Ionicons name={config.icon} size={20} color={colors.text} />
-        </View>
-        <Text
-          weight="semiBold"
-          color={colors.primary}
-          style={[
-            styles.title,
-            {
-              fontSize: typography.size.md2,
-              lineHeight: typography.lineHeight.md2,
-            },
-          ]}
-        >
-          {config.title}
-        </Text>
-      </View>
-
+    <View style={styles.container}>
       <View style={styles.fields}>
-        {config.fields.map((field) => (
+        {fields.map((field) => (
           <AddressTypeDetailField
             key={field.key}
             label={field.label}
@@ -237,12 +195,9 @@ function AddressTypeDetailsCard({
 export default memo(AddressTypeDetailsCard);
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 20,
-    borderWidth: 1,
-    gap: 20,
+  container: {
+    gap: 16,
     marginHorizontal: 16,
-    padding: 16,
   },
   checkbox: {
     alignItems: 'center',
@@ -264,20 +219,5 @@ const styles = StyleSheet.create({
   },
   fields: {
     gap: 16,
-  },
-  header: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 12,
-  },
-  iconBadge: {
-    alignItems: 'center',
-    borderRadius: 16,
-    height: 32,
-    justifyContent: 'center',
-    width: 32,
-  },
-  title: {
-    flex: 1,
   },
 });

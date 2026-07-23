@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {
   useFocusEffect,
@@ -7,27 +7,22 @@ import {
 } from '@react-navigation/native';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
-  Linking,
-  Platform,
+  Pressable,
   RefreshControl,
-  ScrollView,
   StyleSheet,
-  TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Button from '../../../../general/components/Button';
-import Card from '../../../../general/components/Card';
 import Image from '../../../../general/components/Image';
-import ScreenHeader from '../../../../general/components/ScreenHeader';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import type {
   AppointmentPastBooking,
   AppointmentScheduledBooking,
 } from '../../api/types';
-import { formatPrice } from '../../components/details/detailHelpers';
+import AppointmentsBookingsListSkeleton from '../../components/bookings/AppointmentsBookingsListSkeleton';
 import {
   usePastAppointmentBookings,
   useScheduledAppointmentBookings,
@@ -36,8 +31,41 @@ import { useAppointmentBookingStatusSocket } from '../../hooks/useAppointmentBoo
 import type { MultiVendorStackParamList } from '../navigation/types';
 import { useTranslation } from 'react-i18next';
 
-const EMPTY_CALENDAR_IMAGE = require('../../../../general/assets/images/calendar.png');
-const FALLBACK_BOOKING_IMAGE = require('../../../../general/assets/images/400x400.png');
+type BookingTab = 'upcoming' | 'completed' | 'cancelled';
+type BookingListItem = AppointmentScheduledBooking | AppointmentPastBooking;
+
+const CANCELLED_STATUS_PARTS = ['cancel', 'reject'];
+const FALLBACK_STORE_IMAGE = require('../../../../general/assets/images/400x400.png');
+
+function isScheduledBooking(
+  booking: BookingListItem,
+): booking is AppointmentScheduledBooking {
+  return 'scheduledAt' in booking;
+}
+
+function isCancelledStatus(status: string) {
+  const normalizedStatus = status.toLowerCase();
+  return CANCELLED_STATUS_PARTS.some((part) =>
+    normalizedStatus.includes(part),
+  );
+}
+
+function formatBookingStatus(status: string) {
+  return status
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function formatBookingDuration(durationMinutes: number) {
+  const normalizedMinutes = Math.max(0, Math.round(durationMinutes));
+  const hours = Math.floor(normalizedMinutes / 60);
+  const minutes = normalizedMinutes % 60;
+
+  if (hours === 0) return `${minutes} min`;
+  if (minutes === 0) return `${hours} hr`;
+  return `${hours} hr ${minutes} min`;
+}
 
 function formatBookingDate(dateValue: string) {
   const date = new Date(dateValue);
@@ -50,345 +78,235 @@ function formatBookingDate(dateValue: string) {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
-    year: 'numeric',
   });
   const timeLabel = date.toLocaleTimeString(undefined, {
     hour: 'numeric',
     minute: '2-digit',
   });
 
-  return `${dateLabel} at ${timeLabel}`;
+  return `${dateLabel}  ·  ${timeLabel}`;
 }
 
-function formatBookingPrice(value: number) {
-  return formatPrice(value) ?? '$0';
-}
-
-function formatBookingDuration(durationMinutes: number) {
-  const normalizedMinutes = Math.max(0, Math.round(durationMinutes));
-  const hours = Math.floor(normalizedMinutes / 60);
-  const minutes = normalizedMinutes % 60;
-
-  if (hours === 0) return `${minutes} min`;
-  if (minutes === 0) return `${hours} hr`;
-  return `${hours} hr, ${minutes} min`;
-}
-
-function formatBookingStatus(status: string) {
-  return status
-    .split('_')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
-
-type EmptyStateCardProps = {
-  actionLabel: string;
-  message: string;
-  onAction: () => void;
-  title: string;
-};
-
-function EmptyStateCard({
-  actionLabel,
-  message,
-  onAction,
-  title,
-}: EmptyStateCardProps) {
-  const { colors, typography } = useTheme();
-
-  return (
-    <Card
-      style={[
-        styles.emptyCard,
-        {
-          backgroundColor: colors.surface,
-          borderColor: colors.border,
-        },
-      ]}
-      variant="outlined"
-    >
-      <Image
-        resizeMode="contain"
-        source={EMPTY_CALENDAR_IMAGE}
-        style={styles.emptyIllustration}
-      />
-      <Text
-        weight="bold"
-        style={{
-          fontSize: typography.size.lg,
-          lineHeight: typography.lineHeight.lg,
-          textAlign: 'center',
-        }}
-      >
-        {title}
-      </Text>
-      <Text
-        color={colors.mutedText}
-        style={{
-          fontSize: typography.size.sm2,
-          lineHeight: typography.lineHeight.sm2,
-          textAlign: 'center',
-        }}
-      >
-        {message}
-      </Text>
-      <Button
-        label={actionLabel}
-        onPress={onAction}
-        style={[
-          styles.emptyButton,
-          {
-            backgroundColor: colors.surface,
-            borderColor: colors.border,
-          },
-        ]}
-        variant="secondary"
-      />
-    </Card>
-  );
-}
-
-type UpcomingCardProps = {
-  booking: AppointmentScheduledBooking;
+type AppointmentCardProps = {
+  booking: BookingListItem;
   onPress: () => void;
 };
 
-function UpcomingBookingCard({ booking, onPress }: UpcomingCardProps) {
-  const { colors, typography } = useTheme();
+function AppointmentCard({ booking, onPress }: AppointmentCardProps) {
+  const { colors } = useTheme();
   const { t } = useTranslation('appointments');
-  const imageSource = booking.storeImage
-    ? { uri: booking.storeImage }
-    : FALLBACK_BOOKING_IMAGE;
-  const formattedDate = formatBookingDate(booking.scheduledAt);
-  const itemLabel = t(
-    booking.itemCount === 1
-      ? 'bookings_meta_items_one'
-      : 'bookings_meta_items_other',
-    { count: booking.itemCount },
-  );
-
-  const handleOpenDirections = async () => {
-    const latitude = booking.storeLatitude;
-    const longitude = booking.storeLongitude;
-    const address = booking.storeAddress?.trim() ?? '';
-    const hasCoordinates =
-      typeof latitude === 'number' &&
-      Number.isFinite(latitude) &&
-      typeof longitude === 'number' &&
-      Number.isFinite(longitude);
-
-    if (!hasCoordinates && !address) {
-      Alert.alert(t('bookings_get_directions'), t('bookings_location_unavailable'));
-      return;
-    }
-
-    const destination = hasCoordinates
-      ? `${latitude},${longitude}`
-      : encodeURIComponent(address);
-    const nativeUrl = Platform.OS === 'ios'
-      ? `http://maps.apple.com/?daddr=${destination}&dirflg=d`
-      : hasCoordinates
-        ? `geo:${latitude},${longitude}?q=${latitude},${longitude}`
-        : `geo:0,0?q=${destination}`;
-    const webUrl = `https://www.google.com/maps?q=${destination}`;
-
-    try {
-      await Linking.openURL(
-        (await Linking.canOpenURL(nativeUrl)) ? nativeUrl : webUrl,
-      );
-    } catch {
-      Alert.alert(t('bookings_get_directions'), t('bookings_location_unavailable'));
-    }
-  };
-
-  const handleShowDate = () => {
-    Alert.alert(t('bookings_date_title'), formattedDate);
-  };
+  const isScheduled = isScheduledBooking(booking);
+  const dateValue = isScheduled ? booking.scheduledAt : booking.orderedAt;
+  const status = formatBookingStatus(booking.orderStatus);
+  const description = isScheduled
+    ? [
+        t(
+          booking.itemCount === 1
+            ? 'bookings_meta_items_one'
+            : 'bookings_meta_items_other',
+          { count: booking.itemCount },
+        ),
+        formatBookingDuration(booking.durationMinutes),
+      ].join(' · ')
+    : t('bookings_past_summary');
+  const isCancelled = isCancelledStatus(booking.orderStatus);
+  const storeImageUri = (
+    booking.storeImage ??
+    (isScheduled ? null : booking.storeLogo)
+  )?.trim();
+  const storeImageSource = storeImageUri
+    ? { uri: storeImageUri }
+    : FALLBACK_STORE_IMAGE;
 
   return (
-    <TouchableOpacity
+    <Pressable
       accessibilityRole="button"
-      activeOpacity={0.88}
       onPress={onPress}
-    >
-      <Card
-      style={[
-        styles.upcomingCard,
+      style={({ pressed }) => [
+        styles.appointmentCard,
         {
           backgroundColor: colors.surface,
           borderColor: colors.border,
+          opacity: pressed ? 0.78 : 1,
+          shadowColor: colors.shadowColor,
         },
       ]}
-      variant="outlined"
     >
-      <Image source={imageSource} style={styles.upcomingImage} resizeMode="cover" />
+      <Image
+        resizeMode="cover"
+        source={storeImageSource}
+        style={styles.storeImage}
+      />
 
-      <View style={styles.upcomingCopy}>
-        <View style={styles.upcomingBadgeRow}>
+      <View style={styles.cardCopy}>
+        <View style={styles.cardTitleRow}>
+          <Text numberOfLines={1} style={styles.storeName} weight="bold">
+            {booking.storeName}
+          </Text>
           <View
             style={[
-              styles.badge,
+              styles.statusBadge,
               {
-                backgroundColor: colors.warningSoft,
+                backgroundColor: isCancelled
+                  ? colors.dangerSoft
+                  : colors.blue50,
               },
             ]}
           >
             <Text
-              color={colors.warningText}
-              style={styles.badgeText}
+              color={isCancelled ? colors.dangerText : colors.primary}
+              numberOfLines={1}
+              style={styles.statusText}
               weight="semiBold"
             >
-              {formatBookingStatus(booking.orderStatus)}
+              {status}
             </Text>
           </View>
         </View>
 
         <Text
-          weight="bold"
+          color={colors.mutedText}
           numberOfLines={1}
-          style={{
-            fontSize: typography.size.lg,
-            lineHeight: typography.lineHeight.lg,
-          }}
+          style={styles.description}
         >
-          {booking.storeName}
+          {description}
         </Text>
 
-        <Text
-          style={{
-            fontSize: typography.size.sm2,
-            lineHeight: typography.lineHeight.sm2,
-          }}
-        >
-          {formattedDate}
-        </Text>
-
-        <View style={styles.metaRow}>
+        <View style={styles.dateRow}>
+          <MaterialCommunityIcons
+            color={colors.primaryDark}
+            name="calendar-clock-outline"
+            size={15}
+          />
           <Text
-            color={colors.mutedText}
-            style={{
-              fontSize: typography.size.sm2,
-              lineHeight: typography.lineHeight.sm2,
-            }}
+            color={colors.primaryDark}
+            numberOfLines={1}
+            style={styles.dateText}
+            weight="semiBold"
           >
-            {formatBookingDuration(booking.durationMinutes)}
-            {'  •  '}
-            {itemLabel}
-            {'  •  '}
-            {formatBookingPrice(booking.orderPrice)}
+            {formatBookingDate(dateValue)}
           </Text>
         </View>
-
-        <View style={styles.upcomingActions}>
-          <TouchableOpacity
-            accessibilityRole="button"
-            activeOpacity={0.75}
-            onPress={() => void handleOpenDirections()}
-            style={[styles.directionsButton, { borderColor: colors.border }]}
-          >
-            <Text
-              weight="semiBold"
-              style={{ fontSize: typography.size.sm2 }}
-            >
-              {t('bookings_get_directions')}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            accessibilityLabel={t('bookings_date_title')}
-            accessibilityRole="button"
-            activeOpacity={0.75}
-            onPress={handleShowDate}
-            style={[styles.calendarButton, { borderColor: colors.border }]}
-          >
-            <MaterialCommunityIcons
-              color={colors.text}
-              name="calendar-month-outline"
-              size={24}
-            />
-          </TouchableOpacity>
-        </View>
       </View>
-      </Card>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
-type PastCardProps = {
-  booking: AppointmentPastBooking;
-  ctaLabel: string;
-  onOpen: () => void;
-  onPress: () => void;
+type TabBarProps = {
+  activeTab: BookingTab;
+  onChange: (tab: BookingTab) => void;
 };
 
-function PastBookingCard({ booking, ctaLabel, onOpen, onPress }: PastCardProps) {
-  const { colors, typography } = useTheme();
-  const imageSource = booking.storeImage || booking.storeLogo
-    ? { uri: booking.storeImage ?? booking.storeLogo ?? '' }
-    : FALLBACK_BOOKING_IMAGE;
+function BookingsTabBar({ activeTab, onChange }: TabBarProps) {
+  const { colors } = useTheme();
+  const { t } = useTranslation('appointments');
+  const tabs: Array<{ key: BookingTab; label: string }> = [
+    { key: 'upcoming', label: t('bookings_upcoming_title') },
+    { key: 'completed', label: t('bookings_completed_title') },
+    { key: 'cancelled', label: t('bookings_cancelled_title') },
+  ];
 
   return (
-    <TouchableOpacity accessibilityRole="button" activeOpacity={0.88} onPress={onOpen}>
-      <Card
-      style={[
-        styles.pastCard,
-        {
-          borderColor: colors.border,
-        },
-      ]}
-    >
-      <Image source={imageSource} style={styles.pastImage} resizeMode="cover" />
+    <View style={styles.tabs}>
+      {tabs.map((tab) => {
+        const isActive = activeTab === tab.key;
 
-      <View style={styles.pastCopy}>
-        <Text
-          numberOfLines={1}
-          weight="bold"
-          style={{
-            fontSize: typography.size.md2,
-            lineHeight: typography.lineHeight.md2,
-          }}
-        >
-          {booking.storeName}
-        </Text>
-        <Text
-          color={colors.mutedText}
-          numberOfLines={1}
-          style={{
-            fontSize: typography.size.sm2,
-            lineHeight: typography.lineHeight.sm2,
-          }}
-        >
-          {formatBookingDate(booking.orderedAt)}
-        </Text>
-        <Text
-          color={colors.mutedText}
-          style={{
-            fontSize: typography.size.sm2,
-            lineHeight: typography.lineHeight.sm2,
-          }}
-        >
-          {formatBookingPrice(booking.orderPrice)}
-        </Text>
+        return (
+          <Pressable
+            accessibilityRole="tab"
+            accessibilityState={{ selected: isActive }}
+            key={tab.key}
+            onPress={() => onChange(tab.key)}
+            style={({ pressed }) => [
+              styles.tab,
+              {
+                backgroundColor: isActive ? colors.primaryDark : colors.surface,
+                borderColor: isActive ? colors.primaryDark : colors.border,
+                opacity: pressed ? 0.8 : 1,
+              },
+            ]}
+          >
+            <Text
+              color={isActive ? colors.white : colors.mutedText}
+              numberOfLines={1}
+              style={styles.tabLabel}
+              weight="semiBold"
+            >
+              {tab.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+type EmptyStateProps = {
+  activeTab: BookingTab;
+  onSearch: () => void;
+};
+
+function EmptyState({ activeTab, onSearch }: EmptyStateProps) {
+  const { colors } = useTheme();
+  const { t } = useTranslation('appointments');
+  const titleKey =
+    activeTab === 'upcoming'
+      ? 'bookings_upcoming_empty_title'
+      : activeTab === 'completed'
+        ? 'bookings_completed_empty_title'
+        : 'bookings_cancelled_empty_title';
+  const subtitleKey =
+    activeTab === 'upcoming'
+      ? 'bookings_upcoming_empty_subtitle'
+      : activeTab === 'completed'
+        ? 'bookings_completed_empty_subtitle'
+        : 'bookings_cancelled_empty_subtitle';
+
+  return (
+    <View style={styles.emptyState}>
+      <View
+        style={[
+          styles.emptyIcon,
+          { backgroundColor: colors.cardLavender },
+        ]}
+      >
+        <MaterialCommunityIcons
+          color={colors.primaryDark}
+          name="calendar-blank-outline"
+          size={34}
+        />
       </View>
-
-      <Button
-        label={ctaLabel}
-        onPress={onPress}
-        style={styles.bookAgainButton}
-        variant="secondary"
-      />
-      </Card>
-    </TouchableOpacity>
+      <Text style={styles.emptyTitle} weight="bold">
+        {t(titleKey)}
+      </Text>
+      <Text
+        color={colors.mutedText}
+        style={styles.emptySubtitle}
+      >
+        {t(subtitleKey)}
+      </Text>
+      {activeTab === 'upcoming' ? (
+        <Button
+          label={t('bookings_empty_action')}
+          onPress={onSearch}
+          style={styles.emptyAction}
+          variant="secondary"
+        />
+      ) : null}
+    </View>
   );
 }
 
 export default function MultiVendorBookingsScreen() {
-  const { colors, typography } = useTheme();
+  const { colors } = useTheme();
   const { t } = useTranslation('appointments');
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProp<MultiVendorStackParamList>>();
+  const [activeTab, setActiveTab] = useState<BookingTab>('upcoming');
   const scheduledQuery = useScheduledAppointmentBookings();
   const pastQuery = usePastAppointmentBookings();
   useAppointmentBookingStatusSocket();
+
   const refetchScheduledBookings = scheduledQuery.refetch;
   const refetchPastBookings = pastQuery.refetch;
 
@@ -404,23 +322,49 @@ export default function MultiVendorBookingsScreen() {
     () => pastQuery.data?.pages.flatMap((page) => page.items) ?? [],
     [pastQuery.data],
   );
+  const completedBookings = useMemo(
+    () =>
+      pastBookings.filter(
+        (booking) => !isCancelledStatus(booking.orderStatus),
+      ),
+    [pastBookings],
+  );
+  const cancelledBookings = useMemo(
+    () =>
+      pastBookings.filter((booking) =>
+        isCancelledStatus(booking.orderStatus),
+      ),
+    [pastBookings],
+  );
+  const bookings = useMemo<BookingListItem[]>(() => {
+    if (activeTab === 'upcoming') return upcomingBookings;
+    if (activeTab === 'completed') return completedBookings;
+    return cancelledBookings;
+  }, [
+    activeTab,
+    cancelledBookings,
+    completedBookings,
+    upcomingBookings,
+  ]);
 
   const isInitialLoading =
-    (scheduledQuery.isLoading && upcomingBookings.length === 0) ||
-    (pastQuery.isLoading && pastBookings.length === 0);
-  const hasAnyError =
-    Boolean(scheduledQuery.error || pastQuery.error) &&
-    upcomingBookings.length === 0 &&
-    pastBookings.length === 0;
-  const hasNoBookings =
-    !isInitialLoading &&
-    upcomingBookings.length === 0 &&
-    pastBookings.length === 0;
+    scheduledQuery.isLoading || pastQuery.isLoading;
+  const hasAnyError = Boolean(scheduledQuery.error || pastQuery.error);
 
   const handleRefresh = useCallback(() => {
     void scheduledQuery.refetch();
     void pastQuery.refetch();
   }, [pastQuery, scheduledQuery]);
+
+  const handleLoadMore = useCallback(() => {
+    if (
+      activeTab !== 'upcoming' &&
+      pastQuery.hasNextPage &&
+      !pastQuery.isFetchingNextPage
+    ) {
+      void pastQuery.fetchNextPage();
+    }
+  }, [activeTab, pastQuery]);
 
   const handleSearchProviders = useCallback(() => {
     navigation.navigate('MultiVendorTabs', {
@@ -428,75 +372,71 @@ export default function MultiVendorBookingsScreen() {
     });
   }, [navigation]);
 
-  const handleBookAgain = useCallback(
-    (booking: AppointmentPastBooking) => {
-      navigation.navigate('Services', {
-        storeId: booking.storeId,
-        title: booking.storeName,
-      });
-    },
-    [navigation],
-  );
+  const handleBack = useCallback(() => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
 
-  const renderPastBooking = useCallback(
-    ({ item }: { item: AppointmentPastBooking }) => (
-      <PastBookingCard
+    navigation.navigate('MultiVendorTabs', {
+      screen: 'MultiVendorTabHome',
+    });
+  }, [navigation]);
+
+  const renderBooking = useCallback(
+    ({ item }: { item: BookingListItem }) => (
+      <AppointmentCard
         booking={item}
-        ctaLabel={t('bookings_book_again')}
-        onOpen={() =>
+        onPress={() =>
           navigation.navigate('AppointmentBookingDetail', {
             orderId: item.orderId,
           })
         }
-        onPress={() => handleBookAgain(item)}
       />
     ),
-    [handleBookAgain, navigation, t],
+    [navigation],
   );
 
-  const handleLoadMorePast = useCallback(() => {
-    if (pastQuery.hasNextPage && !pastQuery.isFetchingNextPage) {
-      void pastQuery.fetchNextPage();
-    }
-  }, [pastQuery]);
-
-  if (isInitialLoading) {
-    return (
-      <View style={[styles.screen, { backgroundColor: colors.background }]}>
-        <ScreenHeader title={t('bookings_title')} showBack={false} />
-        <View style={styles.centeredState}>
-          <ActivityIndicator color={colors.primary} size="large" />
-        </View>
+  return (
+    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
+        <Pressable
+          accessibilityLabel={t('details_action_back')}
+          accessibilityRole="button"
+          hitSlop={10}
+          onPress={handleBack}
+          style={({ pressed }) => [
+            styles.headerSide,
+            { opacity: pressed ? 0.65 : 1 },
+          ]}
+        >
+          <MaterialCommunityIcons
+            color={colors.text}
+            name="arrow-left"
+            size={25}
+          />
+        </Pressable>
+        <Text numberOfLines={1} style={styles.headerTitle} weight="bold">
+          {t('bookings_my_appointments_title')}
+        </Text>
+        <View style={styles.headerSide} />
       </View>
-    );
-  }
 
-  if (hasAnyError) {
-    return (
-      <View style={[styles.screen, { backgroundColor: colors.background }]}>
-        <ScreenHeader title={t('bookings_title')} showBack={false} />
+      <BookingsTabBar activeTab={activeTab} onChange={setActiveTab} />
+
+      {isInitialLoading && bookings.length === 0 ? (
+        <AppointmentsBookingsListSkeleton />
+      ) : hasAnyError && bookings.length === 0 ? (
         <View style={styles.centeredState}>
           <MaterialCommunityIcons
             color={colors.danger}
             name="calendar-alert-outline"
-            size={52}
+            size={42}
           />
-          <Text
-            weight="bold"
-            style={{
-              fontSize: typography.size.xl,
-              lineHeight: typography.lineHeight.xl,
-            }}
-          >
+          <Text style={styles.errorTitle} weight="bold">
             {t('bookings_error_title')}
           </Text>
-          <Text
-            color={colors.mutedText}
-            style={[styles.centeredText, {
-              fontSize: typography.size.md2,
-              lineHeight: typography.lineHeight.lg,
-            }]}
-          >
+          <Text color={colors.mutedText} style={styles.errorSubtitle}>
             {t('bookings_error_subtitle')}
           </Text>
           <Button
@@ -505,234 +445,209 @@ export default function MultiVendorBookingsScreen() {
             style={styles.retryButton}
           />
         </View>
-      </View>
-    );
-  }
-
-  return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}>
-      <ScreenHeader title={t('bookings_title')} showBack={false} />
-
-      <FlatList
-        contentContainerStyle={styles.listContent}
-        data={pastBookings}
-        keyExtractor={(item) => item.orderId}
-        onEndReached={handleLoadMorePast}
-        onEndReachedThreshold={0.4}
-        refreshControl={(
-          <RefreshControl
-            refreshing={scheduledQuery.isRefetching || pastQuery.isRefetching}
-            onRefresh={handleRefresh}
-            tintColor={colors.primary}
-          />
-        )}
-        renderItem={renderPastBooking}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={styles.pastSeparator} />}
-        ListHeaderComponent={(
-          <View style={styles.headerContent}>
-            <Text
-              weight="bold"
-              style={{
-                fontSize: typography.size.lg,
-                lineHeight: typography.lineHeight.lg,
-              }}
-            >
-              {t('bookings_upcoming_title')}
-            </Text>
-
-            {upcomingBookings.length > 0 ? (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.upcomingScrollContent}
-              >
-                {upcomingBookings.map((booking) => (
-                  <UpcomingBookingCard
-                    key={booking.orderId}
-                    booking={booking}
-                    onPress={() =>
-                      navigation.navigate('AppointmentBookingDetail', {
-                        orderId: booking.orderId,
-                      })
-                    }
-                  />
-                ))}
-              </ScrollView>
-            ) : (
-              <EmptyStateCard
-                actionLabel={t('bookings_empty_action')}
-                message={
-                  hasNoBookings
-                    ? t('bookings_empty_subtitle')
-                    : t('bookings_upcoming_empty_subtitle')
-                }
-                onAction={handleSearchProviders}
-                title={
-                  hasNoBookings
-                    ? t('bookings_empty_title')
-                    : t('bookings_upcoming_empty_title')
-                }
+      ) : (
+        <FlatList
+          contentContainerStyle={[
+            styles.listContent,
+            bookings.length === 0 && styles.emptyListContent,
+          ]}
+          data={bookings}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          keyExtractor={(item) => item.orderId}
+          ListEmptyComponent={
+            <EmptyState
+              activeTab={activeTab}
+              onSearch={handleSearchProviders}
+            />
+          }
+          ListFooterComponent={
+            pastQuery.isFetchingNextPage ? (
+              <ActivityIndicator
+                color={colors.primary}
+                style={styles.footerLoader}
               />
-            )}
-
-            {pastBookings.length > 0 ? (
-              <Text
-                weight="bold"
-                style={{
-                  fontSize: typography.size.lg,
-                  lineHeight: typography.lineHeight.lg,
-                  marginTop: 10,
-                }}
-              >
-                {t('bookings_past_title')}
-              </Text>
-            ) : null}
-          </View>
-        )}
-        ListFooterComponent={
-          pastQuery.isFetchingNextPage ? (
-            <View style={styles.footerLoader}>
-              <ActivityIndicator color={colors.primary} />
-            </View>
-          ) : (
-            <View style={styles.footerSpacing} />
-          )
-        }
-        ListEmptyComponent={
-          hasNoBookings ? <View style={styles.footerSpacing} /> : null
-        }
-      />
+            ) : null
+          }
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.4}
+          refreshControl={
+            <RefreshControl
+              onRefresh={handleRefresh}
+              refreshing={
+                scheduledQuery.isRefetching || pastQuery.isRefetching
+              }
+              tintColor={colors.primary}
+            />
+          }
+          renderItem={renderBooking}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  badge: {
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+  appointmentCard: {
+    alignItems: 'center',
+    borderRadius: 16,
+    borderWidth: 1,
+    flexDirection: 'row',
+    minHeight: 100,
+    padding: 14,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 7,
   },
-  badgeText: {
-    fontSize: 12,
-    lineHeight: 15,
-    textTransform: 'capitalize',
+  cardCopy: {
+    flex: 1,
+    gap: 5,
+    marginLeft: 12,
+    minWidth: 0,
   },
-  bookAgainButton: {
-    borderRadius: 4,
-    paddingVertical: 8,
+  cardTitleRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 8,
   },
   centeredState: {
     alignItems: 'center',
     flex: 1,
     gap: 12,
     justifyContent: 'center',
+    paddingHorizontal: 28,
+  },
+  dateRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 5,
+  },
+  dateText: {
+    flex: 1,
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  description: {
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  emptyAction: {
+    marginTop: 4,
+    minWidth: 170,
+  },
+  emptyIcon: {
+    alignItems: 'center',
+    borderRadius: 28,
+    height: 56,
+    justifyContent: 'center',
+    width: 56,
+  },
+  emptyListContent: {
+    flexGrow: 1,
+  },
+  emptyState: {
+    alignItems: 'center',
+    flex: 1,
+    gap: 10,
+    justifyContent: 'center',
+    paddingBottom: 72,
     paddingHorizontal: 24,
   },
-  centeredText: {
+  emptySubtitle: {
+    fontSize: 14,
+    lineHeight: 20,
     maxWidth: 280,
     textAlign: 'center',
   },
-  emptyButton: {
-    minHeight: 52,
-    width: '100%',
+  emptyTitle: {
+    fontSize: 18,
+    lineHeight: 24,
+    textAlign: 'center',
   },
-  emptyCard: {
-    alignItems: 'center',
-    gap: 14,
-    paddingHorizontal: 18,
-    paddingVertical: 26,
+  errorSubtitle: {
+    fontSize: 14,
+    lineHeight: 20,
+    maxWidth: 280,
+    textAlign: 'center',
   },
-  emptyIllustration: {
-    height: 82,
-    width: 82,
+  errorTitle: {
+    fontSize: 18,
+    lineHeight: 24,
+    textAlign: 'center',
   },
   footerLoader: {
-    alignItems: 'center',
-    paddingBottom: 28,
-    paddingTop: 12,
+    marginVertical: 20,
   },
-  footerSpacing: {
-    height: 28,
-  },
-  headerContent: {
-    gap: 18,
-    paddingBottom: 18,
-  },
-  listContent: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-  },
-  pastCard: {
+  header: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 12,
-    paddingHorizontal: 0,
-    paddingVertical: 12,
+    paddingBottom: 12,
+    paddingHorizontal: 20,
   },
-  pastCopy: {
+  headerSide: {
+    alignItems: 'flex-start',
+    height: 36,
+    justifyContent: 'center',
+    width: 36,
+  },
+  headerTitle: {
     flex: 1,
-    gap: 4,
+    fontSize: 18,
+    lineHeight: 24,
+    textAlign: 'center',
   },
-  pastImage: {
-    borderRadius: 16,
-    height: 78,
-    width: 68,
-  },
-  pastSeparator: {
-    height: 12,
+  listContent: {
+    paddingBottom: 24,
+    paddingHorizontal: 20,
+    paddingTop: 14,
   },
   retryButton: {
-    minWidth: 140,
     marginTop: 4,
+    minWidth: 130,
   },
   screen: {
     flex: 1,
   },
-  upcomingBadgeRow: {
-    alignItems: 'flex-start',
+  separator: {
+    height: 12,
   },
-  upcomingCard: {
-    overflow: 'hidden',
-    padding: 0,
-    width: 324,
+  storeImage: {
+    borderRadius: 12,
+    height: 52,
+    width: 52,
   },
-  upcomingCopy: {
-    gap: 10,
-    padding: 16,
+  statusBadge: {
+    borderRadius: 999,
+    flexShrink: 0,
+    maxWidth: 92,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
   },
-  upcomingActions: {
+  statusText: {
+    fontSize: 11,
+    lineHeight: 14,
+  },
+  storeName: {
+    flex: 1,
+    fontSize: 15,
+    lineHeight: 20,
+  },
+  tab: {
     alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  directionsButton: {
-    alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: 999,
     borderWidth: 1,
     flex: 1,
     justifyContent: 'center',
-    minHeight: 48,
-    paddingHorizontal: 16,
+    minHeight: 40,
+    paddingHorizontal: 8,
   },
-  calendarButton: {
-    alignItems: 'center',
-    borderRadius: 10,
-    borderWidth: 1,
-    height: 48,
-    justifyContent: 'center',
-    marginLeft: 12,
-    width: 48,
+  tabLabel: {
+    fontSize: 13,
+    lineHeight: 17,
   },
-  upcomingImage: {
-    height: 180,
-    width: '100%',
-  },
-  upcomingScrollContent: {
-    gap: 14,
-    paddingRight: 8,
-  },
-  metaRow: {
+  tabs: {
     flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: 20,
   },
 });

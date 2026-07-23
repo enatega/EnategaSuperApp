@@ -193,6 +193,12 @@ export interface AppointmentOrderAgainItem {
   isFavorite?: boolean;
 }
 
+export interface AppointmentMostPopularItem extends AppointmentOrderAgainItem {
+  orderCount: number;
+  averageRating: number;
+  reviewCount: number;
+}
+
 export interface AppointmentScheduledBooking {
   orderId: string;
   storeName: string;
@@ -263,6 +269,7 @@ export type AppointmentSeeAllSection =
   | "shopTypeCategories"
   | "topBrands"
   | "nearbyProviders"
+  | "orderAgain"
   | "mostPopular";
 
 export interface AppointmentListParams {
@@ -348,6 +355,11 @@ export type AppointmentOrderAgainApiResponse =
   | ApiResponse<AppointmentOrderAgainItem[]>
   | PaginatedAppointmentsResponse<AppointmentOrderAgainItem>
   | AppointmentOrderAgainItem[];
+
+export type AppointmentMostPopularApiResponse =
+  | ApiResponse<AppointmentMostPopularItem[]>
+  | PaginatedAppointmentsResponse<AppointmentMostPopularItem>
+  | AppointmentMostPopularItem[];
 
 export type AppointmentStoreViewApiResponse = AppointmentStoreView;
 
@@ -527,6 +539,7 @@ export interface AppointmentBookingReviewRequest {
   workerMode: AppointmentBookingWorkerMode;
   workerId?: string;
   customerNote?: string;
+  couponCode?: string;
 }
 
 export interface AppointmentBookingReviewResponse {
@@ -581,11 +594,19 @@ export interface AppointmentBookingReviewResponse {
   customerNote?: string | null;
   totals: {
     subtotal: number;
+    dealDiscount?: number;
+    couponDiscount?: number;
     discount: number;
     total: number;
     serviceCount: number;
     durationLabel: string;
   };
+  coupon?: {
+    id: string;
+    code: string;
+    name: string;
+    discountAmount: number;
+  } | null;
 }
 
 export interface AppointmentBookingConfirmRequest extends AppointmentBookingReviewRequest {

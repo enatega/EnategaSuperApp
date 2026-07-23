@@ -40,7 +40,6 @@ type Props = {
   initialType?: AddressType;
   onSave: (data: AddressDetailFormSubmitData) => Promise<void>;
   labels: {
-    apartmentDetailsTitle: string;
     apartmentFloorTowerLabel: string;
     apartmentFloorTowerPlaceholder: string;
     apartmentLandmarkLabel: string;
@@ -54,7 +53,6 @@ type Props = {
     locationTypeLabel: string;
     homeAreaStreetLabel: string;
     homeAreaStreetPlaceholder: string;
-    homeDetailsTitle: string;
     homeHouseFlatNumberLabel: string;
     homeHouseFlatNumberPlaceholder: string;
     homeLandmarkLabel: string;
@@ -66,7 +64,6 @@ type Props = {
     officeCompanyBuildingNamePlaceholder: string;
     officeDepartmentLabel: string;
     officeDepartmentPlaceholder: string;
-    officeDetailsTitle: string;
     officeFloorSuiteUnitLabel: string;
     officeFloorSuiteUnitPlaceholder: string;
     officeLandmarkLabel: string;
@@ -358,7 +355,6 @@ const AddressDetailFormInner = forwardRef<AddressDetailFormHandle, Props>(
         <AddressTypeDetailsCard
           addressType={addressType}
           labels={{
-            apartmentDetailsTitle: labels.apartmentDetailsTitle,
             apartmentFloorTowerLabel: labels.apartmentFloorTowerLabel,
             apartmentFloorTowerPlaceholder:
               labels.apartmentFloorTowerPlaceholder,
@@ -373,7 +369,6 @@ const AddressDetailFormInner = forwardRef<AddressDetailFormHandle, Props>(
             apartmentUnitPlaceholder: labels.apartmentUnitPlaceholder,
             homeAreaStreetLabel: labels.homeAreaStreetLabel,
             homeAreaStreetPlaceholder: labels.homeAreaStreetPlaceholder,
-            homeDetailsTitle: labels.homeDetailsTitle,
             homeHouseFlatNumberLabel: labels.homeHouseFlatNumberLabel,
             homeHouseFlatNumberPlaceholder:
               labels.homeHouseFlatNumberPlaceholder,
@@ -386,7 +381,6 @@ const AddressDetailFormInner = forwardRef<AddressDetailFormHandle, Props>(
             officeDepartmentLabel: labels.officeDepartmentLabel,
             officeDepartmentPlaceholder:
               labels.officeDepartmentPlaceholder,
-            officeDetailsTitle: labels.officeDetailsTitle,
             officeFloorSuiteUnitLabel: labels.officeFloorSuiteUnitLabel,
             officeFloorSuiteUnitPlaceholder:
               labels.officeFloorSuiteUnitPlaceholder,

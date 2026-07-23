@@ -31,8 +31,13 @@ import AppointmentBookingLineItem from "../components/booking/AppointmentBooking
 import AppointmentBookingStoreSummary from "../components/booking/AppointmentBookingStoreSummary";
 import { formatPrice } from "../components/details/detailHelpers";
 import { useAppointmentCart } from "../hooks/useAppointmentCart";
-import { useAppointmentConfirmMutation } from "../hooks/useAppointmentBookingMutations";
+import {
+  useAppointmentConfirmMutation,
+  useAppointmentReviewMutation,
+} from "../hooks/useAppointmentBookingMutations";
 import type { MultiVendorStackParamList } from "../multiVendor/navigation/types";
+import type { AppointmentsStackParamList } from "../navigation/types";
+import { useAppointmentCouponStore } from "../stores/useAppointmentCouponStore";
 import {
   formatAppointmentScheduledDate,
   formatAppointmentTimeRange,
@@ -52,14 +57,19 @@ export default function AppointmentReviewConfirmScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<ReviewRouteProp>();
   const confirmMutation = useAppointmentConfirmMutation();
+  const reviewMutation = useAppointmentReviewMutation();
+  const selectedCoupon = useAppointmentCouponStore(
+    (state) => state.selectedCoupon,
+  );
+  const clearCoupon = useAppointmentCouponStore((state) => state.clearCoupon);
   const { clearCart, replaceItems, setReviewDraft, setStoreContext } =
     useAppointmentCart();
   const [isPolicyPopupVisible, setIsPolicyPopupVisible] = useState(false);
   const [customerNote, setCustomerNote] = useState(
     route.params.review.customerNote ?? "",
   );
+  const [review, setReview] = useState(route.params.review);
 
-  const { review } = route.params;
   const scheduledDateLabel = useMemo(
     () => formatAppointmentScheduledDate(route.params.scheduledAt),
     [route.params.scheduledAt],
@@ -108,7 +118,7 @@ export default function AppointmentReviewConfirmScreen() {
       })),
     );
     setReviewDraft({
-      review: route.params.review,
+      review,
       scheduledAt: route.params.scheduledAt,
       selections: route.params.selections,
       storeId: route.params.storeId,
@@ -121,7 +131,7 @@ export default function AppointmentReviewConfirmScreen() {
   }, [
     replaceItems,
     review.items,
-    route.params.review,
+    review,
     route.params.scheduledAt,
     route.params.selections,
     route.params.selectedServices,
@@ -141,11 +151,67 @@ export default function AppointmentReviewConfirmScreen() {
     [review.hold.token],
   );
 
+  useEffect(() => {
+    const selectedCode = selectedCoupon?.code;
+    const appliedCode = review.coupon?.code;
+
+    if (selectedCode === appliedCode) {
+      return;
+    }
+
+    let isCurrent = true;
+
+    void reviewMutation
+      .mutateAsync({
+        couponCode: selectedCode,
+        scheduledAt: route.params.scheduledAt,
+        selections: route.params.selections,
+        storeId: route.params.storeId,
+        workerId: route.params.workerId,
+        workerMode: route.params.workerMode,
+      })
+      .then((nextReview) => {
+        if (isCurrent) {
+          setReview(nextReview);
+        }
+      })
+      .catch((error) => {
+        if (!isCurrent) {
+          return;
+        }
+
+        showToast.error(
+          t("coupons_error_title"),
+          extractApiErrorMessage(error) ?? t("coupons_error_body"),
+        );
+        clearCoupon();
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [
+    review.coupon?.code,
+    reviewMutation.mutateAsync,
+    clearCoupon,
+    route.params.scheduledAt,
+    route.params.selections,
+    route.params.storeId,
+    route.params.workerId,
+    route.params.workerMode,
+    selectedCoupon?.code,
+    t,
+  ]);
+
   const handleBack = () => {
     navigation.goBack();
   };
 
   const handleOpenConfirm = () => {
+    if (reviewMutation.isPending) {
+      return;
+    }
+
     if (!canConfirm) {
       showToast.error(
         t("review_confirm_payment_missing_title"),
@@ -160,6 +226,7 @@ export default function AppointmentReviewConfirmScreen() {
   const handleConfirmBooking = async () => {
     const payload: AppointmentBookingConfirmRequest = {
       customerNote: customerNote.trim() || undefined,
+      couponCode: selectedCoupon?.code,
       holdToken: review.hold.token,
       paymentMethod: review.payment.codAllowed ? "cod" : "stripe",
       scheduledAt: route.params.scheduledAt,
@@ -172,6 +239,7 @@ export default function AppointmentReviewConfirmScreen() {
     try {
       const response = await confirmMutation.mutateAsync(payload);
       clearCart();
+      clearCoupon();
       setIsPolicyPopupVisible(false);
       navigation.replace("BookingSuccess", {
         orderId: response.orderId,
@@ -315,7 +383,18 @@ export default function AppointmentReviewConfirmScreen() {
             </View>
             <Icon color={colors.text} name="chevron-forward" size={22} />
           </Pressable>
-          <View style={[styles.preferenceRow, { borderColor: colors.border }]}>
+          <Pressable
+            accessibilityRole="button"
+            disabled={reviewMutation.isPending}
+            onPress={() => {
+              navigation
+                .getParent<
+                  NativeStackNavigationProp<AppointmentsStackParamList>
+                >()
+                ?.navigate("AppointmentCoupons");
+            }}
+            style={[styles.preferenceRow, { borderColor: colors.border }]}
+          >
             <View style={styles.preferenceIconWrap}>
               <Icon color={colors.text} name="ticket-outline" size={22} />
             </View>
@@ -332,11 +411,23 @@ export default function AppointmentReviewConfirmScreen() {
                   fontSize: typography.size.sm2,
                 }}
               >
-                {t("review_confirm_discount_hint")}
+                {reviewMutation.isPending
+                  ? t("review_confirm_discount_refreshing")
+                  : review.coupon
+                    ? t("review_confirm_discount_applied", {
+                        code: review.coupon.code,
+                        value:
+                          formatPrice(review.coupon.discountAmount) ?? "$0",
+                      })
+                    : selectedCoupon
+                      ? t("review_confirm_discount_selected", {
+                          code: selectedCoupon.code,
+                        })
+                      : t("review_confirm_discount_hint")}
               </Text>
             </View>
             <Icon color={colors.text} name="chevron-forward" size={24} />
-          </View>
+          </Pressable>
         </View>
 
         <View style={styles.section}>
@@ -457,10 +548,10 @@ export default function AppointmentReviewConfirmScreen() {
         buttonLabel={t("review_confirm_footer_cta")}
         buttonStyle={{ borderRadius: 14 }}
         countLabel={countLabel}
-        disabled={!canConfirm}
+        disabled={!canConfirm || reviewMutation.isPending}
         durationLabel={review.totals.durationLabel}
         insets={insets}
-        isLoading={confirmMutation.isPending}
+        isLoading={confirmMutation.isPending || reviewMutation.isPending}
         onPress={handleOpenConfirm}
         subtitleLabel={totalSubtitle}
         totalLabel={totalLabel}

@@ -11,10 +11,13 @@ import Card from '../../../../general/components/Card';
 import Image from '../../../../general/components/Image';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
-import type { AppointmentOrderAgainItem } from '../../api/types';
+import type {
+  AppointmentMostPopularItem,
+  AppointmentOrderAgainItem,
+} from '../../api/types';
 
 type Props = {
-  item: AppointmentOrderAgainItem;
+  item: AppointmentOrderAgainItem | AppointmentMostPopularItem;
   isFullWidth?: boolean;
   isFavorite?: boolean;
   isFavoritePending?: boolean;
@@ -34,6 +37,13 @@ export default function AppointmentsOrderAgainCard({
     item.storeImage ??
     item.storeLogo ??
     'https://placehold.co/320x240.png';
+  const rating =
+    'averageRating' in item && item.averageRating > 0
+      ? {
+          value: item.averageRating.toFixed(1),
+          reviewCount: item.reviewCount,
+        }
+      : null;
   const handleFavoritePress = (event: GestureResponderEvent) => {
     event.stopPropagation();
     onFavoritePress?.(item);
@@ -98,6 +108,18 @@ export default function AppointmentsOrderAgainCard({
               {typeof item.price === 'number' ? `$${item.price}` : '--'}
             </Text>
           </View>
+          {rating ? (
+            <View style={styles.ratingWrap}>
+              <MaterialCommunityIcons
+                color={colors.warning}
+                name="star"
+                size={16}
+              />
+              <Text weight="semiBold" style={styles.metaText}>
+                {rating.value} ({rating.reviewCount})
+              </Text>
+            </View>
+          ) : null}
           {item.deal ? (
             <View style={[styles.badge, { backgroundColor: colors.warningSoft }]}>
               <Text color={colors.successText} style={styles.metaText} numberOfLines={1}>
@@ -131,6 +153,8 @@ const styles = StyleSheet.create({
   footerRow: {
     alignItems: 'center',
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
     justifyContent: 'space-between',
   },
   favoriteButton: {
@@ -156,6 +180,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: 4,
+  },
+  ratingWrap: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 3,
   },
   titleRow: {
     alignItems: 'center',

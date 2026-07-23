@@ -15,6 +15,7 @@ import type {
   AppointmentNearbyProvidersParams,
   AppointmentOrderAgainItem,
   AppointmentOrderAgainParams,
+  AppointmentMostPopularItem,
   AppointmentProvider,
   AppointmentSearchSuggestion,
   AppointmentShopType,
@@ -210,6 +211,25 @@ export function useAppointmentOrderAgain(
       subcategory_id: params.subcategory_id,
     }),
     queryFn: () => appointmentsDiscoveryService.getOrderAgain(params),
+    staleTime: 2 * 60 * 1000,
+    ...options,
+  });
+}
+
+export function useAppointmentMostPopular(
+  params: AppointmentOrderAgainParams = {},
+  options?: QueryOptions<AppointmentMostPopularItem[]>,
+) {
+  return useQuery<AppointmentMostPopularItem[], ApiError>({
+    queryKey: appointmentKeys.mostPopular({
+      limit: params.limit,
+      search: params.search,
+      category_id: params.category_id,
+      category_ids: params.category_ids,
+      shop_type_id: params.shop_type_id,
+      subcategory_id: params.subcategory_id,
+    }),
+    queryFn: () => appointmentsDiscoveryService.getMostPopular(params),
     staleTime: 2 * 60 * 1000,
     ...options,
   });

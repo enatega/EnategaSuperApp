@@ -44,6 +44,14 @@ export const appointmentKeys = {
     shop_type_id?: string;
     subcategory_id?: string;
   }) => [...appointmentKeys.discovery(), "order-again", filters] as const,
+  mostPopular: (filters?: {
+    limit?: number;
+    search?: string;
+    category_id?: string;
+    category_ids?: string[];
+    shop_type_id?: string;
+    subcategory_id?: string;
+  }) => [...appointmentKeys.discovery(), "most-popular", filters] as const,
   storeView: (storeId: string) =>
     [...appointmentKeys.discovery(), "store-view", storeId] as const,
   storeServices: (

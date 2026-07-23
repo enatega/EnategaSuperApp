@@ -11,6 +11,7 @@ export type AppointmentCoupon = {
   min_order_value: number;
   start_date: string;
   end_date: string;
+  is_active: boolean;
 };
 
 export type AppointmentCouponsResponse = {
@@ -27,4 +28,21 @@ export const appointmentCouponsService = {
     apiClient.get<AppointmentCouponsResponse>(`${BASE}/get-all`, {
       params: { limit: 50, offset: 0 },
     }),
+  findByCode: async (code: string) => {
+    const response = await apiClient.get<AppointmentCouponsResponse>(
+      `${BASE}/get-all`,
+      {
+        params: { limit: 50, offset: 0, search: code },
+      },
+    );
+    return (
+      response.data.find(
+        (coupon) => coupon.code.toLowerCase() === code.toLowerCase(),
+      ) ?? null
+    );
+  },
+  use: (id: string) =>
+    apiClient.post<{ success: boolean; message: string }>(`${BASE}/use/${id}`),
+  remove: () =>
+    apiClient.delete<{ success: boolean; message: string }>(`${BASE}/use`),
 };

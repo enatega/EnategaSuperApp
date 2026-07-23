@@ -4,7 +4,6 @@ import type { RouteProp } from "@react-navigation/native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import {
-  ActivityIndicator,
   Alert,
   Linking,
   Platform,
@@ -24,6 +23,7 @@ import { showToast } from "../../../general/components/AppToast";
 import { formatPrice } from "../components/details/detailHelpers";
 import AppointmentAvailabilityBottomSheet from "../components/team/AppointmentAvailabilityBottomSheet";
 import AppointmentRatingBottomSheet from "../components/details/AppointmentRatingBottomSheet";
+import AppointmentBookingDetailSkeleton from "../components/bookings/AppointmentBookingDetailSkeleton";
 import type { AppointmentBookingAvailabilitySlot } from "../api/types";
 import { useScheduledAppointmentBookingDetail } from "../hooks/useAppointmentBookings";
 import {
@@ -353,9 +353,10 @@ export default function AppointmentBookingDetailScreen() {
 
   if (detailQuery.isPending) {
     return (
-      <View style={[styles.centered, { backgroundColor: colors.background }]}>
-        <ActivityIndicator color={colors.primary} size="large" />
-      </View>
+      <AppointmentBookingDetailSkeleton
+        insets={insets}
+        onBack={() => navigation.goBack()}
+      />
     );
   }
 

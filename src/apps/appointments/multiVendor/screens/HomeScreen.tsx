@@ -16,6 +16,7 @@ import useSelectSavedAddress from '../../../../general/hooks/useSelectSavedAddre
 import { useTheme } from '../../../../general/theme/theme';
 import { appointmentKeys } from '../../api/queryKeys';
 import type {
+  AppointmentMostPopularItem,
   AppointmentOrderAgainItem,
   AppointmentProvider,
   AppointmentShopType,
@@ -199,6 +200,7 @@ export default function MultiVendorHomeScreen() {
         | 'shopTypeCategories'
         | 'topBrands'
         | 'nearbyProviders'
+        | 'orderAgain'
         | 'mostPopular',
       title: string,
       shopTypeId?: string,
@@ -237,7 +239,11 @@ export default function MultiVendorHomeScreen() {
   }, [handleOpenSeeAll, t]);
 
   const handleOrderAgainPress = useCallback(() => {
-    handleOpenSeeAll('mostPopular', t('multi_vendor_order_again_title'));
+    handleOpenSeeAll('orderAgain', t('multi_vendor_order_again_title'));
+  }, [handleOpenSeeAll, t]);
+
+  const handleMostPopularPress = useCallback(() => {
+    handleOpenSeeAll('mostPopular', t('multi_vendor_most_popular_title'));
   }, [handleOpenSeeAll, t]);
 
   const handleOpenProviderDetails = useCallback(
@@ -253,7 +259,7 @@ export default function MultiVendorHomeScreen() {
   );
 
   const handleOpenOrderAgainDetails = useCallback(
-    (item: AppointmentOrderAgainItem) => {
+    (item: AppointmentOrderAgainItem | AppointmentMostPopularItem) => {
       const provider: AppointmentProvider = {
         storeId: item.storeId,
         vendorId: item.storeId,
@@ -317,17 +323,23 @@ export default function MultiVendorHomeScreen() {
           categoriesTitle={t('multi_vendor_shop_types_title')}
           topBrandsTitle={t('multi_vendor_top_brands_title')}
           nearbyProvidersTitle={t('multi_vendor_nearby_store_title')}
+          mostPopularTitle={t('multi_vendor_most_popular_title')}
           orderAgainTitle={t('multi_vendor_order_again_title')}
           seeAllLabel={t('multi_vendor_see_all')}
           emptyTitle={t('multi_vendor_home_section_empty_title')}
           topBrandsEmptyMessage={t('multi_vendor_top_brands_empty')}
           nearbyProvidersEmptyMessage={t('multi_vendor_location_stores_empty')}
+          mostPopularEmptyMessage={t(
+            'multi_vendor_home_section_empty_most_popular',
+          )}
           orderAgainEmptyMessage={t('multi_vendor_home_section_empty_order_again')}
           onCategoriesPress={handleCategoriesPress}
           onCategoryPress={handleCategoryPress}
           onTopBrandsPress={handleTopBrandsPress}
           onNearbyProvidersPress={handleNearbyProvidersPress}
           onNearbyProviderPress={handleOpenProviderDetails}
+          onMostPopularPress={handleMostPopularPress}
+          onMostPopularItemPress={handleOpenOrderAgainDetails}
           onOrderAgainPress={handleOrderAgainPress}
           onOrderAgainItemPress={handleOpenOrderAgainDetails}
           onBookingsPress={handleOpenBookings}
