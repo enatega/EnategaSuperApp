@@ -13,10 +13,10 @@ import AppointmentsSectionEmptyState from './AppointmentsSectionEmptyState';
 
 type Props = {
   title: string;
-  actionLabel: string;
+  actionLabel?: string;
   emptyTitle: string;
   emptyMessage: string;
-  onActionPress: () => void;
+  onActionPress?: () => void;
   onItemPress: (item: AppointmentOrderAgainItem) => void;
   items?: AppointmentOrderAgainItem[];
   isPending?: boolean;

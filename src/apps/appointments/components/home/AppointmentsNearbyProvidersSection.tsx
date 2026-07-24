@@ -10,11 +10,13 @@ import AppointmentsSectionEmptyState from './AppointmentsSectionEmptyState';
 
 type Props = {
   title: string;
-  actionLabel: string;
+  actionLabel?: string;
   emptyTitle: string;
   emptyMessage: string;
-  onActionPress: () => void;
+  onActionPress?: () => void;
   onItemPress: (provider: AppointmentProvider) => void;
+  items?: AppointmentProvider[];
+  isPending?: boolean;
 };
 
 export default function AppointmentsNearbyProvidersSection({
@@ -24,16 +26,22 @@ export default function AppointmentsNearbyProvidersSection({
   emptyMessage,
   onActionPress,
   onItemPress,
+  items: externalItems,
+  isPending: externalIsPending,
 }: Props) {
-  const { data: providers = [], isPending } = useAppointmentNearbyProviders({
-    limit: 8,
-  });
+  const { data: queriedProviders = [], isPending: queriedIsPending } =
+    useAppointmentNearbyProviders(
+      { limit: 8 },
+      { enabled: externalItems === undefined },
+    );
+  const providers = externalItems ?? queriedProviders;
+  const isPending = externalIsPending ?? queriedIsPending;
 
   return (
     <View style={styles.section}>
       <SectionActionHeader
         title={title}
-        actionLabel={providers.length ? actionLabel : undefined}
+        actionLabel={providers.length > 1 ? actionLabel : undefined}
         onActionPress={onActionPress}
       />
 

@@ -100,8 +100,8 @@ export default function ChainBranchesScreen({
                   accessibilityRole="button"
                   key={branch.storeId}
                   onPress={() =>
-                    navigation.navigate('MultiVendor', {
-                      screen: 'MultiVendorDetails',
+                    navigation.navigate('Chain', {
+                      screen: 'ChainDetails',
                       params: { provider: branch },
                     })
                   }

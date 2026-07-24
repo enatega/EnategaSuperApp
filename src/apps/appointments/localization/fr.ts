@@ -300,6 +300,19 @@ const fr = {
   chain_search_placeholder: "Rechercher des agences",
   chain_branches_empty: "Aucune agence de la chaîne n’est disponible dans cette zone.",
   chain_branches_load_error: "Impossible de charger les agences pour le moment.",
+  chain_home_special_title: "Réservez dans votre chaîne préférée",
+  chain_home_special_body:
+    "Choisissez une agence proche et trouvez le rendez-vous qui vous convient.",
+  chain_home_bookings_cta: "Mes réservations",
+  chain_home_branches_title: "Agences à proximité",
+  chain_home_top_services_title: "Services populaires",
+  chain_home_order_again_title: "Réserver à nouveau",
+  chain_home_see_all: "Voir tout",
+  chain_home_empty_title: "Rien pour le moment",
+  chain_home_top_services_empty:
+    "Les services populaires de cette chaîne apparaîtront ici.",
+  chain_home_order_again_empty:
+    "Les services déjà réservés dans cette chaîne apparaîtront ici.",
   tab_home: "Accueil",
   tab_search: "Recherche",
   search_placeholder: "Rechercher",

@@ -286,6 +286,19 @@ const en = {
   chain_search_placeholder: "Search branches",
   chain_branches_empty: "No chain branches are available in this area.",
   chain_branches_load_error: "Unable to load chain branches right now.",
+  chain_home_special_title: "Book across your favourite chain",
+  chain_home_special_body:
+    "Choose a nearby branch and find the right appointment for you.",
+  chain_home_bookings_cta: "My bookings",
+  chain_home_branches_title: "Nearby branches",
+  chain_home_top_services_title: "Popular services",
+  chain_home_order_again_title: "Order again",
+  chain_home_see_all: "See all",
+  chain_home_empty_title: "Nothing here yet",
+  chain_home_top_services_empty:
+    "Popular services from this chain will appear here.",
+  chain_home_order_again_empty:
+    "Services you previously booked from this chain will appear here.",
   tab_home: "Home",
   tab_search: "Search",
   search_placeholder: "Search",
