@@ -299,6 +299,10 @@ const en = {
     "Popular services from this chain will appear here.",
   chain_home_order_again_empty:
     "Services you previously booked from this chain will appear here.",
+  chain_favourites_title: "Favorite branches",
+  chain_favourites_empty_title: "No favorite branches yet",
+  chain_favourites_empty_message:
+    "Branches you save from this chain will appear here.",
   tab_home: "Home",
   tab_search: "Search",
   search_placeholder: "Search",

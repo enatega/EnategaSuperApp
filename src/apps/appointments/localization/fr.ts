@@ -313,6 +313,10 @@ const fr = {
     "Les services populaires de cette chaîne apparaîtront ici.",
   chain_home_order_again_empty:
     "Les services déjà réservés dans cette chaîne apparaîtront ici.",
+  chain_favourites_title: "Agences favorites",
+  chain_favourites_empty_title: "Aucune agence favorite",
+  chain_favourites_empty_message:
+    "Les agences enregistrées de cette chaîne apparaîtront ici.",
   tab_home: "Accueil",
   tab_search: "Recherche",
   search_placeholder: "Rechercher",

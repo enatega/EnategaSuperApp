@@ -11,4 +11,5 @@ export const chainAppointmentKeys = {
   banners: () => [...chainAppointmentKeys.home(), 'banners'] as const,
   topServices: () => [...chainAppointmentKeys.home(), 'topServices'] as const,
   orderAgain: () => [...chainAppointmentKeys.home(), 'orderAgain'] as const,
+  favourites: () => [...chainAppointmentKeys.all, 'favourites'] as const,
 };

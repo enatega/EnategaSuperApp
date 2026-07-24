@@ -17,4 +17,5 @@ export type ChainStackParamList = AppointmentBookingFlowParamList & {
         brand?: AppointmentTopBrand;
       }
     | undefined;
+  ChainFavouriteBranches: undefined;
 };

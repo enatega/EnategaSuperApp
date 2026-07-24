@@ -10,11 +10,11 @@ import {
 } from '../../../deliveries/components/navigation/DeliveriesTabBar';
 import AppointmentsTabBar from '../../components/navigation/AppointmentsTabBar';
 import ChainTabButton from '../../../deliveries/chain/components/navigation/ChainTabButton';
-import AppointmentsProfileTabScreen from '../../screens/profile/AppointmentsProfileTabScreen';
 import type { ChainBottomTabParamList } from './types';
 import ChainBookingsScreen from '../screens/BookingsScreen';
 import ChainHomeScreen from '../screens/HomeScreen';
 import ChainSearchScreen from '../screens/SearchScreen';
+import ChainProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator<ChainBottomTabParamList>();
 
@@ -99,7 +99,7 @@ export default function ChainBottomTabNavigator() {
       />
       <Tab.Screen
         name="ChainTabProfile"
-        component={AppointmentsProfileTabScreen}
+        component={ChainProfileScreen}
         options={{
           tabBarIcon: renderIcon('account-outline'),
           tabBarLabel: t('tab_profile'),

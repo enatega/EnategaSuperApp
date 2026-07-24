@@ -10,6 +10,7 @@ import AppointmentCartScreen from '../../screens/AppointmentCartScreen';
 import AppointmentReviewConfirmScreen from '../../screens/AppointmentReviewConfirmScreen';
 import AppointmentServicesScreen from '../../screens/AppointmentServicesScreen';
 import AppointmentTeamScreen from '../../screens/AppointmentTeamScreen';
+import ChainFavouriteBranchesScreen from '../screens/FavouriteBranchesScreen';
 
 const Stack = createNativeStackNavigator<ChainStackParamList>();
 
@@ -27,6 +28,11 @@ export default function ChainNavigator() {
         name="ChainDetails"
         component={ChainDetailsScreen}
         options={{ headerShown: false, title: t('screen_details') }}
+      />
+      <Stack.Screen
+        name="ChainFavouriteBranches"
+        component={ChainFavouriteBranchesScreen}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Services"
