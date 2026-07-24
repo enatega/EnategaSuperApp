@@ -8,10 +8,11 @@ import Button from '../../../general/components/Button';
 import Icon from '../../../general/components/Icon';
 import Text from '../../../general/components/Text';
 import { useTheme } from '../../../general/theme/theme';
-import type { MultiVendorStackParamList } from '../multiVendor/navigation/types';
+import type { AppointmentBookingFlowParamList } from '../navigation/bookingFlowTypes';
+import { navigateToActiveAppointmentsTab } from '../navigation/modeNavigation';
 
-type SuccessRouteProp = RouteProp<MultiVendorStackParamList, 'BookingSuccess'>;
-type NavigationProp = NativeStackNavigationProp<MultiVendorStackParamList>;
+type SuccessRouteProp = RouteProp<AppointmentBookingFlowParamList, 'BookingSuccess'>;
+type NavigationProp = NativeStackNavigationProp<AppointmentBookingFlowParamList>;
 
 export default function AppointmentBookingSuccessScreen() {
   const { colors, typography } = useTheme();
@@ -42,19 +43,11 @@ export default function AppointmentBookingSuccessScreen() {
       <View style={styles.actions}>
         <Button
           label={t('review_confirm_success_bookings')}
-          onPress={() =>
-            navigation.navigate('MultiVendorTabs', {
-              screen: 'MultiVendorTabBookings',
-            })
-          }
+          onPress={() => navigateToActiveAppointmentsTab(navigation, 'bookings')}
         />
         <Button
           label={t('review_confirm_success_home')}
-          onPress={() =>
-            navigation.navigate('MultiVendorTabs', {
-              screen: 'MultiVendorTabHome',
-            })
-          }
+          onPress={() => navigateToActiveAppointmentsTab(navigation, 'home')}
           variant="secondary"
         />
       </View>

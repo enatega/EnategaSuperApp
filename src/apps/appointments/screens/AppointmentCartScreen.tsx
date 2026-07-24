@@ -1,5 +1,11 @@
 import React from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 import {
   useNavigation,
   useRoute,
@@ -29,10 +35,11 @@ import {
   useRemoveAppointmentCartItemMutation,
 } from "../hooks/useAppointmentCartQueries";
 import { useAppointmentStoreView } from "../hooks/useDiscoveryQueries";
-import type { MultiVendorStackParamList } from "../multiVendor/navigation/types";
+import type { AppointmentBookingFlowParamList } from "../navigation/bookingFlowTypes";
+import { navigateToActiveAppointmentsTab } from "../navigation/modeNavigation";
 
-type CartRouteProp = RouteProp<MultiVendorStackParamList, "AppointmentCart">;
-type NavigationProp = NativeStackNavigationProp<MultiVendorStackParamList>;
+type CartRouteProp = RouteProp<AppointmentBookingFlowParamList, "AppointmentCart">;
+type NavigationProp = NativeStackNavigationProp<AppointmentBookingFlowParamList>;
 
 export default function AppointmentCartScreen() {
   const { colors, typography } = useTheme();
@@ -93,9 +100,7 @@ export default function AppointmentCartScreen() {
   };
 
   const handleSelectService = () => {
-    navigation.navigate("MultiVendorTabs", {
-      screen: "MultiVendorTabHome",
-    });
+    navigateToActiveAppointmentsTab(navigation, "home");
   };
 
   const handleClearCart = async () => {
@@ -176,57 +181,102 @@ export default function AppointmentCartScreen() {
           </View>
 
           <View style={styles.itemsSection}>
-            {items.map((item) => (
-              <View
-                key={item.id}
-                style={[styles.itemRow, { borderBottomColor: colors.border }]}
-              >
-                <View style={styles.itemCopy}>
-                  <Text
-                    style={{
-                      color: colors.text,
-                      fontSize: typography.size.md2,
-                      lineHeight: typography.lineHeight.md2,
-                    }}
-                    weight="semiBold"
-                  >
-                    {item.name}
-                  </Text>
-                  <Text
-                    style={{
-                      color: colors.mutedText,
-                      fontSize: typography.size.sm2,
-                    }}
-                  >
-                    {getServiceMeta(item)}
-                  </Text>
-                </View>
+            {items.map((item) => {
+              const serverItem = cart?.items.find(
+                (cartItem) =>
+                  cartItem.productId === item.id &&
+                  cartItem.storeId === resolvedStoreId,
+              );
+              const selectedOptionLabel = serverItem?.selectedOptions
+                .map((option) => option.optionName)
+                .filter(Boolean)
+                .join(", ");
 
-                <View style={styles.itemActions}>
-                  <AppointmentServicePrice
-                    dealName={item.deal?.name}
-                    originalPrice={item.originalPrice}
-                    price={item.price}
-                    size={typography.size.md2}
-                  />
-                  <Pressable
-                    accessibilityRole="button"
-                    disabled={removeItemMutation.isPending}
-                    onPress={() => void handleRemoveService(item.id)}
-                    style={[
-                      styles.removeButton,
-                      { backgroundColor: colors.surfaceSoft },
-                    ]}
-                  >
-                    <Icon
-                      color={colors.danger}
-                      name="trash-outline"
-                      size={18}
+              return (
+                <View
+                  key={item.id}
+                  style={[styles.itemRow, { borderBottomColor: colors.border }]}
+                >
+                  {item.imageUrl ? (
+                    <Image
+                      resizeMode="cover"
+                      source={{ uri: item.imageUrl }}
+                      style={styles.itemImage}
                     />
-                  </Pressable>
+                  ) : (
+                    <View
+                      style={[
+                        styles.itemImage,
+                        styles.itemImagePlaceholder,
+                        { backgroundColor: colors.surfaceSoft },
+                      ]}
+                    >
+                      <Icon
+                        color={colors.mutedText}
+                        name="cut-outline"
+                        size={22}
+                      />
+                    </View>
+                  )}
+
+                  <View style={styles.itemCopy}>
+                    <Text
+                      style={{
+                        color: colors.text,
+                        fontSize: typography.size.md2,
+                        lineHeight: typography.lineHeight.md2,
+                      }}
+                      weight="semiBold"
+                    >
+                      {item.name}
+                    </Text>
+                    {selectedOptionLabel ? (
+                      <Text
+                        style={{
+                          color: colors.primary,
+                          fontSize: typography.size.sm2,
+                        }}
+                        weight="semiBold"
+                      >
+                        {selectedOptionLabel}
+                      </Text>
+                    ) : null}
+                    <Text
+                      style={{
+                        color: colors.mutedText,
+                        fontSize: typography.size.sm2,
+                      }}
+                    >
+                      {getServiceMeta(item)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.itemActions}>
+                    <AppointmentServicePrice
+                      dealName={item.deal?.name}
+                      originalPrice={item.originalPrice}
+                      price={item.price}
+                      size={typography.size.md2}
+                    />
+                    <Pressable
+                      accessibilityRole="button"
+                      disabled={removeItemMutation.isPending}
+                      onPress={() => void handleRemoveService(item.id)}
+                      style={[
+                        styles.removeButton,
+                        { backgroundColor: colors.surfaceSoft },
+                      ]}
+                    >
+                      <Icon
+                        color={colors.danger}
+                        name="trash-outline"
+                        size={18}
+                      />
+                    </Pressable>
+                  </View>
                 </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         </ScrollView>
       ) : (
@@ -306,6 +356,16 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 6,
     paddingRight: 12,
+  },
+  itemImage: {
+    borderRadius: 12,
+    height: 64,
+    marginRight: 12,
+    width: 64,
+  },
+  itemImagePlaceholder: {
+    alignItems: "center",
+    justifyContent: "center",
   },
   itemRow: {
     alignItems: "center",

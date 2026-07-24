@@ -32,15 +32,15 @@ import {
   useAppointmentRatingMutation,
   useAppointmentRescheduleMutation,
 } from "../hooks/useAppointmentBookingMutations";
-import type { MultiVendorStackParamList } from "../multiVendor/navigation/types";
+import type { AppointmentBookingFlowParamList } from "../navigation/bookingFlowTypes";
 
 const FALLBACK_IMAGE = require("../../../general/assets/images/400x400.png");
 
 type DetailRoute = RouteProp<
-  MultiVendorStackParamList,
+  AppointmentBookingFlowParamList,
   "AppointmentBookingDetail"
 >;
-type DetailNavigation = NativeStackNavigationProp<MultiVendorStackParamList>;
+type DetailNavigation = NativeStackNavigationProp<AppointmentBookingFlowParamList>;
 
 function formatSchedule(value: string) {
   const date = new Date(value);

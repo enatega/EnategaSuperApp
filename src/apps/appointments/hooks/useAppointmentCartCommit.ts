@@ -26,7 +26,8 @@ export function useAppointmentCartCommit({
   selectedServices,
   storeId,
 }: Params) {
-  const { cart, hydrateCart, refreshCart } = useAppointmentCart();
+  const { cart, hydrateCart, refreshCart, selections: currentSelections } =
+    useAppointmentCart();
   const syncMutation = useSyncAppointmentCartMutation();
   const [isPreparingCart, setIsPreparingCart] = useState(false);
 
@@ -37,7 +38,14 @@ export function useAppointmentCartCommit({
         const details = await appointmentBookingService.getServiceDetails(
           selectedServices.map((service) => service.id),
         );
-        const selections = details.map(buildAppointmentSelectionFromDetail);
+        const selections = details.map((detail) =>
+          buildAppointmentSelectionFromDetail(
+            detail,
+            currentSelections.find(
+              (selection) => selection.serviceId === detail.serviceId,
+            ),
+          ),
+        );
         const cart = await syncMutation.mutateAsync({
           storeId,
           selections,
@@ -50,7 +58,7 @@ export function useAppointmentCartCommit({
         setIsPreparingCart(false);
       }
     },
-    [hydrateCart, selectedServices, storeId, syncMutation],
+    [currentSelections, hydrateCart, selectedServices, storeId, syncMutation],
   );
 
   return {

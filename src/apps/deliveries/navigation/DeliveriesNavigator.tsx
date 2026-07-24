@@ -60,6 +60,7 @@ import {
 } from "../../../general/stores/useAppConfigStore";
 import { isDeliveriesDemoModeEnabled } from "./deliveryDemoMode";
 import StoreDetailsScreen from "../multiVendor/screens/StoreDetailsScreen/StoreDetailsScreen";
+import { resetToSharedHome } from "../../../general/navigation/rootNavigation";
 
 const Stack = createNativeStackNavigator<DeliveriesStackParamList>();
 
@@ -80,7 +81,12 @@ function DeliveriesModeSelectorScreen() {
     });
   };
 
-  return <DeliveriesHomeScreen onSelect={handleSelect} />;
+  return (
+    <DeliveriesHomeScreen
+      onBack={resetToSharedHome}
+      onSelect={handleSelect}
+    />
+  );
 }
 
 export default function DeliveriesNavigator() {

@@ -18,10 +18,11 @@ import AppointmentAnyProfessionalRow from "../components/team/AppointmentAnyProf
 import AppointmentAvailabilityBottomSheet from "../components/team/AppointmentAvailabilityBottomSheet";
 import { useAppointmentCart } from "../hooks/useAppointmentCart";
 import { useAppointmentTeamBooking } from "../hooks/useAppointmentTeamBooking";
-import type { MultiVendorStackParamList } from "../multiVendor/navigation/types";
+import type { AppointmentBookingFlowParamList } from "../navigation/bookingFlowTypes";
+import { navigateToActiveAppointmentsTab } from "../navigation/modeNavigation";
 
-type TeamRouteProp = RouteProp<MultiVendorStackParamList, "Team">;
-type NavigationProp = NativeStackNavigationProp<MultiVendorStackParamList>;
+type TeamRouteProp = RouteProp<AppointmentBookingFlowParamList, "Team">;
+type NavigationProp = NativeStackNavigationProp<AppointmentBookingFlowParamList>;
 
 type TeamListItem =
   | { type: "any-professional"; id: string }
@@ -65,7 +66,7 @@ export default function AppointmentTeamScreen() {
       navigation.goBack();
       return;
     }
-    navigation.navigate("MultiVendorTabs");
+    navigateToActiveAppointmentsTab(navigation, "home");
   }, [navigation]);
 
   const {

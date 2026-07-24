@@ -402,6 +402,9 @@ export interface AppointmentBookingSelection {
 export interface AppointmentCartSelectedOption {
   groupId: string;
   groupName: string;
+  groupType?: string | null;
+  imageUrl?: string | null;
+  replacesBasePrice?: boolean;
   optionId: string;
   optionName: string;
   price: number;
@@ -456,16 +459,25 @@ export interface AppointmentCartSyncRequest {
 
 export interface AppointmentServiceCustomizationSection {
   groupId: string;
+  name: string;
+  imageUrl?: string | null;
+  type?: string | null;
+  durationMinutes?: number | null;
   required: boolean;
+  selectionType?: 'single' | 'multi' | null;
   dependsOnVariationOptionId?: string | null;
   options: Array<{
     optionId: string;
+    title: string;
+    price: number;
     defaultSelected: boolean;
   }>;
 }
 
 export interface AppointmentMobileServiceDetail {
   serviceId: string;
+  imageUrl?: string | null;
+  deal?: AppointmentDeal | null;
   customizationSections: AppointmentServiceCustomizationSection[];
 }
 

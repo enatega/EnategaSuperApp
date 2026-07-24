@@ -36,7 +36,7 @@ export default function OurServicesSection({ onSelectMiniApp }: Props) {
       icon: serviceIcons.appointments,
       background: colors.cardLavender,
       params: {
-        screen: 'MultiVendor',
+        screen: 'AppointmentsModeSelector',
       },
     },
     { id: 'homeVisits', title: t('service_home_visit'), icon: serviceIcons.homeVisits, background: colors.cardMint },

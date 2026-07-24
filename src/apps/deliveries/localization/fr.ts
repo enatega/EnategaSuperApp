@@ -3,6 +3,7 @@ const fr = {
   description: 'Commandez auprès de magasins ou de vendeurs.',
   header_title: 'Livraisons',
   header_subtitle: 'Choisissez un type de livraison',
+  mode_selector_back_label: 'Retour à l’accueil de la Super App',
   hero_badge: 'Experience demo',
   hero_subtitle:
     "Passez d'un modele de livraison a l'autre et previsualisez l'experience complete.",

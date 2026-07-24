@@ -21,6 +21,9 @@ export function useAppointmentCart() {
   const setReviewDraft = useAppointmentCartStore(
     (state) => state.setReviewDraft,
   );
+  const setServiceSelection = useAppointmentCartStore(
+    (state) => state.setServiceSelection,
+  );
   const setStoreContext = useAppointmentCartStore(
     (state) => state.setStoreContext,
   );
@@ -103,6 +106,7 @@ export function useAppointmentCart() {
     refreshCart: cartQuery.refetch,
     selections,
     setReviewDraft,
+    setServiceSelection,
     setStoreContext,
     storeId,
     storeTitle,

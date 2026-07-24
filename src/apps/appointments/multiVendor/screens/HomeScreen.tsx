@@ -24,6 +24,7 @@ import type {
 import AppointmentsAddressHeader from '../../components/AppointmentsAddressHeader';
 import AppointmentsMultiVendorHomeContent from '../../components/home/AppointmentsMultiVendorHomeContent';
 import type { AppointmentsStackParamList } from '../../navigation/types';
+import useTopBrandNavigation from '../hooks/useTopBrandNavigation';
 
 type NavProp = NativeStackNavigationProp<AppointmentsStackParamList>;
 
@@ -33,6 +34,7 @@ export default function MultiVendorHomeScreen() {
   const { t: tGeneral } = useTranslation('general');
   const navigation = useNavigation<NavProp>();
   const queryClient = useQueryClient();
+  const { canOpenBrand, openTopBrand } = useTopBrandNavigation();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const {
     addresses,
@@ -336,6 +338,8 @@ export default function MultiVendorHomeScreen() {
           onCategoriesPress={handleCategoriesPress}
           onCategoryPress={handleCategoryPress}
           onTopBrandsPress={handleTopBrandsPress}
+          onTopBrandPress={openTopBrand}
+          canOpenTopBrand={canOpenBrand}
           onNearbyProvidersPress={handleNearbyProvidersPress}
           onNearbyProviderPress={handleOpenProviderDetails}
           onMostPopularPress={handleMostPopularPress}

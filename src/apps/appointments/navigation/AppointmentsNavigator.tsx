@@ -33,8 +33,11 @@ import AppointmentsCouponsScreen from '../screens/AppointmentsCouponsScreen';
 import FavouritesScreen from '../multiVendor/screens/FavouritesScreen/FavouritesScreen';
 import AppointmentBookingDetailScreen from '../screens/AppointmentBookingDetailScreen';
 import AppointmentDetailsPage from '../screens/AppointmentDetailsPage';
+import AppointmentsModeSelectorScreen from '../screens/AppointmentsModeSelectorScreen';
 import { useTranslation } from 'react-i18next';
 import type { AppointmentsStackParamList } from './types';
+import { useInitializeAppointmentsConfig } from '../hooks/useInitializeAppointmentsConfig';
+import { useAppointmentsConfigStore } from '../stores/useAppointmentsConfigStore';
 
 const Stack = createNativeStackNavigator<AppointmentsStackParamList>();
 
@@ -42,8 +45,20 @@ const hiddenHeaderOptions = { headerShown: false } as const;
 
 export default function AppointmentsNavigator() {
   const { t } = useTranslation('appointments');
+  const isLoaded = useAppointmentsConfigStore((state) => state.isLoaded);
+  const configQuery = useInitializeAppointmentsConfig();
+
+  if (configQuery.isHydratingCache || (!isLoaded && configQuery.isPending)) {
+    return null;
+  }
+
   return (
-    <Stack.Navigator initialRouteName="MultiVendor">
+    <Stack.Navigator initialRouteName="AppointmentsModeSelector">
+      <Stack.Screen
+        name="AppointmentsModeSelector"
+        component={AppointmentsModeSelectorScreen}
+        options={hiddenHeaderOptions}
+      />
       <Stack.Screen
         name="AppointmentDetails"
         component={AppointmentDetails}

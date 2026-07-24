@@ -1,11 +1,6 @@
 import React from 'react';
-import AppointmentsModeScreen from '../../components/AppointmentsModeScreen';
+import ChainBranchesScreen from '../components/ChainBranchesScreen';
 
 export default function ChainHomeScreen() {
-  return (
-    <AppointmentsModeScreen
-      modeKey="chain_label"
-      screenKey="tab_home"
-    />
-  );
+  return <ChainBranchesScreen />;
 }

@@ -5,7 +5,7 @@ import Icon from '../../../../general/components/Icon';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import { useAppointmentCart } from '../../hooks/useAppointmentCart';
-import type { MultiVendorStackParamList } from '../../multiVendor/navigation/types';
+import type { AppointmentBookingFlowParamList } from '../../navigation/bookingFlowTypes';
 
 type Props = {
   onPress?: () => void;
@@ -13,7 +13,7 @@ type Props = {
 };
 
 function AppointmentsFloatingCartButton({ onPress, style }: Props) {
-  const navigation = useNavigation<NavigationProp<MultiVendorStackParamList>>();
+  const navigation = useNavigation<NavigationProp<AppointmentBookingFlowParamList>>();
   const { colors, typography } = useTheme();
   const { items, storeId, storeTitle } = useAppointmentCart();
 

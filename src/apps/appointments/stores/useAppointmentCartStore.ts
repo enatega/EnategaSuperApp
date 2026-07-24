@@ -33,6 +33,10 @@ type AppointmentCartState = {
   hasService: (serviceId: string) => boolean;
   removeService: (serviceId: string) => void;
   replaceItems: (items: AppointmentStoreService[]) => void;
+  setServiceSelection: (
+    selection: AppointmentBookingSelection,
+    servicePatch?: Partial<AppointmentStoreService>,
+  ) => void;
   setReviewDraft: (draft: AppointmentCartReviewDraft) => void;
   setStoreContext: (params: { storeId: string; title?: string | null }) => void;
   toggleService: (service: AppointmentStoreService) => void;
@@ -119,6 +123,23 @@ export const useAppointmentCartStore = create<AppointmentCartState>(
         items,
         hasLocalDraft: false,
         reviewDraft: null,
+      })),
+    setServiceSelection: (selection, servicePatch) =>
+      set((state) => ({
+        ...state,
+        hasLocalDraft: true,
+        items: state.items.map((item) =>
+          item.id === selection.serviceId
+            ? { ...item, ...(servicePatch ?? {}) }
+            : item,
+        ),
+        reviewDraft: null,
+        selections: [
+          ...state.selections.filter(
+            (item) => item.serviceId !== selection.serviceId,
+          ),
+          selection,
+        ],
       })),
     setReviewDraft: (draft) =>
       set((state) => ({

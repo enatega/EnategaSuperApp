@@ -3,6 +3,7 @@ const en = {
   description: 'Schedule trusted visits.',
   header_title: 'Home Visits',
   header_subtitle: 'On-demand services',
+  mode_selector_back_label: 'Back to Super App home',
   section_title: 'Pick your mode',
   single_vendor_title: 'Single Provider',
   single_vendor_desc: 'A focused experience for one provider.',

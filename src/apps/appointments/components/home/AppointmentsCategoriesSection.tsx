@@ -5,9 +5,11 @@ import { useAppointmentShopTypes } from '../../hooks/useDiscoveryQueries';
 
 type Props = {
   title: string;
-  actionLabel: string;
-  onActionPress: () => void;
+  actionLabel?: string;
+  onActionPress?: () => void;
   onItemPress: (shopType: AppointmentShopType) => void;
+  items?: AppointmentShopType[];
+  isPending?: boolean;
 };
 
 export default function AppointmentsCategoriesSection({
@@ -15,8 +17,13 @@ export default function AppointmentsCategoriesSection({
   actionLabel,
   onActionPress,
   onItemPress,
+  items: externalItems,
+  isPending: externalIsPending,
 }: Props) {
-  const { data: shopTypes = [], isPending } = useAppointmentShopTypes();
+  const { data: queriedItems = [], isPending: queriedIsPending } =
+    useAppointmentShopTypes({}, { enabled: externalItems === undefined });
+  const shopTypes = externalItems ?? queriedItems;
+  const isPending = externalIsPending ?? queriedIsPending;
 
   return (
     <DiscoveryCategorySection

@@ -6,8 +6,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Button from '../../../general/components/Button';
+import ModeSelectorHeader from '../../../general/components/ModeSelectorHeader';
 import Text from '../../../general/components/Text';
 import { useTheme } from '../../../general/theme/theme';
+import { resetToSharedHome } from '../../../general/navigation/rootNavigation';
 import {
   mapHomeVisitModeToRoute,
   setHomeVisitModePreference,
@@ -92,18 +94,12 @@ export default function HomeVisitsHomeScreen() {
       showsVerticalScrollIndicator={false}
       bounces={false}
     >
-      <View style={styles.sectionHeader}>
-        <Text variant="subtitle" weight="bold">
-          {t('section_title')}
-        </Text>
-        <Text
-          variant="caption"
-          color={colors.mutedText}
-          style={styles.sectionSubtext}
-        >
-          {t('header_subtitle')}
-        </Text>
-      </View>
+      <ModeSelectorHeader
+        backAccessibilityLabel={t('mode_selector_back_label')}
+        onBack={resetToSharedHome}
+        subtitle={t('header_subtitle')}
+        title={t('section_title')}
+      />
 
       <View style={styles.cardGroup}>
         {cards.map((card) => (
@@ -229,13 +225,6 @@ const styles = StyleSheet.create({
   content: {
     gap: 20,
     paddingHorizontal: 20,
-  },
-  sectionHeader: {
-    gap: 4,
-    paddingHorizontal: 2,
-  },
-  sectionSubtext: {
-    lineHeight: 20,
   },
   cardGroup: {
     gap: 16,

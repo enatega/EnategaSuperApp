@@ -120,6 +120,17 @@ function toOrderAgainQueryParams(
 }
 
 export const appointmentsDiscoveryService = {
+  getChainBranches: async (
+    params: AppointmentNearbyProvidersParams = {},
+  ): Promise<AppointmentProvider[]> => {
+    const response = await apiClient.get<AppointmentNearbyProvidersApiResponse>(
+      '/api/v1/apps/general-bookings/discovery/store-chain/branches',
+      toNearbyProvidersQueryParams(params),
+    );
+
+    return unwrapListResponse(response);
+  },
+
   getBanners: async (
     params: AppointmentListParams = {},
   ): Promise<AppointmentBanner[]> => {

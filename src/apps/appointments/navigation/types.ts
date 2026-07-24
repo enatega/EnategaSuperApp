@@ -8,6 +8,7 @@ import type { AppointmentProvider, AppointmentTopBrand } from '../api/types';
 import type { AppointmentSupportTicket } from '../api/supportService';
 
 export type AppointmentsStackParamList = ProfileNavigationParamList & {
+  AppointmentsModeSelector: undefined;
   AppointmentDetails: undefined;
   SingleVendor: NavigatorScreenParams<SingleVendorStackParamList> | undefined;
   MultiVendor: NavigatorScreenParams<MultiVendorStackParamList> | undefined;

@@ -3,6 +3,7 @@ const fr = {
   description: 'Planifiez des visites de confiance.',
   header_title: 'Visites à Domicile',
   header_subtitle: 'Services à la demande',
+  mode_selector_back_label: 'Retour à l’accueil de la Super App',
   section_title: 'Choisissez votre mode',
   single_vendor_title: 'Prestataire Unique',
   single_vendor_desc: 'Une expérience ciblée pour un seul prestataire.',

@@ -9,7 +9,7 @@ import type {
   AppointmentStoreService,
 } from "../api/types";
 import type { TeamMember } from "../components/details/detailTypes";
-import type { MultiVendorStackParamList } from "../multiVendor/navigation/types";
+import type { AppointmentBookingFlowParamList } from "../navigation/bookingFlowTypes";
 import {
   buildAppointmentSelectionFromDetail,
   formatAppointmentDateKey,
@@ -32,7 +32,7 @@ type Params = {
   navigation: {
     navigate: (
       screen: "ReviewConfirm",
-      params: MultiVendorStackParamList["ReviewConfirm"],
+      params: AppointmentBookingFlowParamList["ReviewConfirm"],
     ) => void;
   };
   selectedServices?: AppointmentStoreService[];

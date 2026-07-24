@@ -1,4 +1,5 @@
 import type { AppointmentProvider, AppointmentTopBrand } from '../../api/types';
+import type { AppointmentBookingFlowParamList } from '../../navigation/bookingFlowTypes';
 
 export type SingleVendorBottomTabParamList = {
   SingleVendorTabHome: undefined;
@@ -7,7 +8,7 @@ export type SingleVendorBottomTabParamList = {
   SingleVendorTabProfile: undefined;
 };
 
-export type SingleVendorStackParamList = {
+export type SingleVendorStackParamList = AppointmentBookingFlowParamList & {
   SingleVendorTabs: undefined;
   SingleVendorDetails:
     | {
@@ -15,4 +16,5 @@ export type SingleVendorStackParamList = {
         brand?: AppointmentTopBrand;
       }
     | undefined;
+  SingleVendorFavouriteServices: undefined;
 };

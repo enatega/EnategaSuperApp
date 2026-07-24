@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import {
   useNavigation,
@@ -25,11 +25,35 @@ import {
   isAppointmentCartStoreConflict,
   useAppointmentCartCommit,
 } from "../hooks/useAppointmentCartCommit";
-import AppointmentDetailTabs from "../multiVendor/components/AppointmentDetailTabs";
-import type { MultiVendorStackParamList } from "../multiVendor/navigation/types";
+import AppointmentDetailTabs from "../components/details/AppointmentDetailTabs";
+import { appointmentBookingService } from "../api/appointmentBookingService";
+import type {
+  AppointmentMobileServiceDetail,
+  AppointmentServiceCustomizationSection,
+} from "../api/types";
+import type { AppointmentBookingFlowParamList } from "../navigation/bookingFlowTypes";
 
-type ServicesRouteProp = RouteProp<MultiVendorStackParamList, "Services">;
-type NavigationProp = NativeStackNavigationProp<MultiVendorStackParamList>;
+type ServicesRouteProp = RouteProp<AppointmentBookingFlowParamList, "Services">;
+type NavigationProp = NativeStackNavigationProp<AppointmentBookingFlowParamList>;
+
+function getVariantPrice(
+  originalPrice: number,
+  detail: AppointmentMobileServiceDetail,
+) {
+  const deal = detail.deal;
+  if (!deal) {
+    return originalPrice;
+  }
+
+  const discountedPrice =
+    deal.type === "percentage"
+      ? originalPrice - (originalPrice * deal.value) / 100
+      : deal.type === "fixed"
+        ? originalPrice - deal.value
+        : originalPrice;
+
+  return Math.max(0, Number(discountedPrice.toFixed(2)));
+}
 
 export default function AppointmentServicesScreen() {
   const { colors } = useTheme();
@@ -37,6 +61,11 @@ export default function AppointmentServicesScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<ServicesRouteProp>();
+  const [serviceDetailsById, setServiceDetailsById] = useState<
+    Record<string, AppointmentMobileServiceDetail>
+  >({});
+  const requestedServiceDetailIdsRef = useRef(new Set<string>());
+  const isMountedRef = useRef(true);
   const { initialCategoryId, initialServiceId, initialSubcategoryId, storeId } =
     route.params;
   const {
@@ -47,9 +76,11 @@ export default function AppointmentServicesScreen() {
     selectedCategoryId,
     selectedServiceIds,
     selectedServices,
+    selections,
     selectedSubcategoryId,
     setSelectedCategoryId,
     setSelectedSubcategoryId,
+    setServiceSelection,
     servicesQuery,
     storeQuery,
     originalTotalPrice,
@@ -82,9 +113,140 @@ export default function AppointmentServicesScreen() {
     selectedServices.length === 1
       ? t("services_selected_count_one", { count: selectedServices.length })
       : t("services_selected_count_other", { count: selectedServices.length });
+  const isVariantConfigurationPending = selectedServiceIds.some(
+    (serviceId) => !serviceDetailsById[serviceId],
+  );
+  const hasUnselectedVariant = selectedServiceIds.some((serviceId) => {
+    const detail = serviceDetailsById[serviceId];
+    const variants =
+      detail?.customizationSections.filter(
+        (section) =>
+          section.type?.toLowerCase() === "variation" &&
+          section.options.length > 0,
+      ) ?? [];
+
+    if (variants.length === 0) {
+      return false;
+    }
+
+    return !selections
+      .find((selection) => selection.serviceId === serviceId)
+      ?.selectedOptions?.some((selectedOption) =>
+        variants.some(
+          (variant) =>
+            variant.groupId === selectedOption.groupId &&
+            variant.options.some(
+              (option) => option.optionId === selectedOption.optionId,
+            ),
+        ),
+      );
+  });
+  const isSelectionReady =
+    hasSelection &&
+    !isVariantConfigurationPending &&
+    !hasUnselectedVariant;
+
+  const handleVariantPress = useCallback(
+    (
+      service: (typeof selectedServices)[number],
+      variant: AppointmentServiceCustomizationSection,
+    ) => {
+      const detail = serviceDetailsById[service.id];
+      const option = variant.options[0];
+      if (!detail || !option) {
+        return;
+      }
+
+      const variationGroupIds = new Set(
+        detail.customizationSections
+          .filter((section) => section.type?.toLowerCase() === "variation")
+          .map((section) => section.groupId),
+      );
+      const existingSelection = selections.find(
+        (selection) => selection.serviceId === service.id,
+      );
+      const retainedOptions =
+        existingSelection?.selectedOptions?.filter(
+          (selectedOption) =>
+            !selectedOption.groupId ||
+            !variationGroupIds.has(selectedOption.groupId),
+        ) ?? [];
+      const price = getVariantPrice(option.price, detail);
+
+      setServiceSelection(
+        {
+          serviceId: service.id,
+          selectedOptions: [
+            ...retainedOptions,
+            {
+              groupId: variant.groupId,
+              optionId: option.optionId,
+            },
+          ],
+        },
+        {
+          deal: detail.deal,
+          discountedPrice: price < option.price ? price : null,
+          estimatedDurationMinutes:
+            typeof variant.durationMinutes === "number" &&
+            variant.durationMinutes > 0
+              ? variant.durationMinutes
+              : service.estimatedDurationMinutes,
+          imageUrl: variant.imageUrl ?? detail.imageUrl,
+          originalPrice: option.price,
+          price,
+        },
+      );
+    },
+    [selections, serviceDetailsById, setServiceSelection],
+  );
+
+  useEffect(
+    () => () => {
+      isMountedRef.current = false;
+    },
+    [],
+  );
+
+  useEffect(() => {
+    const missingServiceIds = selectedServiceIds.filter(
+      (serviceId) => !requestedServiceDetailIdsRef.current.has(serviceId),
+    );
+    if (missingServiceIds.length === 0) {
+      return;
+    }
+
+    missingServiceIds.forEach((serviceId) => {
+      requestedServiceDetailIdsRef.current.add(serviceId);
+    });
+    void Promise.allSettled(
+      missingServiceIds.map(async (serviceId) => ({
+        serviceId,
+        detail: await appointmentBookingService.getServiceDetail(serviceId),
+      })),
+    ).then((results) => {
+      if (!isMountedRef.current) {
+        return;
+      }
+
+      setServiceDetailsById((current) => {
+        const next = { ...current };
+        results.forEach((result, index) => {
+          if (result.status === "fulfilled") {
+            next[result.value.serviceId] = result.value.detail;
+          } else {
+            requestedServiceDetailIdsRef.current.delete(
+              missingServiceIds[index],
+            );
+          }
+        });
+        return next;
+      });
+    });
+  }, [selectedServiceIds]);
 
   const handleRightPress = () => {
-    if (hasSelection) {
+    if (isSelectionReady) {
       navigation.navigate("AppointmentCart", {
         storeId,
         title: route.params.title,
@@ -153,7 +315,7 @@ export default function AppointmentServicesScreen() {
   };
 
   const handleContinue = () => {
-    if (!hasSelection) {
+    if (!isSelectionReady) {
       showToast.info(
         t("services_selection_info_title"),
         t("services_selection_info_body"),
@@ -212,21 +374,28 @@ export default function AppointmentServicesScreen() {
             emptyLabel={t("details_services_empty")}
             isLoading={servicesQuery.isPending && !servicesQuery.isFetched}
             onServicePress={handleServicePress}
+            onVariantPress={handleVariantPress}
+            selections={selections}
             selectedServiceIds={selectedServiceIds}
+            selectedServices={selectedServices}
+            serviceDetailsById={serviceDetailsById}
             services={safeServices}
           />
         )}
 
-        <AppointmentsFloatingCartButton style={styles.cartButton} />
+        <AppointmentsFloatingCartButton
+          onPress={handleRightPress}
+          style={styles.cartButton}
+        />
       </View>
 
       <AppointmentServicesFooter
         countLabel={countLabel}
-        disabled={!hasSelection || isCommittingCart}
+        disabled={!isSelectionReady || isCommittingCart}
         durationLabel={totalDurationLabel}
         insets={insets}
         onContinue={handleContinue}
-        isLoading={isCommittingCart}
+        isLoading={isCommittingCart || isVariantConfigurationPending}
         originalTotalPriceLabel={originalTotalPriceLabel}
         totalPriceLabel={totalPriceLabel}
       />

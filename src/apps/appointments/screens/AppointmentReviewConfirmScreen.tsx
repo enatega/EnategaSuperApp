@@ -35,7 +35,7 @@ import {
   useAppointmentConfirmMutation,
   useAppointmentReviewMutation,
 } from "../hooks/useAppointmentBookingMutations";
-import type { MultiVendorStackParamList } from "../multiVendor/navigation/types";
+import type { AppointmentBookingFlowParamList } from "../navigation/bookingFlowTypes";
 import type { AppointmentsStackParamList } from "../navigation/types";
 import { useAppointmentCouponStore } from "../stores/useAppointmentCouponStore";
 import {
@@ -43,8 +43,8 @@ import {
   formatAppointmentTimeRange,
 } from "../utils/appointmentBooking";
 
-type ReviewRouteProp = RouteProp<MultiVendorStackParamList, "ReviewConfirm">;
-type NavigationProp = NativeStackNavigationProp<MultiVendorStackParamList>;
+type ReviewRouteProp = RouteProp<AppointmentBookingFlowParamList, "ReviewConfirm">;
+type NavigationProp = NativeStackNavigationProp<AppointmentBookingFlowParamList>;
 const SLOT_UNAVAILABLE_MESSAGE =
   "No eligible professional is available for the selected slot";
 const SLOT_HOLD_EXPIRED_MESSAGE =

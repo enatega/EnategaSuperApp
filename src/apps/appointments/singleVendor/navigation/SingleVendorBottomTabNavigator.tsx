@@ -10,11 +10,11 @@ import {
 } from '../../../deliveries/components/navigation/DeliveriesTabBar';
 import AppointmentsTabBar from '../../components/navigation/AppointmentsTabBar';
 import SingleVendorTabButton from '../../../deliveries/singleVendor/components/navigation/SingleVendorTabButton';
-import AppointmentsProfileTabScreen from '../../screens/profile/AppointmentsProfileTabScreen';
 import type { SingleVendorBottomTabParamList } from './types';
 import SingleVendorBookingsScreen from '../screens/BookingsScreen';
 import SingleVendorHomeScreen from '../screens/HomeScreen';
 import SingleVendorSearchScreen from '../screens/SearchScreen';
+import SingleVendorProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator<SingleVendorBottomTabParamList>();
 
@@ -107,7 +107,7 @@ export default function SingleVendorBottomTabNavigator() {
       />
       <Tab.Screen
         name="SingleVendorTabProfile"
-        component={AppointmentsProfileTabScreen}
+        component={SingleVendorProfileScreen}
         options={{
           tabBarIcon: ({ color, size }: TabIconProps) => (
             <MaterialCommunityIcons

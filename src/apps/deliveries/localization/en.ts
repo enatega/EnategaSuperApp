@@ -3,6 +3,7 @@ const en = {
   description: 'Order from stores or vendors.',
   header_title: 'Deliveries',
   header_subtitle: 'Choose a delivery type',
+  mode_selector_back_label: 'Back to Super App home',
   hero_badge: 'Demo experience',
   hero_subtitle:
     'Switch between delivery models and preview the full experience beautifully.',

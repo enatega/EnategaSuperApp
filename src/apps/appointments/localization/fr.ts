@@ -78,6 +78,7 @@ const fr = {
   team_schedule_error_body:
     "Nous ne pouvons pas charger les disponibilités pour le moment.",
   services_screen_title: "Services",
+  services_variants_label: "Variantes disponibles",
   services_select_info_body:
     "La personnalisation du service sera bientôt reliée au parcours de réservation.",
   services_selection_info_title: "Sélection du service",
@@ -165,6 +166,12 @@ const fr = {
   favourites_toggle_added: "Ajouté aux favoris",
   favourites_toggle_removed: "Retiré des favoris",
   favourites_toggle_error: "Échec de la mise à jour des favoris",
+  favourites_services_title: "Services favoris",
+  favourites_services_empty_title: "Aucun service favori",
+  favourites_services_empty_message:
+    "Les services favoris de ce prestataire apparaîtront ici.",
+  favourites_service_added: "Service ajouté aux favoris",
+  favourites_service_removed: "Service retiré des favoris",
   bookings_title: "Rendez-vous",
   bookings_my_appointments_title: "Mes rendez-vous",
   bookings_upcoming_title: "À venir",
@@ -257,8 +264,42 @@ const fr = {
   booking_rating_error_title: "Impossible d’envoyer la note",
   booking_rating_error_body: "Veuillez réessayer dans un instant.",
   single_vendor_label: "Vendeur unique",
+  single_vendor_home_subtitle: "Réservez auprès de votre prestataire de confiance",
+  single_vendor_services_title: "Services",
+  single_vendor_search_title: "Rechercher des services",
+  single_vendor_search_placeholder: "Rechercher des services",
+  single_vendor_services_empty: "Aucun service n’est disponible pour le moment.",
+  single_vendor_load_error: "Impossible de charger les services pour le moment.",
+  single_vendor_home_special_title: "Réservez votre prochain rendez-vous",
+  single_vendor_home_special_body:
+    "Découvrez les services, les offres et les rendez-vous disponibles auprès de votre prestataire.",
+  single_vendor_home_bookings_cta: "Mes réservations",
+  single_vendor_service_types_title: "Types de services",
+  single_vendor_top_services_title: "Services populaires",
+  single_vendor_category_services_title: "Services par catégorie",
+  single_vendor_deals_title: "Offres",
+  single_vendor_order_again_title: "Réserver à nouveau",
+  single_vendor_see_all: "Tout voir",
+  single_vendor_section_empty_title: "Rien pour le moment",
+  single_vendor_section_empty_message:
+    "Les nouveaux services et offres apparaîtront ici dès qu’ils seront disponibles.",
   multi_vendor_label: "Multi-vendeur",
   chain_label: "Chaîne",
+  mode_selector_title: "Comment souhaitez-vous réserver ?",
+  mode_selector_subtitle:
+    "Choisissez un mode de réservation pour trouver le bon prestataire.",
+  mode_selector_back_label: "Retour à l’accueil de la Super App",
+  single_vendor_mode_description:
+    "Réservez directement auprès du prestataire sélectionné par la plateforme.",
+  multi_vendor_mode_description:
+    "Parcourez et comparez les services de plusieurs prestataires.",
+  chain_mode_description:
+    "Choisissez une agence dans la chaîne de prestataires configurée.",
+  chain_branches_title: "Choisissez une agence",
+  chain_branches_subtitle: "Sélectionnez une agence proche pour voir les services et disponibilités",
+  chain_search_placeholder: "Rechercher des agences",
+  chain_branches_empty: "Aucune agence de la chaîne n’est disponible dans cette zone.",
+  chain_branches_load_error: "Impossible de charger les agences pour le moment.",
   tab_home: "Accueil",
   tab_search: "Recherche",
   search_placeholder: "Rechercher",

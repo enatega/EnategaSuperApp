@@ -21,6 +21,8 @@ type Props = {
   emptyMessage: string;
   onActionPress: () => void;
   onItemPress: (item: AppointmentMostPopularItem) => void;
+  items?: AppointmentMostPopularItem[];
+  isPending?: boolean;
 };
 
 export default function AppointmentsMostPopularSection({
@@ -30,14 +32,20 @@ export default function AppointmentsMostPopularSection({
   emptyMessage,
   onActionPress,
   onItemPress,
+  items: externalItems,
+  isPending: externalIsPending,
 }: Props) {
   const { t } = useTranslation('appointments');
   const [favoriteOverrides, setFavoriteOverrides] = useState<
     Record<string, boolean>
   >({});
-  const { data: items = [], isPending } = useAppointmentMostPopular({
-    limit: 8,
-  });
+  const { data: queriedItems = [], isPending: queriedIsPending } =
+    useAppointmentMostPopular(
+      { limit: 8 },
+      { enabled: externalItems === undefined },
+    );
+  const items = externalItems ?? queriedItems;
+  const isPending = externalIsPending ?? queriedIsPending;
   const {
     mutate: toggleFavourite,
     isPending: isTogglingFavourite,

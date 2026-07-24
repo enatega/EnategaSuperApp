@@ -10,12 +10,42 @@ function pad(value: number) {
 
 export function buildAppointmentSelectionFromDetail(
   detail: AppointmentMobileServiceDetail,
+  currentSelection?: AppointmentBookingSelection,
 ): AppointmentBookingSelection {
   const selectedOptions: NonNullable<
     AppointmentBookingSelection["selectedOptions"]
   > = [];
   const selectedOptionIds = new Set<string>();
-  const pendingSections = [...(detail.customizationSections ?? [])];
+  const sections = detail.customizationSections ?? [];
+  const variationSections = sections.filter(
+    (section) => section.type?.toLowerCase() === "variation",
+  );
+  const currentVariationSelection = currentSelection?.selectedOptions?.find(
+    (selectedOption) =>
+      variationSections.some(
+        (section) => section.groupId === selectedOption.groupId,
+      ),
+  );
+  const fallbackVariationSection = variationSections.find(
+    (section) => section.options.length > 0,
+  );
+  const selectedVariation =
+    currentVariationSelection ??
+    (fallbackVariationSection
+      ? {
+          groupId: fallbackVariationSection.groupId,
+          optionId: fallbackVariationSection.options[0].optionId,
+        }
+      : null);
+
+  if (selectedVariation) {
+    selectedOptions.push(selectedVariation);
+    selectedOptionIds.add(selectedVariation.optionId);
+  }
+
+  const pendingSections = sections.filter(
+    (section) => section.type?.toLowerCase() !== "variation",
+  );
 
   // Dependency-based groups become applicable only after their parent option
   // has been selected, so resolve defaults in dependency order.

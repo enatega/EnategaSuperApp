@@ -7,7 +7,13 @@ type AppointmentProfileNavigation = {
   navigate: (screen: string) => void;
 };
 
-export default function AppointmentsProfileTabScreen() {
+type Props = {
+  favouritesRoute?: string;
+};
+
+export default function AppointmentsProfileTabScreen({
+  favouritesRoute = 'AppointmentFavourites',
+}: Props) {
   const navigation = useNavigation<AppointmentProfileNavigation>();
   const { user, wallet, isLoading } = useProfile('appointments');
 
@@ -17,7 +23,7 @@ export default function AppointmentsProfileTabScreen() {
       couponsEnabled
       isLoading={isLoading}
       onOpenCoupons={() => navigation.navigate('AppointmentCoupons')}
-      onOpenFavourites={() => navigation.navigate('AppointmentFavourites')}
+      onOpenFavourites={() => navigation.navigate(favouritesRoute)}
       onOpenNotifications={() => navigation.navigate('AppointmentNotifications')}
       user={user}
       wallet={wallet}

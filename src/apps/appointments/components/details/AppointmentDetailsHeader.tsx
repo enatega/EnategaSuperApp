@@ -8,7 +8,7 @@ import Image from '../../../../general/components/Image';
 import Text from '../../../../general/components/Text';
 import { useTheme } from '../../../../general/theme/theme';
 import type { AppointmentStoreCategory } from '../../api/types';
-import AppointmentDetailTabs from '../../multiVendor/components/AppointmentDetailTabs';
+import AppointmentDetailTabs from './AppointmentDetailTabs';
 import AppointmentDetailsCircleButton from './AppointmentDetailsCircleButton';
 import AppointmentDetailsSectionHeader from './AppointmentDetailsSectionHeader';
 

@@ -9,7 +9,7 @@ import {
 import { useTheme } from '../../../../general/theme/theme';
 import Text from '../../../../general/components/Text';
 import type { AppointmentStoreCategory } from '../../api/types';
-import { useAppointmentDetailTabsScroll } from '../hooks/useAppointmentDetailTabsScroll';
+import { useAppointmentDetailTabsScroll } from '../../hooks/useAppointmentDetailTabsScroll';
 
 type Props = {
   activeCategoryId: string | null;

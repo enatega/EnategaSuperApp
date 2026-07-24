@@ -11,10 +11,12 @@ import Text from '../../../general/components/Text';
 import { useTheme } from '../../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RideIntent } from '../utils/rideOptions';
 import { authSession } from '../../../general/auth/authSession';
 import { setActiveAppRoute, setPendingAppRoute } from '../../../general/navigation/pendingAppRedirect';
 import { resetToSharedRoute } from '../../../general/navigation/rootNavigation';
+import type { SharedStackParamList } from '../../../general/navigation/navigationTypes';
 import { MINI_APPS, type MiniAppId } from '../../registry/generated/appI18nRegistry';
 import CarIcon from '../assets/images/carIcon.png';
 import CalendarIcon from '../assets/images/calendarIcon.png';
@@ -61,7 +63,8 @@ const SERVICE_CARD_ICON_SIZE = 80;
 export default function RideOptionsSection({ onSelectRideOption }: Props) {
   const { colors, typography } = useTheme();
   const { t } = useTranslation('rideSharing');
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<SharedStackParamList>>();
 
   const items: RideOption[] = [
     {
@@ -86,9 +89,9 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
     },
   ];
 
-  async function handleSelectMiniApp(
-    routeName: SharedMiniAppRouteName,
-    params?: Record<string, unknown>,
+  async function handleSelectMiniApp<RouteName extends SharedMiniAppRouteName>(
+    routeName: RouteName,
+    params?: SharedStackParamList[RouteName],
   ) {
     const token = await authSession.getAccessToken();
 
@@ -98,7 +101,7 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
       return;
     }
 
-    await setPendingAppRoute(routeName);
+    await setPendingAppRoute(routeName, params);
     navigation.navigate('Auth');
   }
 
@@ -135,7 +138,7 @@ export default function RideOptionsSection({ onSelectRideOption }: Props) {
 
     if (cardId === 'appointments') {
       void handleSelectMiniApp('Appointments', {
-        screen: 'MultiVendor',
+        screen: 'AppointmentsModeSelector',
       });
       return;
     }

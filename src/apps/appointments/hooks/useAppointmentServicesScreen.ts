@@ -30,8 +30,15 @@ export function useAppointmentServicesScreen({
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<
     string | null
   >(initialSubcategoryId ?? null);
-  const { clearCart, hasService, items, setStoreContext, toggleService } =
-    useAppointmentCart();
+  const {
+    clearCart,
+    hasService,
+    items,
+    selections,
+    setServiceSelection,
+    setStoreContext,
+    toggleService,
+  } = useAppointmentCart();
   const storeQuery = useAppointmentStoreView(storeId, {
     enabled: Boolean(storeId),
   });
@@ -256,9 +263,11 @@ export function useAppointmentServicesScreen({
     selectedCategoryId,
     selectedServiceIds,
     selectedServices,
+    selections,
     selectedSubcategoryId,
     setSelectedCategoryId,
     setSelectedSubcategoryId,
+    setServiceSelection,
     servicesQuery,
     storeQuery,
     originalTotalPrice,

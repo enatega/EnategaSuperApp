@@ -7,10 +7,12 @@ import Button from '../../../general/components/Button';
 import Text from '../../../general/components/Text';
 import { useTheme } from '../../../general/theme/theme';
 import { useTranslation } from 'react-i18next';
+import ModeSelectorHeader from '../../../general/components/ModeSelectorHeader';
 
 type DeliveryMode = 'singleVendor' | 'multiVendor' | 'chain';
 
 type Props = {
+  onBack: () => void;
   onSelect: (type: DeliveryMode) => void;
 };
 
@@ -26,7 +28,7 @@ type DeliveryModeCard = {
   gradient: readonly [string, string];
 };
 
-export default function DeliveriesHomeScreen({ onSelect }: Props) {
+export default function DeliveriesHomeScreen({ onBack, onSelect }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
@@ -79,14 +81,12 @@ export default function DeliveriesHomeScreen({ onSelect }: Props) {
     >
      
 
-      <View style={styles.sectionHeader}>
-        <Text variant="subtitle" weight="bold">
-          {t('section_title')}
-        </Text>
-        <Text variant="caption" color={colors.mutedText} style={styles.sectionSubtext}>
-          {t('header_subtitle')}
-        </Text>
-      </View>
+      <ModeSelectorHeader
+        backAccessibilityLabel={t('mode_selector_back_label')}
+        onBack={onBack}
+        subtitle={t('header_subtitle')}
+        title={t('section_title')}
+      />
 
       <View style={styles.cardGroup}>
         {cards.map((card) => (
@@ -249,13 +249,6 @@ const styles = StyleSheet.create({
   },
   heroPillText: {
     lineHeight: 16,
-  },
-  sectionHeader: {
-    gap: 4,
-    paddingHorizontal: 2,
-  },
-  sectionSubtext: {
-    lineHeight: 20,
   },
   cardGroup: {
     gap: 16,

@@ -14,7 +14,8 @@ import {
 } from '../components/details/detailHelpers';
 import { useAppointmentStoreView, useFlattenedAppointmentStoreServices } from './useDiscoveryQueries';
 import { useToggleFavouriteMutation } from './useToggleFavouriteMutation';
-import type { MultiVendorStackParamList } from '../multiVendor/navigation/types';
+import type { AppointmentBookingFlowParamList } from '../navigation/bookingFlowTypes';
+import { navigateToActiveAppointmentsTab } from '../navigation/modeNavigation';
 
 type DetailListItem = { type: 'service'; item: AppointmentStoreService } | { type: 'footer' };
 
@@ -23,7 +24,7 @@ const PLACEHOLDER_IMAGE = 'https://placehold.co/1200x800.png';
 
 type Params = {
   brand?: AppointmentTopBrand;
-  navigation: NativeStackNavigationProp<MultiVendorStackParamList>;
+  navigation: NativeStackNavigationProp<AppointmentBookingFlowParamList>;
   provider?: AppointmentProvider;
 };
 
@@ -68,7 +69,7 @@ export function useAppointmentDetailsScreen({ brand, navigation, provider }: Par
       navigation.goBack();
       return;
     }
-    navigation.navigate('MultiVendorTabs');
+    navigateToActiveAppointmentsTab(navigation, 'home');
   }, [navigation]);
 
   const handleSharePress = useCallback(async () => {
