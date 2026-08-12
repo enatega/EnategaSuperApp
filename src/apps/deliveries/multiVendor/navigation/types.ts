@@ -47,6 +47,7 @@ export type MultiVendorStackParamList = {
   TopBrandsSeeAll: undefined;
   MainSeeAllScreen:
     | {
+        initialCategoryId?: string;
         initialShopTypeId?: string;
       }
     | undefined;

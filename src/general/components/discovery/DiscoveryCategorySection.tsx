@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import HorizontalList from '../HorizontalList';
 import SectionActionHeader from '../SectionActionHeader';
@@ -15,6 +15,7 @@ type Props = {
   actionLabel?: string;
   onActionPress?: () => void;
   onItemPress?: (item: DiscoveryCategoryItem) => void;
+  numberOfRows?: number;
 };
 
 export default function DiscoveryCategorySection({
@@ -24,8 +25,18 @@ export default function DiscoveryCategorySection({
   actionLabel,
   onActionPress,
   onItemPress,
+  numberOfRows = 1,
 }: Props) {
   const { typography } = useTheme();
+  const columns = useMemo(() => {
+    const result: DiscoveryCategoryItem[][] = [];
+
+    for (let index = 0; index < items.length; index += numberOfRows) {
+      result.push(items.slice(index, index + numberOfRows));
+    }
+
+    return result;
+  }, [items, numberOfRows]);
 
   return (
     <View style={styles.section}>
@@ -52,16 +63,21 @@ export default function DiscoveryCategorySection({
         <DiscoveryCategorySkeleton />
       ) : (
         <HorizontalList
-          data={items}
-          keyExtractor={(item) => item.id}
+          data={columns}
+          keyExtractor={(column) => column[0].id}
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-          renderItem={({ item }) => (
-            <DiscoveryCategoryCard
-              imageUrl={item.imageUrl}
-              title={item.name}
-              onPress={onItemPress ? () => onItemPress(item) : undefined}
-            />
+          renderItem={({ item: column }) => (
+            <View style={styles.column}>
+              {column.map((item) => (
+                <DiscoveryCategoryCard
+                  key={item.id}
+                  imageUrl={item.imageUrl}
+                  title={item.name}
+                  onPress={onItemPress ? () => onItemPress(item) : undefined}
+                />
+              ))}
+            </View>
           )}
         />
       )}
@@ -70,6 +86,9 @@ export default function DiscoveryCategorySection({
 }
 
 const styles = StyleSheet.create({
+  column: {
+    gap: 12,
+  },
   listContent: {
     paddingRight: 16,
   },

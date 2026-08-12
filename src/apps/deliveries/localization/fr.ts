@@ -47,6 +47,7 @@ const fr = {
   logout: 'Se déconnecter',
   multi_vendor_address_label: 'Sélectionner une adresse',
   multi_vendor_shop_types_title: 'Types de boutiques',
+  multi_vendor_shop_types_subtitle: 'Choisissez un type de boutique pour explorer ses catégories',
   multi_vendor_main_shop_types_title: 'Catégories de livraisons',
   multi_vendor_categories_title: 'Catégories',
   multi_vendor_top_brands_title: 'Marques populaires',

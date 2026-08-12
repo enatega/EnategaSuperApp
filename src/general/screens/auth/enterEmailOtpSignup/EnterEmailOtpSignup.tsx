@@ -13,6 +13,7 @@ import { useTooManyRequestsModal } from "../../../hooks/useTooManyRequestsModal"
 import AppPopup from "../../../components/AppPopup";
 import { showToast } from "../../../components/AppToast";
 import KeyboardDismissWrapper from "../../../components/KeyboardDismissWrapper";
+import { getExpoPushTokenForAuth } from "../../../services/notifications/expoPushTokenService";
 
 const EnterEmailOtpSignup = () => {
   const { colors } = useTheme();
@@ -98,7 +99,9 @@ const EnterEmailOtpSignup = () => {
     },
   ];
 
-  const handleVerifyOtp = (otp: string) => {
+  const handleVerifyOtp = async (otp: string) => {
+    const devicePushToken = await getExpoPushTokenForAuth();
+
     verifyOtpMutation.mutate({
       phone: formData.phone,
       otp,
@@ -106,6 +109,7 @@ const EnterEmailOtpSignup = () => {
       otp_type: otpType,
       name: formData.name,
       password: formData.password,
+      device_push_token: devicePushToken ?? undefined,
     });
   };
 

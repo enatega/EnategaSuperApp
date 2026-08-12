@@ -47,6 +47,7 @@ const en = {
   logout: 'Log out',
   multi_vendor_address_label: 'Select address',
   multi_vendor_shop_types_title: 'Shop Types',
+  multi_vendor_shop_types_subtitle: 'Choose a shop type to explore its categories',
   multi_vendor_main_shop_types_title: 'Delivery Categories',
   multi_vendor_categories_title: 'Categories',
   multi_vendor_top_brands_title: 'Top Brands',

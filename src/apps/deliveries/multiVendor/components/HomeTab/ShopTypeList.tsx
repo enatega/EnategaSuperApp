@@ -37,7 +37,7 @@ export default function ShopTypeList() {
   const { data: shopTypes = [], isPending } = useShopTypes();
 
   const handleSeeAll = useCallback(() => {
-    navigation.navigate("MainSeeAllScreen");
+    navigation.navigate("ShopTypesSeeAll");
   }, [navigation]);
 
   const handleShopTypeSeeAll = useCallback((shopTypeId: string) => {
@@ -58,6 +58,7 @@ export default function ShopTypeList() {
           imageUrl: shopType.image ?? null,
         }))}
         isPending={isPending}
+        numberOfRows={2}
         onActionPress={handleSeeAll}
         onItemPress={(item) => handleShopTypeSeeAll(item.id)}
         title={t("multi_vendor_shop_types_title")}
