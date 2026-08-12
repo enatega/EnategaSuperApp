@@ -99,7 +99,8 @@ const buildVariationOptions = (
     ];
   }
 
-  const shouldUseSectionLevelVariationOptions = sections.every(isOptionlessVariationSection);
+  const shouldUseSectionLevelVariationOptions =
+    sections.length > 1 && sections.every((section) => section.options.length === 1);
 
   if (shouldUseSectionLevelVariationOptions) {
     const options = sections

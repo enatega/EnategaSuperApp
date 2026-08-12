@@ -11,10 +11,12 @@ import { StripeProvider } from "@stripe/stripe-react-native";
 import "./src/general/localization/i18n";
 import AppToast from "./src/general/components/AppToast";
 import { useSocketSession } from "./src/general/hooks/useSocketSession";
+import usePushNotifications from "./src/general/hooks/usePushNotifications";
 
 function ThemedApp() {
   const { theme } = useAppTheme();
   useSocketSession();
+  usePushNotifications();
 
   return (
     <View style={styles.container}>

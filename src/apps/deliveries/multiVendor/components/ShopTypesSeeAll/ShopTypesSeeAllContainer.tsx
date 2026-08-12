@@ -1,77 +1,141 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { FlatList, StyleSheet, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
-import CategorySeeAllGrid from "../../../components/categorySeeAll/CategorySeeAllGrid";
-import type { DeliveryDiscoveryCategoryItem } from "../../../components/discovery";
-import { usePaginatedShopTypes } from "../../../hooks";
-import type { DeliveriesStackParamList } from "../../../navigation/types";
+import Text from "../../../../../general/components/Text";
+import { useTheme } from "../../../../../general/theme/theme";
+import CategorySeeAllGridEmptyState from "../../../components/categorySeeAll/CategorySeeAllGridEmptyState";
+import CategorySeeAllGridErrorState from "../../../components/categorySeeAll/CategorySeeAllGridErrorState";
+import CategorySeeAllGridSkeleton from "../../../components/categorySeeAll/CategorySeeAllGridSkeleton";
+import type { DeliveryShopTypeCategory } from "../../../api/categoriesServicesTypes";
+import { usePaginatedShopTypes, useShopTypeCategories } from "../../../hooks";
+import type { MultiVendorStackParamList } from "../../navigation/types";
+import ShopTypeCategoryCard from "./ShopTypeCategoryCard";
+import ShopTypeSelectorRail from "./ShopTypeSelectorRail";
 
-type NavigationProp = NativeStackNavigationProp<
-  DeliveriesStackParamList,
-  "SeeAllScreen"
->;
+type NavigationProp = NativeStackNavigationProp<MultiVendorStackParamList>;
 
-function decodeDisplayText(value: string) {
-  let decodedValue = value;
-
-  if (decodedValue.includes("%")) {
-    try {
-      decodedValue = decodeURIComponent(decodedValue);
-    } catch {
-      decodedValue = value;
-    }
-  }
-
-  return decodedValue.replace(/%amp;|&amp;|&#38;/gi, "&");
-}
-
-const ShopTypesSeeAllContainer = () => {
+export default function ShopTypesSeeAllContainer() {
   const navigation = useNavigation<NavigationProp>();
+  const { colors, typography } = useTheme();
   const { t } = useTranslation("deliveries");
-  const {
-    data: shopTypes = [],
-    isPending,
-    isError,
-    isRefetching,
-    isFetchingNextPage,
-    hasNextPage,
-    refetch,
-    fetchNextPage,
-  } = usePaginatedShopTypes({
+  const [selectedShopTypeId, setSelectedShopTypeId] = useState("");
+  const shopTypesQuery = usePaginatedShopTypes({ mode: "paginated" });
+  const shopTypes = shopTypesQuery.data ?? [];
+  const categoriesQuery = useShopTypeCategories(selectedShopTypeId, {
     mode: "paginated",
+    enabled: Boolean(selectedShopTypeId),
   });
+  const categories = categoriesQuery.data ?? [];
 
-  const handleShopTypePress = useCallback(
-    (shopType: DeliveryDiscoveryCategoryItem) => {
-      navigation.navigate("SeeAllScreen", {
-        queryType: "shop-type-stores",
-        title: decodeDisplayText(shopType.name),
-        cardType: "store",
-        shopTypeId: shopType.id,
+  useEffect(() => {
+    if (!selectedShopTypeId && shopTypes.length > 0) {
+      setSelectedShopTypeId(shopTypes[0].id);
+    }
+  }, [selectedShopTypeId, shopTypes]);
+
+  const handleCategoryPress = useCallback(
+    (category: DeliveryShopTypeCategory) => {
+      navigation.navigate("MainSeeAllScreen", {
+        initialShopTypeId: selectedShopTypeId,
+        initialCategoryId: category.id,
       });
     },
-    [navigation],
+    [navigation, selectedShopTypeId],
   );
+
+  if (shopTypesQuery.isPending) return <CategorySeeAllGridSkeleton />;
+
+  if (shopTypesQuery.isError) {
+    return (
+      <CategorySeeAllGridErrorState
+        isRetrying={shopTypesQuery.isRefetching}
+        onRetry={() => void shopTypesQuery.refetch()}
+      />
+    );
+  }
 
   return (
-    <CategorySeeAllGrid
-      data={shopTypes.map((shopType) => ({
-        id: shopType.id,
-        name: decodeDisplayText(shopType.name),
-        imageUrl: shopType.image ?? null,
-      }))}
-      fetchNextPage={fetchNextPage}
-      hasNextPage={hasNextPage}
-      isError={isError}
-      isFetchingNextPage={isFetchingNextPage}
-      isPending={isPending}
-      isRefetching={isRefetching}
-      onItemPress={handleShopTypePress}
-      refetch={refetch}
-      title={t("multi_vendor_shop_types_title")}
+    <FlatList<DeliveryShopTypeCategory>
+      data={categories}
+      numColumns={2}
+      keyExtractor={(category) => category.id}
+      columnWrapperStyle={styles.categoryRow}
+      contentContainerStyle={styles.content}
+      ListHeaderComponent={
+        <View style={styles.header}>
+          <Text color={colors.mutedText} style={styles.subtitle}>
+            {t("multi_vendor_shop_types_subtitle")}
+          </Text>
+          <ShopTypeSelectorRail
+            items={shopTypes}
+            selectedShopTypeId={selectedShopTypeId}
+            onSelect={setSelectedShopTypeId}
+            onEndReached={() => {
+              if (
+                shopTypesQuery.hasNextPage &&
+                !shopTypesQuery.isFetchingNextPage
+              ) {
+                void shopTypesQuery.fetchNextPage();
+              }
+            }}
+          />
+          <Text
+            weight="extraBold"
+            style={{
+              fontSize: typography.size.lg,
+              lineHeight: typography.lineHeight.lg,
+            }}
+          >
+            {t("multi_vendor_categories_title")}
+          </Text>
+        </View>
+      }
+      ListEmptyComponent={
+        categoriesQuery.isPending ? (
+          <CategorySeeAllGridSkeleton />
+        ) : categoriesQuery.isError ? (
+          <CategorySeeAllGridErrorState
+            isRetrying={categoriesQuery.isRefetching}
+            onRetry={() => void categoriesQuery.refetch()}
+          />
+        ) : (
+          <CategorySeeAllGridEmptyState />
+        )
+      }
+      onEndReached={() => {
+        if (
+          categoriesQuery.hasNextPage &&
+          !categoriesQuery.isFetchingNextPage
+        ) {
+          void categoriesQuery.fetchNextPage();
+        }
+      }}
+      onEndReachedThreshold={0.4}
+      renderItem={({ item }) => (
+        <ShopTypeCategoryCard item={item} onPress={handleCategoryPress} />
+      )}
+      showsVerticalScrollIndicator={false}
     />
   );
-};
+}
 
-export default ShopTypesSeeAllContainer;
+const styles = StyleSheet.create({
+  categoryRow: {
+    justifyContent: "space-between",
+  },
+  content: {
+    flexGrow: 1,
+    gap: 12,
+    paddingBottom: 28,
+    paddingHorizontal: 16,
+  },
+  header: {
+    gap: 20,
+    marginBottom: 6,
+  },
+  subtitle: {
+    textAlign: "center",
+  },
+});

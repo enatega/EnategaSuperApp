@@ -18,9 +18,8 @@ type Props = {
   isError?: boolean;
   selectedCategoryId: string | null;
   onSelectCategory: (categoryId: string) => void;
-  onSeeAllPress: () => void;
+  onEndReached?: () => void;
   sectionTitle: string;
-  actionLabel: string;
 };
 
 export default function MainSeeAllCategoriesSection({
@@ -29,22 +28,16 @@ export default function MainSeeAllCategoriesSection({
   isError = false,
   selectedCategoryId,
   onSelectCategory,
-  onSeeAllPress,
+  onEndReached,
   sectionTitle,
-  actionLabel,
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const isEmpty = !isPending && !isError && categories.length === 0;
-  const shouldShowSeeAll = !isPending && !isError && categories.length > 0;
 
   return (
     <View style={styles.section}>
-      <SectionActionHeader
-        title={sectionTitle}
-        actionLabel={shouldShowSeeAll ? actionLabel : undefined}
-        onActionPress={onSeeAllPress}
-      />
+      <SectionActionHeader title={sectionTitle} />
 
       {isPending ? (
         <DiscoveryCategorySkeleton />
@@ -65,6 +58,8 @@ export default function MainSeeAllCategoriesSection({
           keyExtractor={(item) => item.id}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           contentContainerStyle={styles.listContent}
+          onEndReached={onEndReached}
+          onEndReachedThreshold={0.4}
           renderItem={({ item }) => {
             const isSelected = selectedCategoryId === item.id;
             return (

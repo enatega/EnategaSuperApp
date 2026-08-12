@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RouteProp, useRoute } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../../../general/theme/theme";
 import useDebouncedValue from "../../../../general/hooks/useDebouncedValue";
@@ -23,11 +22,6 @@ import {
 import type { MultiVendorStackParamList } from "../navigation/types";
 import NearbyStoreList from "../components/HomeTab/NearbyStoreList";
 
-type NavigationProp = NativeStackNavigationProp<
-  MultiVendorStackParamList,
-  "MainSeeAllScreen"
->;
-
 type MainSeeAllRouteProp = RouteProp<
   MultiVendorStackParamList,
   "MainSeeAllScreen"
@@ -37,10 +31,10 @@ export default function MainSeeAllScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation("deliveries");
   const { t: tGeneral } = useTranslation("general");
-  const navigation = useNavigation<NavigationProp>();
   const route = useRoute<MainSeeAllRouteProp>();
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearch = useDebouncedValue(searchValue.trim(), 450);
+  const initialCategoryId = route.params?.initialCategoryId;
   const initialShopTypeId = route.params?.initialShopTypeId;
 
   const { data: shopTypes = [] } = useShopTypes();
@@ -51,6 +45,9 @@ export default function MainSeeAllScreen() {
   const [selectedShopTypeId, setSelectedShopTypeId] = useState<string>("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
+  );
+  const [hasAppliedInitialCategory, setHasAppliedInitialCategory] = useState(
+    !initialCategoryId,
   );
 
   useEffect(() => {
@@ -68,9 +65,12 @@ export default function MainSeeAllScreen() {
     data: categories = [],
     isPending: isCategoriesPending,
     isError: hasCategoriesError,
+    fetchNextPage: fetchNextCategoriesPage,
+    hasNextPage: hasNextCategoriesPage,
+    isFetchingNextPage: isFetchingNextCategoriesPage,
   } =
     useShopTypeCategories(selectedShopTypeId, {
-      mode: "preview",
+      mode: "paginated",
       enabled: Boolean(selectedShopTypeId),
     });
 
@@ -82,14 +82,43 @@ export default function MainSeeAllScreen() {
       return;
     }
 
+    const hasInitialCategory = !hasAppliedInitialCategory && initialCategoryId
+      ? categories.some((category) => category.id === initialCategoryId)
+      : false;
     const hasSelectedCategory = selectedCategoryId
       ? categories.some((category) => category.id === selectedCategoryId)
       : false;
 
+    if (hasInitialCategory && initialCategoryId) {
+      if (selectedCategoryId !== initialCategoryId) {
+        setSelectedCategoryId(initialCategoryId);
+      }
+      setHasAppliedInitialCategory(true);
+      return;
+    }
+
+    if (
+      !hasAppliedInitialCategory &&
+      initialCategoryId &&
+      hasNextCategoriesPage &&
+      !isFetchingNextCategoriesPage
+    ) {
+      void fetchNextCategoriesPage();
+      return;
+    }
+
     if (!hasSelectedCategory) {
       setSelectedCategoryId(categories[0].id);
     }
-  }, [categories, selectedCategoryId]);
+  }, [
+    categories,
+    fetchNextCategoriesPage,
+    hasAppliedInitialCategory,
+    hasNextCategoriesPage,
+    initialCategoryId,
+    isFetchingNextCategoriesPage,
+    selectedCategoryId,
+  ]);
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategoryId((prev) => (prev === categoryId ? null : categoryId));
@@ -138,17 +167,12 @@ export default function MainSeeAllScreen() {
           isError={hasCategoriesError}
           selectedCategoryId={selectedCategoryId}
           onSelectCategory={handleCategorySelect}
-          onSeeAllPress={() => {
-            if (!selectedShopTypeId) {
-              return;
+          onEndReached={() => {
+            if (hasNextCategoriesPage && !isFetchingNextCategoriesPage) {
+              void fetchNextCategoriesPage();
             }
-            navigation.navigate("CategoriesSeeAll", {
-              shopTypeId: selectedShopTypeId,
-              title: t("multi_vendor_categories_title"),
-            });
           }}
           sectionTitle={t("multi_vendor_main_shop_types_title")}
-          actionLabel={t("multi_vendor_see_all")}
         />
 
         <NearbyStoreList

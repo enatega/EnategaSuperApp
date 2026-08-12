@@ -1,6 +1,7 @@
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
+import apiClient from "../../api/apiClient";
 
 let cachedToken: string | null = null;
 let inFlightTokenPromise: Promise<string | null> | null = null;
@@ -63,10 +64,19 @@ export async function getExpoPushTokenForAuth(): Promise<string | null> {
     if (token) {
       cachedToken = token;
     }
-    console.log("Expo Push Token for Auth:", token);
     return token;
   } finally {
     inFlightTokenPromise = null;
   }
 }
 
+export async function syncExpoPushToken(): Promise<void> {
+  const pushToken = await getExpoPushTokenForAuth();
+  if (!pushToken) return;
+
+  await apiClient.patch("/api/v1/users/push-token", { pushToken });
+}
+
+export async function unregisterExpoPushToken(): Promise<void> {
+  await apiClient.patch("/api/v1/users/push-token", { pushToken: null });
+}

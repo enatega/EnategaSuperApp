@@ -360,7 +360,7 @@ export default function MainContainer({
             imageStyle={{
               transform: [{ translateY: imageTranslateY }],
             }}
-            imageUri={productInfoData.imageUrl}
+            imageUri={selectedVariation?.imageUrl || productInfoData.imageUrl}
             showCloseButton={false}
           />
         </Animated.View>

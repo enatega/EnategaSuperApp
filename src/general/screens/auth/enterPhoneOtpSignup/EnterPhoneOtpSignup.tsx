@@ -12,6 +12,7 @@ import AppPopup from "../../../components/AppPopup";
 import { showToast } from "../../../components/AppToast";
 import { useAuthStore } from "../../../stores/useAuthStore";
 import KeyboardDismissWrapper from "../../../components/KeyboardDismissWrapper";
+import { getExpoPushTokenForAuth } from "../../../services/notifications/expoPushTokenService";
 
 const EnterPhoneOtpSignup = () => {
   const navigation = useNavigation();
@@ -69,7 +70,9 @@ const EnterPhoneOtpSignup = () => {
     },
   });
 
-  const handleVerifyOtp = (otp: string) => {
+  const handleVerifyOtp = async (otp: string) => {
+    const devicePushToken = await getExpoPushTokenForAuth();
+
     verifyOtpMutation.mutate({
       phone: formData.phone,
       email: formData.email,
@@ -77,6 +80,7 @@ const EnterPhoneOtpSignup = () => {
       otp_type: otpType,
       name: formData.name,
       password: formData.password,
+      device_push_token: devicePushToken ?? undefined,
     });
   };
 

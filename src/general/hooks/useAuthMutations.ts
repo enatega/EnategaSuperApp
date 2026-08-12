@@ -30,6 +30,7 @@ import { authSession } from "../auth/authSession";
 import { redirectToPendingAppIfNeeded } from "../navigation/rootNavigation";
 import { clearActiveAppRoute } from "../navigation/pendingAppRedirect";
 import { socketClient } from "../services/socket";
+import { unregisterExpoPushToken } from "../services/notifications/expoPushTokenService";
 
 async function finalizeAuthSession(
   queryClient: ReturnType<typeof useQueryClient>,
@@ -53,6 +54,11 @@ export async function clearStoredAuthSession() {
   socketClient.disconnect();
   await authSession.clearSession();
   await clearActiveAppRoute();
+}
+
+async function logoutAndClearStoredAuthSession() {
+  await unregisterExpoPushToken().catch(() => undefined);
+  await clearStoredAuthSession();
 }
 
 export function useSignupSendOtp(
@@ -127,7 +133,7 @@ export function useLogout(options?: UseMutationOptions<void, ApiError, void>) {
   const queryClient = useQueryClient();
 
   return useMutation<void, ApiError, void>({
-    mutationFn: clearStoredAuthSession,
+    mutationFn: logoutAndClearStoredAuthSession,
     ...options,
     onSuccess: async (_data, variables, onMutateResult, context) => {
       queryClient.setQueryData(authKeys.session(), {
