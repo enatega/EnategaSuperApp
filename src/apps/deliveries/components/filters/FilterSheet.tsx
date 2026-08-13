@@ -22,6 +22,7 @@ type Props = {
   onSelectAddress: (addressId: string) => void;
   onSelectStock: (stockId: string) => void;
   onSelectSort: (sortId: string) => void;
+  onToggleAttribute?: (filterId: string, optionId: string) => void;
 };
 
 export default function FilterSheet(props: Props) {
@@ -52,6 +53,7 @@ export default function FilterSheet(props: Props) {
       onSelectAddress={props.onSelectAddress}
       onSelectStock={props.onSelectStock}
       onSelectSort={props.onSelectSort}
+      onToggleAttribute={props.onToggleAttribute}
     />
   );
 }

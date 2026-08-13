@@ -104,6 +104,21 @@ export default function useGenericListFilters({ filterData, initialFilters }: Pr
     }));
   }, []);
 
+  const toggleAttribute = useCallback((filterId: string, optionId: string) => {
+    setDraftFilters((current) => {
+      const selected = current.attribute_filters?.[filterId] || [];
+      return {
+        ...current,
+        attribute_filters: {
+          ...current.attribute_filters,
+          [filterId]: selected.includes(optionId)
+            ? selected.filter((id) => id !== optionId)
+            : [...selected, optionId],
+        },
+      };
+    });
+  }, []);
+
   const removeChip = useCallback((chip: GenericFilterChip) => {
     setAppliedFilters((current) => removeChipFromFilters(current, chip.id));
   }, []);
@@ -127,6 +142,7 @@ export default function useGenericListFilters({ filterData, initialFilters }: Pr
     selectAddress,
     selectStock,
     selectSort,
+    toggleAttribute,
     removeChip,
     chips,
     hasAppliedFilters: hasActiveFilters(appliedFilters),

@@ -10,6 +10,7 @@ export const EMPTY_FILTERS: GenericListFilters = {
   address_id: null,
   stock: null,
   sort_by: null,
+  attribute_filters: {},
 };
 
 export function buildQueryFilterPayload(filters: GenericListFilters) {
@@ -19,6 +20,9 @@ export function buildQueryFilterPayload(filters: GenericListFilters) {
     address_id: filters.address_id,
     stock: filters.stock,
     sort_by: filters.sort_by,
+    attribute_filters: Object.keys(filters.attribute_filters || {}).length
+      ? JSON.stringify(filters.attribute_filters)
+      : undefined,
   };
 }
 
@@ -31,6 +35,7 @@ export function createGenericListFilters(
     address_id: initialFilters?.address_id ?? EMPTY_FILTERS.address_id,
     stock: initialFilters?.stock ?? EMPTY_FILTERS.stock,
     sort_by: initialFilters?.sort_by ?? EMPTY_FILTERS.sort_by,
+    attribute_filters: initialFilters?.attribute_filters ?? {},
   };
 }
 
@@ -138,6 +143,14 @@ export function buildFilterChips(
     });
   }
 
+  Object.entries(filters.attribute_filters || {}).forEach(([filterId, optionIds]) => {
+    const filter = filterData?.attributes?.find((item) => item.id === filterId);
+    optionIds.forEach((optionId) => {
+      const option = filter?.options.find((item) => item.value === optionId);
+      if (option && filter) chips.push({ id: `attribute:${filterId}:${optionId}`, label: `${filter.label}: ${decodeFilterLabel(option.label)}` });
+    });
+  });
+
   return chips;
 }
 
@@ -194,6 +207,17 @@ export function removeChipFromFilters(
     };
   }
 
+  if (group === 'attribute') {
+    const optionId = chipId.split(':')[2];
+    return {
+      ...filters,
+      attribute_filters: {
+        ...filters.attribute_filters,
+        [value]: (filters.attribute_filters?.[value] || []).filter((id) => id !== optionId),
+      },
+    };
+  }
+
   return filters;
 }
 
@@ -204,5 +228,6 @@ export function hasActiveFilters(filters: GenericListFilters) {
     Boolean(filters.address_id) ||
     Boolean(filters.stock) ||
     Boolean(filters.sort_by)
+    || Object.values(filters.attribute_filters || {}).some((ids) => ids.length > 0)
   );
 }

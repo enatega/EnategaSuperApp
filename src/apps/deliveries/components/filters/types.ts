@@ -24,4 +24,5 @@ export type GenericListFilterSheetRenderProps = {
   onSelectAddress: (addressId: string) => void;
   onSelectStock: (stock: string) => void;
   onSelectSort: (sortBy: string) => void;
+  onToggleAttribute?: (filterId: string, optionId: string) => void;
 };

@@ -110,6 +110,7 @@ function toShopTypeProductsQueryParams(
         subcategory_id,
         price_tiers,
         sort_by,
+        attribute_filters,
     } = params;
 
     return {
@@ -123,6 +124,7 @@ function toShopTypeProductsQueryParams(
         subcategory_id,
         price_tiers,
         sort_by,
+        attribute_filters,
     };
 }
 
@@ -140,6 +142,7 @@ function toShopTypeStoresQueryParams(
         subcategory_id,
         price_tiers,
         sort_by,
+        attribute_filters,
     } = params;
 
     return {
@@ -153,6 +156,7 @@ function toShopTypeStoresQueryParams(
         subcategory_id,
         price_tiers,
         sort_by,
+        attribute_filters,
     };
 }
 
@@ -170,6 +174,7 @@ function toVendorStoresQueryParams(
         subcategory_id,
         price_tiers,
         sort_by,
+        attribute_filters,
     } = params;
 
     return {
@@ -183,6 +188,7 @@ function toVendorStoresQueryParams(
         subcategory_id,
         price_tiers,
         sort_by,
+        attribute_filters,
     };
 }
 
@@ -202,6 +208,7 @@ function toNearbyStoresQueryParams(
         subcategory_id,
         price_tiers,
         sort_by,
+        attribute_filters,
     } = params;
 
     const normalizedLatitude = toFiniteCoordinate(latitude);
@@ -224,6 +231,7 @@ function toNearbyStoresQueryParams(
         subcategory_id,
         price_tiers,
         sort_by,
+        attribute_filters,
     };
 }
 

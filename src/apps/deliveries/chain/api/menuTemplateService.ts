@@ -41,6 +41,7 @@ function toMenuCategoryProductsQueryParams(
     subcategory_id,
     price_tiers,
     sort_by,
+    attribute_filters,
   } = params;
 
   return {
@@ -51,6 +52,7 @@ function toMenuCategoryProductsQueryParams(
     subcategory_id,
     price_tiers,
     sort_by,
+    attribute_filters,
   };
 }
 

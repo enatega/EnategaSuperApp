@@ -4,6 +4,7 @@ export type MainListFilters = {
   address_id: string | null;
   stock: string | null;
   sort_by: string | null;
+  attribute_filters?: Record<string, string[]>;
 };
 
 export type MainFilterCategory = {
@@ -31,6 +32,11 @@ export type MainListFilterData = {
   priceTiers: MainFilterOption[];
   stock: MainFilterOption[];
   sortBy: MainFilterOption[];
+  attributes?: Array<{
+    id: string;
+    label: string;
+    options: Array<MainFilterOption & { productCount?: number }>;
+  }>;
 };
 
 export type MainFilterSectionTitles = {

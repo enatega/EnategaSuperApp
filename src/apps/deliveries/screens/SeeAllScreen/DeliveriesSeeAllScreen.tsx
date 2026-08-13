@@ -52,11 +52,12 @@ export default function DeliveriesSeeAllScreen() {
     selectAddress,
     selectStock,
     selectSort,
+    toggleAttribute,
     removeChip,
     chips,
     hasAppliedFilters,
     hasDraftFilters,
-  } = useDeliveriesSeeAllScreenState();
+  } = useDeliveriesSeeAllScreenState(categoryId);
   const [selectedClosedStore, setSelectedClosedStore] = useState<DeliveryNearbyStore | null>(null);
 
   const {
@@ -182,6 +183,7 @@ export default function DeliveriesSeeAllScreen() {
             onSelectAddress={selectAddress}
             onSelectStock={selectStock}
             onSelectSort={selectSort}
+            onToggleAttribute={toggleAttribute}
             filters={filterValues?.filters}
           />
         }

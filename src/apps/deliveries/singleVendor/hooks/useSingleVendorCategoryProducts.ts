@@ -62,6 +62,9 @@ export default function useSingleVendorCategoryProducts(
       ? [options.filters.price_tiers]
       : undefined,
     sort_by: options?.filters?.sort_by ?? undefined,
+    attribute_filters: Object.keys(options?.filters?.attribute_filters || {}).length
+      ? JSON.stringify(options?.filters?.attribute_filters)
+      : undefined,
   };
   const query = useInfiniteQuery<
     PaginatedDeliveryResponse<DeliveryShopTypeProduct>,

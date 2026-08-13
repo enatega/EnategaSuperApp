@@ -323,6 +323,9 @@ export function useShopTypeProducts(
     price_tiers: options?.filters?.price_tiers ?? undefined,
     stock: normalizeStockValue(options?.filters?.stock),
     sort_by: options?.filters?.sort_by ?? undefined,
+    attribute_filters: Object.keys(options?.filters?.attribute_filters || {}).length
+      ? JSON.stringify(options?.filters?.attribute_filters)
+      : undefined,
   };
 
   const query = useInfiniteQuery<
@@ -382,6 +385,9 @@ export function useShopTypeStores(
     price_tiers: options?.filters?.price_tiers ?? undefined,
     stock: normalizeStockValue(options?.filters?.stock),
     sort_by: options?.filters?.sort_by ?? undefined,
+    attribute_filters: Object.keys(options?.filters?.attribute_filters || {}).length
+      ? JSON.stringify(options?.filters?.attribute_filters)
+      : undefined,
   };
 
   const query = useInfiniteQuery<
@@ -476,6 +482,9 @@ export function useVendorStores(
     price_tiers: options?.filters?.price_tiers ?? undefined,
     stock: normalizeStockValue(options?.filters?.stock),
     sort_by: options?.filters?.sort_by ?? undefined,
+    attribute_filters: Object.keys(options?.filters?.attribute_filters || {}).length
+      ? JSON.stringify(options?.filters?.attribute_filters)
+      : undefined,
   };
 
   const query = useInfiniteQuery<
@@ -637,6 +646,9 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
       : undefined,
     stock: normalizeStockValue(options?.filters?.stock),
     sort_by: options?.filters?.sort_by ?? undefined,
+    attribute_filters: Object.keys(options?.filters?.attribute_filters || {}).length
+      ? JSON.stringify(options?.filters?.attribute_filters)
+      : undefined,
   };
 
   const query = useInfiniteQuery<
@@ -654,6 +666,7 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
         stock: nearbyStoreParams.stock,
         price_tiers: nearbyStoreParams.price_tiers,
         sort_by: nearbyStoreParams.sort_by,
+        attribute_filters: nearbyStoreParams.attribute_filters,
       }),
       {
         filters: options?.filters,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
 import {
@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 type Props = {
   categories: DeliveryShopTypeCategory[];
   isPending: boolean;
+  isFetchingNextPage?: boolean;
   isError?: boolean;
   selectedCategoryId: string | null;
   onSelectCategory: (categoryId: string) => void;
@@ -25,6 +26,7 @@ type Props = {
 export default function MainSeeAllCategoriesSection({
   categories,
   isPending,
+  isFetchingNextPage = false,
   isError = false,
   selectedCategoryId,
   onSelectCategory,
@@ -60,6 +62,13 @@ export default function MainSeeAllCategoriesSection({
           contentContainerStyle={styles.listContent}
           onEndReached={onEndReached}
           onEndReachedThreshold={0.4}
+          ListFooterComponent={
+            isFetchingNextPage ? (
+              <View style={styles.loader}>
+                <ActivityIndicator color={colors.primary} size="small" />
+              </View>
+            ) : null
+          }
           renderItem={({ item }) => {
             const isSelected = selectedCategoryId === item.id;
             return (
@@ -96,6 +105,10 @@ const styles = StyleSheet.create({
   listContent: {
     paddingLeft: 2,
     paddingRight: 16,
+  },
+  loader: {
+    justifyContent: 'center',
+    paddingHorizontal: 16,
   },
   categoryCardContainer: {
     width: 64,
