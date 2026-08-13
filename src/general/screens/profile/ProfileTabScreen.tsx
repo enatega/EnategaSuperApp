@@ -19,6 +19,7 @@ import ProfileMenuItem from '../../components/profile/ProfileMenuItem';
 import ProfileMenuSection from '../../components/profile/ProfileMenuSection';
 import ProfileSkeleton from '../../components/profile/ProfileSkeleton';
 import WalletCard from '../../components/profile/WalletCard';
+import MembershipCard from '../../components/profile/MembershipCard';
 
 const ICON_SIZE = 20;
 
@@ -86,6 +87,18 @@ export default function ProfileTabScreen({
         balanceLabel={t('profile_wallet_balance')}
         buttonLabel={t('profile_view_wallet')}
         onPressWallet={() => navigation.navigate('Wallet')}
+      />
+
+      <MembershipCard
+        membership={wallet?.membership ?? null}
+        lifetimePoints={wallet?.lifetime_points ?? 0}
+        labels={{
+          lifetimePoints: t('profile_membership_lifetime_points'),
+          multiplier: t('profile_membership_reward_multiplier'),
+          nextTier: (name, points) =>
+            t('profile_membership_next_tier', { name, points }),
+          topTier: t('profile_membership_top_tier'),
+        }}
       />
 
       <ProfileMenuSection>

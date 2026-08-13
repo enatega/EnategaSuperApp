@@ -548,6 +548,10 @@ const fr = {
   checkout_payment_cash_subtitle: 'Payez en espèces à la livraison ou au retrait',
   checkout_payment_card_title: 'Carte',
   checkout_payment_card_subtitle: 'Payez en ligne de manière sécurisée avec votre carte',
+  checkout_payment_wallet_title: 'Portefeuille',
+  checkout_payment_wallet_subtitle: 'Payez avec le solde de votre portefeuille',
+  checkout_payment_wallet_balance: 'Solde : {{currency}} {{balance}}',
+  checkout_payment_wallet_insufficient: 'Le solde de votre portefeuille est insuffisant pour cette commande.',
   checkout_payment_card_saved_subtitle: '{{brand}} (•••• {{last4}})',
   checkout_payment_option_cash_description: 'Payez à la livraison ou au retrait.',
   checkout_payment_option_card_description: 'Vous terminerez le paiement dans le parcours sécurisé Stripe.',
@@ -953,6 +957,13 @@ const fr = {
   wallet_card_incomplete: 'Veuillez compléter les détails de la carte.',
   wallet_card_saved_success_title: 'Carte enregistrée',
   wallet_card_saved_success_message: 'Votre carte a été ajoutée avec succès.',
+  wallet_points_convert_title: 'Convertir les points en solde',
+  wallet_points_available: 'Points disponibles',
+  wallet_points_placeholder: 'Points',
+  wallet_points_convert_button: 'Convertir',
+  wallet_points_convert_success: 'Points convertis',
+  wallet_points_convert_success_message: '{{amount}} {{currency}} ont été ajoutés à votre portefeuille.',
+  wallet_points_convert_error: 'Impossible de convertir les points',
   off: 'désactivé'
 };
 

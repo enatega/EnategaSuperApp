@@ -44,6 +44,12 @@ export type WalletTransactionsResponse = {
   limit?: number;
 };
 
+export type ConvertCustomerPointsResponse = {
+  amount: number;
+  remainingPoints: number;
+  newWalletBalance: number;
+};
+
 type WalletTransactionApiItem = {
   id?: string;
   type?: string;
@@ -107,6 +113,12 @@ export const walletSavedCardsService = {
       offset: response.offset,
       limit: response.limit,
     })),
+
+  convertCustomerPoints: (points: number) =>
+    apiClient.post<ConvertCustomerPointsResponse>(
+      '/api/v1/apps/deliveries/wallet/points/convert/customer',
+      { points },
+    ),
 };
 
 export const walletSavedCardsKeys = {
@@ -159,5 +171,18 @@ export function useWalletTransactionsQuery(
     queryKey: walletSavedCardsKeys.transactionsByApp(appPrefix, input),
     queryFn: () => walletSavedCardsService.listTransactions(appPrefix, input),
     staleTime: 60 * 1000,
+  });
+}
+
+export function useConvertCustomerPointsMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: walletSavedCardsService.convertCustomerPoints,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: walletSavedCardsKeys.all,
+      });
+    },
   });
 }

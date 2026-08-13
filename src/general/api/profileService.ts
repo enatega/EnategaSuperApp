@@ -44,6 +44,19 @@ export type WalletResponse = {
   data: {
     name: string | null;
     wallet_balance: number;
+    spendable_points: number;
+    lifetime_points: number;
+    membership: {
+      id: string;
+      name: string;
+      points_multiplier: number;
+      minimum_points: number;
+      next_tier: {
+        name: string;
+        minimum_points: number;
+        points_remaining: number;
+      } | null;
+    } | null;
   };
 };
 

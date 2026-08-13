@@ -66,6 +66,8 @@ import {
   useWalletSavedCardsQuery,
   useWalletSetDefaultCardMutation,
 } from '../../../../general/api/walletSavedCardsService';
+import useProfile from '../../../../general/hooks/useProfile';
+import { useDeliveriesCurrencyLabel } from '../../../../general/stores/useAppConfigStore';
 
 const DELIVERY_ROOT_ROUTES = ['SingleVendor', 'MultiVendor', 'Chain'] as const;
 const ENABLE_CHECKOUT_PAYMENT_DEBUG = true;
@@ -162,6 +164,7 @@ function applyPercentageCouponFallback(params: {
 export default function CheckoutScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
+  const currencyLabel = useDeliveriesCurrencyLabel();
   const queryClient = useQueryClient();
   const navigation = useNavigation<NavigationProp<Record<string, object | undefined>>>();
   const [activeMessageTarget, setActiveMessageTarget] = React.useState<CheckoutMessageTarget | null>(null);
@@ -202,6 +205,7 @@ export default function CheckoutScreen() {
   const useCouponMutation = useUseCouponMutation();
   const savedCardsQuery = useWalletSavedCardsQuery('deliveries');
   const setDefaultCardMutation = useWalletSetDefaultCardMutation('deliveries');
+  const { wallet } = useProfile('deliveries');
   const [selectedStripeCardId, setSelectedStripeCardId] = React.useState<string | null>(null);
   const {
     data: cart,
@@ -242,6 +246,8 @@ export default function CheckoutScreen() {
     isError: isPreviewError,
     refetch: refetchPreview,
   } = useCheckoutPreview(previewInput);
+  const walletBalance = Number(wallet?.wallet_balance ?? 0);
+  const checkoutTotal = Number(preview?.pricing.totalAmount ?? cart?.finalPrice ?? 0);
 
   React.useEffect(() => {
     if (!previewInput) {
@@ -367,8 +373,8 @@ export default function CheckoutScreen() {
   }, [navigation]);
 
   const placeOrderMutation = usePlaceOrder({
-    onError: () => {
-      showToast.error(t('checkout_place_order_error'));
+    onError: (error) => {
+      showToast.error(t('checkout_place_order_error'), error.message);
     },
     onSuccess: (response) => {
       if (response.mode === 'stripe') {
@@ -404,29 +410,49 @@ export default function CheckoutScreen() {
       return;
     }
 
-    if (isCheckoutPaymentMethodAvailable(paymentMethod, preview.store)) {
+    if (
+      isCheckoutPaymentMethodAvailable(
+        paymentMethod,
+        preview.store,
+        walletBalance,
+        checkoutTotal,
+      )
+    ) {
       return;
     }
 
-    setPaymentMethod(getPreferredCheckoutPaymentMethod(preview.store));
-  }, [paymentMethod, preview?.store]);
+    setPaymentMethod(
+      getPreferredCheckoutPaymentMethod(
+        preview.store,
+        walletBalance,
+        checkoutTotal,
+      ),
+    );
+  }, [checkoutTotal, paymentMethod, preview?.store, walletBalance]);
 
   React.useEffect(() => {
-    if (preview?.store?.stripeAllowed === false && leaveAtDoor) {
+    if (
+      preview?.store?.stripeAllowed === false &&
+      walletBalance < checkoutTotal &&
+      leaveAtDoor
+    ) {
       setLeaveAtDoor(false);
     }
-  }, [leaveAtDoor, preview?.store?.stripeAllowed]);
+  }, [checkoutTotal, leaveAtDoor, preview?.store?.stripeAllowed, walletBalance]);
 
   React.useEffect(() => {
     if (orderType !== 'delivery' || !leaveAtDoor || !preview?.store) {
       return;
     }
 
-    if (paymentMethod === 'stripe') {
+    if (paymentMethod === 'stripe' || paymentMethod === 'wallet') {
       return;
     }
 
     if (!preview.store.stripeAllowed) {
+      if (checkoutTotal > 0 && walletBalance >= checkoutTotal) {
+        setPaymentMethod('wallet');
+      }
       return;
     }
 
@@ -435,7 +461,7 @@ export default function CheckoutScreen() {
       t('checkout_payment_card_title'),
       t('checkout_leave_at_door_switched_to_card'),
     );
-  }, [leaveAtDoor, orderType, paymentMethod, preview?.store, t]);
+  }, [checkoutTotal, leaveAtDoor, orderType, paymentMethod, preview?.store, t, walletBalance]);
 
   React.useEffect(() => {
     if (orderType !== 'pickup') {
@@ -542,7 +568,12 @@ export default function CheckoutScreen() {
       return;
     }
 
-    if (orderType === 'delivery' && leaveAtDoor && paymentMethod !== 'stripe') {
+    if (
+      orderType === 'delivery' &&
+      leaveAtDoor &&
+      paymentMethod !== 'stripe' &&
+      paymentMethod !== 'wallet'
+    ) {
       if (preview?.store?.stripeAllowed) {
         showToast.error(t('checkout_leave_at_door_card_required'));
         setIsPaymentMethodScreenVisible(true);
@@ -918,7 +949,12 @@ export default function CheckoutScreen() {
   }, [adjustedPreview]);
   const previewTotal = adjustedPreview?.pricing.totalAmount ?? cart.finalPrice;
   const selectedAddressLabel = formatDeliveryAddressLabel(selectedAddress);
-  const paymentIconName = paymentMethod === 'stripe' ? 'card-outline' : 'cash-outline';
+  const paymentIconName =
+    paymentMethod === 'stripe'
+      ? 'card-outline'
+      : paymentMethod === 'wallet'
+        ? 'wallet-outline'
+        : 'cash-outline';
   const paymentTitle = getCheckoutPaymentMethodTitle(paymentMethod, t);
   const defaultSavedCard = React.useMemo(
     () => savedCardsQuery.data?.cards.find((card) => card.isDefault) ?? null,
@@ -955,18 +991,25 @@ export default function CheckoutScreen() {
   const isPaymentAvailable = isCheckoutPaymentMethodAvailable(
     paymentMethod,
     preview?.store,
+    walletBalance,
+    checkoutTotal,
   );
   const isLeaveAtDoorCardRequired =
-    orderType === 'delivery' && leaveAtDoor && paymentMethod !== 'stripe';
+    orderType === 'delivery' &&
+    leaveAtDoor &&
+    paymentMethod !== 'stripe' &&
+    paymentMethod !== 'wallet';
   const leaveAtDoorPaymentErrorMessage = isLeaveAtDoorCardRequired
     ? (preview?.store?.stripeAllowed
       ? t('checkout_leave_at_door_card_required')
       : t('checkout_payment_card_unavailable_error'))
     : null;
   const paymentErrorMessage = !isPaymentAvailable
-    ? paymentMethod === 'stripe'
-      ? t('checkout_payment_card_unavailable_error')
-      : t('checkout_payment_cod_unavailable_error')
+    ? paymentMethod === 'wallet'
+      ? t('checkout_payment_wallet_insufficient')
+      : paymentMethod === 'stripe'
+        ? t('checkout_payment_card_unavailable_error')
+        : t('checkout_payment_cod_unavailable_error')
     : leaveAtDoorPaymentErrorMessage;
 
   if (stripeCheckout) {
@@ -1109,8 +1152,10 @@ export default function CheckoutScreen() {
       />
 
       <CheckoutPaymentMethodBottomSheet
+        currencyLabel={currencyLabel}
         isCardEnabled={preview?.store.stripeAllowed ?? false}
         isCashEnabled={preview?.store.codAllowed ?? true}
+        isWalletEnabled={checkoutTotal > 0 && walletBalance >= checkoutTotal}
         isSavingCardSelection={setDefaultCardMutation.isPending}
         isVisible={isPaymentMethodScreenVisible}
         onClose={() => {
@@ -1127,6 +1172,7 @@ export default function CheckoutScreen() {
         savedCards={savedCardsQuery.data?.cards ?? []}
         selectedCardId={selectedSavedCard?.id ?? null}
         selectedMethod={paymentMethod}
+        walletBalance={walletBalance}
       />
     </View>
   );
