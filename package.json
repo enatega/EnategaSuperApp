@@ -4,6 +4,7 @@
   "main": "index.ts",
   "scripts": {
     "generate:app-registry": "node scripts/generate-app-registry.cjs",
+    "postinstall": "node scripts/patch-stripe-ios.cjs",
     "prestart": "npm run generate:app-registry",
     "preandroid": "npm run generate:app-registry",
     "preios": "npm run generate:app-registry",
