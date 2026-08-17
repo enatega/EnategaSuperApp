@@ -55,6 +55,7 @@ export default function NearbyStoreList(props: Props) {
       address_id: filters?.address_id ?? null,
       stock: filters?.stock ?? null,
       sort_by: filters?.sort_by ?? null,
+      attribute_filters: filters?.attribute_filters ?? {},
     },
     requestParams: {
       category_id: resolvedCategoryId,

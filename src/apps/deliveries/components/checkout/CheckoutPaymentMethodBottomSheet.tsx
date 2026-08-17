@@ -15,8 +15,10 @@ import {
 } from './checkoutPaymentUtils';
 
 type Props = {
+  currencyLabel: string;
   isCardEnabled: boolean;
   isCashEnabled: boolean;
+  isWalletEnabled: boolean;
   isVisible: boolean;
   isSavingCardSelection?: boolean;
   onClose: () => void;
@@ -26,11 +28,14 @@ type Props = {
   savedCards: WalletSavedCard[];
   selectedCardId?: string | null;
   selectedMethod: CheckoutPaymentMethod;
+  walletBalance: number;
 };
 
 export default function CheckoutPaymentMethodBottomSheet({
+  currencyLabel,
   isCardEnabled,
   isCashEnabled,
+  isWalletEnabled,
   isVisible,
   isSavingCardSelection = false,
   onClose,
@@ -40,6 +45,7 @@ export default function CheckoutPaymentMethodBottomSheet({
   savedCards,
   selectedCardId,
   selectedMethod,
+  walletBalance,
 }: Props) {
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
@@ -52,7 +58,7 @@ export default function CheckoutPaymentMethodBottomSheet({
   const estimatedContentHeight =
     72 + // header + top spacing
     70 + // cash option
-    70 + // card option
+    140 + // card + wallet options
     (visibleCardCount > 0 ? Math.min(visibleCardCount, 4) * 54 + 12 : 0) + // saved cards + add card
     76 + // footer button
     Math.max(insets.bottom, 18);
@@ -100,6 +106,7 @@ export default function CheckoutPaymentMethodBottomSheet({
           >
             <Ionicons name="close" size={18} color={colors.text} />
           </Pressable>
+
         </View>
 
         <ScrollView
@@ -163,6 +170,35 @@ export default function CheckoutPaymentMethodBottomSheet({
             <Ionicons name={draftMethod === 'stripe' ? 'radio-button-on' : 'radio-button-off'} size={20} color={draftMethod === 'stripe' ? colors.primary : colors.iconDisabled} />
           </Pressable>
 
+          <Pressable
+            accessibilityRole="radio"
+            accessibilityState={{ disabled: !isWalletEnabled, selected: draftMethod === 'wallet' }}
+            disabled={!isWalletEnabled}
+            onPress={() => setDraftMethod('wallet')}
+            style={[
+              styles.option,
+              {
+                borderColor: draftMethod === 'wallet' ? colors.primary : colors.border,
+                borderWidth: draftMethod === 'wallet' ? 2 : 1,
+                opacity: isWalletEnabled ? 1 : 0.45,
+              },
+            ]}
+          >
+            <Ionicons name="wallet-outline" size={22} color={colors.text} />
+            <View style={styles.optionText}>
+              <Text weight="medium" style={{ color: colors.text, fontSize: typography.size.sm2, lineHeight: typography.lineHeight.md }}>
+                {getCheckoutPaymentMethodTitle('wallet', t)}
+              </Text>
+              <Text style={{ color: colors.mutedText, fontSize: typography.size.xs2, lineHeight: typography.lineHeight.sm }}>
+                {t('checkout_payment_wallet_balance', {
+                  balance: walletBalance.toFixed(2),
+                  currency: currencyLabel,
+                })}
+              </Text>
+            </View>
+            <Ionicons name={draftMethod === 'wallet' ? 'radio-button-on' : 'radio-button-off'} size={20} color={draftMethod === 'wallet' ? colors.primary : colors.iconDisabled} />
+          </Pressable>
+
           {draftMethod === 'stripe' ? (
             <View style={styles.cardsWrap}>
               {hasSavedCards ? savedCards.map((card) => (
@@ -224,7 +260,10 @@ export default function CheckoutPaymentMethodBottomSheet({
           <Button
             label={t('checkout_payment_selector_confirm')}
             onPress={() => onConfirm(draftMethod)}
-            disabled={draftMethod === 'stripe' && !selectedCardId}
+            disabled={
+              (draftMethod === 'stripe' && !selectedCardId) ||
+              (draftMethod === 'wallet' && !isWalletEnabled)
+            }
           />
         </View>
       </SwipeableBottomSheet>

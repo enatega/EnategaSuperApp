@@ -4,8 +4,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FlatList, StyleSheet } from 'react-native';
 import useDebouncedValue from '../../../../../general/hooks/useDebouncedValue';
 import type { DeliveryTopBrand } from '../../../api/types';
-import { discoveryService } from '../../../api/discoveryService';
-import { useNearbyStores, usePaginatedTopBrands } from '../../../hooks';
+import { usePaginatedTopBrands } from '../../../hooks';
 import TopBrandsSeeAllEmptyState from './TopBrandsSeeAllEmptyState';
 import TopBrandsSeeAllErrorState from './TopBrandsSeeAllErrorState';
 import TopBrandsSeeAllItem from './TopBrandsSeeAllItem';
@@ -25,7 +24,6 @@ export default function TopBrandsSeeAllContainer({
 }: TopBrandsSeeAllContainerProps) {
   const navigation = useNavigation<NavigationProp>();
   const debouncedSearchValue = useDebouncedValue(searchValue.trim(), 500);
-  const { data: nearbyStores = [] } = useNearbyStores();
   const {
     data: topBrands = [],
     isPending,
@@ -46,64 +44,15 @@ export default function TopBrandsSeeAllContainer({
     }
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  const resolveStoreFromBrand = useCallback((brand: DeliveryTopBrand) => {
-    const normalizedBrandName = brand.name.trim().toLowerCase();
-
-    const exactMatch = nearbyStores.find(
-      (store) => store.name.trim().toLowerCase() === normalizedBrandName,
-    );
-
-    if (exactMatch) {
-      return exactMatch;
-    }
-
-    return nearbyStores.find((store) =>
-      store.name.trim().toLowerCase().includes(normalizedBrandName),
-    );
-  }, [nearbyStores]);
-
   const handleBrandPress = useCallback(
-    async (brand: DeliveryTopBrand) => {
-      const matchedStore = resolveStoreFromBrand(brand);
-
-      if (matchedStore) {
-        navigation.navigate('StoreDetails', { store: matchedStore });
+    (brand: DeliveryTopBrand) => {
+      if (brand.storeId) {
+        navigation.navigate('StoreDetails', { storeId: brand.storeId });
         return;
       }
 
       if (!brand.vendorId) {
         return;
-      }
-
-      try {
-        const vendorStores = await discoveryService.getVendorStores({
-          vendorId: brand.vendorId,
-          offset: 0,
-          limit: 20,
-        });
-        const normalizedBrandName = brand.name.trim().toLowerCase();
-
-        const byVendorAndName = vendorStores.find((store) =>
-          store.vendorId === brand.vendorId &&
-          store.name.trim().toLowerCase() === normalizedBrandName,
-        );
-
-        const byVendorContainsName = vendorStores.find((store) =>
-          store.vendorId === brand.vendorId &&
-          store.name.trim().toLowerCase().includes(normalizedBrandName),
-        );
-
-        const byVendorOnly = vendorStores.find(
-          (store) => store.vendorId === brand.vendorId,
-        );
-
-        const resolvedStore = byVendorAndName ?? byVendorContainsName ?? byVendorOnly;
-        if (resolvedStore) {
-          navigation.navigate('StoreDetails', { store: resolvedStore });
-          return;
-        }
-      } catch {
-        // Fall through to the See All fallback below.
       }
 
       navigation.navigate('SeeAllScreen', {
@@ -113,7 +62,7 @@ export default function TopBrandsSeeAllContainer({
         vendorId: brand.vendorId,
       });
     },
-    [navigation, resolveStoreFromBrand],
+    [navigation],
   );
 
   if (isPending) {

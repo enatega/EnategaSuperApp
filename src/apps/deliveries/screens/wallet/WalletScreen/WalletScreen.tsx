@@ -12,6 +12,7 @@ import {
   useWalletSavedCardsQuery,
   useWalletSetDefaultCardMutation,
   useWalletTransactionsQuery,
+  useConvertCustomerPointsMutation,
 } from '../../../../../general/api/walletSavedCardsService';
 import WalletBalanceHeader from '../../../components/wallet/WalletBalanceHeader';
 import SavedCardRow from '../../../components/wallet/SavedCardRow';
@@ -19,16 +20,18 @@ import AddCardRow from '../../../components/wallet/AddCardRow';
 import WalletTransactionItem from '../../../components/wallet/WalletTransactionItem';
 import WalletTransactionsEmptyState from '../../../components/wallet/WalletTransactionsEmptyState';
 import type { DeliveriesStackParamList } from '../../../navigation/types';
+import PointsConversionCard from '../../../components/wallet/PointsConversionCard';
 
 export default function WalletScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const currencyLabel = useDeliveriesCurrencyLabel();
   const navigation = useNavigation<NavigationProp<DeliveriesStackParamList>>();
-  const { wallet } = useProfile('deliveries');
+  const { wallet, refetch } = useProfile('deliveries');
   const savedCardsQuery = useWalletSavedCardsQuery('deliveries');
   const setDefaultCardMutation = useWalletSetDefaultCardMutation('deliveries');
   const walletTransactionsQuery = useWalletTransactionsQuery('deliveries', { offset: 0, limit: 10 });
+  const convertPointsMutation = useConvertCustomerPointsMutation();
   const savedCards = savedCardsQuery.data?.cards ?? [];
   const transactions = walletTransactionsQuery.data?.data ?? [];
 
@@ -77,6 +80,27 @@ export default function WalletScreen() {
     [setDefaultCardMutation, t],
   );
 
+  const handleConvertPoints = useCallback(
+    async (points: number) => {
+      try {
+        const result = await convertPointsMutation.mutateAsync(points);
+        await Promise.all([refetch(), walletTransactionsQuery.refetch()]);
+        showToast.success(
+          t('wallet_points_convert_success'),
+          t('wallet_points_convert_success_message', { amount: result.amount.toFixed(2), currency: currencyLabel }),
+        );
+        return true;
+      } catch (error) {
+        showToast.error(
+          t('wallet_points_convert_error'),
+          error instanceof Error ? error.message : t('wallet_points_convert_error'),
+        );
+        return false;
+      }
+    },
+    [convertPointsMutation, currencyLabel, refetch, t, walletTransactionsQuery],
+  );
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
@@ -93,6 +117,18 @@ export default function WalletScreen() {
               balanceLabel={t('wallet_balance_label')}
               balance={wallet?.wallet_balance ?? 0}
               currency={currencyLabel}
+            />
+
+            <PointsConversionCard
+              availablePoints={wallet?.spendable_points ?? 0}
+              isLoading={convertPointsMutation.isPending}
+              onConvert={handleConvertPoints}
+              labels={{
+                title: t('wallet_points_convert_title'),
+                available: t('wallet_points_available'),
+                placeholder: t('wallet_points_placeholder'),
+                convert: t('wallet_points_convert_button'),
+              }}
             />
 
             {/* Cards section */}

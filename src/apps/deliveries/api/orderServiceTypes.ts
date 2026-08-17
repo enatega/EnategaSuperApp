@@ -1,6 +1,6 @@
 export type CheckoutOrderType = 'delivery' | 'pickup';
 
-export type CheckoutPaymentMethod = 'cod' | 'stripe';
+export type CheckoutPaymentMethod = 'cod' | 'stripe' | 'wallet';
 
 export type CheckoutPreviewInput = {
   storeId: string;
@@ -115,12 +115,12 @@ export type PlaceOrderInput = {
   cancelUrl?: string;
 };
 
-export type PlaceOrderCashResponse = {
-  mode: 'cod';
+export type PlaceOrderImmediateResponse = {
+  mode: 'cod' | 'wallet';
   orderId: string;
   status: string;
   paymentStatus: string;
-  paymentMethod: 'cash' | 'card';
+  paymentMethod: 'cash' | 'card' | 'wallet';
   orderType: CheckoutOrderType;
   totalAmount: number;
   scheduledAt: string | null;
@@ -136,5 +136,5 @@ export type PlaceOrderStripeResponse = {
 };
 
 export type PlaceOrderResponse =
-  | PlaceOrderCashResponse
+  | PlaceOrderImmediateResponse
   | PlaceOrderStripeResponse;

@@ -120,6 +120,7 @@ export const deliveryKeys = {
         stock?: string;
         price_tiers?: string | string[];
         sort_by?: string;
+        attribute_filters?: string;
     }) => [...deliveryKeys.discovery(), 'nearby-stores', filters] as const,
     recommendedStores: () =>
         [...deliveryKeys.discovery(), 'recommended-stores'] as const,
@@ -165,8 +166,8 @@ export const deliveryKeys = {
         search?: string;
         tab?: string;
     }) => [...deliveryKeys.discovery(), 'deals-listing', filters] as const,
-    filterValues: (storeId?: string) =>
-        [...deliveryKeys.discovery(), 'filter-values', storeId ?? 'all'] as const,
+    filterValues: (storeId?: string, categoryId?: string) =>
+        [...deliveryKeys.discovery(), 'filter-values', storeId ?? 'all', categoryId ?? 'all'] as const,
     route: (fromKey: string, toKey: string) =>
         [...deliveryKeys.discovery(), 'route', fromKey, toKey] as const,
 

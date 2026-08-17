@@ -36,16 +36,18 @@ export default function MainSeeAllScreen() {
   const debouncedSearch = useDebouncedValue(searchValue.trim(), 450);
   const initialCategoryId = route.params?.initialCategoryId;
   const initialShopTypeId = route.params?.initialShopTypeId;
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null,
+  );
 
   const { data: shopTypes = [] } = useShopTypes();
-  const { data: filterValues } = useFilterValues();
+  const { data: filterValues } = useFilterValues({
+    categoryId: selectedCategoryId ?? undefined,
+  });
   const filterState = useGenericListFilters({
     filterData: filterValues?.filters,
   });
   const [selectedShopTypeId, setSelectedShopTypeId] = useState<string>("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null,
-  );
   const [hasAppliedInitialCategory, setHasAppliedInitialCategory] = useState(
     !initialCategoryId,
   );
@@ -121,10 +123,12 @@ export default function MainSeeAllScreen() {
   ]);
 
   const handleCategorySelect = (categoryId: string) => {
+    filterState.clearAllFilters();
     setSelectedCategoryId((prev) => (prev === categoryId ? null : categoryId));
   };
 
   const handleShopTypeSelect = (shopTypeId: string) => {
+    filterState.clearAllFilters();
     setSelectedShopTypeId(shopTypeId);
     setSelectedCategoryId(null);
   };
@@ -164,6 +168,7 @@ export default function MainSeeAllScreen() {
         <MainSeeAllCategoriesSection
           categories={categories}
           isPending={isCategoriesPending}
+          isFetchingNextPage={isFetchingNextCategoriesPage}
           isError={hasCategoriesError}
           selectedCategoryId={selectedCategoryId}
           onSelectCategory={handleCategorySelect}
@@ -212,6 +217,7 @@ export default function MainSeeAllScreen() {
         onSelectAddress={filterState.selectAddress}
         onSelectStock={filterState.selectStock}
         onSelectSort={filterState.selectSort}
+        onToggleAttribute={filterState.toggleAttribute}
         filters={filterValues?.filters}
       />
     </View>

@@ -73,6 +73,7 @@ export interface DeliveryShopTypeProductsParams {
     subcategory_id?: string;
     price_tiers?: string;
     sort_by?: string;
+    attribute_filters?: string;
 }
 
 export interface DeliveryShopTypeStoresParams {
@@ -87,6 +88,7 @@ export interface DeliveryShopTypeStoresParams {
     subcategory_id?: string;
     price_tiers?: string;
     sort_by?: string;
+    attribute_filters?: string;
 }
 
 export interface DeliveryVendorStoresParams {
@@ -101,6 +103,7 @@ export interface DeliveryVendorStoresParams {
     subcategory_id?: string;
     price_tiers?: string;
     sort_by?: string;
+    attribute_filters?: string;
 }
 
 export interface DeliveryFilterValueCategory {
@@ -146,10 +149,16 @@ export interface DeliveryProductFilterValues {
         priceTiers: DeliveryFilterValuePriceTier[];
         stock: DeliveryFilterValueStockOption[];
         sortBy: DeliveryFilterValueSortOption[];
+        attributes: Array<{
+            id: string;
+            label: string;
+            options: Array<DeliveryFilterValueSortOption & { productCount: number }>;
+        }>;
     };
 }
 
 export interface DeliveryTopBrand {
+    storeId?: string;
     vendorId?: string;
     name: string;
     logo?: string | null;
@@ -203,6 +212,7 @@ export interface DeliveryNearbyStoresParams {
     subcategory_id?: string;
     price_tiers?: string | string[];
     sort_by?: string;
+    attribute_filters?: string;
 }
 
 export interface DeliveryRecommendedStoresParams {

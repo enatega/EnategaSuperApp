@@ -41,6 +41,7 @@ export default function DeliveriesSeeAllFilterSheet(props: Props) {
       onSelectAddress={props.onSelectAddress}
       onSelectStock={props.onSelectStock}
       onSelectSort={props.onSelectSort}
+      onToggleAttribute={props.onToggleAttribute}
     />
   );
 }

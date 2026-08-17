@@ -38,6 +38,7 @@ type Props = {
   onSelectAddress: (addressId: string) => void;
   onSelectStock: (stockId: string) => void;
   onSelectSort: (sortId: string) => void;
+  onToggleAttribute?: (filterId: string, optionId: string) => void;
 };
 
 const SHEET_HEIGHT = Math.min(Dimensions.get('window').height * 0.78, 760);
@@ -65,6 +66,7 @@ export default function MainFilterSheet({
   onSelectAddress,
   onSelectStock,
   onSelectSort,
+  onToggleAttribute,
 }: Props) {
   const insets = useSafeAreaInsets();
   const { colors, typography } = useTheme();
@@ -188,6 +190,22 @@ export default function MainFilterSheet({
                 />
               </View>
             ) : null}
+
+            {filters?.attributes?.map((filter) => (
+              <View key={filter.id} style={styles.section}>
+                <Text variant="subtitle" weight="bold">{decodeFilterLabel(filter.label)}</Text>
+                <View style={styles.chipWrap}>
+                  {filter.options.map((option) => (
+                    <MainFilterOptionChip
+                      key={option.value}
+                      label={decodeFilterLabel(option.label)}
+                      isSelected={draftFilters.attribute_filters?.[filter.id]?.includes(option.value) || false}
+                      onPress={() => onToggleAttribute?.(filter.id, option.value)}
+                    />
+                  ))}
+                </View>
+              </View>
+            ))}
 
             {filters?.addresses?.length ? (
               <View style={styles.section}>

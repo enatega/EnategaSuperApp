@@ -323,6 +323,9 @@ export function useShopTypeProducts(
     price_tiers: options?.filters?.price_tiers ?? undefined,
     stock: normalizeStockValue(options?.filters?.stock),
     sort_by: options?.filters?.sort_by ?? undefined,
+    attribute_filters: Object.keys(options?.filters?.attribute_filters || {}).length
+      ? JSON.stringify(options?.filters?.attribute_filters)
+      : undefined,
   };
 
   const query = useInfiniteQuery<
@@ -382,6 +385,9 @@ export function useShopTypeStores(
     price_tiers: options?.filters?.price_tiers ?? undefined,
     stock: normalizeStockValue(options?.filters?.stock),
     sort_by: options?.filters?.sort_by ?? undefined,
+    attribute_filters: Object.keys(options?.filters?.attribute_filters || {}).length
+      ? JSON.stringify(options?.filters?.attribute_filters)
+      : undefined,
   };
 
   const query = useInfiniteQuery<
@@ -476,6 +482,9 @@ export function useVendorStores(
     price_tiers: options?.filters?.price_tiers ?? undefined,
     stock: normalizeStockValue(options?.filters?.stock),
     sort_by: options?.filters?.sort_by ?? undefined,
+    attribute_filters: Object.keys(options?.filters?.attribute_filters || {}).length
+      ? JSON.stringify(options?.filters?.attribute_filters)
+      : undefined,
   };
 
   const query = useInfiniteQuery<
@@ -637,6 +646,9 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
       : undefined,
     stock: normalizeStockValue(options?.filters?.stock),
     sort_by: options?.filters?.sort_by ?? undefined,
+    attribute_filters: Object.keys(options?.filters?.attribute_filters || {}).length
+      ? JSON.stringify(options?.filters?.attribute_filters)
+      : undefined,
   };
 
   const query = useInfiniteQuery<
@@ -654,6 +666,7 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
         stock: nearbyStoreParams.stock,
         price_tiers: nearbyStoreParams.price_tiers,
         sort_by: nearbyStoreParams.sort_by,
+        attribute_filters: nearbyStoreParams.attribute_filters,
       }),
       {
         filters: options?.filters,
@@ -663,22 +676,18 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
         search: options?.search?.trim() ?? '',
       },
     ],
-    queryFn: ({ pageParam = 0 }) => {
-      const requestPayload = {
+    queryFn: ({ pageParam = 0 }) =>
+      discoveryService.getNearbyStoresPage({
         offset: pageParam as number,
         limit,
         search: options?.search?.trim() || undefined,
         ...nearbyStoreParams,
-      } satisfies DeliveryNearbyStoresParams;
-      console.log('[deliveries-filters] nearby-request', requestPayload);
-      return discoveryService.getNearbyStoresPage(requestPayload);
-    },
+      }),
     initialPageParam: 0,
     getNextPageParam: (lastPage) =>
       lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
     enabled: options?.enabled ?? true,
-    staleTime: 0,
-    refetchOnMount: 'always',
+    staleTime: 5 * 60 * 1000,
   });
 
   const items =
