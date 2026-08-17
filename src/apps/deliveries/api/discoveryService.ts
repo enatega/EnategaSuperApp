@@ -652,7 +652,6 @@ export const discoveryService = {
     ): Promise<DeliveryBanner[]> => {
         const { offset = 0, limit = 10 } = params;
         const query = { offset, limit };
-        console.log('[deliveries][getMobileBanners] request', { query });
 
         const parseBanners = (response: DeliveryBannersApiResponse): DeliveryBanner[] => {
             if (Array.isArray(response)) {
@@ -676,25 +675,14 @@ export const discoveryService = {
                 query,
             );
             const banners = parseBanners(response);
-            console.log('[deliveries][getMobileBanners] response', {
-                count: banners.length,
-                source: '/api/v1/apps/deliveries/banners/mobile',
-            });
             return banners;
         } catch (primaryError) {
-            console.log('[deliveries][getMobileBanners] primary-failed-fallbacking', {
-                source: '/api/v1/apps/deliveries/banners/mobile',
-            });
             try {
                 const fallbackResponse = await apiClient.get<DeliveryBannersApiResponse>(
                     '/api/v1/deliveries/banners/mobile',
                     query,
                 );
                 const banners = parseBanners(fallbackResponse);
-                console.log('[deliveries][getMobileBanners] response', {
-                    count: banners.length,
-                    source: '/api/v1/deliveries/banners/mobile',
-                });
                 return banners;
             } catch (fallbackError) {
                 console.error('mobile banners request failed', {
@@ -778,19 +766,12 @@ export const discoveryService = {
                 : NEARBY_STORES_DEFAULTS.limit;
 
         try {
-            console.log('[deliveries-filters] nearby-query-params', queryParams);
             const response = await apiClient.get<DeliveryNearbyStoresApiResponse>(
                 '/api/v1/apps/deliveries/discovery/nearby-stores',
                 queryParams,
             );
 
             const paginatedResponse = toPaginatedResponse(response, { offset, limit });
-            console.log('[deliveries-filters] nearby-response-count', {
-                total: paginatedResponse.total,
-                itemsLength: paginatedResponse.items.length,
-                storeIds: paginatedResponse.items.map((item) => item.storeId),
-            });
-
             return paginatedResponse;
         } catch (error) {
             console.error('nearby stores request failed', error);
@@ -950,8 +931,6 @@ export const discoveryService = {
             longitude,
         };
 
-        console.log('[deliveries][getOffersForYou] request', query);
-
         try {
             const response = await apiClient.get<DeliveryOffersForYouApiResponse>(
                 '/api/v1/apps/deliveries/discovery/offers-for-you',
@@ -967,10 +946,6 @@ export const discoveryService = {
                 items = response.data;
             }
 
-            console.log('[deliveries][getOffersForYou] response', {
-                count: items.length,
-                firstItem: items[0] ?? null,
-            });
             return items;
         } catch (error) {
             console.error('offers-for-you request failed', {

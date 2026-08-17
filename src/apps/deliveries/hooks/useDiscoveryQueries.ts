@@ -676,22 +676,18 @@ export function useNearbyStores(options?: UseNearbyStoresOptions) {
         search: options?.search?.trim() ?? '',
       },
     ],
-    queryFn: ({ pageParam = 0 }) => {
-      const requestPayload = {
+    queryFn: ({ pageParam = 0 }) =>
+      discoveryService.getNearbyStoresPage({
         offset: pageParam as number,
         limit,
         search: options?.search?.trim() || undefined,
         ...nearbyStoreParams,
-      } satisfies DeliveryNearbyStoresParams;
-      console.log('[deliveries-filters] nearby-request', requestPayload);
-      return discoveryService.getNearbyStoresPage(requestPayload);
-    },
+      }),
     initialPageParam: 0,
     getNextPageParam: (lastPage) =>
       lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
     enabled: options?.enabled ?? true,
-    staleTime: 0,
-    refetchOnMount: 'always',
+    staleTime: 5 * 60 * 1000,
   });
 
   const items =

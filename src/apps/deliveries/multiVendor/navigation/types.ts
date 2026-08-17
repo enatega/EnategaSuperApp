@@ -21,6 +21,7 @@ export type MultiVendorStackParamList = {
   Favourites: undefined;
   StoreDetails: {
     store?: DeliveryNearbyStore;
+    storeId?: string;
   };
   SeeAllScreen: {
     queryType: SeeAllListingType;

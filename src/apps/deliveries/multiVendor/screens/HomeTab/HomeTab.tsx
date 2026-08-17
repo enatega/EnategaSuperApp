@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
-import { Image as RNImage, ScrollView, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { InteractionManager, ScrollView, View } from 'react-native';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -33,6 +33,9 @@ import type { DeliveryBanner } from '../../../api/types';
 type NavProp = NativeStackNavigationProp<DeliveriesStackParamList>;
 
 export default function HomeTab() {
+  const mountedAt = useRef(Date.now());
+  const hasLoggedInitialContent = useRef(false);
+  const [showDeferredContent, setShowDeferredContent] = useState(false);
   const { colors } = useTheme();
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavProp>();
@@ -94,18 +97,35 @@ export default function HomeTab() {
     (isAddressesLoading || isLoadingCurrentLocation);
 
   useEffect(() => {
-    if (banners.length === 0) {
+    if (shouldWaitForInitialDiscovery || showDeferredContent) {
       return;
     }
 
-    const imageUrls = banners
-      .map((banner) => banner.bannerImageLink?.trim())
-      .filter((url): url is string => Boolean(url));
-
-    imageUrls.forEach((url) => {
-      void RNImage.prefetch(url);
+    const task = InteractionManager.runAfterInteractions(() => {
+      setShowDeferredContent(true);
     });
-  }, [banners]);
+
+    return () => task.cancel();
+  }, [shouldWaitForInitialDiscovery, showDeferredContent]);
+
+  useEffect(() => {
+    if (!__DEV__ || shouldWaitForInitialDiscovery || hasLoggedInitialContent.current) {
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => {
+      hasLoggedInitialContent.current = true;
+      console.log(`[deliveries-home] first-content-render ${Date.now() - mountedAt.current}ms`);
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [shouldWaitForInitialDiscovery]);
+
+  useEffect(() => {
+    if (__DEV__ && showDeferredContent) {
+      console.log(`[deliveries-home] below-fold-mounted ${Date.now() - mountedAt.current}ms`);
+    }
+  }, [showDeferredContent]);
 
   const handleSelectAddress = useCallback(
     async (address: ProfileAddress) => {
@@ -262,18 +282,22 @@ export default function HomeTab() {
             <SharedSpecialOffersBanner banners={topBanners} isPending={isBannersPending} />
             <TopBrandsList />
             <NearbyStoreList />
-            <OffersForYouSection />
-            <MultiVendorDealsSection />
-            <SharedSpecialOffersBanner
-              banners={stickyBanners}
-              isPending={isBannersPending}
-              layout="stack"
-              maxItems={2}
-            />
-            <ShopTypeStoreSections />
-            <SharedSpecialOffersBanner banners={middleBanners} isPending={isBannersPending} />
-            <OrderAgain />
-            <SharedSpecialOffersBanner banners={bottomBanners} isPending={isBannersPending} />
+            {showDeferredContent ? (
+              <>
+                <OffersForYouSection />
+                <MultiVendorDealsSection />
+                <SharedSpecialOffersBanner
+                  banners={stickyBanners}
+                  isPending={isBannersPending}
+                  layout="stack"
+                  maxItems={2}
+                />
+                <ShopTypeStoreSections />
+                <SharedSpecialOffersBanner banners={middleBanners} isPending={isBannersPending} />
+                <OrderAgain />
+                <SharedSpecialOffersBanner banners={bottomBanners} isPending={isBannersPending} />
+              </>
+            ) : null}
           </>
         )}
       </ScrollView>

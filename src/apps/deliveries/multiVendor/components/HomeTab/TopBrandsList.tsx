@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import HorizontalList from '../../../../../general/components/HorizontalList';
 import SectionActionHeader from '../../../../../general/components/SectionActionHeader';
-import { useNearbyStores, useTopBrands } from '../../../hooks';
+import { useTopBrands } from '../../../hooks';
 import type { DeliveryTopBrand } from '../../../api/types';
 import TopBrandsListSkeleton from './HomeTabSkeletons/TopBrandsListSkeleton';
 import TopBrandCard from '../../../components/storeCard/TopBrandCard';
@@ -21,34 +21,15 @@ export default function TopBrandsList() {
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavigationProp>();
   const { data: topBrands = [], isPending: isTopBrandsPending } = useTopBrands();
-  const { data: nearbyStores = [] } = useNearbyStores();
   const shouldShowSeeAll = !isTopBrandsPending && topBrands.length > 0;
   const isEmpty = !isTopBrandsPending && topBrands.length === 0;
   const handleSeeAllPress = useCallback(() => {
     navigation.navigate('TopBrandsSeeAll');
   }, [navigation]);
 
-  const resolveStoreFromBrand = useCallback((brand: DeliveryTopBrand) => {
-    const normalizedBrandName = brand.name.trim().toLowerCase();
-
-    const exactMatch = nearbyStores.find(
-      (store) => store.name.trim().toLowerCase() === normalizedBrandName,
-    );
-
-    if (exactMatch) {
-      return exactMatch;
-    }
-
-    return nearbyStores.find((store) =>
-      store.name.trim().toLowerCase().includes(normalizedBrandName),
-    );
-  }, [nearbyStores]);
-
   const handleTopBrandPress = useCallback((brand: DeliveryTopBrand) => {
-    const matchedStore = resolveStoreFromBrand(brand);
-
-    if (matchedStore) {
-      navigation.navigate('StoreDetails', { store: matchedStore });
+    if (brand.storeId) {
+      navigation.navigate('StoreDetails', { storeId: brand.storeId });
       return;
     }
 
@@ -62,7 +43,7 @@ export default function TopBrandsList() {
       cardType: 'store',
       vendorId: brand.vendorId,
     });
-  }, [navigation, resolveStoreFromBrand]);
+  }, [navigation]);
 
   return (
     <View style={styles.section}>
@@ -90,7 +71,7 @@ export default function TopBrandsList() {
               accessibilityRole="button"
               accessibilityLabel={item.name}
               onPress={() => handleTopBrandPress(item)}
-              disabled={!item.vendorId}
+              disabled={!item.storeId && !item.vendorId}
             >
               <TopBrandCard brand={item} />
             </Pressable>

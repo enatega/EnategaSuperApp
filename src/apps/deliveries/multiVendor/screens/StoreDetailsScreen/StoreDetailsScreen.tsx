@@ -27,6 +27,7 @@ import type { DeliveryProductActionTarget } from '../../../cart/productActionTyp
 type StoreDetailsParamList = {
   StoreDetails: {
     store?: DeliveryNearbyStore;
+    storeId?: string;
   };
 };
 
@@ -76,7 +77,7 @@ export default function StoreDetailsScreen() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string | null>(null);
   const selectedStore = route.params?.store;
-  const storeId = selectedStore?.storeId ?? '';
+  const storeId = route.params?.storeId ?? selectedStore?.storeId ?? '';
   const [optimisticFav, setOptimisticFav] = useState<boolean | null>(null);
 
   const { mutate: toggleFavourite, isPending: isTogglingFavourite } = useToggleFavouriteMutation({
