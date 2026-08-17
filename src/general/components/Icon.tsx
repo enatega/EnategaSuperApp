@@ -11,6 +11,7 @@ import {
   SimpleLineIcons,
 } from "@expo/vector-icons";
 import { StyleProp, TextStyle } from "react-native";
+import { useTheme } from "../theme/theme";
 
 export type IconType =
   | "Ionicons"
@@ -47,10 +48,11 @@ const Icon: React.FC<AppIconProps> = ({
   type = "Ionicons",
   name,
   size = 24,
-  color = "#000",
+  color,
   style,
   ...rest
 }) => {
+  const { colors } = useTheme();
   const IconComponent = iconLibraries[type];
 
   if (!IconComponent) return null;
@@ -59,7 +61,7 @@ const Icon: React.FC<AppIconProps> = ({
     <IconComponent
       name={name}
       size={size}
-      color={color}
+      color={color ?? colors.iconColor}
       style={style}
       {...rest}
     />

@@ -29,7 +29,7 @@ export default function DealsSeeAllListHeader({
   return (
     <View style={styles.container}>
       {isTabsVisible ? (
-        <View style={styles.tabsRow}>
+        <View style={[styles.tabsRow, { borderBottomColor: colors.border }]}>
           {tabs.map((tab, index) => {
             const isSelected = selectedTab === tab?.key;
 
@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
     minWidth: 150,
   },
   tabsRow: {
-    borderBottomColor: "rgba(17, 24, 39, 0.12)",
     borderBottomWidth: StyleSheet.hairlineWidth,
     flexDirection: "row",
     justifyContent: "space-between",

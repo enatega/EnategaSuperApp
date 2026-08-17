@@ -29,7 +29,8 @@ export default function CheckoutScheduleScreen({
   selectedScheduledAt,
   storeId,
 }: Props) {
-  const { colors, typography } = useTheme();
+  const { colors, isDark, typography } = useTheme();
+  const selectionColor = isDark ? colors.primary : colors.blue800;
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
   const scheduleInput = React.useMemo(
@@ -198,7 +199,7 @@ export default function CheckoutScheduleScreen({
                       <Text
                         weight="medium"
                         style={{
-                          color: isSelected ? colors.blue800 : colors.mutedText,
+                          color: isSelected ? selectionColor : colors.mutedText,
                           fontSize: typography.size.sm2,
                           lineHeight: typography.lineHeight.md,
                         }}
@@ -218,6 +219,8 @@ export default function CheckoutScheduleScreen({
         style={[
           styles.footer,
           {
+            backgroundColor: colors.surface,
+            borderTopColor: colors.border,
             paddingBottom: insets.bottom + 12,
           },
         ]}
@@ -280,6 +283,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   footer: {
+    borderTopWidth: 1,
     gap: 8,
     paddingHorizontal: 16,
     paddingTop: 12,

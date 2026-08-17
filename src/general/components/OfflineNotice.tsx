@@ -38,25 +38,25 @@ export default function OfflineNotice({ forceVisible = false }: Props) {
         style={[
           styles.bar,
           {
-            backgroundColor: '#FFF3D6',
-            borderBottomColor: '#F3D08B',
+            backgroundColor: colors.warningSoft,
+            borderBottomColor: colors.warning,
             paddingTop: insets.top + 10,
           },
         ]}
       >
-        <View style={styles.iconWrap}>
-          <Icon type="Feather" name="wifi-off" size={16} color="#9A6700" />
+        <View style={[styles.iconWrap, { backgroundColor: colors.warningSoft }]}>
+          <Icon type="Feather" name="wifi-off" size={16} color={colors.warningText} />
         </View>
         <View style={styles.content}>
           <Text
             weight="semiBold"
-            color="#7A4B00"
+            color={colors.warningText}
             style={[styles.title, { fontSize: typography.size.sm2 }]}
           >
             {t('offline_notice_title')}
           </Text>
           <Text
-            color="rgba(122,75,0,0.84)"
+            color={colors.warningText}
             style={[styles.subtitle, { fontSize: typography.size.xs2 }]}
           >
             {t('offline_notice_description')}
@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
-    backgroundColor: 'rgba(245, 158, 11, 0.18)',
   },
   content: {
     flex: 1,

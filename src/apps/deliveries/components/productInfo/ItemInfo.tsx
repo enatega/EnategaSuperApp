@@ -61,7 +61,7 @@ export default function ItemInfo({
         <View style={styles.priceRow}>
           {originalPriceLabel ? (
             <Text
-              color={colors.fontSecondColor}
+              color={colors.mutedText}
               style={[
                 styles.originalPrice,
                 {
@@ -74,7 +74,7 @@ export default function ItemInfo({
             </Text>
           ) : null}
           <Text
-            color={colors.blue800}
+            color={colors.primary}
             weight="medium"
             style={{
               fontSize: typography.size.md,
@@ -84,9 +84,9 @@ export default function ItemInfo({
             {priceLabel}
           </Text>
           {offerLabel ? (
-            <View style={[styles.offerBadge, { backgroundColor: colors.secondary }]}>
+            <View style={[styles.offerBadge, { backgroundColor: colors.blue100 }]}>
               <Text
-                color={colors.blue800}
+                color={colors.primary}
                 weight="medium"
                 style={{
                   fontSize: typography.size.xxs,

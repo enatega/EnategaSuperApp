@@ -38,7 +38,7 @@ function PaymentOptionCard({
   onPress,
   title,
 }: PaymentOptionCardProps) {
-  const { colors, typography } = useTheme();
+  const { colors, isDark, typography } = useTheme();
 
   return (
     <Pressable
@@ -49,7 +49,7 @@ function PaymentOptionCard({
       style={[
         styles.optionCard,
         {
-          backgroundColor: colors.surface,
+          backgroundColor: isDark && isSelected ? colors.blue50 : colors.surface,
           borderColor: isSelected ? colors.primary : colors.border,
           opacity: isDisabled ? 0.45 : 1,
         },
@@ -240,7 +240,7 @@ export default function CheckoutPaymentMethodScreen({
         style={[
           styles.footer,
           {
-            backgroundColor: colors.background,
+            backgroundColor: colors.surface,
             borderColor: colors.border,
             paddingBottom: Math.max(insets.bottom, 12),
           },

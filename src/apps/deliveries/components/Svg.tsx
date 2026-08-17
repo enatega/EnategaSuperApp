@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleProp, ViewStyle } from "react-native";
 import { SvgProps } from "react-native-svg";
+import { useTheme } from "../../../general/theme/theme";
 
 /**
  * 1️⃣ Import your SVG files here.
@@ -36,10 +37,11 @@ const Svg: React.FC<AppSvgProps> = ({
   name,
   width = 200,
   height = 200,
-  color = "#000",
+  color,
   style,
   ...rest
 }) => {
+  const { colors } = useTheme();
   const SvgComponent = svgIcons[name];
 
   if (!SvgComponent) return null;
@@ -48,7 +50,7 @@ const Svg: React.FC<AppSvgProps> = ({
     <SvgComponent
       width={width}
       height={height}
-      fill={color}
+      fill={color ?? colors.iconColor}
       style={style}
       {...rest}
     />

@@ -59,11 +59,11 @@ function parseColorToRgb(color?: ColorValue | null) {
   return { r, g, b };
 }
 
-function isLightColor(color?: ColorValue | null) {
+function getLuminance(color?: ColorValue | null) {
   const rgb = parseColorToRgb(color);
 
   if (!rgb) {
-    return false;
+    return null;
   }
 
   const toLinear = (channel: number) => {
@@ -73,8 +73,26 @@ function isLightColor(color?: ColorValue | null) {
       : ((normalized + 0.055) / 1.055) ** 2.4;
   };
 
-  const luminance = (0.2126 * toLinear(rgb.r)) + (0.7152 * toLinear(rgb.g)) + (0.0722 * toLinear(rgb.b));
-  return luminance > 0.45;
+  return (0.2126 * toLinear(rgb.r)) + (0.7152 * toLinear(rgb.g)) + (0.0722 * toLinear(rgb.b));
+}
+
+function getReadableColor(background: ColorValue, candidates: string[]) {
+  const backgroundLuminance = getLuminance(background);
+
+  if (backgroundLuminance === null) {
+    return candidates[0];
+  }
+
+  return candidates.reduce((bestColor, candidate) => {
+    const bestLuminance = getLuminance(bestColor) ?? 0;
+    const candidateLuminance = getLuminance(candidate) ?? 0;
+    const contrast = (Math.max(backgroundLuminance, candidateLuminance) + 0.05)
+      / (Math.min(backgroundLuminance, candidateLuminance) + 0.05);
+    const bestContrast = (Math.max(backgroundLuminance, bestLuminance) + 0.05)
+      / (Math.min(backgroundLuminance, bestLuminance) + 0.05);
+
+    return contrast > bestContrast ? candidate : bestColor;
+  });
 }
 
 export default function Button({
@@ -89,7 +107,6 @@ export default function Button({
 }: Props) {
   const { colors } = useTheme();
   const isGhost = variant === 'ghost';
-  const isSecondary = variant === 'secondary';
   const isDanger = variant === 'danger';
   const isDisabled = disabled || isLoading;
   const flattenedStyle = StyleSheet.flatten(style) ?? {};
@@ -97,17 +114,21 @@ export default function Button({
     ? 'transparent'
     : isDanger
       ? colors.danger
-      : isSecondary
+      : variant === 'secondary'
         ? colors.surface
         : colors.primary;
-  const resolvedBackgroundColor = flattenedStyle.backgroundColor ?? baseBackgroundColor;
+  const resolvedBackgroundColor = disabled
+    ? colors.backgroundTertiary
+    : flattenedStyle.backgroundColor ?? baseBackgroundColor;
   const contentColor = isGhost
     ? colors.primary
-    : isDisabled && isLightColor(resolvedBackgroundColor)
+    : isDisabled
       ? colors.mutedText
-      : isSecondary || isLightColor(resolvedBackgroundColor)
-        ? colors.text
-        : colors.white;
+      : getReadableColor(resolvedBackgroundColor, [
+          colors.text,
+          colors.background,
+          colors.white,
+        ]);
 
   return (
     <Pressable
@@ -123,6 +144,10 @@ export default function Button({
           opacity: isDisabled ? 0.6 : pressed ? 0.85 : 1,
         },
         style,
+        disabled && {
+          backgroundColor: colors.backgroundTertiary,
+          borderColor: colors.border,
+        },
       ]}
     >
       <View style={styles.content}>

@@ -26,7 +26,8 @@ export default function CheckoutDeliveryTimeSection({
   standardEtaLabel,
   onSelectMode,
 }: Props) {
-  const { colors, typography } = useTheme();
+  const { colors, isDark, typography } = useTheme();
+  const selectionColor = isDark ? colors.primary : colors.blue800;
   const { t } = useTranslation('deliveries');
 
   return (
@@ -52,13 +53,13 @@ export default function CheckoutDeliveryTimeSection({
           styles.option,
           {
             backgroundColor: colors.surface,
-            borderColor: selectedMode === 'standard' ? colors.blue800 : colors.border,
+            borderColor: selectedMode === 'standard' ? selectionColor : colors.border,
             shadowColor: colors.shadowColor,
           },
         ]}
       >
         <Ionicons
-          color={selectedMode === 'standard' ? colors.blue800 : colors.border}
+          color={selectedMode === 'standard' ? selectionColor : colors.iconDisabled}
           name={selectedMode === 'standard' ? 'radio-button-on' : 'radio-button-off'}
           size={18}
         />
@@ -97,13 +98,13 @@ export default function CheckoutDeliveryTimeSection({
             styles.option,
             {
               backgroundColor: colors.surface,
-              borderColor: selectedMode === 'schedule' ? colors.blue800 : colors.border,
+              borderColor: selectedMode === 'schedule' ? selectionColor : colors.border,
               shadowColor: colors.shadowColor,
             },
           ]}
         >
           <Ionicons
-            color={selectedMode === 'schedule' ? colors.blue800 : colors.border}
+            color={selectedMode === 'schedule' ? selectionColor : colors.iconDisabled}
             name={selectedMode === 'schedule' ? 'radio-button-on' : 'radio-button-off'}
             size={18}
           />

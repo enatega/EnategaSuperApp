@@ -72,7 +72,12 @@ function AppSwitcherTopBarComponent({
 
   return (
     <View style={[styles.wrapper, overlayOnMap ? styles.wrapperOverlay : null, { paddingTop: topInset }]}>
-      <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: colors.surface, borderColor: colors.border },
+        ]}
+      >
         <View style={styles.tabsRow}>
           {OPTIONS.map((option) => {
             const isActive = option.key === activeKey;
@@ -94,7 +99,7 @@ function AppSwitcherTopBarComponent({
                   style={[
                     styles.optionText,
                     {
-                      color: isActive ? colors.blue800 : '#374151',
+                      color: isActive ? colors.blue800 : colors.mutedText,
                       fontFamily: isActive
                         ? typography.fontFamily.semiBold
                         : typography.fontFamily.medium,
@@ -142,7 +147,6 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: '#E4E4E7',
     padding: 4,
   },
   tabsRow: {

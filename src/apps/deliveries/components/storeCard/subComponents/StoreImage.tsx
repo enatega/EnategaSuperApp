@@ -21,7 +21,9 @@ export default function StoreImage({
   isClosed = false,
   closedLabel,
 }: StoreImageProps) {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const offerBackgroundColor = isDark ? colors.successSoft : colors.secondary;
+  const offerContentColor = isDark ? colors.successText : colors.blue800;
 
   return (
     <View style={styles.imageContainer}>
@@ -40,19 +42,18 @@ export default function StoreImage({
       ) : null}
 
       {offer && (
-        <View style={[styles.offerBadge, { backgroundColor: colors.secondary }]}>
+        <View style={[styles.offerBadge, { backgroundColor: offerBackgroundColor }]}>
           <Ionicons
             name="pricetag"
             size={12}
-            color={colors.blue800}
+            color={offerContentColor}
             style={styles.offerIcon}
           />
           <Text
             variant="caption"
             weight="semiBold"
-            style={[styles.offerText, { color: colors.blue800 }]}
+            style={[styles.offerText, { color: offerContentColor }]}
             numberOfLines={1}
-            ellipsizeMode="tail"
           >
             {offer}
           </Text>

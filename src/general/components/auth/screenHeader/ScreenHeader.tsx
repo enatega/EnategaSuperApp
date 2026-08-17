@@ -2,12 +2,10 @@ import React from "react";
 import { View, TouchableOpacity, StyleSheet, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Icon from "../../Icon";
+import type { ThemeColors } from "../../../theme/colors";
 
 interface ScreenHeaderProps {
-  colors: {
-    iconColor: string;
-    background?: string;
-  };
+  colors: ThemeColors;
   onBack: () => void;
 }
 
@@ -49,7 +47,7 @@ const ScreenHeader: React.FC<ScreenHeaderProps> = ({ colors, onBack }) => {
   );
 };
 
-const styles = (colors:any) =>
+const styles = (colors: ThemeColors) =>
   StyleSheet.create({
     backButton: {
       width: 40,
@@ -63,10 +61,10 @@ const styles = (colors:any) =>
       width: 36,
       height: 36,
       borderRadius: 18,
-      backgroundColor: colors?.backgroundTertiary || "#F4F4F5",
+      backgroundColor: colors.backgroundTertiary,
       alignItems: "center",
       justifyContent: "center",
-      shadowColor: "#000",
+      shadowColor: colors.shadowColor,
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.1,
       shadowRadius: 4,

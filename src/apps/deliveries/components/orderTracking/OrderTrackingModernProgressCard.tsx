@@ -17,13 +17,13 @@ export default function OrderTrackingModernProgressCard({
   const { colors } = useTheme();
 
   return (
-    <View style={[styles.card, { backgroundColor: "#F9FAFB", borderColor: colors.border }]}> 
-      <Text color="#4B5563" style={styles.progressTitle} weight="medium">
+    <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <Text color={colors.mutedText} style={styles.progressTitle} weight="medium">
         Delivery Progress
       </Text>
       <View style={styles.rowBetween}>
         <View style={styles.rowGap}>
-          <View style={styles.progressDot} />
+          <View style={[styles.progressDot, { backgroundColor: colors.success }]} />
           <Text color={colors.text} style={styles.progressValue} weight="semiBold">
             {getProgressLabel(status)}
           </Text>
@@ -32,14 +32,14 @@ export default function OrderTrackingModernProgressCard({
           {progressTimeLabel}
         </Text>
       </View>
-      <Text color="#6B7280" style={styles.nextText} weight="medium">
+      <Text color={colors.mutedText} style={styles.nextText} weight="medium">
         Next: {getNextLabel(status)}
       </Text>
       <View style={styles.progressBarsRow}>
-        {getProgressSegments(status).map((segmentColor, index) => (
+        {getProgressSegments(status, colors).map((segmentColor, index) => (
           <View
             key={`segment-${index}`}
-            style={[styles.progressSegment, { backgroundColor: segmentColor || "#E5E7EB" }]}
+            style={[styles.progressSegment, { backgroundColor: segmentColor || colors.border }]}
           />
         ))}
       </View>
@@ -66,7 +66,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   progressDot: {
-    backgroundColor: "#A8E62A",
     borderRadius: 999,
     height: 10,
     width: 10,

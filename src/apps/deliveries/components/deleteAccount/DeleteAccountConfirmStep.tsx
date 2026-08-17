@@ -11,7 +11,7 @@ type Props = {
 };
 
 export default function DeleteAccountConfirmStep({ checkedItems, onToggle }: Props) {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const { t } = useTranslation('deliveries');
 
   const confirmItems: string[] = [
@@ -56,7 +56,11 @@ export default function DeleteAccountConfirmStep({ checkedItems, onToggle }: Pro
                 ]}
               >
                 {isChecked && (
-                  <Ionicons name="checkmark" size={14} color="#FFFFFF" />
+                  <Ionicons
+                    name="checkmark"
+                    size={14}
+                    color={isDark ? colors.background : colors.white}
+                  />
                 )}
               </View>
               <Text variant="body" color={colors.text} style={styles.itemText}>

@@ -46,11 +46,11 @@ export default function DiscoverySectionState({
         styles.container,
         {
           backgroundColor: isError
-            ? 'rgba(239, 68, 68, 0.06)'
+            ? colors.dangerSoft
             : colors.backgroundTertiary,
           borderColor: isError
-            ? 'rgba(239, 68, 68, 0.12)'
-            : 'rgba(17, 24, 39, 0.06)',
+            ? colors.danger
+            : colors.border,
           shadowColor: colors.shadowColor,
         },
       ]}
@@ -60,7 +60,7 @@ export default function DiscoverySectionState({
           styles.iconWrap,
           {
             backgroundColor: isError
-              ? 'rgba(239, 68, 68, 0.1)'
+              ? colors.dangerSoft
               : colors.surface,
           },
         ]}

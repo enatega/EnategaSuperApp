@@ -47,7 +47,7 @@ export default function CheckoutSummaryFooter({
       style={[
         styles.container,
         {
-          backgroundColor: colors.background,
+          backgroundColor: colors.surface,
           borderTopColor: colors.border,
           paddingBottom: insets.bottom + 12,
         },

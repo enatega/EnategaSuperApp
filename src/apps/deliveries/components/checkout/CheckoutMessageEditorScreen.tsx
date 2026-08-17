@@ -112,7 +112,7 @@ export default function CheckoutMessageEditorScreen({
         style={[
           styles.footer,
           {
-            backgroundColor: colors.background,
+            backgroundColor: colors.surface,
             borderColor: colors.border,
             paddingBottom: Math.max(insets.bottom, 12),
           },

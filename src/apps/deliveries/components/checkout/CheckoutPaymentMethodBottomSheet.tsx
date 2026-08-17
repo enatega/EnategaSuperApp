@@ -49,7 +49,7 @@ export default function CheckoutPaymentMethodBottomSheet({
 }: Props) {
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
-  const { colors, typography } = useTheme();
+  const { colors, isDark, typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const [draftMethod, setDraftMethod] = React.useState<CheckoutPaymentMethod>(selectedMethod);
   const hasSavedCards = savedCards.length > 0;
@@ -87,7 +87,7 @@ export default function CheckoutPaymentMethodBottomSheet({
             onClose();
           }
         }}
-        style={[styles.sheet, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}
+        style={[styles.sheet, { backgroundColor: colors.surface, shadowColor: colors.shadowColor }]}
       >
         <View style={styles.header}>
           <View style={styles.headerSpacer} />
@@ -124,6 +124,7 @@ export default function CheckoutPaymentMethodBottomSheet({
               {
                 borderColor: draftMethod === 'cod' ? colors.primary : colors.border,
                 borderWidth: draftMethod === 'cod' ? 2 : 1,
+                backgroundColor: isDark && draftMethod === 'cod' ? colors.blue50 : colors.surface,
                 opacity: isCashEnabled ? 1 : 0.45,
               },
             ]}
@@ -150,6 +151,7 @@ export default function CheckoutPaymentMethodBottomSheet({
               {
                 borderColor: draftMethod === 'stripe' ? colors.primary : colors.border,
                 borderWidth: draftMethod === 'stripe' ? 2 : 1,
+                backgroundColor: isDark && draftMethod === 'stripe' ? colors.blue50 : colors.surface,
                 opacity: isCardSelectable ? 1 : 0.45,
               },
             ]}
@@ -180,6 +182,7 @@ export default function CheckoutPaymentMethodBottomSheet({
               {
                 borderColor: draftMethod === 'wallet' ? colors.primary : colors.border,
                 borderWidth: draftMethod === 'wallet' ? 2 : 1,
+                backgroundColor: isDark && draftMethod === 'wallet' ? colors.blue50 : colors.surface,
                 opacity: isWalletEnabled ? 1 : 0.45,
               },
             ]}
@@ -212,6 +215,9 @@ export default function CheckoutPaymentMethodBottomSheet({
                     styles.cardOption,
                     {
                       borderColor: selectedCardId === card.id ? colors.primary : colors.border,
+                      backgroundColor: isDark && selectedCardId === card.id
+                        ? colors.blue50
+                        : colors.surface,
                       opacity: isSavingCardSelection ? 0.6 : 1,
                     },
                   ]}

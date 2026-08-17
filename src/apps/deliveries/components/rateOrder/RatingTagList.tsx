@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default function RatingTagList({ tags, selected, onToggle }: Props) {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
 
   return (
     <View style={styles.wrap}>
@@ -33,7 +33,7 @@ export default function RatingTagList({ tags, selected, onToggle }: Props) {
             <Text
               variant="caption"
               weight="medium"
-              color={isSelected ? colors.white : colors.text}
+              color={isSelected ? isDark ? colors.background : colors.white : colors.text}
             >
               {tag}
             </Text>

@@ -336,7 +336,6 @@ function getTrackingMapMarkers(
     primary: string;
     shadowColor: string;
     surface: string;
-    white: string;
   },
 ): MapMarker[] {
   const markers: MapMarker[] = [];
@@ -379,7 +378,7 @@ function getTrackingMapMarkers(
           ]}
         >
           <Ionicons
-            color={colors.white}
+            color={colors.background}
             name={orderType === "pickup" ? "location-outline" : "home-outline"}
             size={14}
           />

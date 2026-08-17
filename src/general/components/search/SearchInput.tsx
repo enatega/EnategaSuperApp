@@ -83,7 +83,7 @@ const SearchInput = forwardRef<TextInput, SearchInputProps>(
             {
               backgroundColor: colors.surface,
               borderColor: colors.border,
-              shadowColor: "#101828",
+              shadowColor: colors.shadowColor,
               borderRadius: metrics.borderRadius,
               height: metrics.minHeight,
               paddingHorizontal: metrics.horizontalPadding,

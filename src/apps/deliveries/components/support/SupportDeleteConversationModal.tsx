@@ -40,7 +40,7 @@ export default function SupportDeleteConversationModal({
               },
             ]}
           >
-            <View style={[styles.iconWrap, { backgroundColor: '#FEE2E2' }]}>
+            <View style={[styles.iconWrap, { backgroundColor: colors.dangerSoft }]}>
               <Ionicons name="trash-outline" size={24} color={colors.danger} />
             </View>
 

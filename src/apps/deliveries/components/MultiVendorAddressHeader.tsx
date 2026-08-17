@@ -35,7 +35,7 @@ export default function MultiVendorAddressHeader({
   rightAccessory,
   showCartButton = true,
 }: Props) {
-  const { colors, typography } = useTheme();
+  const { colors, isDark, typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
   const { selectedAddress, selectedAddressLabel } = useAddress();
@@ -207,7 +207,7 @@ export default function MultiVendorAddressHeader({
                 style={[styles.cartBadge, { backgroundColor: colors.primary }]}
               >
                 <Text
-                  color={colors.white}
+              color={isDark ? colors.background : colors.white}
                   weight="semiBold"
                   style={{
                     fontSize: 11,

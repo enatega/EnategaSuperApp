@@ -19,7 +19,7 @@ function ThemedApp() {
   usePushNotifications();
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <OfflineNotice />
       <View style={styles.navigatorWrap}>
         <RootNavigator />
