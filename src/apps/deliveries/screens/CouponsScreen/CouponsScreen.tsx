@@ -43,7 +43,10 @@ function toDayMonthYear(dateIso: string) {
 }
 
 export default function CouponsScreen() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const accentColor = isDark ? colors.primary : colors.blue800;
+  const valueBackgroundColor = isDark ? colors.backgroundTertiary : colors.blue800;
+  const valueTextColor = isDark ? colors.primary : colors.white;
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
@@ -160,17 +163,22 @@ export default function CouponsScreen() {
   ]);
 
   const renderCoupon = useCallback(({ item }: { item: Coupon }) => (
-    <View style={[styles.couponCard, { backgroundColor: colors.gray100 }]}>
-      <View style={[styles.valueBlock, { backgroundColor: colors.blue800 }]}>
+    <View
+      style={[
+        styles.couponCard,
+        { backgroundColor: colors.surface, borderColor: colors.border },
+      ]}
+    >
+      <View style={[styles.valueBlock, { backgroundColor: valueBackgroundColor }]}>
         <Text
-          color={colors.white}
+          color={valueTextColor}
           weight="bold"
           style={styles.valueAmount}
         >
           {item.amountLabel}
         </Text>
         <Text
-          color={colors.white}
+          color={valueTextColor}
           weight="bold"
           style={styles.valueOff}
         >
@@ -190,7 +198,7 @@ export default function CouponsScreen() {
                   style={[
                     styles.storeAvatarWrap,
                     {
-                      borderColor: colors.gray100,
+                      borderColor: colors.surface,
                       marginLeft: index === 0 ? 0 : -10,
                       zIndex: 10 - index,
                     },
@@ -200,7 +208,10 @@ export default function CouponsScreen() {
                     <Image source={{ uri: store.storeImageUrl }} style={styles.storeAvatar} />
                   ) : (
                     <View
-                      style={[styles.storeAvatarFallback, { backgroundColor: colors.blue100 }]}
+                      style={[
+                        styles.storeAvatarFallback,
+                        { backgroundColor: colors.backgroundTertiary },
+                      ]}
                     />
                   )}
                 </View>
@@ -210,13 +221,13 @@ export default function CouponsScreen() {
                   style={[
                     styles.moreStoresPill,
                     {
-                      backgroundColor: colors.blue100,
-                      borderColor: colors.gray100,
+                      backgroundColor: colors.backgroundTertiary,
+                      borderColor: colors.surface,
                       marginLeft: -10,
                     },
                   ]}
                 >
-                  <Text color={colors.gray700} weight="medium" style={styles.moreStoresText}>
+                  <Text color={colors.text} weight="medium" style={styles.moreStoresText}>
                     +{item.offeredBy.length - 3}
                   </Text>
                 </View>
@@ -255,7 +266,7 @@ export default function CouponsScreen() {
             </Text>
           </View>
         </View>
-        <View style={[styles.useButtonWrap, { borderColor: colors.border }]}>
+        <View style={[styles.useButtonWrap, { borderColor: accentColor }]}>
           <Pressable
             accessibilityRole="button"
             disabled={useCouponMutation.isPending || item.isExpired}
@@ -270,14 +281,22 @@ export default function CouponsScreen() {
               void handleUseCoupon(item);
             }}
           >
-            <Text color={colors.blue800} weight="semiBold" style={styles.useButtonText}>
+            <Text color={accentColor} weight="semiBold" style={styles.useButtonText}>
               {item.isActive ? t('coupon_deactivate') : t('coupon_use')}
             </Text>
           </Pressable>
         </View>
       </View>
     </View>
-  ), [colors, handleUseCoupon, t, useCouponMutation.isPending]);
+  ), [
+    accentColor,
+    colors,
+    handleUseCoupon,
+    t,
+    useCouponMutation.isPending,
+    valueBackgroundColor,
+    valueTextColor,
+  ]);
 
   const renderEmptyCouponsState = useCallback(() => {
     if (claimedCouponsQuery.isPending || claimedCouponsQuery.isError) {
@@ -287,7 +306,7 @@ export default function CouponsScreen() {
     return (
       <View style={styles.emptyStateContainer}>
         <View style={[styles.emptyIllustrationWrap, { backgroundColor: colors.blue50 }]}>
-          <Ionicons color={colors.blue800} name="ticket-outline" size={44} />
+          <Ionicons color={accentColor} name="ticket-outline" size={44} />
           <View style={[styles.emptyIllustrationBadge, { backgroundColor: colors.warningSoft }]}>
             <Text color={colors.warningText} weight="medium" style={styles.emptyIllustrationBadgeText}>
               6%
@@ -302,7 +321,7 @@ export default function CouponsScreen() {
         </Text>
       </View>
     );
-  }, [claimedCouponsQuery.isError, claimedCouponsQuery.isPending, colors.blue50, colors.blue800, colors.mutedText, colors.text, colors.warningSoft, colors.warningText, t]);
+  }, [accentColor, claimedCouponsQuery.isError, claimedCouponsQuery.isPending, colors.blue50, colors.mutedText, colors.text, colors.warningSoft, colors.warningText, t]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -403,6 +422,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   couponCard: {
+    borderWidth: 1,
     borderRadius: 12,
     flexDirection: 'row',
     marginHorizontal: 16,

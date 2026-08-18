@@ -10,7 +10,8 @@ type Props = {
 };
 
 export default function EstimatedTimeBanner({ etaLabel, etaValue }: Props) {
-  const { colors, typography } = useTheme();
+  const { colors, isDark, typography } = useTheme();
+  const textColor = isDark ? colors.text : colors.white;
   const normalizedEtaValue = etaValue.trim();
   const etaWithUnitMatch = normalizedEtaValue.match(/^(\d+(?:\.\d+)?)\s*(min|mins)$/i);
   const etaAmount = etaWithUnitMatch?.[1];
@@ -18,19 +19,23 @@ export default function EstimatedTimeBanner({ etaLabel, etaValue }: Props) {
 
   return (
     <LinearGradient
-      colors={[colors.blue800, colors.primary]}
+      colors={
+        isDark
+          ? [colors.surfaceSoft, colors.backgroundTertiary]
+          : [colors.blue800, colors.primary]
+      }
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={styles.container}
     >
-      <Text color={colors.white} style={styles.label} weight="medium">
+      <Text color={textColor} style={styles.label} weight="medium">
         {etaLabel}
       </Text>
       <View style={styles.content}>
         {etaAmount && etaUnit ? (
           <View style={styles.valueRow}>
             <Text
-              color={colors.white}
+              color={textColor}
               style={[
                 styles.valueAmount,
                 {
@@ -44,7 +49,7 @@ export default function EstimatedTimeBanner({ etaLabel, etaValue }: Props) {
               {etaAmount}
             </Text>
             <Text
-              color={colors.white}
+              color={textColor}
               style={[
                 styles.valueUnit,
                 {
@@ -59,7 +64,7 @@ export default function EstimatedTimeBanner({ etaLabel, etaValue }: Props) {
           </View>
         ) : (
           <Text
-            color={colors.white}
+            color={textColor}
             style={[
               styles.valueFallback,
               {

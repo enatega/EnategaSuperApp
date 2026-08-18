@@ -50,6 +50,7 @@ export default function CheckoutPaymentMethodBottomSheet({
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
   const { colors, isDark, typography } = useTheme();
+  const selectionColor = isDark ? colors.primary : colors.blue800;
   const { t } = useTranslation('deliveries');
   const [draftMethod, setDraftMethod] = React.useState<CheckoutPaymentMethod>(selectedMethod);
   const hasSavedCards = savedCards.length > 0;
@@ -122,9 +123,9 @@ export default function CheckoutPaymentMethodBottomSheet({
             style={[
               styles.option,
               {
-                borderColor: draftMethod === 'cod' ? colors.primary : colors.border,
+                borderColor: draftMethod === 'cod' ? selectionColor : colors.border,
                 borderWidth: draftMethod === 'cod' ? 2 : 1,
-                backgroundColor: isDark && draftMethod === 'cod' ? colors.blue50 : colors.surface,
+                backgroundColor: colors.surface,
                 opacity: isCashEnabled ? 1 : 0.45,
               },
             ]}
@@ -138,7 +139,7 @@ export default function CheckoutPaymentMethodBottomSheet({
                 {getCheckoutPaymentMethodSubtitle('cod', t)}
               </Text>
             </View>
-            <Ionicons name={draftMethod === 'cod' ? 'radio-button-on' : 'radio-button-off'} size={20} color={draftMethod === 'cod' ? colors.primary : colors.iconDisabled} />
+            <Ionicons name={draftMethod === 'cod' ? 'radio-button-on' : 'radio-button-off'} size={20} color={draftMethod === 'cod' ? selectionColor : colors.iconDisabled} />
           </Pressable>
 
           <Pressable
@@ -149,9 +150,9 @@ export default function CheckoutPaymentMethodBottomSheet({
             style={[
               styles.option,
               {
-                borderColor: draftMethod === 'stripe' ? colors.primary : colors.border,
+                borderColor: draftMethod === 'stripe' ? selectionColor : colors.border,
                 borderWidth: draftMethod === 'stripe' ? 2 : 1,
-                backgroundColor: isDark && draftMethod === 'stripe' ? colors.blue50 : colors.surface,
+                backgroundColor: colors.surface,
                 opacity: isCardSelectable ? 1 : 0.45,
               },
             ]}
@@ -169,7 +170,7 @@ export default function CheckoutPaymentMethodBottomSheet({
                   : t('checkout_payment_card_unavailable')}
               </Text>
             </View>
-            <Ionicons name={draftMethod === 'stripe' ? 'radio-button-on' : 'radio-button-off'} size={20} color={draftMethod === 'stripe' ? colors.primary : colors.iconDisabled} />
+            <Ionicons name={draftMethod === 'stripe' ? 'radio-button-on' : 'radio-button-off'} size={20} color={draftMethod === 'stripe' ? selectionColor : colors.iconDisabled} />
           </Pressable>
 
           <Pressable
@@ -180,9 +181,9 @@ export default function CheckoutPaymentMethodBottomSheet({
             style={[
               styles.option,
               {
-                borderColor: draftMethod === 'wallet' ? colors.primary : colors.border,
+                borderColor: draftMethod === 'wallet' ? selectionColor : colors.border,
                 borderWidth: draftMethod === 'wallet' ? 2 : 1,
-                backgroundColor: isDark && draftMethod === 'wallet' ? colors.blue50 : colors.surface,
+                backgroundColor: colors.surface,
                 opacity: isWalletEnabled ? 1 : 0.45,
               },
             ]}
@@ -199,7 +200,7 @@ export default function CheckoutPaymentMethodBottomSheet({
                 })}
               </Text>
             </View>
-            <Ionicons name={draftMethod === 'wallet' ? 'radio-button-on' : 'radio-button-off'} size={20} color={draftMethod === 'wallet' ? colors.primary : colors.iconDisabled} />
+            <Ionicons name={draftMethod === 'wallet' ? 'radio-button-on' : 'radio-button-off'} size={20} color={draftMethod === 'wallet' ? selectionColor : colors.iconDisabled} />
           </Pressable>
 
           {draftMethod === 'stripe' ? (
@@ -214,10 +215,8 @@ export default function CheckoutPaymentMethodBottomSheet({
                   style={[
                     styles.cardOption,
                     {
-                      borderColor: selectedCardId === card.id ? colors.primary : colors.border,
-                      backgroundColor: isDark && selectedCardId === card.id
-                        ? colors.blue50
-                        : colors.surface,
+                      borderColor: selectedCardId === card.id ? selectionColor : colors.border,
+                      backgroundColor: colors.surface,
                       opacity: isSavingCardSelection ? 0.6 : 1,
                     },
                   ]}
@@ -238,7 +237,7 @@ export default function CheckoutPaymentMethodBottomSheet({
                   <Ionicons
                     name={selectedCardId === card.id ? 'radio-button-on' : 'radio-button-off'}
                     size={18}
-                    color={selectedCardId === card.id ? colors.primary : colors.iconDisabled}
+                    color={selectedCardId === card.id ? selectionColor : colors.iconDisabled}
                   />
                 </Pressable>
               )) : null}

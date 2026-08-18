@@ -39,6 +39,7 @@ function PaymentOptionCard({
   title,
 }: PaymentOptionCardProps) {
   const { colors, isDark, typography } = useTheme();
+  const selectionColor = isDark ? colors.primary : colors.blue800;
 
   return (
     <Pressable
@@ -49,8 +50,8 @@ function PaymentOptionCard({
       style={[
         styles.optionCard,
         {
-          backgroundColor: isDark && isSelected ? colors.blue50 : colors.surface,
-          borderColor: isSelected ? colors.primary : colors.border,
+          backgroundColor: colors.surface,
+          borderColor: isSelected ? selectionColor : colors.border,
           opacity: isDisabled ? 0.45 : 1,
         },
       ]}
@@ -59,7 +60,8 @@ function PaymentOptionCard({
         style={[
           styles.optionIcon,
           {
-            backgroundColor: isSelected ? colors.blue50 : colors.surfaceSoft,
+            backgroundColor:
+              isSelected && !isDark ? colors.blue50 : colors.surfaceSoft,
           },
         ]}
       >
@@ -90,7 +92,7 @@ function PaymentOptionCard({
       </View>
 
       <Ionicons
-        color={isSelected ? colors.primary : colors.iconDisabled}
+        color={isSelected ? selectionColor : colors.iconDisabled}
         name={isSelected ? 'radio-button-on' : 'radio-button-off'}
         size={20}
       />
