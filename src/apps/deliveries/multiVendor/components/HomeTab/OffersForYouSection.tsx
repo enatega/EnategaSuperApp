@@ -31,6 +31,7 @@ type OfferCardTheme = {
   backgroundColor: string;
   borderColor: string;
   buttonColor: string;
+  buttonTextColor: string;
 };
 
 function normalizeOffer(
@@ -101,7 +102,7 @@ function normalizeOffer(
 export default function OffersForYouSection() {
   const { t } = useTranslation('deliveries');
   const navigation = useNavigation<NavigationProp>();
-  const { colors, typography } = useTheme();
+  const { colors, isDark, typography } = useTheme();
   const queryClient = useQueryClient();
   const currencyLabel = useDeliveriesCurrencyLabel();
   const setCheckoutCoupon = useCheckoutCouponStore((state) => state.setCoupon);
@@ -116,24 +117,28 @@ export default function OffersForYouSection() {
         backgroundColor: colors.cardMint,
         borderColor: colors.success,
         buttonColor: colors.success,
+        buttonTextColor: isDark ? colors.background : colors.text,
       },
       {
         backgroundColor: colors.blue100,
         borderColor: colors.blue500,
         buttonColor: colors.primary,
+        buttonTextColor: isDark ? colors.background : colors.white,
       },
       {
         backgroundColor: colors.cardPeach,
         borderColor: colors.warning,
         buttonColor: colors.warning,
+        buttonTextColor: isDark ? colors.background : colors.text,
       },
       {
         backgroundColor: colors.cardLavender,
         borderColor: colors.secondary,
         buttonColor: colors.secondary,
+        buttonTextColor: isDark ? colors.background : colors.white,
       },
     ],
-    [colors.blue100, colors.blue500, colors.cardLavender, colors.cardMint, colors.cardPeach, colors.primary, colors.secondary, colors.success, colors.warning],
+    [colors, isDark],
   );
 
   const offers = useMemo(
@@ -392,7 +397,7 @@ export default function OffersForYouSection() {
                   <Text
                     numberOfLines={1}
                     style={{
-                      color: colors.white,
+                      color: colors.background,
                       fontSize: typography.size.xxs,
                       lineHeight: typography.lineHeight.xxs,
                     }}
@@ -425,7 +430,7 @@ export default function OffersForYouSection() {
                 <Text
                   weight="semiBold"
                   style={{
-                    color: colors.white,
+                    color: palette.buttonTextColor,
                     fontSize: typography.size.sm,
                     lineHeight: typography.lineHeight.sm,
                   }}
