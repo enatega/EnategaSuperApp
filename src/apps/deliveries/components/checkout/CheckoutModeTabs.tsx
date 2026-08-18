@@ -18,7 +18,7 @@ export default function CheckoutModeTabs({
   isPickupEnabled,
   onModeChange,
 }: Props) {
-  const { colors, typography } = useTheme();
+  const { colors, isDark, typography } = useTheme();
   const { t } = useTranslation('deliveries');
 
   return (
@@ -39,7 +39,9 @@ export default function CheckoutModeTabs({
         <Text
           weight="medium"
           style={{
-            color: activeMode === 'delivery' ? colors.white : colors.mutedText,
+            color: activeMode === 'delivery'
+              ? isDark ? colors.background : colors.white
+              : colors.mutedText,
             fontSize: typography.size.sm2,
             lineHeight: typography.lineHeight.md,
           }}
@@ -64,7 +66,9 @@ export default function CheckoutModeTabs({
         <Text
           weight="medium"
           style={{
-            color: activeMode === 'pickup' ? colors.white : colors.mutedText,
+            color: activeMode === 'pickup'
+              ? isDark ? colors.background : colors.white
+              : colors.mutedText,
             fontSize: typography.size.sm2,
             lineHeight: typography.lineHeight.md,
           }}

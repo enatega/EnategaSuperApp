@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default function RiderChatMessageBubble({ sender, text, timeLabel }: Props) {
-  const { colors, typography } = useTheme();
+  const { colors, isDark, typography } = useTheme();
   const isCurrentUser = sender === 'user';
 
   return (
@@ -25,7 +25,7 @@ export default function RiderChatMessageBubble({ sender, text, timeLabel }: Prop
         ]}
       >
         <Text
-          color={isCurrentUser ? colors.white : colors.text}
+          color={isCurrentUser ? isDark ? colors.background : colors.white : colors.text}
           style={{ fontSize: typography.size.md2, lineHeight: typography.lineHeight.lg }}
         >
           {text}

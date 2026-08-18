@@ -1,11 +1,5 @@
 import type { DeliveryOrderStatus } from "../../api/ordersServiceTypes";
-
-export const ETA_GRADIENTS = {
-  bottomLeft: ["#06B6D4", "#F59E0B"] as const,
-  leftTop: ["#16A34A", "#06B6D4"] as const,
-  rightBottom: ["#FEDB03", "#F59E0B"] as const,
-  topRight: ["#FEDB03", "#FEDB03"] as const,
-};
+import type { ThemeColors } from "../../../../general/theme/colors";
 
 export function getEtaFrameSegments(status: DeliveryOrderStatus) {
   const isStage4 = status === "delivered";
@@ -49,17 +43,19 @@ export function getNextLabel(status: DeliveryOrderStatus) {
   return "Preparing";
 }
 
-export function getProgressSegments(status: DeliveryOrderStatus) {
+export function getProgressSegments(status: DeliveryOrderStatus, colors: ThemeColors) {
+  const stages = [colors.yellow500, colors.warning, colors.blue500, colors.success];
+
   if (status === "delivered") {
-    return ["#FEDB03", "#F59E0B", "#06B6D4", "#10B981"];
+    return stages;
   }
   if (status === "picked_up" || status === "out_for_delivery" || status === "arrived") {
-    return ["#FEDB03", "#F59E0B", "#06B6D4", null];
+    return [...stages.slice(0, 3), null];
   }
   if (status === "preparing" || status === "ready" || status === "rider_assigned") {
-    return ["#FEDB03", "#F59E0B", null, null];
+    return [...stages.slice(0, 2), null, null];
   }
-  return ["#FEDB03", null, null, null];
+  return [stages[0], null, null, null];
 }
 
 export function getPreviewImages(previewImages: string[]) {

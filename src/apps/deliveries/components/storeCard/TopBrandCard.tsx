@@ -43,8 +43,8 @@ export default function TopBrandCard({
         styles.card,
         {
           backgroundColor: colors.surface,
-          borderColor: 'rgba(16, 24, 40, 0.08)',
-          shadowColor: '#101828',
+          borderColor: colors.border,
+          shadowColor: colors.shadowColor,
         },
         cardStyle,
       ]}
@@ -70,9 +70,9 @@ export default function TopBrandCard({
               badgeStyle,
             ]}
           >
-            <Icon type="Feather" name="tag" size={12} color={colors.white} />
+            <Icon type="Feather" name="tag" size={12} color={colors.background} />
             <Text
-              color={colors.white}
+              color={colors.background}
               weight="medium"
               style={{
                 fontSize: typography.size.xs2,
@@ -88,7 +88,7 @@ export default function TopBrandCard({
       <View
         style={[
           styles.content,
-          { borderTopColor: 'rgba(0, 0, 0, 0.04)', shadowColor: '#000000' },
+          { borderTopColor: colors.border, shadowColor: colors.shadowColor },
           contentStyle,
         ]}
       >

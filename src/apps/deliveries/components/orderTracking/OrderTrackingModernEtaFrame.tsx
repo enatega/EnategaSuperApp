@@ -57,7 +57,12 @@ export default function OrderTrackingModernEtaFrame({
           source={getEtaFrameStepImage(status)}
           style={styles.etaOuter}
         />
-        <View style={[styles.etaInner, { backgroundColor: colors.surface }]}>
+        <View
+          style={[
+            styles.etaInner,
+            { backgroundColor: colors.surface, borderColor: colors.mutedText },
+          ]}
+        >
           <Text color={colors.text} style={styles.etaText} weight="bold">
             {etaLabel}
           </Text>
@@ -85,7 +90,6 @@ const styles = StyleSheet.create({
   },
   etaInner: {
     alignItems: "center",
-    borderColor: "#9CA3AF",
     borderRadius: 8,
     borderWidth: 1,
     height: 82,

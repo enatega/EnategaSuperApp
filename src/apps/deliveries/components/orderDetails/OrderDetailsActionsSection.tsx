@@ -5,7 +5,6 @@ import { StyleSheet, View } from "react-native";
 
 
 import Button from "../../../../general/components/Button";
-import { useTheme } from "../../../../general/theme/theme";
 import type { DeliveriesStackParamList } from "../../navigation/types";
 
 
@@ -36,11 +35,6 @@ export default function OrderDetailsActionsSection({
   storeName,
 }: Props) {
   const { t } = useTranslation("deliveries");
-  const { colors } = useTheme();
-  const secondaryButtonStyle = {
-    backgroundColor: colors.blue50,
-    borderColor: colors.blue50,
-  } as const;
 
   return (
     <View style={styles.container}>
@@ -48,7 +42,7 @@ export default function OrderDetailsActionsSection({
         <Button
           label={t("order_details_increase_tip")}
           onPress={onIncreaseTip}
-          style={secondaryButtonStyle}
+          variant="secondary"
         />
       ) : null} */}
 
@@ -61,7 +55,7 @@ export default function OrderDetailsActionsSection({
               storeName,
             });
           }}
-          style={secondaryButtonStyle}
+          variant="secondary"
         />
       ) : null}
       {shouldShowTrackProgress ? (

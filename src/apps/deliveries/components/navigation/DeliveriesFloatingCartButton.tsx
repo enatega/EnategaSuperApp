@@ -14,7 +14,7 @@ type Props = {
 
 function DeliveriesFloatingCartButton({ style }: Props) {
   const navigation = useNavigation<NavigationProp<DeliveriesStackParamList>>();
-  const { colors, typography } = useTheme();
+  const { colors, isDark, typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const { data } = useCartCount();
 
@@ -38,7 +38,7 @@ function DeliveriesFloatingCartButton({ style }: Props) {
         style,
         {
           backgroundColor: colors.primary,
-          borderColor: colors.white,
+          borderColor: isDark ? colors.surface : colors.white,
           opacity: pressed ? 0.94 : 1,
           shadowColor: colors.shadowColor,
         },
@@ -49,7 +49,7 @@ function DeliveriesFloatingCartButton({ style }: Props) {
         style={[styles.iconHalo, { backgroundColor: 'rgba(255, 255, 255, 0.14)' }]}
       />
       <MaterialCommunityIcons
-        color={colors.white}
+        color={isDark ? colors.background : colors.white}
         name="cart-outline"
         size={24}
       />

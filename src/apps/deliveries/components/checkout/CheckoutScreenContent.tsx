@@ -112,7 +112,7 @@ export default function CheckoutScreenContent({
   totalLabel,
 }: Props) {
   const { t } = useTranslation('deliveries');
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const isDeliveryOrder = orderType === 'delivery';
   const canPlaceOrder = Boolean(preview) && !hasAddressRequirement && !isPreviewPending && !isPaymentBlocked && !isPlacingOrder;
   const addressTitle = orderType === 'pickup'
@@ -165,8 +165,11 @@ export default function CheckoutScreenContent({
             rightAccessory={(
               <Switch
                 onValueChange={onLeaveAtDoorChange}
-                thumbColor={colors.white}
-                trackColor={{ false: colors.border, true: colors.blue800 }}
+                thumbColor={isDark ? colors.surface : colors.white}
+                trackColor={{
+                  false: colors.backgroundTertiary,
+                  true: isDark ? colors.primary : colors.blue800,
+                }}
                 value={leaveAtDoor}
               />
             )}

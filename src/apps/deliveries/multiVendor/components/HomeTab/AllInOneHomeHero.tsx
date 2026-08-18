@@ -79,7 +79,7 @@ export default function AllInOneHomeHero() {
       <View style={styles.tabRow}>
         {SERVICE_TABS.map((tab) => (
           <View key={tab.id} style={[styles.tabCard, { backgroundColor: colors.blue50 }]}>
-            <View style={[styles.tabIconWrap, { backgroundColor: colors.white }]}>
+            <View style={[styles.tabIconWrap, { backgroundColor: colors.surface }]}>
               <MaterialCommunityIcons name={tab.icon} size={30} color={colors.primary} />
             </View>
             <Text style={[styles.tabTitle, { color: colors.text }]} weight="semiBold">

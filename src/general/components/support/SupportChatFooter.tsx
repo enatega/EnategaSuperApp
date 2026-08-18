@@ -26,7 +26,7 @@ export default function SupportChatFooter({ ctaLabel, onPress }: Props) {
       ]}
     >
       <Button
-        icon={<Ionicons name="chatbubble-ellipses-outline" size={22} color={colors.white} />}
+        icon={<Ionicons name="chatbubble-ellipses-outline" size={22} color={colors.background} />}
         label={ctaLabel}
         onPress={onPress}
         style={styles.footerButton}

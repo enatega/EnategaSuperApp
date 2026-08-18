@@ -1,5 +1,7 @@
 import type { DeliveriesAppSettings } from '../stores/useAppConfigStore';
 
+const darkActiveGreen = "#34D399";
+
 export type ThemedMiniAppId =
   | "general"
   | "deliveries"
@@ -162,10 +164,9 @@ function buildDeliveriesDynamicOverrides(
     const darkSurfaceSoft = mixColors(darkSurface, resolvedSecondary, 0.08);
     const darkWarmAccent = mixColors(resolvedSecondary, resolvedPrimary, 0.7);
     const lightPrimary = lighten(resolvedTertiary, 0.04);
-
     return {
-      primary: lightPrimary,
-      primaryDark: resolvedSecondary,
+      primary: darkActiveGreen,
+      primaryDark: darkActiveGreen,
       secondary: resolvedSecondary,
       blue50: darkSurfaceSoft,
       blue100: darkWarmAccent,
@@ -179,7 +180,6 @@ function buildDeliveriesDynamicOverrides(
       bannerGradientEnd: mixColors(darkSurface, resolvedSecondary, 0.22),
       homeHeaderGradientStart: withAlpha(resolvedSecondary, 0.14),
       homeHeaderGradientEnd: withAlpha(resolvedTertiary, 0.12),
-      yellow500: resolvedSecondary,
       storeMenuAccentLime: mixColors(resolvedTertiary, resolvedPrimary, 0.5),
       storeMenuAccentOrange: mixColors(resolvedSecondary, resolvedPrimary, 0.34),
       findingRidePrimary: resolvedSecondary,
@@ -221,14 +221,14 @@ function buildDeliveriesDynamicOverrides(
 
 const baseDarkColors: ThemeColors = {
   background: "#0F1117",
-  backgroundTertiary: "#161A23",
+  backgroundTertiary: "#202632",
   surface: "#161A23",
   primary: "#4C7DFF",
   primaryDark: "#2E4BC8",
   secondary: "#8B7BFF",
   text: "#F9FAFB",
-  mutedText: "#9CA3AF",
-  border: "#424244",
+  mutedText: "#A7ADBA",
+  border: "#343B4A",
   success: "#34D399",
   successSoft: "#163326",
   successText: "#6EE7B7",
@@ -238,13 +238,13 @@ const baseDarkColors: ThemeColors = {
   danger: "#F87171",
   dangerSoft: "#3A1F1F",
   dangerText: "#FCA5A5",
-  cardBlue: "#F1F5F9",
+  cardBlue: "#1A2337",
   cardMint: "#173A33",
   cardLavender: "#2A2348",
   cardPeach: "#3B2A1A",
   homeHeaderBackground: "#1E2130",
   cardSoft: "#1A2337",
-  surfaceSoft: "#161A23",
+  surfaceSoft: "#1B202B",
   splashGradientStart: "#1440CE",
   splashGradientEnd: "#1E40AF",
   bannerGradientStart: "#1A46D6",
@@ -254,17 +254,17 @@ const baseDarkColors: ThemeColors = {
   blue50: "#1A2337",
   blue100: "#1E2A44",
   blue500: "#60A5FA",
-  blue800: "#1E40AF",
+  blue800: "#93C5FD",
   green100: "#173A33",
   iconMuted: "#9CA3AF",
   iconDisabled: "#6B7280",
   overlayDark20: "rgba(0, 0, 0, 0.2)",
   shadowColor: "#000000",
   white: "#FFFFFF",
-  iconColor: "#27272A",
-  gray100: "#F3F4F6",
+  iconColor: "#F9FAFB",
+  gray100: "#202632",
   findingRideSweepTrack: "#2A2D34",
-  findingRideSweepEdge: "#F4F4F5",
+  findingRideSweepEdge: "#343840",
   findingRideSweepCenter: "#0EA170",
   findingRidePrimary: "#4FC3E8",
   findingRidePrimarySoft: "#173847",
@@ -300,7 +300,7 @@ const appColorOverrides: Record<ThemedMiniAppId, ThemeColorOverrideSet> = {
     },
     dark: {
       background: "#0F1117",
-      backgroundTertiary: "#161A23",
+      backgroundTertiary: "#202632",
       surface: "#161A23",
       primary: "#4C7DFF",
       primaryDark: "#2E4BC8",
@@ -318,10 +318,10 @@ const appColorOverrides: Record<ThemedMiniAppId, ThemeColorOverrideSet> = {
     },
     dark: {
       background: "#0F1117",
-      backgroundTertiary: "#161A23",
+      backgroundTertiary: "#202632",
       surface: "#161A23",
-      primary: "#4C7DFF",
-      primaryDark: "#2E4BC8",
+      primary: darkActiveGreen,
+      primaryDark: darkActiveGreen,
       secondary: "#8B7BFF",
     },
   },

@@ -28,7 +28,10 @@ export default function TabSwitcher({ tabs, activeKey, onChange, style }: Props)
             onPress={() => onChange(tab.key)}
             style={[
               styles.tab,
-              isActive && [styles.activeTab, { backgroundColor: colors.background }],
+              isActive && [
+                styles.activeTab,
+                { backgroundColor: colors.background, shadowColor: colors.shadowColor },
+              ],
             ]}
           >
             <Text
@@ -58,7 +61,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   activeTab: {
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 4,

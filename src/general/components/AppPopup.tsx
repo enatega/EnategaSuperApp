@@ -70,7 +70,7 @@ export default function AppPopup({
               styles.card,
               {
                 backgroundColor: colors.surface,
-                shadowColor: '#101828',
+                shadowColor: colors.shadowColor,
               },
               containerStyle,
             ]}

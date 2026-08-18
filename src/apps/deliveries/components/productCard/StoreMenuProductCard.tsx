@@ -91,7 +91,9 @@ export default function StoreMenuProductCard({
   state,
 }: Props) {
   const { t } = useTranslation("deliveries");
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const dealBadgeBackgroundColor = isDark ? colors.successSoft : colors.secondary;
+  const dealBadgeContentColor = isDark ? colors.successText : colors.blue800;
   const currencyLabel = useDeliveriesCurrencyLabel();
   const { discountedPrice, hasDeal, originalPrice, resolvedOffer } = getProductDealMeta(product);
   const basePrice = typeof product.price === "number" ? product.price : null;
@@ -134,17 +136,15 @@ export default function StoreMenuProductCard({
           <View style={styles.header}>
             <View style={styles.badgeSlot}>
               {hasDeal && resolvedOffer ? (
-                <View
-                  style={[styles.badge, { backgroundColor: colors.secondary }]}
-                >
+                <View style={[styles.badge, { backgroundColor: dealBadgeBackgroundColor }]}>
                   <Icon
-                    color={colors.blue800}
+                    color={dealBadgeContentColor}
                     name="pricetag-outline"
                     size={11}
                     type="Ionicons"
                   />
                   <Text
-                    style={[styles.badgeText, { color: colors.blue800 }]}
+                    style={[styles.badgeText, { color: dealBadgeContentColor }]}
                     weight="medium"
                   >
                     {resolvedOffer}

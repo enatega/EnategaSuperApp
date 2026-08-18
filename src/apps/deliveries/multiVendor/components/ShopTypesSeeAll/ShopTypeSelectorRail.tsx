@@ -27,7 +27,7 @@ export default function ShopTypeSelectorRail({
   onSelect,
   onEndReached,
 }: Props) {
-  const { colors, typography } = useTheme();
+  const { colors, isDark, typography } = useTheme();
 
   return (
     <HorizontalList
@@ -67,7 +67,7 @@ export default function ShopTypeSelectorRail({
               />
             </View>
             <Text
-              color={isSelected ? colors.white : colors.text}
+              color={isSelected ? isDark ? colors.background : colors.white : colors.text}
               numberOfLines={2}
               weight="semiBold"
               style={{

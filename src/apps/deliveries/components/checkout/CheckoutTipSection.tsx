@@ -19,7 +19,8 @@ export default function CheckoutTipSection({
   onCustomTipPress,
   onSelectTip,
 }: Props) {
-  const { colors, typography } = useTheme();
+  const { colors, isDark, typography } = useTheme();
+  const selectionColor = isDark ? colors.primary : colors.blue800;
   const { t } = useTranslation('deliveries');
   const currencyLabel = useDeliveriesCurrencyLabel();
   const isCustomSelected = selectedTip > 0 && !TIP_OPTIONS.includes(selectedTip as (typeof TIP_OPTIONS)[number]);
@@ -67,7 +68,7 @@ export default function CheckoutTipSection({
                 styles.optionButton,
                 {
                   backgroundColor: isSelected ? colors.blue50 : colors.surface,
-                  borderColor: isSelected ? colors.blue800 : colors.border,
+                  borderColor: isSelected ? selectionColor : colors.border,
                 },
               ]}
             >
@@ -92,7 +93,7 @@ export default function CheckoutTipSection({
             styles.optionButton,
             {
               backgroundColor: isCustomSelected ? colors.blue50 : colors.surface,
-              borderColor: isCustomSelected ? colors.blue800 : colors.border,
+              borderColor: isCustomSelected ? selectionColor : colors.border,
             },
           ]}
         >

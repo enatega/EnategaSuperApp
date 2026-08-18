@@ -13,8 +13,8 @@ export default function LocationPermissionIllustration() {
       <View style={[styles.planet, { backgroundColor: colors.blue50 }]}>
         <Icon type="MaterialIcons" name="public" size={52} color={colors.blue800} />
       </View>
-      <View style={[styles.pin, { backgroundColor: colors.white }]}>
-        <Icon type="Ionicons" name="location-sharp" size={30} color={colors.text} />
+      <View style={[styles.pin, { backgroundColor: colors.surfaceSoft }]}>
+        <Icon type="Ionicons" name="location-sharp" size={30} color={colors.primary} />
       </View>
       <View style={styles.plane}>
         <Icon type="Ionicons" name="airplane" size={24} color={colors.text} />

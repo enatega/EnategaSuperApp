@@ -76,11 +76,25 @@ export default function OrderTrackingModernSections({
                 <Image
                   key={`${imageUri}-${index}`}
                   source={{ uri: imageUri }}
-                  style={[styles.avatar, index > 0 && styles.avatarOverlap]}
+                  style={[
+                    styles.avatar,
+                    { borderColor: colors.surface },
+                    index > 0 && styles.avatarOverlap,
+                  ]}
                 />
               ))}
               {order.orderItems.additionalItemsCount > 0 ? (
-                <View style={[styles.avatar, styles.avatarCount, styles.avatarOverlap]}>
+                <View
+                  style={[
+                    styles.avatar,
+                    styles.avatarCount,
+                    styles.avatarOverlap,
+                    {
+                      backgroundColor: colors.backgroundTertiary,
+                      borderColor: colors.surface,
+                    },
+                  ]}
+                >
                   <Text color={colors.mutedText} style={styles.avatarCountText} weight="medium">
                     +{order.orderItems.additionalItemsCount}
                   </Text>
@@ -115,7 +129,6 @@ export default function OrderTrackingModernSections({
 
 const styles = StyleSheet.create({
   avatar: {
-    borderColor: "#FAFAFA",
     borderRadius: 20,
     borderWidth: 1.5,
     height: 40,
@@ -123,7 +136,6 @@ const styles = StyleSheet.create({
   },
   avatarCount: {
     alignItems: "center",
-    backgroundColor: "#F4F4F5",
     justifyContent: "center",
   },
   avatarCountText: {

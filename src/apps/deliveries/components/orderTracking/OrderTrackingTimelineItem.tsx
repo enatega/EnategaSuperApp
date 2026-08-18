@@ -21,13 +21,13 @@ export default function OrderTrackingTimelineItem({
   const { colors, typography } = useTheme();
   const iconBackgroundColor =
     tone === "completed"
-      ? "#DCFCE7"
+      ? colors.successSoft
       : tone === "active"
         ? colors.blue100
         : colors.backgroundTertiary;
   const iconColor =
     tone === "completed"
-      ? "#16A34A"
+      ? colors.successText
       : tone === "active"
         ? colors.primary
         : colors.iconMuted;

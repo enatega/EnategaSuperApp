@@ -15,7 +15,7 @@ export default function SeeAllMapLoadingState({ title, description }: Props) {
 
   return (
     <LinearGradient
-      colors={[colors.surface, "rgba(255,255,255,0.1)"]}
+      colors={[colors.surface, colors.background]}
       locations={[0, 0.7]}
       style={styles.overlay}
       pointerEvents="none"

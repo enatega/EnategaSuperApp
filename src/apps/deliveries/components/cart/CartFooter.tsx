@@ -18,7 +18,7 @@ export default function CartFooter({
   itemCount,
   onCheckoutPress,
 }: Props) {
-  const { colors, typography } = useTheme();
+  const { colors, isDark, typography } = useTheme();
   const { t } = useTranslation('deliveries');
   const insets = useSafeAreaInsets();
 
@@ -27,7 +27,7 @@ export default function CartFooter({
       style={[
         styles.container,
         {
-          backgroundColor: colors.background,
+          backgroundColor: colors.surface,
           borderTopColor: colors.border,
           paddingBottom: insets.bottom + 12,
         },
@@ -49,7 +49,7 @@ export default function CartFooter({
           <View
             style={[
               styles.countBadge,
-              { backgroundColor: disabled ? colors.surfaceSoft : colors.white },
+              { backgroundColor: disabled ? colors.surfaceSoft : colors.surface },
             ]}
           >
             <Text
@@ -67,7 +67,7 @@ export default function CartFooter({
           <Text
             weight="semiBold"
             style={{
-              color: disabled ? colors.mutedText : colors.white,
+              color: disabled ? colors.mutedText : isDark ? colors.background : colors.white,
               flex: 1,
               fontSize: typography.size.md2,
               lineHeight: typography.lineHeight.md,
@@ -79,7 +79,7 @@ export default function CartFooter({
           <Text
             weight="semiBold"
             style={{
-              color: disabled ? colors.mutedText : colors.white,
+              color: disabled ? colors.mutedText : isDark ? colors.background : colors.white,
               fontSize: typography.size.md2,
               lineHeight: typography.lineHeight.md,
             }}
